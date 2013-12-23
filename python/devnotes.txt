@@ -5,7 +5,7 @@ CsController2 notes:
 
 current question:
     
-    Switching repository from svn to git
+    Checking git behavior.
     
 TODO:
     Add instruments to backend and detail to front panel
