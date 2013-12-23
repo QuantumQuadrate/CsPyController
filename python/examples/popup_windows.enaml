@@ -1,0 +1,73 @@
+#------------------------------------------------------------------------------
+#  Copyright (c) 2013, Enthought, Inc.
+#  All rights reserved.
+#------------------------------------------------------------------------------
+""" An example of how to add new windows to the application at runtime.
+
+Unlike other UI frameworks, there is no such thing as a blocking popup
+window in Enaml. All interactions in Enaml occur asynchronously, so
+there is no way for a popup to block the execution path of Enaml code.
+However, a popup window can be modal and block *user interactions* from
+occurring in other windows.
+
+Popup windows come in two forms, those with a parent, and those without:
+
+When a window is created with a parent, its lifetime is bound to its
+parent and it will be closed automatically when its parent is closed.
+Creating a popup window with a parent is simple, simply pass the parent
+as the first argument to the window constructor, and that's it.
+
+When a window is created without a parent, its lifetime is tied to that
+of the session. That is, it is a free living top level window. In order
+for such windows to be used, they be associated with a session. This is
+done by calling the `add_window` method on the session, and passing it
+the newly constructed window instance.
+
+"""
+from enaml.widgets.api import Window, Container, PushButton, Field, CheckBox
+
+
+enamldef ContentWindow(Window): content:
+    Container:
+        CheckBox:
+            text = 'This window is always on top'
+            checked := content.always_on_top
+        Field: pass
+        PushButton:
+            text = 'Print object id'
+            clicked :: print object_id
+
+
+enamldef Main(Window): main:
+    attr targetwin = None
+    Container:
+        PushButton:
+            text = 'Open Child Window'
+            clicked :: ContentWindow(main, title='Child Window')
+        PushButton:
+            text = 'Open Target Window'
+            enabled << not main.targetwin or not main.targetwin.visible
+            clicked ::
+                if not main.targetwin:
+                    main.targetwin = ContentWindow(title='Target')
+                session.add_window(main.targetwin)
+        PushButton:
+            text = "Move Target to Front"
+            enabled << bool(main.targetwin) and main.targetwin.visible
+            clicked :: main.targetwin.send_to_front()
+        PushButton:
+            text = 'Open Modal Child Window'
+            clicked ::
+                title = 'Modal Child Window'
+                mod = 'window_modal'
+                ContentWindow(root_object(), title=title, modality=mod)
+        PushButton:
+            text = 'Open Free Window'
+            clicked :: session.add_window(ContentWindow(title='Free Window'))
+        PushButton:
+            text = 'Open Modal Free Window'
+            clicked ::
+                title = 'Free Modal Window'
+                mod = 'application_modal'
+                session.add_window(ContentWindow(title=title, modality=mod))
+

@@ -1,0 +1,66 @@
+#------------------------------------------------------------------------------
+#  Copyright (c) 2011, Enthought, Inc.
+#  All rights reserved.
+#------------------------------------------------------------------------------
+
+""" Simple Tables Example
+
+An example which shows some simple instances of ListModel and TableModel
+as well as how both can be used in a TableView.
+
+"""
+
+from enaml.stdlib.old.list_model import ListModel
+from enaml.stdlib.old.table_model import TableModel
+from enaml.styling.brush import Brush
+from enaml.styling.color import Color
+
+import numpy as np
+
+# A single row of data with 100k elements
+row =  [True] + range(99999)
+
+# A simple list model to display a single row of data
+list_model = ListModel(row, editable=True)
+
+# A (1000, 100) array of data
+table = np.arange(1000*100).reshape((1000, 100))
+
+# A simple coloring function for the bg color of the table
+red_brush = Brush(Color.from_string('indianred'))
+shade_brush = Brush(Color(237, 237, 237)) 
+def table_background(val, row, col):
+    if row % 2 == 0:
+        return shade_brush
+    if val % 17 == 0:
+        return red_brush
+
+# A simple table model to view the 2D array of data.
+table_model = TableModel(
+    table, editable=True, background_brush_func=table_background,
+)
+
+
+# ListModel and TableModel are both subclasses of AbstractItemModel
+# which means they can both be passed to TableView and work just fine.
+enamldef Main(MainWindow):
+    title = 'Simple Tables'
+    Container:
+        constraints = [
+            hbox(tv1, tv2),
+        ]
+        TableView: 
+            id: tv1
+            hug_width = 'strong'
+            item_model = list_model
+            BaseSelectionModel:
+                selection_mode = 'multi'
+        TableView:
+           id: tv2
+           item_model = table_model
+           BaseSelectionModel:
+               selection_mode = 'extended'
+               selection_event :: 
+                   print 'Removed:', event.new[0]
+                   print 'Added:', event.new[1]
+                   print

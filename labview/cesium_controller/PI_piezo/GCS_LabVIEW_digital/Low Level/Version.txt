@@ -1,0 +1,12 @@
+E-816 GCS LabVIEW Driver Set
+
+Version: 6.0.2
+Manual file: E816_GCSLabVIEW_ PZ121E _571.pdf
+
+PI-Software Module ID: 26
+
+© Physik Instrumente (PI) GmbH & Co. KG
+76228 Karlsruhe, Germany      
+FAX: (+49)721-4846-299
+EMail: info@pi.ws                             
+www.pi.ws

@@ -1,0 +1,47 @@
+#------------------------------------------------------------------------------
+#  Copyright (c) 2012, Enthought, Inc.
+#  All rights reserved.
+#------------------------------------------------------------------------------
+""" An example of using dynamic notebook pages.
+
+This example demonstrates using the `Include` component to dynamically
+insert and remove pages from a notebook.
+
+This example requires Enaml version >= 0.4.0
+
+"""
+from enaml.layout.api import vbox, hbox, align, spacer
+from enaml.widgets.api import (
+    Window, Notebook, Page, Container, PushButton, Field, Html, CheckBox,
+    Include, Form, Label
+)
+
+enamldef Main(Window): main:
+    attr counter = 0
+    Container:
+        constraints = [
+            vbox(
+                hbox(ins_dyn, rem_dyn),
+                form,
+            ),
+        ]
+        PushButton: ins_dyn:
+            text = 'Insert Dynamic Page'
+            clicked ::
+                title = 'Dynamic Page %s' % main.counter
+                page = Field(text='hi there')
+                dyno.objects.insert(0, page)
+                main.counter += 1
+        PushButton: rem_dyn:
+            text = 'Remove Dynamic Page'
+            clicked ::
+                if dyno.objects:
+                    dyno.objects.pop()
+        Form: form:
+            Label:
+                text='hi'
+            Field:
+                text='hey'
+            Include: dyno:
+                pass
+                

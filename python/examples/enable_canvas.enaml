@@ -1,0 +1,32 @@
+from enaml.widgets.api import MainWindow, Container, EnableCanvas, CheckBox
+
+from chaco.api import ArrayPlotData, Plot, ImageData
+from chaco import default_colormaps as dc
+from scipy.misc import lena
+from traits.api import HasTraits, Instance, Array
+from numpy import *
+
+class ImageModel(HasTraits):
+    plot = Instance(Plot)
+    data = Array
+
+    def __init__(self, **kwargs):
+        super(ImageModel, self).__init__()
+
+        x = linspace(-14, 14, 100)
+        y = sin(x) * x**3
+        plotdata = ArrayPlotData(x=x, y=y)
+
+        plot = Plot(plotdata)
+        plot.plot(("x", "y"), type="line", color="blue")
+        plot.title = "sin(x) * x^3"
+
+        self.plot = plot
+
+enamldef Main(MainWindow):
+    attr model = ImageModel()
+#    initial_size = (int(model.data.shape[1]),int(model.data.shape[0]))
+    Container:
+        EnableCanvas:
+            component = model.plot
+

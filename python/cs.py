@@ -1,0 +1,54 @@
+# Martin Lichtman
+# created = 2013-04-03
+# modified >= 2013-07-09
+
+"""
+cs.py
+
+The cesium controller.  Handles user input/output, experiment flow control,
+analysis, and TCP server for communication with LabView.
+
+On Windows you must do "set ETS_TOOLKIT=qt4" from the command line before running this.
+The file cs.bat performs this task for you and then runs 'python cs.py'.
+
+To run from a shell call: import cs; exp=cs.new()
+"""
+
+import enaml
+from enaml.session import Session
+from enaml.qt.qt_application import QtApplication
+#import threading
+import logging
+
+logging.basicConfig(format='%(asctime)s %(name)s %(levelname)s %(message)s', datefmt='%Y/%m/%d %H:%M:%S', level=logging.DEBUG)
+logger = logging.getLogger(__name__)
+
+from cs_icons import CsIconProvider
+import experiments
+
+class CsSession(Session):
+    
+    def on_open(self):
+        global mainWindow
+        """ Override from enaml.session.Session to setup the windows and resources for the session."""
+        self.resource_manager.icon_providers['myicons'] = CsIconProvider()
+        with enaml.imports():
+            from cs_GUI import Main
+        mainWindow=Main()
+        mainWindow.experiment=exp
+        self.windows.append(mainWindow)
+
+def new():
+    global exp
+    exp=experiments.AQuA()
+    app = QtApplication([CsSession.factory('main')])
+    app.start_session('main')
+    #threading.Thread(target=app.start).start()
+    return exp, app
+    
+if __name__ == '__main__':
+    logger.info('starting application')
+    exp,app=new()
+    # The GUI goes not appear and the app exits immediately without this line when not
+    # run from a python shell.
+    app.start() #standalone mode

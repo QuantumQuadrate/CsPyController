@@ -1,0 +1,40 @@
+CsController2 notes:
+
+* = current task
+
+
+current question:
+    
+    Got analog output graph to display, now put the right equations in it
+    
+TODO:
+    Add instruments to backend and detail to front panel
+    replace other indexed Stacks with IndexedStack
+    It would be nice to make the variable reporting format able to handle line breaks somehow.  Maybe parse each line separately.
+    there are some trait metadata that I haven't made good use of: array, default_kind=list, inner_traits, transient,
+        desc, label, rich_compare (maybe use this for things like figures?)
+    make all XML protocol good, and match between LabView and python
+    Send real experiment settings back and forth
+    Fill in the rest of the instruments
+    Add optimization
+    make waveform plotting even faster by changing data in plot objects, instead of creating new ones.
+    Add + Page to waveform notebooks, which is not closeable, and on showing, acts to open a new waveform.
+    horizontal scroll bar doesn't appear when too many transitions are added to waveform
+
+Done:
+    XML can't handle just a number as a tag, apparently.  WHY?!!!  Make it so XML tags for list elements start with a word, then number
+    update HSDIO and DDS to use ListProp
+    make a method that rescans all the variables, to make sure everything is updated from XML?
+    on load refresh waveforms (or everything?)
+    working on fromXML in Waveforms
+    how to deal with iterables in the XML.  Probably look for hasattr(__iter__).  
+    add ability to remove a transition
+    closed waveforms should be removed.
+    add graph to waveform listing
+    Convert waveform table to HSDIO loadable format
+    add channel info to waveform listing
+    make sure everything gets updated appropriately
+    -add explicit update to experiment run
+    Need to make sure we don't pickle anything that has
+        references back to experiment, because that is happening right now and we get a LOOOONG file.
+    hot on the trail of a good XML solution, I decided pickling is okay for individual elements, within an XML framework

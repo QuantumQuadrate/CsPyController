@@ -1,0 +1,41 @@
+#------------------------------------------------------------------------------
+#  Copyright (c) 2011, Enthought, Inc.
+#  All rights reserved.
+#------------------------------------------------------------------------------
+""" An example of using the ListControl widget to create a simple list.
+
+There is far more funcitonality available on the ListControl than what is
+presented here. This simple example only showcases the basic functionality
+and omits features such as icons and grid layout.
+
+"""
+from enaml.core.api import Looper
+from enaml.widgets.api import Window, Container, Field, ListControl, ListItem
+
+
+enamldef Main(Window):
+    Container:
+        Field:
+            text := item.text
+        ListControl:
+            item_spacing = 5
+            flow_mode = 'left_to_right'
+            uniform_item_sizes = True
+            ListItem: item:
+                text = 'First'
+                background = 'red'
+                editable = True
+                tool_tip << text
+                checkable = True
+                checked = False
+                toggled :: print 'i was toggled', text
+            Looper:
+                iterable = xrange(500)
+                ListItem:
+                    text = 'Foo Bar ' + unicode(loop_index)
+                    text_align = 'center'
+                    background = 'lightskyblue' if loop_index % 2 else 'rgba(96, 132, 34, 0.5)'
+                    font = 'small-caps 40pt Consolas' if loop_index % 2 else ''
+                    clicked :: print 'i was clicked', text
+                    double_clicked :: print 'i was double clicked', text
+

@@ -1,0 +1,1133 @@
+# Martin Lichtman
+# created = 2013-04-02
+# modified >= 2013-04-02
+
+"""
+Cs.enaml
+
+A GUI for the Cs experiment controller, written using the enaml toolkit for python.
+"""
+
+from enaml.layout.api import vbox, hbox, align, horizontal, vertical, spacer, grid
+from enaml.widgets.api import (MenuBar, Menu, Action, MainWindow,
+                                Notebook, Page, Container, GroupBox, 
+                                Form, Label, Field, CheckBox, SpinBox, PushButton, MPLCanvas,
+                                MultilineField, ProgressBar, ScrollArea, Separator,
+                                Include, TraitsItem,FileDialog,Window,ListControl,ListItem,
+                                Stack, StackItem, ComboBox, EnableCanvas
+)
+from enaml.stdlib.fields import FloatField, IntField
+from enaml.core.api import Looper
+from enaml.core.trait_types import EnamlEvent
+from traitsui.api import View #requires "set ETS_TOOLKIT=qt4" on windows command line
+from traits.api import Bool, Instance, Class
+from os.path import abspath #for file dialogs
+from sys import maxint
+import threading, datetime
+#from enthought.chaco.chaco_plot_editor import ChacoPlotItem
+import numpy
+from experiments import independentVariable
+from instrument_property import ListProp
+#from instrument_property import EvalProp as instrumentEvalProp
+
+def get_load_file_callback(experiment):
+    def load_file_callback(dlg):
+        if dlg.result == 'accepted':
+            experiment.load(dlg.path)
+    return load_file_callback
+    
+def get_save_file_callback(experiment):
+    def save_file_callback(dlg):
+        if dlg.result == 'accepted':
+            experiment.save(dlg.path)
+    return save_file_callback
+    
+    
+enamldef CsMenuBar(MenuBar): menuBar:
+    attr experiment
+    attr mainWindow
+    
+    Menu:
+        title = '&File'
+        Action:
+            text = 'Load\tCtrl+L'
+            triggered::
+                dlg = FileDialog(
+                    parent=menuBar,
+                    title='Choose file to load',
+                    mode='open_file',
+                    path=abspath(r'C:\Users\Saffmanlab\Documents\CsController2\settings'),
+                    callback=get_load_file_callback(experiment),
+                    ).open()
+        Action:
+            text = 'Save\tCtrl+S'
+            triggered::
+                dlg = FileDialog(
+                    parent=menuBar,
+                    title='Save As?',
+                    mode='save_file',
+                    path=abspath(r'C:\Users\Saffmanlab\Documents\CsController2\settings\settings-'+datetime.datetime.now().strftime('%Y-%m-%d-%H-%M-%S')+'.xml'),
+                    callback=get_save_file_callback(experiment),
+                    ).open()
+        Action:
+            text = 'Quit\tCtrl+Q'
+            triggered::
+                mainWindow.close()
+    Menu:
+        title = '&Experiment'
+        Action:
+            text = 'Reset and Run\tCtrl+R'
+            triggered::threading.Thread(target=experiment.resetAndGo).start()
+        Action:
+            text = 'Continue\tCtrl+G'
+            triggered::threading.Thread(target=experiment.go).start()
+        Action:
+            text = 'Halt\tCtrl+H'
+            triggered::threading.Thread(target=experiment.halt).start()
+
+# class EvalPropFunctionField(Field):
+   #""" A Field that can be highlighted as red if the function does not give a valid result."""
+    # valid=Bool(True)
+    
+    # def bind(self):
+        # super(EvalPropFunctionField,self).bind()
+        # self.on_trait_change(self._update_validator,'valid')
+
+    # def _update_validator(self):
+        # if not self.valid:
+            # content = {'text': self.text}
+            # self.send_action('invalid_text',content)
+
+class EvalPropFunctionField(Field):
+    valid=Bool(True)
+    refresh=Bool(True)
+    
+    # def _valid_changed(self,old,new):
+        # if not new:
+            # content={'text':text}
+            # self.send_action('invalid_text',content)
+
+    def snapshot(self):
+        snap = super(EvalPropFunctionField, self).snapshot()
+        snap['valid'] = self.valid
+        snap['refresh']=self.refresh
+        return snap
+
+    def bind(self):
+        super(EvalPropFunctionField, self).bind()
+        #self.publish_attributes('valid')
+        #perhaps I could bind to valid, but I worry that typing text will wipe out the red box
+        self.on_trait_change(self.updateValid, 'refresh')
+        
+    def updateValid(self, content):
+        content={'text':self.text}
+        if self.valid:
+            # I have hacked qt_field.py to allow us to call QTField._clear_error_style() directly
+            # The file in the site-packages/enaml/qt directory must be replaced with the one in this project directory whenever Enaml is upgraded.
+            self.send_action('valid',content)
+        if not self.valid:
+            # The file in the site-packages/enaml/qt directory must be replaced with the one in this project directory whenever Enaml is upgraded.
+            self.send_action('invalid',content)
+        
+    def on_action_submit_text(self, content):
+        print "EvalPropFunctionField.on_action_submit_text"
+        """ Handle the 'submit_text' action from the client widget.
+
+        """
+        self.set_guarded(text=content['text'])
+
+enamldef EvalProp(GroupBox):
+    attr prop
+    padding=0
+    flat=True
+    title<<prop.name
+    constraints=[desc.width==func.width,func.width==val.width,hbox(desc,func,val),align('v_center',desc,func,val)]
+
+    Field: desc:
+        text:=prop.description
+        placeholder='description'
+    EvalPropFunctionField: func:
+        #prop<<parent.prop
+        text:=prop.function
+        placeholder='function'
+        valid<<prop.valid
+        refresh<<prop.refresh
+    # Field: func:
+        # text=prop.function
+        # placeholder='function'
+        # validator<<prop
+    Label: val:
+        text<<str(prop.value)
+    
+enamldef MultilineProp(GroupBox):        
+    attr prop
+    flat=True
+    title:=prop.name
+    constraints=[vbox(desc,hbox(func,val)),align('top',func,val)]
+    Field: desc:
+        text:=prop.description
+        placeholder='description'
+    MultilineField: func:
+        text:=prop.function
+    Label: val:
+        text<<str(prop.value)
+
+enamldef LabelBox(Container):
+    attr checked=False
+    attr text=''
+    
+    padding=0
+    constraints=[hbox(label,box),align('v_center',label,box)]
+    hug_height='strong'
+    hug_width='strong'
+    Label: label:
+        text<<parent.text
+    CheckBox: box:
+        checked:=checked
+
+enamldef CheckField(Container):
+    attr checked=False
+    attr text=''
+    attr placeholder=''
+    
+    constraints=[hbox(box,field),align('v_center',box,field)]
+    CheckBox:
+        id:box
+        checked:=parent.checked
+    Field:
+        id:field
+        text:=parent.text
+        placeholder:=parent.placeholder
+
+enamldef LabelField(Container):
+    attr label=''
+    attr text=''
+    attr placeholder=''
+    
+    hug_height='strong'
+    hug_width='strong'
+    constraints=[vbox(l1,f1),l1.left==f1.left]
+    Label: l1:
+        text:=parent.label
+    Field: f1:
+        text:=parent.text
+        placeholder:=parent.placeholder
+
+class RefreshableComboBox(ComboBox):
+    refresh = EnamlEvent
+
+enamldef ExperimentPage(Page):
+    attr experiment
+    title='Experiment'
+
+    Container:
+        Form: form:
+            Label:
+                text="Status:"
+            Label:
+                text<<experiment.status
+
+            Label:
+                text='Pause after iteration'
+            CheckBox:
+                checked:=experiment.pauseAfterIteration
+
+            Label:
+                text='Pause after measurement'
+            CheckBox:
+                checked:=experiment.pauseAfterMeasurement
+            
+            Label:
+                text='Pause after error'
+            CheckBox:
+                checked:=experiment.pauseAfterError
+            
+            Label: text='Save Data?'
+            CheckField:
+                checked:=experiment.saveData
+                text:=experiment.localDataPath
+                placeholder='local data path'
+
+            Label: text='Copy Data to Network?'
+            CheckField:
+                checked:=experiment.copyDataToNetwork
+                text:=experiment.networkDataPath
+                placeholder='network data path'
+
+            Label: text='Experiment description suffix for filename'
+            Field: text:=experiment.experimentDescriptionFilenameSuffix
+
+            Label: text='Measurement Timeout (ms)'
+            FloatField: value:=experiment.measurementTimeout
+
+            Label: text='Measurements per Iteration'
+            IntField: value:=experiment.measurementsPerIteration
+        
+            Label: text='E-mail on error/completion?'
+            CheckField:
+                checked:=experiment.willSendEmail
+                text:=experiment.emailAddresses
+        
+            Label:
+                text='Progress'
+            ProgressBar:
+                minimum=0
+                maximum=100
+                value<<experiment.progress
+
+            Label: text='Iteration'
+            Label: text<<str(experiment.iteration)+' of '+str(experiment.totalIterations-1)
+            
+            Label: text='Measurement'
+            Label: text<<str(experiment.measurement)+' of '+str(experiment.measurementsPerIteration-1)
+            
+            Label: text='Time started'
+            Label: text<<experiment.timeStartedStr
+            
+            Label: text='Time after last measurement'
+            Label: text<<experiment.currentTimeStr
+            
+            Label: text='Time elapsed'
+            Label: text<<experiment.timeElapsedStr
+
+            Label: text='Estimated total time'
+            Label: text<<experiment.totalTimeStr
+
+            Label: text='Estimated time remaining'
+            Label: text<<experiment.timeRemainingStr
+
+            Label: text='Estimated completion time'
+            Label: text<<experiment.completionTimeStr
+        
+enamldef VariableEntry(GroupBox):
+    attr indepVar
+    attr myIndependentVariables
+    attr myDyno
+    
+    constraints=[nameCont.width==0.5*descCont.width,descCont.width==funcCont.width,currentValueLabel.right==funcCont.right,vbox(hbox(remove,nameCont,descCont,funcCont),valueListLabel,hbox(stepsLabel,currentValueLabel)),align('v_center',remove,nameCont,descCont,funcCont),align('v_center',stepsLabel,currentValueLabel)]
+    
+    PushButton: remove:
+        text='-'
+        clicked::
+            i=myIndependentVariables.index(indepVar) #find current index
+            myIndependentVariables.pop(i) #remove from backend list
+            myDyno.objects.pop(i) #remove from GUI list
+    Field: nameCont:
+        text:=indepVar.name
+        placeholder='name'
+    Field: descCont:
+        text:=indepVar.description
+        placeholder='description'
+    Field: funcCont:
+        text:=indepVar.function
+        placeholder='function'
+    Label: valueListLabel:
+        text<<'values: '+indepVar.valueListStr
+    Label: stepsLabel:
+        text<<'step: '+str(indepVar.index)+' of '+str(indepVar.steps)
+    Label: currentValueLabel:
+        text<<'current value: '+indepVar.currentValueStr
+
+enamldef IndependentVariablesGroupBox(GroupBox): iVarBox:
+    attr experiment
+    
+    initialized::
+        experiment.ivarRefreshButton=refreshButton
+    
+    title='Independent Variables'
+    constraints=[vbox(hbox(refreshButton,addbutton),varlistContainer),height==150]
+    
+    PushButton: refreshButton:
+        text='refresh'
+        clicked::
+            dynamicInclude.objects=[VariableEntry(myIndependentVariables=iVarBox.experiment.independentVariables, indepVar=i, myDyno=dynamicInclude) for i in iVarBox.experiment.independentVariables]
+
+    PushButton: addbutton:
+        text='add variable'
+        clicked::
+            newvar=independentVariable('new',experiment) #new blank independentVariable
+            iVarBox.experiment.independentVariables.append(newvar) #add a new variable to the list
+            newItem=VariableEntry(myIndependentVariables=iVarBox.experiment.independentVariables, indepVar=newvar, myDyno=dynamicInclude)
+            dynamicInclude.objects.append(newItem) #add row to the GUI
+        icon_source = 'icon://myicons/plus'
+        icon_size = (28, 28)
+    GroupBox: varlistContainer:
+        Include: dynamicInclude:
+            objects=[VariableEntry(myIndependentVariables=iVarBox.experiment.independentVariables, indepVar=i, myDyno=dynamicInclude) for i in iVarBox.experiment.independentVariables]
+
+enamldef VariablesPage(Page):
+    attr experiment
+    title = 'Variables'
+    Container:
+        constraints=[vbox(updateButton,hbox(independent,dependent,report)),align('top',independent,dependent,report)]
+        PushButton: updateButton:
+            text='Update variables throughout experiment'
+            clicked::
+                experiment.evaluateAll()
+        IndependentVariablesGroupBox: independent:
+            #TODO:simplify? to experiment
+            experiment:=parent.parent.experiment
+            
+        GroupBox: dependent:
+            title='Dependent Variables'
+            constraints=[vbox(lb1,field)]
+            Label: lb1:
+                text='Define dependent variables using python code below.'
+            MultilineField: field:
+                constraints=[height==600]
+                text:=experiment.dependentVariablesStr
+        GroupBox: report:
+            constraints=[vbox(lb2,f1)]
+            title='Report'
+            MultilineField: f1:
+                constraints=[height==600]
+                #placeholder='report format'
+                text:=experiment.variableReportFormat
+            Label: lb2:
+                text<<experiment.variableReportStr
+
+enamldef LabViewPage(Page):
+    attr LabView
+    title = 'LabView'
+
+    Form:
+        Label:
+            text='enable communication with LabView system?'
+        CheckBox:
+            checked:=LabView.enabled
+        Label:
+            text='IP address of LabView system'
+        Field:
+            text:=LabView.IP
+        Label:
+            text='communications port'
+        IntField:
+            value:=LabView.port
+        Label:
+            text='connected'
+        CheckBox:
+            checked:=LabView.connected
+            enabled=False
+        
+enamldef HSDIOchannel(Container):
+    attr channel
+    attr index
+    hug_height='strong'
+    padding=0
+    constraints=[description.width==3*activeF.width,activeF.width==2*activeL.width,hbox(label,description,activeF,activeL,),align('v_center',label,description,activeF,activeL)]
+    Label: label:
+        text=str(index)
+    Field: description:
+        text:=channel.description
+        placeholder='description'
+    Field: activeF:
+        text:=channel.active.function
+        placeholder='active?'
+    Label: activeL:
+        text<<str(channel.active.value)
+
+enamldef HSDIOchannels(GroupBox):
+    attr channels
+    flat=True
+    title='channels (#, description, active?)'
+
+    Looper: looper:
+        iterable << channels
+        HSDIOchannel:
+            channel=loop_item
+            index=loop_index
+
+enamldef HSDIOScriptTrigger(StackItem):
+    attr item
+    
+    Container:
+        padding=0
+        Form:
+            Label:
+                text='description'
+            Field:
+                placeholder='description'
+                text:=item.description
+        EvalProp:
+            prop<<item.id
+        EvalProp:
+            prop<<item.source
+        EvalProp:
+            prop<<item.type
+        EvalProp:
+            prop<<item.edge
+        EvalProp:
+            prop<<item.level
+
+enamldef HSDIO_DigitalOutPage(Page):
+    attr HSDIO
+    title = 'HSDIO Pulses'
+    
+    Container:
+        Container:
+                constraints=[vbox(p1,p2,p3,p4,p5,p6,p7,p8),align('left',p1,p2,p3,p4,p5,p6,p7,p8)]
+                hug_height='strong'
+                hug_width='strong'
+                EvalProp: p1:
+                    prop<<HSDIO.enable
+                IndexedStack: p2:
+                    title='Script Triggers'
+                    iterable=HSDIO.triggers
+                    viewType=HSDIOScriptTrigger
+                MultilineProp: p3:
+                    prop<<HSDIO.script
+                EvalProp: p4:
+                    prop<<HSDIO.resourceName
+                EvalProp: p5:
+                    prop<<HSDIO.clockRate
+                EvalProp: p6:
+                    prop<<HSDIO.units
+                EvalProp: p7:
+                    prop<<HSDIO.hardwareAlignmentQuantum
+                HSDIOchannels: p8:
+                    channels<<HSDIO.channels
+
+enamldef Transition(Container):
+    attr transition
+    attr waveform
+    attr waveformPage
+    
+    #constraints=[vbox(remove,form)]
+    padding=0
+    PushButton: remove:
+        constraints = [height == 20]
+        text='-'
+        clicked::
+            waveform.sequence.remove(transition) #remove ourselves from the backend
+            waveformPage.itemToRemove=parent #we can't just do the removing from here because once the GUI reference is gone, we get garbage collected and can't trigger the resetting of constraints
+            waveformPage.remove() #remove ourselves from the GUI
+    Form: form:
+        padding=0
+        Field:
+            constraints = [width == 100,height==20]
+            placeholder='time'
+            text:=transition.time.function
+            text::waveform.updateFigure()
+        Label:
+            constraints = [width == 50,height==20]
+            text<<str(transition.time.value)
+        Looper:
+            iterable<<transition.state
+            Field:
+                constraints = [width == 100,height==20]
+                text:=loop_item.function
+                placeholder=str(loop_index)
+                text::waveform.updateFigure()
+            Label:
+                constraints = [width == 50,height==20]
+                text<<str(loop_item.value)
+
+class RefreshableMPLCanvas(MPLCanvas):
+    """ An MPLCanvas that can be refreshed on command by toggling refresh.
+    Requires adding a function to MPLCanvas in
+    C:\Users\Saffmanlab\AppData\Local\Enthought\Canopy\User\Lib\site-packages\enaml\qt\qt_mpl_canvas.py:
+        def on_action_set_refresh(self, content):
+            self.refresh_mpl_widget()
+    """
+
+    #: Toggle this to refresh the canvas
+    refresh = Bool(False)
+
+    def snapshot(self):
+        """ Get the snapshot dict for the MPLCanvas."""
+        snap = super(RefreshableMPLCanvas, self).snapshot()
+        snap['refresh'] = self.refresh
+        return snap
+
+    def bind(self):
+        """ Bind the change handlers for the MPLCanvas"""
+        super(RefreshableMPLCanvas, self).bind()
+        self.publish_attributes('refresh')
+
+class WaveformPage(Page):
+    remove = EnamlEvent
+
+def gen_constraints(objects):
+    if len(objects)>1:
+        c=[hbox(*objects)]
+    else:
+        c=[]
+    return c
+
+enamldef Waveform(WaveformPage): thisWaveformPage:
+    attr waveform
+    attr itemToRemove
+    
+    title<<waveform.name
+    closed::waveform.remove()
+    
+    remove::
+        dyno.objects.remove(itemToRemove)
+        #transitions.constraints=gen_constraints(dyno.objects)
+        transitions.constraints=[hbox(*dyno.objects)] if len(dyno.objects)>0 else []
+        waveform.updateFigure()
+    Container:
+        constraints=[vbox(canvasContainer,details)]
+        #PushButton: updateCanvas:
+        #    text='update graph'
+        #    clicked::
+        #        waveform.updateFigure()
+        Container: canvasContainer:
+            hug_height='strong'
+            RefreshableMPLCanvas: canvas:
+                height=500
+                #width=parent.parent.width
+                figure = waveform.figure
+                refresh<<waveform.refresh
+        Container: details:
+            constraints=[nameAndChannelNums.top==contents_top,transitions.top==contents_top,addButton.top==contents_top,nameAndChannelNums.left==contents_left,
+                nameAndChannelNums.right==transitions.left,transitions.right==addButton.left]
+            Container: nameAndChannelNums:
+                #constraints=[vbox(f1,l1,loop1)]
+                padding=0
+                Field: f1:
+                    constraints = [width == 150, height == 20]
+                    text:=waveform.name
+                Label: l1:
+                    constraints = [height == 20]
+                    text='time'
+                Looper: loop1:
+                    iterable<<range(waveform.HSDIO.numChannels)
+                    Label:
+                        constraints=[height==20]
+                        text<<str(loop_index)+': '+waveform.experiment.LabView.HSDIO.channels[loop_index].description
+            Container: transitions:
+                padding=0
+                #constraints=gen_constraints(dyno.objects)
+                #constraints=[grid(dyno.objects,row_align='top')]
+                constraints=[hbox(*dyno.objects)] if len(dyno.objects)>0 else []
+                Include: dyno:
+                    objects=[Transition(transition=i,waveform=waveform,waveformPage=thisWaveformPage) for i in waveform.sequence]
+            PushButton: addButton:
+                #add a transition to this waveform
+                constraints = [width == 50, height == 20]
+                text='+'
+                clicked::
+                    dyno.objects.append(Transition(transition=waveform.addTransition(),waveform=waveform,waveformPage=thisWaveformPage))
+                    transitions.constraints=[hbox(*dyno.objects)] if len(dyno.objects)>0 else []
+                    #transitions.constraints=[grid(dyno.objects,row_align='top')]
+                    #transitions.constraints=gen_constraints(dyno.objects)
+
+enamldef WaveformsPage(Page):
+    attr HSDIO
+    title='Waveforms'
+    
+    #once this exists, pass a reference back to the python backend, so it can force a GUI refresh
+    initialized::
+        HSDIO.waveforms.refreshButton=refresh
+    
+    Container:
+        #constraints=[nb.left==contents_left,nb.right==contents_right,nb.bottom==contents_bottom,nb.top==add.bottom+10,add.top==contents_top]
+        constraints=[vbox(hbox(refresh,add),nb),refresh.width==add.width]
+        PushButton: add:
+            #add a waveform to the list of waveforms
+            text='add waveform'
+            clicked::
+                dynamicInclude.objects.append(Waveform(waveform=HSDIO.waveforms.add()))
+        PushButton: refresh:
+            #dump the GUI representation, and reload list of waveforms from the HSDIO.waveforms
+            text='refresh'
+            clicked::
+                dynamicInclude.objects=[Waveform(waveform=i) for i in HSDIO.waveforms]
+        Notebook: nb:
+            tab_style='preferences'
+            Include: dynamicInclude:
+                objects=[Waveform(waveform=i) for i in HSDIO.waveforms]
+
+enamldef DAQmxDigitalOutPage(Page):
+    title = 'DAQmx Pulses'    
+
+enamldef DDS_profile(StackItem):
+    attr profile
+    
+    Container:
+        padding=0
+        constraints=[vbox(description,hbox(container1,container2))]
+        Form: description:
+            Label:
+                text='description'
+            Field:
+                placeholder='description'
+                text:=profile.description
+        Container: container1:
+            EvalProp:
+                prop<<profile.frequency
+            EvalProp:
+                prop<<profile.amplitude
+            EvalProp:
+                prop<<profile.phase
+            EvalProp:
+                prop<<profile.RAMMode
+            EvalProp:
+                prop<<profile.ZeroCrossing
+            EvalProp:
+                prop<<profile.NoDwellHigh
+            EvalProp:
+                prop<<profile.FunctionOrStatic
+        Container: container2:
+            EvalProp:
+                prop<<profile.RAMFunction
+            EvalProp:
+                prop<<profile.RAMInitialValue
+            EvalProp:
+                prop<<profile.RAMStepValue
+            EvalProp:
+                prop<<profile.RAMTimeStep
+            EvalProp:
+                prop<<profile.RAMNumSteps
+        #TODO: make a list
+        #EvalProp:
+        #        prop<<profile.RAMStaticArray
+
+enamldef DDS_channel(GroupBox):
+    attr channel
+    attr index
+    
+    title='channel '+str(index)
+    constraints=[hbox(vbox(parameters,RAM),profiles)]
+    
+    GroupBox: parameters:
+        title='channel parameters'
+        flat=True
+        constraints=[vbox(description,power,refClockRate,fullScaleOutputPower)]
+        Form: description:
+            Label:
+                text='description'
+            Field:
+                text:=channel.description
+        EvalProp: power:
+            prop<<channel.power
+        EvalProp: refClockRate:
+            prop<<channel.refClockRate
+        EvalProp: fullScaleOutputPower:
+            prop<<channel.fullScaleOutputPower
+    
+    GroupBox: RAM:
+        title='RAM defaults'
+        flat=True
+        EvalProp:
+            prop<<channel.RAMenable
+        EvalProp:
+            prop<<channel.RAMDestType
+        EvalProp:
+            prop<<channel.RAMDefaultFrequency
+        EvalProp:
+            prop<<channel.RAMDefaultAmplitude
+        EvalProp:
+            prop<<channel.RAMDefaultPhase
+
+    GroupBox: profiles:
+        title='profiles'
+        ComboBox: combo:
+            items<<[str(i)+' '+n.description for i,n in enumerate(channel.profiles)]
+        Stack:
+            index<<combo.index
+            Include: dyno:
+                objects<<[DDS_profile(profile=i) for i in channel.profiles]
+            # Looper:
+                # iterable<<channel.profiles
+                # DDS_profile:
+                    # profile<<loop_item
+    
+enamldef DDS_box(StackItem):
+    attr box
+    
+    Container:
+        padding=0
+        Form:
+            Label:
+                text='enable'
+            CheckBox:
+                checked:=box.enable
+            
+            Label:
+                text='Description'
+            Field:
+                text:=box.description
+                
+            Label:
+                text='NI USB-8451 device reference'
+            Field:
+                #TODO: make this a combo box, with the ability to get items from LabView
+                # or eventually non-labview 8451 driver
+                text:=box.deviceReference
+            
+            Label:
+                text='DIO port'
+            SpinBox: sbox:
+                maximum = maxint
+                minimum = 0
+                value:=box.DIOport
+        
+        GroupBox:
+            title='channels'
+            Include: dyno:
+                objects<<[DDS_channel(index=i,channel=c) for i,c in enumerate(box.channels)]
+            # Looper:
+                # iterable<<box.channels
+                # DDS_channel:
+                    # channel<<loop_item
+                    # index<<loop_index
+
+enamldef DDS_Page(Page):
+    attr LabView
+    attr DDS
+    title = 'DDS'
+    
+    Container:
+        constraints=[vbox(hbox(initButton,loadButton,enable,isInit),stackGroup),align('v_center',initButton,loadButton,enable,isInit)]
+        PushButton: initButton:
+            text='Initialize and Load'
+            clicked::LabView.initializeDDS()
+            
+        PushButton: loadButton:
+            text='Load'
+            clicked::LabView.loadDDS()
+
+        LabelBox: enable:
+            text='enable'
+            checked:=DDS.enable
+        
+        LabelBox: isInit:
+            text='initialized?'
+            checked<<DDS.isInitialized
+            enabled=False #keep it greyed out.
+        
+        GroupBox: stackGroup:
+            title='DDS boxes'
+            constraints=[vbox(hbox(addButton,removeButton,combo),stack),stack.width==contents_width]
+            PushButton: addButton:
+                text='+'
+                constraints=[width==50,height==20]
+                clicked::
+                    dyno.objects.append(DDS_box(box=DDS.addBox()))
+            PushButton: removeButton:
+                text='-'
+                constraints=[width==50,height==20]
+                clicked::
+                    i=combo.index
+                    if i>=0:
+                        dyno.objects.pop(i)
+                        DDS.boxes.pop(i)
+            RefreshableComboBox: combo:
+                items<<[str(i)+' '+n.description for i,n in enumerate(DDS.boxes)]
+            Stack: stack:
+                index<<combo.index
+                Include: dyno:
+                    objects<<[DDS_box(box=i) for i in DDS.boxes]
+
+enamldef RF_gen(StackItem):
+    attr item
+    
+    Container:
+        padding=0
+        Form:
+            Label:
+                text='enable'
+            CheckBox:
+                checked:=item.enable
+            Label:
+                text='description'
+            Field:
+                text:=item.description
+            Label:
+                text='GPIB channel'
+            IntField:
+                #TODO: make this a combo box, with the ability to get items from LabView
+                value:=item.GPIBchannel
+        EvalProp:
+            prop<<item.frequency
+        EvalProp:
+            prop<<item.power
+
+enamldef HP83623A(StackItem):
+    attr item
+    
+    Container:
+        padding=0
+        Form:
+            Label:
+                text='enable'
+            CheckBox:
+                checked:=item.enable
+            
+            Label:
+                text='description'
+            Field:
+                text:=item.description
+            
+            Label:
+                text='GPIB channel'
+            IntField:
+                #TODO: make this a combo box, with the ability to get items from LabView
+                value:=item.GPIBchannel
+        EvalProp:
+            prop<<item.frequency
+        EvalProp:
+            prop<<item.power
+        EvalProp:
+            prop<<item.RFoutput
+        EvalProp:
+            prop<<item.externalTrigger
+
+enamldef RFGenPage(Page):
+    attr LabView
+    title = 'RF Generators'
+    Container:
+        IndexedStack: i1:
+            title='HP83623A'
+            iterable=LabView.RF_generators.HP83623A_list
+            viewType=HP83623A
+        IndexedStack: i2:
+            title='HP8662A'
+            iterable=LabView.RF_generators.HP8662A_list
+            viewType=RF_gen
+        IndexedStack: i3:
+            title='HP83712B'
+            iterable=LabView.RF_generators.HP83712B_list
+            viewType=RF_gen
+
+enamldef IndexedStack(GroupBox):
+    attr iterable=Instance(ListProp)
+    attr viewType=Class(StackItem)
+    hug_height = 'strong'
+    hug_width = 'strong'
+    
+    Container: controls:
+        constraints=[hbox(addButton,removeButton,combo)]
+        PushButton: addButton:
+            text='+'
+            constraints=[width==50,height==20]
+            clicked::
+                dyno.objects.append(viewType(item=iterable.add()))
+                combo.maximum=len(iterable)-1
+        PushButton: removeButton:
+            text='-'
+            constraints=[width==50,height==20]
+            clicked::
+                i=combo.value
+                if i>=0:
+                    dyno.objects.pop(i)
+                    iterable.pop(i)
+                    combo.maximum=len(iterable)-1
+        # RefreshableComboBox: combo:
+            # items<<[str(i)+' '+n.description for i,n in enumerate(iterable)]
+        SpinBox: combo:
+            constraints=[width==50,height==20]
+            maximum=len(iterable)-1
+            minimum=0
+    Stack: stack:
+        index<<combo.value
+        Include: dyno:
+            objects<<[viewType(item=i) for i in iterable]
+
+enamldef CameraPage(Page):
+    title = 'Camera'
+
+enamldef BackgroundPage(Page):
+    title = 'Background'
+
+enamldef CounterPage(Page):
+    title = 'Counter'
+
+enamldef FiltersPage(Page):
+    title = 'Filters'
+
+enamldef AOequation(StackItem):
+    attr item
+    Container:
+        hug_height='strong'
+        hug_width='strong'
+        GroupBox:
+            flat=True
+            title='description'
+            Field:
+                text:=item.description
+                placeholder='description'
+        GroupBox:
+            flat=True
+            title='function'
+            Field:
+                text:=item.function
+                placeholder='function that evaluates to a 1D array, where t will be replaced with AO.timesteps'
+    
+enamldef AnalogOutputPage(Page):
+    attr AO
+    title = 'Analog output'
+    Container:
+        hug_height='strong'
+        #hug_width='strong'
+        constraints=[vbox(e1,canvas,hbox(equations,c1)),align('left',e1,canvas)]
+        LabelBox: e1:
+            text='enable'
+            checked::AO.enable
+        EnableCanvas: canvas:
+            #TODO: make this expand and shrink nicely while filling the width
+            constraints=[height==500,width==1500]
+            component<<AO.plot
+        IndexedStack: equations:
+            title='equations'
+            iterable=AO.equations
+            viewType=AOequation
+        Container: c1:
+            hug_height='strong'
+            hug_width='strong'
+            constraints=[grid([e2,e3,e4],[e5,e6,e7],[e8,e9,e10])]
+            EvalProp: e2:
+                prop<<AO.physicalChannels
+            EvalProp: e3:
+                prop<<AO.minimum
+            EvalProp: e4:
+                prop<<AO.maximum
+            EvalProp: e5:
+                prop<<AO.clockRate
+            EvalProp: e6:
+                prop<<AO.units
+            EvalProp: e7:
+                prop<<AO.totalAOTime
+            EvalProp: e8:
+                prop<<AO.waitForStartTrigger
+            EvalProp: e9:
+                prop<<AO.triggerSource
+            EvalProp: e10:
+                prop<<AO.triggerEdge
+
+
+enamldef PiezoChannel(Container):
+    attr channel
+    
+    hug_height = 'strong'
+    hug_width = 'strong'
+    constraints=[hbox(description, setServo,setPosition,label)]
+    Field: description:
+        placeholder='description'
+        text:=channel.description
+    EvalProp: setServo:
+        prop<<channel.setServo
+    EvalProp: setPosition:
+        prop<<channel.setPosition
+    GroupBox: label:
+        flat=True
+        title='read from piezo'
+        Label:
+            text<<'axis:{}\tservo:{}\tposition:'.format(channel.readAxis,channel.readServo,channel.readPosition)
+
+enamldef PiezoController(StackItem):
+    attr item
+    
+    Container:
+        hug_height = 'strong'
+        hug_width = 'strong'
+        Form:
+            Label:
+                text='description'
+            Field:
+                placeholder='description'
+                text:=item.description
+            Label:
+                text='enable'
+            CheckBox:
+                checked::item.enable
+            Label:
+                text='serial number set:'
+            Field:
+                placeholder='serial number'
+                text:=item.serialNumber
+            Label:
+                text='id:'
+            Label:
+                text:=item.identificationRead
+            Label:
+                text='serial number read:'
+            Label:
+                text:=item.serialNumberRead
+        Looper:
+            iterable<<item.channels
+            PiezoChannel:
+                channel=loop_item
+
+enamldef PI_PiezoPage(Page):
+    attr piezo
+    title = 'PI Piezo'
+    Container:
+        LabelBox:
+            text='enable'
+            checked::piezo.enable
+        IndexedStack:
+            title='Piezo Controllers'
+            iterable=piezo.controllers
+            viewType=PiezoController
+
+enamldef PicomotorPage(Page):
+    title = 'Picomotor'
+
+enamldef NotesPage(Page):
+    title = 'Notes'
+
+enamldef ResultsPage(Page):
+    title = 'Results'
+    attr data
+    attr MPLfig
+    #MPLCanvas:
+    #    figure:=MPLfig
+    #ChacoPlotItem(data.xdata,data.ydata, y_bounds=(-10.,10.),y_auto=False,resizable=True,show_label=False,x_label="x",y_label="y",title="")
+
+enamldef Main(MainWindow): main:
+    attr resultsData
+    attr experiment
+    
+    title='Saffmanlab experiment controller'
+    initial_size=(500,400)
+    icon_source='icon://myicons/atom_loading'
+    
+    CsMenuBar:
+        experiment=main.experiment
+        mainWindow=main
+    Container:
+        padding = 0
+        ScrollArea:
+            Container:
+                Notebook:
+                    tabs_closable=False
+                    tabs_movable=False
+                    tab_style = 'preferences'
+                    ExperimentPage:
+                        experiment=main.experiment
+                    VariablesPage:
+                        experiment=main.experiment
+                    LabViewPage:
+                        LabView=main.experiment.LabView
+                    HSDIO_DigitalOutPage:
+                        HSDIO=main.experiment.LabView.HSDIO
+                    WaveformsPage:
+                        HSDIO=main.experiment.LabView.HSDIO
+                    DAQmxDigitalOutPage:
+                        pass
+                    DDS_Page:
+                        DDS=main.experiment.LabView.DDS
+                        LabView=main.experiment.LabView
+                    RFGenPage:
+                        LabView=main.experiment.LabView
+                    CameraPage:
+                        pass
+                    BackgroundPage:
+                        pass
+                    CounterPage:
+                        pass
+                    FiltersPage:
+                        pass
+                    AnalogOutputPage:
+                        AO=main.experiment.LabView.AnalogOutput
+                    PI_PiezoPage:
+                        piezo=main.experiment.LabView.piezo
+                    PicomotorPage:
+                        pass
+                    NotesPage:
+                        pass
+                    ResultsPage:
+                        data:=resultsData
