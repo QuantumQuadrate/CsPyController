@@ -5,7 +5,7 @@ CsController2 notes:
 
 current question:
     
-    Got analog output graph to display, now put the right equations in it
+    Switching repository from svn to git
     
 TODO:
     Add instruments to backend and detail to front panel
@@ -22,6 +22,7 @@ TODO:
     horizontal scroll bar doesn't appear when too many transitions are added to waveform
 
 Done:
+    Got analog output graph to display, now put the right equations in it
     XML can't handle just a number as a tag, apparently.  WHY?!!!  Make it so XML tags for list elements start with a word, then number
     update HSDIO and DDS to use ListProp
     make a method that rescans all the variables, to make sure everything is updated from XML?
