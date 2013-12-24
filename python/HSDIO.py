@@ -50,7 +50,7 @@ class Channels(ListProp):
         
     def toHardware(self):
         #The actual IdleState and InitialState are all set to all X's, for continuity.
-        activeChannels=[str(i) for i,c in enumerate(self.channels) if c.active.value]
+        activeChannels=[str(i) for i,c in enumerate(self.listProperty) if c.active.value]
         xState='X'*len(activeChannels)
         return ('<InitialState>'+xState+'</InitialState>\n<IdleState>'+xState+'</IdleState>\n<ActiveChannels>'+','.join(activeChannels)+'</ActiveChannels>\n')
 

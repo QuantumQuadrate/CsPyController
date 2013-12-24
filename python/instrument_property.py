@@ -133,44 +133,48 @@ class Prop(HasTraits):
         
         for child in xmlNode:
             
-            #check if the version tags match
-            if child.tag=='version':
-                version=pickle.loads(child.text)
-                if hasattr(self,'version'):
-                    if version!=self.version:
-                        logger.warning('Current '+xmlNode.tag+' version is '+self.version+', you are loading from version: '+version)
-                else:
-                    logger.warning('Code object '+self.name+' has no version, but XML node '+xmlNode.tag+' has version: '+version)
-           
-            #load in all other tags into variables
-            else:
-                try:
-                    #identify the variable to be loaded
-                    var=getattr(self,child.tag)
-                    exists=True
-                except:
-                    logger.warning('in '+self.name+' in Prop.fromXML() while loading '+child.tag+' which was not previously defined in '+xmlNode.tag+'\n')
-                    exists=False
-                if exists:
-                    if hasattr(var,'fromXML'):
-                        #set it using its own method
-                        #this will preserve the instance identity
-                        var.fromXML(child)
+            #check to see if this is one of the properties we care to load
+            if child.tag is not in self.properties:
+                logger.WARNING('Prop.fromXML(): XML has tag: '+child.tag+', but this is not in the '+self.name+'.properties list.  It will not be loaded.\n')
+            else:            
+                #check if the version tags match
+                if child.tag=='version':
+                    version=pickle.loads(child.text)
+                    if hasattr(self,'version'):
+                        if version!=self.version:
+                            logger.warning('Current '+xmlNode.tag+' version is '+self.version+', you are loading from version: '+version)
                     else:
-                        #assume it is a pickle, and overwrite the existing variable
-                        #this will overwrite the instance identity
+                        logger.warning('Code object '+self.name+' has no version, but XML node '+xmlNode.tag+' has version: '+version)
+               
+                #load in all other tags into variables
+                else:
+                    try:
+                        #identify the variable to be loaded
+                        var=getattr(self,child.tag)
+                        exists=True
+                    except:
+                        logger.warning('in '+self.name+' in Prop.fromXML() while loading '+child.tag+' which was not previously defined in '+xmlNode.tag+'\n')
+                        exists=False
+                    if exists:
+                        if hasattr(var,'fromXML'):
+                            #set it using its own method
+                            #this will preserve the instance identity
+                            var.fromXML(child)
+                        else:
+                            #assume it is a pickle, and overwrite the existing variable
+                            #this will overwrite the instance identity
+                            try:
+                                setattr(self,child.tag,pickle.loads(child.text))
+                            except Exception as e:
+                                logger.warning('in '+self.name+' in Prop.fromXML() while unpickling existing variable '+child.tag+' in '+xmlNode.tag+'\n'+str(e)+'\n')
+                    else:
+                        #variable was not pre-existing
+                        #assume it is a pickle, and write a new variable
+                        #this will create a new instance identity
                         try:
                             setattr(self,child.tag,pickle.loads(child.text))
                         except Exception as e:
-                            logger.warning('in '+self.name+' in Prop.fromXML() while unpickling existing variable '+child.tag+' in '+xmlNode.tag+'\n'+str(e)+'\n')
-                else:
-                    #variable was not pre-existing
-                    #assume it is a pickle, and write a new variable
-                    #this will create a new instance identity
-                    try:
-                        setattr(self,child.tag,pickle.loads(child.text))
-                    except Exception as e:
-                        logger.warning('in '+self.name+' prop.fromXML() while unpickling new variable '+child.tag+' in '+xmlNode.tag+'\n'+str(e)+'\n')
+                            logger.warning('in '+self.name+' prop.fromXML() while unpickling new variable '+child.tag+' in '+xmlNode.tag+'\n'+str(e)+'\n')
         
         #if we didn't see any version tag
         if (version is None) and hasattr(self,'version'):

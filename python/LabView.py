@@ -20,6 +20,7 @@ class LabView(Instrument):
     port=Int
     IP=Str
     connected=Bool
+    msg=Str('')
     
     '''This is a meta instrument which encapsulates the capability of the HEXQC2 PXI system. It knows about several subsystems (HSDIO, DAQmx, Counters, Camera), and can send settings and commands to a corresponding Labview client.'''
     def __init__(self,experiment):
@@ -41,13 +42,15 @@ class LabView(Instrument):
         self.properties+=['IP','port','enabled','connected','HSDIO','DDS','piezo','RF_generators','AnalogOutput']
     
     def initialize(self):
+        print "LabView.initialize()"
         if self.enabled:
             # Create a TCP/IP socket
             self.sock=TCP.CsSock(self.IP,self.port)
+            print 'LabView.initialize sock opened'
             self.connected=True
-        for i in self.instruments:
-            i.initialize()
-        self.isInitialized=True
+            for i in self.instruments:
+                i.initialize()
+            self.isInitialized=True
     
     def close(self):
         if self.sock:
@@ -61,15 +64,21 @@ class LabView(Instrument):
     
     def update(self):
         super(LabView,self).update()
-        msg=self.toHardware()
-        print '---start XML---\n'+msg+'---end XML---\n'
+        self.msg=self.toHardware()
+        #print '---start XML---\n'+msg+'---end XML---\n'
         if self.enabled:
-            self.sock.sendmsg(msg)
+            if self.connected:
+                if self.sock is not None:
+                    self.sock.sendmsg(self.msg)
+                else:
+                    print "LabView TCP connected by has no sock"
+            else:
+                print "LabView TCP enabled but not connected"
     
     def start(self):    
         #tell the LabView instruments to measure
         self.isDone=True
-        
+    
     def initializeDDS(self):
         raise NotImplementedError
     

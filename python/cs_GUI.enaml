@@ -390,25 +390,31 @@ enamldef LabViewPage(Page):
     attr LabView
     title = 'LabView'
 
-    Form:
-        Label:
-            text='enable communication with LabView system?'
-        CheckBox:
-            checked:=LabView.enabled
-        Label:
-            text='IP address of LabView system'
-        Field:
-            text:=LabView.IP
-        Label:
-            text='communications port'
-        IntField:
-            value:=LabView.port
-        Label:
-            text='connected'
-        CheckBox:
-            checked:=LabView.connected
-            enabled=False
-        
+    Container:
+        Form:
+            Label:
+                text='enable communication with LabView system?'
+            CheckBox:
+                checked:=LabView.enabled
+            Label:
+                text='IP address of LabView system'
+            Field:
+                text:=LabView.IP
+            Label:
+                text='communications port'
+            IntField:
+                value:=LabView.port
+            Label:
+                text='connected'
+            CheckBox:
+                checked:=LabView.connected
+                enabled=False
+        GroupBox:
+            title='TCP output message'
+            flat=True
+            MultilineField:
+                text<<LabView.msg
+            
 enamldef HSDIOchannel(Container):
     attr channel
     attr index

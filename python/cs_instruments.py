@@ -21,7 +21,7 @@ class Instrument(Prop):
         self.isInitialized=False
         self.isDone=True
         self.data=[]
-        self.properties+=['isInitialized','isDone']
+        #self.properties+=['isInitialized','isDone']
     
     def update(self):
         '''Sends current settings to the instrument.  This function is run at the beginning of every new iteration.

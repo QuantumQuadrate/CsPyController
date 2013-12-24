@@ -192,8 +192,11 @@ class Experiment(Prop):
         Actual output or input from the measurement may yet wait for a signal from another device.'''
         #for all instruments
         for i in self.instruments:
+            print 'experiment.measure() i.name =',i.name
             #check that the instruments are initalized
+            print 'initialized = ',i.isInitialized
             if not i.isInitialized:
+                print 'experiment.measure() initializing'
                 i.initialize() #reinitialize
                 i.update() #put the settings to where they should be at this iteration
             else:
@@ -204,15 +207,16 @@ class Experiment(Prop):
                     #set a flag to indicate each instrument is now busy
                     i.isDone=False
                     #let each instrument begin measurement
-                    #put each in a different thread, so they can procede simultaneously
+                    #put each in a different thread, so they can proceed simultaneously
                     threading.Thread(target=i.start).start()
-        #loop until all instruments are done
-        #can we do this with a callback?
+        
         start_time = time.time() #record start time of measurement
         
         #TODO: remove this
         time.sleep(.1)
         
+        #loop until all instruments are done
+        #can we do this with a callback?
         while not all([i.isDone for i in self.instruments]):
             if time.time() - start_time > self.measurementTimeout: #break if timeout exceeded
                 logger.warning('The following instruments timed out: '+str([i.name for i in self.instruments if not i.isDone]))
@@ -325,12 +329,9 @@ class Experiment(Prop):
                 logger.error('Exception during experiment:\n'+str(e)+'\n'+str(traceback.print_exc())+'\n')
                 if self.pauseAfterError:
                     self.status='paused after error'
-        
-    def unpause(self):
-        logger.debug('unpause: not yet implemented')
     
     def halt(self):
-        logger.debug('halt: not yet implemented')
+        self.status='idle'
     
     def loadDefaultSettings(self):
         '''Look for settings.xml in this directory, and if it exists, load it.'''
