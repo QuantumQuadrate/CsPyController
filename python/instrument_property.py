@@ -129,13 +129,13 @@ class Prop(HasTraits):
         try:
             self.name=xmlNode.tag
         except Exception as e:
-            logger.WARNING('Bad xml tag: '+xmlNode.tag+', in Prop.fromXML() in '+self.name+'.\n'+str(e))
+            logger.warning('Bad xml tag: '+xmlNode.tag+', in Prop.fromXML() in '+self.name+'.\n'+str(e))
         
         for child in xmlNode:
             
             #check to see if this is one of the properties we care to load
-            if child.tag is not in self.properties:
-                logger.WARNING('Prop.fromXML(): XML has tag: '+child.tag+', but this is not in the '+self.name+'.properties list.  It will not be loaded.\n')
+            if child.tag not in self.properties:
+                logger.warning('Prop.fromXML(): XML has tag: '+child.tag+', but this is not in the '+self.name+'.properties list.  It will not be loaded.\n')
             else:            
                 #check if the version tags match
                 if child.tag=='version':
@@ -145,7 +145,7 @@ class Prop(HasTraits):
                             logger.warning('Current '+xmlNode.tag+' version is '+self.version+', you are loading from version: '+version)
                     else:
                         logger.warning('Code object '+self.name+' has no version, but XML node '+xmlNode.tag+' has version: '+version)
-               
+                
                 #load in all other tags into variables
                 else:
                     try:

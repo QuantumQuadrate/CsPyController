@@ -65,7 +65,7 @@ class independentVariable(EvalProp):
         else:
             self.currentValue=self.valueList[index]
         self.currentValueStr=str(self.currentValue)
-                
+
 class Experiment(Prop):
 
     version='2013.10.19'
@@ -198,6 +198,8 @@ class Experiment(Prop):
             if not i.isInitialized:
                 print 'experiment.measure() initializing'
                 i.initialize() #reinitialize
+
+                #TODO: make sure this happens each iteration too
                 i.update() #put the settings to where they should be at this iteration
             else:
                 #check that the instrument is not already occupied
@@ -378,11 +380,10 @@ class Experiment(Prop):
             self.evaluateDependentVariables()
         except Exception as e:
             logger.warning('Exception in evaluateDependentVariables() in load() in experiment.\n'+str(e)+'\n'+str(traceback.print_exc()))
-
         
         #now load the instruments
-        self.fromXML(xmlNode)      
-            
+        self.fromXML(xmlNode)
+    
     def saveThread(self,path):
         '''Starts the saving in a separate thread, in case it takes a while.'''
         #TODO:  This doesn't work because if there are 61 characters in path, it thinks I am passing 61 arguments.
@@ -391,7 +392,7 @@ class Experiment(Prop):
     def save(self,path):
         '''This function saves all the settings.
         The experiment variables settings get put one layer deeper, under <variables> to keep things tidy.
-        Do not put the instruments into properties, to prevent recursion problems.'''
+        Do not put the instruments into properties, to prevent recursion problems (because the instruments all refer to experiment).'''
         x=('<experiment>\n'+
             self.XMLProtocol(self.version,'version')+
             '<variables>\n'+''.join([self.XMLProtocol(getattr(self,p),p) for p in self.properties])+
@@ -407,10 +408,10 @@ class Experiment(Prop):
         f=open('settings.xml','w')
         f.write(x)
         f.close()
-
+    
 class AQuA(Experiment):
     '''A subclass of Experiment which knows about all our particular hardware'''
-
+    
     def __init__(self):
         super(AQuA,self).__init__()
         
