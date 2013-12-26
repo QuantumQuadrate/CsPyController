@@ -1,9 +1,8 @@
 from traits.api import Bool, Instance, Array
 from experiment import result
-import threading
 from instrumentProperty import Prop
 from enthought.enable.api import Component
-import numpy, logging
+import threading, numpy, logging
 logger = logging.getLogger(__name__)
 
 def analysis(Prop):
@@ -92,3 +91,9 @@ def XYAnalysis(analysis):
         
     def _Y_changed(self,old,new):
         self.plotdata.set_data("y",new)
+        
+def SampleXYAnalysis(XYAnalysis):
+    '''This analysis plots the sum of the whole camera image every measurement.'''
+    def analyzeMeasurement(self,result):
+        Y=numpy.append(Y,numpy.sum(result.d['Hamamatsu'].data))
+        X=numpy.arange(len(Y))
