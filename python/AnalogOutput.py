@@ -35,8 +35,7 @@ class AOEquation(EvalProp):
         self.plot = Plot(self.plotdata)
         self.plot.plot(("t", "y"), type="line", color="blue")
         self.plot.title = self.description
-        
-        
+    
     #update the plot titles when the description changes
     def _description_changed(self,old,new):
         self.plot.title = self.description

@@ -11,13 +11,13 @@ import LabView
 
 class result(object):
     def __init__(self,start_time,iteration,measurement,ivarIndices,variables,data):
-        self.t=start_time
-        self.i=iteration
-        self.index=ivarIndices
-        self.m=measurement
-        self.v=variables
-        self.d=data
-
+        self.t=start_time #the time.time() that the experiment was started
+        self.i=iteration #the iteration number, a single integer
+        self.i=ivarIndices #a list of indices of each independent variable at this iteration
+        self.m=measurement #the measurement number, reset each iteration
+        self.v=variables #a dictionary of all variables
+        self.d=data #a dictionary of all data.  To access camera data call result.d['camera'] to get a numpy array.
+    
 class independentVariable(EvalProp):
     '''A class to hold the independent variables for an experiment.  These are
     the variables that get stepped through during the iterations.  Each 
