@@ -365,8 +365,7 @@ enamldef VariablesPage(Page):
             clicked::
                 experiment.evaluateAll()
         IndependentVariablesGroupBox: independent:
-            #TODO:simplify? to experiment
-            experiment:=parent.parent.experiment
+            experiment<<parent.parent.experiment
             
         GroupBox: dependent:
             title='Dependent Variables'

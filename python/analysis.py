@@ -95,5 +95,5 @@ def XYAnalysis(analysis):
 def SampleXYAnalysis(XYAnalysis):
     '''This analysis plots the sum of the whole camera image every measurement.'''
     def analyzeMeasurement(self,result):
-        Y=numpy.append(Y,numpy.sum(result.d['Hamamatsu'].data))
-        X=numpy.arange(len(Y))
+        self.Y=numpy.append(Y,numpy.sum(result.d['Hamamatsu'].data))
+        self.X=numpy.arange(len(Y))

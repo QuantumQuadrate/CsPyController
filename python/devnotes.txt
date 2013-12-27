@@ -5,9 +5,10 @@ CsController2 notes:
 
 current question:
     
-    Checking git behavior.
+    
     
 TODO:
+    Checking git behavior.
     Add instruments to backend and detail to front panel
     replace other indexed Stacks with IndexedStack
     It would be nice to make the variable reporting format able to handle line breaks somehow.  Maybe parse each line separately.
@@ -39,3 +40,7 @@ Done:
     Need to make sure we don't pickle anything that has
         references back to experiment, because that is happening right now and we get a LOOOONG file.
     hot on the trail of a good XML solution, I decided pickling is okay for individual elements, within an XML framework
+    
+Scratch notes:
+    updating ivar function on GUI recalculates that one ivar but nothing else.  Hitting the evaluate button does experiment.evaluateAll()
+    

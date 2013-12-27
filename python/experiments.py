@@ -1,11 +1,10 @@
-import threading, time, datetime, logging, traceback, xml.etree.ElementTree
+import threading, time, datetime, logging, traceback, xml.etree.ElementTree, pickle, numpy
 logger = logging.getLogger(__name__)
-from numpy import array, zeros, set_printoptions, mean, product
-set_printoptions(formatter=dict(float=lambda t: "%.2e" % t)) #set numpy print options to limit to 2 digits
-from traits.api import Bool, Int, Float, Str
+numpy.set_printoptions(formatter=dict(float=lambda t: "%.2e" % t)) #set numpy print options to limit to 2 digits
+from traits.api import Bool, Int, Float, Str, Instance
 import cs_evaluate
 #from cs_errors import PauseError
-from instrument_property import Prop, EvalProp
+from instrument_property import Prop, EvalProp, ListProp
 from cs_errors import PauseError
 import LabView
 
@@ -17,12 +16,19 @@ class result(object):
         self.m=measurement #the measurement number, reset each iteration
         self.v=variables #a dictionary of all variables
         self.d=data #a dictionary of all data.  To access camera data call result.d['camera'] to get a numpy array.
-    
+
+class independentVariables(ListProp):
+    def fromXML(self,xmlNode):
+        super(independentVariables,self).fromXML(xmlNode)
+        if hasattr(self.experiment,'ivarRefreshButton'): #prevents trying to do this before GUI is active
+            self.experiment.ivarRefreshButton.clicked() #refresh variables GUI
+        return self
+
 class independentVariable(EvalProp):
     '''A class to hold the independent variables for an experiment.  These are
     the variables that get stepped through during the iterations.  Each 
     independent variable is defined by a valueList which holds an array of values.
-    Using this technique, the valueList can be assigned by a single value, an arange, linspace,
+    Using this technique, the valueList can be assigned as single value, an arange, linspace,
     logspace, sin(logspace), as complicated as you like, so long as it can be eval()'d and then
     cast to an array.'''
     
@@ -31,13 +37,11 @@ class independentVariable(EvalProp):
     index=Int
     currentValueStr=Str
     
-    def __init__(self,name,experiment,description='',function=''):
+    def __init__(self,name,experiment,description='',function='',kwargs={}):
         super(independentVariable,self).__init__(name,experiment,description,function)
         self.valueList=[]
         self.currentValue=None
-        #TODO: Delete these?
-        #self.properties+=['steps','index','valueList','valueListStr','currentValue','currentValueStr']
-
+    
     #override from EvalProp()
     def _function_changed(self,old,new):
         #re-evaluate the variable when the function is changed
@@ -53,16 +57,20 @@ class independentVariable(EvalProp):
         else:
             a=cs_evaluate.evalWithDict('array('+self.function+').flatten()',errStr='Evaluating independent variable '+', '.join([self.name,self.description,self.function])+'\n')
         if a==None:
-            a=array([]).flatten()
+            a=numpy.array([]).flatten()
         self.valueList=a
         self.steps=len(a)
         self.valueListStr=str(self.valueList)
     
     def setIndex(self,index):
-        self.index=index
         if self.steps==0:
             self.currentValue=None
         else:
+            if 0<=self.index<self.steps:
+                self.index=index
+            else:
+                logger.warning('Index='+str(index)+' out of range for independent variable '+self.name+'. Setting '+self.name+'.index=0\n')
+                self.index=0
             self.currentValue=self.valueList[index]
         self.currentValueStr=str(self.currentValue)
 
@@ -110,32 +118,31 @@ class Experiment(Prop):
         self.instruments=[] #a list of the instruments this experiment has defined
         self.results=[] #a list of the results from the whole experiment, starts empty
         self.completedMeasurementsByIteration=[]
-        self.independentVariables=[]
+        self.independentVariables=ListProp('independentVariables',self,listElementType=independentVariable,listElementName='independentVariable')
         self.ivarIndex=[]
         self.vars={}
         self.variableReportFormat='""'
         self.variableReportStr=''
-        self.properties=['version','pauseAfterIteration','pauseAfterMeasurement','pauseAfterError','saveData','localDataPath','networkDataPath',
+        self.properties+=['version','independentVariables','dependentVariablesStr','pauseAfterIteration','pauseAfterMeasurement','pauseAfterError','saveData','localDataPath','networkDataPath',
         'copyDataToNetwork','experimentDescriptionFilenameSuffix','measurementTimeout','measurementsPerIteration','willSendEmail',
         'emailAddresses','progress','iteration','measurement','totalIterations','timeStartedStr','currentTimeStr','timeElapsedStr','totalTimeStr',
-        'timeRemainingStr','completionTimeStr','dependentVariablesStr','variableReportFormat','variableReportStr']
+        'timeRemainingStr','completionTimeStr','variableReportFormat','variableReportStr']
     
     def evaluateIndependentVariables(self):
         #make sure ivar functions have been parsed, don't rely on GUI update
         for i in self.independentVariables:
             i.evaluate()
-    
+        
         #set up independent variables
         self.ivarNames=[i.name for i in self.independentVariables] #names of independent variables
         self.ivarValueLists=[i.valueList for i in self.independentVariables]
         self.ivarSteps=[i.steps for i in self.independentVariables]
-        self.totalIterations=int(product(self.ivarSteps))
-
-  
+        self.totalIterations=int(numpy.product(self.ivarSteps))
+    
     def iterationToIndexArray(self):
         '''takes the iteration number and figures out which index number each independent variable should have'''
         n=len(self.independentVariables)
-        index=zeros(n,dtype=int)
+        index=numpy.zeros(n,dtype=int)
         #calculate the base for each variable place
         base=[1]
         for i in range(1,n):
@@ -149,7 +156,7 @@ class Experiment(Prop):
             iter-=index[i]*base[i]
             self.independentVariables[i].setIndex(index[i]) #update each variable object
         self.ivarIndex=index #store the list
-        
+    
     def update(self):
         '''Sends updated settings to all instruments.  This function is run at the beginning of every new iteration.'''
         
@@ -167,7 +174,7 @@ class Experiment(Prop):
     
     def evaluateDependentVariables(self):
         self.iterationToIndexArray() #set the current value of the independent variables
-
+        
         #update variables dictionary.
         #overwrite the old list and make new list starting with independent variables
         self.vars=dict(zip(self.ivarNames,[self.ivarValueLists[i][self.ivarIndex[i]] for i in xrange(len(self.ivarValueLists))]))
@@ -179,7 +186,7 @@ class Experiment(Prop):
     #overwrite from Prop()
     def evaluate(self):
         '''resolves all equations'''
-
+        
         #resolve independent variables for correct iteration, and evaluate dependent variables
         self.evaluateDependentVariables()
         
@@ -262,7 +269,7 @@ class Experiment(Prop):
         if len(self.completedMeasurementsByIteration)<=1:
             estTotalMeasurements=self.measurementsPerIteration*self.totalIterations
         else:
-            estTotalMeasurements=mean(self.completedMeasurementsByIteration[:-1])*self.totalIterations
+            estTotalMeasurements=numpy.mean(self.completedMeasurementsByIteration[:-1])*self.totalIterations
         self.progress=int(100*completedMeasurements/estTotalMeasurements)
         self.timeRemaining=timePerMeasurement*(estTotalMeasurements-completedMeasurements)
         self.timeRemainingStr=self.time2str(self.timeRemaining)
@@ -346,43 +353,33 @@ class Experiment(Prop):
         #load xml from a file
         xmlNode=xml.etree.ElementTree.parse(path).getroot()
         
-        #find child tag 'variables' to load all the top level experiment parameters
-        try:
-            #take the first tag called 'variables'
-            varXML=xmlNode.find('variables')
-            if varXML is not None:
-                #load independent variables
-                ivarXML=varXML.find('independentVariables') 
-                if ivarXML is not None:
-                    self.independentVariables=[independentVariable('ivar'+str(i),self).fromXML(child) for i,child in enumerate(ivarXML)]
-                    if hasattr(self,'ivarRefreshButton'): #prevents trying to do this before GUI is active
-                        self.ivarRefreshButton.clicked() #refresh variables GUI
-                
-                #remove 'independentVariables' from xml to prevent repeat loading
-                ivarXMLs=varXML.findall('independentVariables')
-                for i in ivarXMLs:
-                    varXML.remove(i)
-            
-                #use the generic fromXML, but with experiment as the passed object, to keep these settings at the top level
-                self.fromXML(varXML)
-                #remove 'variables' nodes from the xml, to prevent repeat loading
-                varNodes=xmlNode.findall('variables')
-                for node in varNodes:
-                    xmlNode.remove(node)
-        except Exception as e:
-            logger.warning('Exception while loading experiment variables XML\n'+str(e)+'\n'+str(traceback.print_exc()))
-        #now evaluate the variables
+        #independentVariables
+        ivarXML=xmlNode.find('independentVariables') 
+        if ivarXML is not None:
+            self.independentVariables.fromXML(ivarXML)
+            #remove 'independentVariables' from xml to prevent repeat loading
+            xmlNode.remove(ivarXML)
         try:
             self.evaluateIndependentVariables()
         except Exception as e:
             logger.warning('Exception in evaluateIndependentVariables() in load() in experiment.\n'+str(e)+'\n'+str(traceback.print_exc()))
+        
+        #dependentVariables
+        dvarXML=xmlNode.find('dependentVariablesStr')
+        if dvarXML is not None:
+            self.dependentVariablesStr=pickle.loads(dvarXML.text)
+            #remove 'dependentVariables' from xml to prevent repeat loading
+            xmlNode.remove(dvarXML)
         try:
             self.evaluateDependentVariables()
         except Exception as e:
             logger.warning('Exception in evaluateDependentVariables() in load() in experiment.\n'+str(e)+'\n'+str(traceback.print_exc()))
         
-        #now load the instruments
-        self.fromXML(xmlNode)
+        #now load the rest of the settings and instruments
+        try:
+            self.fromXML(xmlNode)
+        except Exception as e:
+            logger.warning('Exception while loading experiment variables XML\n'+str(e)+'\n'+str(traceback.print_exc()))
     
     def saveThread(self,path):
         '''Starts the saving in a separate thread, in case it takes a while.'''
@@ -393,13 +390,7 @@ class Experiment(Prop):
         '''This function saves all the settings.
         The experiment variables settings get put one layer deeper, under <variables> to keep things tidy.
         Do not put the instruments into properties, to prevent recursion problems (because the instruments all refer to experiment).'''
-        x=('<experiment>\n'+
-            self.XMLProtocol(self.version,'version')+
-            '<variables>\n'+''.join([self.XMLProtocol(getattr(self,p),p) for p in self.properties])+
-            '<independentVariables>\n'+''.join([i.toXML() for i in self.independentVariables])+'</independentVariables>\n'+
-            '</variables>\n'+
-            ''.join([i.toXML() for i in self.instruments])+
-            '</experiment>\n')
+        x=self.toXML()
         #write to the chosen file
         f=open(path,'w')
         f.write(x)
@@ -408,18 +399,20 @@ class Experiment(Prop):
         f=open('settings.xml','w')
         f.write(x)
         f.close()
-    
+
 class AQuA(Experiment):
     '''A subclass of Experiment which knows about all our particular hardware'''
     
     def __init__(self):
         super(AQuA,self).__init__()
         
+        self.properties+=['LabView']
+        
         self.LabView=LabView.LabView(experiment=self)
         self.instruments=[self.LabView]
         
         self.loadDefaultSettings()
-
+        
         #update variables
         try:
             self.evaluateAll()
