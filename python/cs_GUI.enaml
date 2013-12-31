@@ -765,7 +765,8 @@ enamldef DDS_box(StackItem):
             Label:
                 text='DIO port'
             SpinBox: sbox:
-                maximum = maxint
+                #maximum = maxint
+                maximum = 999999
                 minimum = 0
                 value:=box.DIOport
         
