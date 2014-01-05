@@ -71,7 +71,7 @@ class LabView(Instrument):
                 if self.sock is not None:
                     self.sock.sendmsg(self.msg)
                 else:
-                    print "LabView TCP connected by has no sock"
+                    print "LabView TCP says self.connected=True, but has no sock"
             else:
                 print "LabView TCP enabled but not connected"
     
