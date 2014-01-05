@@ -94,7 +94,7 @@ class QtField(QtControl):
         self.send_action('submit_text', content)
 
     def _validate_and_submit(self):
-        print "QTField._validate_and_submit"
+        #print "QTField._validate_and_submit"
         """ Validate the current text in the control, and submit it to
         the server widget if it's valid.
 
@@ -102,12 +102,12 @@ class QtField(QtControl):
         text = self.widget().text()
         if text != self._last_value:
             if self._validator(text):
-                print "QTField._validate_and_submit validator true"
+                #print "QTField._validate_and_submit validator true"
                 self._clear_error_style()
                 self._submit_text(text)
                 self._last_value = text
             else:
-                print "QTField._validate_and_submit validator true"
+                #print "QTField._validate_and_submit validator true"
                 self._set_error_style()
 
     def _set_error_style(self):
