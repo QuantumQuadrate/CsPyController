@@ -577,6 +577,8 @@ enamldef Waveform(WaveformPage): thisWaveformPage:
         #    text='update graph'
         #    clicked::
         #        waveform.updateFigure()
+        
+        #the following 7 lines are used for the matplotlib digital waveform plot
         Container: canvasContainer:
             hug_height='strong'
             RefreshableMPLCanvas: canvas:
@@ -584,6 +586,14 @@ enamldef Waveform(WaveformPage): thisWaveformPage:
                 #width=parent.parent.width
                 figure = waveform.figure
                 refresh<<waveform.refresh
+                
+        #the following 5 lines would be used for the Chaco digital waveform plot
+        #constraints=[vbox(canvas,details)]
+        #EnableCanvas: canvas:
+        #    #TODO: make this expand and shrink nicely while filling the width
+        #    constraints=[height==500]
+        #    component<<waveform.plot
+
         Container: details:
             constraints=[nameAndChannelNums.top==contents_top,transitions.top==contents_top,addButton.top==contents_top,nameAndChannelNums.left==contents_left,
                 nameAndChannelNums.right==transitions.left,transitions.right==addButton.left]
