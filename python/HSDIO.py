@@ -10,11 +10,13 @@ This file holds everything needed to model the high speed digital output from th
 
 #from cs_errors import PauseError
 from traits.api import Bool, Instance
+#from enthought.chaco.api import ArrayPlotData, Plot #for chaco plot
 from instrument_property import Prop, BoolProp, IntProp, FloatProp, StrProp, ListProp
 from cs_instruments import Instrument
 import matplotlib.pyplot as plt
 import numpy, logging
 logger = logging.getLogger(__name__)
+#import digital_waveform #my helper class for making Chaco plots of waveforms
 
 #---- HSDIO properties ----
 class ScriptTrigger(Prop):
@@ -32,7 +34,7 @@ class ScriptTrigger(Prop):
         self.edge=StrProp('edge',experiment,'','"rising"')
         self.level=StrProp('level',experiment,'','"high"')
         self.properties+=['id','source','type','edge','level']
-        
+
 class Channel(Prop):
     active=Instance(BoolProp)
     
@@ -47,20 +49,19 @@ class Channels(ListProp):
             listProperty=[Channel(str(i),experiment,'') for i in xrange(HSDIO.numChannels)],
             listElementType=Channel)
         self.HSDIO=HSDIO
-        
+    
     def toHardware(self):
         #The actual IdleState and InitialState are all set to all X's, for continuity.
         activeChannels=[str(i) for i,c in enumerate(self.listProperty) if c.active.value]
         xState='X'*len(activeChannels)
         return ('<InitialState>'+xState+'</InitialState>\n<IdleState>'+xState+'</IdleState>\n<ActiveChannels>'+','.join(activeChannels)+'</ActiveChannels>\n')
-
+    
     def fromXML(self,xmlNode):
         while self.listProperty: #go until the list is empty
             self.listProperty.pop()
         self.listProperty+=[Channel(str(i),self.experiment,'').fromXML(child) for i, child in enumerate(xmlNode)]
         return self
 
-        
 class State(ListProp):
     def __init__(self,experiment,HSDIO):
         super(State,self).__init__('state',experiment,
@@ -99,6 +100,8 @@ class Sequence(ListProp):
 class Waveform(Prop):
     figure=Instance(plt.Figure)
     refresh=Bool
+    #plot=Instance(Plot) #chaco plot
+    colors={0:'white',1:'black',5:'grey'} #color dictionary for plot
     
     def __init__(self,name,experiment,HSDIO,description='',waveforms=None):
         super(Waveform,self).__init__(name,experiment,description)
@@ -107,6 +110,9 @@ class Waveform(Prop):
         self.sequence=Sequence(self.experiment,self.HSDIO) #start with no transitions
         self.isEmpty=True
         self.properties+=['isEmpty','sequence']
+        
+        #setup chaco plot
+        #self.plot=digital_waveform.WaveformPlot()
         
         #setup the figure that will be used for plotting sequences
         fig, ax = plt.subplots()
@@ -136,6 +142,7 @@ class Waveform(Prop):
         return newTransition
         
     def toHSDIOformat(self):
+        '''Create timeList, a 1D array of transition times, and stateList a 2D array of output values.'''
         if len(self.sequence)==0:
             self.isEmpty=True
             self.timeList=numpy.zeros(0,dtype=int)
@@ -145,7 +152,9 @@ class Waveform(Prop):
             self.isEmpty=False
             timeList=numpy.array([i.time.value for i in self.sequence])
             stateList=numpy.array([[channel.value for channel in transition.state] for transition in self.sequence],dtype='uint8') #channel here refers to an IntProp, not to a Channel
+            #put the transition list in order
             order=timeList.argsort()
+            #convert to samples
             self.timeList=numpy.array(timeList[order]*self.waveforms.HSDIO.clockRate.value,dtype=int) #convert to samples
             self.stateList=stateList[order]
             
@@ -155,8 +164,15 @@ class Waveform(Prop):
                 self.timeList=numpy.insert(self.timeList,0,0,axis=0)
                 self.stateList=numpy.insert(self.stateList,0,5,axis=0)
             
-            self.duration=[self.timeList[i+1]-self.timeList[i] for i in xrange(len(self.timeList)-1)]
-            self.duration.append(1) #add in a 1 sample duration at end for last transition
+            # find the duration of each segment
+            self.duration=self.timeList[1:]-self.timeList[:-1]
+            # self.duration=[self.timeList[i+1]-self.timeList[i] for i in xrange(len(self.timeList)-1)]
+            self.duration=numpy.append(self.duration,1) #add in a 1 sample duration at end for last transition
+
+# dictionary version of colorMap, but we might not want to use this if it is slower
+#    def colorMap(val):
+#        '''The color map for plotting HSDIO sequence bar charts.  Red indicates an invalid value.'''
+#        return colors.get(val,'red')
 
     def colorMap(val):
         '''The color map for plotting HSDIO sequence bar charts.  Red indicates an invalid value.'''
@@ -176,7 +192,8 @@ class Waveform(Prop):
         '''This function redraws the broken bar chart display of the waveform sequences.'''
         self.toHSDIOformat() #update processed sequence
 
-        self.ax.collections=[] #clear old plots
+        #clear the old matplotlib plot
+        self.ax.collections=[]
 
         if not self.isEmpty:
             #figure out how to resolve '5' unchanged samples
@@ -186,6 +203,10 @@ class Waveform(Prop):
                     if displayArray[j,i]==5:
                         displayArray[j,i]=displayArray[j-1,i] #change the '5' to be whatever was before it                    
             
+            #Call the chaco plot
+            #self.plot.update(self.timeList,self.duration,displayArray)
+
+            #Make the matplotlib plot
             #Make a broken horizontal bar plot, i.e. one with gaps
             data=zip(self.timeList,self.duration)
             
