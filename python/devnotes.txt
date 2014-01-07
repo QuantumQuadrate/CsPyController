@@ -8,7 +8,8 @@ current question:
     
     
 TODO:
-    Checking git behavior.
+    make python and labview both able to interpret 'false' and 'False' and '0' and '' as False
+    Make hexagon not read-only so I can push git to there
     Add instruments to backend and detail to front panel
     replace other indexed Stacks with IndexedStack
     It would be nice to make the variable reporting format able to handle line breaks somehow.  Maybe parse each line separately.

@@ -45,9 +45,12 @@ class LabView(Instrument):
         print "LabView.initialize()"
         if self.enabled:
             # Create a TCP/IP socket
-            self.sock=TCP.CsSock(self.IP,self.port)
-            print 'LabView.initialize sock opened'
-            self.connected=True
+            try:
+                self.sock=TCP.CsClientSock(self.IP,self.port)
+                print 'LabView.initialize sock opened'
+                self.connected=True
+            except:
+                logger.warning('Failed to open TCP socket in LabView.initialize()'
             for i in self.instruments:
                 i.initialize()
             self.isInitialized=True
