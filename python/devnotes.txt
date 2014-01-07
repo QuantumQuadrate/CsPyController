@@ -4,10 +4,21 @@ CsController2 notes:
 
 
 current question:
-    'MESG'+4 byte total length + 4 byte name length + name + 4 byte data length + 
     each gets put into experiment.results[measurement_number]['name'] after some proper dissection
 
 TODO:
+    add results to an hdf5 object as they come in
+        LabView object brings in data from all the hardware.  It should assign the data
+        to an appropriate place in the experiment's hdf5 file.  Each experiment should
+        have one hdf5 file, I would think.  Can we do concurrent access?  If not, maybe each iteration
+        or even each measurement gets an hdf5 file of it's own.  We can certainly have the file open
+        and have each part of the python program accessing the same hdf5 file object
+        Would it be easier just to make a results object, and then pickle it when you are done?
+        That's what we were setting up initially with the results object that contains a dict
+        of instrument results.  The question is: is hdf5 really getting me anything by putting
+        everything on disc.  Possibly, if this is how I ultimately want to store the data anyway.
+        But right now I am faced with whether or not this will make it difficult to analyze
+        data as it comes in.
     comma separated value image transfer
     make it so that the TCP connection is labeled as uninitialized on an error
     make python and labview both able to interpret 'false' and 'False' and '0' and '' as False
@@ -27,6 +38,7 @@ TODO:
     horizontal scroll bar doesn't appear when too many transitions are added to waveform
 
 Done:
+    'MESG'+4 byte total length + 4 byte name length + name + 4 byte data length + data
     Got analog output graph to display, now put the right equations in it
     XML can't handle just a number as a tag, apparently.  WHY?!!!  Make it so XML tags for list elements start with a word, then number
     update HSDIO and DDS to use ListProp

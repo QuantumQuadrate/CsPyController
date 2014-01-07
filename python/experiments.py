@@ -12,7 +12,7 @@ class result(object):
     def __init__(self,start_time,iteration,measurement,ivarIndices,variables,data):
         self.t=start_time #the time.time() that the experiment was started
         self.i=iteration #the iteration number, a single integer
-        self.i=ivarIndices #a list of indices of each independent variable at this iteration
+        self.indices=ivarIndices #a list of indices of each independent variable at this iteration
         self.m=measurement #the measurement number, reset each iteration
         self.v=variables #a dictionary of all variables
         self.d=data #a dictionary of all data.  To access camera data call result.d['camera'] to get a numpy array.
@@ -221,11 +221,8 @@ class Experiment(Prop):
         
         start_time = time.time() #record start time of measurement
         
-        #TODO: remove this
-        time.sleep(.1)
-        
         #loop until all instruments are done
-        #can we do this with a callback?
+        #TODO: can we do this with a callback?
         while not all([i.isDone for i in self.instruments]):
             if time.time() - start_time > self.measurementTimeout: #break if timeout exceeded
                 logger.warning('The following instruments timed out: '+str([i.name for i in self.instruments if not i.isDone]))
