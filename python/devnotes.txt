@@ -4,11 +4,14 @@ CsController2 notes:
 
 
 current question:
-    
-    
-    
+    'MESG'+4 byte total length + 4 byte name length + name + 4 byte data length + 
+    each gets put into experiment.results[measurement_number]['name'] after some proper dissection
+
 TODO:
+    comma separated value image transfer
+    make it so that the TCP connection is labeled as uninitialized on an error
     make python and labview both able to interpret 'false' and 'False' and '0' and '' as False
+    remove git_repos_old on hexagon
     Make hexagon not read-only so I can push git to there
     Add instruments to backend and detail to front panel
     replace other indexed Stacks with IndexedStack

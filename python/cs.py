@@ -11,8 +11,16 @@ analysis, and TCP server for communication with LabView.
 On Windows you must do "set ETS_TOOLKIT=qt4" from the command line before running this.
 The file cs.bat performs this task for you and then runs 'python cs.py'.
 
-To run from a shell call: import cs; exp=cs.new()
+To run from a shell call: import cs; exp,app=cs.new()
 """
+
+print """On Windows you must do "set ETS_TOOLKIT=qt4" from the command line before running this.
+The file cs.bat performs this task for you and then runs 'python cs.py'.
+On OS X you must do "export ETS_TOOLKIT=qt4" from the command line before running this.
+
+To run from a shell call: import cs; exp,app=cs.new()
+"""
+
 
 import enaml
 from enaml.session import Session

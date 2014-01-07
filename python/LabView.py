@@ -44,13 +44,18 @@ class LabView(Instrument):
     def initialize(self):
         print "LabView.initialize()"
         if self.enabled:
+            #check for an old socket and delete it
+            if self.sock is not None:
+                self.sock.close()
+                del self.sock
             # Create a TCP/IP socket
             try:
-                self.sock=TCP.CsClientSock(self.IP,self.port)
+                self.sock=TCP.CsClientSock(self.IP,self.port,parent=self)
+            except:
+                logger.warning('Failed to open TCP socket in LabView.initialize()')
+            else:
                 print 'LabView.initialize sock opened'
                 self.connected=True
-            except:
-                logger.warning('Failed to open TCP socket in LabView.initialize()'
             for i in self.instruments:
                 i.initialize()
             self.isInitialized=True
@@ -64,6 +69,7 @@ class LabView(Instrument):
             finally:
                 self.sock.close()
         self.connected=False
+        self.isInitialized=False
     
     def update(self):
         super(LabView,self).update()

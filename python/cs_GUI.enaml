@@ -390,6 +390,10 @@ enamldef LabViewPage(Page):
     title = 'LabView'
 
     Container:
+        PushButton:
+            text='close connection'
+            clicked::
+                LabView.close()
         Form:
             Label:
                 text='enable communication with LabView system?'
@@ -578,7 +582,7 @@ enamldef Waveform(WaveformPage): thisWaveformPage:
         #    clicked::
         #        waveform.updateFigure()
         
-        #the following 7 lines are used for the matplotlib digital waveform plot
+        #the following 7 lines are used for the matplotlib digital waveform plot 
         Container: canvasContainer:
             hug_height='strong'
             RefreshableMPLCanvas: canvas:
