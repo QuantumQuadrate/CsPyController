@@ -129,6 +129,8 @@ class CsClientSock(CsSock):
         super(CsClientSock,self).close()
     
     def parsemsg(self,msg):
+        '''Take apart an incoming message that is composed of a sequence of (namelength,name,datalength,data) sets.
+        These are then stored in a dictionary under name:data.'''
         l=len(msg)
         i=0
         result={}
@@ -204,7 +206,7 @@ class CsServerSock(CsSock):
                         #first create a struct object, because reusing the same object is more efficient
                         myStruct=struct.Struct('!H') #'!H' indicates unsigned short (2 byte) integers
                         testdatamsg=''.join([myStruct.pack(t) for t in testdata.flatten()])
-                        msg=self.makemsg('Hamamatsu.rows',str(rows))+self.makemsg('Hamamatsu.columns',str(columns))+self.makemsg('Hamamatsu.bytes',str(bytes))+self.makemsg('Hamamatsu.signed',str(signed))+self.makemsg('Hamamatsu.shot0',testdatamsg)
+                        msg=self.makemsg('Hamamatsu/rows',str(rows))+self.makemsg('Hamamatsu/columns',str(columns))+self.makemsg('Hamamatsu/bytes',str(bytes))+self.makemsg('Hamamatsu/signed',str(signed))+self.makemsg('Hamamatsu/shots/0',testdatamsg)
                         
                         try:
                             self.sendmsg(msg)

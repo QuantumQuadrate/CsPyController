@@ -84,9 +84,39 @@ class LabView(Instrument):
             else:
                 print "LabView TCP enabled but not connected"
     
-    def start(self):    
+    def start(self):
         #tell the LabView instruments to measure
+        self.msg='<LabView><command>measure</command></LabView>'
+        self.sock.sendmsg(self.msg)
+        
+        #wait for response
+        while not self.experiment.timeOutExpired:
+            rawdata=self.sock.receive()
+            if rawdata is not None:
+                self.results=self.sock.parsemsg(rawdata)
+        
         self.isDone=True
+    
+    def writeResults(self,hdf5):
+        '''Write the previously obtained results to the experiment hdf5 file.
+        hdf5 is an hdf5 group, typically the data group in the appropriate part of the
+        hierarchy for the current measurement.'''
+        
+        for key,value in self.results.iteritems():
+            if key.startswith('Hamamatsu/shots/'):
+                #specific protocol for images: turn them into 2D numpy arrays
+                
+                #unpack the image in 2 byte chunks
+                array=numpy.array(struct.unpack('!'+str(int(len(value)/2))+'H',value))
+                
+                #the dictionary is unpacked alphabetically, so if width and height were
+                #transmitted they should be loaded already
+                if ('Hamamatsu/rows' in hdf5) and ('Hamamtsu/columns' in hdf5):
+                    array.resize((hdf5['Hamamatsu/rows'].value,hdf5['Hamamatsu/columns'].value))
+                hdf5[key]=array
+            else:
+                #no special protocol
+                hdf5[key]=value
     
     def initializeDDS(self):
         raise NotImplementedError

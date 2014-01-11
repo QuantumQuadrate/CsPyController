@@ -214,12 +214,7 @@ class Experiment(Prop):
         Actual output or input from the measurement may yet wait for a signal from another device.'''
         
         start_time = time.time() #record start time of measurement
-        
-        #set up the results container
-        self.results=self.hdf5.create_group('iterations/'+str(self.iteration)+'/measurements/'+str(self.measurement))
-        self.results['t']=start_time
-        self.results['m']=self.measurement
-        self.results.create_group('d') #for storing data
+        self.timeOutExpired=False
         
         #for all instruments
         for i in self.instruments:
@@ -245,11 +240,21 @@ class Experiment(Prop):
         #TODO: can we do this with a callback?
         while not all([i.isDone for i in self.instruments]):
             if time.time() - start_time > self.measurementTimeout: #break if timeout exceeded
+                self.timeOutExpired=True
                 logger.warning('The following instruments timed out: '+str([i.name for i in self.instruments if not i.isDone]))
-                break
+                return #exit without saving results
             time.sleep(.01) #wait a bit, then check again
-        #append the results
-        self.results.append(result(str(datetime.datetime.fromtimestamp(start_time)), self.iteration,self.measurement,self.ivarIndex,self.vars,dict([(i.name,i.data) for i in self.instruments])))
+        
+        #set up the results container
+        self.measurementResults=self.hdf5.create_group('iterations/'+str(self.iteration)+'/measurements/'+str(self.measurement))
+        self.measurementResults['start_time']=start_time
+        self.measurementResults['measurement']=self.measurement
+        self.measurementResults.create_group('data') #for storing data
+        for i in self.instruments:
+            #pass the hdf5 group to each instrument so they can write results to it
+            #we do it here because h5py is not thread safe, and also this way we avoid saving results for aborted measurements
+            i.writeResults(self.measurementResults['data'])
+        
         self.postMeasurement()
         self.completedMeasurementsByIteration[-1]+=1 #add one to the last counter in the list
     
@@ -334,6 +339,10 @@ class Experiment(Prop):
             #loop until iteration are complete
             while (self.iteration < self.totalIterations) and (self.status=='running'):
                 
+                #at the start of a new iteration, or if we are continuing
+                self.evaluate()    #re-calculate all variables
+                self.update()      #send current values to hardware
+                
                 #only at the start of a new iteration
                 if self.measurement==0:
                     self.completedMeasurementsByIteration.append(0) #start a new counter for this iteration
@@ -354,17 +363,17 @@ class Experiment(Prop):
                             except Exception as e:
                                 logger.warning('Could not save variable '+key+' as an hdf5 attribute with value: '+str(value))
                 
-                #at the start of a new iteration, or if we are continuing
-                self.evaluate()    #re-calculate all variables
-                self.update()      #send current values to hardware
-                
-                #loop until the desired number of measurements is taken
+                #loop until the desired number of measurements are taken
                 while (self.measurement < self.measurementsPerIteration) and (self.status=='running'):
                     self.measure()     #tell all instruments to do the experiment sequence and acquire data
                     self.updateTime()  #update the countdown/countup clocks
                     self.measurement+=1 #update the measurement count
                     if self.status=='running' and self.pauseAfterMeasurement:
                         self.status='paused after measurement'
+                    
+                    #make sure results are written to disk
+                    self.hdf5.flush()
+                
                 if self.measurement>=self.measurementsPerIteration:
                     # We have completed this iteration, move on to the next one
                     self.iteration+=1
