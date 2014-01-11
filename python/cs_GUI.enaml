@@ -247,6 +247,10 @@ enamldef ExperimentPage(Page):
                 checked:=experiment.saveData
                 text:=experiment.localDataPath
                 placeholder='local data path'
+            
+            Lavel: text='Save 2013 style files?'
+            CheckBox:
+                checked:=experiment.save2013styleFiles
 
             Label: text='Copy Data to Network?'
             CheckField:
@@ -359,7 +363,7 @@ enamldef VariablesPage(Page):
     attr experiment
     title = 'Variables'
     Container:
-        constraints=[vbox(updateButton,hbox(independent,dependent,report)),align('top',independent,dependent,report)]
+        constraints=[vbox(updateButton,hbox(independent,dependent,report),variablesNotToSave),align('top',independent,dependent,report)]
         PushButton: updateButton:
             text='Update variables throughout experiment'
             clicked::
@@ -384,6 +388,10 @@ enamldef VariablesPage(Page):
                 text:=experiment.variableReportFormat
             Label: lb2:
                 text<<experiment.variableReportStr
+        GroupBox: variablesNotToSave
+            title=Variables Not To Save to HDF5 (comma separated)
+            Field:
+                text:=experiment.variablesNotToSave
 
 enamldef LabViewPage(Page):
     attr LabView

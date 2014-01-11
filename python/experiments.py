@@ -1,9 +1,17 @@
 import threading, time, datetime, logging, traceback, xml.etree.ElementTree, pickle, numpy
 logger = logging.getLogger(__name__)
-numpy.set_printoptions(formatter=dict(float=lambda t: "%.2e" % t)) #set numpy print options to limit to 2 digits
+
+#for saving data in hdf5 files
+import h5py
+
+#set numpy print options to limit to 2 digits
+numpy.set_printoptions(formatter=dict(float=lambda t: "%.2e" % t))
+
+# Use Enthought traits to automate Enaml updating
 from traits.api import Bool, Int, Float, Str, Instance
+
+# Bring in other files in this package
 import cs_evaluate
-#from cs_errors import PauseError
 from instrument_property import Prop, EvalProp, ListProp
 from cs_errors import PauseError
 import LabView
@@ -73,6 +81,7 @@ class independentVariable(EvalProp):
                 self.index=0
             self.currentValue=self.valueList[index]
         self.currentValueStr=str(self.currentValue)
+        return self.index
 
 class Experiment(Prop):
 
@@ -84,6 +93,7 @@ class Experiment(Prop):
     pauseAfterMeasurement=Bool(False)
     pauseAfterError=Bool(False)
     saveData=Bool
+    save2013styleFiles=Bool
     localDataPath=Str
     networkDataPath=Str
     copyDataToNetwork=Bool
@@ -111,22 +121,27 @@ class Experiment(Prop):
     dependentVariablesStr=Str
     variableReportFormat=Str
     variableReportStr=Str
+    variablesNotToSave=Str
  
     '''Defines a set of instruments, and a sequence of what to do with them.'''
     def __init__(self):
         super(Experiment,self).__init__('experiment',self) #name is 'experiment', associated experiment is self
         self.instruments=[] #a list of the instruments this experiment has defined
-        self.results=[] #a list of the results from the whole experiment, starts empty
+        #self.results=[] #a list of the results from the whole experiment, starts empty
         self.completedMeasurementsByIteration=[]
         self.independentVariables=ListProp('independentVariables',self,listElementType=independentVariable,listElementName='independentVariable')
         self.ivarIndex=[]
         self.vars={}
         self.variableReportFormat='""'
         self.variableReportStr=''
-        self.properties+=['version','independentVariables','dependentVariablesStr','pauseAfterIteration','pauseAfterMeasurement','pauseAfterError','saveData','localDataPath','networkDataPath',
+        self.properties+=['version','independentVariables','dependentVariablesStr',
+        'pauseAfterIteration','pauseAfterMeasurement','pauseAfterError','saveData',
+        'save2013styleFiles','localDataPath','networkDataPath',
         'copyDataToNetwork','experimentDescriptionFilenameSuffix','measurementTimeout','measurementsPerIteration','willSendEmail',
         'emailAddresses','progress','iteration','measurement','totalIterations','timeStartedStr','currentTimeStr','timeElapsedStr','totalTimeStr',
-        'timeRemainingStr','completionTimeStr','variableReportFormat','variableReportStr']
+        'timeRemainingStr','completionTimeStr','variableReportFormat','variableReportStr','variablesNotToSave']
+        
+        #initialize a new HDF5 file
     
     def evaluateIndependentVariables(self):
         #make sure ivar functions have been parsed, don't rely on GUI update
@@ -154,7 +169,7 @@ class Experiment(Prop):
         for i in seq:
             index[i]=int(iter/base[i])
             iter-=index[i]*base[i]
-            self.independentVariables[i].setIndex(index[i]) #update each variable object
+            index[i]=self.independentVariables[i].setIndex(index[i]) #update each variable object
         self.ivarIndex=index #store the list
     
     def update(self):
@@ -197,16 +212,23 @@ class Experiment(Prop):
     def measure(self):
         '''Enables all instruments to begin a measurement.  Sent at the beginning of every measurement.
         Actual output or input from the measurement may yet wait for a signal from another device.'''
+        
+        start_time = time.time() #record start time of measurement
+        
+        #set up the results container
+        self.results=self.hdf5.create_group('iterations/'+str(self.iteration)+'/measurements/'+str(self.measurement))
+        self.results['t']=start_time
+        self.results['m']=self.measurement
+        self.results.create_group('d') #for storing data
+        
         #for all instruments
         for i in self.instruments:
             print 'experiment.measure() i.name =',i.name
             #check that the instruments are initalized
             print 'initialized = ',i.isInitialized
             if not i.isInitialized:
-                print 'experiment.measure() initializing'
+                print 'experiment.measure() initializing '+i.name
                 i.initialize() #reinitialize
-
-                #TODO: make sure this happens each iteration too
                 i.update() #put the settings to where they should be at this iteration
             else:
                 #check that the instrument is not already occupied
@@ -218,8 +240,6 @@ class Experiment(Prop):
                     #let each instrument begin measurement
                     #put each in a different thread, so they can proceed simultaneously
                     threading.Thread(target=i.start).start()
-        
-        start_time = time.time() #record start time of measurement
         
         #loop until all instruments are done
         #TODO: can we do this with a callback?
@@ -250,7 +270,8 @@ class Experiment(Prop):
         return str(datetime.timedelta(seconds=time))
     
     def updateTime(self):
-    
+        '''Updates the GUI clock and recalculates the time-to-completion predictions.'''
+        
         self.currentTime=time.time()
         self.currentTimeStr=self.date2str(self.currentTime)
         
@@ -282,12 +303,16 @@ class Experiment(Prop):
         if (self.status!='idle'):
             logger.info('Current status is {}. Cannot reset experiment unless status is idle.'.format(self.status))
             return #exit
-
+        
         #reset experiment variables
         self.timeStarted=time.time()
         self.timeStartedStr=self.date2str(self.timeStarted)
         self.iteration=0
+        self.measurement=0
         self.completedMeasurementsByIteration=[]
+        
+        #setup data directory and files
+        self.create_data_files()
         
         self.status='paused before experiment'
         
@@ -297,44 +322,68 @@ class Experiment(Prop):
         '''Pick up the experiment wherever it was left off.'''
         
         #check if we are ready to do an experiment
-        if self.status.split()[0]!='paused':
+        if not self.status.startswith('paused'):
             logger.info('Current status is {}. Cannot continue an experiment unless status is paused.'.format(self.status))
             return #exit
         self.status='running' #prevent another experiment from being started at the same time
-
-        while self.status=='running':
-            try: #if there is an error we exit the inner loops and respond appropriately
-                #make sure the independent variables at processed
-                self.evaluateIndependentVariables()
-         
-                #step through iterations
-                while (self.iteration < self.totalIterations) and (self.status=='running'):
-                    if self.measurement==0:
-                        'at the start of a new iteration'
-                        self.completedMeasurementsByIteration.append(0) #start a new counter for this iteration
-                    self.evaluate()    #re-calculate all variables
-                    self.update()      #send current values to hardware
-                    while (self.measurement < self.measurementsPerIteration) and (self.status=='running'):
-                        self.measure()     #tell all instruments to do the experiment sequence and acquire data
-                        self.updateTime()  #update the countdown/countup clocks
-                        self.measurement+=1 #update the measurement count
-                        if self.status=='running' and self.pauseAfterMeasurement:
-                            self.status='paused after measurement'
-                    if self.measurement>=self.measurementsPerIteration:
-                        'We have completed this iteration, move on to the next one'
-                        self.iteration+=1
-                        self.measurement=0
-                        if (self.status=='running' or self.status=='paused after measurement') and self.pauseAfterIteration:
-                            self.status='paused after iteration'            
-                    if self.iteration>=self.totalIterations:
-                        self.status='idle' #we are now ready for the next experiment
-            except PauseError:
-                if self.pauseAfterError:
-                    self.status='paused after error'
-            except Exception as e:
-                logger.error('Exception during experiment:\n'+str(e)+'\n'+str(traceback.print_exc())+'\n')
-                if self.pauseAfterError:
-                    self.status='paused after error'
+        
+        try: #if there is an error we exit the inner loops and respond appropriately
+            #make sure the independent variables are processed
+            self.evaluateIndependentVariables()
+            
+            #loop until iteration are complete
+            while (self.iteration < self.totalIterations) and (self.status=='running'):
+                
+                #only at the start of a new iteration
+                if self.measurement==0:
+                    self.completedMeasurementsByIteration.append(0) #start a new counter for this iteration
+                    
+                    #write the iteration settings to the hdf5 file
+                    results=self.hdf5.create_group('iterations/'+str(self.iteration))
+                    results.attrs['start_time']=self.date2str(time.time())
+                    results.attrs['iteration']=self.iteration
+                    results.attrs['ivarNames']=self.ivarNames
+                    results.attrs['ivarValues']=[i.currentValue for i in self.independentVariables]
+                    results.attrs['ivarIndex']=self.ivarIndex
+                    v=results.create_group('v')
+                    ignoreList=self.variablesNotToSave.split(',')
+                    for key,value in self.vars.iteritems():
+                        if key not in ignoreList:
+                            try:
+                                v.attr[key]=value
+                            except Exception as e:
+                                logger.warning('Could not save variable '+key+' as an hdf5 attribute with value: '+str(value))
+                
+                #at the start of a new iteration, or if we are continuing
+                self.evaluate()    #re-calculate all variables
+                self.update()      #send current values to hardware
+                
+                #loop until the desired number of measurements is taken
+                while (self.measurement < self.measurementsPerIteration) and (self.status=='running'):
+                    self.measure()     #tell all instruments to do the experiment sequence and acquire data
+                    self.updateTime()  #update the countdown/countup clocks
+                    self.measurement+=1 #update the measurement count
+                    if self.status=='running' and self.pauseAfterMeasurement:
+                        self.status='paused after measurement'
+                if self.measurement>=self.measurementsPerIteration:
+                    # We have completed this iteration, move on to the next one
+                    self.iteration+=1
+                    self.measurement=0
+                    if (self.status=='running' or self.status=='paused after measurement') and self.pauseAfterIteration:
+                        self.status='paused after iteration'            
+                if self.iteration>=self.totalIterations:
+                    self.status='idle' #we are now ready for the next experiment
+        except PauseError:
+            #This should be the only place that PauseError is explicitly handed.
+            #All other non-fatal error caught higher up in the experiment chain should
+            #gracefully handle the error, then 'raise PauseError' so that the experiment
+            #exits out to this point.
+            if self.pauseAfterError:
+                self.status='paused after error'
+        except Exception as e:
+            logger.error('Exception during experiment:\n'+str(e)+'\n'+str(traceback.print_exc())+'\n')
+            if self.pauseAfterError:
+                self.status='paused after error'
     
     def halt(self):
         self.status='idle'
@@ -396,6 +445,39 @@ class Experiment(Prop):
         f=open('settings.xml','w')
         f.write(x)
         f.close()
+    
+    def create_data_files(self):
+        '''CreateCreate a new HDF5 file to store results.  This is done at the beginning of
+        every experiment.'''
+        
+        #if a prior HDF5 file is open, then close it
+        if self.hdf5 is not None:
+            self.hdf5.flush()
+            self.hdf5.close()
+        
+        if self.saveData:
+            #create a new directory for experiment
+            
+            #build the path
+            dailyPath=datetime.datetime.fromtimestamp(timeStartedStr).strftime('%Y_%m_%d')
+            experimentPath=datetime.datetime.fromtimestamp(timeStartedStr).strftime('%Y_%m_%d_%H_%M%_%S_')+experimentDescriptionFilenameSuffix
+            path=os.path.join(self.localDataPath,dailyPath,experimentPath)
+            
+            #check that it doesn't exist first
+            if not isdir(path):
+                #create the directory
+                #use os.makedirs instead of os.mkdir to create the intermediate dailyPath directory if it does not exist
+                os.makedirs(path)
+        
+            #save to a real file
+            self.hdf5=h5py.File(os.path.join(path,'results.hdf5'),'a')
+        
+        else:
+            #hold results only in memory
+            self.hdf5=h5py.File('results.hdf5','a',driver='core',backing_store=False)
+        
+        #create a group to hold iterations in the hdf5 file
+        self.hdf5.create_group('iterations')
 
 class AQuA(Experiment):
     '''A subclass of Experiment which knows about all our particular hardware'''
@@ -415,14 +497,3 @@ class AQuA(Experiment):
             self.evaluateAll()
         except PauseError:
             print 'PauseError'
-        
-    def loadMOT():
-        raise NotImplementedError
-    
-    def readout():
-        raise NotImplementedError
-
-class retention(AQuA):
-    '''A retention check experiment'''
-    def __init__(self):
-        raise NotImplementedError

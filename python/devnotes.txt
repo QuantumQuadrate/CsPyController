@@ -1,8 +1,5 @@
 CsController2 notes:
 
-* = current task
-
-
 current question:
     each gets put into experiment.results[measurement_number]['name'] after some proper dissection
 
@@ -36,6 +33,7 @@ TODO:
     make waveform plotting even faster by changing data in plot objects, instead of creating new ones.
     Add + Page to waveform notebooks, which is not closeable, and on showing, acts to open a new waveform.
     horizontal scroll bar doesn't appear when too many transitions are added to waveform
+    complete cs_hdf.hdf2dict class
 
 Done:
     'MESG'+4 byte total length + 4 byte name length + name + 4 byte data length + data
