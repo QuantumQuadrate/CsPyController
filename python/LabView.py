@@ -9,7 +9,7 @@ created=2013-10-08
 modified>=2013-10-08
 '''
 
-import TCP, HSDIO, piezo, DDS, RF_generators, AnalogOutput
+import TCP, HSDIO, piezo, DDS, RF_generators, AnalogOutput, DAQmxPulse
 from traits.api import Bool, Int, Str
 from cs_instruments import Instrument
 import logging
@@ -30,8 +30,9 @@ class LabView(Instrument):
         self.piezo=piezo.Piezo(experiment)
         self.RF_generators=RF_generators.RF_generators(experiment)
         self.AnalogOutput=AnalogOutput.AnalogOutput(experiment)
-        #self.DAQmxPulse=DAQmxPulse()
-        #self.Counter=Counter()
+        self.DAQmxPulse=DAQmxPulse.DAQmxPulse(experiment)
+        self.results={}
+        #self.Counter=Counter.Counter(experiment)
         #self.Camera=HamamatsuC9100_13
         
         self.instruments=[self.HSDIO,self.DDS,self.piezo,self.RF_generators,self.AnalogOutput] #self.DAQmxPulse,self.Counter,self.Camera]
@@ -42,7 +43,6 @@ class LabView(Instrument):
         self.properties+=['IP','port','enabled','connected','HSDIO','DDS','piezo','RF_generators','AnalogOutput']
     
     def initialize(self):
-        print "LabView.initialize()"
         if self.enabled:
             #check for an old socket and delete it
             if self.sock is not None:
@@ -62,12 +62,7 @@ class LabView(Instrument):
     
     def close(self):
         if self.sock:
-            try:
-                #tell the server to stop sending
-                self.sock.sendall('quit')
-                print 'closing socket'
-            finally:
-                self.sock.close()
+            self.sock.close()
         self.connected=False
         self.isInitialized=False
     
@@ -85,16 +80,25 @@ class LabView(Instrument):
                 print "LabView TCP enabled but not connected"
     
     def start(self):
-        #tell the LabView instruments to measure
-        self.msg='<LabView><command>measure</command></LabView>'
-        self.sock.sendmsg(self.msg)
-        
-        #wait for response
-        while not self.experiment.timeOutExpired:
-            rawdata=self.sock.receive()
-            if rawdata is not None:
-                self.results=self.sock.parsemsg(rawdata)
-        
+        if self.enabled:
+            if self.isInitialized:
+                if self.connected:
+                    #tell the LabView instruments to measure
+                    self.msg='<LabView><command>measure</command></LabView>'
+                    self.sock.sendmsg(self.msg)
+                    
+                    #wait for response
+                    while not self.experiment.timeOutExpired:
+                        rawdata=self.sock.receive()
+                        if rawdata is not None:
+                            self.results=self.sock.parsemsg(rawdata)
+                else:
+                    logger.warning('LabView instrument claims to be initialized, but is not connected in LabView.start()')
+                    raise PauseError
+            else:
+                logger.warning('LabView instrument should be initialized already, but is not, in LabView.start()')
+                raise PauseError
+            
         self.isDone=True
     
     def writeResults(self,hdf5):

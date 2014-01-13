@@ -248,7 +248,7 @@ enamldef ExperimentPage(Page):
                 text:=experiment.localDataPath
                 placeholder='local data path'
             
-            Lavel: text='Save 2013 style files?'
+            Label: text='Save 2013 style files?'
             CheckBox:
                 checked:=experiment.save2013styleFiles
 
@@ -302,6 +302,10 @@ enamldef ExperimentPage(Page):
 
             Label: text='Estimated completion time'
             Label: text<<experiment.completionTimeStr
+            
+            Label: text='Notes'
+            MultilineField:
+                text:=experiment.notes
         
 enamldef VariableEntry(GroupBox):
     attr indepVar
@@ -363,7 +367,7 @@ enamldef VariablesPage(Page):
     attr experiment
     title = 'Variables'
     Container:
-        constraints=[vbox(updateButton,hbox(independent,dependent,report),variablesNotToSave),align('top',independent,dependent,report)]
+        constraints=[vbox(updateButton,hbox(independent,dependent,report)),align('top',independent,dependent,report)]
         PushButton: updateButton:
             text='Update variables throughout experiment'
             clicked::
@@ -373,12 +377,18 @@ enamldef VariablesPage(Page):
             
         GroupBox: dependent:
             title='Dependent Variables'
-            constraints=[vbox(lb1,field)]
+            constraints=[vbox(lb1,field,variablesNotToSave)]
             Label: lb1:
                 text='Define dependent variables using python code below.'
             MultilineField: field:
                 constraints=[height==600]
                 text:=experiment.dependentVariablesStr
+            GroupBox: variablesNotToSave:
+                hug_height='strong'
+                title='Variables Not To Save to HDF5 (comma separated)'
+                Field:
+                    text:=experiment.variablesNotToSave
+                    placeholder='scipy,numpy,x'
         GroupBox: report:
             constraints=[vbox(lb2,f1)]
             title='Report'
@@ -388,10 +398,6 @@ enamldef VariablesPage(Page):
                 text:=experiment.variableReportFormat
             Label: lb2:
                 text<<experiment.variableReportStr
-        GroupBox: variablesNotToSave
-            title=Variables Not To Save to HDF5 (comma separated)
-            Field:
-                text:=experiment.variablesNotToSave
 
 enamldef LabViewPage(Page):
     attr LabView
@@ -426,13 +432,14 @@ enamldef LabViewPage(Page):
             MultilineField:
                 text<<LabView.msg
             
-enamldef HSDIOchannel(Container):
+enamldef DOchannel(Container):
     attr channel
     attr index
     hug_height='strong'
     padding=0
     constraints=[description.width==3*activeF.width,activeF.width==2*activeL.width,hbox(label,description,activeF,activeL,),align('v_center',label,description,activeF,activeL)]
     Label: label:
+        width=25
         text=str(index)
     Field: description:
         text:=channel.description
@@ -443,14 +450,14 @@ enamldef HSDIOchannel(Container):
     Label: activeL:
         text<<str(channel.active.value)
 
-enamldef HSDIOchannels(GroupBox):
+enamldef DOchannels(GroupBox):
     attr channels
     flat=True
     title='channels (#, description, active?)'
 
     Looper: looper:
         iterable << channels
-        HSDIOchannel:
+        DOchannel:
             channel=loop_item
             index=loop_index
 
@@ -476,17 +483,29 @@ enamldef HSDIOScriptTrigger(StackItem):
         EvalProp:
             prop<<item.level
 
+enamldef StartTrigger(GroupBox):
+    attr trigger
+    title='Start Trigger'
+    EvalProp:
+        prop<<trigger.waitForStartTrigger
+    EvalProp:
+        prop<<trigger.source
+    EvalProp:
+        prop<<trigger.edge
+
 enamldef HSDIO_DigitalOutPage(Page):
     attr HSDIO
     title = 'HSDIO Pulses'
     
     Container:
         Container:
-                constraints=[vbox(p1,p2,p3,p4,p5,p6,p7,p8),align('left',p1,p2,p3,p4,p5,p6,p7,p8)]
+                constraints=[vbox(p1,p9,p2,p3,p4,p5,p6,p7,p8),align('left',p1,p9,p2,p3,p4,p5,p6,p7,p8)]
                 hug_height='strong'
                 hug_width='strong'
                 EvalProp: p1:
                     prop<<HSDIO.enable
+                StartTrigger: p9:
+                    trigger<<HSDIO.startTrigger
                 IndexedStack: p2:
                     title='Script Triggers'
                     iterable=HSDIO.triggers
@@ -501,7 +520,7 @@ enamldef HSDIO_DigitalOutPage(Page):
                     prop<<HSDIO.units
                 EvalProp: p7:
                     prop<<HSDIO.hardwareAlignmentQuantum
-                HSDIOchannels: p8:
+                DOchannels: p8:
                     channels<<HSDIO.channels
 
 enamldef Transition(Container):
@@ -619,7 +638,7 @@ enamldef Waveform(WaveformPage): thisWaveformPage:
                     constraints = [height == 20]
                     text='time'
                 Looper: loop1:
-                    iterable<<range(waveform.HSDIO.numChannels)
+                    iterable<<range(waveform.digitalout.numChannels)
                     Label:
                         constraints=[height==20]
                         text<<str(loop_index)+': '+waveform.experiment.LabView.HSDIO.channels[loop_index].description
@@ -668,6 +687,25 @@ enamldef WaveformsPage(Page):
 
 enamldef DAQmxDigitalOutPage(Page):
     title = 'DAQmx Pulses'    
+    attr DAQmx
+    
+    Container:
+        Container:
+                constraints=[vbox(p1,p9,p4,p5,p6,p8),align('left',p1,p9,p4,p5,p6,p8)]
+                hug_height='strong'
+                hug_width='strong'
+                EvalProp: p1:
+                    prop<<DAQmx.enable
+                StartTrigger: p9:
+                    trigger<<DAQmx.startTrigger
+                EvalProp: p4:
+                    prop<<DAQmx.resourceName
+                EvalProp: p5:
+                    prop<<DAQmx.clockRate
+                EvalProp: p6:
+                    prop<<DAQmx.units
+                DOchannels: p8:
+                    channels<<DAQmx.channels
 
 enamldef DDS_profile(StackItem):
     attr profile
@@ -957,9 +995,6 @@ enamldef IndexedStack(GroupBox):
 enamldef CameraPage(Page):
     title = 'Camera'
 
-enamldef BackgroundPage(Page):
-    title = 'Background'
-
 enamldef CounterPage(Page):
     title = 'Counter'
 
@@ -1094,9 +1129,6 @@ enamldef PI_PiezoPage(Page):
 enamldef PicomotorPage(Page):
     title = 'Picomotor'
 
-enamldef NotesPage(Page):
-    title = 'Notes'
-
 enamldef ResultsPage(Page):
     title = 'Results'
     attr data
@@ -1120,6 +1152,26 @@ enamldef Main(MainWindow): main:
         padding = 0
         ScrollArea:
             Container:
+                Container:
+                    padding=0
+                    hug_width='strong'
+                    constraints=[hbox(l1,l2,l3,l4,l5,l6,l7,l8)]
+                    Label: l1:
+                        text='Status:'
+                    Label: l2:
+                        text<<experiment.status
+                    Label: l3:
+                        text='Iteration'
+                    Label: l4:
+                        text<<str(experiment.iteration)+' of '+str(experiment.totalIterations-1)
+                    Label: l5:
+                        text='Measurement'
+                    Label: l6:
+                        text<<str(experiment.measurement)+' of '+str(experiment.measurementsPerIteration-1)
+                    Label: l7:
+                        text='Progress'
+                    Label: l8:
+                        text<<str(experiment.progress)
                 Notebook:
                     tabs_closable=False
                     tabs_movable=False
@@ -1135,15 +1187,13 @@ enamldef Main(MainWindow): main:
                     WaveformsPage:
                         HSDIO=main.experiment.LabView.HSDIO
                     DAQmxDigitalOutPage:
-                        pass
+                        DAQmx=main.experiment.LabView.DAQmxPulse
                     DDS_Page:
                         DDS=main.experiment.LabView.DDS
                         LabView=main.experiment.LabView
                     RFGenPage:
                         LabView=main.experiment.LabView
                     CameraPage:
-                        pass
-                    BackgroundPage:
                         pass
                     CounterPage:
                         pass
@@ -1153,9 +1203,5 @@ enamldef Main(MainWindow): main:
                         AO=main.experiment.LabView.AnalogOutput
                     PI_PiezoPage:
                         piezo=main.experiment.LabView.piezo
-                    PicomotorPage:
-                        pass
-                    NotesPage:
-                        pass
                     ResultsPage:
                         data:=resultsData

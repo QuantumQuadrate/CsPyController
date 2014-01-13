@@ -43,7 +43,7 @@ p0
 <experimentDescriptionFilenameSuffix>Vtest
 p0
 .</experimentDescriptionFilenameSuffix>
-<measurementTimeout>F0.5
+<measurementTimeout>F1.0
 .</measurementTimeout>
 <measurementsPerIteration>I1
 .</measurementsPerIteration>
@@ -54,28 +54,28 @@ p0
 .</emailAddresses>
 <progress>I100
 .</progress>
-<iteration>I9
+<iteration>I0
 .</iteration>
 <measurement>I0
 .</measurement>
 <totalIterations>I9
 .</totalIterations>
-<timeStartedStr>S'2014-01-12 19:25:53'
+<timeStartedStr>S'2014-01-12 19:15:56'
 p0
 .</timeStartedStr>
-<currentTimeStr>S'2014-01-12 19:26:10'
+<currentTimeStr>S'2013-10-21 20:50:16'
 p0
 .</currentTimeStr>
-<timeElapsedStr>S'0:00:16.816000'
+<timeElapsedStr>S'0:00:23.851000'
 p0
 .</timeElapsedStr>
-<totalTimeStr>S'0:00:16.816000'
+<totalTimeStr>S'0:00:23.851000'
 p0
 .</totalTimeStr>
 <timeRemainingStr>S'0:00:00'
 p0
 .</timeRemainingStr>
-<completionTimeStr>S'2014-01-12 19:26:10'
+<completionTimeStr>S'2013-10-21 20:50:16'
 p0
 .</completionTimeStr>
 <variableReportFormat>V"a is %(a)s.\u005cnThe speed of light is %(c0)d\u005cnbut some call it %(c0)e"
@@ -87,9 +87,6 @@ p0
 <variablesNotToSave>Vscipy
 p0
 .</variablesNotToSave>
-<notes>S''
-p0
-.</notes>
 <LabView><description>S'for communicating with a LabView system'
 p0
 .</description>
@@ -2249,31 +2246,6 @@ p0
 </active>
 </channel>
 </channels>
-<StartTrigger><description>S''
-p0
-.</description>
-<waitForStartTrigger><description>S'HSDIO wait for start trigger'
-p0
-.</description>
-<function>S'False'
-p0
-.</function>
-</waitForStartTrigger>
-<source><description>S'start trigger source'
-p0
-.</description>
-<function>S'"PFI0"'
-p0
-.</function>
-</source>
-<edge><description>S'start trigger edge'
-p0
-.</description>
-<function>S'"rising"'
-p0
-.</function>
-</edge>
-</StartTrigger>
 </HSDIO>
 <DDS><description>S''
 p0

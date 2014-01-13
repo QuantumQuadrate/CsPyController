@@ -1,4 +1,4 @@
-import threading, time, datetime, logging, traceback, xml.etree.ElementTree, pickle, numpy
+import threading, time, datetime, logging, traceback, xml.etree.ElementTree, pickle, os, numpy
 logger = logging.getLogger(__name__)
 
 #for saving data in hdf5 files
@@ -56,7 +56,7 @@ class independentVariable(EvalProp):
         self.evaluate()
         self.setIndex(self.index)
         
-        #TODO: should we update the whole experiment on this change?
+        #TODO: should we re-evaluate() the whole experiment on this change?
     
     #override from EvalProp()
     def evaluate(self):
@@ -74,12 +74,12 @@ class independentVariable(EvalProp):
         if self.steps==0:
             self.currentValue=None
         else:
-            if 0<=self.index<self.steps:
+            if 0<=index<self.steps:
                 self.index=index
             else:
                 logger.warning('Index='+str(index)+' out of range for independent variable '+self.name+'. Setting '+self.name+'.index=0\n')
                 self.index=0
-            self.currentValue=self.valueList[index]
+            self.currentValue=self.valueList[self.index]
         self.currentValueStr=str(self.currentValue)
         return self.index
 
@@ -102,6 +102,7 @@ class Experiment(Prop):
     measurementsPerIteration=Int
     willSendEmail=Bool
     emailAddresses=Str
+    notes=Str
     
     #iteration Traits
     progress=Int
@@ -139,7 +140,7 @@ class Experiment(Prop):
         'save2013styleFiles','localDataPath','networkDataPath',
         'copyDataToNetwork','experimentDescriptionFilenameSuffix','measurementTimeout','measurementsPerIteration','willSendEmail',
         'emailAddresses','progress','iteration','measurement','totalIterations','timeStartedStr','currentTimeStr','timeElapsedStr','totalTimeStr',
-        'timeRemainingStr','completionTimeStr','variableReportFormat','variableReportStr','variablesNotToSave']
+        'timeRemainingStr','completionTimeStr','variableReportFormat','variableReportStr','variablesNotToSave','notes']
         
         #initialize a new HDF5 file
     
@@ -218,7 +219,6 @@ class Experiment(Prop):
         
         #for all instruments
         for i in self.instruments:
-            print 'experiment.measure() i.name =',i.name
             #check that the instruments are initalized
             print 'initialized = ',i.isInitialized
             if not i.isInitialized:
@@ -354,14 +354,15 @@ class Experiment(Prop):
                     results.attrs['ivarNames']=self.ivarNames
                     results.attrs['ivarValues']=[i.currentValue for i in self.independentVariables]
                     results.attrs['ivarIndex']=self.ivarIndex
+                    results.attrs['variableReportStr']=self.variableReportStr
                     v=results.create_group('v')
                     ignoreList=self.variablesNotToSave.split(',')
                     for key,value in self.vars.iteritems():
                         if key not in ignoreList:
                             try:
-                                v.attr[key]=value
+                                v.attrs[key]=value
                             except Exception as e:
-                                logger.warning('Could not save variable '+key+' as an hdf5 attribute with value: '+str(value))
+                                logger.warning('Could not save variable '+key+' as an hdf5 attribute with value: '+str(value)+'\n'+str(e))
                 
                 #loop until the desired number of measurements are taken
                 while (self.measurement < self.measurementsPerIteration) and (self.status=='running'):
@@ -382,6 +383,7 @@ class Experiment(Prop):
                         self.status='paused after iteration'            
                 if self.iteration>=self.totalIterations:
                     self.status='idle' #we are now ready for the next experiment
+                    self.hdf5.attrs['notes']=self.notes #store the notes again
         except PauseError:
             #This should be the only place that PauseError is explicitly handed.
             #All other non-fatal error caught higher up in the experiment chain should
@@ -460,20 +462,24 @@ class Experiment(Prop):
         every experiment.'''
         
         #if a prior HDF5 file is open, then close it
-        if self.hdf5 is not None:
-            self.hdf5.flush()
-            self.hdf5.close()
+        if hasattr(self,'hdf5'):
+            try:
+                self.hdf5.flush()
+                self.hdf5.close()
+            except Exception as e:
+                logger.warning('Exception closing hdf5 file.\n'+str(e))
+                raise PauseError
         
         if self.saveData:
             #create a new directory for experiment
             
             #build the path
-            dailyPath=datetime.datetime.fromtimestamp(timeStartedStr).strftime('%Y_%m_%d')
-            experimentPath=datetime.datetime.fromtimestamp(timeStartedStr).strftime('%Y_%m_%d_%H_%M%_%S_')+experimentDescriptionFilenameSuffix
+            dailyPath=datetime.datetime.fromtimestamp(self.timeStarted).strftime('%Y_%m_%d')
+            experimentPath=datetime.datetime.fromtimestamp(self.timeStarted).strftime('%Y_%m_%d_%H_%M_%S_')+self.experimentDescriptionFilenameSuffix
             path=os.path.join(self.localDataPath,dailyPath,experimentPath)
             
             #check that it doesn't exist first
-            if not isdir(path):
+            if not os.path.isdir(path):
                 #create the directory
                 #use os.makedirs instead of os.mkdir to create the intermediate dailyPath directory if it does not exist
                 os.makedirs(path)
@@ -487,6 +493,9 @@ class Experiment(Prop):
         
         #create a group to hold iterations in the hdf5 file
         self.hdf5.create_group('iterations')
+        
+        #store notes.  They will be stored again at the end of the experiment.
+        self.hdf5.attrs['notes']=self.notes
 
 class AQuA(Experiment):
     '''A subclass of Experiment which knows about all our particular hardware'''

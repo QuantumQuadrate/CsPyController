@@ -81,15 +81,12 @@ p0
 <variableReportFormat>V"a is %(a)s.\u005cnThe speed of light is %(c0)d\u005cnbut some call it %(c0)e"
 p0
 .</variableReportFormat>
-<variableReportStr>S'a is 0.0.\nThe speed of light is 299792458\nbut some call it 2.997925e+08'
+<variableReportStr>S'a is 0.01.\nThe speed of light is 299792458\nbut some call it 2.997925e+08'
 p0
 .</variableReportStr>
 <variablesNotToSave>Vscipy
 p0
 .</variablesNotToSave>
-<notes>S''
-p0
-.</notes>
 <LabView><description>S'for communicating with a LabView system'
 p0
 .</description>
@@ -2249,31 +2246,6 @@ p0
 </active>
 </channel>
 </channels>
-<StartTrigger><description>S''
-p0
-.</description>
-<waitForStartTrigger><description>S'HSDIO wait for start trigger'
-p0
-.</description>
-<function>S'False'
-p0
-.</function>
-</waitForStartTrigger>
-<source><description>S'start trigger source'
-p0
-.</description>
-<function>S'"PFI0"'
-p0
-.</function>
-</source>
-<edge><description>S'start trigger edge'
-p0
-.</description>
-<function>S'"rising"'
-p0
-.</function>
-</edge>
-</StartTrigger>
 </HSDIO>
 <DDS><description>S''
 p0
