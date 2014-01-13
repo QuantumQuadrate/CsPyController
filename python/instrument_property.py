@@ -287,6 +287,9 @@ class ListProp(Prop):
     def pop(self,i):
         self.listProperty.pop(i)
     
+    def remove(self,x):
+        self.listProperty.remove(x)
+    
     def add(self):
         new=self.listElementType(self.listElementName+str(len(self.listProperty)),self.experiment,'',self.listElementKwargs)
         self.listProperty.append(new)

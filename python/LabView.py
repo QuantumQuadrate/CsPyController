@@ -35,12 +35,12 @@ class LabView(Instrument):
         #self.Counter=Counter.Counter(experiment)
         #self.Camera=HamamatsuC9100_13
         
-        self.instruments=[self.HSDIO,self.DDS,self.piezo,self.RF_generators,self.AnalogOutput] #self.DAQmxPulse,self.Counter,self.Camera]
+        self.instruments=[self.HSDIO,self.DDS,self.piezo,self.RF_generators,self.AnalogOutput,self.DAQmxPulse] #,self.Counter,self.Camera]
         
         self.sock=None
         self.connected=False
         
-        self.properties+=['IP','port','enabled','connected','HSDIO','DDS','piezo','RF_generators','AnalogOutput']
+        self.properties+=['IP','port','enabled','connected','HSDIO','DDS','piezo','RF_generators','AnalogOutput','DAQmxPulse']
     
     def initialize(self):
         if self.enabled:
