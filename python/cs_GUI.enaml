@@ -9,17 +9,19 @@ A GUI for the Cs experiment controller, written using the enaml toolkit for pyth
 """
 
 from enaml.layout.api import vbox, hbox, align, horizontal, vertical, spacer, grid
-from enaml.widgets.api import (MenuBar, Menu, Action, MainWindow,
+from enaml.widgets.api import (MainWindow, MenuBar, Menu, Action,
                                 Notebook, Page, Container, GroupBox, 
                                 Form, Label, Field, CheckBox, SpinBox, PushButton, MPLCanvas,
                                 MultilineField, ProgressBar, ScrollArea, Separator,
-                                Include, TraitsItem,FileDialog,Window,ListControl,ListItem,
-                                Stack, StackItem, ComboBox, EnableCanvas
+                                FileDialog,Window,
+                                Stack, StackItem, ComboBox
 )
+from enaml.core.include import Include
 from enaml.stdlib.fields import FloatField, IntField
 from enaml.core.api import Looper
 from enaml.core.trait_types import EnamlEvent
-from traitsui.api import View #requires "set ETS_TOOLKIT=qt4" on windows command line
+from enable_canvas import EnableCanvas
+#from traitsui.api import View #requires "set ETS_TOOLKIT=qt4" on windows command line
 from traits.api import Bool, Instance, Class
 from os.path import abspath #for file dialogs
 from sys import maxint
@@ -191,11 +193,9 @@ enamldef CheckField(Container):
     attr placeholder=''
     
     constraints=[hbox(box,field),align('v_center',box,field)]
-    CheckBox:
-        id:box
+    CheckBox: box:
         checked:=parent.checked
-    Field:
-        id:field
+    Field: field:
         text:=parent.text
         placeholder:=parent.placeholder
 
@@ -213,8 +213,8 @@ enamldef LabelField(Container):
         text:=parent.text
         placeholder:=parent.placeholder
 
-class RefreshableComboBox(ComboBox):
-    refresh = EnamlEvent
+#class RefreshableComboBox(ComboBox):
+#    refresh = EnamlEvent
 
 enamldef ExperimentPage(Page):
     attr experiment
@@ -880,7 +880,7 @@ enamldef DDS_Page(Page):
                     if i>=0:
                         dyno.objects.pop(i)
                         DDS.boxes.pop(i)
-            RefreshableComboBox: combo:
+            ComboBox: combo:
                 items<<[str(i)+' '+n.description for i,n in enumerate(DDS.boxes)]
             Stack: stack:
                 index<<combo.index
@@ -1018,7 +1018,7 @@ enamldef AOequation(StackItem):
             Field:
                 text:=item.function
                 placeholder='function that evaluates to a 1D array, where t will be replaced with AO.timesteps'
-    
+
 enamldef AnalogOutputPage(Page):
     attr AO
     title = 'Analog output'
@@ -1138,12 +1138,11 @@ enamldef ResultsPage(Page):
     #ChacoPlotItem(data.xdata,data.ydata, y_bounds=(-10.,10.),y_auto=False,resizable=True,show_label=False,x_label="x",y_label="y",title="")
 
 enamldef Main(MainWindow): main:
-    attr resultsData
     attr experiment
     
     title='Saffmanlab experiment controller'
     initial_size=(500,400)
-    icon_source='icon://myicons/atom_loading'
+    #icon_source='icon://myicons/atom_loading'
     
     CsMenuBar:
         experiment=main.experiment
@@ -1204,4 +1203,4 @@ enamldef Main(MainWindow): main:
                     PI_PiezoPage:
                         piezo=main.experiment.LabView.piezo
                     ResultsPage:
-                        data:=resultsData
+                        pass

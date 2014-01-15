@@ -23,40 +23,50 @@ To run from a shell call: import cs; exp,app=cs.new()
 
 
 import enaml
-from enaml.session import Session
 from enaml.qt.qt_application import QtApplication
-#import threading
-import logging
 
+#for button and taskbar icons
+#from enaml.session import Session
+#from cs_icons import CsIconProvider
+
+#import threading
+
+import logging
 logging.basicConfig(format='%(asctime)s %(name)s %(levelname)s %(message)s', datefmt='%Y/%m/%d %H:%M:%S', level=logging.DEBUG)
 logger = logging.getLogger(__name__)
 
-from cs_icons import CsIconProvider
 import experiments
 
-class CsSession(Session):
+#for icons
+# class CsSession(Session):
     
-    def on_open(self):
-        global mainWindow
-        """ Override from enaml.session.Session to setup the windows and resources for the session."""
-        self.resource_manager.icon_providers['myicons'] = CsIconProvider()
-        with enaml.imports():
-            from cs_GUI import Main
-        mainWindow=Main()
-        mainWindow.experiment=exp
-        self.windows.append(mainWindow)
+    # def on_open(self):
+        # global mainWindow
+        # """ Override from enaml.session.Session to setup the windows and resources for the session."""
+        # self.resource_manager.icon_providers['myicons'] = CsIconProvider()
+        # with enaml.imports():
+            # from cs_GUI import Main
+        # mainWindow=Main()
+        # mainWindow.experiment=exp
+        # self.windows.append(mainWindow)
 
 def new():
-    global exp
+    #global exp
     exp=experiments.AQuA()
-    app = QtApplication([CsSession.factory('main')])
-    app.start_session('main')
+    #app = QtApplication([CsSession.factory('main')])
+    with enaml.imports():
+        from cs_GUI import Main
+    app = QtApplication()
+    #app.start_session('main')
+    main=Main(experiment=exp)
+    main.show()
+    app.start()
     #threading.Thread(target=app.start).start()
     return exp, app
-    
+
 if __name__ == '__main__':
     logger.info('starting application')
     exp,app=new()
     # The GUI goes not appear and the app exits immediately without this line when not
     # run from a python shell.
-    app.start() #standalone mode
+    #app.start() #standalone mode

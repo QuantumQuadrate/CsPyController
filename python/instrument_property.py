@@ -1,5 +1,5 @@
 from traits.api import HasTraits, Bool, Int, Float, Str, TraitError, List
-from enaml.validation.api import Validator
+from enaml.validator import Validator
 import logging, pickle, traceback
 logger = logging.getLogger(__name__)
 import cs_evaluate
@@ -182,7 +182,7 @@ class Prop(HasTraits):
         
         return self
 
-class EvalProp(Prop,Validator):
+class EvalProp(Prop): #,Validator):
     '''The base class for any Prop that has a function, and can be evaluated to a value.'''
     
     function=Str
