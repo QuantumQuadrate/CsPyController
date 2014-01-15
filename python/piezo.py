@@ -1,4 +1,4 @@
-from traits.api import Bool, Float, Str, Instance
+from atom.api import Bool, Float, Str, Typed, Member
 import logging
 logger = logging.getLogger(__name__)
 #from cs_errors import PauseError
@@ -6,11 +6,11 @@ from instrument_property import Prop, BoolProp, FloatProp, ListProp
 from cs_instruments import Instrument
 
 class PiezoChannel(Prop):
-    setServo=Instance(BoolProp)
-    setPosition=Instance(FloatProp)
-    readAxis=Str
-    readServo=Bool
-    readPosition=Float
+    setServo=Typed(BoolProp)
+    setPosition=Typed(FloatProp)
+    readAxis=Str()
+    readServo=Bool()
+    readPosition=Float()
     
     def __init__(self,name,experiment,description='',kwargs={}):
         super(PiezoChannel,self).__init__(name,experiment,description)
@@ -22,11 +22,11 @@ class PiezoChannel(Prop):
         self.properties+=['setServo','setPosition','readAxis','readServo','readPosition']
 
 class PiezoController(Prop):
-    enable=Bool
-    serialNumber=Str
-    identificationRead=Str
-    serialNumberRead=Str
-    channels=Instance(ListProp)
+    enable=Bool()
+    serialNumber=Str()
+    identificationRead=Str()
+    serialNumberRead=Str()
+    channels=Typed(ListProp)
     
     def __init__(self,name,experiment,description='',kwargs={}):
         super(PiezoController,self).__init__(name,experiment,description)
@@ -38,8 +38,10 @@ class PiezoController(Prop):
         self.properties=['enable','serialNumber','identificationRead','serialNumberRead','channels']
 
 class Piezo(Instrument):
-    enable=Bool
-    channels=Instance(ListProp)
+    enable=Bool()
+    channels=Typed(ListProp)
+    version=Member()
+    controllers=Member()
     
     def __init__(self,experiment):
         super(Piezo,self).__init__('piezo',experiment)

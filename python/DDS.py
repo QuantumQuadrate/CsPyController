@@ -10,15 +10,16 @@ from LabView, via USB.
 '''
 
 #from cs_errors import PauseError
-from traits.api import Bool, Int, Str, Instance
+from atom.api import Bool, Int, Str, Typed, Member
 from instrument_property import Prop, BoolProp, IntProp, FloatProp, StrProp, ListProp
 from cs_instruments import Instrument
 import logging
 logger = logging.getLogger(__name__)
 
 class DDS(Instrument):
-    enable=Instance(BoolProp)
-    boxes=Instance(ListProp)
+    enable=Typed(BoolProp)
+    boxes=Typed(ListProp)
+    version=Member()
     
     def __init__(self,experiment):
         super(DDS,self).__init__('DDS',experiment)
@@ -34,10 +35,10 @@ class DDS(Instrument):
         return newbox
 
 class DDSbox(Prop):
-    enable=Bool
-    deviceReference=Str
-    DIOport=Int
-    channels=Instance(ListProp)
+    enable=Bool()
+    deviceReference=Str()
+    DIOport=Int()
+    channels=Typed(ListProp)
 
     def __init__(self,name,experiment,description='',kwargs={}):
         super(DDSbox,self).__init__(name,experiment,description)
@@ -46,13 +47,15 @@ class DDSbox(Prop):
         self.properties+=['enable','deviceReference','DIOport','channels']
 
 class DDSchannel(Prop):
-    power=Instance(BoolProp)
-    refClockRate=Instance(IntProp)
-    fullScaleOutputPower=Instance(FloatProp)
-    RAMenable=Instance(BoolProp)
-    RAMDestType=Instance(IntProp)
-    RAMDefaultFrequency=Instance(FloatProp)
-    profiles=Instance(ListProp)
+    power=Typed(BoolProp)
+    refClockRate=Typed(IntProp)
+    fullScaleOutputPower=Typed(FloatProp)
+    RAMenable=Typed(BoolProp)
+    RAMDestType=Typed(IntProp)
+    RAMDefaultFrequency=Typed(FloatProp)
+    RAMDefaultAmplitude=Typed(FloatProp)
+    RAMDefaultPhase=Typed(FloatProp)
+    profiles=Typed(ListProp)
     
     def __init__(self,name,experiment,description='',kwargs={}):
         super(DDSchannel,self).__init__(name,experiment,description)
@@ -70,19 +73,19 @@ class DDSchannel(Prop):
             'RAMDefaultAmplitude','RAMDefaultPhase','profiles']
 
 class DDSprofile(Prop):
-    frequency=Instance(FloatProp)
-    amplitude=Instance(FloatProp)
-    phase=Instance(FloatProp)
-    RAMMode=Instance(StrProp)
-    ZeroCrossing=Instance(BoolProp)
-    NoDwellHigh=Instance(BoolProp)
-    FunctionOrStatic=Instance(BoolProp)
-    RAMFunction=Instance(StrProp)
-    RAMInitialValue=Instance(FloatProp)
-    RAMStepValue=Instance(FloatProp)
-    RAMTimeStep=Instance(FloatProp)
-    RAMNumSteps=Instance(IntProp)
-    RAMStaticArray=Instance(ListProp)
+    frequency=Typed(FloatProp)
+    amplitude=Typed(FloatProp)
+    phase=Typed(FloatProp)
+    RAMMode=Typed(StrProp)
+    ZeroCrossing=Typed(BoolProp)
+    NoDwellHigh=Typed(BoolProp)
+    FunctionOrStatic=Typed(BoolProp)
+    RAMFunction=Typed(StrProp)
+    RAMInitialValue=Typed(FloatProp)
+    RAMStepValue=Typed(FloatProp)
+    RAMTimeStep=Typed(FloatProp)
+    RAMNumSteps=Typed(IntProp)
+    RAMStaticArray=Typed(ListProp)
     
     def __init__(self,name,experiment,description='',kwargs={}):
         super(DDSprofile,self).__init__(name,experiment,description)

@@ -8,7 +8,7 @@ modified>=2013-10-24
 This file holds everything needed to model the analog output from a National Instruments HSDIO card.  It communicates to LabView via the higher up LabView(Instrument) class.
 '''
 
-from enthought.traits.api import Bool, Instance, Array, TraitError #, HasTraits, Int, Str, List
+from atom.api import Bool, Typed, Member, Coerced #, Array
 from enthought.chaco.api import VPlotContainer, ArrayPlotData, Plot
 from enthought.enable.api import Component
 from instrument_property import BoolProp, FloatProp, StrProp, ListProp, EvalProp
@@ -19,11 +19,30 @@ from cs_instruments import Instrument
 import numpy, logging
 logger = logging.getLogger(__name__)
 
+class Array(Coerced):
+    """ A value of type `np.ndarray`
+
+    Values are coerced to ndarrays using np.array.
+
+    """
+    __slots__ = ()
+
+    def __init__(self, default=None, factory=None, kwargs=None):
+        import numpy as np
+        if default:
+            kwargs = kwargs or {}
+            factory = lambda: np.array(default, **kwargs)
+        else:
+            factory = lambda: ()
+        super(Array, self).__init__(
+                np.ndarray, factory=factory, coercer=np.array)
+
 class AOEquation(EvalProp):
-    #we subclass from EvalProp so that the 
-    datalist=Array
-    plot=Instance(Component)
-    value=Array
+    value=Array()
+    plot=Typed(Component)
+    AO=Member()
+    plotdata=Member()
+    #myArrayHolder=Typed(arrayHolder)
     #properties will already include 'function' from EvalProp, which is what holds our equation string
     
     def __init__(self,name,experiment,description='',kwargs={}):
@@ -58,20 +77,21 @@ class AOEquation(EvalProp):
         self.AO.update_plot()
 
 class AnalogOutput(Instrument):
-    enable=Bool
-    physicalChannels=Instance(StrProp)
-    minimum=Instance(FloatProp)
-    maximum=Instance(FloatProp)
-    clockRate=Instance(FloatProp)
-    totalAOTime=Instance(FloatProp)
-    units=Instance(FloatProp)
-    waitForStartTrigger=Instance(BoolProp)
-    triggerSource=Instance(StrProp)
-    triggerEdge=Instance(StrProp)
-    equations=Instance(ListProp)
+    enable=Bool()
+    physicalChannels=Typed(StrProp)
+    minimum=Typed(FloatProp)
+    maximum=Typed(FloatProp)
+    clockRate=Typed(FloatProp)
+    totalAOTime=Typed(FloatProp)
+    units=Typed(FloatProp)
+    waitForStartTrigger=Typed(BoolProp)
+    triggerSource=Typed(StrProp)
+    triggerEdge=Typed(StrProp)
+    equations=Typed(ListProp)
     
-    plot=Instance(Component)
-    timesteps=Array
+    plot=Typed(Component)
+    timesteps=Array()
+    version=Member()
     
     def __init__(self,experiment):
         super(AnalogOutput,self).__init__('AnalogOutput',experiment)
@@ -90,10 +110,10 @@ class AnalogOutput(Instrument):
                             listElementName='equation',listElementKwargs={'AO':self})
         self.properties+=['version','enable','physicalChannels','minimum','maximum','clockRate','totalAOTime','units','waitForStartTrigger','triggerSource','triggerEdge','equations']
         
-        #set up trait notifications from sub-traits
-        self.clockRate.on_trait_change(self.evaluate,'value')
-        self.totalAOTime.on_trait_change(self.evaluate,'value')
-        self.units.on_trait_change(self.evaluate,'value')
+        #set up Atom notifications from sub-traits
+        self.clockRate.observe('value',self.evaluate)
+        self.totalAOTime.observe('value',self.evaluate)
+        self.units.observe('value',self.evaluate)
         
         #create empty plot
         plot = Plot()

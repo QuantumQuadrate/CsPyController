@@ -9018,7 +9018,7 @@ p0
 p0
 .</function>
 </power>
-<RFOutput>N.</RFOutput>
+<RFoutput>N.</RFoutput>
 <externalTrigger><description>S''
 p0
 .</description>
@@ -9048,7 +9048,7 @@ p0
 p0
 .</function>
 </power>
-<RFOutput>N.</RFOutput>
+<RFoutput>N.</RFoutput>
 <externalTrigger><description>S''
 p0
 .</description>

@@ -10,8 +10,7 @@ This file holds everything needed to model the microwave RF generators (HP/Agili
 
 
 #from cs_errors import PauseError
-#from traits.api import HasTraits, Str
-from traits.api import Bool, Int, Instance
+from atom.api import Bool, Int, Typed, Member
 from instrument_property import Prop, BoolProp, FloatProp, ListProp #IntProp, StrProp
 from cs_instruments import Instrument
 import logging
@@ -26,10 +25,11 @@ class RFGenList(ListProp):
         raise NotImplementedError
 
 class RF_generators(Instrument):
-    enable=Instance(BoolProp)
-    HP83623A_list=Instance(RFGenList)
-    HP8662A_list=Instance(RFGenList)
-    HP83712B_list=Instance(RFGenList)
+    enable=Typed(BoolProp)
+    HP83623A_list=Typed(RFGenList)
+    HP8662A_list=Typed(RFGenList)
+    HP83712B_list=Typed(RFGenList)
+    version=Member()
     
     def __init__(self,experiment):
         super(RF_generators,self).__init__('RF_generators',experiment)
@@ -47,8 +47,8 @@ class RF_generators(Instrument):
 class RF_generator(Prop):
     enable=Bool()
     GPIBchannel=Int()
-    frequency=Instance(FloatProp)
-    power=Instance(FloatProp)
+    frequency=Typed(FloatProp)
+    power=Typed(FloatProp)
     
     def __init__(self,name,experiment,description='',kwargs=None):
         super(RF_generator,self).__init__(name,experiment,description)
@@ -57,11 +57,11 @@ class RF_generator(Prop):
         self.properties+=['enable','GPIBchannel','frequency','power']
         
 class HP83623A(RF_generator):
-    RFOutput=Instance(BoolProp)
-    externalTrigger=Instance(BoolProp)
+    RFoutput=Typed(BoolProp)
+    externalTrigger=Typed(BoolProp)
     
     def __init__(self,name,experiment,description='',kwargs=None):
         super(HP83623A,self).__init__(name,experiment,description)
         self.RFoutput=BoolProp('RFoutput',self.experiment,'','False')
         self.externalTrigger=BoolProp('externalTrigger',self.experiment,'','False')
-        self.properties+=['RFOutput','externalTrigger']
+        self.properties+=['RFoutput','externalTrigger']

@@ -10,17 +10,25 @@ modified>=2013-10-08
 '''
 
 import TCP, HSDIO, piezo, DDS, RF_generators, AnalogOutput, DAQmxPulse
-from traits.api import Bool, Int, Str
+from atom.api import Bool, Int, Str, Member
 from cs_instruments import Instrument
 import logging
 logger = logging.getLogger(__name__)
 
 class LabView(Instrument):
-    enabled=Bool
-    port=Int
-    IP=Str
-    connected=Bool
-    msg=Str('')
+    enabled=Bool()
+    port=Int()
+    IP=Str()
+    connected=Bool()
+    msg=Str()
+    HSDIO=Member()
+    DDS=Member()
+    piezo=Member()
+    RF_generators=Member()
+    AnalogOutput=Member()
+    DAQmxPulse=Member()
+    results=Member()
+    sock=Member()
     
     '''This is a meta instrument which encapsulates the capability of the HEXQC2 PXI system. It knows about several subsystems (HSDIO, DAQmx, Counters, Camera), and can send settings and commands to a corresponding Labview client.'''
     def __init__(self,experiment):

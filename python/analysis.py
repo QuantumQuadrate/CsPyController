@@ -1,4 +1,4 @@
-from traits.api import Bool, Instance, Array
+from atom.api import Bool, Typed, Array
 from experiment import result
 from instrumentProperty import Prop
 from enthought.enable.api import Component
@@ -72,7 +72,7 @@ def analysis(Prop):
 def XYAnalysis(analysis):
     X=Array
     Y=Array
-    plot=Instance(Component)
+    plot=Typed(Component)
     
     def __init__(self,name,experiment,description=''):
         super(YAnalysis,self).__init__(name,experiment,description)

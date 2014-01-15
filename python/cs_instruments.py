@@ -8,12 +8,14 @@
 
 import logging
 logger = logging.getLogger(__name__)
-from traits.api import Bool
+from atom.api import Bool, Member
 from instrument_property import Prop
     
 class Instrument(Prop):
-    isInitialized=Bool
-    isDone=Bool
+    isInitialized=Bool()
+    isDone=Bool()
+    instruments=Member()
+    data=Member()
     
     def __init__(self,name,experiment,description=''):
         super(Instrument,self).__init__(name,experiment,description)

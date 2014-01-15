@@ -7,8 +7,8 @@ import h5py
 #set numpy print options to limit to 2 digits
 numpy.set_printoptions(formatter=dict(float=lambda t: "%.2e" % t))
 
-# Use Enthought traits to automate Enaml updating
-from traits.api import Bool, Int, Float, Str, Instance
+# Use Atom traits to automate Enaml updating
+from atom.api import Bool, Int, Float, Str, Typed, Member
 
 # Bring in other files in this package
 import cs_evaluate
@@ -40,10 +40,12 @@ class independentVariable(EvalProp):
     logspace, sin(logspace), as complicated as you like, so long as it can be eval()'d and then
     cast to an array.'''
     
-    valueListStr=Str
-    steps=Int
-    index=Int
-    currentValueStr=Str
+    valueListStr=Str()
+    steps=Int()
+    index=Int()
+    currentValueStr=Str()
+    valueList=Member()
+    currentValue=Member()
     
     def __init__(self,name,experiment,description='',function='',kwargs={}):
         super(independentVariable,self).__init__(name,experiment,description,function)
@@ -51,7 +53,7 @@ class independentVariable(EvalProp):
         self.currentValue=None
     
     #override from EvalProp()
-    def _function_changed(self,old,new):
+    def _function_changed(self,val):
         #re-evaluate the variable when the function is changed
         self.evaluate()
         self.setIndex(self.index)
@@ -92,37 +94,47 @@ class Experiment(Prop):
     pauseAfterIteration=Bool(False)
     pauseAfterMeasurement=Bool(False)
     pauseAfterError=Bool(False)
-    saveData=Bool
-    save2013styleFiles=Bool
-    localDataPath=Str
-    networkDataPath=Str
-    copyDataToNetwork=Bool
-    experimentDescriptionFilenameSuffix=Str
-    measurementTimeout=Float
-    measurementsPerIteration=Int
-    willSendEmail=Bool
-    emailAddresses=Str
-    notes=Str
+    saveData=Bool()
+    save2013styleFiles=Bool()
+    localDataPath=Str()
+    networkDataPath=Str()
+    copyDataToNetwork=Bool()
+    experimentDescriptionFilenameSuffix=Str()
+    measurementTimeout=Float()
+    measurementsPerIteration=Int()
+    willSendEmail=Bool()
+    emailAddresses=Str()
+    notes=Str()
     
     #iteration Traits
-    progress=Int
-    iteration=Int
-    measurement=Int
-    totalIterations=Int
+    progress=Int()
+    iteration=Int()
+    measurement=Int()
+    totalIterations=Int()
     
     #time Traits
-    timeStartedStr=Str
-    currentTimeStr=Str
-    timeElapsedStr=Str
-    totalTimeStr=Str
-    timeRemainingStr=Str
-    completionTimeStr=Str
+    timeStartedStr=Str()
+    currentTimeStr=Str()
+    timeElapsedStr=Str()
+    totalTimeStr=Str()
+    timeRemainingStr=Str()
+    completionTimeStr=Str()
     
     #variables Traits
-    dependentVariablesStr=Str
-    variableReportFormat=Str
-    variableReportStr=Str
-    variablesNotToSave=Str
+    dependentVariablesStr=Str()
+    variableReportFormat=Str()
+    variableReportStr=Str()
+    variablesNotToSave=Str()
+    
+    #things we would rather not define, but are forced to by Atom
+    instruments=Member()
+    completedMeasurementsByIteration=Member()
+    independentVariables=Member()
+    ivarNames=Member()
+    ivarIndex=Member()
+    ivarValueLists=Member()
+    ivarSteps=Member()
+    vars=Member()
  
     '''Defines a set of instruments, and a sequence of what to do with them.'''
     def __init__(self):
@@ -499,6 +511,8 @@ class Experiment(Prop):
 
 class AQuA(Experiment):
     '''A subclass of Experiment which knows about all our particular hardware'''
+    
+    LabView=Member()
     
     def __init__(self):
         super(AQuA,self).__init__()

@@ -1,4 +1,5 @@
-from traits.api import HasTraits, Bool, Int, Float, Str, TraitError, List
+from atom.api import Atom, Str, Bool, Int, Float, List, Member
+
 from enaml.validator import Validator
 import logging, pickle, traceback
 logger = logging.getLogger(__name__)
@@ -6,11 +7,13 @@ import cs_evaluate
 from cs_errors import PauseError
 import time
 
-class Prop(HasTraits):
+class Prop(Atom):
     '''The base class for all stored info about instruments and their properties.'''
     
-    name=Str
-    description=Str
+    name=Str()
+    description=Str()
+    experiment=Member()
+    properties=Member()
     
     def __init__(self,name,experiment,description=''):
         self.experiment=experiment #keep track of the experiment so we can get variables and such
@@ -185,9 +188,9 @@ class Prop(HasTraits):
 class EvalProp(Prop): #,Validator):
     '''The base class for any Prop that has a function, and can be evaluated to a value.'''
     
-    function=Str
-    valid=Bool
-    refresh=Bool
+    function=Str()
+    valid=Bool(True)
+    refresh=Bool()
     
     def __init__(self,name,experiment,description='',function=''):
         super(EvalProp,self).__init__(name,experiment,description)
@@ -214,7 +217,7 @@ class EvalProp(Prop): #,Validator):
             self.value=cs_evaluate.evalWithDict(self.function,varDict=vars,errStr='evaluating property {}, {}, {}\n'.format(self.name,self.description,self.function))
             self.valid=True
             self.refresh= not self.refresh
-        except TraitError as e:
+        except TypeError as e:
             #self.value=None
             
             self.valid=False
@@ -239,23 +242,26 @@ class EvalProp(Prop): #,Validator):
             raise PauseError
         return '<{}>{}</{}>\n'.format(self.name,valueStr,self.name)
     
-    def _function_changed(self,old,new):
+    def _function_changed(self,val):
         self.evaluate()
     
 class StrProp(EvalProp):
-    value=Str
+    value=Str()
 
 class IntProp(EvalProp):
-    value=Int
+    value=Int()
 
 class FloatProp(EvalProp):
-    value=Float
+    value=Float()
 
 class BoolProp(EvalProp):
-    value=Bool
+    value=Bool()
 
 class ListProp(Prop):
-    listProperty=List
+    listProperty=List()
+    listElementType=Member()
+    listElementName=Member()
+    listElementKwargs=Member()
     
     def __init__(self,name,experiment,description='',listProperty=None,
                     listElementType=None,listElementName='element',listElementKwargs={}):

@@ -9,7 +9,7 @@ This file holds everything needed to model the high speed digital output from th
 '''
 
 #from cs_errors import PauseError
-from traits.api import Bool, Instance
+from atom.api import Bool, Typed, Str, Int, Member
 #from enthought.chaco.api import ArrayPlotData, Plot #for chaco plot
 from instrument_property import Prop, BoolProp, IntProp, FloatProp, StrProp, ListProp
 from cs_instruments import Instrument
@@ -22,11 +22,11 @@ from digital_waveform import Waveform, Channels
 
 #---- HSDIO properties ----
 class ScriptTrigger(Prop):
-    id=Instance(StrProp)
-    source=Instance(StrProp)
-    type=Instance(StrProp)
-    edge=Instance(StrProp)
-    level=Instance(StrProp)
+    id=Typed(StrProp)
+    source=Typed(StrProp)
+    type=Typed(StrProp)
+    edge=Typed(StrProp)
+    level=Typed(StrProp)
     
     def __init__(self,name,experiment,description='',kwargs={}):
         super(ScriptTrigger,self).__init__('trigger',experiment,description)
@@ -38,6 +38,8 @@ class ScriptTrigger(Prop):
         self.properties+=['id','source','type','edge','level']
 
 class Waveforms(ListProp):
+    digitalout=Member()
+    
     def __init__(self,experiment,digitalout):
         super(Waveforms,self).__init__('waveforms',experiment,description='Holds all the digitalout waveforms',listElementType=Waveform)
         self.digitalout=digitalout
@@ -72,9 +74,9 @@ class Waveforms(ListProp):
             self.refreshButton.clicked()  #refresh the GUI
 
 class StartTrigger(Prop):
-    waitForStartTrigger=Instance(BoolProp)
-    source=Instance(StrProp)
-    edge=Instance(StrProp)
+    waitForStartTrigger=Typed(BoolProp)
+    source=Typed(StrProp)
+    edge=Typed(StrProp)
     
     def __init__(self,experiment):
         super(StartTrigger,self).__init__('startTrigger',experiment)
@@ -87,16 +89,18 @@ class StartTrigger(Prop):
 #---- HSDIO instrument ----
 
 class HSDIO(Instrument):
-    enable=Instance(BoolProp)
-    script=Instance(StrProp)
-    resourceName=Instance(StrProp)
-    clockRate=Instance(FloatProp)
-    units=Instance(FloatProp)
-    hardwareAlignmentQuantum=Instance(IntProp)
-    waveforms=Instance(Waveforms)
-    channels=Instance(Channels)
-    triggers=Instance(ListProp)
-    startTrigger=Instance(StartTrigger)
+    enable=Typed(BoolProp)
+    script=Typed(StrProp)
+    resourceName=Typed(StrProp)
+    clockRate=Typed(FloatProp)
+    units=Typed(FloatProp)
+    hardwareAlignmentQuantum=Typed(IntProp)
+    waveforms=Typed(Waveforms)
+    channels=Typed(Channels)
+    triggers=Typed(ListProp)
+    startTrigger=Typed(StartTrigger)
+    version=Str()
+    numChannels=Int()
 
     def __init__(self,experiment):
         super(HSDIO,self).__init__('HSDIO',experiment)

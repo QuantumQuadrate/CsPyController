@@ -2,19 +2,19 @@
 
 import numpy
 
-from traits.api import HasTraits, Instance, Range
-from traitsui.api import View, UItem, Item, Group, HGroup, VGroup, spring
+from atom.api import Atom, Range, Member, Typed
+#from traitsui.api import View, UItem, Item, Group, HGroup, VGroup, spring
 from chaco.api import Plot, ArrayPlotData, PolygonPlot
 from enable.api import ComponentEditor
 
-from traits.api import Bool, Instance
+from atom.api import Bool, Typed
 from instrument_property import Prop, BoolProp, IntProp, FloatProp, StrProp, ListProp
 import matplotlib.pyplot as plt
 import logging
 logger = logging.getLogger(__name__)
 
 class Channel(Prop):
-    active=Instance(BoolProp)
+    active=Typed(BoolProp)
     
     def __init__(self,name,experiment,description='',kwargs={}):
         super(Channel,self).__init__(name,experiment,description)
@@ -22,6 +22,8 @@ class Channel(Prop):
         self.properties+=['active']
 
 class Channels(ListProp):    
+    digitalout=Member()
+    
     def __init__(self,experiment,digitalout,description='A list of DAQmxPulse channels'):
         super(Channels,self).__init__('channels',experiment,description,
             listProperty=[Channel(str(i),experiment,'') for i in xrange(digitalout.numChannels)],
@@ -41,6 +43,8 @@ class Channels(ListProp):
         return self
 
 class State(ListProp):
+    digitalout=Member()
+    
     def __init__(self,experiment,digitalout):
         super(State,self).__init__('state',experiment,
             listProperty=[IntProp('channel'+str(i),experiment,'','5') for i in range(digitalout.numChannels)],
@@ -54,7 +58,9 @@ class State(ListProp):
         return self
 
 class Transition(Prop):
-    time=Instance(FloatProp) #when does this transition happen
+    time=Typed(FloatProp) #when does this transition happen
+    digitalout=Member()
+    state=Member()
     
     def __init__(self,experiment,digitalout,description=''):
         super(Transition,self).__init__('transition',experiment,description)
@@ -64,6 +70,8 @@ class Transition(Prop):
         self.properties+=['time','state']
 
 class Sequence(ListProp):
+    digitalout=Member()
+    
     def __init__(self,experiment,digitalout):
         super(Sequence,self).__init__('sequence',experiment,listElementType=Transition)
         self.digitalout=digitalout
@@ -75,10 +83,18 @@ class Sequence(ListProp):
         return self
 
 class Waveform(Prop):
-    figure=Instance(plt.Figure)
-    refresh=Bool
-    #plot=Instance(Plot) #chaco plot
+    figure=Typed(plt.Figure)
+    refresh=Bool()
+    #plot=Typed(Plot) #chaco plot
     colors={0:'white',1:'black',5:'grey'} #color dictionary for plot
+    digitalout=Member()
+    waveforms=Member()
+    sequence=Member()
+    isEmpty=Member()
+    ax=Member()
+    timeList=Member()
+    stateList=Member()
+    duration=Member()
     
     def __init__(self,name,experiment,digitalout,description='',waveforms=None):
         super(Waveform,self).__init__(name,experiment,description)
@@ -224,8 +240,8 @@ class Waveform(Prop):
                 '</waveform>\n')
 
 class WaveformPlot(Plot):
-    #plot=Instance(Plot)
-    data=Instance(ArrayPlotData)
+    #plot=Typed(Plot)
+    data=Typed(ArrayPlotData)
     
     def __init__(self):
         self.n=0
@@ -269,22 +285,22 @@ class WaveformPlot(Plot):
                 else:
                     self.rectangle(transitions[i],durations[i],j,'red')
 
-class ViewThing(HasTraits):
-    plot=Instance(WaveformPlot)
+# class ViewThing(HasTraits):
+    # plot=Typed(WaveformPlot)
     
-    def _plot_default(self):
-        plot = WaveformPlot()
-        return plot
+    # def _plot_default(self):
+        # plot = WaveformPlot()
+        # return plot
     
-    traits_view = View(
-            Group(
-                Item('plot',editor=ComponentEditor(),show_label=False),
-            orientation = "vertical"),
-        resizable=True, title='View thing')
+    # traits_view = View(
+            # Group(
+                # Item('plot',editor=ComponentEditor(),show_label=False),
+            # orientation = "vertical"),
+        # resizable=True, title='View thing')
 
-if __name__ == "__main__":
-    demo = ViewThing()
-    demo.plot.update(numpy.array([1,1.1,2,3.5]),numpy.array([.1,.9,1.5,.75]),
-        numpy.array([[1,1,0,5],[0,1,1,0],[1,5,7,0],[1,0,1,1]]))
-    demo.configure_traits()
+# if __name__ == "__main__":
+    # demo = ViewThing()
+    # demo.plot.update(numpy.array([1,1.1,2,3.5]),numpy.array([.1,.9,1.5,.75]),
+        # numpy.array([[1,1,0,5],[0,1,1,0],[1,5,7,0],[1,0,1,1]]))
+    # demo.configure_traits()
 

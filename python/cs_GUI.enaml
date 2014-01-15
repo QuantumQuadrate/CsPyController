@@ -22,7 +22,7 @@ from enaml.core.api import Looper
 #from enaml.core.trait_types import EnamlEvent
 from enable_canvas import EnableCanvas
 #from traitsui.api import View #requires "set ETS_TOOLKIT=qt4" on windows command line
-from traits.api import Bool, Instance, Class
+from atom.api import Bool, Typed, observe #, Class
 from os.path import abspath #for file dialogs
 from sys import maxint
 import threading, datetime
@@ -101,7 +101,7 @@ enamldef CsMenuBar(MenuBar): menuBar:
             # self.send_action('invalid_text',content)
 
 class EvalPropFunctionField(Field):
-    valid=Bool(True)
+    salid=Bool(True)
     refresh=Bool(True)
     
     # def _valid_changed(self,old,new):
@@ -109,18 +109,20 @@ class EvalPropFunctionField(Field):
             # content={'text':text}
             # self.send_action('invalid_text',content)
 
-    def snapshot(self):
-        snap = super(EvalPropFunctionField, self).snapshot()
-        snap['valid'] = self.valid
-        snap['refresh']=self.refresh
-        return snap
+    # def snapshot(self):
+        # snap = super(EvalPropFunctionField, self).snapshot()
+        # snap['valid'] = self.valid
+        # snap['refresh']=self.refresh
+        # return snap
 
-    def bind(self):
-        super(EvalPropFunctionField, self).bind()
-        #self.publish_attributes('valid')
-        #perhaps I could bind to valid, but I worry that typing text will wipe out the red box
-        self.on_trait_change(self.updateValid, 'refresh')
-        
+    # def bind(self):
+        # super(EvalPropFunctionField, self).bind()
+        # #self.publish_attributes('valid')
+        # #perhaps I could bind to valid, but I worry that typing text will wipe out the red box
+        # self.on_trait_change(self.updateValid, 'refresh')
+    
+    @observe('refresh')
+    
     def updateValid(self, content):
         content={'text':self.text}
         if self.valid:
@@ -152,7 +154,7 @@ enamldef EvalProp(GroupBox):
         #prop<<parent.prop
         text:=prop.function
         placeholder='function'
-        valid<<prop.valid
+        salid<<prop.valid
         refresh<<prop.refresh
     # Field: func:
         # text=prop.function
@@ -968,8 +970,8 @@ enamldef RFGenPage(Page):
             viewType=RF_gen
 
 enamldef IndexedStack(GroupBox):
-    attr iterable=Instance(ListProp)
-    attr viewType=Class(StackItem)
+    attr iterable=Typed(ListProp)
+    attr viewType #=Class(StackItem)  #do we really have to declare what type? I suppose this was so that we would be okay with creating an instance
     hug_height = 'strong'
     hug_width = 'strong'
     
