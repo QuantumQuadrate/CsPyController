@@ -11,14 +11,14 @@ analysis, and TCP server for communication with LabView.
 On Windows you must do "set ETS_TOOLKIT=qt4" from the command line before running this.
 The file cs.bat performs this task for you and then runs 'python cs.py'.
 
-To run from a shell call: import cs; exp,app=cs.new()
+To run from a shell call: import cs; exp=cs.new()
 """
 
 print """On Windows you must do "set ETS_TOOLKIT=qt4" from the command line before running this.
 The file cs.bat performs this task for you and then runs 'python cs.py'.
 On OS X you must do "export ETS_TOOLKIT=qt4" from the command line before running this.
 
-To run from a shell call: import cs; exp,app=cs.new()
+To run from a shell call: import cs; exp=cs.new()
 """
 
 
@@ -29,7 +29,7 @@ from enaml.qt.qt_application import QtApplication
 #from enaml.session import Session
 #from cs_icons import CsIconProvider
 
-#import threading
+import threading
 
 import logging
 logging.basicConfig(format='%(asctime)s %(name)s %(levelname)s %(message)s', datefmt='%Y/%m/%d %H:%M:%S', level=logging.DEBUG)
@@ -50,23 +50,22 @@ import experiments
         # mainWindow.experiment=exp
         # self.windows.append(mainWindow)
 
-def new():
-    #global exp
-    exp=experiments.AQuA()
-    #app = QtApplication([CsSession.factory('main')])
+def guiThread(exp):
     with enaml.imports():
         from cs_GUI import Main
     app = QtApplication()
-    #app.start_session('main')
     main=Main(experiment=exp)
     main.show()
+    logger.info("starting application")
     app.start()
-    #threading.Thread(target=app.start).start()
-    return exp, app
+
+def new():
+    exp=experiments.AQuA()
+    #start in a new thread so you can continue to use the shell
+    threading.Thread(target=guiThread,args=[exp]).start()
+    return exp
 
 if __name__ == '__main__':
-    logger.info('starting application')
-    exp,app=new()
-    # The GUI goes not appear and the app exits immediately without this line when not
-    # run from a python shell.
-    #app.start() #standalone mode
+    exp=experiments.AQuA()
+    #start without creating a new thread
+    guiThread(exp)

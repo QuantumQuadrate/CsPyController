@@ -19,7 +19,7 @@ from enaml.widgets.api import (MainWindow, MenuBar, Menu, Action,
 from enaml.core.include import Include
 from enaml.stdlib.fields import FloatField, IntField
 from enaml.core.api import Looper
-from enaml.core.trait_types import EnamlEvent
+#from enaml.core.trait_types import EnamlEvent
 from enable_canvas import EnableCanvas
 #from traitsui.api import View #requires "set ETS_TOOLKIT=qt4" on windows command line
 from traits.api import Bool, Instance, Class
@@ -537,7 +537,11 @@ enamldef Transition(Container):
         clicked::
             waveform.sequence.remove(transition) #remove ourselves from the backend
             waveformContainer.itemToRemove=parent #we can't just do the removing from here because once the GUI reference is gone, we get garbage collected and can't trigger the resetting of constraints
-            waveformContainer.remove() #remove ourselves from the GUI
+            #remove ourselves from the GUI
+            #waveformContainer.remove()
+            waveformContainer.dyno.objects.remove(itemToRemove)
+            waveformContainer.transitions.constraints=[hbox(*dyno.objects)] if len(dyno.objects)>0 else []
+            waveformContainer.waveform.updateFigure()
     Form: form:
         padding=0
         Field:
@@ -581,8 +585,8 @@ class RefreshableMPLCanvas(MPLCanvas):
         super(RefreshableMPLCanvas, self).bind()
         self.publish_attributes('refresh')
 
-class RemoveEventContainer(Container):
-    remove = EnamlEvent
+#class RemoveEventContainer(Container):
+#    remove = EnamlEvent
 
 enamldef WaveformPage(Page):
     attr waveform
