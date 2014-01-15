@@ -1,6 +1,6 @@
 from atom.api import Atom, Str, Bool, Int, Float, List, Member
-
 from enaml.validator import Validator
+
 import logging, pickle, traceback
 logger = logging.getLogger(__name__)
 import cs_evaluate
@@ -185,7 +185,7 @@ class Prop(Atom):
         
         return self
 
-class EvalProp(Prop): #,Validator):
+class EvalProp(Prop,Validator):
     '''The base class for any Prop that has a function, and can be evaluated to a value.'''
     
     function=Str()
@@ -228,11 +228,11 @@ class EvalProp(Prop): #,Validator):
             logger.warning('Exception in EvalProp.evaluate() in '+self.name+'.\ndescription: '+self.description+'\nfunction: '+self.function+'\n'+str(e)+'\n')
             raise PauseError
         
-    def validate(self,text,component):
+    def validate(self,text):
         #implement this for validation on enaml fields
         #self.function=text
         #self.evaluate()
-        return text, self.valid
+        return self.valid
     
     def toHardware(self):
         try:

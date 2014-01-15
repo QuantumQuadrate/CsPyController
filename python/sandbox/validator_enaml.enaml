@@ -1,0 +1,16 @@
+from enaml.widgets.api import (Window,Container,Field)
+from enaml.validator import Validator
+
+class myValidator(Validator):
+    def validate(self,text):
+        if text=='hi':
+            return False
+        else:
+            return True
+
+enamldef Main(Window):
+    attr textHolder
+    Container:
+        Field:
+            validator=myValidator()
+            text<<textHolder.text

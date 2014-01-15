@@ -39,7 +39,8 @@ class ScriptTrigger(Prop):
 
 class Waveforms(ListProp):
     digitalout=Member()
-    
+    refreshButton=Member()
+
     def __init__(self,experiment,digitalout):
         super(Waveforms,self).__init__('waveforms',experiment,description='Holds all the digitalout waveforms',listElementType=Waveform)
         self.digitalout=digitalout
@@ -70,7 +71,7 @@ class Waveforms(ListProp):
         return self
     
     def refresh(self):
-        if hasattr(self,'refreshButton'): #prevents trying to do this before GUI is active
+        if hasattr(self,'refreshButton') and (self.refreshButton is not None): #prevents trying to do this before GUI is active
             self.refreshButton.clicked()  #refresh the GUI
 
 class StartTrigger(Prop):

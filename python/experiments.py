@@ -134,7 +134,9 @@ class Experiment(Prop):
     ivarIndex=Member()
     ivarValueLists=Member()
     ivarSteps=Member()
+    ivarRefreshButton=Member()
     vars=Member()
+    
  
     '''Defines a set of instruments, and a sequence of what to do with them.'''
     def __init__(self):

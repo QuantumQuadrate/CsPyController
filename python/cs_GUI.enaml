@@ -16,6 +16,7 @@ from enaml.widgets.api import (MainWindow, MenuBar, Menu, Action,
                                 FileDialog,Window,
                                 Stack, StackItem, ComboBox
 )
+from enaml.core.declarative import d_
 from enaml.core.include import Include
 from enaml.stdlib.fields import FloatField, IntField
 from enaml.core.api import Looper
@@ -37,14 +38,47 @@ def get_load_file_callback(experiment):
         if dlg.result == 'accepted':
             experiment.load(dlg.path)
     return load_file_callback
-    
+
 def get_save_file_callback(experiment):
     def save_file_callback(dlg):
         if dlg.result == 'accepted':
             experiment.save(dlg.path)
     return save_file_callback
+
+enamldef IndexedStack(GroupBox):
+    attr iterable=Typed(ListProp)
+    attr viewType #=Class(StackItem)  #do we really have to declare what type? I suppose this was so that we would be okay with creating an instance
+    hug_height = 'strong'
+    hug_width = 'strong'
     
-    
+    Container: controls:
+        constraints=[hbox(addButton,removeButton,combo)]
+        PushButton: addButton:
+            text='+'
+            constraints=[width==50,height==20]
+            clicked::
+                dyno.objects.append(viewType(item=iterable.add()))
+                combo.maximum=len(iterable)-1
+        PushButton: removeButton:
+            text='-'
+            constraints=[width==50,height==20]
+            clicked::
+                i=combo.value
+                if i>=0:
+                    dyno.objects.pop(i)
+                    iterable.pop(i)
+                    combo.maximum=len(iterable)-1
+        # RefreshableComboBox: combo:
+            # items<<[str(i)+' '+n.description for i,n in enumerate(iterable)]
+        SpinBox: combo:
+            constraints=[width==50,height==20]
+            maximum=len(iterable)-1
+            minimum=0
+    Stack: stack:
+        index<<combo.value
+        Include: dyno:
+            objects<<[viewType(item=i) for i in iterable]
+
 enamldef CsMenuBar(MenuBar): menuBar:
     attr experiment
     attr mainWindow
@@ -100,45 +134,44 @@ enamldef CsMenuBar(MenuBar): menuBar:
             # content = {'text': self.text}
             # self.send_action('invalid_text',content)
 
-class EvalPropFunctionField(Field):
-    salid=Bool(True)
-    refresh=Bool(True)
+# class EvalPropFunctionField(Field):
+    # valid=Bool(True)
+    # refresh=Bool(True)
     
-    # def _valid_changed(self,old,new):
-        # if not new:
-            # content={'text':text}
-            # self.send_action('invalid_text',content)
+    # # def _valid_changed(self,old,new):
+        # # if not new:
+            # # content={'text':text}
+            # # self.send_action('invalid_text',content)
 
-    # def snapshot(self):
-        # snap = super(EvalPropFunctionField, self).snapshot()
-        # snap['valid'] = self.valid
-        # snap['refresh']=self.refresh
-        # return snap
+    # # def snapshot(self):
+        # # snap = super(EvalPropFunctionField, self).snapshot()
+        # # snap['valid'] = self.valid
+        # # snap['refresh']=self.refresh
+        # # return snap
 
-    # def bind(self):
-        # super(EvalPropFunctionField, self).bind()
-        # #self.publish_attributes('valid')
-        # #perhaps I could bind to valid, but I worry that typing text will wipe out the red box
-        # self.on_trait_change(self.updateValid, 'refresh')
+    # # def bind(self):
+        # # super(EvalPropFunctionField, self).bind()
+        # # #self.publish_attributes('valid')
+        # # #perhaps I could bind to valid, but I worry that typing text will wipe out the red box
+        # # self.on_trait_change(self.updateValid, 'refresh')
     
-    @observe('refresh')
-    
-    def updateValid(self, content):
-        content={'text':self.text}
-        if self.valid:
-            # I have hacked qt_field.py to allow us to call QTField._clear_error_style() directly
-            # The file in the site-packages/enaml/qt directory must be replaced with the one in this project directory whenever Enaml is upgraded.
-            self.send_action('valid',content)
-        if not self.valid:
-            # The file in the site-packages/enaml/qt directory must be replaced with the one in this project directory whenever Enaml is upgraded.
-            self.send_action('invalid',content)
+    # @observe('refresh')
+    # def updateValid(self, content):
+        # content={'text':self.text}
+        # if self.valid:
+            # # I have hacked qt_field.py to allow us to call QTField._clear_error_style() directly
+            # # The file in the site-packages/enaml/qt directory must be replaced with the one in this project directory whenever Enaml is upgraded.
+            # self.send_action('valid',content)
+        # if not self.valid:
+            # # The file in the site-packages/enaml/qt directory must be replaced with the one in this project directory whenever Enaml is upgraded.
+            # self.send_action('invalid',content)
         
-    def on_action_submit_text(self, content):
-        print "EvalPropFunctionField.on_action_submit_text"
-        """ Handle the 'submit_text' action from the client widget.
+    # def on_action_submit_text(self, content):
+        # print "EvalPropFunctionField.on_action_submit_text"
+        # """ Handle the 'submit_text' action from the client widget.
 
-        """
-        self.set_guarded(text=content['text'])
+        # """
+        # self.set_guarded(text=content['text'])
 
 enamldef EvalProp(GroupBox):
     attr prop
@@ -150,16 +183,15 @@ enamldef EvalProp(GroupBox):
     Field: desc:
         text:=prop.description
         placeholder='description'
-    EvalPropFunctionField: func:
-        #prop<<parent.prop
+    # EvalPropFunctionField: func:
+        # text:=prop.function
+        # placeholder='function'
+        # valid<<prop.valid
+        # refresh<<prop.refresh
+    Field: func:
         text:=prop.function
         placeholder='function'
-        salid<<prop.valid
-        refresh<<prop.refresh
-    # Field: func:
-        # text=prop.function
-        # placeholder='function'
-        # validator<<prop
+        validator<<prop
     Label: val:
         text<<str(prop.value)
     
@@ -177,8 +209,8 @@ enamldef MultilineProp(GroupBox):
         text<<str(prop.value)
 
 enamldef LabelBox(Container):
-    attr checked=False
-    attr text=''
+    attr checked #=False
+    attr text #=''
     
     padding=0
     constraints=[hbox(label,box),align('v_center',label,box)]
@@ -187,7 +219,7 @@ enamldef LabelBox(Container):
     Label: label:
         text<<parent.text
     CheckBox: box:
-        checked:=checked
+        checked:=parent.checked
 
 enamldef CheckField(Container):
     attr checked=False
@@ -353,14 +385,14 @@ enamldef IndependentVariablesGroupBox(GroupBox): iVarBox:
             dynamicInclude.objects=[VariableEntry(myIndependentVariables=iVarBox.experiment.independentVariables, indepVar=i, myDyno=dynamicInclude) for i in iVarBox.experiment.independentVariables]
 
     PushButton: addbutton:
-        text='add variable'
+        text='+'
         clicked::
             newvar=independentVariable('new',experiment) #new blank independentVariable
             iVarBox.experiment.independentVariables.append(newvar) #add a new variable to the list
             newItem=VariableEntry(myIndependentVariables=iVarBox.experiment.independentVariables, indepVar=newvar, myDyno=dynamicInclude)
             dynamicInclude.objects.append(newItem) #add row to the GUI
-        icon_source = 'icon://myicons/plus'
-        icon_size = (28, 28)
+        #icon_source = 'icon://myicons/plus'
+        #icon_size = (28, 28)
     GroupBox: varlistContainer:
         Include: dynamicInclude:
             objects=[VariableEntry(myIndependentVariables=iVarBox.experiment.independentVariables, indepVar=i, myDyno=dynamicInclude) for i in iVarBox.experiment.independentVariables]
@@ -439,9 +471,8 @@ enamldef DOchannel(Container):
     attr index
     hug_height='strong'
     padding=0
-    constraints=[description.width==3*activeF.width,activeF.width==2*activeL.width,hbox(label,description,activeF,activeL,),align('v_center',label,description,activeF,activeL)]
+    constraints=[label.width==25,description.width==3*activeF.width,activeF.width==2*activeL.width,hbox(label,description,activeF,activeL,),align('v_center',label,description,activeF,activeL)]
     Label: label:
-        width=25
         text=str(index)
     Field: description:
         text:=channel.description
@@ -574,40 +605,31 @@ class RefreshableMPLCanvas(MPLCanvas):
     """
 
     #: Toggle this to refresh the canvas
-    refresh = Bool(False)
+    refresh = d_(Bool())
 
-    def snapshot(self):
-        """ Get the snapshot dict for the MPLCanvas."""
-        snap = super(RefreshableMPLCanvas, self).snapshot()
-        snap['refresh'] = self.refresh
-        return snap
+    # def snapshot(self):
+        # """ Get the snapshot dict for the MPLCanvas."""
+        # snap = super(RefreshableMPLCanvas, self).snapshot()
+        # snap['refresh'] = self.refresh
+        # return snap
 
-    def bind(self):
-        """ Bind the change handlers for the MPLCanvas"""
-        super(RefreshableMPLCanvas, self).bind()
-        self.publish_attributes('refresh')
+    # def bind(self):
+        # """ Bind the change handlers for the MPLCanvas"""
+        # super(RefreshableMPLCanvas, self).bind()
+        # self.publish_attributes('refresh')
 
 #class RemoveEventContainer(Container):
 #    remove = EnamlEvent
 
-enamldef WaveformPage(Page):
-    attr waveform
-    
-    title<<waveform.name
-    closed::waveform.remove()
-    
-    Waveform:
-        waveform<<parent.waveform
-
-enamldef Waveform(RemoveEventContainer): thisWaveformContainer:
+enamldef Waveform(Container): thisWaveformContainer:
     attr waveform
     attr itemToRemove
     hug_height='strong'
     hug_width='strong'
-    remove::
-        dyno.objects.remove(itemToRemove)
-        transitions.constraints=[hbox(*dyno.objects)] if len(dyno.objects)>0 else []
-        waveform.updateFigure()
+    # remove::
+        # dyno.objects.remove(itemToRemove)
+        # transitions.constraints=[hbox(*dyno.objects)] if len(dyno.objects)>0 else []
+        # waveform.updateFigure()
     #Container:
     constraints=[vbox(canvasContainer,details)]
     #PushButton: updateCanvas:
@@ -617,9 +639,12 @@ enamldef Waveform(RemoveEventContainer): thisWaveformContainer:
     
     #the following 7 lines are used for the matplotlib digital waveform plot 
     Container: canvasContainer:
-        hug_height='strong'
+        hug_height='ignore'
+        hug_width='ignore'
+        #constraints=[canvas.height==500]
         RefreshableMPLCanvas: canvas:
-            height=500
+            hug_height='ignore'
+            hug_width='ignore'
             #width=parent.parent.width
             figure = waveform.figure
             refresh<<waveform.refresh
@@ -667,6 +692,15 @@ enamldef Waveform(RemoveEventContainer): thisWaveformContainer:
                 transitions.constraints=[hbox(*dyno.objects)] if len(dyno.objects)>0 else []
                 #transitions.constraints=[grid(dyno.objects,row_align='top')]
                 #transitions.constraints=gen_constraints(dyno.objects)
+
+enamldef WaveformPage(Page):
+    attr waveform
+    
+    title<<waveform.name
+    closed::waveform.remove()
+    
+    Waveform:
+        waveform<<parent.waveform
 
 enamldef WaveformsPage(Page):
     attr HSDIO
@@ -868,7 +902,7 @@ enamldef DDS_Page(Page):
 
         LabelBox: enable:
             text='enable'
-            checked:=DDS.enable
+            checked:=DDS.enable.value
         
         LabelBox: isInit:
             text='initialized?'
@@ -969,40 +1003,6 @@ enamldef RFGenPage(Page):
             iterable=LabView.RF_generators.HP83712B_list
             viewType=RF_gen
 
-enamldef IndexedStack(GroupBox):
-    attr iterable=Typed(ListProp)
-    attr viewType #=Class(StackItem)  #do we really have to declare what type? I suppose this was so that we would be okay with creating an instance
-    hug_height = 'strong'
-    hug_width = 'strong'
-    
-    Container: controls:
-        constraints=[hbox(addButton,removeButton,combo)]
-        PushButton: addButton:
-            text='+'
-            constraints=[width==50,height==20]
-            clicked::
-                dyno.objects.append(viewType(item=iterable.add()))
-                combo.maximum=len(iterable)-1
-        PushButton: removeButton:
-            text='-'
-            constraints=[width==50,height==20]
-            clicked::
-                i=combo.value
-                if i>=0:
-                    dyno.objects.pop(i)
-                    iterable.pop(i)
-                    combo.maximum=len(iterable)-1
-        # RefreshableComboBox: combo:
-            # items<<[str(i)+' '+n.description for i,n in enumerate(iterable)]
-        SpinBox: combo:
-            constraints=[width==50,height==20]
-            maximum=len(iterable)-1
-            minimum=0
-    Stack: stack:
-        index<<combo.value
-        Include: dyno:
-            objects<<[viewType(item=i) for i in iterable]
-
 enamldef CameraPage(Page):
     title = 'Camera'
 
@@ -1039,7 +1039,7 @@ enamldef AnalogOutputPage(Page):
         constraints=[vbox(e1,canvas,hbox(equations,c1)),align('left',e1,canvas)]
         LabelBox: e1:
             text='enable'
-            checked::AO.enable
+            checked:=AO.enable
         EnableCanvas: canvas:
             #TODO: make this expand and shrink nicely while filling the width
             constraints=[height==500,width==1500]
@@ -1131,7 +1131,7 @@ enamldef PI_PiezoPage(Page):
     Container:
         LabelBox:
             text='enable'
-            checked::piezo.enable
+            checked:=piezo.enable
         IndexedStack:
             title='Piezo Controllers'
             iterable=piezo.controllers
