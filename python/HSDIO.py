@@ -77,7 +77,7 @@ class StartTrigger(Prop):
     edge=Instance(StrProp)
     
     def __init__(self,experiment):
-        super(StartTrigger,self).__init__('StartTrigger',experiment)
+        super(StartTrigger,self).__init__('startTrigger',experiment)
         self.waitForStartTrigger=BoolProp('waitForStartTrigger',experiment,'HSDIO wait for start trigger','False')
         self.source=StrProp('source',experiment,'start trigger source','"PFI0"')
         self.edge=StrProp('edge',experiment,'start trigger edge','"rising"')

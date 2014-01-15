@@ -454,7 +454,7 @@ enamldef DOchannels(GroupBox):
     attr channels
     flat=True
     title='channels (#, description, active?)'
-
+    
     Looper: looper:
         iterable << channels
         DOchannel:
@@ -486,6 +486,7 @@ enamldef HSDIOScriptTrigger(StackItem):
 enamldef StartTrigger(GroupBox):
     attr trigger
     title='Start Trigger'
+    
     EvalProp:
         prop<<trigger.waitForStartTrigger
     EvalProp:
@@ -526,7 +527,7 @@ enamldef HSDIO_DigitalOutPage(Page):
 enamldef Transition(Container):
     attr transition
     attr waveform
-    attr waveformPage
+    attr waveformContainer
     
     #constraints=[vbox(remove,form)]
     padding=0
@@ -535,8 +536,8 @@ enamldef Transition(Container):
         text='-'
         clicked::
             waveform.sequence.remove(transition) #remove ourselves from the backend
-            waveformPage.itemToRemove=parent #we can't just do the removing from here because once the GUI reference is gone, we get garbage collected and can't trigger the resetting of constraints
-            waveformPage.remove() #remove ourselves from the GUI
+            waveformContainer.itemToRemove=parent #we can't just do the removing from here because once the GUI reference is gone, we get garbage collected and can't trigger the resetting of constraints
+            waveformContainer.remove() #remove ourselves from the GUI
     Form: form:
         padding=0
         Field:
@@ -580,84 +581,86 @@ class RefreshableMPLCanvas(MPLCanvas):
         super(RefreshableMPLCanvas, self).bind()
         self.publish_attributes('refresh')
 
-class WaveformPage(Page):
+class RemoveEventContainer(Container):
     remove = EnamlEvent
 
-def gen_constraints(objects):
-    if len(objects)>1:
-        c=[hbox(*objects)]
-    else:
-        c=[]
-    return c
-
-enamldef Waveform(WaveformPage): thisWaveformPage:
+enamldef WaveformPage(Page):
     attr waveform
-    attr itemToRemove
     
     title<<waveform.name
     closed::waveform.remove()
     
+    Waveform:
+        waveform<<parent.waveform
+
+enamldef Waveform(RemoveEventContainer): thisWaveformContainer:
+    attr waveform
+    attr itemToRemove
+    hug_height='strong'
+    hug_width='strong'
     remove::
         dyno.objects.remove(itemToRemove)
-        #transitions.constraints=gen_constraints(dyno.objects)
         transitions.constraints=[hbox(*dyno.objects)] if len(dyno.objects)>0 else []
         waveform.updateFigure()
-    Container:
-        constraints=[vbox(canvasContainer,details)]
-        #PushButton: updateCanvas:
-        #    text='update graph'
-        #    clicked::
-        #        waveform.updateFigure()
-        
-        #the following 7 lines are used for the matplotlib digital waveform plot 
-        Container: canvasContainer:
-            hug_height='strong'
-            RefreshableMPLCanvas: canvas:
-                height=500
-                #width=parent.parent.width
-                figure = waveform.figure
-                refresh<<waveform.refresh
-                
-        #the following 5 lines would be used for the Chaco digital waveform plot
-        #constraints=[vbox(canvas,details)]
-        #EnableCanvas: canvas:
-        #    #TODO: make this expand and shrink nicely while filling the width
-        #    constraints=[height==500]
-        #    component<<waveform.plot
+    #Container:
+    constraints=[vbox(canvasContainer,details)]
+    #PushButton: updateCanvas:
+    #    text='update graph'
+    #    clicked::
+    #        waveform.updateFigure()
+    
+    #the following 7 lines are used for the matplotlib digital waveform plot 
+    Container: canvasContainer:
+        hug_height='strong'
+        RefreshableMPLCanvas: canvas:
+            height=500
+            #width=parent.parent.width
+            figure = waveform.figure
+            refresh<<waveform.refresh
+            
+    #the following 5 lines would be used for the Chaco digital waveform plot
+    #constraints=[vbox(canvas,details)]
+    #EnableCanvas: canvas:
+    #    #TODO: make this expand and shrink nicely while filling the width
+    #    constraints=[height==500]
+    #    component<<waveform.plot
 
-        Container: details:
-            constraints=[nameAndChannelNums.top==contents_top,transitions.top==contents_top,addButton.top==contents_top,nameAndChannelNums.left==contents_left,
-                nameAndChannelNums.right==transitions.left,transitions.right==addButton.left]
-            Container: nameAndChannelNums:
-                #constraints=[vbox(f1,l1,loop1)]
-                padding=0
-                Field: f1:
-                    constraints = [width == 150, height == 20]
-                    text:=waveform.name
-                Label: l1:
-                    constraints = [height == 20]
-                    text='time'
-                Looper: loop1:
-                    iterable<<range(waveform.digitalout.numChannels)
-                    Label:
-                        constraints=[height==20]
-                        text<<str(loop_index)+': '+waveform.experiment.LabView.HSDIO.channels[loop_index].description
-            Container: transitions:
-                padding=0
-                #constraints=gen_constraints(dyno.objects)
-                #constraints=[grid(dyno.objects,row_align='top')]
-                constraints=[hbox(*dyno.objects)] if len(dyno.objects)>0 else []
-                Include: dyno:
-                    objects=[Transition(transition=i,waveform=waveform,waveformPage=thisWaveformPage) for i in waveform.sequence]
-            PushButton: addButton:
-                #add a transition to this waveform
-                constraints = [width == 50, height == 20]
-                text='+'
-                clicked::
-                    dyno.objects.append(Transition(transition=waveform.addTransition(),waveform=waveform,waveformPage=thisWaveformPage))
-                    transitions.constraints=[hbox(*dyno.objects)] if len(dyno.objects)>0 else []
-                    #transitions.constraints=[grid(dyno.objects,row_align='top')]
-                    #transitions.constraints=gen_constraints(dyno.objects)
+    Container: details:
+        #constraints=[nameAndChannelNums.top==contents_top,transitions.top==contents_top,addButton.top==contents_top,nameAndChannelNums.left==contents_left,
+        #    nameAndChannelNums.right==transitions.left,transitions.right==addButton.left]
+        constraints=[hbox(nameAndChannelNums,transitions,addButton),addButton.top==transitions.top]
+        hug_height='strong'
+        hug_width='strong'
+        Container: nameAndChannelNums:
+            #constraints=[vbox(f1,l1,loop1)]
+            padding=0
+            Field: f1:
+                constraints = [width == 150, height == 20]
+                text:=waveform.name
+            Label: l1:
+                constraints = [height == 20]
+                text='time'
+            Looper: loop1:
+                iterable<<range(waveform.digitalout.numChannels)
+                Label:
+                    constraints=[height==20]
+                    text<<str(loop_index)+': '+waveform.experiment.LabView.HSDIO.channels[loop_index].description
+        Container: transitions:
+            padding=0
+            #constraints=gen_constraints(dyno.objects)
+            #constraints=[grid(dyno.objects,row_align='top')]
+            constraints=[hbox(*dyno.objects)] if len(dyno.objects)>0 else []
+            Include: dyno:
+                objects=[Transition(transition=i,waveform=waveform,waveformContainer=thisWaveformContainer) for i in waveform.sequence]
+        PushButton: addButton:
+            #add a transition to this waveform
+            constraints = [width == 50, height == 20]
+            text='+'
+            clicked::
+                dyno.objects.append(Transition(transition=waveform.addTransition(),waveform=waveform,waveformContainer=thisWaveformContainer))
+                transitions.constraints=[hbox(*dyno.objects)] if len(dyno.objects)>0 else []
+                #transitions.constraints=[grid(dyno.objects,row_align='top')]
+                #transitions.constraints=gen_constraints(dyno.objects)
 
 enamldef WaveformsPage(Page):
     attr HSDIO
@@ -683,7 +686,7 @@ enamldef WaveformsPage(Page):
         Notebook: nb:
             tab_style='preferences'
             Include: dynamicInclude:
-                objects=[Waveform(waveform=i) for i in HSDIO.waveforms]
+                objects=[WaveformPage(waveform=i) for i in HSDIO.waveforms]
 
 enamldef DAQmxDigitalOutPage(Page):
     title = 'DAQmx Pulses'    
@@ -691,7 +694,7 @@ enamldef DAQmxDigitalOutPage(Page):
     
     Container:
         Container:
-                constraints=[vbox(p1,p9,p4,p5,p6,p8),align('left',p1,p9,p4,p5,p6,p8)]
+                constraints=[vbox(p1,p9,p4,p5,p6,p8,p10),align('left',p1,p9,p4,p5,p6,p8,p10)]
                 hug_height='strong'
                 hug_width='strong'
                 EvalProp: p1:
@@ -706,6 +709,8 @@ enamldef DAQmxDigitalOutPage(Page):
                     prop<<DAQmx.units
                 DOchannels: p8:
                     channels<<DAQmx.channels
+                Waveform: p10:
+                    waveform<<DAQmx.waveform
 
 enamldef DDS_profile(StackItem):
     attr profile

@@ -33,7 +33,7 @@ class StartTrigger(Prop):
     edge=Instance(StrProp)
     
     def __init__(self,experiment):
-        super(StartTrigger,self).__init__('StartTrigger',experiment)
+        super(StartTrigger,self).__init__('startTrigger',experiment)
         self.waitForStartTrigger=BoolProp('waitForStartTrigger',experiment,'wait for start trigger','False')
         self.source=StrProp('source',experiment,'start trigger source','"PFI0"')
         self.edge=StrProp('edge',experiment,'start trigger edge','"rising"')
@@ -62,10 +62,10 @@ class DAQmxPulse(Instrument):
         self.resourceName=StrProp('resourceName',experiment,'the hardware location of the card',"'Dev1'")
         self.clockRate=FloatProp('clockRate',experiment,'samples/channel/sec','1000')
         self.units=FloatProp('units',experiment,'multiplier for timing values (milli=.001)','1')
-        self.waveform=Waveform('DAQmxWaveform',experiment,self)
+        self.waveform=Waveform('waveform',experiment,self)
         self.channels=Channels(experiment,self)
         self.startTrigger=StartTrigger(experiment)
-        self.properties+=['version','enable','script','resourceName','clockRate','units','waveform','channels','startTrigger']
+        self.properties+=['version','enable','resourceName','clockRate','units','waveform','channels','startTrigger']
         
     def initialize(self):
         self.isInitialized=True

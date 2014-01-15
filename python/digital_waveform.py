@@ -132,7 +132,7 @@ class Waveform(Prop):
             #put the transition list in order
             order=timeList.argsort()
             #convert to samples
-            self.timeList=numpy.array(timeList[order]*self.waveforms.digitalout.clockRate.value,dtype=int) #convert to samples
+            self.timeList=numpy.array(timeList[order]*self.digitalout.clockRate.value,dtype=int) #convert to samples
             self.stateList=stateList[order]
             
             #if the waveform doesn't start with time 0, add it, and add 5's to the beginning of statelist
@@ -153,12 +153,12 @@ class Waveform(Prop):
 
     def colorMap(val):
         '''The color map for plotting digitalout sequence bar charts.  Red indicates an invalid value.'''
-        if val==0:
+        if val==5:
+            return 'grey'
+        elif val==0:
             return 'white'
         elif val==1:
             return 'black'
-        elif val==5:
-            return 'grey'
         else:
             return 'red'
 
@@ -208,7 +208,8 @@ class Waveform(Prop):
             '        self.refresh_mpl_widget()')
     
     def remove(self):
-        index=self.waveforms.waveforms.remove(self) #remove ourselves from the master list, becoming subject to garbage collection
+        if self.waveforms is not None:
+            index=self.waveforms.remove(self) #remove ourselves from the master list, becoming subject to garbage collection
     
     def evaluate(self):
         super(Waveform,self).evaluate()
