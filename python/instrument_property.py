@@ -189,11 +189,18 @@ class Prop(Atom):
         '''This function exists to allow Atom calls to evaluate() when something is changed.  @observe passes the 'changed' parameter, whereas evaluate() takes no parameters'''
         self.evaluate()
 
-class EvalProp(Prop): #,Validator):
+# class EvalPropValidator(Validator):
+    # valid=Bool()
+    # def validate(self,text):
+        # return self.valid
+
+class EvalProp(Prop):
+
     '''The base class for any Prop that has a function, and can be evaluated to a value.'''
     
     function=Str()
     valid=Bool()
+    #validator=EvalPropValidator()
     #refresh=Bool()
     
     def __init__(self,name,experiment,description='',function=''):
@@ -208,7 +215,8 @@ class EvalProp(Prop): #,Validator):
     def evaluate(self):
         '''This is the evaluation function that gets run programmatically during experiments and initialization.  It will pause an experiment if an evaluation fails.'''
         self.valid=self.evalfunc(self.function)
-        print 'evaluate: self.valid='+str(self.valid)
+        #self.validator.valid=self.valid
+        #print 'evaluate: self.valid='+str(self.valid)
         #self.refreshGUI()
         #if the experiment is running then pause it
         if (not self.valid) and (self.experiment is not None) and (self.experiment.status!='idle'):
@@ -248,7 +256,6 @@ class EvalProp(Prop): #,Validator):
         except Exception as e:
             logger.warning('Exception in EvalProp.evaluate() in '+self.name+'.\ndescription: '+self.description+'\nfunction: '+self.function+'\n'+str(e)+'\n')
             return False
-        print 'evalfunc return True'
         return True
     
     def toHardware(self):

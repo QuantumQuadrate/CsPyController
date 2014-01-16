@@ -126,7 +126,7 @@ enamldef EvalProp(GroupBox):
     padding=0
     flat=True
     title<<prop.name
-    constraints=[desc.width==func.width,func.width==val.width,hbox(desc,func,val),align('v_center',desc,func,val)]
+    constraints=[desc.width==func.width,func.width==val.width,hbox(desc,func,val,check),align('v_center',desc,func,val,check)]
 
     Field: desc:
         text:=prop.description
@@ -134,11 +134,14 @@ enamldef EvalProp(GroupBox):
     Field: func:
         text:=prop.function
         placeholder='function'
-        valid<<prop.valid
-        #valid::
-        #    print valid
+        #validator=prop.validator
+        #valid<<prop.valid
     Label: val:
         text<<str(prop.value)
+    CheckBox: check:
+        checked<<prop.valid
+        enabled=False
+        
     
 enamldef MultilineProp(GroupBox):        
     attr prop
