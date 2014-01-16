@@ -230,7 +230,10 @@ class Waveform(Prop):
     def evaluate(self):
         print 'waveform.evaluate()'
         super(Waveform,self).evaluate()
-        print [i.value for i in self.sequence[0].state]
+        if len(self.sequence)>0:
+            print [i.value for i in self.sequence[0].state]
+        else:
+            print 'sequence empty'
         self.updateFigure()
     
     def toHardware(self):

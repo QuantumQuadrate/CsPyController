@@ -19,14 +19,15 @@ from cs_instruments import Instrument
 import numpy, logging
 logger = logging.getLogger(__name__)
 
+#borrowed from traits_enaml package
 class Array(Coerced):
     """ A value of type `np.ndarray`
 
     Values are coerced to ndarrays using np.array.
-
+    
     """
     __slots__ = ()
-
+    
     def __init__(self, default=None, factory=None, kwargs=None):
         import numpy as np
         if default:
@@ -46,7 +47,6 @@ class AOEquation(EvalProp):
     #properties will already include 'function' from EvalProp, which is what holds our equation string
     
     def __init__(self,name,experiment,description='',kwargs={}):
-        super(AOEquation,self).__init__(name,experiment)
         self.AO=kwargs['AO']
         
         #create an empty plot
@@ -54,6 +54,8 @@ class AOEquation(EvalProp):
         self.plot = Plot(self.plotdata)
         self.plot.plot(("t", "y"), type="line", color="blue")
         self.plot.title = self.description
+        
+        super(AOEquation,self).__init__(name,experiment)
     
     #update the plot titles when the description changes
     def _description_changed(self,old,new):
@@ -111,9 +113,9 @@ class AnalogOutput(Instrument):
         self.properties+=['version','enable','physicalChannels','minimum','maximum','clockRate','totalAOTime','units','waitForStartTrigger','triggerSource','triggerEdge','equations']
         
         #set up Atom notifications from sub-traits
-        self.clockRate.observe('value',self.evaluate)
-        self.totalAOTime.observe('value',self.evaluate)
-        self.units.observe('value',self.evaluate)
+        self.clockRate.observe('value',self.call_evaluate)
+        self.totalAOTime.observe('value',self.call_evaluate)
+        self.units.observe('value',self.call_evaluate)
         
         #create empty plot
         plot = Plot()

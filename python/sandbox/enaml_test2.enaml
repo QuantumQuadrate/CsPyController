@@ -5,11 +5,16 @@ from enaml.widgets.api import (MainWindow, MenuBar, Menu, Action,
                                 FileDialog,Window,
                                 Stack, StackItem, ComboBox
 )
-from enaml.core.declarative import d_
+
+#from enaml.core.declarative import d_
 
 enamldef Main(MainWindow):
+    attr myProp
     Container:
         Form:
-        Field: a:
-        Label:
-            text<<a.text
+            Field:
+                text:=myProp.function
+                validator=myProp.validator
+                #submit_triggers = ['auto_sync']
+            Label:
+                text<<myProp.value

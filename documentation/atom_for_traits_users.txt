@@ -1,0 +1,61 @@
+Atom for Traits Users (by Steven Silvester from https://groups.google.com/forum/#!topic/enaml/2JXFlmtX87g)
+
+Traits has five characteristics: Initialization,  Validation, Delegation, Notification, and Visualization
+Atom provides for all but Visualization, which is provided by Enaml.
+
+Initialization
+--------------
+Traits:  a = Str
+Atom:    a = Str()   # must be initialized
+
+Traits:  a = Int(1)
+Atom:    a = Int(1)
+
+Traits:  def _a_default(self): return 'foo'
+Atom:    def _default_a(self): return 'foo'
+
+
+Validation
+----------
+Traits:  a = Str  # a = 1 raises a TraitsError
+Atom:    a = Str()  # a = 1 raises TypeError
+
+Traits:  a = CStr  # a = 1 casts to "1"
+Atom:    a = Coerced(str)  # a = 1 casts to "1'
+
+
+Delegation
+----------
+Traits:  b = Instance(Other)
+         c = DelegatesTo(b)
+Atom:    b = Typed(Other)
+         c = Str()
+         @observe('c', 'b.c')
+         def synchronize_c(self, change):
+            if change['object'] == self:
+                self.b.c = change['value']
+            else:
+                self.c = change['value']
+                
+Notification
+------------
+Traits:  @on_trait_change('a, b, c')
+Atom:    @observe('a', 'b', 'c')
+
+Traits:  def  _a_changed(self, new):  print new
+Atom:    def _observe_a(self, change): print change['value']
+
+Traits:  a = MyTraitClass(); a.on_trait_change(myhandler, 'b')
+Atom:    a = MyAtomClass();  a.observe('b', myhandler)
+
+
+Miscellaneous
+-------------
+Traits:   self.trait_names()
+Atom:     self.members().keys()
+
+Traits:   self.print_traits()
+Atom:     print [(key, getattr(self, key) for key in self.members().keys)]
+
+Traits:   Instance('ForwardDeclaration')
+Atom:     ForwardTyped(lambda: ForwardDeclaration)

@@ -121,58 +121,6 @@ enamldef CsMenuBar(MenuBar): menuBar:
             text = 'Halt\tCtrl+H'
             triggered::threading.Thread(target=experiment.halt).start()
 
-# class EvalPropFunctionField(Field):
-   #""" A Field that can be highlighted as red if the function does not give a valid result."""
-    # valid=Bool(True)
-    
-    # def bind(self):
-        # super(EvalPropFunctionField,self).bind()
-        # self.on_trait_change(self._update_validator,'valid')
-
-    # def _update_validator(self):
-        # if not self.valid:
-            # content = {'text': self.text}
-            # self.send_action('invalid_text',content)
-
-# class EvalPropFunctionField(Field):
-    # valid=Bool(True)
-    # refresh=Bool(True)
-    
-    # # def _valid_changed(self,old,new):
-        # # if not new:
-            # # content={'text':text}
-            # # self.send_action('invalid_text',content)
-
-    # # def snapshot(self):
-        # # snap = super(EvalPropFunctionField, self).snapshot()
-        # # snap['valid'] = self.valid
-        # # snap['refresh']=self.refresh
-        # # return snap
-
-    # # def bind(self):
-        # # super(EvalPropFunctionField, self).bind()
-        # # #self.publish_attributes('valid')
-        # # #perhaps I could bind to valid, but I worry that typing text will wipe out the red box
-        # # self.on_trait_change(self.updateValid, 'refresh')
-    
-    # @observe('refresh')
-    # def updateValid(self, content):
-        # content={'text':self.text}
-        # if self.valid:
-            # # I have hacked qt_field.py to allow us to call QTField._clear_error_style() directly
-            # # The file in the site-packages/enaml/qt directory must be replaced with the one in this project directory whenever Enaml is upgraded.
-            # self.send_action('valid',content)
-        # if not self.valid:
-            # # The file in the site-packages/enaml/qt directory must be replaced with the one in this project directory whenever Enaml is upgraded.
-            # self.send_action('invalid',content)
-        
-    # def on_action_submit_text(self, content):
-        # print "EvalPropFunctionField.on_action_submit_text"
-        # """ Handle the 'submit_text' action from the client widget.
-
-        # """
-        # self.set_guarded(text=content['text'])
-
 enamldef EvalProp(GroupBox):
     attr prop
     padding=0
@@ -183,15 +131,12 @@ enamldef EvalProp(GroupBox):
     Field: desc:
         text:=prop.description
         placeholder='description'
-    # EvalPropFunctionField: func:
-        # text:=prop.function
-        # placeholder='function'
-        # valid<<prop.valid
-        # refresh<<prop.refresh
     Field: func:
         text:=prop.function
         placeholder='function'
-        validator<<prop
+        valid<<prop.valid
+        #valid::
+        #    print valid
     Label: val:
         text<<str(prop.value)
     

@@ -1,4 +1,4 @@
-from atom.api import Atom, Str, Bool, Int, Float, List, Member
+from atom.api import Atom, Str, Bool, Int, Float, List, Member, observe
 from enaml.validator import Validator
 
 import logging, pickle, traceback
@@ -36,7 +36,7 @@ class Prop(Atom):
                 except PauseError:
                     raise PauseError
                 except Exception as e:
-                    logger.warning('Evaluating '+p+' in '+self.name+'.properties.\n'+str(e)+str(traceback.print_exc())+'\n')
+                    logger.warning('Evaluating '+p+' in '+self.name+'.properties.\n'+str(e)+str(traceback.format_exc())+'\n')
                     raise PauseError
     
     def toXML(self):
@@ -184,25 +184,46 @@ class Prop(Atom):
             logger.warning('Code has version '+self.version+' but XML node '+xmlNode.tag+' has no version tag.')
         
         return self
+    
+    def call_evaluate(self,changed):
+        '''This function exists to allow Atom calls to evaluate() when something is changed.  @observe passes the 'changed' parameter, whereas evaluate() takes no parameters'''
+        self.evaluate()
 
-class EvalProp(Prop,Validator):
+class EvalProp(Prop): #,Validator):
     '''The base class for any Prop that has a function, and can be evaluated to a value.'''
     
     function=Str()
-    valid=Bool(True)
-    refresh=Bool()
+    valid=Bool()
+    #refresh=Bool()
     
     def __init__(self,name,experiment,description='',function=''):
         super(EvalProp,self).__init__(name,experiment,description)
         self.function=function
         self.properties+=['function']
-        self.valid=True
-        self.refresh=False #this value doesn't matter, we just toggle it update the Enaml field validation
-    
-    def setGUI(self,GUI):
-        self.GUI=GUI
+        #self.valid=True
+        #self.refresh=False #this value doesn't matter, we just toggle it update the Enaml field validation
+        #start tracking function here, instead of with @observe, so that it doesn't update on initialization
+        self.observe('function', self.call_evaluate)
     
     def evaluate(self):
+        '''This is the evaluation function that gets run programmatically during experiments and initialization.  It will pause an experiment if an evaluation fails.'''
+        self.valid=self.evalfunc(self.function)
+        print 'evaluate: self.valid='+str(self.valid)
+        #self.refreshGUI()
+        #if the experiment is running then pause it
+        if (not self.valid) and (self.experiment is not None) and (self.experiment.status!='idle'):
+            raise PauseError
+    
+    #def refreshGUI(self):
+    #    '''Signals the GUI to update whether or not a red error box is shown, based on self.valid'''
+    #    self.refresh=not self.refresh
+    
+    #def validate(self,text):
+    #    '''This is the evaluation function that gets run on user GUI input.'''
+    #    self.valid=self.evalfunc(text)
+    #    return self.valid
+    
+    def evalfunc(self,function):
         #If necessary we could call super(EvalProp,self).evaluate() to evaluate things in the properties list.  But I don't think an evalProp will ever need to do that.
         
         #Use experiment.vars, if available
@@ -214,25 +235,21 @@ class EvalProp(Prop,Validator):
         
         #evaluate the 'function' and store it in 'value'
         try:
-            self.value=cs_evaluate.evalWithDict(self.function,varDict=vars,errStr='evaluating property {}, {}, {}\n'.format(self.name,self.description,self.function))
-            self.valid=True
-            self.refresh= not self.refresh
+            value=cs_evaluate.evalWithDict(function,varDict=vars,errStr='evaluating property {}, {}, {}\n'.format(self.name,self.description,self.function))
+            if value is not None:
+               self.value=value
+            else:
+                #evaluation failed, error will already have been logged in cs_evaluate.evalWithDict
+                return False
         except TypeError as e:
-            #self.value=None
-            
-            self.valid=False
-            self.refresh= not self.refresh
-            #logger.warning('TraitError while evaluating property: '+self.name+'\ndescription: '+self.description+'\nfunction: '+self.function+'\n'+str(e))
-            #raise PauseError
+            #this type of error is raised by Atom type checking
+            logger.warning('TypeError while evaluating property: '+self.name+'\ndescription: '+self.description+'\nfunction: '+self.function+'\n'+str(e)+'\n')
+            return False
         except Exception as e:
             logger.warning('Exception in EvalProp.evaluate() in '+self.name+'.\ndescription: '+self.description+'\nfunction: '+self.function+'\n'+str(e)+'\n')
-            raise PauseError
-        
-    def validate(self,text):
-        #implement this for validation on enaml fields
-        #self.function=text
-        #self.evaluate()
-        return self.valid
+            return False
+        print 'evalfunc return True'
+        return True
     
     def toHardware(self):
         try:
@@ -241,10 +258,7 @@ class EvalProp(Prop,Validator):
             logger.warning('Exception in str(self.value) in EvalProp.toHardware() in '+self.name+' .\n'+str(e))
             raise PauseError
         return '<{}>{}</{}>\n'.format(self.name,valueStr,self.name)
-    
-    def _function_changed(self,val):
-        self.evaluate()
-    
+
 class StrProp(EvalProp):
     value=Str()
 
@@ -344,5 +358,5 @@ class ListProp(Prop):
                 self.listProperty.pop()
             self.listProperty+=[self.listElementType(str(i),self.experiment,description='',kwargs=self.listElementKwargs).fromXML(child) for i, child in enumerate(xmlNode)]
         except Exception as e:
-            logger.warning('in '+self.name+' in ListProp.fromXML() for xml tag: '+xmlNode.tag+'.\n'+str(e)+'\n'+str(traceback.print_exc())+'\n')
+            logger.warning('in '+self.name+' in ListProp.fromXML() for xml tag: '+xmlNode.tag+'.\n'+str(e)+'\n'+str(traceback.format_exc())+'\n')
         return self

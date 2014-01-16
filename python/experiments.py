@@ -127,6 +127,8 @@ class Experiment(Prop):
     variablesNotToSave=Str()
     
     #things we would rather not define, but are forced to by Atom
+    timeStarted=Member()
+    timeOutExpired=Member()
     instruments=Member()
     completedMeasurementsByIteration=Member()
     independentVariables=Member()
@@ -136,13 +138,15 @@ class Experiment(Prop):
     ivarSteps=Member()
     ivarRefreshButton=Member()
     vars=Member()
+    hdf5=Member()
+    measurementResults=Member()
+    iterationResults=Member()
     
  
     '''Defines a set of instruments, and a sequence of what to do with them.'''
     def __init__(self):
         super(Experiment,self).__init__('experiment',self) #name is 'experiment', associated experiment is self
         self.instruments=[] #a list of the instruments this experiment has defined
-        #self.results=[] #a list of the results from the whole experiment, starts empty
         self.completedMeasurementsByIteration=[]
         self.independentVariables=ListProp('independentVariables',self,listElementType=independentVariable,listElementName='independentVariable')
         self.ivarIndex=[]
@@ -155,8 +159,6 @@ class Experiment(Prop):
         'copyDataToNetwork','experimentDescriptionFilenameSuffix','measurementTimeout','measurementsPerIteration','willSendEmail',
         'emailAddresses','progress','iteration','measurement','totalIterations','timeStartedStr','currentTimeStr','timeElapsedStr','totalTimeStr',
         'timeRemainingStr','completionTimeStr','variableReportFormat','variableReportStr','variablesNotToSave','notes']
-        
-        #initialize a new HDF5 file
     
     def evaluateIndependentVariables(self):
         #make sure ivar functions have been parsed, don't rely on GUI update
@@ -362,14 +364,14 @@ class Experiment(Prop):
                     self.completedMeasurementsByIteration.append(0) #start a new counter for this iteration
                     
                     #write the iteration settings to the hdf5 file
-                    results=self.hdf5.create_group('iterations/'+str(self.iteration))
-                    results.attrs['start_time']=self.date2str(time.time())
-                    results.attrs['iteration']=self.iteration
-                    results.attrs['ivarNames']=self.ivarNames
-                    results.attrs['ivarValues']=[i.currentValue for i in self.independentVariables]
-                    results.attrs['ivarIndex']=self.ivarIndex
-                    results.attrs['variableReportStr']=self.variableReportStr
-                    v=results.create_group('v')
+                    self.iterationResults=self.hdf5.create_group('iterations/'+str(self.iteration))
+                    self.iterationResults.attrs['start_time']=self.date2str(time.time())
+                    self.iterationResults.attrs['iteration']=self.iteration
+                    self.iterationResults.attrs['ivarNames']=self.ivarNames
+                    self.iterationResults.attrs['ivarValues']=[i.currentValue for i in self.independentVariables]
+                    self.iterationResults.attrs['ivarIndex']=self.ivarIndex
+                    self.iterationResults.attrs['variableReportStr']=self.variableReportStr
+                    v=self.iterationResults.create_group('v')
                     ignoreList=self.variablesNotToSave.split(',')
                     for key,value in self.vars.iteritems():
                         if key not in ignoreList:
@@ -406,7 +408,7 @@ class Experiment(Prop):
             if self.pauseAfterError:
                 self.status='paused after error'
         except Exception as e:
-            logger.error('Exception during experiment:\n'+str(e)+'\n'+str(traceback.print_exc())+'\n')
+            logger.error('Exception during experiment:\n'+str(e)+'\n'+str(traceback.format_exc())+'\n')
             if self.pauseAfterError:
                 self.status='paused after error'
     
@@ -433,7 +435,7 @@ class Experiment(Prop):
         try:
             self.evaluateIndependentVariables()
         except Exception as e:
-            logger.warning('Exception in evaluateIndependentVariables() in load() in experiment.\n'+str(e)+'\n'+str(traceback.print_exc()))
+            logger.warning('Exception in evaluateIndependentVariables() in load() in experiment.\n'+str(e)+'\n'+str(traceback.format_exc()))
         
         #dependentVariables
         dvarXML=xmlNode.find('dependentVariablesStr')
@@ -444,13 +446,13 @@ class Experiment(Prop):
         try:
             self.evaluateDependentVariables()
         except Exception as e:
-            logger.warning('Exception in evaluateDependentVariables() in load() in experiment.\n'+str(e)+'\n'+str(traceback.print_exc()))
+            logger.warning('Exception in evaluateDependentVariables() in load() in experiment.\n'+str(e)+'\n'+str(traceback.format_exc()))
         
         #now load the rest of the settings and instruments
         try:
             self.fromXML(xmlNode)
         except Exception as e:
-            logger.warning('Exception while loading experiment variables XML\n'+str(e)+'\n'+str(traceback.print_exc()))
+            logger.warning('Exception while loading experiment variables XML\n'+str(e)+'\n'+str(traceback.format_exc()))
     
     def saveThread(self,path):
         '''Starts the saving in a separate thread, in case it takes a while.'''
@@ -476,7 +478,7 @@ class Experiment(Prop):
         every experiment.'''
         
         #if a prior HDF5 file is open, then close it
-        if hasattr(self,'hdf5'):
+        if hasattr(self,'hdf5') and (self.hdf5 is not None):
             try:
                 self.hdf5.flush()
                 self.hdf5.close()
