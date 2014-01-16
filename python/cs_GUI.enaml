@@ -23,7 +23,7 @@ from enaml.core.api import Looper
 #from enaml.core.trait_types import EnamlEvent
 from enable_canvas import EnableCanvas
 #from traitsui.api import View #requires "set ETS_TOOLKIT=qt4" on windows command line
-from atom.api import Bool, Typed, observe #, Class
+from atom.api import Bool, Typed, observe, Callable
 from os.path import abspath #for file dialogs
 from sys import maxint
 import threading, datetime
@@ -571,17 +571,16 @@ enamldef Transition(Container):
             waveform.sequence.remove(transition) #remove ourselves from the backend
             waveformContainer.itemToRemove=parent #we can't just do the removing from here because once the GUI reference is gone, we get garbage collected and can't trigger the resetting of constraints
             #remove ourselves from the GUI
-            #waveformContainer.remove()
-            waveformContainer.dyno.objects.remove(itemToRemove)
-            waveformContainer.transitions.constraints=[hbox(*dyno.objects)] if len(dyno.objects)>0 else []
-            waveformContainer.waveform.updateFigure()
+            waveformContainer.remove = not waveformContainer.remove #TODO: figure out how to do this with a true callable event, rather than signaling with a changed Bool
     Form: form:
         padding=0
         Field:
             constraints = [width == 100,height==20]
             placeholder='time'
             text:=transition.time.function
-            text::waveform.updateFigure()
+            #text::waveform.updateFigure()
+            text::
+                waveform.evaluate()
         Label:
             constraints = [width == 50,height==20]
             text<<str(transition.time.value)
@@ -591,7 +590,10 @@ enamldef Transition(Container):
                 constraints = [width == 100,height==20]
                 text:=loop_item.function
                 placeholder=str(loop_index)
-                text::waveform.updateFigure()
+                #text::waveform.updateFigure()
+                text::
+                    print loop_item.function
+                    waveform.evaluate()
             Label:
                 constraints = [width == 50,height==20]
                 text<<str(loop_item.value)
@@ -618,37 +620,41 @@ class RefreshableMPLCanvas(MPLCanvas):
         # super(RefreshableMPLCanvas, self).bind()
         # self.publish_attributes('refresh')
 
-#class RemoveEventContainer(Container):
-#    remove = EnamlEvent
+class RemoveEventContainer(Container):
+    remove=d_(Bool())
 
-enamldef Waveform(Container): thisWaveformContainer:
+enamldef Waveform(RemoveEventContainer): thisWaveformContainer:
     attr waveform
     attr itemToRemove
     hug_height='strong'
-    hug_width='strong'
-    # remove::
-        # dyno.objects.remove(itemToRemove)
-        # transitions.constraints=[hbox(*dyno.objects)] if len(dyno.objects)>0 else []
-        # waveform.updateFigure()
+    hug_width='ignore'
+    remove::
+        dyno.objects.remove(itemToRemove)
+        transitions.constraints=[hbox(*dyno.objects)] if len(dyno.objects)>0 else []
+        #waveform.updateFigure()
+        waveform.evaluate()
     #Container:
-    constraints=[vbox(canvasContainer,details)]
+    constraints=[vbox(canvas,details)]
     #PushButton: updateCanvas:
     #    text='update graph'
     #    clicked::
     #        waveform.updateFigure()
     
     #the following 7 lines are used for the matplotlib digital waveform plot 
-    Container: canvasContainer:
-        hug_height='ignore'
+    #Container: canvasContainer:
+        
+    #    #hug_width='ignore'
+    #    constraints=[(height==500)|'strong',(width==parent.width)|'strong']
+    RefreshableMPLCanvas: canvas:
+        constraints=[(height==500)|'strong'] #,(width==parent.contents_width)|'strong']
+        #hug_height='ignore'
         hug_width='ignore'
-        #constraints=[canvas.height==500]
-        RefreshableMPLCanvas: canvas:
-            hug_height='ignore'
-            hug_width='ignore'
-            #width=parent.parent.width
-            figure = waveform.figure
-            refresh<<waveform.refresh
-            
+        #width=parent.parent.width
+        figure = waveform.figure
+        refresh<<waveform.refresh
+        #refresh::
+        #    waveform.updateFigure()
+    
     #the following 5 lines would be used for the Chaco digital waveform plot
     #constraints=[vbox(canvas,details)]
     #EnableCanvas: canvas:

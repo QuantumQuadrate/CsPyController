@@ -1,0 +1,15 @@
+from enaml.widgets.api import (MainWindow, MenuBar, Menu, Action,
+                                Notebook, Page, Container, GroupBox, 
+                                Form, Label, Field, CheckBox, SpinBox, PushButton, MPLCanvas,
+                                MultilineField, ProgressBar, ScrollArea, Separator,
+                                FileDialog,Window,
+                                Stack, StackItem, ComboBox
+)
+from enaml.core.declarative import d_
+
+enamldef Main(MainWindow):
+    Container:
+        Form:
+        Field: a:
+        Label:
+            text<<a.text

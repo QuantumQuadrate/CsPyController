@@ -214,21 +214,23 @@ class Waveform(Prop):
             self.ax.set_yticklabels([str(i)+': '+self.digitalout.channels[i].description for i in range(self.digitalout.numChannels)])
             
         #toggle the refresh boolean to update the screen
-        try:
-            self.refresh=not self.refresh
-        except Exception as e:
-            logger.warning('Exception while trying to refresh waveform plot.  You probably updated the enaml package recently.'+
-            'You must add a function to QtMPLCanvas in\n'+
-            'C:\Users\Saffmanlab\AppData\Local\Enthought\Canopy\User\Lib\site-packages\enaml\qt\qt_mpl_canvas.py'+'\n'+
-            '    def on_action_set_refresh(self, content):'+'\n'+
-            '        self.refresh_mpl_widget()')
+        #try:
+        #    self.refresh=not self.refresh
+        # except Exception as e:
+            # logger.warning('Exception while trying to refresh waveform plot.  You probably updated the enaml package recently.'+
+            # 'You must add a function to QtMPLCanvas in\n'+
+            # 'C:\Users\Saffmanlab\AppData\Local\Enthought\Canopy\User\Lib\site-packages\enaml\qt\qt_mpl_canvas.py'+'\n'+
+            # '    def on_action_set_refresh(self, content):'+'\n'+
+            # '        self.refresh_mpl_widget()')
     
     def remove(self):
         if self.waveforms is not None:
             index=self.waveforms.remove(self) #remove ourselves from the master list, becoming subject to garbage collection
     
     def evaluate(self):
+        print 'waveform.evaluate()'
         super(Waveform,self).evaluate()
+        print [i.value for i in self.sequence[0].state]
         self.updateFigure()
     
     def toHardware(self):
