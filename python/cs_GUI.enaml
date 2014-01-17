@@ -579,7 +579,7 @@ enamldef Waveform(RemoveEventContainer): thisWaveformContainer:
     remove::
         dyno.objects.remove(itemToRemove)
         transitions.constraints=[hbox(*dyno.objects)] if len(dyno.objects)>0 else []
-        #waveform.updateFigure()
+        waveform.updateFigure()
         waveform.evaluate()
     #Container:
     constraints=[vbox(canvas,details)]
@@ -589,26 +589,21 @@ enamldef Waveform(RemoveEventContainer): thisWaveformContainer:
     #        waveform.updateFigure()
     
     #the following 7 lines are used for the matplotlib digital waveform plot 
-    #Container: canvasContainer:
-        
-    #    #hug_width='ignore'
-    #    constraints=[(height==500)|'strong',(width==parent.width)|'strong']
-    RefreshableMPLCanvas: canvas:
-        constraints=[(height==500)|'strong'] #,(width==parent.contents_width)|'strong']
-        #hug_height='ignore'
-        hug_width='ignore'
-        #width=parent.parent.width
-        figure = waveform.figure
-        refresh<<waveform.refresh
-        #refresh::
-        #    waveform.updateFigure()
+    # RefreshableMPLCanvas: canvas:
+        # constraints=[(height==500)|'strong']
+        # hug_width='ignore'
+        # figure = waveform.figure
+        # refresh<<waveform.refresh
+        # #refresh::
+        # #    waveform.updateFigure()
     
     #the following 5 lines would be used for the Chaco digital waveform plot
-    #constraints=[vbox(canvas,details)]
-    #EnableCanvas: canvas:
-    #    #TODO: make this expand and shrink nicely while filling the width
-    #    constraints=[height==500]
-    #    component<<waveform.plot
+    constraints=[vbox(canvas,details)]
+    EnableCanvas: canvas:
+        #TODO: make this expand and shrink nicely while filling the width
+        hug_width='ignore'
+        constraints=[height==500]
+        component<<waveform.plot
 
     Container: details:
         #constraints=[nameAndChannelNums.top==contents_top,transitions.top==contents_top,addButton.top==contents_top,nameAndChannelNums.left==contents_left,

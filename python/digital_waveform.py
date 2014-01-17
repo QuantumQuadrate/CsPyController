@@ -83,10 +83,19 @@ class Sequence(ListProp):
         return self
 
 class Waveform(Prop):
+    
+    #MPL plot
     figure=Typed(plt.Figure)
+    
     refresh=Bool()
-    #plot=Typed(Plot) #chaco plot
+
+    #Chaco plot
+    plot=Typed(Plot) #chaco plot
+
+    plotType='chaco'
+
     colors={0:'white',1:'black',5:'grey'} #color dictionary for plot
+    
     digitalout=Member()
     waveforms=Member()
     sequence=Member()
@@ -96,6 +105,7 @@ class Waveform(Prop):
     stateList=Member()
     duration=Member()
     
+    
     def __init__(self,name,experiment,digitalout,description='',waveforms=None):
         super(Waveform,self).__init__(name,experiment,description)
         self.digitalout=digitalout
@@ -104,22 +114,22 @@ class Waveform(Prop):
         self.isEmpty=True
         self.properties+=['isEmpty','sequence']
         
-        #setup chaco plot
-        #self.plot=digital_waveform.WaveformPlot()
-        
-        #setup the figure that will be used for plotting sequences
-        fig, ax = plt.subplots()
-        ax.set_ylim(0,self.digitalout.numChannels)
-        ax.set_xlabel('samples')
-        #create dummy lines for legend
-        ax.plot((),(),color='white',label='off 0')
-        ax.plot((),(),color='black',label='on 1')
-        ax.plot((),(),color='grey',label='unresolved 5')
-        ax.plot((),(),color='red',label='invalid')
-        ax.legend(loc='upper center',bbox_to_anchor=(0.5, 1.1), fancybox=True, ncol=4)
-        
-        self.figure=fig
-        self.ax=ax
+        if self.plotType=='chaco':
+            #setup chaco plot
+            self.plot=WaveformPlot()
+        elif self.plotType=='MPL':
+            #setup the MPL figure
+            fig, ax = plt.subplots()
+            ax.set_ylim(0,self.digitalout.numChannels)
+            ax.set_xlabel('samples')
+            #create dummy lines for legend
+            ax.plot((),(),color='white',label='off 0')
+            ax.plot((),(),color='black',label='on 1')
+            ax.plot((),(),color='grey',label='unresolved 5')
+            ax.plot((),(),color='red',label='invalid')
+            ax.legend(loc='upper center',bbox_to_anchor=(0.5, 1.1), fancybox=True, ncol=4)
+            self.figure=fig
+            self.ax=ax
         
         self.updateFigure()
     
@@ -162,7 +172,7 @@ class Waveform(Prop):
             # self.duration=[self.timeList[i+1]-self.timeList[i] for i in xrange(len(self.timeList)-1)]
             self.duration=numpy.append(self.duration,1) #add in a 1 sample duration at end for last transition
 
-# dictionary version of colorMap, but we might not want to use this if it is slower
+#    # dictionary version of colorMap, but we might not want to use this if it is slower
 #    def colorMap(val):
 #        '''The color map for plotting digitalout sequence bar charts.  Red indicates an invalid value.'''
 #        return colors.get(val,'red')
@@ -185,8 +195,9 @@ class Waveform(Prop):
         '''This function redraws the broken bar chart display of the waveform sequences.'''
         self.format() #update processed sequence
 
-        #clear the old matplotlib plot
-        self.ax.collections=[]
+        if self.plotType=='MPL':
+            #clear the old matplotlib plot
+            self.ax.collections=[]
 
         if not self.isEmpty:
             #figure out how to resolve '5' unchanged samples
@@ -196,33 +207,35 @@ class Waveform(Prop):
                     if displayArray[j,i]==5:
                         displayArray[j,i]=displayArray[j-1,i] #change the '5' to be whatever was before it                    
             
-            #Call the chaco plot
-            #self.plot.update(self.timeList,self.duration,displayArray)
-
-            #Make the matplotlib plot
-            #Make a broken horizontal bar plot, i.e. one with gaps
-            data=zip(self.timeList,self.duration)
-            
-            for i in xrange(self.digitalout.numChannels):
-                facecolors=self.vColorMap(displayArray[:,i]) #convert the digital values to colors
-                self.ax.broken_barh(data,(i,0.8),facecolors=facecolors,linewidth=0)
-            self.ax.set_xlim(self.timeList[0],self.timeList[-1]+1)
-            tickList=self.timeList.copy()
-            tickList=numpy.insert(self.timeList,-1,self.timeList[-1]+1) #add one sample to the end
-            self.ax.set_xticks(tickList)
-            self.ax.set_yticks(numpy.arange(self.digitalout.numChannels)+0.4)
-            self.ax.set_yticklabels([str(i)+': '+self.digitalout.channels[i].description for i in range(self.digitalout.numChannels)])
-            
+            if self.plotType=='chaco':
+                #Call the chaco plot
+                self.plot.update(self.timeList,self.duration,displayArray)
+            elif self.plotType=='MPL':
+                #Make the matplotlib plot
+                #Make a broken horizontal bar plot, i.e. one with gaps
+                data=zip(self.timeList,self.duration)
+                
+                for i in xrange(self.digitalout.numChannels):
+                    facecolors=self.vColorMap(displayArray[:,i]) #convert the digital values to colors
+                    self.ax.broken_barh(data,(i,0.8),facecolors=facecolors,linewidth=0)
+                self.ax.set_xlim(self.timeList[0],self.timeList[-1]+1)
+                tickList=self.timeList.copy()
+                tickList=numpy.insert(self.timeList,-1,self.timeList[-1]+1) #add one sample to the end
+                self.ax.set_xticks(tickList)
+                self.ax.set_yticks(numpy.arange(self.digitalout.numChannels)+0.4)
+                self.ax.set_yticklabels([str(i)+': '+self.digitalout.channels[i].description for i in range(self.digitalout.numChannels)])
+        
         #toggle the refresh boolean to update the screen
-        #try:
-        #    self.refresh=not self.refresh
-        # except Exception as e:
-            # logger.warning('Exception while trying to refresh waveform plot.  You probably updated the enaml package recently.'+
-            # 'You must add a function to QtMPLCanvas in\n'+
-            # 'C:\Users\Saffmanlab\AppData\Local\Enthought\Canopy\User\Lib\site-packages\enaml\qt\qt_mpl_canvas.py'+'\n'+
-            # '    def on_action_set_refresh(self, content):'+'\n'+
-            # '        self.refresh_mpl_widget()')
-    
+        #if self.plotType=='MPL'
+            #try:
+            #    self.refresh=not self.refresh
+            # except Exception as e:
+                # logger.warning('Exception while trying to refresh waveform plot.  You probably updated the enaml package recently.'+
+                # 'You must add a function to QtMPLCanvas in\n'+
+                # 'C:\Users\Saffmanlab\AppData\Local\Enthought\Canopy\User\Lib\site-packages\enaml\qt\qt_mpl_canvas.py'+'\n'+
+                # '    def on_action_set_refresh(self, content):'+'\n'+
+                # '        self.refresh_mpl_widget()')
+        
     def remove(self):
         if self.waveforms is not None:
             index=self.waveforms.remove(self) #remove ourselves from the master list, becoming subject to garbage collection
@@ -245,15 +258,13 @@ class Waveform(Prop):
                 '</waveform>\n')
 
 class WaveformPlot(Plot):
-    #plot=Typed(Plot)
+    '''A custom build Chaco plot to show waveforms.'''
     data=Typed(ArrayPlotData)
     
     def __init__(self):
         self.n=0
         self.data=ArrayPlotData()
-        #self.plot = Plot(self.data, title='Waveform Chart')
         super(WaveformPlot,self).__init__(self.data)
-        self.title='View thing'
     
     def rectangle(self,transition,duration,channel,color):
         n=self.n
