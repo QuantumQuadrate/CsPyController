@@ -4,8 +4,8 @@ import numpy
 
 from atom.api import Atom, Range, Member, Typed
 #from traitsui.api import View, UItem, Item, Group, HGroup, VGroup, spring
-from chaco.api import Plot, ArrayPlotData, PolygonPlot
-from enable.api import ComponentEditor
+from chaco.api import Plot, ArrayPlotData, PolygonPlot, VPlotContainer
+from enable.api import Component #, ComponentEditor
 
 from atom.api import Bool, Typed
 from instrument_property import Prop, BoolProp, IntProp, FloatProp, StrProp, ListProp
@@ -91,6 +91,7 @@ class Waveform(Prop):
 
     #Chaco plot
     plot=Typed(Plot) #chaco plot
+    component=Typed(Component)
 
     plotType='chaco'
 
@@ -117,6 +118,7 @@ class Waveform(Prop):
         if self.plotType=='chaco':
             #setup chaco plot
             self.plot=WaveformPlot()
+            self.component=VPlotContainer(self.plot)
         elif self.plotType=='MPL':
             #setup the MPL figure
             fig, ax = plt.subplots()
@@ -192,6 +194,7 @@ class Waveform(Prop):
     vColorMap=numpy.vectorize(colorMap) 
 
     def updateFigure(self):
+        print 'digital_waveform.updateFigure()'
         '''This function redraws the broken bar chart display of the waveform sequences.'''
         self.format() #update processed sequence
 
@@ -225,8 +228,10 @@ class Waveform(Prop):
                 self.ax.set_yticks(numpy.arange(self.digitalout.numChannels)+0.4)
                 self.ax.set_yticklabels([str(i)+': '+self.digitalout.channels[i].description for i in range(self.digitalout.numChannels)])
         
-        #toggle the refresh boolean to update the screen
-        #if self.plotType=='MPL'
+        #update the screen
+        if self.plotType=='chaco':
+            self.component=VPlotContainer(self.plot)
+        #elif self.plotType=='MPL':
             #try:
             #    self.refresh=not self.refresh
             # except Exception as e:
@@ -258,7 +263,7 @@ class Waveform(Prop):
                 '</waveform>\n')
 
 class WaveformPlot(Plot):
-    '''A custom build Chaco plot to show waveforms.'''
+    '''A custom built Chaco plot to show waveforms.'''
     data=Typed(ArrayPlotData)
     
     def __init__(self):

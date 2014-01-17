@@ -58,8 +58,10 @@ class AOEquation(EvalProp):
         super(AOEquation,self).__init__(name,experiment)
     
     #update the plot titles when the description changes
-    def _description_changed(self,old,new):
+    #Atom will recognize this function name and set up an observer
+    def _observe_description(self,change):
         self.plot.title = self.description
+        self.AO.update_plot()
     
     def evaluate(self):
         #evaluate the 'function' and store it in 'value'

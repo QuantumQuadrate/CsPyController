@@ -583,27 +583,27 @@ enamldef Waveform(RemoveEventContainer): thisWaveformContainer:
         waveform.evaluate()
     #Container:
     constraints=[vbox(canvas,details)]
-    #PushButton: updateCanvas:
-    #    text='update graph'
-    #    clicked::
-    #        waveform.updateFigure()
+    PushButton: updateCanvas:
+        text='update graph'
+        clicked::
+            waveform.updateFigure()
     
     #the following 7 lines are used for the matplotlib digital waveform plot 
     # RefreshableMPLCanvas: canvas:
         # constraints=[(height==500)|'strong']
         # hug_width='ignore'
         # figure = waveform.figure
-        # refresh<<waveform.refresh
+        # # refresh<<waveform.refresh
         # #refresh::
         # #    waveform.updateFigure()
     
-    #the following 5 lines would be used for the Chaco digital waveform plot
+    #the following 6 lines would be used for the Chaco digital waveform plot
     constraints=[vbox(canvas,details)]
     EnableCanvas: canvas:
-        #TODO: make this expand and shrink nicely while filling the width
+        # TODO: make this expand and shrink nicely while filling the width
         hug_width='ignore'
         constraints=[height==500]
-        component<<waveform.plot
+        component<<waveform.component
 
     Container: details:
         #constraints=[nameAndChannelNums.top==contents_top,transitions.top==contents_top,addButton.top==contents_top,nameAndChannelNums.left==contents_left,
