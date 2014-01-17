@@ -4,7 +4,7 @@ import numpy
 
 from atom.api import Atom, Range, Member, Typed
 #from traitsui.api import View, UItem, Item, Group, HGroup, VGroup, spring
-from chaco.api import Plot, ArrayPlotData, PolygonPlot, VPlotContainer
+from chaco.api import Plot, ArrayPlotData, PolygonPlot, OverlayPlotContainer
 from enable.api import Component #, ComponentEditor
 
 from atom.api import Bool, Typed
@@ -87,7 +87,7 @@ class Waveform(Prop):
     #MPL plot
     figure=Typed(plt.Figure)
     
-    refresh=Bool()
+    #refresh=Bool()
 
     #Chaco plot
     plot=Typed(Plot) #chaco plot
@@ -118,7 +118,7 @@ class Waveform(Prop):
         if self.plotType=='chaco':
             #setup chaco plot
             self.plot=WaveformPlot()
-            self.component=VPlotContainer(self.plot)
+            self.component=OverlayPlotContainer(self.plot)
         elif self.plotType=='MPL':
             #setup the MPL figure
             fig, ax = plt.subplots()
@@ -194,10 +194,9 @@ class Waveform(Prop):
     vColorMap=numpy.vectorize(colorMap) 
 
     def updateFigure(self):
-        print 'digital_waveform.updateFigure()'
         '''This function redraws the broken bar chart display of the waveform sequences.'''
         self.format() #update processed sequence
-
+        
         if self.plotType=='MPL':
             #clear the old matplotlib plot
             self.ax.collections=[]
@@ -230,7 +229,7 @@ class Waveform(Prop):
         
         #update the screen
         if self.plotType=='chaco':
-            self.component=VPlotContainer(self.plot)
+            self.component=OverlayPlotContainer(self.plot)
         #elif self.plotType=='MPL':
             #try:
             #    self.refresh=not self.refresh
@@ -246,12 +245,7 @@ class Waveform(Prop):
             index=self.waveforms.remove(self) #remove ourselves from the master list, becoming subject to garbage collection
     
     def evaluate(self):
-        print 'waveform.evaluate()'
         super(Waveform,self).evaluate()
-        if len(self.sequence)>0:
-            print [i.value for i in self.sequence[0].state]
-        else:
-            print 'sequence empty'
         self.updateFigure()
     
     def toHardware(self):
@@ -264,13 +258,16 @@ class Waveform(Prop):
 
 class WaveformPlot(Plot):
     '''A custom built Chaco plot to show waveforms.'''
-    data=Typed(ArrayPlotData)
+    data=ArrayPlotData()
+    colors={0:'white',1:'black',5:'grey'} #color dictionary for plot
     
     def __init__(self):
         self.n=0
-        self.data=ArrayPlotData()
+        #self.data=ArrayPlotData()
         super(WaveformPlot,self).__init__(self.data)
-    
+        self.colors={0:'white',1:'black',5:'grey'} #color dictionary for plot
+        self.totalPlots=0
+        
     def rectangle(self,transition,duration,channel,color):
         n=self.n
         xarray=numpy.array([transition,transition+duration,transition+duration,transition])
@@ -287,24 +284,29 @@ class WaveformPlot(Plot):
         states is a 2D array of size len(transitions)*len(channels) containing 
         the state of each channel at each time'''
         
-        # first delete old arrays
-        for d in self.data.list_data():
-            self.data.del_data(d)
-        self.n=0
+        #delete all previous plots
+        if self.plots: #if it is not empty
+            self.delplot(*self.plots.keys())
+        
+        # delete old arrays
+        a=self.data.list_data()
+        for i in a:
+            self.data.del_data(i)
         
         #now add new ones
         numTransitions,numChannels=numpy.shape(states)
-        for i in range(numTransitions):
-            for j in range(numChannels):
-                if states[i,j]==0:
+        for time in range(numTransitions):
+            for channel in range(numChannels):
+                if states[time,channel]==0:
                     #don't draw anything for the OFF state
                     pass
-                elif states[i,j]==1:
-                    self.rectangle(transitions[i],durations[i],j,'black')
-                elif states[i,j]==5:
-                    self.rectangle(transitions[i],durations[i],j,'grey')
                 else:
-                    self.rectangle(transitions[i],durations[i],j,'red')
+                    color=self.colors.get(states[time,channel],'red') #default to red if value is bad
+                    self.rectangle(transitions[time],durations[time],channel,color)
+        
+        #set the plot limits to show all channels, even if they are off
+        self.range2d.y_range.low = -.5
+        self.range2d.y_range.high = numChannels -.5
 
 # class ViewThing(HasTraits):
     # plot=Typed(WaveformPlot)

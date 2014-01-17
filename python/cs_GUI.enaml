@@ -526,9 +526,7 @@ enamldef Transition(Container):
             constraints = [width == 100,height==20]
             placeholder='time'
             text:=transition.time.function
-            #text::waveform.updateFigure()
-            text::
-                waveform.evaluate()
+            text::waveform.evaluate()
         Label:
             constraints = [width == 50,height==20]
             text<<str(transition.time.value)
@@ -538,10 +536,7 @@ enamldef Transition(Container):
                 constraints = [width == 100,height==20]
                 text:=loop_item.function
                 placeholder=str(loop_index)
-                #text::waveform.updateFigure()
-                text::
-                    print loop_item.function
-                    waveform.evaluate()
+                text::waveform.evaluate()
             Label:
                 constraints = [width == 50,height==20]
                 text<<str(loop_item.value)
@@ -579,14 +574,13 @@ enamldef Waveform(RemoveEventContainer): thisWaveformContainer:
     remove::
         dyno.objects.remove(itemToRemove)
         transitions.constraints=[hbox(*dyno.objects)] if len(dyno.objects)>0 else []
-        waveform.updateFigure()
         waveform.evaluate()
     #Container:
     constraints=[vbox(canvas,details)]
-    PushButton: updateCanvas:
-        text='update graph'
-        clicked::
-            waveform.updateFigure()
+    # PushButton: updateCanvas:
+        # text='update graph'
+        # clicked::
+            # waveform.updateFigure()
     
     #the following 7 lines are used for the matplotlib digital waveform plot 
     # RefreshableMPLCanvas: canvas:
@@ -641,6 +635,7 @@ enamldef Waveform(RemoveEventContainer): thisWaveformContainer:
                 transitions.constraints=[hbox(*dyno.objects)] if len(dyno.objects)>0 else []
                 #transitions.constraints=[grid(dyno.objects,row_align='top')]
                 #transitions.constraints=gen_constraints(dyno.objects)
+                waveform.evaluate()
 
 enamldef WaveformPage(Page):
     attr waveform
@@ -656,22 +651,22 @@ enamldef WaveformsPage(Page):
     title='Waveforms'
     
     #once this exists, pass a reference back to the python backend, so it can force a GUI refresh
-    initialized::
-        HSDIO.waveforms.refreshButton=refresh
+    #initialized::
+    #    HSDIO.waveforms.refreshButton=refresh
     
     Container:
         #constraints=[nb.left==contents_left,nb.right==contents_right,nb.bottom==contents_bottom,nb.top==add.bottom+10,add.top==contents_top]
-        constraints=[vbox(hbox(refresh,add),nb),refresh.width==add.width]
+        constraints=[vbox(add,nb)]
         PushButton: add:
             #add a waveform to the list of waveforms
             text='add waveform'
             clicked::
-                dynamicInclude.objects.append(Waveform(waveform=HSDIO.waveforms.add()))
-        PushButton: refresh:
-            #dump the GUI representation, and reload list of waveforms from the HSDIO.waveforms
-            text='refresh'
-            clicked::
-                dynamicInclude.objects=[Waveform(waveform=i) for i in HSDIO.waveforms]
+                dynamicInclude.objects.append(WaveformPage(waveform=HSDIO.waveforms.add()))
+        # PushButton: refresh:
+            # #dump the GUI representation, and reload list of waveforms from the HSDIO.waveforms
+            # text='refresh'
+            # clicked::
+                # dynamicInclude.objects=[WaveformPage(waveform=i) for i in HSDIO.waveforms]
         Notebook: nb:
             tab_style='preferences'
             Include: dynamicInclude:

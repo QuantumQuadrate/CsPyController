@@ -1,7 +1,7 @@
 CsController2 notes:
 
 current question:
-    each gets put into experiment.results[measurement_number]['name'] after some proper dissection
+    camera
 
 TODO:
     save settings to HDF5
@@ -24,7 +24,7 @@ TODO:
     complete cs_hdf.hdf2dict class
 
 Done:
-    add results to an hdf5 object as they come in
+    add results to an hdf5 object as they come in, each gets put into experiment.results[measurement_number]['name'] after some proper dissection
     'MESG'+4 byte total length + 4 byte name length + name + 4 byte data length + data
     Got analog output graph to display, now put the right equations in it
     XML can't handle just a number as a tag, apparently.  WHY?!!!  Make it so XML tags for list elements start with a word, then number
