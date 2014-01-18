@@ -46,6 +46,8 @@ class AOEquation(EvalProp):
     #myArrayHolder=Typed(arrayHolder)
     #properties will already include 'function' from EvalProp, which is what holds our equation string
     
+    placeholder='AO equation'
+    
     def __init__(self,name,experiment,description='',kwargs={}):
         self.AO=kwargs['AO']
         

@@ -1,9 +1,11 @@
 CsController2 notes:
 
 current question:
-    camera
+    camera enums
 
 TODO:
+    compressedGenerate
+    tick all channels on waveform y-axis, label x-axis as "samples" and limit to integer ticks?
     save settings to HDF5
     make it so that the TCP connection is labeled as uninitialized on an error
     make python and labview both able to interpret 'false' and 'False' and '0' and '' as False

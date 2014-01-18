@@ -1,4 +1,4 @@
-from atom.api import Atom, Str, Bool, Int, Float, List, Member, observe
+from atom.api import Atom, Str, Bool, Int, Float, List, Member, Value, observe
 from enaml.validator import Validator
 
 import logging, pickle, traceback
@@ -38,7 +38,7 @@ class Prop(Atom):
                 except Exception as e:
                     logger.warning('Evaluating '+p+' in '+self.name+'.properties.\n'+str(e)+str(traceback.format_exc())+'\n')
                     raise PauseError
-    
+
     def toXML(self):
         '''This function provides generic XML saving behavior for this package.
         It goes through the properties list. If an item has its own toXML method, that will be used.
@@ -200,6 +200,7 @@ class EvalProp(Prop):
     
     function=Str()
     valid=Bool()
+    placeholder=Str('')
     #validator=EvalPropValidator()
     #refresh=Bool()
     
@@ -268,15 +269,69 @@ class EvalProp(Prop):
 
 class StrProp(EvalProp):
     value=Str()
+    placeholder='string'
 
 class IntProp(EvalProp):
     value=Int()
+    placeholder='integer'
+
+class IntRangeProp(IntProp):
+    value=Int()
+    low=Int()
+    high=Int()
+    placeholder=Str('')
+    
+    def __init__(self,name,experiment,description='',function='',low=None,high=None):
+        super(IntRangeProp,self).__init__(name,experiment,description,function)
+        self.low=low
+        self.high=high
+    
+    @observe('value')
+    def value_changed(self,changed):
+        if self.low is not None:
+            if self.low > changed['value']:
+                raise TypeError('Attempt to assign {} to IntRangeProp {} but the minimum value is {}'.format(changed['value'],self.name,self.low))
+        if self.high is not None:
+            if changed['value'] > self.high:
+                raise TypeError('Attempt to assign {} to IntRangeProp {} but the maximum value is {}'.format(changed['value'],self.name,self.high))
+    
+    @observe('low','high')
+    def set_placeholder(self):
+        if self.low is not None:
+            if self.high is not None:
+                self.placeholder='{} < integer < {}'.format(self.low,self.high)
+            else:
+                self.placeholder='{} < integer'.format(self.low)
+        elif self.high is not None:
+            self.placeholder='integer < {}'.format(self.high)
+        else:
+            self.placeholder='integer'
 
 class FloatProp(EvalProp):
     value=Float()
+    placeholder='float'
 
 class BoolProp(EvalProp):
     value=Bool()
+    placeholder='boolean'
+
+class EnumProp(EvalProp):
+    '''A homemade enum holder that allows us to set the possible values dynamically (unlike using a predefined Atom.Enum)'''
+    value=Value()
+    allowedValues=List()
+    
+    
+    def __init__(self,name,experiment,description='',function='',allowedValues=None):
+        super(EnumProp,self).__init__(name,experiment,description,function)
+        if allowedValued is None:
+            self.allowedValues=[]
+        else:
+            self.allowedValues=allowedValues
+    
+    @observe('value')
+    def value_changed(self,changed):
+        if not (changed['value'] in self.allowedValues):
+            raise TypeError('Attempt to assign {} to EnumProp {} but the only allowed values are: {}'.format(changed['value'],self.name,self.allowedValues))
 
 class ListProp(Prop):
     listProperty=List()

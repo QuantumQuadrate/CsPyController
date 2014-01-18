@@ -133,7 +133,7 @@ enamldef EvalProp(GroupBox):
         placeholder='description'
     Field: func:
         text:=prop.function
-        placeholder='function'
+        placeholder=prop.placeholder
         #validator=prop.validator
         #valid<<prop.valid
     Label: val:
@@ -948,7 +948,43 @@ enamldef RFGenPage(Page):
             viewType=RF_gen
 
 enamldef CameraPage(Page):
+    attr camera
     title = 'Camera'
+    
+    Container:
+        EvalProp:
+            prop<<camera.enable
+        EvalProp:
+            prop<<canera.saveAsPNG
+        EvalProp:
+            prop<<camera.saveAsASCII
+        EvalProp:
+            prop<<camera.forceImagesToU16
+        EvalProp:
+            prop<<camera.EMGain
+
+            # analogGain=Range(low=0,high=5,value=0)
+    # exposureTime=FloatRange(low=.001,high=30000)
+    # scanSpeed=Enum(['Slow','Middle','High'],'High')
+    # lowLightSensitivity=Enum(['Off','5x','13x','21x'])
+    # externalTriggerMode=Enum(['Edge','Level','Synchronous Readout'],'Level')
+    # triggerPolarity=Enum(['Positive','Negative'],'Positive')
+    # externalTriggerSource=Enum(['Multi-Timing I/O Pin','BNC on Power Supply','CameraLink Interace'],'BNC on Power Supply')
+    # cooling=Enum(['Off','On'],'Off')
+    # fan=Enum(['Off','On'],'Off')
+    # scanMode=Enum(['Normal','Super pixel','Sub-array'],'Normal')
+    # photoelectronScaling=Float(1)
+    # subArrayLeft=Enum(range(0,512,16),0)
+    # subArrayTop=Enum(range(0,512,16),0)
+    # subArrayWidth=Enum(range(16,512,16),512)
+    # subArrayHeight=Enum(range(16,512,16),512)
+    # superPixelBinning=Enum(['1x1`','2x2','4x4'],'1x1')
+    # frameGrabberAcquisitionRegionLeft=Range(low=0,high=512,value=0))
+    # frameGrabberAcquisitionRegionTop=Range(low=0,high=512,value=0))
+    # frameGrabberAcquisitionRegionRight=Range(low=0,high=512,value=512))
+    # frameGrabberAcquisitionRegionBottom=Range(low=0,high=512,value=512))
+    # numImageBuffers=Int(300)
+    # shotsPerMeasurement=Int(1)
 
 enamldef CounterPage(Page):
     title = 'Counter'
@@ -1148,7 +1184,7 @@ enamldef Main(MainWindow): main:
                     RFGenPage:
                         LabView=main.experiment.LabView
                     CameraPage:
-                        pass
+                        camera=main.experiment.LabView.camera
                     CounterPage:
                         pass
                     FiltersPage:

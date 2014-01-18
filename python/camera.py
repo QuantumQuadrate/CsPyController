@@ -91,34 +91,42 @@ class StartTrigger(Prop):
 
 class Camera(Instrument):
     enable=Typed(BoolProp)
-    saveAsPNG=Bool()
-    saveAsASCII=Bool()
+    saveAsPNG=Typed(BoolProp)
+    saveAsASCII=Typed(BoolProp)
+    
+    def __init__(self,experiment):
+        super(Camera,self).__init__('Camera',experiment)
+        self.enable=BoolProp('enable',experiment,'enable camera','False')
+        self.saveAsPNG=BoolProp('saveAsPNG',experiment,'save pictures as PNG','False')
+        self.saveAsASCII=BoolProp('saveAsASCII',experiment,'save pictures as ASCII','False')
+        self.properties+=['enable','saveAsPNG','saveAsASCII']
 
-class Hamamatsu(Camera):
-    forceImagesToU16=Bool(False)
-    EMGain=Range(low=0,high=255,value=0)
-    analogGain=Range(low=0,high=5,value=0)
-    exposureTime=FloatRange(low=.001,high=30000)
-    scanSpeed=Enum(['Slow','Middle','High'],'High')
-    lowLightSensitivity=Enum(['Off','5x','13x','21x'])
-    externalTriggerMode=Enum(['Edge','Level','Synchronous Readout'],'Level')
-    triggerPolarity=Enum(['Positive','Negative'],'Positive')
-    externalTriggerSource=Enum(['Multi-Timing I/O Pin','BNC on Power Supply','CameraLink Interace'],'BNC on Power Supply')
-    cooling=Enum(['Off','On'],'Off')
-    fan=Enum(['Off','On'],'Off')
-    scanMode=Enum(['Normal','Super pixel','Sub-array'],'Normal')
-    photoelectronScaling=Float(1)
-    subArrayLeft=Enum(range(0,512,16),0)
-    subArrayTop=Enum(range(0,512,16),0)
-    subArrayWidth=Enum(range(16,512,16),512)
-    subArrayHeight=Enum(range(16,512,16),512)
-    superPixelBinning=Enum(['1x1`','2x2','4x4'],'1x1')
-    frameGrabberAcquisitionRegionLeft=Range(low=0,high=512,value=0))
-    frameGrabberAcquisitionRegionTop=Range(low=0,high=512,value=0))
-    frameGrabberAcquisitionRegionRight=Range(low=0,high=512,value=512))
-    frameGrabberAcquisitionRegionBottom=Range(low=0,high=512,value=512))
-    numImageBuffers=Int(300)
-    shotsPerMeasurement=Int(1)
+class HamamatsuC9100_13(Camera):
+    forceImagesToU16=Typed(BoolProp)
+    EMGain=Type(IntRangeProp)
+
+    # analogGain=Range(low=0,high=5,value=0)
+    # exposureTime=FloatRange(low=.001,high=30000)
+    # scanSpeed=Enum(['Slow','Middle','High'],'High')
+    # lowLightSensitivity=Enum(['Off','5x','13x','21x'])
+    # externalTriggerMode=Enum(['Edge','Level','Synchronous Readout'],'Level')
+    # triggerPolarity=Enum(['Positive','Negative'],'Positive')
+    # externalTriggerSource=Enum(['Multi-Timing I/O Pin','BNC on Power Supply','CameraLink Interace'],'BNC on Power Supply')
+    # cooling=Enum(['Off','On'],'Off')
+    # fan=Enum(['Off','On'],'Off')
+    # scanMode=Enum(['Normal','Super pixel','Sub-array'],'Normal')
+    # photoelectronScaling=Float(1)
+    # subArrayLeft=Enum(range(0,512,16),0)
+    # subArrayTop=Enum(range(0,512,16),0)
+    # subArrayWidth=Enum(range(16,512,16),512)
+    # subArrayHeight=Enum(range(16,512,16),512)
+    # superPixelBinning=Enum(['1x1`','2x2','4x4'],'1x1')
+    # frameGrabberAcquisitionRegionLeft=Range(low=0,high=512,value=0))
+    # frameGrabberAcquisitionRegionTop=Range(low=0,high=512,value=0))
+    # frameGrabberAcquisitionRegionRight=Range(low=0,high=512,value=512))
+    # frameGrabberAcquisitionRegionBottom=Range(low=0,high=512,value=512))
+    # numImageBuffers=Int(300)
+    # shotsPerMeasurement=Int(1)
     
     #regions of interest will be dealt with in a post-processing filter
     
@@ -126,18 +134,12 @@ class Hamamatsu(Camera):
 
     def __init__(self,experiment):
         super(HSDIO,self).__init__('HSDIO',experiment)
+        
         self.version='2014.01.17'
-        self.enable=BoolProp('enable',experiment,'enable HSDIO output','False')
-        self.script=StrProp('script',experiment,'HSDIO script that says what waveforms to generate',"'script script1\\n  generate waveform1\\n  idle\\nend script'")
-        self.resourceName=StrProp('resourceName',experiment,'the hardware location of the HSDIO card',"'Dev1'")
-        self.clockRate=FloatProp('clockRate',experiment,'samples/channel/sec','1000')
-        self.units=FloatProp('units',experiment,'multiplier for HSDIO timing values (milli=.001)','1')
-        self.hardwareAlignmentQuantum=IntProp('hardwareAlignmentQuantum',experiment,'(PXI=1,SquareCell=2)','1')
-        self.waveforms=Waveforms(experiment,self)
-        self.channels=Channels(experiment,self)
-        self.triggers=ListProp('triggers',self.experiment,listElementType=ScriptTrigger,listElementName='trigger')
-        self.startTrigger=StartTrigger(experiment)
-        self.properties+=['version','enable','script','resourceName','clockRate','units','hardwareAlignmentQuantum','waveforms','triggers','channels','startTrigger']
+        forceImagesToU16=BoolProp('forceImagesToU16',experiment,'convert images to U16 (necessary on Aquarius hardware)','False')
+        EMGain=IntRangeProp('EMGain',experiment,'EMCCD gain','0',low=0,high=255)
+        
+        self.properties+=['version','forceImagesToU16','EMGain']
     
     def initialize(self):
         self.isInitialized=True

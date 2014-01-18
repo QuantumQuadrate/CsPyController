@@ -9,7 +9,7 @@ created=2013-10-08
 modified>=2013-10-08
 '''
 
-import TCP, HSDIO, piezo, DDS, RF_generators, AnalogOutput, DAQmxPulse
+import TCP, HSDIO, piezo, DDS, RF_generators, AnalogOutput, DAQmxPulse, Camera
 from atom.api import Bool, Int, Str, Member
 from cs_instruments import Instrument
 import logging
@@ -39,11 +39,11 @@ class LabView(Instrument):
         self.RF_generators=RF_generators.RF_generators(experiment)
         self.AnalogOutput=AnalogOutput.AnalogOutput(experiment)
         self.DAQmxPulse=DAQmxPulse.DAQmxPulse(experiment)
+        self.camera=Camera.HamamatsuC9100_13(experiment)
         self.results={}
         #self.Counter=Counter.Counter(experiment)
-        #self.Camera=HamamatsuC9100_13
         
-        self.instruments=[self.HSDIO,self.DDS,self.piezo,self.RF_generators,self.AnalogOutput,self.DAQmxPulse] #,self.Counter,self.Camera]
+        self.instruments=[self.HSDIO,self.DDS,self.piezo,self.RF_generators,self.AnalogOutput,self.DAQmxPulse,self.Camera] #,self.Counter]
         
         self.sock=None
         self.connected=False
