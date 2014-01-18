@@ -29,6 +29,7 @@ class LabView(Instrument):
     DAQmxPulse=Member()
     results=Member()
     sock=Member()
+    camera=Member()
     
     '''This is a meta instrument which encapsulates the capability of the HEXQC2 PXI system. It knows about several subsystems (HSDIO, DAQmx, Counters, Camera), and can send settings and commands to a corresponding Labview client.'''
     def __init__(self,experiment):
@@ -43,7 +44,7 @@ class LabView(Instrument):
         self.results={}
         #self.Counter=Counter.Counter(experiment)
         
-        self.instruments=[self.HSDIO,self.DDS,self.piezo,self.RF_generators,self.AnalogOutput,self.DAQmxPulse,self.Camera] #,self.Counter]
+        self.instruments=[self.HSDIO,self.DDS,self.piezo,self.RF_generators,self.AnalogOutput,self.DAQmxPulse,self.camera] #,self.Counter]
         
         self.sock=None
         self.connected=False

@@ -11,7 +11,7 @@ This file holds everything needed to model the high speed digital output from th
 #from cs_errors import PauseError
 from atom.api import Bool, Typed, Str, Int, Member
 #from enthought.chaco.api import ArrayPlotData, Plot #for chaco plot
-from instrument_property import Prop, BoolProp, IntProp, FloatProp, StrProp, ListProp
+from instrument_property import Prop, BoolProp, IntProp, FloatProp, StrProp, ListProp, IntRangeProp, EnumProp
 from cs_instruments import Instrument
 import matplotlib.pyplot as plt
 import numpy, logging
@@ -95,7 +95,7 @@ class Camera(Instrument):
     saveAsASCII=Typed(BoolProp)
     
     def __init__(self,experiment):
-        super(Camera,self).__init__('Camera',experiment)
+        super(Camera,self).__init__('camera',experiment)
         self.enable=BoolProp('enable',experiment,'enable camera','False')
         self.saveAsPNG=BoolProp('saveAsPNG',experiment,'save pictures as PNG','False')
         self.saveAsASCII=BoolProp('saveAsASCII',experiment,'save pictures as ASCII','False')
@@ -103,8 +103,8 @@ class Camera(Instrument):
 
 class HamamatsuC9100_13(Camera):
     forceImagesToU16=Typed(BoolProp)
-    EMGain=Type(IntRangeProp)
-
+    EMGain=Typed(IntRangeProp)
+    
     # analogGain=Range(low=0,high=5,value=0)
     # exposureTime=FloatRange(low=.001,high=30000)
     # scanSpeed=Enum(['Slow','Middle','High'],'High')
@@ -131,9 +131,9 @@ class HamamatsuC9100_13(Camera):
     #regions of interest will be dealt with in a post-processing filter
     
     version=Str()
-
+    
     def __init__(self,experiment):
-        super(HSDIO,self).__init__('HSDIO',experiment)
+        super(HamamatsuC9100_13,self).__init__(experiment)
         
         self.version='2014.01.17'
         forceImagesToU16=BoolProp('forceImagesToU16',experiment,'convert images to U16 (necessary on Aquarius hardware)','False')
@@ -145,6 +145,11 @@ class HamamatsuC9100_13(Camera):
         self.isInitialized=True
 
 class Andor(Camera):
-    andorPath=Str(r'C:\Users\QC\Documents\Cesium_project\Andor_picutres_temp')
-    copyAndorFiles=Bool(False)
-    msWaitTimeBeforeCopyingAndorFiles=Float(0)
+    andorPath=Typed(StrProp)
+    copyAndorFiles=Typed(BoolProp)
+    msWaitTimeBeforeCopyingAndorFiles=Typed(FloatProp)
+    
+    def __init__(self):
+            andorPath=StrProp('andorPath',experiment,'Where to find the saved Andor image files',r'C:\Users\QC\Documents\Cesium_project\Andor_picutres_temp')
+            copyAndorFiles=BoolProp('copyAndorFiles',experiment,'should we copy Ander files into the experiment directory?','False')
+            msWaitTimeBeforeCopyingAndorFiles=FloatProp('msWaitTimeBeforeCopyingAndorFiles',experiment,'how long to wait before copying Andor files (in ms)','0')

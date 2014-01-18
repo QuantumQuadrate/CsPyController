@@ -275,7 +275,7 @@ class IntProp(EvalProp):
     value=Int()
     placeholder='integer'
 
-class IntRangeProp(IntProp):
+class IntRangeProp(EvalProp):
     value=Int()
     low=Int()
     high=Int()
@@ -296,7 +296,7 @@ class IntRangeProp(IntProp):
                 raise TypeError('Attempt to assign {} to IntRangeProp {} but the maximum value is {}'.format(changed['value'],self.name,self.high))
     
     @observe('low','high')
-    def set_placeholder(self):
+    def set_placeholder(self,changed):
         if self.low is not None:
             if self.high is not None:
                 self.placeholder='{} < integer < {}'.format(self.low,self.high)
@@ -320,7 +320,6 @@ class EnumProp(EvalProp):
     value=Value()
     allowedValues=List()
     
-    
     def __init__(self,name,experiment,description='',function='',allowedValues=None):
         super(EnumProp,self).__init__(name,experiment,description,function)
         if allowedValued is None:
@@ -332,6 +331,10 @@ class EnumProp(EvalProp):
     def value_changed(self,changed):
         if not (changed['value'] in self.allowedValues):
             raise TypeError('Attempt to assign {} to EnumProp {} but the only allowed values are: {}'.format(changed['value'],self.name,self.allowedValues))
+    
+    @observe('allowedValues')
+    def set_placeholder(self,changed):
+        self.placeholder=','.join(allowedValues)
 
 class ListProp(Prop):
     listProperty=List()

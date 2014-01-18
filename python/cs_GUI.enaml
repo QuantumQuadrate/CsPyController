@@ -955,13 +955,13 @@ enamldef CameraPage(Page):
         EvalProp:
             prop<<camera.enable
         EvalProp:
-            prop<<canera.saveAsPNG
+            prop<<camera.saveAsPNG
         EvalProp:
             prop<<camera.saveAsASCII
         EvalProp:
             prop<<camera.forceImagesToU16
-        EvalProp:
-            prop<<camera.EMGain
+        #EvalProp:
+        #    prop<<camera.EMGain
 
             # analogGain=Range(low=0,high=5,value=0)
     # exposureTime=FloatRange(low=.001,high=30000)
