@@ -11,7 +11,7 @@ This file holds everything needed to model the high speed digital output from th
 #from cs_errors import PauseError
 from atom.api import Bool, Typed, Str, Int, Member
 #from enthought.chaco.api import ArrayPlotData, Plot #for chaco plot
-from instrument_property import Prop, BoolProp, IntProp, FloatProp, StrProp, ListProp, IntRangeProp, EnumProp
+from instrument_property import Prop, BoolProp, IntProp, FloatProp, StrProp, ListProp, IntRangeProp, FloatRangeProp, EnumProp
 from cs_instruments import Instrument
 import matplotlib.pyplot as plt
 import numpy, logging
@@ -102,44 +102,69 @@ class Camera(Instrument):
         self.properties+=['enable','saveAsPNG','saveAsASCII']
 
 class HamamatsuC9100_13(Camera):
+    version=Str()
     forceImagesToU16=Typed(BoolProp)
     EMGain=Typed(IntRangeProp)
-    
-    # analogGain=Range(low=0,high=5,value=0)
-    # exposureTime=FloatRange(low=.001,high=30000)
-    # scanSpeed=Enum(['Slow','Middle','High'],'High')
-    # lowLightSensitivity=Enum(['Off','5x','13x','21x'])
-    # externalTriggerMode=Enum(['Edge','Level','Synchronous Readout'],'Level')
-    # triggerPolarity=Enum(['Positive','Negative'],'Positive')
-    # externalTriggerSource=Enum(['Multi-Timing I/O Pin','BNC on Power Supply','CameraLink Interace'],'BNC on Power Supply')
-    # cooling=Enum(['Off','On'],'Off')
-    # fan=Enum(['Off','On'],'Off')
-    # scanMode=Enum(['Normal','Super pixel','Sub-array'],'Normal')
-    # photoelectronScaling=Float(1)
-    # subArrayLeft=Enum(range(0,512,16),0)
-    # subArrayTop=Enum(range(0,512,16),0)
-    # subArrayWidth=Enum(range(16,512,16),512)
-    # subArrayHeight=Enum(range(16,512,16),512)
-    # superPixelBinning=Enum(['1x1`','2x2','4x4'],'1x1')
-    # frameGrabberAcquisitionRegionLeft=Range(low=0,high=512,value=0))
-    # frameGrabberAcquisitionRegionTop=Range(low=0,high=512,value=0))
-    # frameGrabberAcquisitionRegionRight=Range(low=0,high=512,value=512))
-    # frameGrabberAcquisitionRegionBottom=Range(low=0,high=512,value=512))
-    # numImageBuffers=Int(300)
-    # shotsPerMeasurement=Int(1)
+    analogGain=Typed(IntRangeProp)
+    exposureTime=Typed(FloatRangeProp)
+    scanSpeed=Typed(EnumProp)
+    lowLightSensitivity=Typed(EnumProp)
+    externalTriggerMode=Typed(EnumProp)
+    triggerPolarity=Typed(EnumProp)
+    externalTriggerSource=Typed(EnumProp)
+    cooling=Typed(EnumProp)
+    fan=Typed(EnumProp)
+    scanMode=Typed(EnumProp)
+    photoelectronScaling=Typed(FloatProp)
+    subArrayLeft=Typed(EnumProp)
+    subArrayTop=Typed(EnumProp)
+    subArrayWidth=Typed(EnumProp)
+    subArrayHeight=Typed(EnumProp)
+    superPixelBinning=Typed(EnumProp)
+    frameGrabberAcquisitionRegionLeft=Typed(IntRangeProp)
+    frameGrabberAcquisitionRegionTop=Typed(IntRangeProp)
+    frameGrabberAcquisitionRegionRight=Typed(IntRangeProp)
+    frameGrabberAcquisitionRegionBottom=Typed(IntRangeProp)
+    numImageBuffers=Typed(IntRangeProp)
+    shotsPerMeasurement=Typed(IntRangeProp)
     
     #regions of interest will be dealt with in a post-processing filter
     
-    version=Str()
     
     def __init__(self,experiment):
         super(HamamatsuC9100_13,self).__init__(experiment)
         
         self.version='2014.01.17'
-        forceImagesToU16=BoolProp('forceImagesToU16',experiment,'convert images to U16 (necessary on Aquarius hardware)','False')
-        EMGain=IntRangeProp('EMGain',experiment,'EMCCD gain','0',low=0,high=255)
+        self.forceImagesToU16=BoolProp('forceImagesToU16',experiment,'convert images to U16 (necessary on Aquarius hardware)','False')
+        self.EMGain=IntRangeProp('EMGain',experiment,'EMCCD gain','0',low=0,high=255)
+        self.analogGain=IntRangeProp('analogGain',experiment,'analog gain','0',low=0,high=5)
+        self.exposureTime=FloatRangeProp('exposureTime',experiment,'exposure time (seconds)','00.050',low=.000001,high=7200) #low is 10 us, high is 7200 s, this setting does not apply if trigger is set to "level"
+        self.scanSpeed=EnumProp('scanSpeed',experiment,'CCD readout scan speed','"High"',['Slow','Middle','High'])
+        self.lowLightSensitivity=EnumProp('lowLightSensitivity',experiment,'low light sensitivity','"Off"',['Off','5x','13x','21x'])
+        self.externalTriggerMode=EnumProp('externalTriggerMode',experiment,'external trigger mode','"Level"',['Edge','Level','Synchronous Readout'])
+        self.triggerPolarity=EnumProp('triggerPolarity',experiment,'trigger polarity','"Positive"',['Positive','Negative'])
+        self.externalTriggerSource=EnumProp('externalTriggerSource',experiment,'external trigger source','"BNC on Power Supply"',['Multi-Timing I/O Pin','BNC on Power Supply','CameraLink Interace'])
+        self.cooling=EnumProp('cooling',experiment,'TEC cooling','"Off"',['Off','On'])
+        self.fan=EnumProp('fan',experiment,'fan','"Off"',['Off','On'])
+        self.scanMode=EnumProp('scanMode',experiment,'scan mode','"Normal"',['Normal','Super pixel','Sub-array'])
+        self.photoelectronScaling=FloatProp('photoelectronScaling',experiment,'photoelectron scaling','1')
+        self.subArrayLeft=EnumProp('subArrayLeft',experiment,'sub-array.left','0',range(0,512,16))
+        self.subArrayTop=EnumProp('subArrayTop',experiment,'sub-array.top','0',range(0,512,16))
+        self.subArrayWidth=EnumProp('subArrayWidth',experiment,'sub-array.width','512',range(16,513,16))
+        self.subArrayHeight=EnumProp('subArrayHeight',experiment,'sub-array.height','512',range(16,513,16))
+        self.superPixelBinning=EnumProp('superPixelBinning',experiment,'super pixel binning','"1x1"',['1x1','2x2','4x4'])
+        self.frameGrabberAcquisitionRegionLeft=IntRangeProp('frameGrabberAcquisitionRegionLeft',experiment,'frameGrabberAcquisitionRegion.Left','0',low=0,high=512)
+        self.frameGrabberAcquisitionRegionTop=IntRangeProp('frameGrabberAcquisitionRegionTop',experiment,'frameGrabberAcquisitionRegion.Top','0',low=0,high=512)
+        self.frameGrabberAcquisitionRegionRight=IntRangeProp('frameGrabberAcquisitionRegionRight',experiment,'frameGrabberAcquisitionRegion.Right','512',low=0,high=512)
+        self.frameGrabberAcquisitionRegionBottom=IntRangeProp('frameGrabberAcquisitionRegionBottom',experiment,'frameGrabberAcquisitionRegion.Bottom','512',low=0,high=512)
+        self.numImageBuffers=IntRangeProp('numImageBuffers',experiment,'number of image buffers','300',low=0)
+        self.shotsPerMeasurement=IntRangeProp('shotsPerMeasurement',experiment,'shots per measurement','1',low=0)
         
-        self.properties+=['version','forceImagesToU16','EMGain']
+        self.properties+=['version','forceImagesToU16','EMGain','analogGain','exposureTime','scanSpeed','lowLightSensitivity',
+        'externalTriggerMode','triggerPolarity','externalTriggerSource','cooling','fan','scanMode','photoelectronScaling',
+        'subArrayLeft','subArrayTop','subArrayWidthsubArrayHeight','superPixelBinning','frameGrabberAcquisitionRegionLeft',
+        'frameGrabberAcquisitionRegionTop','frameGrabberAcquisitionRegionRight','frameGrabberAcquisitionRegionBottom',
+        'numImageBuffers','shotsPerMeasurement']
     
     def initialize(self):
         self.isInitialized=True

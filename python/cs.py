@@ -14,9 +14,9 @@ The file cs.bat performs this task for you and then runs 'python cs.py'.
 To run from a shell call: import cs; exp=cs.new()
 """
 
-print """On Windows you must do "set ETS_TOOLKIT=qt4" from the command line before running this.
-The file cs.bat performs this task for you and then runs 'python cs.py'.
-On OS X you must do "export ETS_TOOLKIT=qt4" from the command line before running this.
+print """Before running:
+ Windows: "set ETS_TOOLKIT=qt4"
+ OS X:    "export ETS_TOOLKIT=qt4"
 
 To run from a shell call: import cs; exp=cs.new()
 """

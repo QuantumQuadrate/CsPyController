@@ -252,7 +252,7 @@ class EvalProp(Prop):
                 return False
         except TypeError as e:
             #this type of error is raised by Atom type checking
-            logger.warning('TypeError while evaluating property: '+self.name+'\ndescription: '+self.description+'\nfunction: '+self.function+'\n'+str(e)+'\n')
+            logger.warning('TypeError while evaluating:\nproperty: '+self.name+'\ndescription: '+self.description+'\nfunction: '+self.function+'\n'+str(e)+'\n')
             return False
         except Exception as e:
             logger.warning('Exception in EvalProp.evaluate() in '+self.name+'.\ndescription: '+self.description+'\nfunction: '+self.function+'\n'+str(e)+'\n')
@@ -275,37 +275,61 @@ class IntProp(EvalProp):
     value=Int()
     placeholder='integer'
 
-class IntRangeProp(EvalProp):
-    value=Int()
-    low=Int()
-    high=Int()
+class RangeProp(EvalProp):
+    '''This can't be instantiated directly.  Use IntRangeProp or FloatRangeProp.'''
+    value=Value()
+    low=Value()
+    high=Value()
     placeholder=Str('')
+    hasLow=Bool(False)
+    hasHigh=Bool(False)
     
     def __init__(self,name,experiment,description='',function='',low=None,high=None):
-        super(IntRangeProp,self).__init__(name,experiment,description,function)
-        self.low=low
-        self.high=high
+        if low is not None:
+            self.low=low
+            self.hasLow=True
+        if high is not None:
+            self.high=high
+            self.hasHigh=True
+        super(RangeProp,self).__init__(name,experiment,description,function)
+        
+        self.observe('low', self.set_placeholder)
+        self.observe('high', self.set_placeholder)
+        self.set_placeholder({})
+        self.evaluate()
     
     @observe('value')
     def value_changed(self,changed):
-        if self.low is not None:
+        if self.hasLow:
             if self.low > changed['value']:
-                raise TypeError('Attempt to assign {} to IntRangeProp {} but the minimum value is {}'.format(changed['value'],self.name,self.low))
-        if self.high is not None:
+                raise TypeError('Attempt to assign {} to {}RangeProp {} but the minimum value is {}'.format(changed['value'],self.numberType,self.name,self.low))
+        if self.hasHigh:
             if changed['value'] > self.high:
-                raise TypeError('Attempt to assign {} to IntRangeProp {} but the maximum value is {}'.format(changed['value'],self.name,self.high))
+                raise TypeError('Attempt to assign {} to {}RangeProp {} but the maximum value is {}'.format(changed['value'],self.numberType,self.name,self.high))
     
     @observe('low','high')
     def set_placeholder(self,changed):
-        if self.low is not None:
-            if self.high is not None:
-                self.placeholder='{} < integer < {}'.format(self.low,self.high)
+        if self.hasLow:
+            if self.hasHigh:
+                self.placeholder='{} < {} < {}'.format(self.low,self.numberType,self.high)
             else:
-                self.placeholder='{} < integer'.format(self.low)
-        elif self.high is not None:
-            self.placeholder='integer < {}'.format(self.high)
+                self.placeholder='{} < {}'.format(self.low,self.numberType,)
+        elif self.hasHigh:
+            self.placeholder='{} < {}'.format(self.numberType,self.high)
         else:
-            self.placeholder='integer'
+            self.placeholder='{}'.format(self.numberType)
+
+class IntRangeProp(RangeProp):
+    value=Int()
+    low=Int()
+    high=Int()
+    numberType='Int'
+
+class FloatRangeProp(RangeProp):
+    value=Float()
+    low=Float()
+    high=Float()
+    numberType='Float'
 
 class FloatProp(EvalProp):
     value=Float()
@@ -322,10 +346,11 @@ class EnumProp(EvalProp):
     
     def __init__(self,name,experiment,description='',function='',allowedValues=None):
         super(EnumProp,self).__init__(name,experiment,description,function)
-        if allowedValued is None:
+        if allowedValues is None:
             self.allowedValues=[]
         else:
             self.allowedValues=allowedValues
+        self.evaluate()
     
     @observe('value')
     def value_changed(self,changed):
@@ -334,7 +359,7 @@ class EnumProp(EvalProp):
     
     @observe('allowedValues')
     def set_placeholder(self,changed):
-        self.placeholder=','.join(allowedValues)
+        self.placeholder=','.join([str(i) for i in self.allowedValues])
 
 class ListProp(Prop):
     listProperty=List()

@@ -950,41 +950,64 @@ enamldef RFGenPage(Page):
 enamldef CameraPage(Page):
     attr camera
     title = 'Camera'
-    
     Container:
-        EvalProp:
-            prop<<camera.enable
-        EvalProp:
-            prop<<camera.saveAsPNG
-        EvalProp:
-            prop<<camera.saveAsASCII
-        EvalProp:
-            prop<<camera.forceImagesToU16
-        #EvalProp:
-        #    prop<<camera.EMGain
-
-            # analogGain=Range(low=0,high=5,value=0)
-    # exposureTime=FloatRange(low=.001,high=30000)
-    # scanSpeed=Enum(['Slow','Middle','High'],'High')
-    # lowLightSensitivity=Enum(['Off','5x','13x','21x'])
-    # externalTriggerMode=Enum(['Edge','Level','Synchronous Readout'],'Level')
-    # triggerPolarity=Enum(['Positive','Negative'],'Positive')
-    # externalTriggerSource=Enum(['Multi-Timing I/O Pin','BNC on Power Supply','CameraLink Interace'],'BNC on Power Supply')
-    # cooling=Enum(['Off','On'],'Off')
-    # fan=Enum(['Off','On'],'Off')
-    # scanMode=Enum(['Normal','Super pixel','Sub-array'],'Normal')
-    # photoelectronScaling=Float(1)
-    # subArrayLeft=Enum(range(0,512,16),0)
-    # subArrayTop=Enum(range(0,512,16),0)
-    # subArrayWidth=Enum(range(16,512,16),512)
-    # subArrayHeight=Enum(range(16,512,16),512)
-    # superPixelBinning=Enum(['1x1`','2x2','4x4'],'1x1')
-    # frameGrabberAcquisitionRegionLeft=Range(low=0,high=512,value=0))
-    # frameGrabberAcquisitionRegionTop=Range(low=0,high=512,value=0))
-    # frameGrabberAcquisitionRegionRight=Range(low=0,high=512,value=512))
-    # frameGrabberAcquisitionRegionBottom=Range(low=0,high=512,value=512))
-    # numImageBuffers=Int(300)
-    # shotsPerMeasurement=Int(1)
+        Container:
+            hug_height='strong'
+            hug_width='strong'
+            EvalProp:
+                prop<<camera.enable
+            EvalProp:
+                prop<<camera.saveAsPNG
+            EvalProp:
+                prop<<camera.saveAsASCII
+            EvalProp:
+                prop<<camera.forceImagesToU16
+            EvalProp:
+                prop<<camera.EMGain
+            EvalProp:
+                prop<<camera.analogGain
+            EvalProp:
+                prop<<camera.exposureTime
+            EvalProp:
+                prop<<camera.scanSpeed
+            EvalProp:
+                prop<<camera.lowLightSensitivity
+            EvalProp:
+                prop<<camera.externalTriggerMode
+            EvalProp:
+                prop<<camera.triggerPolarity
+            EvalProp:
+                prop<<camera.externalTriggerSource
+            EvalProp:
+                prop<<camera.cooling
+            EvalProp:
+                prop<<camera.fan
+            EvalProp:
+                prop<<camera.scanMode
+            EvalProp:
+                prop<<camera.photoelectronScaling
+            EvalProp:
+                prop<<camera.subArrayLeft
+            EvalProp:
+                prop<<camera.subArrayTop
+            EvalProp:
+                prop<<camera.subArrayWidth
+            EvalProp:
+                prop<<camera.subArrayHeight
+            EvalProp:
+                prop<<camera.superPixelBinning
+            EvalProp:
+                prop<<camera.frameGrabberAcquisitionRegionLeft
+            EvalProp:
+                prop<<camera.frameGrabberAcquisitionRegionTop
+            EvalProp:
+                prop<<camera.frameGrabberAcquisitionRegionRight
+            EvalProp:
+                prop<<camera.frameGrabberAcquisitionRegionBottom
+            EvalProp:
+                prop<<camera.numImageBuffers
+            EvalProp:
+                prop<<camera.shotsPerMeasurement
 
 enamldef CounterPage(Page):
     title = 'Counter'

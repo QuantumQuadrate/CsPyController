@@ -24,6 +24,9 @@ TODO:
     Add + Page to waveform notebooks, which is not closeable, and on showing, acts to open a new waveform.
     horizontal scroll bar doesn't appear when too many transitions are added to waveform
     complete cs_hdf.hdf2dict class
+    make it so that RangeProp high and low could be re-assigned to None dynamically if desired (without raising error, unless value is outside that range)
+    make it so that BoolProps get evaluated on instantiation, don't wait for settings to be loaded, because that may never happen, function passed on initialization should be valid (or provide default behavior), could make alternate valueText if that is useful
+    get red box validation display working
 
 Done:
     add results to an hdf5 object as they come in, each gets put into experiment.results[measurement_number]['name'] after some proper dissection
