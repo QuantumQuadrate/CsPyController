@@ -11,6 +11,8 @@ This file holds everything needed to model the analog output from a National Ins
 from atom.api import Bool, Typed, Member, Coerced #, Array
 from enthought.chaco.api import VPlotContainer, ArrayPlotData, Plot
 from enthought.enable.api import Component
+from matplotlib.figure import Figure
+import matplotlib.pyplot as plt
 from instrument_property import BoolProp, FloatProp, StrProp, ListProp, EvalProp
 import cs_evaluate
 from cs_instruments import Instrument
@@ -48,21 +50,25 @@ class AOEquation(EvalProp):
     
     placeholder='AO equation'
     
+    plotType='MPL'
+    
     def __init__(self,name,experiment,description='',kwargs={}):
         self.AO=kwargs['AO']
         
-        #create an empty plot
-        self.plotdata = ArrayPlotData(t=numpy.arange(2),y=numpy.zeros(2))
-        self.plot = Plot(self.plotdata)
-        self.plot.plot(("t", "y"), type="line", color="blue")
-        self.plot.title = self.description
+        if self.plotType=='chaco':
+            #create an empty plot
+            self.plotdata = ArrayPlotData(t=numpy.arange(2),y=numpy.zeros(2))
+            self.plot = Plot(self.plotdata)
+            self.plot.plot(("t", "y"), type="line", color="blue")
+            self.plot.title = self.description
         
-        super(AOEquation,self).__init__(name,experiment)
+        super(AOEquation,self).__init__(name,experiment,function='0*t')
     
     #update the plot titles when the description changes
     #Atom will recognize this function name and set up an observer
     def _observe_description(self,change):
-        self.plot.title = self.description
+        if self.plotType=='chaco':
+            self.plot.title = self.description
         self.AO.update_plot()
     
     def evaluate(self):
@@ -77,9 +83,10 @@ class AOEquation(EvalProp):
             logger.warning('In AOEquation.evaluate(), TraitError while evaluating: '+self.name+'\ndescription: '+self.description+'\nfunction: '+self.function+'\n'+str(e))
             #raise PauseError
         
-        self.plotdata.set_data("t",self.AO.timesteps)
-        self.plotdata.set_data("y",self.value)
-        self.plot.title = self.description
+        if self.plotType=='chaco':
+            self.plotdata.set_data("t",self.AO.timesteps)
+            self.plotdata.set_data("y",self.value)
+            self.plot.title = self.description
         self.AO.update_plot()
 
 class AnalogOutput(Instrument):
@@ -98,6 +105,14 @@ class AnalogOutput(Instrument):
     plot=Typed(Component)
     timesteps=Array()
     version=Member()
+    
+    #figure=Typed(plt.Figure)
+    figure=Typed(Figure)
+    #blankFigure=Typed(plt.Figure)
+    realFigure=Typed(Figure)
+    blankFigure=Typed(Figure)
+    
+    plotType='MPL'
     
     def __init__(self,experiment):
         super(AnalogOutput,self).__init__('AnalogOutput',experiment)
@@ -121,14 +136,46 @@ class AnalogOutput(Instrument):
         self.totalAOTime.observe('value',self.call_evaluate)
         self.units.observe('value',self.call_evaluate)
         
-        #create empty plot
-        plot = Plot()
-        plot.title = "empty"
-        self.plot=plot
+        if self.plotType=='chaco':
+            #create empty plot
+            plot = Plot()
+            plot.title = "empty"
+            self.plot=plot
+        elif self.plotType=='MPL':
+            pass
+            self.realFigure=Figure()
+            self.blankFigure=Figure()
+            ##self.figure=self.newMPL()
+            
+    def newMPL(self):
+        fig=self.realFigure
+        #clear the old figure
+        #if self.figure is not None:
+        #    del self.figure
+        fig.clear()
+        
+        #setup the MPL figure
+        n=len(self.equations)
+        if n>0:
+            #fig=Figure()
+            #fig, axes = plt.subplots(n,1, sharex=True)
+            for i in range(n):
+                ax=fig.add_subplot(n,1,i+1)
+                ax.plot(self.timesteps,self.equations[i].value)
+                ax.set_title=self.equations[i].description
+            ax.set_xlabel('time') #label only the last (bottom) plot
+        #else:
+            #fig=plt.figure()
+            #ax.text(0,0,'empty')
+        return fig
     
     def update_plot(self):
         #TODO: find out how to change VPlotContainer components list, instead of remaking the whole thing
-        self.plot=VPlotContainer(*[i.plot for i in self.equations])
+        if self.plotType=='chaco':
+            self.plot=VPlotContainer(*[i.plot for i in self.equations])
+        elif self.plotType=='MPL':
+            self.figure=self.blankFigure
+            self.figure=self.newMPL()
     
     def evaluate(self):
         super(AnalogOutput,self).evaluate()
@@ -140,6 +187,9 @@ class AnalogOutput(Instrument):
                 eq.evaluate()
         
         # plots will update automatically on every AOequation.evaluate()
+        
+        if self.plotType=='MPL':
+            self.update_plot()
     
     def initialize(self):
         self.isInitialized=True

@@ -49,16 +49,19 @@ class LabView(Instrument):
         self.sock=None
         self.connected=False
         
-        self.properties+=['IP','port','enabled','connected','HSDIO','DDS','piezo','RF_generators','AnalogOutput','DAQmxPulse']
+        self.properties+=['IP','port','enabled','connected','HSDIO','DDS','piezo','RF_generators','AnalogOutput','DAQmxPulse','camera']
     
     def initialize(self):
+        print 'debug LabView.initialize()'
         if self.enabled:
             #check for an old socket and delete it
             if self.sock is not None:
+                print 'debug LabView.initialize() closing sock'
                 self.sock.close()
                 del self.sock
             # Create a TCP/IP socket
             try:
+                print 'debug LabView.initialize() opening sock'
                 self.sock=TCP.CsClientSock(self.IP,self.port,parent=self)
             except:
                 logger.warning('Failed to open TCP socket in LabView.initialize()')
@@ -68,7 +71,8 @@ class LabView(Instrument):
             for i in self.instruments:
                 i.initialize()
             self.isInitialized=True
-    
+        print 'debug LabView.initialize() done'
+        
     def close(self):
         if self.sock:
             self.sock.close()
@@ -76,17 +80,23 @@ class LabView(Instrument):
         self.isInitialized=False
     
     def update(self):
+        print 'debug LabView.update() 1'
         super(LabView,self).update()
+        print 'debug LabView.update() 2'
         self.msg=self.toHardware()
+        print 'debug LabView.update() 3'
         #print '---start XML---\n'+msg+'---end XML---\n'
         if self.enabled:
             if self.connected:
                 if self.sock is not None:
+                    print 'debug LabView.update() 4'
                     self.sock.sendmsg(self.msg)
+                    print 'debug LabView.update() 5'
                 else:
                     print "LabView TCP says self.connected=True, but has no sock"
             else:
                 print "LabView TCP enabled but not connected"
+        print 'debug LabView.update() done'
     
     def start(self):
         if self.enabled:

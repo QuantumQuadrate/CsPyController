@@ -128,6 +128,11 @@ class Experiment(Prop):
     
     #things we would rather not define, but are forced to by Atom
     timeStarted=Member()
+    currentTime=Member()
+    timeElapsed=Member()
+    timeRemaining=Member()
+    totalTime=Member()
+    completionTime=Member()
     timeOutExpired=Member()
     instruments=Member()
     completedMeasurementsByIteration=Member()
@@ -195,9 +200,11 @@ class Experiment(Prop):
         #update the instruments with new settings
         
         for i in self.instruments:
+            print 'debug experiment.update() instrument='+i.name
             #check that the instruments are initialized
             if not i.isInitialized:
                 i.initialize() #reinitialize
+            print 'debug 2.6'
             i.update() #put the settings to where they should be at this iteration
     
     def evaluateAll(self):
@@ -227,6 +234,7 @@ class Experiment(Prop):
             i.evaluate() #each instrument will calculate its properties
     
     def measure(self):
+        print 'experiment.measure()'
         '''Enables all instruments to begin a measurement.  Sent at the beginning of every measurement.
         Actual output or input from the measurement may yet wait for a signal from another device.'''
         
@@ -318,6 +326,7 @@ class Experiment(Prop):
         self.completionTimeStr=self.date2str(self.completionTime)
     
     def resetAndGo(self):
+        print 'experiment.resetAndGo()'
         '''Reset the iteration variables and timing, then proceed with an experiment.'''
         
         #check if we are ready to do an experiment
@@ -340,6 +349,7 @@ class Experiment(Prop):
         self.go()
 
     def go(self):
+        print 'experiment.go()'
         '''Pick up the experiment wherever it was left off.'''
         
         #check if we are ready to do an experiment
@@ -349,18 +359,26 @@ class Experiment(Prop):
         self.status='running' #prevent another experiment from being started at the same time
         
         try: #if there is an error we exit the inner loops and respond appropriately
+            print 'debug 1'
             #make sure the independent variables are processed
             self.evaluateIndependentVariables()
             
             #loop until iteration are complete
             while (self.iteration < self.totalIterations) and (self.status=='running'):
+                print 'debug 2'
                 
                 #at the start of a new iteration, or if we are continuing
                 self.evaluate()    #re-calculate all variables
+                
+                print 'debug 2.5'
+                
                 self.update()      #send current values to hardware
+                
+                print 'debug 3'
                 
                 #only at the start of a new iteration
                 if self.measurement==0:
+                    print 'debug 4'
                     self.completedMeasurementsByIteration.append(0) #start a new counter for this iteration
                     
                     #write the iteration settings to the hdf5 file

@@ -162,7 +162,7 @@ class HamamatsuC9100_13(Camera):
         
         self.properties+=['version','forceImagesToU16','EMGain','analogGain','exposureTime','scanSpeed','lowLightSensitivity',
         'externalTriggerMode','triggerPolarity','externalTriggerSource','cooling','fan','scanMode','photoelectronScaling',
-        'subArrayLeft','subArrayTop','subArrayWidthsubArrayHeight','superPixelBinning','frameGrabberAcquisitionRegionLeft',
+        'subArrayLeft','subArrayTop','subArrayWidth','subArrayHeight','superPixelBinning','frameGrabberAcquisitionRegionLeft',
         'frameGrabberAcquisitionRegionTop','frameGrabberAcquisitionRegionRight','frameGrabberAcquisitionRegionBottom',
         'numImageBuffers','shotsPerMeasurement']
     
