@@ -111,6 +111,8 @@ class AnalogOutput(Instrument):
     #blankFigure=Typed(plt.Figure)
     realFigure=Typed(Figure)
     blankFigure=Typed(Figure)
+    refresh=Bool(False)
+    enable_refresh=Bool(False) #makes it so that sub-equations won't redraw graph until full evaluation is done
     
     plotType='MPL'
     
@@ -131,10 +133,7 @@ class AnalogOutput(Instrument):
                             listElementName='equation',listElementKwargs={'AO':self})
         self.properties+=['version','enable','physicalChannels','minimum','maximum','clockRate','totalAOTime','units','waitForStartTrigger','triggerSource','triggerEdge','equations']
         
-        #set up Atom notifications from sub-traits
-        self.clockRate.observe('value',self.call_evaluate)
-        self.totalAOTime.observe('value',self.call_evaluate)
-        self.units.observe('value',self.call_evaluate)
+
         
         if self.plotType=='chaco':
             #create empty plot
@@ -142,52 +141,71 @@ class AnalogOutput(Instrument):
             plot.title = "empty"
             self.plot=plot
         elif self.plotType=='MPL':
-            pass
-            self.realFigure=Figure()
-            self.blankFigure=Figure()
-            ##self.figure=self.newMPL()
+            self.figure=Figure()
+            #self.blankFigure=Figure()
+            self.drawMPL()
             
-    def newMPL(self):
-        fig=self.realFigure
+        #set up Atom notifications from sub-traits
+        self.clockRate.observe('value',self.call_evaluate)
+        self.totalAOTime.observe('value',self.call_evaluate)
+        self.units.observe('value',self.call_evaluate)
+        
+        self.enable_refresh=True
+        
+    def drawMPL(self):
+        fig=self.figure
         #clear the old figure
         #if self.figure is not None:
         #    del self.figure
-        fig.clear()
+        
+        #don't clear
+        fig.clf() #keep_observers=True)
         
         #setup the MPL figure
         n=len(self.equations)
         if n>0:
-            #fig=Figure()
             #fig, axes = plt.subplots(n,1, sharex=True)
             for i in range(n):
-                ax=fig.add_subplot(n,1,i+1)
+                #don't add subplot
+                if i>=len(fig.axes):
+                    print 'adding ',i
+                    ax=fig.add_subplot(n,1,i+1)
+                else:
+                    ax=fig.axes[i]
+                print len(self.timesteps),len(self.equations[i].value)
                 ax.plot(self.timesteps,self.equations[i].value)
                 ax.set_title=self.equations[i].description
             ax.set_xlabel('time') #label only the last (bottom) plot
         #else:
             #fig=plt.figure()
             #ax.text(0,0,'empty')
-        return fig
+        #return fig
     
     def update_plot(self):
-        #TODO: find out how to change VPlotContainer components list, instead of remaking the whole thing
-        if self.plotType=='chaco':
-            self.plot=VPlotContainer(*[i.plot for i in self.equations])
-        elif self.plotType=='MPL':
-            self.figure=self.blankFigure
-            self.figure=self.newMPL()
+        if self.enable_refresh:
+            #TODO: find out how to change VPlotContainer components list, instead of remaking the whole thing
+            if self.plotType=='chaco':
+                self.plot=VPlotContainer(*[i.plot for i in self.equations])
+            elif self.plotType=='MPL':
+                #self.figure=self.blankFigure
+                #self.figure=
+                self.drawMPL()
+                self.refresh=not self.refresh
     
     def evaluate(self):
-        super(AnalogOutput,self).evaluate()
+        self.enable_refresh=False
         # first evaluate the time steps:
         self.timesteps=numpy.arange(0.0,self.totalAOTime.value,1.0/(self.clockRate.value*self.units.value))
+        super(AnalogOutput,self).evaluate()
         
-        if self.equations is not None:
-            for eq in self.equations:
-                eq.evaluate()
+        #not necessary
+        #if self.equations is not None:
+        #    for eq in self.equations:
+        #        eq.evaluate()
         
         # plots will update automatically on every AOequation.evaluate()
         
+        self.enable_refresh=True
         if self.plotType=='MPL':
             self.update_plot()
     

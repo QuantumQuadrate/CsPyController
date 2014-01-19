@@ -1057,9 +1057,8 @@ enamldef AnalogOutputPage(Page):
     Container:
         hug_height='strong'
         #hug_width='strong'
-        #uncomment me!
-        #constraints=[vbox(e1,canvas,equations,c1),align('left',e1,canvas,equations,c1)]
-        constraints=[vbox(e1,equations,c1),align('left',e1,equations,c1)]
+        constraints=[vbox(e1,canvas,equations,c1),align('left',e1,canvas,equations,c1)]
+        #constraints=[vbox(e1,equations,c1),align('left',e1,equations,c1)]
         LabelBox: e1:
             text='enable'
             checked:=AO.enable
@@ -1069,13 +1068,11 @@ enamldef AnalogOutputPage(Page):
         #    constraints=[height==500,width==1500]
         #    component<<AO.plot
         #the following lines are for MPL plotting
-        
-        #uncomment me!
-        
-        #MPLCanvas: canvas:
-        #    constraints=[(height==500)|'strong']
-        #    hug_width='ignore'
-        #    figure << AO.figure
+        MPLCanvas: canvas:
+            constraints=[(height==500)|'strong']
+            hug_width='ignore'
+            figure << AO.figure
+            refresh << AO.refresh
         IndexedStack: equations:
             title='equations'
             iterable=AO.equations

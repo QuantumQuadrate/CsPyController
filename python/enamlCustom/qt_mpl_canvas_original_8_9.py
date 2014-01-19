@@ -67,14 +67,6 @@ class QtMPLCanvas(QtControl, ProxyMPLCanvas):
                 toolbar = layout.itemAt(0).widget()
                 toolbar.setVisible(visible)
 
-    #MTL: Refresh here
-    def set_refresh(self, refresh):
-        """ Refresh.
-
-        """
-        with size_hint_guard(self):
-            self._refresh_mpl_widget()
-
     #--------------------------------------------------------------------------
     # Private API
     #--------------------------------------------------------------------------
