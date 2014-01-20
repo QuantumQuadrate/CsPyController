@@ -42,27 +42,29 @@ class MPLCanvas(Control):
 
     """
     
-    #MTL: Negate this to refresh
-    refresh = d_(Bool(False))
     
     #: The matplotlib figure to display in the widget.
     figure = d_(ForwardTyped(Figure))
-
+    
     #: Whether or not the matplotlib figure toolbar is visible.
     toolbar_visible = d_(Bool(False))
-
+    
+    #MTL: Negate this to refresh
+    refresh = d_(Bool(False))
+    
     #: Matplotlib figures expand freely in height and width by default.
     hug_width = set_default('ignore')
     hug_height = set_default('ignore')
-
+    
     #: A reference to the ProxyMPLCanvas object.
     proxy = Typed(ProxyMPLCanvas)
-
+    
     #--------------------------------------------------------------------------
     # Observers
     #--------------------------------------------------------------------------
     @observe('figure', 'toolbar_visible', 'refresh')
     def _update_proxy(self, change):
+        print 'MPL _update_proxy, change[name] ='+str(change['name'])+' change[value] ='+str(change['value'])
         """ An observer which sends state change to the proxy.
 
         """

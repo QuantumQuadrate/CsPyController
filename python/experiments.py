@@ -258,7 +258,9 @@ class Experiment(Prop):
                     i.isDone=False
                     #let each instrument begin measurement
                     #put each in a different thread, so they can proceed simultaneously
-                    threading.Thread(target=i.start).start()
+                    #TODO: enable threading?
+                    #threading.Thread(target=i.start).start()
+                    i.start()
         
         #loop until all instruments are done
         #TODO: can we do this with a callback?

@@ -25,11 +25,13 @@ class QtMPLCanvas(QtControl, ProxyMPLCanvas):
     """
     #: A reference to the widget created by the proxy.
     widget = Typed(QFrame)
+    canvas = Typed(FigureCanvasQTAgg)
 
     #--------------------------------------------------------------------------
     # Initialization API
     #--------------------------------------------------------------------------
     def create_widget(self):
+        'print qt_mpl_canvas.QTMPLCanvas.create_widget()'
         """ Create the underlying widget.
 
         """
@@ -51,6 +53,7 @@ class QtMPLCanvas(QtControl, ProxyMPLCanvas):
     # ProxyMPLCanvas API
     #--------------------------------------------------------------------------
     def set_figure(self, figure):
+        print 'qt_mpl_canvas.set_figure()'
         """ Set the MPL figure for the widget.
 
         """
@@ -69,11 +72,13 @@ class QtMPLCanvas(QtControl, ProxyMPLCanvas):
 
     #MTL: Refresh here
     def set_refresh(self, refresh):
-        """ Refresh.
-
-        """
-        with size_hint_guard(self):
-            self._refresh_mpl_widget()
+        print 'qt_mpl_canvas.set_refresh'
+        """ Refresh"""
+        if self.canvas is not None:
+            print 'draw()'
+            self.canvas.draw()
+#        with size_hint_guard(self):
+#            self._refresh_mpl_widget()
 
     #--------------------------------------------------------------------------
     # Private API
@@ -102,6 +107,7 @@ class QtMPLCanvas(QtControl, ProxyMPLCanvas):
             canvas.setParent(widget)
             canvas.setFocusPolicy(Qt.ClickFocus)
             canvas.setVisible(True)
+            self.canvas=canvas
             toolbar = NavigationToolbar2QTAgg(canvas, widget)
             toolbar.setVisible(self.declaration.toolbar_visible)
             layout.addWidget(toolbar)

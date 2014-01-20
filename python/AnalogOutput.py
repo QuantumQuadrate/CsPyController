@@ -8,6 +8,7 @@ modified>=2013-10-24
 This file holds everything needed to model the analog output from a National Instruments HSDIO card.  It communicates to LabView via the higher up LabView(Instrument) class.
 '''
 
+from __future__ import division
 from atom.api import Bool, Typed, Member, Coerced #, Array
 from enthought.chaco.api import VPlotContainer, ArrayPlotData, Plot
 from enthought.enable.api import Component
@@ -67,11 +68,13 @@ class AOEquation(EvalProp):
     #update the plot titles when the description changes
     #Atom will recognize this function name and set up an observer
     def _observe_description(self,change):
+        print 'AnalogOutput.AOEquation._observe_description()'
         if self.plotType=='chaco':
             self.plot.title = self.description
         self.AO.update_plot()
     
     def evaluate(self):
+        print 'AnalogOutput.AOEquation.evaluate()'
         #evaluate the 'function' and store it in 'value'
         #but first add the variable 't' into the variables dictionary for timesteps.
         #This will overwrite any previous value, so we make a copy of the dictionary
@@ -141,9 +144,11 @@ class AnalogOutput(Instrument):
             plot.title = "empty"
             self.plot=plot
         elif self.plotType=='MPL':
-            self.figure=Figure()
-            #self.blankFigure=Figure()
+            #self.figure=Figure()
+            self.realFigure=Figure()
+            self.blankFigure=Figure()
             self.drawMPL()
+            self.figure=self.realFigure
             
         #set up Atom notifications from sub-traits
         self.clockRate.observe('value',self.call_evaluate)
@@ -153,13 +158,15 @@ class AnalogOutput(Instrument):
         self.enable_refresh=True
         
     def drawMPL(self):
-        fig=self.figure
+        print 'AnalogOutput.AnalogOutput.drawMPL'
+        #fig=self.figure
+        fig=self.realFigure
         #clear the old figure
         #if self.figure is not None:
         #    del self.figure
         
         #don't clear
-        fig.clf() #keep_observers=True)
+        #fig.clf() #keep_observers=True)
         
         #setup the MPL figure
         n=len(self.equations)
@@ -168,14 +175,14 @@ class AnalogOutput(Instrument):
             for i in range(n):
                 #don't add subplot
                 if i>=len(fig.axes):
-                    print 'adding ',i
                     ax=fig.add_subplot(n,1,i+1)
                 else:
                     ax=fig.axes[i]
-                print len(self.timesteps),len(self.equations[i].value)
+                    ax.cla()
                 ax.plot(self.timesteps,self.equations[i].value)
                 ax.set_title=self.equations[i].description
             ax.set_xlabel('time') #label only the last (bottom) plot
+        #plt.draw()
         #else:
             #fig=plt.figure()
             #ax.text(0,0,'empty')
@@ -187,12 +194,13 @@ class AnalogOutput(Instrument):
             if self.plotType=='chaco':
                 self.plot=VPlotContainer(*[i.plot for i in self.equations])
             elif self.plotType=='MPL':
-                #self.figure=self.blankFigure
-                #self.figure=
+                self.figure=self.blankFigure
                 self.drawMPL()
-                self.refresh=not self.refresh
+                self.figure=self.realFigure
+                #self.refresh=not self.refresh
     
     def evaluate(self):
+        print 'AnalogOutput.AnalogOutput.evaluate()'
         self.enable_refresh=False
         # first evaluate the time steps:
         self.timesteps=numpy.arange(0.0,self.totalAOTime.value,1.0/(self.clockRate.value*self.units.value))

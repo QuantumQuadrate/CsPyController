@@ -113,13 +113,16 @@ enamldef CsMenuBar(MenuBar): menuBar:
         title = '&Experiment'
         Action:
             text = 'Reset and Run\tCtrl+R'
-            triggered::threading.Thread(target=experiment.resetAndGo).start()
+            #triggered::threading.Thread(target=experiment.resetAndGo).start()
+            triggered::experiment.resetAndGo()
         Action:
             text = 'Continue\tCtrl+G'
-            triggered::threading.Thread(target=experiment.go).start()
+            #triggered::threading.Thread(target=experiment.go).start()
+            triggered::experiment.go()
         Action:
             text = 'Halt\tCtrl+H'
-            triggered::threading.Thread(target=experiment.halt).start()
+            #triggered::threading.Thread(target=experiment.halt).start()
+            triggered::experiment.halt()
 
 enamldef EvalProp(GroupBox):
     attr prop
