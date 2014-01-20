@@ -80,12 +80,8 @@ class LabView(Instrument):
         self.isInitialized=False
     
     def update(self):
-        print 'debug LabView.update() 1'
         super(LabView,self).update()
-        print 'debug LabView.update() 2'
         self.msg=self.toHardware()
-        print 'debug LabView.update() 3'
-        #print '---start XML---\n'+msg+'---end XML---\n'
         if self.enabled:
             if self.connected:
                 if self.sock is not None:
@@ -96,7 +92,6 @@ class LabView(Instrument):
                     print "LabView TCP says self.connected=True, but has no sock"
             else:
                 print "LabView TCP enabled but not connected"
-        print 'debug LabView.update() done'
     
     def start(self):
         if self.enabled:

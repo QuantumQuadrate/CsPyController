@@ -45,15 +45,7 @@
 			<Item Name="AQT_set_connection.vi" Type="VI" URL="../AQT_MEMS_switch/AQT_set_connection.vi"/>
 			<Item Name="AQT_get_board_info.vi" Type="VI" URL="../AQT_MEMS_switch/AQT_get_board_info.vi"/>
 		</Item>
-		<Item Name="PI_piezo" Type="Folder">
-			<Item Name="close.vi" Type="VI" URL="../PI_piezo/close.vi"/>
-			<Item Name="pi_piezo_to_xml.vi" Type="VI" URL="../PI_piezo/pi_piezo_to_xml.vi"/>
-			<Item Name="pi_piezo_load_xml.vi" Type="VI" URL="../PI_piezo/pi_piezo_load_xml.vi"/>
-			<Item Name="connect.vi" Type="VI" URL="../PI_piezo/connect.vi"/>
-			<Item Name="settings.ctl" Type="VI" URL="../PI_piezo/settings.ctl"/>
-			<Item Name="set_position.vi" Type="VI" URL="../PI_piezo/set_position.vi"/>
-			<Item Name="status.ctl" Type="VI" URL="../PI_piezo/status.ctl"/>
-		</Item>
+		<Item Name="PI_piezo" Type="Folder"/>
 		<Item Name="Andor" Type="Folder">
 			<Item Name="Andor_settings.ctl" Type="VI" URL="../Camera/Andor/Andor_settings.ctl"/>
 			<Item Name="move_andor_files.vi" Type="VI" URL="../Camera/Andor/move_andor_files.vi"/>
@@ -85,10 +77,11 @@
 		<Item Name="PicoMotor.lvclass" Type="LVClass" URL="../PicoMotor/PicoMotor.lvclass"/>
 		<Item Name="TCP_IP.lvclass" Type="LVClass" URL="../TCP_IP/TCP_IP.lvclass"/>
 		<Item Name="GPIB.lvclass" Type="LVClass" URL="../GPIB/GPIB.lvclass"/>
-		<Item Name="HP8662A_RF_Generator.lvclass" Type="LVClass" URL="../GPIB/HP8662A_RF_Generator/HP8662A_RF_Generator.lvclass"/>
 		<Item Name="HP83712B_RF_Generator.lvclass" Type="LVClass" URL="../GPIB/HP83712B_RF_Generator/HP83712B_RF_Generator.lvclass"/>
 		<Item Name="HP83623A_RF_Generator.lvclass" Type="LVClass" URL="../GPIB/HP83623A_RF_Generator/HP83623A_RF_Generator.lvclass"/>
+		<Item Name="HP8662A_RF_Generator.lvclass" Type="LVClass" URL="../GPIB/HP8662A_RF_Generator/HP8662A_RF_Generator.lvclass"/>
 		<Item Name="TTL_input.lvclass" Type="LVClass" URL="../TTL_input/TTL_input.lvclass"/>
+		<Item Name="PI_Piezo.lvclass" Type="LVClass" URL="../PI_piezo/PI_Piezo.lvclass"/>
 		<Item Name="viewer.vi" Type="VI" URL="../viewer.vi"/>
 		<Item Name="ROI_array_to_cluster.vi" Type="VI" URL="../ROI_array_to_cluster.vi"/>
 		<Item Name="Save Defaults.vi" Type="VI" URL="../Save Defaults.vi"/>
@@ -96,7 +89,6 @@
 		<Item Name="ROI_sum.vi" Type="VI" URL="../ROI_sum.vi"/>
 		<Item Name="append_to_log.vi" Type="VI" URL="../append_to_log.vi"/>
 		<Item Name="handle_errors.vi" Type="VI" URL="../handle_errors.vi"/>
-		<Item Name="run_experiment.vi" Type="VI" URL="../run_experiment.vi"/>
 		<Item Name="plot_counter_data_1.vi" Type="VI" URL="../plot_counter_data_1.vi"/>
 		<Item Name="plot_counter_data_2.vi" Type="VI" URL="../plot_counter_data_2.vi"/>
 		<Item Name="save_comments.vi" Type="VI" URL="../save_comments.vi"/>
@@ -119,6 +111,7 @@
 		<Item Name="TTL_test.vi" Type="VI" URL="../TTL_test.vi"/>
 		<Item Name="states.ctl" Type="VI" URL="../Experiment/states.ctl"/>
 		<Item Name="Globals.vi" Type="VI" URL="../Experiment/Globals.vi"/>
+		<Item Name="HP83623A.ctl" Type="VI" URL="../GPIB/HP83623A_RF_Generator/HP83623A.ctl"/>
 		<Item Name="Dependencies" Type="Dependencies">
 			<Item Name="instr.lib" Type="Folder">
 				<Item Name="niHSDIO_ctl Trigger DigEdge - Edge Values (Ring).ctl" Type="VI" URL="/&lt;instrlib&gt;/niHSDIO/niHSDIO.llb/niHSDIO_ctl Trigger DigEdge - Edge Values (Ring).ctl"/>
@@ -311,9 +304,6 @@
 				<Item Name="IMAQ Close.vi" Type="VI" URL="/&lt;vilib&gt;/vision/driver/imaqhl.llb/IMAQ Close.vi"/>
 				<Item Name="imgSessionStopAcquisition.vi" Type="VI" URL="/&lt;vilib&gt;/vision/driver/DLLCalls.llb/imgSessionStopAcquisition.vi"/>
 				<Item Name="IMAQ Stop.vi" Type="VI" URL="/&lt;vilib&gt;/vision/driver/imaqll.llb/IMAQ Stop.vi"/>
-				<Item Name="VISA Configure Serial Port" Type="VI" URL="/&lt;vilib&gt;/Instr/_visa.llb/VISA Configure Serial Port"/>
-				<Item Name="VISA Configure Serial Port (Instr).vi" Type="VI" URL="/&lt;vilib&gt;/Instr/_visa.llb/VISA Configure Serial Port (Instr).vi"/>
-				<Item Name="VISA Configure Serial Port (Serial Instr).vi" Type="VI" URL="/&lt;vilib&gt;/Instr/_visa.llb/VISA Configure Serial Port (Serial Instr).vi"/>
 				<Item Name="DAQmx Configure Input Buffer.vi" Type="VI" URL="/&lt;vilib&gt;/DAQmx/configure/buffer.llb/DAQmx Configure Input Buffer.vi"/>
 				<Item Name="GPIB Status Boolean Array.ctl" Type="VI" URL="/&lt;vilib&gt;/Instr/_visa.llb/GPIB Status Boolean Array.ctl"/>
 				<Item Name="NI-845x SPI Script DIO Configure Port.vi" Type="VI" URL="/&lt;vilib&gt;/ni845x/ni845x.llb/NI-845x SPI Script DIO Configure Port.vi"/>
@@ -552,6 +542,9 @@
 				<Item Name="DAQmx Write (Counter 1D Ticks 1Chan NSamp).vi" Type="VI" URL="/&lt;vilib&gt;/DAQmx/write.llb/DAQmx Write (Counter 1D Ticks 1Chan NSamp).vi"/>
 				<Item Name="DAQmx Write (Counter 1D Time 1Chan NSamp).vi" Type="VI" URL="/&lt;vilib&gt;/DAQmx/write.llb/DAQmx Write (Counter 1D Time 1Chan NSamp).vi"/>
 				<Item Name="Uncompress Digital.vi" Type="VI" URL="/&lt;vilib&gt;/Waveform/DWDT.llb/Uncompress Digital.vi"/>
+				<Item Name="VISA Configure Serial Port (Instr).vi" Type="VI" URL="/&lt;vilib&gt;/Instr/_visa.llb/VISA Configure Serial Port (Instr).vi"/>
+				<Item Name="VISA Configure Serial Port (Serial Instr).vi" Type="VI" URL="/&lt;vilib&gt;/Instr/_visa.llb/VISA Configure Serial Port (Serial Instr).vi"/>
+				<Item Name="VISA Configure Serial Port" Type="VI" URL="/&lt;vilib&gt;/Instr/_visa.llb/VISA Configure Serial Port"/>
 			</Item>
 			<Item Name="user.lib" Type="Folder">
 				<Item Name="Construct.vi" Type="VI" URL="/&lt;userlib&gt;/okFrontPanel/VIs/Construct.vi"/>
@@ -629,8 +622,6 @@
 			<Item Name="all_settings.ctl" Type="VI" URL="../config_file_io/all_settings.ctl"/>
 			<Item Name="save_settings.vi" Type="VI" URL="../config_file_io/save_settings.vi"/>
 			<Item Name="add_xml_headers.vi" Type="VI" URL="../config_file_io/add_xml_headers.vi"/>
-			<Item Name="DDS update.vi" Type="VI" URL="../../DDS drivers v3/DDS update.vi"/>
-			<Item Name="load_settings.vi" Type="VI" URL="../config_file_io/load_settings.vi"/>
 			<Item Name="DOMUserDefRef.dll" Type="Document" URL="DOMUserDefRef.dll">
 				<Property Name="NI.PreserveRelativePath" Type="Bool">true</Property>
 			</Item>
@@ -724,12 +715,6 @@
 			<Item Name="GetPosition.vi" Type="VI" URL="../PicoMotor/NewFocus8742/Command VIs/GetPosition.vi"/>
 			<Item Name="Close connection if open.vi" Type="VI" URL="../PI_piezo/GCS_LabVIEW_digital/Low Level/Communication.llb/Close connection if open.vi"/>
 			<Item Name="Analog FGlobal.vi" Type="VI" URL="../PI_piezo/GCS_LabVIEW_digital/Low Level/Analog control.llb/Analog FGlobal.vi"/>
-			<Item Name="E816_Configuration_Setup.vi" Type="VI" URL="../PI_piezo/GCS_LabVIEW_digital/E816_Configuration_Setup.vi"/>
-			<Item Name="Initialize Global1.vi" Type="VI" URL="../PI_piezo/GCS_LabVIEW_digital/Low Level/Communication.llb/Initialize Global1.vi"/>
-			<Item Name="PI Open Interface of one system.vi" Type="VI" URL="../PI_piezo/GCS_LabVIEW_digital/Low Level/Communication.llb/PI Open Interface of one system.vi"/>
-			<Item Name="Is DaisyChain open.vi" Type="VI" URL="../PI_piezo/GCS_LabVIEW_digital/Low Level/Communication.llb/Is DaisyChain open.vi"/>
-			<Item Name="Select USB device.vi" Type="VI" URL="../PI_piezo/GCS_LabVIEW_digital/Low Level/Communication.llb/Select USB device.vi"/>
-			<Item Name="Define connected systems (Array).vi" Type="VI" URL="../PI_piezo/GCS_LabVIEW_digital/Low Level/General command.llb/Define connected systems (Array).vi"/>
 			<Item Name="evaluate_dependent_vars.vi" Type="VI" URL="../evaluate_dependent_vars.vi"/>
 			<Item Name="Hamamatsu_serial.vi" Type="VI" URL="../Hamamatsu_serial.vi"/>
 			<Item Name="niHSDIO_64.dll" Type="Document" URL="niHSDIO_64.dll">
@@ -761,6 +746,12 @@
 				<Property Name="NI.PreserveRelativePath" Type="Bool">true</Property>
 			</Item>
 			<Item Name="XDNodeRunTimeDep.lvlib" Type="Library" URL="/&lt;vilib&gt;/Platform/TimedLoop/XDataNode/XDNodeRunTimeDep.lvlib"/>
+			<Item Name="Define connected systems (Array).vi" Type="VI" URL="../PI_piezo/GCS_LabVIEW_digital/Low Level/General command.llb/Define connected systems (Array).vi"/>
+			<Item Name="Select USB device.vi" Type="VI" URL="../PI_piezo/GCS_LabVIEW_digital/Low Level/Communication.llb/Select USB device.vi"/>
+			<Item Name="Is DaisyChain open.vi" Type="VI" URL="../PI_piezo/GCS_LabVIEW_digital/Low Level/Communication.llb/Is DaisyChain open.vi"/>
+			<Item Name="Initialize Global1.vi" Type="VI" URL="../PI_piezo/GCS_LabVIEW_digital/Low Level/Communication.llb/Initialize Global1.vi"/>
+			<Item Name="PI Open Interface of one system.vi" Type="VI" URL="../PI_piezo/GCS_LabVIEW_digital/Low Level/Communication.llb/PI Open Interface of one system.vi"/>
+			<Item Name="E816_Configuration_Setup.vi" Type="VI" URL="../PI_piezo/GCS_LabVIEW_digital/E816_Configuration_Setup.vi"/>
 		</Item>
 		<Item Name="Build Specifications" Type="Build"/>
 	</Item>
