@@ -16,16 +16,15 @@ from instrument_property import Prop, EvalProp, ListProp
 from cs_errors import PauseError
 import LabView
 
-from pyqt4 import qtcore
+from PyQt4 import QtCore
 
-class experimentGoThread(qtcore.QThread):
-    def __init__(self):
-        qtcore.QThread.__init__(self, parent=app)
-        self.signal = qtcore.SIGNAL("signal")
+class experimentResetAndGoThread(QtCore.QThread):
+    def __init__(self,experiment):
+        super(experimentResetAndGoThread,self).__init__()
+        self.experiment=experiment
+    
     def run(self):
-        time.sleep(5)
-        logging.debug("in thread")
-        self.emit(self.signal, "hi from thread")
+        self.experiment.resetAndGo()
 
 class result(object):
     def __init__(self,start_time,iteration,measurement,ivarIndices,variables,data):
@@ -158,6 +157,7 @@ class Experiment(Prop):
     measurementResults=Member()
     iterationResults=Member()
     
+    resetAndGoThread=Typed(experimentResetAndGoThread)
  
     '''Defines a set of instruments, and a sequence of what to do with them.'''
     def __init__(self):
@@ -175,7 +175,9 @@ class Experiment(Prop):
         'copyDataToNetwork','experimentDescriptionFilenameSuffix','measurementTimeout','measurementsPerIteration','willSendEmail',
         'emailAddresses','progress','iteration','measurement','totalIterations','timeStartedStr','currentTimeStr','timeElapsedStr','totalTimeStr',
         'timeRemainingStr','completionTimeStr','variableReportFormat','variableReportStr','variablesNotToSave','notes']
-    
+        
+        self.resetAndGoThread=experimentResetAndGoThread(self)
+        
     def evaluateIndependentVariables(self):
         #make sure ivar functions have been parsed, don't rely on GUI update
         for i in self.independentVariables:

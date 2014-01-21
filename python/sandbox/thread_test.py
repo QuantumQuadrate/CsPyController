@@ -10,8 +10,9 @@ logging.basicConfig(level=logging.DEBUG,
                     
 app = qt.QApplication(sys.argv)
 class widget(qtcore.QObject):
-    def __init__(self, parent=None):
-        qt.QWidget.__init__(self)
+#    def __init__(self) #, parent=None):
+#        super(widget,self).__init__()
+        #qt.QObjectWidget.__init__(self)
 
     def appinit(self):
         thread = worker()

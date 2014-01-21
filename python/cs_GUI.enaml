@@ -114,7 +114,8 @@ enamldef CsMenuBar(MenuBar): menuBar:
         Action:
             text = 'Reset and Run\tCtrl+R'
             #triggered::threading.Thread(target=experiment.resetAndGo).start()
-            triggered::experiment.resetAndGo()
+            triggered::experiment.resetAndGoThread.start()
+            #triggered::experiment.resetAndGo()
         Action:
             text = 'Continue\tCtrl+G'
             #triggered::threading.Thread(target=experiment.go).start()
@@ -123,11 +124,6 @@ enamldef CsMenuBar(MenuBar): menuBar:
             text = 'Halt\tCtrl+H'
             #triggered::threading.Thread(target=experiment.halt).start()
             triggered::experiment.halt()
-        Action:
-            text = 'Wait\tCtrl+W'
-            triggered::
-                time.sleep(5)
-            #threading.Thread(target=experiment.wait).start()
 
 enamldef EvalProp(GroupBox):
     attr prop
@@ -605,7 +601,7 @@ enamldef Waveform(RemoveEventContainer): thisWaveformContainer:
         constraints=[(height==500)|'strong']
         hug_width='ignore'
         figure << waveform.figure
-        refresh<<waveform.refresh
+        #refresh<<waveform.refresh
     
     #the following 6 lines would be used for the Chaco digital waveform plot
     #constraints=[vbox(canvas,details)]
@@ -1076,7 +1072,7 @@ enamldef AnalogOutputPage(Page):
             constraints=[(height==500)|'strong']
             hug_width='ignore'
             figure << AO.figure
-            refresh << AO.refresh
+            #refresh << AO.refresh
         IndexedStack: equations:
             title='equations'
             iterable=AO.equations

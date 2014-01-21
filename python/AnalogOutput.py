@@ -22,6 +22,11 @@ from cs_instruments import Instrument
 import numpy, logging
 logger = logging.getLogger(__name__)
 
+from PyQt4 import QtCore
+
+class signal_holder(QtCore.QObject):
+    signal = QtCore.pyqtSignal()
+
 #borrowed from traits_enaml package
 class Array(Coerced):
     """ A value of type `np.ndarray`
@@ -119,6 +124,8 @@ class AnalogOutput(Instrument):
     
     plotType='MPL'
     
+    signal_holder = Typed(signal_holder)
+    
     def __init__(self,experiment):
         super(AnalogOutput,self).__init__('AnalogOutput',experiment)
         self.version='2013.10.24'
@@ -136,7 +143,9 @@ class AnalogOutput(Instrument):
                             listElementName='equation',listElementKwargs={'AO':self})
         self.properties+=['version','enable','physicalChannels','minimum','maximum','clockRate','totalAOTime','units','waitForStartTrigger','triggerSource','triggerEdge','equations']
         
-
+        #set up the signal that allows to plot update to occur in the GUI thread
+        self.signal_holder=signal_holder()
+        self.signal_holder.signal.connect(self.swapFigures)
         
         if self.plotType=='chaco':
             #create empty plot
@@ -188,19 +197,21 @@ class AnalogOutput(Instrument):
             #ax.text(0,0,'empty')
         #return fig
     
+    def swapFigures(self):
+        self.figure=self.blankFigure
+        self.drawMPL()
+        self.figure=self.realFigure
+    
     def update_plot(self):
         if self.enable_refresh:
             #TODO: find out how to change VPlotContainer components list, instead of remaking the whole thing
             if self.plotType=='chaco':
                 self.plot=VPlotContainer(*[i.plot for i in self.equations])
             elif self.plotType=='MPL':
-                self.figure=self.blankFigure
-                self.drawMPL()
-                self.figure=self.realFigure
-                #self.refresh=not self.refresh
+                self.signal_holder.signal.emit()
     
     def evaluate(self):
-        print 'AnalogOutput.AnalogOutput.evaluate()'
+        #print 'AnalogOutput.AnalogOutput.evaluate()'
         self.enable_refresh=False
         # first evaluate the time steps:
         self.timesteps=numpy.arange(0.0,self.totalAOTime.value,1.0/(self.clockRate.value*self.units.value))

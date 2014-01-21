@@ -14,6 +14,10 @@ import matplotlib.pyplot as plt
 import logging
 logger = logging.getLogger(__name__)
 
+from PyQt4 import QtCore
+class signal_holder(QtCore.QObject):
+    signal = QtCore.pyqtSignal()
+
 class Channel(Prop):
     active=Typed(BoolProp)
     
@@ -91,7 +95,7 @@ class Waveform(Prop):
     realFigure=Typed(Figure)
     blankFigure=Typed(Figure)
     
-    #refresh=Bool()
+    refresh=Bool()
 
     #Chaco plot
     plot=Typed(Plot) #chaco plot
@@ -110,6 +114,9 @@ class Waveform(Prop):
     stateList=Member()
     duration=Member()
     
+    #for refreshing the plot
+    signal_holder = Typed(signal_holder)
+
     
     def __init__(self,name,experiment,digitalout,description='',waveforms=None):
         super(Waveform,self).__init__(name,experiment,description)
@@ -119,6 +126,10 @@ class Waveform(Prop):
         self.isEmpty=True
         self.properties+=['isEmpty','sequence']
         
+        #set up the signal that allows to plot update to occur in the GUI thread
+        self.signal_holder=signal_holder()
+        self.signal_holder.signal.connect(self.swapFigures)
+        
         if self.plotType=='chaco':
             #setup chaco plot
             self.plot=WaveformPlot()
@@ -127,11 +138,7 @@ class Waveform(Prop):
         elif self.plotType=='MPL':
             self.realFigure=Figure()
             self.blankFigure=Figure()
-            #self.drawMPL()
             self.updateFigure()
-            #self.figure=self.realFigure
-            
-#        self.updateFigure()
     
     def fromXML(self,xmlNode):
         super(Waveform,self).fromXML(xmlNode)
@@ -210,14 +217,18 @@ class Waveform(Prop):
         ax.plot((),(),color='red',label='invalid')
         ax.legend(loc='upper center',bbox_to_anchor=(0.5, 1.1), fancybox=True, ncol=4)
         return fig,ax
-
+    
+    def swapFigures(self):
+        self.figure=self.blankFigure
+        #self.drawMPL()
+        self.figure=self.realFigure
     
     def updateFigure(self):
         '''This function redraws the broken bar chart display of the waveform sequences.'''
         self.format() #update processed sequence
         
-        if self.plotType=='MPL':
-            self.figure=self.blankFigure
+        #if self.plotType=='MPL':
+            #self.figure=self.blankFigure
             #make a whole new figure
             #if self.figure is not None:
             #    del self.figure
@@ -256,7 +267,8 @@ class Waveform(Prop):
         if self.plotType=='chaco':
             self.component=OverlayPlotContainer(self.plot)
         elif self.plotType=='MPL':
-            self.figure=self.realFigure
+            self.signal_holder.signal.emit()
+            #self.figure=self.realFigure
             #try:
             #    self.refresh=not self.refresh
             # except Exception as e:
