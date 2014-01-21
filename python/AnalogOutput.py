@@ -13,7 +13,6 @@ from atom.api import Bool, Typed, Member, Coerced #, Array
 from enthought.chaco.api import VPlotContainer, ArrayPlotData, Plot
 from enthought.enable.api import Component
 from matplotlib.figure import Figure
-import matplotlib.pyplot as plt
 from instrument_property import BoolProp, FloatProp, StrProp, ListProp, EvalProp
 import cs_evaluate
 from cs_instruments import Instrument
@@ -114,12 +113,11 @@ class AnalogOutput(Instrument):
     timesteps=Array()
     version=Member()
     
-    #figure=Typed(plt.Figure)
     figure=Typed(Figure)
-    #blankFigure=Typed(plt.Figure)
-    realFigure=Typed(Figure)
-    blankFigure=Typed(Figure)
-    refresh=Bool(False)
+    backFigure=Typed(Figure)
+    figure1=Typed(Figure)
+    figure2=Typed(Figure)
+    #refresh=Bool(False)
     enable_refresh=Bool(False) #makes it so that sub-equations won't redraw graph until full evaluation is done
     
     plotType='MPL'
@@ -153,11 +151,11 @@ class AnalogOutput(Instrument):
             plot.title = "empty"
             self.plot=plot
         elif self.plotType=='MPL':
-            #self.figure=Figure()
-            self.realFigure=Figure()
-            self.blankFigure=Figure()
-            self.drawMPL()
-            self.figure=self.realFigure
+            self.figure1=Figure()
+            self.figure2=Figure()
+            self.backFigure=self.figure2
+            self.figure=self.figure1
+            self.update_plot()
             
         #set up Atom notifications from sub-traits
         self.clockRate.observe('value',self.call_evaluate)
@@ -167,40 +165,24 @@ class AnalogOutput(Instrument):
         self.enable_refresh=True
         
     def drawMPL(self):
-        #print 'AnalogOutput.AnalogOutput.drawMPL'
-        #fig=self.figure
-        fig=self.realFigure
-        #clear the old figure
-        #if self.figure is not None:
-        #    del self.figure
+        fig=self.backFigure
         
-        #don't clear
-        #fig.clf() #keep_observers=True)
-        
-        #setup the MPL figure
+        #clear the old graph
+        fig.clf()
+
+        #redraw the graph
         n=len(self.equations)
-        if n>0:
-            #fig, axes = plt.subplots(n,1, sharex=True)
-            for i in range(n):
-                #don't add subplot
-                if i>=len(fig.axes):
-                    ax=fig.add_subplot(n,1,i+1)
-                else:
-                    ax=fig.axes[i]
-                    ax.cla()
-                ax.plot(self.timesteps,self.equations[i].value)
-                ax.set_title=self.equations[i].description
+        for i in range(n):
+            ax=fig.add_subplot(n,1,i+1)
+            ax.plot(self.timesteps,self.equations[i].value)
+            ax.set_title=self.equations[i].description
+        if fig.axes:
             ax.set_xlabel('time') #label only the last (bottom) plot
-        #plt.draw()
-        #else:
-            #fig=plt.figure()
-            #ax.text(0,0,'empty')
-        #return fig
     
     def swapFigures(self):
-        self.figure=self.blankFigure
-        self.drawMPL()
-        self.figure=self.realFigure
+        temp=self.backFigure
+        self.backFigure=self.figure
+        self.figure=temp
     
     def update_plot(self):
         if self.enable_refresh:
@@ -208,6 +190,7 @@ class AnalogOutput(Instrument):
             if self.plotType=='chaco':
                 self.plot=VPlotContainer(*[i.plot for i in self.equations])
             elif self.plotType=='MPL':
+                self.drawMPL()
                 self.signal_holder.signal.emit()
     
     def evaluate(self):
