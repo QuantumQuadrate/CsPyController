@@ -16,6 +16,17 @@ from instrument_property import Prop, EvalProp, ListProp
 from cs_errors import PauseError
 import LabView
 
+from pyqt4 import qtcore
+
+class experimentGoThread(qtcore.QThread):
+    def __init__(self):
+        qtcore.QThread.__init__(self, parent=app)
+        self.signal = qtcore.SIGNAL("signal")
+    def run(self):
+        time.sleep(5)
+        logging.debug("in thread")
+        self.emit(self.signal, "hi from thread")
+
 class result(object):
     def __init__(self,start_time,iteration,measurement,ivarIndices,variables,data):
         self.t=start_time #the time.time() that the experiment was started

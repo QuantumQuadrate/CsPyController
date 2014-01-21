@@ -64,7 +64,7 @@ class MPLCanvas(Control):
     #--------------------------------------------------------------------------
     @observe('figure', 'toolbar_visible', 'refresh')
     def _update_proxy(self, change):
-        print 'MPL _update_proxy, change[name] ='+str(change['name'])+' change[value] ='+str(change['value'])
+        #print 'MPL _update_proxy, change[name] ='+str(change['name'])+' change[value] ='+str(change['value'])
         """ An observer which sends state change to the proxy.
 
         """

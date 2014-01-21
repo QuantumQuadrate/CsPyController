@@ -123,16 +123,15 @@ class Waveform(Prop):
             #setup chaco plot
             self.plot=WaveformPlot()
             self.component=OverlayPlotContainer(self.plot)
+            self.updateFigure()
         elif self.plotType=='MPL':
-            pass
-            #uncomment me!
-            #self.realFigure=Figure()
-            #uncomment me!
-            #self.blankFigure=Figure()
-            ##self.figure,ax=self.newMPL(self.digitalout.numChannels)
+            self.realFigure=Figure()
+            self.blankFigure=Figure()
+            #self.drawMPL()
+            self.updateFigure()
+            #self.figure=self.realFigure
             
-        #uncomment me!
-        #self.updateFigure()
+#        self.updateFigure()
     
     def fromXML(self,xmlNode):
         super(Waveform,self).fromXML(xmlNode)
@@ -193,13 +192,15 @@ class Waveform(Prop):
     #create a version of the colorMap function that can be passed arrays
     vColorMap=numpy.vectorize(colorMap) 
     
-    def newMPL(self):
+    def drawMPL(self):
         #setup the MPL figure
         #fig=Figure()
         fig=self.realFigure
-        fig.clear()
-        #fig, ax = plt.subplots()
-        ax=fig.add_subplot(111)
+        if len(fig.axes)>0:
+            ax=fig.axes[0]
+            ax.cla()
+        else:
+            ax=fig.add_subplot(111)
         ax.set_ylim(0,self.digitalout.numChannels)
         ax.set_xlabel('samples')
         #create dummy lines for legend
@@ -236,7 +237,7 @@ class Waveform(Prop):
                 #Call the chaco plot
                 self.plot.update(self.timeList,self.duration,displayArray)
             elif self.plotType=='MPL':
-                fig,ax=self.newMPL()
+                fig,ax=self.drawMPL()
                 #Make the matplotlib plot
                 #Make a broken horizontal bar plot, i.e. one with gaps
                 data=zip(self.timeList,self.duration)
@@ -250,13 +251,12 @@ class Waveform(Prop):
                 ax.set_xticks(tickList)
                 ax.set_yticks(numpy.arange(self.digitalout.numChannels)+0.4)
                 ax.set_yticklabels([str(i)+': '+self.digitalout.channels[i].description for i in range(self.digitalout.numChannels)])
-                self.figure=fig
         
         #update the screen
         if self.plotType=='chaco':
             self.component=OverlayPlotContainer(self.plot)
-        #elif self.plotType=='MPL':
-        #    self.figure=figure
+        elif self.plotType=='MPL':
+            self.figure=self.realFigure
             #try:
             #    self.refresh=not self.refresh
             # except Exception as e:
@@ -272,8 +272,7 @@ class Waveform(Prop):
     
     def evaluate(self):
         super(Waveform,self).evaluate()
-        #uncomment me!
-        #self.updateFigure()
+        self.updateFigure()
     
     def toHardware(self):
             self.format()

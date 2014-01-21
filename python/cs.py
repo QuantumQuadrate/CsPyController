@@ -32,7 +32,7 @@ from enaml.qt.qt_application import QtApplication
 import threading
 
 import logging
-logging.basicConfig(format='%(asctime)s %(name)s %(levelname)s %(message)s', datefmt='%Y/%m/%d %H:%M:%S', level=logging.DEBUG)
+logging.basicConfig(format='%(asctime)s %(threadName)s %(name)s %(levelname)s %(message)s', datefmt='%Y/%m/%d %H:%M:%S', level=logging.DEBUG)
 logger = logging.getLogger(__name__)
 
 import experiments

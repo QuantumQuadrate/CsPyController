@@ -68,13 +68,13 @@ class AOEquation(EvalProp):
     #update the plot titles when the description changes
     #Atom will recognize this function name and set up an observer
     def _observe_description(self,change):
-        print 'AnalogOutput.AOEquation._observe_description()'
+        #print 'AnalogOutput.AOEquation._observe_description()'
         if self.plotType=='chaco':
             self.plot.title = self.description
         self.AO.update_plot()
     
     def evaluate(self):
-        print 'AnalogOutput.AOEquation.evaluate()'
+        #print 'AnalogOutput.AOEquation.evaluate()'
         #evaluate the 'function' and store it in 'value'
         #but first add the variable 't' into the variables dictionary for timesteps.
         #This will overwrite any previous value, so we make a copy of the dictionary
@@ -158,7 +158,7 @@ class AnalogOutput(Instrument):
         self.enable_refresh=True
         
     def drawMPL(self):
-        print 'AnalogOutput.AnalogOutput.drawMPL'
+        #print 'AnalogOutput.AnalogOutput.drawMPL'
         #fig=self.figure
         fig=self.realFigure
         #clear the old figure

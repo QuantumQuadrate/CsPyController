@@ -31,7 +31,6 @@ class QtMPLCanvas(QtControl, ProxyMPLCanvas):
     # Initialization API
     #--------------------------------------------------------------------------
     def create_widget(self):
-        'print qt_mpl_canvas.QTMPLCanvas.create_widget()'
         """ Create the underlying widget.
 
         """
@@ -53,7 +52,6 @@ class QtMPLCanvas(QtControl, ProxyMPLCanvas):
     # ProxyMPLCanvas API
     #--------------------------------------------------------------------------
     def set_figure(self, figure):
-        print 'qt_mpl_canvas.set_figure()'
         """ Set the MPL figure for the widget.
 
         """

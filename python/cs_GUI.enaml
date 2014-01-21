@@ -26,7 +26,7 @@ from enable_canvas import EnableCanvas
 from atom.api import Bool, Typed, observe, Callable
 from os.path import abspath #for file dialogs
 from sys import maxint
-import threading, datetime
+import threading, datetime, time
 #from enthought.chaco.chaco_plot_editor import ChacoPlotItem
 import numpy
 from experiments import independentVariable
@@ -123,6 +123,11 @@ enamldef CsMenuBar(MenuBar): menuBar:
             text = 'Halt\tCtrl+H'
             #triggered::threading.Thread(target=experiment.halt).start()
             triggered::experiment.halt()
+        Action:
+            text = 'Wait\tCtrl+W'
+            triggered::
+                time.sleep(5)
+            #threading.Thread(target=experiment.wait).start()
 
 enamldef EvalProp(GroupBox):
     attr prop
@@ -595,16 +600,12 @@ enamldef Waveform(RemoveEventContainer): thisWaveformContainer:
         # clicked::
             # waveform.updateFigure()
     
-    #uncomment me!
-    
     #the following 7 lines are used for the matplotlib digital waveform plot 
-    #MPLCanvas: canvas:
-    #    constraints=[(height==500)|'strong']
-    #    hug_width='ignore'
-    #    figure << waveform.figure
-        ## refresh<<waveform.refresh
-        ##refresh::
-        ##    waveform.updateFigure()
+    MPLCanvas: canvas:
+        constraints=[(height==500)|'strong']
+        hug_width='ignore'
+        figure << waveform.figure
+        refresh<<waveform.refresh
     
     #the following 6 lines would be used for the Chaco digital waveform plot
     #constraints=[vbox(canvas,details)]
@@ -613,7 +614,7 @@ enamldef Waveform(RemoveEventContainer): thisWaveformContainer:
     #    hug_width='ignore'
     #    constraints=[height==500]
     #    component<<waveform.component
-
+    
     Container: details:
         #constraints=[nameAndChannelNums.top==contents_top,transitions.top==contents_top,addButton.top==contents_top,nameAndChannelNums.left==contents_left,
         #    nameAndChannelNums.right==transitions.left,transitions.right==addButton.left]
