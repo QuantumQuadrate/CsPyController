@@ -92,8 +92,9 @@ class Waveform(Prop):
     #MPL plot
     #figure=Typed(plt.Figure)
     figure=Typed(Figure)
-    realFigure=Typed(Figure)
-    blankFigure=Typed(Figure)
+    backFigure=Typed(Figure)
+    figure1=Typed(Figure)
+    figure2=Typed(Figure)
     
     refresh=Bool()
 
@@ -136,14 +137,15 @@ class Waveform(Prop):
             self.component=OverlayPlotContainer(self.plot)
             self.updateFigure()
         elif self.plotType=='MPL':
-            self.realFigure=Figure()
-            self.blankFigure=Figure()
+            self.figure1=Figure()
+            self.figure2=Figure()
+            self.backFigure=self.figure2
+            self.figure=self.figure1
             self.updateFigure()
     
     def fromXML(self,xmlNode):
         super(Waveform,self).fromXML(xmlNode)
-        #uncomment me!
-        #self.updateFigure()
+        self.updateFigure()
         return self
     
     def addTransition(self):
@@ -177,7 +179,6 @@ class Waveform(Prop):
             
             # find the duration of each segment
             self.duration=self.timeList[1:]-self.timeList[:-1]
-            # self.duration=[self.timeList[i+1]-self.timeList[i] for i in xrange(len(self.timeList)-1)]
             self.duration=numpy.append(self.duration,1) #add in a 1 sample duration at end for last transition
 
 #    # dictionary version of colorMap, but we might not want to use this if it is slower
@@ -199,84 +200,69 @@ class Waveform(Prop):
     #create a version of the colorMap function that can be passed arrays
     vColorMap=numpy.vectorize(colorMap) 
     
-    def drawMPL(self):
-        #setup the MPL figure
-        #fig=Figure()
-        fig=self.realFigure
-        if len(fig.axes)>0:
-            ax=fig.axes[0]
-            ax.cla()
-        else:
-            ax=fig.add_subplot(111)
+    def drawMPL(self,displayArray,data):
+        #draw on the inactive figure
+        fig=self.backFigure
+        
+        #clear figure
+        fig.clf()
+
+        #create axis
+        ax=fig.add_subplot(111)
         ax.set_ylim(0,self.digitalout.numChannels)
         ax.set_xlabel('samples')
+        
         #create dummy lines for legend
         ax.plot((),(),color='white',label='off 0')
         ax.plot((),(),color='black',label='on 1')
         ax.plot((),(),color='grey',label='unresolved 5')
         ax.plot((),(),color='red',label='invalid')
         ax.legend(loc='upper center',bbox_to_anchor=(0.5, 1.1), fancybox=True, ncol=4)
-        return fig,ax
+        
+        if not self.isEmpty:
+            #Make a broken horizontal bar plot, i.e. one with gaps
+            for i in xrange(self.digitalout.numChannels):
+                facecolors=self.vColorMap(displayArray[:,i]) #convert the digital values to colors
+                ax.broken_barh(data,(i,0.8),facecolors=facecolors,linewidth=0)
+            ax.set_xlim(self.timeList[0],self.timeList[-1]+1)
+            tickList=self.timeList.copy()
+            tickList=numpy.insert(self.timeList,-1,self.timeList[-1]+1) #add one sample to the end
+            ax.set_xticks(tickList)
+            ax.set_yticks(numpy.arange(self.digitalout.numChannels)+0.4)
+            ax.set_yticklabels([str(i)+': '+self.digitalout.channels[i].description for i in range(self.digitalout.numChannels)])
     
     def swapFigures(self):
-        self.figure=self.blankFigure
-        #self.drawMPL()
-        self.figure=self.realFigure
-    
+        temp=self.backFigure
+        self.backFigure=self.figure
+        self.figure=temp
+
     def updateFigure(self):
         '''This function redraws the broken bar chart display of the waveform sequences.'''
         self.format() #update processed sequence
         
-        #if self.plotType=='MPL':
-            #self.figure=self.blankFigure
-            #make a whole new figure
-            #if self.figure is not None:
-            #    del self.figure
-            #figure,ax=self.newMPL(self.digitalout.numChannels)
-            #clear the old matplotlib plot
-            #self.ax.collections=[]
-        
         if not self.isEmpty:
-            #figure out how to resolve '5' unchanged samples
+            #resolve '5' unchanged samples
             displayArray=self.stateList.copy()
             for i in xrange(self.digitalout.numChannels): #for each channel
                 for j in range(1,len(self.timeList)): #go through the sequence, but not the first item
                     if displayArray[j,i]==5:
                         displayArray[j,i]=displayArray[j-1,i] #change the '5' to be whatever was before it
-            
-            if self.plotType=='chaco':
-                #Call the chaco plot
-                self.plot.update(self.timeList,self.duration,displayArray)
-            elif self.plotType=='MPL':
-                fig,ax=self.drawMPL()
-                #Make the matplotlib plot
-                #Make a broken horizontal bar plot, i.e. one with gaps
-                data=zip(self.timeList,self.duration)
-                
-                for i in xrange(self.digitalout.numChannels):
-                    facecolors=self.vColorMap(displayArray[:,i]) #convert the digital values to colors
-                    ax.broken_barh(data,(i,0.8),facecolors=facecolors,linewidth=0)
-                ax.set_xlim(self.timeList[0],self.timeList[-1]+1)
-                tickList=self.timeList.copy()
-                tickList=numpy.insert(self.timeList,-1,self.timeList[-1]+1) #add one sample to the end
-                ax.set_xticks(tickList)
-                ax.set_yticks(numpy.arange(self.digitalout.numChannels)+0.4)
-                ax.set_yticklabels([str(i)+': '+self.digitalout.channels[i].description for i in range(self.digitalout.numChannels)])
+        else:
+            displayArray=None
+        
+        if self.plotType=='chaco':
+            #Call the chaco plot
+            self.plot.update(self.timeList,self.duration,displayArray)
+        elif self.plotType=='MPL':
+            data=zip(self.timeList,self.duration)
+            #Make the matplotlib plot
+            self.drawMPL(displayArray,data)
         
         #update the screen
         if self.plotType=='chaco':
             self.component=OverlayPlotContainer(self.plot)
         elif self.plotType=='MPL':
             self.signal_holder.signal.emit()
-            #self.figure=self.realFigure
-            #try:
-            #    self.refresh=not self.refresh
-            # except Exception as e:
-                # logger.warning('Exception while trying to refresh waveform plot.  You probably updated the enaml package recently.'+
-                # 'You must add a function to QtMPLCanvas in\n'+
-                # 'C:\Users\Saffmanlab\AppData\Local\Enthought\Canopy\User\Lib\site-packages\enaml\qt\qt_mpl_canvas.py'+'\n'+
-                # '    def on_action_set_refresh(self, content):'+'\n'+
-                # '        self.refresh_mpl_widget()')
         
     def remove(self):
         if self.waveforms is not None:

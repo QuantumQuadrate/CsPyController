@@ -1234,8 +1234,8 @@ enamldef Main(MainWindow): main:
                         LabView=main.experiment.LabView
                     CameraPage:
                         camera=main.experiment.LabView.camera
-                    CounterPage:
-                        pass
+                    #CounterPage:
+                    #    pass
                     FiltersPage:
                         pass
                     AnalogOutputPage:

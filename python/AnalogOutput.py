@@ -200,11 +200,6 @@ class AnalogOutput(Instrument):
         self.timesteps=numpy.arange(0.0,self.totalAOTime.value,1.0/(self.clockRate.value*self.units.value))
         super(AnalogOutput,self).evaluate()
         
-        #not necessary
-        #if self.equations is not None:
-        #    for eq in self.equations:
-        #        eq.evaluate()
-        
         # plots will update automatically on every AOequation.evaluate()
         
         self.enable_refresh=True
