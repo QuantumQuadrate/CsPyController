@@ -142,6 +142,7 @@ class ImagePlotAnalysis(AnalysisWithFigure):
         ax=fig.add_subplot(111)
         ax.matshow(numpy.array(self.data[...]))
         ax.set_title('shot 0')
+        fig.tight_layout()
         super(ImagePlotAnalysis,self).updateFigure()
 
 class XYPlotAnalysis(AnalysisWithFigure):

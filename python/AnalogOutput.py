@@ -126,7 +126,7 @@ class AnalogOutput(Instrument):
     
     def __init__(self,experiment):
         super(AnalogOutput,self).__init__('AnalogOutput',experiment)
-        self.version='2013.10.24'
+        self.version='2014.01.22'
         self.enable=False
         self.physicalChannels=StrProp('physicalChannels',self.experiment,'','"PXI1Slot2/ao0:7"')
         self.minimum=FloatProp('minimum',self.experiment,'','-10')

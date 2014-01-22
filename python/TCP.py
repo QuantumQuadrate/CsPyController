@@ -199,7 +199,7 @@ class CsServerSock(CsSock):
                 if (data is not None):
                     if data.startswith('<LabView><command>measure</command></LabView>'):
                         #create some dummy data 16-bit 512x512
-                        rows=100; columns=200; bytes=1; signed=''; highbit=2**(8*bytes);
+                        rows=512; columns=512; bytes=1; signed=''; highbit=2**(8*bytes);
                         testdata=numpy.random.randint(0,highbit,(rows,columns))
                         #turn the image array into a long string composed of 2 bytes for each number
                         #first create a struct object, because reusing the same object is more efficient

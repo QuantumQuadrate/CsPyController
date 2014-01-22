@@ -10,7 +10,8 @@ modified>=2013-10-08
 '''
 
 import TCP, HSDIO, piezo, DDS, RF_generators, AnalogOutput, DAQmxPulse, Camera
-from atom.api import Bool, Int, Str, Member
+from atom.api import Bool, Int, Str, Member, Typed
+from instrument_property import FloatProp
 from cs_instruments import Instrument
 import numpy, struct
 import logging
@@ -31,6 +32,7 @@ class LabView(Instrument):
     results=Member()
     sock=Member()
     camera=Member()
+    timeout=Typed(FloatProp)
     
     '''This is a meta instrument which encapsulates the capability of the HEXQC2 PXI system. It knows about several subsystems (HSDIO, DAQmx, Counters, Camera), and can send settings and commands to a corresponding Labview client.'''
     def __init__(self,experiment):
@@ -50,7 +52,9 @@ class LabView(Instrument):
         self.sock=None
         self.connected=False
         
-        self.properties+=['IP','port','enabled','connected','HSDIO','DDS','piezo','RF_generators','AnalogOutput','DAQmxPulse','camera']
+        self.timeout=FloatProp('timeout',experiment,'how long before LabView gives up and returns [s]','0.5')
+        
+        self.properties+=['IP','port','enabled','connected','timeout','HSDIO','DDS','piezo','RF_generators','AnalogOutput','DAQmxPulse','camera']
     
     def initialize(self):
         if self.enabled:

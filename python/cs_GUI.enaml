@@ -414,6 +414,9 @@ enamldef LabViewPage(Page):
             CheckBox:
                 checked:=LabView.connected
                 enabled=False
+            EvalProp:
+                prop<<LabView.timeout
+            
         GroupBox:
             title='TCP output message'
             constraints = [vbox(scroller),(height==500)|'strong']
@@ -1162,7 +1165,7 @@ enamldef Analysis(Container):
     Label: label:
         text<<analysis.text
     MPLCanvas: canvas:
-        constraints=[(height==500)|'strong']
+        constraints=[(height==700)|'strong']
         hug_width='ignore'
         figure<<analysis.figure
 
@@ -1177,7 +1180,8 @@ enamldef Main(MainWindow): main:
     attr experiment
     
     title='Saffmanlab experiment controller'
-    initial_size=(500,400)
+    initial_position=(0,0)
+    initial_size=(1200,1100)
     #icon_source='icon://myicons/atom_loading'
     
     CsMenuBar:

@@ -105,7 +105,7 @@ class HSDIO(Instrument):
 
     def __init__(self,experiment):
         super(HSDIO,self).__init__('HSDIO',experiment)
-        self.version='2013.10.19'
+        self.version='2014.01.22'
         self.numChannels=32
         self.enable=BoolProp('enable',experiment,'enable HSDIO output','False')
         self.script=StrProp('script',experiment,'HSDIO script that says what waveforms to generate',"'script script1\\n  generate waveform1\\n  idle\\nend script'")

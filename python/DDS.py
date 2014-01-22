@@ -23,7 +23,7 @@ class DDS(Instrument):
     
     def __init__(self,experiment):
         super(DDS,self).__init__('DDS',experiment)
-        self.version='2013.10.20'
+        self.version='2014.01.22'
         self.enable=BoolProp('enable',self.experiment,'enable DDS output','False')
         self.boxes=ListProp('boxes',experiment,listElementType=DDSbox,listElementName='box')
         self.addBox() #TODO:don't add this initial box, but if we don't then the comboBox doesn't update for some reason
