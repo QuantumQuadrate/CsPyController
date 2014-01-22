@@ -36,7 +36,7 @@ def receive(sock):
     #every message should start with 'MESG'
     try:
         header = sock.recv(4)
-        print 'header: {}'.format(header)
+        #print 'header: {}'.format(header)
     except Exception as e:
         logger.error('Error trying to receive message header: '+str(e))
         raise PauseError
@@ -51,7 +51,7 @@ def receive(sock):
         #we may not want to do this.
         while 1:
             data = sock.recv(4096)
-            print 'draining: {}...'.format(data[:40])
+            #print 'draining: {}...'.format(data[:40])
             if not data: break
 
     #the next part of the message is a 4 byte unsigned long interger that contains the length (in bytes) of the rest of the message
@@ -60,23 +60,23 @@ def receive(sock):
     except Exception as e:
         logger.warning('exception trying to read 4 byte message length')
         raise PauseError
-    print 'data length msg: {}'.format(datalenmsg)
+    #print 'data length msg: {}'.format(datalenmsg)
     try:
         datalen=struct.unpack("!L", datalenmsg)[0]
     except Exception as e:
         logger.warning('incorrectly formatted message: does not have 4 byte unsigned long for length. '+str(e))
         raise PauseError
-    print 'data length: {}'.format(datalen)
+    #print 'data length: {}'.format(datalen)
     
     #now get the real data
     try:
         rawdata=sock.recv(datalen)
-        print 'rawdata: {}...'.format(rawdata[:40])
+        #print 'rawdata: {}...'.format(rawdata[:40])
         remaining=datalen-len(rawdata)
         while remaining>0: #repeat until we've got all the data
-            logger.info('waiting for more data: '+str(len(rawdata))+'/'+str(datalen))
+            #logger.info('waiting for more data: '+str(len(rawdata))+'/'+str(datalen))
             rawdata+=sock.recv(remaining)
-            print 'rawdata: {}'.format(rawdata[:40])
+            #print 'rawdata: {}'.format(rawdata[:40])
             remaining=datalen-len(rawdata)
     except Exception as e:
         logger.error('error while trying to read message data:'+str(e))
@@ -86,7 +86,7 @@ def receive(sock):
         logger.error('incorrect message size received')
         return
     #if we get here, we have gotten data of the right size
-    print 'rawdata: {}...'.format(rawdata[:40])
+    #print 'rawdata: {}...'.format(rawdata[:40])
     return rawdata
     #do something like this for data packets, but not here:  data=struct.unpack("!{}d".format(datalen/8),rawdata)
 
@@ -185,21 +185,21 @@ class CsServerSock(CsSock):
                 self.connection, client_address = self.accept()
                 logger.info('client connected: '+str(client_address))
             except:
-                logger.info('error in CsServerSock self.accept()')
+                logger.warning('error in CsServerSock self.accept()')
                 self.closeConnection()
                 continue
             while True:
                 try:
                     data=self.receive()
                 except:
-                    logger.info('error in CsServerSock receive')
+                    logger.warning('error in CsServerSock receive')
                     self.closeConnection()
                     raise PauseError
-                print 'received: {}'.format(data[:40])
+                #print 'received: {}'.format(data[:40])
                 if (data is not None):
                     if data.startswith('<LabView><command>measure</command></LabView>'):
                         #create some dummy data 16-bit 512x512
-                        rows=4; columns=3; bytes=1; signed=''; highbit=2**(8*bytes);
+                        rows=100; columns=200; bytes=1; signed=''; highbit=2**(8*bytes);
                         testdata=numpy.random.randint(0,highbit,(rows,columns))
                         #turn the image array into a long string composed of 2 bytes for each number
                         #first create a struct object, because reusing the same object is more efficient
@@ -210,11 +210,11 @@ class CsServerSock(CsSock):
                         try:
                             self.sendmsg(msg)
                         except:
-                            logger.info('error in CsServerSock sendmsg')
+                            logger.warning('error in CsServerSock sendmsg')
                             self.closeConnection()
                             raise PauseError
                     else:
-                        logger.info('bad command received: {}'.format(data[:40]))
+                        logger.warning('bad command received: {}'.format(data[:40]))
 
 if __name__ == '__main__':
     CsServerSock(9000)

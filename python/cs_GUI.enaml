@@ -565,17 +565,6 @@ class RefreshableMPLCanvas(MPLCanvas):
     #: Toggle this to refresh the canvas
     refresh = d_(Bool())
 
-    # def snapshot(self):
-        # """ Get the snapshot dict for the MPLCanvas."""
-        # snap = super(RefreshableMPLCanvas, self).snapshot()
-        # snap['refresh'] = self.refresh
-        # return snap
-
-    # def bind(self):
-        # """ Bind the change handlers for the MPLCanvas"""
-        # super(RefreshableMPLCanvas, self).bind()
-        # self.publish_attributes('refresh')
-
 class RemoveEventContainer(Container):
     remove=d_(Bool())
 
@@ -679,10 +668,6 @@ enamldef WaveformsPage(Page):
             # text='refresh'
             # clicked::
                 # dynamicInclude.objects=[WaveformPage(waveform=i) for i in HSDIO.waveforms]
-        #MPLCanvas:
-        #    constraints=[(height==500)|'strong']
-        #    hug_width='ignore'
-        #    canvas<<nb.selected_tab.waveform.figure
         Notebook: nb:
             tab_style='preferences'
             Include: dynamicInclude:
@@ -1174,7 +1159,6 @@ enamldef Analysis(Container):
     
     hug_height='ignore'
     hug_width='ignore'
-    constraints=[label.height==canvas.height,vbox(label,canvas)]
     Label: label:
         text<<analysis.text
     MPLCanvas: canvas:

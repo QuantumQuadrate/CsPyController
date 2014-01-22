@@ -252,7 +252,6 @@ class Experiment(Prop):
         #for all instruments
         for i in self.instruments:
             #check that the instruments are initalized
-            print 'initialized = ',i.isInitialized
             if not i.isInitialized:
                 print 'experiment.measure() initializing '+i.name
                 i.initialize() #reinitialize

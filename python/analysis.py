@@ -140,8 +140,8 @@ class ImagePlotAnalysis(AnalysisWithFigure):
         fig=self.backFigure
         fig.clf()
         ax=fig.add_subplot(111)
-        #ax.title='shot 0'
         ax.matshow(numpy.array(self.data[...]))
+        ax.set_title('shot 0')
         super(ImagePlotAnalysis,self).updateFigure()
 
 class XYPlotAnalysis(AnalysisWithFigure):

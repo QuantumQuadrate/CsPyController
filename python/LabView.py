@@ -97,7 +97,6 @@ class LabView(Instrument):
                     #tell the LabView instruments to measure
                     self.msg='<LabView><command>measure</command></LabView>'
                     self.sock.sendmsg(self.msg)
-                    print 'sent'
                     #wait for response
                     while not self.experiment.timeOutExpired:
                         try:
@@ -105,7 +104,6 @@ class LabView(Instrument):
                         except IOError:
                             print 'Waiting for data'
                         if rawdata is not None:
-                            print 'parsing'
                             self.results=self.sock.parsemsg(rawdata)
                             break
                 else:
@@ -123,7 +121,6 @@ class LabView(Instrument):
         hierarchy for the current measurement.'''
         for key,value in self.results.iteritems():
             if key.startswith('Hamamatsu/shots/'):
-                print 'loading shot'
                 #specific protocol for images: turn them into 2D numpy arrays
                 
                 #unpack the image in 2 byte chunks
