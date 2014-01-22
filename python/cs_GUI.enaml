@@ -1169,13 +1169,24 @@ enamldef PI_PiezoPage(Page):
 enamldef PicomotorPage(Page):
     title = 'Picomotor'
 
+enamldef Analysis(Container):
+    attr analysis
+    
+    hug_height='ignore'
+    hug_width='ignore'
+    constraints=[label.height==canvas.height,vbox(label,canvas)]
+    Label: label:
+        text<<analysis.text
+    MPLCanvas: canvas:
+        hug_width='ignore'
+        figure<<analysis.figure
+
 enamldef ResultsPage(Page):
     title = 'Results'
-    attr data
-    attr MPLfig
-    #MPLCanvas:
-    #    figure:=MPLfig
-    #ChacoPlotItem(data.xdata,data.ydata, y_bounds=(-10.,10.),y_auto=False,resizable=True,show_label=False,x_label="x",y_label="y",title="")
+    attr analysis
+    
+    Analysis:
+        analysis<<parent.analysis
 
 enamldef Main(MainWindow): main:
     attr experiment
@@ -1243,4 +1254,4 @@ enamldef Main(MainWindow): main:
                     PI_PiezoPage:
                         piezo=main.experiment.LabView.piezo
                     ResultsPage:
-                        pass
+                        analysis=main.experiment.analyses[0]

@@ -52,7 +52,6 @@ class LabView(Instrument):
         self.properties+=['IP','port','enabled','connected','HSDIO','DDS','piezo','RF_generators','AnalogOutput','DAQmxPulse','camera']
     
     def initialize(self):
-        print 'debug LabView.initialize()'
         if self.enabled:
             #check for an old socket and delete it
             if self.sock is not None:
@@ -71,7 +70,6 @@ class LabView(Instrument):
             for i in self.instruments:
                 i.initialize()
             self.isInitialized=True
-        print 'debug LabView.initialize() done'
         
     def close(self):
         if self.sock:

@@ -10,7 +10,7 @@ from enable.api import Component #, ComponentEditor
 from atom.api import Bool, Typed
 from instrument_property import Prop, BoolProp, IntProp, FloatProp, StrProp, ListProp
 from matplotlib.figure import Figure
-import matplotlib.pyplot as plt
+#import matplotlib.pyplot as plt
 import logging
 logger = logging.getLogger(__name__)
 
@@ -90,7 +90,6 @@ class Sequence(ListProp):
 class Waveform(Prop):
     
     #MPL plot
-    #figure=Typed(plt.Figure)
     figure=Typed(Figure)
     backFigure=Typed(Figure)
     figure1=Typed(Figure)

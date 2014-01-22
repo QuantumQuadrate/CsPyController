@@ -15,6 +15,7 @@ import cs_evaluate
 from instrument_property import Prop, EvalProp, ListProp
 from cs_errors import PauseError
 import LabView
+from analysis import ImagePlotAnalysis
 
 from PyQt4 import QtCore
 
@@ -25,15 +26,6 @@ class experimentResetAndGoThread(QtCore.QThread):
     
     def run(self):
         self.experiment.resetAndGo()
-
-class result(object):
-    def __init__(self,start_time,iteration,measurement,ivarIndices,variables,data):
-        self.t=start_time #the time.time() that the experiment was started
-        self.i=iteration #the iteration number, a single integer
-        self.indices=ivarIndices #a list of indices of each independent variable at this iteration
-        self.m=measurement #the measurement number, reset each iteration
-        self.v=variables #a dictionary of all variables
-        self.d=data #a dictionary of all data.  To access camera data call result.d['camera'] to get a numpy array.
 
 class independentVariables(ListProp):
     def fromXML(self,xmlNode):
@@ -136,6 +128,12 @@ class Experiment(Prop):
     variableReportStr=Str()
     variablesNotToSave=Str()
     
+    #for thread control
+    resetAndGoThread=Typed(experimentResetAndGoThread)
+
+    #list of Analysis objects
+    analyses=Member()
+    
     #things we would rather not define, but are forced to by Atom
     timeStarted=Member()
     currentTime=Member()
@@ -156,9 +154,7 @@ class Experiment(Prop):
     hdf5=Member()
     measurementResults=Member()
     iterationResults=Member()
-    
-    resetAndGoThread=Typed(experimentResetAndGoThread)
- 
+     
     '''Defines a set of instruments, and a sequence of what to do with them.'''
     def __init__(self):
         super(Experiment,self).__init__('experiment',self) #name is 'experiment', associated experiment is self
@@ -169,6 +165,7 @@ class Experiment(Prop):
         self.vars={}
         self.variableReportFormat='""'
         self.variableReportStr=''
+        self.analyses=[]
         self.properties+=['version','independentVariables','dependentVariablesStr',
         'pauseAfterIteration','pauseAfterMeasurement','pauseAfterError','saveData',
         'save2013styleFiles','localDataPath','networkDataPath',
@@ -217,7 +214,6 @@ class Experiment(Prop):
             #check that the instruments are initialized
             if not i.isInitialized:
                 i.initialize() #reinitialize
-            print 'debug 2.6'
             i.update() #put the settings to where they should be at this iteration
     
     def evaluateAll(self):
@@ -297,11 +293,6 @@ class Experiment(Prop):
         self.postMeasurement()
         self.completedMeasurementsByIteration[-1]+=1 #add one to the last counter in the list
     
-    def postMeasurement(self):
-        #Run this after every measurement.  Could be an analysis for example.
-        #Override in a subclass to use.
-        pass
-        
     def stop(self):
         '''Stops output as soon as possible.  This is not run during the course of a normal experiment.'''
         [i.__setattr__('isDone',True) for i in self.instruments]
@@ -341,7 +332,6 @@ class Experiment(Prop):
         self.completionTimeStr=self.date2str(self.completionTime)
     
     def resetAndGo(self):
-        print 'experiment.resetAndGo()'
         '''Reset the iteration variables and timing, then proceed with an experiment.'''
         
         #check if we are ready to do an experiment
@@ -364,7 +354,6 @@ class Experiment(Prop):
         self.go()
 
     def go(self):
-        print 'experiment.go()'
         '''Pick up the experiment wherever it was left off.'''
         
         #check if we are ready to do an experiment
@@ -374,26 +363,19 @@ class Experiment(Prop):
         self.status='running' #prevent another experiment from being started at the same time
         
         try: #if there is an error we exit the inner loops and respond appropriately
-            print 'debug 1'
             #make sure the independent variables are processed
             self.evaluateIndependentVariables()
             
             #loop until iteration are complete
             while (self.iteration < self.totalIterations) and (self.status=='running'):
-                print 'debug 2'
                 
                 #at the start of a new iteration, or if we are continuing
                 self.evaluate()    #re-calculate all variables
                 
-                print 'debug 2.5'
-                
                 self.update()      #send current values to hardware
-                
-                print 'debug 3'
                 
                 #only at the start of a new iteration
                 if self.measurement==0:
-                    print 'debug 4'
                     self.completedMeasurementsByIteration.append(0) #start a new counter for this iteration
                     
                     #write the iteration settings to the hdf5 file
@@ -415,6 +397,7 @@ class Experiment(Prop):
                 
                 #loop until the desired number of measurements are taken
                 while (self.measurement < self.measurementsPerIteration) and (self.status=='running'):
+                    print 'iteration {} measurement {}'.format(self.iteration,self.measurement)
                     self.measure()     #tell all instruments to do the experiment sequence and acquire data
                     self.updateTime()  #update the countdown/countup clocks
                     self.measurement+=1 #update the measurement count
@@ -426,6 +409,7 @@ class Experiment(Prop):
                 
                 if self.measurement>=self.measurementsPerIteration:
                     # We have completed this iteration, move on to the next one
+                    self.postIteration() #run analysis
                     self.iteration+=1
                     self.measurement=0
                     if (self.status=='running' or self.status=='paused after measurement') and self.pauseAfterIteration:
@@ -433,6 +417,7 @@ class Experiment(Prop):
                 if self.iteration>=self.totalIterations:
                     self.status='idle' #we are now ready for the next experiment
                     self.hdf5.attrs['notes']=self.notes #store the notes again
+                    self.postExperiment()
         except PauseError:
             #This should be the only place that PauseError is explicitly handed.
             #All other non-fatal error caught higher up in the experiment chain should
@@ -545,19 +530,36 @@ class Experiment(Prop):
         
         #store notes.  They will be stored again at the end of the experiment.
         self.hdf5.attrs['notes']=self.notes
+    
+    def postMeasurement(self):
+        #run analysis
+        for i in self.analyses:
+            i.postMeasurement(self.measurementResults,self.iterationResults,self.hdf5)
+    
+    def postIteration(self):
+        #run analysis
+        for i in self.analyses:
+            i.postIteration(self.iterationResults,self.hdf5)
+    
+    def postExperiment(self):
+        #run analysis
+        for i in self.analyses:
+            i.postExperiment(self.hdf5)
 
 class AQuA(Experiment):
     '''A subclass of Experiment which knows about all our particular hardware'''
     
     LabView=Member()
-    
+
     def __init__(self):
         super(AQuA,self).__init__()
         
-        self.properties+=['LabView']
-        
+        #add instruments
         self.LabView=LabView.LabView(experiment=self)
+        self.properties+=['LabView']
         self.instruments=[self.LabView]
+        
+        self.analyses+=[ImagePlotAnalysis('analysisShot0',self.experiment,description='just show the incoming shot 0')]
         
         self.loadDefaultSettings()
         
@@ -565,4 +567,4 @@ class AQuA(Experiment):
         try:
             self.evaluateAll()
         except PauseError:
-            print 'PauseError'
+            logger.warning('PauseError')

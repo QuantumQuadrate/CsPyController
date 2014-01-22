@@ -85,7 +85,6 @@ class StartTrigger(Prop):
         self.source=StrProp('source',experiment,'start trigger source','"PFI0"')
         self.edge=StrProp('edge',experiment,'start trigger edge','"rising"')
         self.properties+=['waitForStartTrigger','source','edge']
-        
 
 #---- HSDIO instrument ----
 

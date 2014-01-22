@@ -27,8 +27,9 @@ TODO:
     make it so that RangeProp high and low could be re-assigned to None dynamically if desired (without raising error, unless value is outside that range)
     make it so that BoolProps get evaluated on instantiation, don't wait for settings to be loaded, because that may never happen, function passed on initialization should be valid (or provide default behavior), could make alternate valueText if that is useful
     get red box validation display working
-    make analog output graph update on add new equation
+    make analog output graph update on add new equation or delete equation
     send AO equations is compressed form
+    
 
 Done:
     add results to an hdf5 object as they come in, each gets put into experiment.results[measurement_number]['name'] after some proper dissection
