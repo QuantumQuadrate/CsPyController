@@ -243,7 +243,6 @@ class Experiment(Prop):
             i.evaluate() #each instrument will calculate its properties
     
     def measure(self):
-        print 'experiment.measure()'
         '''Enables all instruments to begin a measurement.  Sent at the beginning of every measurement.
         Actual output or input from the measurement may yet wait for a signal from another device.'''
         
@@ -323,7 +322,10 @@ class Experiment(Prop):
             estTotalMeasurements=self.measurementsPerIteration*self.totalIterations
         else:
             estTotalMeasurements=numpy.mean(self.completedMeasurementsByIteration[:-1])*self.totalIterations
-        self.progress=int(100*completedMeasurements/estTotalMeasurements)
+        if estTotalMeasurements>0:
+            self.progress=int(100*completedMeasurements/estTotalMeasurements)
+        else:
+            self.progress=0
         self.timeRemaining=timePerMeasurement*(estTotalMeasurements-completedMeasurements)
         self.timeRemainingStr=self.time2str(self.timeRemaining)
         self.totalTime=self.timeElapsed+self.timeRemaining

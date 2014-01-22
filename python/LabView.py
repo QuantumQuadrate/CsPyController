@@ -12,6 +12,7 @@ modified>=2013-10-08
 import TCP, HSDIO, piezo, DDS, RF_generators, AnalogOutput, DAQmxPulse, Camera
 from atom.api import Bool, Int, Str, Member
 from cs_instruments import Instrument
+import numpy, struct
 import logging
 logger = logging.getLogger(__name__)
 
@@ -83,9 +84,7 @@ class LabView(Instrument):
         if self.enabled:
             if self.connected:
                 if self.sock is not None:
-                    print 'debug LabView.update() 4'
                     self.sock.sendmsg(self.msg)
-                    print 'debug LabView.update() 5'
                 else:
                     print "LabView TCP says self.connected=True, but has no sock"
             else:
@@ -98,12 +97,17 @@ class LabView(Instrument):
                     #tell the LabView instruments to measure
                     self.msg='<LabView><command>measure</command></LabView>'
                     self.sock.sendmsg(self.msg)
-                    
+                    print 'sent'
                     #wait for response
                     while not self.experiment.timeOutExpired:
-                        rawdata=self.sock.receive()
+                        try:
+                            rawdata=self.sock.receive()
+                        except IOError:
+                            print 'Waiting for data'
                         if rawdata is not None:
+                            print 'parsing'
                             self.results=self.sock.parsemsg(rawdata)
+                            break
                 else:
                     logger.warning('LabView instrument claims to be initialized, but is not connected in LabView.start()')
                     raise PauseError
@@ -117,9 +121,9 @@ class LabView(Instrument):
         '''Write the previously obtained results to the experiment hdf5 file.
         hdf5 is an hdf5 group, typically the data group in the appropriate part of the
         hierarchy for the current measurement.'''
-        
         for key,value in self.results.iteritems():
             if key.startswith('Hamamatsu/shots/'):
+                print 'loading shot'
                 #specific protocol for images: turn them into 2D numpy arrays
                 
                 #unpack the image in 2 byte chunks
@@ -127,11 +131,13 @@ class LabView(Instrument):
                 
                 #the dictionary is unpacked alphabetically, so if width and height were
                 #transmitted they should be loaded already
-                if ('Hamamatsu/rows' in hdf5) and ('Hamamtsu/columns' in hdf5):
-                    array.resize((hdf5['Hamamatsu/rows'].value,hdf5['Hamamatsu/columns'].value))
+                try: #if ('Hamamatsu/rows' in hdf5) and ('Hamamtsu/columns' in hdf5):
+                    array.resize((int(hdf5['Hamamatsu/rows'].value),int(hdf5['Hamamatsu/columns'].value)))
+                except Exception as e:
+                    print 'no resize:'+str(e)
                 hdf5[key]=array
             else:
-                #no special protocol
+                # no special protocol
                 hdf5[key]=value
     
     def initializeDDS(self):

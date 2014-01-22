@@ -25,7 +25,7 @@ def prefixLength(txt):
 
 def sendmsg(sock,msgtxt):
     message='MESG'+prefixLength(msgtxt)
-    print 'send: {}'.format(message)
+    #print 'send: {}'.format(message)
     try:
         sock.sendall(message)
     except Exception as e:
@@ -51,7 +51,7 @@ def receive(sock):
         #we may not want to do this.
         while 1:
             data = sock.recv(4096)
-            print 'draining:{}'.format(data)
+            print 'draining: {}...'.format(data[:40])
             if not data: break
 
     #the next part of the message is a 4 byte unsigned long interger that contains the length (in bytes) of the rest of the message
@@ -71,12 +71,12 @@ def receive(sock):
     #now get the real data
     try:
         rawdata=sock.recv(datalen)
-        print 'rawdata: {}'.format(rawdata)
+        print 'rawdata: {}...'.format(rawdata[:40])
         remaining=datalen-len(rawdata)
         while remaining>0: #repeat until we've got all the data
             logger.info('waiting for more data: '+str(len(rawdata))+'/'+str(datalen))
             rawdata+=sock.recv(remaining)
-            print 'rawdata: {}'.format(rawdata)
+            print 'rawdata: {}'.format(rawdata[:40])
             remaining=datalen-len(rawdata)
     except Exception as e:
         logger.error('error while trying to read message data:'+str(e))
@@ -86,15 +86,13 @@ def receive(sock):
         logger.error('incorrect message size received')
         return
     #if we get here, we have gotten data of the right size
-    print 'rawdata: {}'.format(rawdata)
+    print 'rawdata: {}...'.format(rawdata[:40])
     return rawdata
     #do something like this for data packets, but not here:  data=struct.unpack("!{}d".format(datalen/8),rawdata)
 
 class CsSock(socket.socket):
     def __init(self):
         super(CsSock,self).__init__(socket.AF_INET, socket.SOCK_STREAM)
-    
-        
 
 class CsClientSock(CsSock):
     #if provided, parent is used as a callback to set parent.connected
@@ -104,7 +102,8 @@ class CsClientSock(CsSock):
         print 'connecting to {} port {}'.format(addressString,portNumber)
         try:
             self.connect((addressString,portNumber))
-            self.setblocking(0) #wait until after we are connected, and then set the socket to be non-blocking
+            #TODO: make it non-blocking on send, but blocking on receive?  or make receive a separate thread?  Would need a timeout timer.
+            #self.setblocking(0) #wait until after we are connected, and then set the socket to be non-blocking
         except Exception as e:
             logger.error('Error while opening socket: '+str(e))
             self.close()
@@ -196,11 +195,11 @@ class CsServerSock(CsSock):
                     logger.info('error in CsServerSock receive')
                     self.closeConnection()
                     raise PauseError
-                print 'received: {}'.format(data)
+                print 'received: {}'.format(data[:40])
                 if (data is not None):
-                    if data.startswith('measure'):
+                    if data.startswith('<LabView><command>measure</command></LabView>'):
                         #create some dummy data 16-bit 512x512
-                        rows=3; columns=3; bytes=1; signed=''; highbit=2**(8*bytes);
+                        rows=4; columns=3; bytes=1; signed=''; highbit=2**(8*bytes);
                         testdata=numpy.random.randint(0,highbit,(rows,columns))
                         #turn the image array into a long string composed of 2 bytes for each number
                         #first create a struct object, because reusing the same object is more efficient
@@ -215,4 +214,7 @@ class CsServerSock(CsSock):
                             self.closeConnection()
                             raise PauseError
                     else:
-                        logger.info('bad command received: {}'.format(data))
+                        logger.info('bad command received: {}'.format(data[:40]))
+
+if __name__ == '__main__':
+    CsServerSock(9000)

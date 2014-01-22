@@ -131,8 +131,8 @@ class AnalogOutput(Instrument):
         self.physicalChannels=StrProp('physicalChannels',self.experiment,'','"PXI1Slot2/ao0:7"')
         self.minimum=FloatProp('minimum',self.experiment,'','-10')
         self.maximum=FloatProp('maximum',self.experiment,'','10')
-        self.clockRate=FloatProp('clockRate',self.experiment,'','1000')
-        self.totalAOTime=FloatProp('totalAOTime',self.experiment,'','5')
+        self.clockRate=FloatProp('clockRate',self.experiment,'','1000.0')
+        self.totalAOTime=FloatProp('totalAOTime',self.experiment,'','5.0')
         self.units=FloatProp('units',self.experiment,'equations entered in ms','.001')
         self.waitForStartTrigger=BoolProp('waitForStartTrigger',self.experiment,'','True')
         self.triggerSource=StrProp('triggerSource',self.experiment,'','"/PXI1Slot6/PFI0"')
@@ -197,7 +197,9 @@ class AnalogOutput(Instrument):
         #print 'AnalogOutput.AnalogOutput.evaluate()'
         self.enable_refresh=False
         # first evaluate the time steps:
+        #print 'self.totalAOTime.value {}, self.clockRate.value {}'.format(self.totalAOTime.value,self.clockRate.value)
         self.timesteps=numpy.arange(0.0,self.totalAOTime.value,1.0/(self.clockRate.value*self.units.value))
+        #print 'self.timesteps {}'.format(self.timesteps)
         super(AnalogOutput,self).evaluate()
         
         # plots will update automatically on every AOequation.evaluate()

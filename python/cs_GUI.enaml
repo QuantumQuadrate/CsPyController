@@ -1178,6 +1178,7 @@ enamldef Analysis(Container):
     Label: label:
         text<<analysis.text
     MPLCanvas: canvas:
+        constraints=[(height==500)|'strong']
         hug_width='ignore'
         figure<<analysis.figure
 
@@ -1202,26 +1203,8 @@ enamldef Main(MainWindow): main:
         padding = 0
         ScrollArea:
             Container:
-                Container:
-                    padding=0
-                    hug_width='strong'
-                    constraints=[hbox(l1,l2,l3,l4,l5,l6,l7,l8)]
-                    Label: l1:
-                        text='Status:'
-                    Label: l2:
-                        text<<experiment.status
-                    Label: l3:
-                        text='Iteration'
-                    Label: l4:
-                        text<<str(experiment.iteration)+' of '+str(experiment.totalIterations-1)
-                    Label: l5:
-                        text='Measurement'
-                    Label: l6:
-                        text<<str(experiment.measurement)+' of '+str(experiment.measurementsPerIteration-1)
-                    Label: l7:
-                        text='Progress'
-                    Label: l8:
-                        text<<str(experiment.progress)
+                Label:
+                    text<<'Status: {} Iteration: {} Measurement: {} Progress: {}'.format(experiment.status,str(experiment.iteration)+' of '+str(experiment.totalIterations-1),str(experiment.measurement)+' of '+str(experiment.measurementsPerIteration-1),str(experiment.progress))
                 Notebook:
                     tabs_closable=False
                     tabs_movable=False

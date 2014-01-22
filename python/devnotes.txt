@@ -29,6 +29,7 @@ TODO:
     get red box validation display working
     make analog output graph update on add new equation or delete equation
     send AO equations is compressed form
+    fix float divide by zero error on AnalogOutput initial evaluate
     
 
 Done:
