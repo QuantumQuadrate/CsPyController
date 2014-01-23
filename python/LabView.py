@@ -15,6 +15,7 @@ from instrument_property import FloatProp
 from cs_instruments import Instrument
 import numpy, struct
 import logging
+from cs_errors import PauseError
 logger = logging.getLogger(__name__)
 
 class LabView(Instrument):
@@ -124,6 +125,7 @@ class LabView(Instrument):
         hdf5 is an hdf5 group, typically the data group in the appropriate part of the
         hierarchy for the current measurement.'''
         for key,value in self.results.iteritems():
+            #print 'key: {} value: {}'.format(key,str(value)[:40])
             if key.startswith('Hamamatsu/shots/'):
                 #specific protocol for images: turn them into 2D numpy arrays
                 

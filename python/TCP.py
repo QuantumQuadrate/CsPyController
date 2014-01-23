@@ -123,7 +123,7 @@ class CsClientSock(CsSock):
     def close(self):
         if self.parent is not None:
             self.parent.connected=False
-            self.parent.initialized=False
+            self.parent.isInitialized=False
         self.shutdown(socket.SHUT_RDWR)
         super(CsClientSock,self).close()
     

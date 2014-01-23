@@ -102,10 +102,17 @@ p0
 .</enabled>
 <connected>I00
 .</connected>
+<timeout><description>S'how long before LabView gives up and returns [s]'
+p0
+.</description>
+<function>S'0.5'
+p0
+.</function>
+</timeout>
 <HSDIO><description>S''
 p0
 .</description>
-<version>S'2013.10.19'
+<version>S'2014.01.22'
 p0
 .</version>
 <enable><description>S'enable HSDIO output'
@@ -2278,7 +2285,7 @@ p0
 <DDS><description>S''
 p0
 .</description>
-<version>S'2013.10.20'
+<version>S'2014.01.22'
 p0
 .</version>
 <enable><description>S'enable DDS output'
@@ -9120,7 +9127,7 @@ p0
 <AnalogOutput><description>S''
 p0
 .</description>
-<version>S'2013.10.24'
+<version>S'2014.01.22'
 p0
 .</version>
 <enable>I00

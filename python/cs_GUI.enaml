@@ -247,7 +247,7 @@ enamldef ExperimentPage(Page):
             Label: text='Experiment description suffix for filename'
             Field: text:=experiment.experimentDescriptionFilenameSuffix
 
-            Label: text='Measurement Timeout (ms)'
+            Label: text='Measurement Timeout [s]'
             FloatField: value:=experiment.measurementTimeout
 
             Label: text='Measurements per Iteration'
