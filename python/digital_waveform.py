@@ -2,23 +2,12 @@
 
 import numpy
 
-from atom.api import Atom, Range, Member, Typed
+from atom.api import Atom, Range, Member, Bool, Typed
 from enaml.application import deferred_call
-#from traitsui.api import View, UItem, Item, Group, HGroup, VGroup, spring
-from chaco.api import Plot, ArrayPlotData, PolygonPlot, OverlayPlotContainer
-from enable.api import Component #, ComponentEditor
-
-from atom.api import Bool, Typed
 from instrument_property import Prop, BoolProp, IntProp, FloatProp, StrProp, ListProp
 from matplotlib.figure import Figure
-#import matplotlib.pyplot as plt
 import logging
 logger = logging.getLogger(__name__)
-
-
-from PyQt4 import QtCore
-class signal_holder(QtCore.QObject):
-    signal = QtCore.pyqtSignal()
 
 class Channel(Prop):
     active=Typed(BoolProp)
@@ -97,15 +86,6 @@ class Waveform(Prop):
     figure1=Typed(Figure)
     figure2=Typed(Figure)
     
-    refresh=Bool()
-
-    #Chaco plot
-    plot=Typed(Plot) #chaco plot
-    component=Typed(Component)
-
-    plotType='MPL'
-
-    colors={0:'white',1:'black',5:'grey'} #color dictionary for plot
     
     digitalout=Member()
     waveforms=Member()
@@ -116,10 +96,6 @@ class Waveform(Prop):
     stateList=Member()
     duration=Member()
     
-    #for refreshing the plot
-    signal_holder = Typed(signal_holder)
-
-    
     def __init__(self,name,experiment,digitalout,description='',waveforms=None):
         super(Waveform,self).__init__(name,experiment,description)
         self.digitalout=digitalout
@@ -128,21 +104,11 @@ class Waveform(Prop):
         self.isEmpty=True
         self.properties+=['isEmpty','sequence']
         
-        #set up the signal that allows to plot update to occur in the GUI thread
-        self.signal_holder=signal_holder()
-        self.signal_holder.signal.connect(self.swapFigures)
-        
-        if self.plotType=='chaco':
-            #setup chaco plot
-            self.plot=WaveformPlot()
-            self.component=OverlayPlotContainer(self.plot)
-            self.updateFigure()
-        elif self.plotType=='MPL':
-            self.figure1=Figure()
-            self.figure2=Figure()
-            self.backFigure=self.figure2
-            self.figure=self.figure1
-            self.updateFigure()
+        self.figure1=Figure()
+        self.figure2=Figure()
+        self.backFigure=self.figure2
+        self.figure=self.figure1
+        self.updateFigure()
     
     def fromXML(self,xmlNode):
         super(Waveform,self).fromXML(xmlNode)
@@ -181,11 +147,6 @@ class Waveform(Prop):
             # find the duration of each segment
             self.duration=self.timeList[1:]-self.timeList[:-1]
             self.duration=numpy.append(self.duration,1) #add in a 1 sample duration at end for last transition
-
-#    # dictionary version of colorMap, but we might not want to use this if it is slower
-#    def colorMap(val):
-#        '''The color map for plotting digitalout sequence bar charts.  Red indicates an invalid value.'''
-#        return colors.get(val,'red')
 
     def colorMap(val):
         '''The color map for plotting digitalout sequence bar charts.  Red indicates an invalid value.'''
@@ -251,23 +212,14 @@ class Waveform(Prop):
         else:
             displayArray=None
         
-        if self.plotType=='chaco':
-            #Call the chaco plot
-            self.plot.update(self.timeList,self.duration,displayArray)
-        elif self.plotType=='MPL':
-            data=zip(self.timeList,self.duration)
-            #Make the matplotlib plot
-            self.drawMPL(displayArray,data)
+        data=zip(self.timeList,self.duration)
+        #Make the matplotlib plot
+        self.drawMPL(displayArray,data)
         
-        #update the screen
-        if self.plotType=='chaco':
-            self.component=OverlayPlotContainer(self.plot)
-        elif self.plotType=='MPL':
-            #self.signal_holder.signal.emit()
-            try:
-                deferred_call(self.swapFigures)
-            except RuntimeError:
-                pass #application not started yet
+        try:
+            deferred_call(self.swapFigures)
+        except RuntimeError: #application not started yet
+            self.swapFigures()
         
     def remove(self):
         if self.waveforms is not None:
@@ -284,75 +236,3 @@ class Waveform(Prop):
                 '<transitions>'+' '.join([str(time) for time in self.timeList])+'</transitions>'+
                 '<states>\n'+'\n'.join([' '.join([str(sample) for sample in state]) for state in self.stateList])+'\n</states>\n'+
                 '</waveform>\n')
-
-class WaveformPlot(Plot):
-    '''A custom built Chaco plot to show waveforms.'''
-    data=ArrayPlotData()
-    colors={0:'white',1:'black',5:'grey'} #color dictionary for plot
-    
-    def __init__(self):
-        self.n=0
-        #self.data=ArrayPlotData()
-        super(WaveformPlot,self).__init__(self.data)
-        self.colors={0:'white',1:'black',5:'grey'} #color dictionary for plot
-        self.totalPlots=0
-        
-    def rectangle(self,transition,duration,channel,color):
-        n=self.n
-        xarray=numpy.array([transition,transition+duration,transition+duration,transition])
-        yarray=numpy.array([channel+.4,channel+.4,channel-.4,channel-.4])
-        self.data.set_data('x'+str(n),xarray)
-        self.data.set_data('y'+str(n),yarray)
-        self.plot(('x'+str(n),'y'+str(n)),
-            type='polygon',face_color=color, edge_color='transparent')
-        self.n+=1
-    
-    def update(self,transitions,durations,states):
-        '''transitions is an array of transition start times.
-        durations is an array of transition time duration.
-        states is a 2D array of size len(transitions)*len(channels) containing 
-        the state of each channel at each time'''
-        
-        #delete all previous plots
-        if self.plots: #if it is not empty
-            self.delplot(*self.plots.keys())
-        
-        # delete old arrays
-        a=self.data.list_data()
-        for i in a:
-            self.data.del_data(i)
-        
-        #now add new ones
-        numTransitions,numChannels=numpy.shape(states)
-        for time in range(numTransitions):
-            for channel in range(numChannels):
-                if states[time,channel]==0:
-                    #don't draw anything for the OFF state
-                    pass
-                else:
-                    color=self.colors.get(states[time,channel],'red') #default to red if value is bad
-                    self.rectangle(transitions[time],durations[time],channel,color)
-        
-        #set the plot limits to show all channels, even if they are off
-        self.range2d.y_range.low = -.5
-        self.range2d.y_range.high = numChannels -.5
-
-# class ViewThing(HasTraits):
-    # plot=Typed(WaveformPlot)
-    
-    # def _plot_default(self):
-        # plot = WaveformPlot()
-        # return plot
-    
-    # traits_view = View(
-            # Group(
-                # Item('plot',editor=ComponentEditor(),show_label=False),
-            # orientation = "vertical"),
-        # resizable=True, title='View thing')
-
-# if __name__ == "__main__":
-    # demo = ViewThing()
-    # demo.plot.update(numpy.array([1,1.1,2,3.5]),numpy.array([.1,.9,1.5,.75]),
-        # numpy.array([[1,1,0,5],[0,1,1,0],[1,5,7,0],[1,0,1,1]]))
-    # demo.configure_traits()
-

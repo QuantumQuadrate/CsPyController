@@ -9,77 +9,31 @@ This file holds everything needed to model the analog output from a National Ins
 '''
 
 from __future__ import division
-from atom.api import Bool, Typed, Member, Coerced #, Array
+from atom.api import Bool, Typed, Member, Coerced
 from enaml.application import deferred_call
-from enthought.chaco.api import VPlotContainer, ArrayPlotData, Plot
-from enthought.enable.api import Component
 from matplotlib.figure import Figure
 from instrument_property import BoolProp, FloatProp, StrProp, ListProp, EvalProp
 import cs_evaluate
 from cs_instruments import Instrument
-#from cs_errors import PauseError
-#import experiments
 import numpy, logging
 logger = logging.getLogger(__name__)
 
-from PyQt4 import QtCore
-
-class signal_holder(QtCore.QObject):
-    signal = QtCore.pyqtSignal()
-
-#borrowed from traits_enaml package
-class Array(Coerced):
-    """ A value of type `np.ndarray`
-
-    Values are coerced to ndarrays using np.array.
-    
-    """
-    __slots__ = ()
-    
-    def __init__(self, default=None, factory=None, kwargs=None):
-        import numpy as np
-        if default:
-            kwargs = kwargs or {}
-            factory = lambda: np.array(default, **kwargs)
-        else:
-            factory = lambda: ()
-        super(Array, self).__init__(
-                np.ndarray, factory=factory, coercer=np.array)
-
 class AOEquation(EvalProp):
-    value=Array()
-    plot=Typed(Component)
+    value=Member()
     AO=Member()
-    plotdata=Member()
-    #myArrayHolder=Typed(arrayHolder)
     #properties will already include 'function' from EvalProp, which is what holds our equation string
-    
     placeholder='AO equation'
-    
-    plotType='MPL'
     
     def __init__(self,name,experiment,description='',kwargs={}):
         self.AO=kwargs['AO']
-        
-        if self.plotType=='chaco':
-            #create an empty plot
-            self.plotdata = ArrayPlotData(t=numpy.arange(2),y=numpy.zeros(2))
-            self.plot = Plot(self.plotdata)
-            self.plot.plot(("t", "y"), type="line", color="blue")
-            self.plot.title = self.description
-        
         super(AOEquation,self).__init__(name,experiment,function='0*t')
     
     #update the plot titles when the description changes
     #Atom will recognize this function name and set up an observer
     def _observe_description(self,change):
-        #print 'AnalogOutput.AOEquation._observe_description()'
-        if self.plotType=='chaco':
-            self.plot.title = self.description
         self.AO.update_plot()
     
     def evaluate(self):
-        #print 'AnalogOutput.AOEquation.evaluate()'
         #evaluate the 'function' and store it in 'value'
         #but first add the variable 't' into the variables dictionary for timesteps.
         #This will overwrite any previous value, so we make a copy of the dictionary
@@ -90,11 +44,6 @@ class AOEquation(EvalProp):
         except TraitError as e:
             logger.warning('In AOEquation.evaluate(), TraitError while evaluating: '+self.name+'\ndescription: '+self.description+'\nfunction: '+self.function+'\n'+str(e))
             #raise PauseError
-        
-        if self.plotType=='chaco':
-            self.plotdata.set_data("t",self.AO.timesteps)
-            self.plotdata.set_data("y",self.value)
-            self.plot.title = self.description
         self.AO.update_plot()
 
 class AnalogOutput(Instrument):
@@ -110,20 +59,15 @@ class AnalogOutput(Instrument):
     triggerEdge=Typed(StrProp)
     equations=Typed(ListProp)
     
-    plot=Typed(Component)
-    timesteps=Array()
+    timesteps=Member()
     version=Member()
     
     figure=Typed(Figure)
     backFigure=Typed(Figure)
     figure1=Typed(Figure)
     figure2=Typed(Figure)
-    #refresh=Bool(False)
+    
     enable_refresh=Bool(False) #makes it so that sub-equations won't redraw graph until full evaluation is done
-    
-    plotType='MPL'
-    
-    signal_holder = Typed(signal_holder)
     
     def __init__(self,experiment):
         super(AnalogOutput,self).__init__('AnalogOutput',experiment)
@@ -142,22 +86,13 @@ class AnalogOutput(Instrument):
                             listElementName='equation',listElementKwargs={'AO':self})
         self.properties+=['version','enable','physicalChannels','minimum','maximum','clockRate','totalAOTime','units','waitForStartTrigger','triggerSource','triggerEdge','equations']
         
-        #set up the signal that allows to plot update to occur in the GUI thread
-        self.signal_holder=signal_holder()
-        self.signal_holder.signal.connect(self.swapFigures)
         
-        if self.plotType=='chaco':
-            #create empty plot
-            plot = Plot()
-            plot.title = "empty"
-            self.plot=plot
-        elif self.plotType=='MPL':
-            self.figure1=Figure()
-            self.figure2=Figure()
-            self.backFigure=self.figure2
-            self.figure=self.figure1
-            self.update_plot()
-            
+        self.figure1=Figure()
+        self.figure2=Figure()
+        self.backFigure=self.figure2
+        self.figure=self.figure1
+        self.update_plot()
+        
         #set up Atom notifications from sub-traits
         self.clockRate.observe('value',self.call_evaluate)
         self.totalAOTime.observe('value',self.call_evaluate)
@@ -187,19 +122,13 @@ class AnalogOutput(Instrument):
     
     def update_plot(self):
         if self.enable_refresh:
-            #TODO: find out how to change VPlotContainer components list, instead of remaking the whole thing
-            if self.plotType=='chaco':
-                self.plot=VPlotContainer(*[i.plot for i in self.equations])
-            elif self.plotType=='MPL':
-                self.drawMPL()
-                try:
-                    deferred_call(self.swapFigures)
-                except RuntimeError:
-                    pass #application not started yet
-                #self.signal_holder.signal.emit()
+            self.drawMPL()
+            try:
+                deferred_call(self.swapFigures)
+            except RuntimeError: #application not started yet
+                self.swapFigures()
     
     def evaluate(self):
-        #print 'AnalogOutput.AnalogOutput.evaluate()'
         self.enable_refresh=False
         # first evaluate the time steps:
         #print 'self.totalAOTime.value {}, self.clockRate.value {}'.format(self.totalAOTime.value,self.clockRate.value)
@@ -210,9 +139,7 @@ class AnalogOutput(Instrument):
         # plots will update automatically on every AOequation.evaluate()
         
         self.enable_refresh=True
-        if self.plotType=='MPL':
-            self.update_plot()
+        self.update_plot()
     
     def initialize(self):
         self.isInitialized=True
-        

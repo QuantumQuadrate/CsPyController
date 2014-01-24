@@ -1,8 +1,5 @@
-import threading, time, datetime, logging, traceback, xml.etree.ElementTree, pickle, os, numpy
+import threading, time, datetime, logging, traceback, xml.etree.ElementTree, pickle, os, numpy, h5py
 logger = logging.getLogger(__name__)
-
-#for saving data in hdf5 files
-import h5py
 
 #set numpy print options to limit to 2 digits
 numpy.set_printoptions(formatter=dict(float=lambda t: "%.2e" % t))
@@ -17,16 +14,6 @@ from instrument_property import Prop, EvalProp, ListProp
 from cs_errors import PauseError
 import LabView
 from analysis import ImagePlotAnalysis
-
-from PyQt4 import QtCore
-
-class experimentResetAndGoThread(QtCore.QThread):
-    def __init__(self,experiment):
-        super(experimentResetAndGoThread,self).__init__()
-        self.experiment=experiment
-    
-    def run(self):
-        self.experiment.resetAndGo()
 
 class independentVariables(ListProp):
     def fromXML(self,xmlNode):
@@ -129,9 +116,6 @@ class Experiment(Prop):
     variableReportStr=Str()
     variablesNotToSave=Str()
     
-    #for thread control
-    resetAndGoThread=Typed(experimentResetAndGoThread)
-
     #list of Analysis objects
     analyses=Member()
     
@@ -173,8 +157,6 @@ class Experiment(Prop):
         'copyDataToNetwork','experimentDescriptionFilenameSuffix','measurementTimeout','measurementsPerIteration','willSendEmail',
         'emailAddresses','progress','iteration','measurement','totalIterations','timeStartedStr','currentTimeStr','timeElapsedStr','totalTimeStr',
         'timeRemainingStr','completionTimeStr','variableReportFormat','variableReportStr','variablesNotToSave','notes']
-        
-        self.resetAndGoThread=experimentResetAndGoThread(self)
         
     def evaluateIndependentVariables(self):
         #make sure ivar functions have been parsed, don't rely on GUI update
