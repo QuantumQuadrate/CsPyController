@@ -10,6 +10,7 @@ This file holds everything needed to model the analog output from a National Ins
 
 from __future__ import division
 from atom.api import Bool, Typed, Member, Coerced #, Array
+from enaml.application import deferred_call
 from enthought.chaco.api import VPlotContainer, ArrayPlotData, Plot
 from enthought.enable.api import Component
 from matplotlib.figure import Figure
@@ -191,7 +192,11 @@ class AnalogOutput(Instrument):
                 self.plot=VPlotContainer(*[i.plot for i in self.equations])
             elif self.plotType=='MPL':
                 self.drawMPL()
-                self.signal_holder.signal.emit()
+                try:
+                    deferred_call(self.swapFigures)
+                except RuntimeError:
+                    pass #application not started yet
+                #self.signal_holder.signal.emit()
     
     def evaluate(self):
         #print 'AnalogOutput.AnalogOutput.evaluate()'

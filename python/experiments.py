@@ -9,6 +9,7 @@ numpy.set_printoptions(formatter=dict(float=lambda t: "%.2e" % t))
 
 # Use Atom traits to automate Enaml updating
 from atom.api import Bool, Int, Float, Str, Typed, Member
+from enaml.application import deferred_call
 
 # Bring in other files in this package
 import cs_evaluate
@@ -322,9 +323,11 @@ class Experiment(Prop):
         else:
             estTotalMeasurements=numpy.mean(self.completedMeasurementsByIteration[:-1])*self.totalIterations
         if estTotalMeasurements>0:
-            self.progress=int(100*completedMeasurements/estTotalMeasurements)
+            deferred_call(setattr, self, 'progress', int(100*completedMeasurements/estTotalMeasurements))
+            #self.progress=int(100*completedMeasurements/estTotalMeasurements)
         else:
-            self.progress=0
+            deferred_call(setattr, self, 'progress', 0)
+            #self.progress=0
         self.timeRemaining=timePerMeasurement*(estTotalMeasurements-completedMeasurements)
         self.timeRemainingStr=self.time2str(self.timeRemaining)
         self.totalTime=self.timeElapsed+self.timeRemaining
@@ -332,7 +335,12 @@ class Experiment(Prop):
         self.completionTime=self.timeStarted+self.totalTime
         self.completionTimeStr=self.date2str(self.completionTime)
     
-    def resetAndGo(self):
+    def resetAndGo1(self):
+        thread = threading.Thread(target=self.resetAndGo2)
+        thread.daemon = True
+        thread.start()
+    
+    def resetAndGo2(self):
         '''Reset the iteration variables and timing, then proceed with an experiment.'''
         
         #check if we are ready to do an experiment

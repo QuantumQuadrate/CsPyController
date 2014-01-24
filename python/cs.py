@@ -7,20 +7,14 @@ cs.py
 
 The cesium controller.  Handles user input/output, experiment flow control,
 analysis, and TCP server for communication with LabView.
-
-On Windows you must do "set ETS_TOOLKIT=qt4" from the command line before running this.
-The file cs.bat performs this task for you and then runs 'python cs.py'.
-
-To run from a shell call: import cs; exp=cs.new()
 """
 
-print """Before running:
- Windows: "set ETS_TOOLKIT=qt4"
- OS X:    "export ETS_TOOLKIT=qt4"
+#The following no longer applies now that:
+#On Windows you must do "set ETS_TOOLKIT=qt4" from the command line before running this.
+#The file cs.bat performs this task for you and then runs 'python cs.py'.
 
-To run from a shell call: import cs; exp=cs.new()
-"""
-
+#The following is not supported until we figure out how to launch GUI from a background thread without it complaining.
+#To run from a shell call: import cs; exp=cs.new()
 
 import enaml
 from enaml.qt.qt_application import QtApplication

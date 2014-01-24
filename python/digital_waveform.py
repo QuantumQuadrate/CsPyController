@@ -3,6 +3,7 @@
 import numpy
 
 from atom.api import Atom, Range, Member, Typed
+from enaml.application import deferred_call
 #from traitsui.api import View, UItem, Item, Group, HGroup, VGroup, spring
 from chaco.api import Plot, ArrayPlotData, PolygonPlot, OverlayPlotContainer
 from enable.api import Component #, ComponentEditor
@@ -13,6 +14,7 @@ from matplotlib.figure import Figure
 #import matplotlib.pyplot as plt
 import logging
 logger = logging.getLogger(__name__)
+
 
 from PyQt4 import QtCore
 class signal_holder(QtCore.QObject):
@@ -261,7 +263,11 @@ class Waveform(Prop):
         if self.plotType=='chaco':
             self.component=OverlayPlotContainer(self.plot)
         elif self.plotType=='MPL':
-            self.signal_holder.signal.emit()
+            #self.signal_holder.signal.emit()
+            try:
+                deferred_call(self.swapFigures)
+            except RuntimeError:
+                pass #application not started yet
         
     def remove(self):
         if self.waveforms is not None:

@@ -113,9 +113,7 @@ enamldef CsMenuBar(MenuBar): menuBar:
         title = '&Experiment'
         Action:
             text = 'Reset and Run\tCtrl+R'
-            #triggered::threading.Thread(target=experiment.resetAndGo).start()
-            triggered::experiment.resetAndGoThread.start()
-            #triggered::experiment.resetAndGo()
+            triggered::experiment.resetAndGo1()
         Action:
             text = 'Continue\tCtrl+G'
             #triggered::threading.Thread(target=experiment.go).start()
@@ -257,16 +255,10 @@ enamldef ExperimentPage(Page):
             CheckField:
                 checked:=experiment.willSendEmail
                 text:=experiment.emailAddresses
-        
-            Label:
-                text='Progress'
-            Label:
-                text<<str(experiment.progress)
-            # ProgressBar:
-                # minimum=0
-                # maximum=100
-                # value<<experiment.progress
-
+            
+            Label: text='Progress'
+            Label: text<<str(experiment.progress)
+            
             Label: text='Iteration'
             Label: text<<str(experiment.iteration)+' of '+str(experiment.totalIterations-1)
             
@@ -1191,8 +1183,14 @@ enamldef Main(MainWindow): main:
         padding = 0
         ScrollArea:
             Container:
-                Label:
-                    text<<'Status: {} Iteration: {} Measurement: {} Progress: {}'.format(experiment.status,str(experiment.iteration)+' of '+str(experiment.totalIterations-1),str(experiment.measurement)+' of '+str(experiment.measurementsPerIteration-1),str(experiment.progress))
+                Container:
+                    constraints=[hbox(status,progress)]
+                    Label: status:
+                        text<<'Status: {}, Iteration: {}, Measurement: {}, Progress: {}'.format(experiment.status,str(experiment.iteration)+' of '+str(experiment.totalIterations-1),str(experiment.measurement)+' of '+str(experiment.measurementsPerIteration-1),str(experiment.progress))
+                    ProgressBar: progress:
+                        minimum=0
+                        maximum=100
+                        value<<experiment.progress
                 Notebook:
                     tabs_closable=False
                     tabs_movable=False
