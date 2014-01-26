@@ -25,6 +25,7 @@ TODO:
     implement settimeout instead of setblocking for TCP communication with timeout equal to experiment timeout or shorter
     clean out unnecessary files in LabView section
     use http://olgabot.github.io/prettyplotlib/ ?
+	change LabView demo data to be a more flexible "echo" from python, would be useful for running analysis tests
 
 Done:
     Make hexagon not read-only so I can push git to there

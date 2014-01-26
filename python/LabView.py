@@ -34,6 +34,9 @@ class LabView(Instrument):
     sock=Member()
     camera=Member()
     timeout=Typed(FloatProp)
+	error=Bool()
+	log=Str()
+
     
     '''This is a meta instrument which encapsulates the capability of the HEXQC2 PXI system. It knows about several subsystems (HSDIO, DAQmx, Counters, Camera), and can send settings and commands to a corresponding Labview client.'''
     def __init__(self,experiment):
@@ -139,9 +142,21 @@ class LabView(Instrument):
                 except Exception as e:
                     print 'no resize:'+str(e)
                 hdf5[key]=array
+			elif key=='error':
+				self.error=value
+				hdf5[key]=value
+			elif key=='log':
+				self.log+=value
+				hdf5[key]=value
             else:
                 # no special protocol
                 hdf5[key]=value
+		if ('error' in hdf5) and (hdf5['error'].value):
+			if ('log' in hdf5):
+				logger.warning('LabView error.  Log:\n'+hdf5['log'])
+			else:
+				logger.warning('LabView error.  No log available.')
+			raise PauseError
     
     def initializeDDS(self):
         raise NotImplementedError

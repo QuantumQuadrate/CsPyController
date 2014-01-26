@@ -408,7 +408,9 @@ enamldef LabViewPage(Page):
                 enabled=False
             EvalProp:
                 prop<<LabView.timeout
-            
+			Label: text='LabView error'
+			Label: text<<str(LabView.error)
+        
         GroupBox:
             title='TCP output message'
             constraints = [vbox(scroller),(height==500)|'strong']
@@ -421,6 +423,21 @@ enamldef LabViewPage(Page):
                         hug_height='ignore'
                         hug_width='ignore'
                         text<<LabView.msg
+
+		GroupBox:
+            title='LabView log'
+            constraints = [vbox(scroller),(height==500)|'strong']
+            hug_width='ignore'
+            ScrollArea: scroller:
+                Container:
+                    hug_height='ignore'
+                    hug_width='ignore'
+                    Label:
+                        hug_height='ignore'
+                        hug_width='ignore'
+                        text<<LabView.msg
+
+		
             
 enamldef DOchannel(Container):
     attr channel
