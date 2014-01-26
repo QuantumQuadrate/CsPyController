@@ -1,13 +1,9 @@
 from atom.api import Bool, Typed, Str, Member
 from instrument_property import Prop
 
-#chaco plotting
-#from enthought.enable.api import Component
-#from traits.api import Array
-
 #MPL plotting
 from matplotlib.figure import Figure
-from PyQt4 import QtCore
+from enaml.application import deferred_call
 
 import threading, numpy, logging
 logger = logging.getLogger(__name__)
@@ -83,9 +79,6 @@ class Analysis(Prop):
         Subclass this to update the analysis appropriately.'''
         pass
 
-class signal_holder(QtCore.QObject):
-    signal = QtCore.pyqtSignal()
-
 class AnalysisWithFigure(Analysis):
     
     #matplotlib figures
@@ -94,15 +87,8 @@ class AnalysisWithFigure(Analysis):
     figure1=Typed(Figure)
     figure2=Typed(Figure)
     
-    #for refreshing the plot
-    signal_holder = Typed(signal_holder)
-    
     def __init__(self,name,experiment,description=''):
         super(AnalysisWithFigure,self).__init__(name,experiment,description)
-        
-        #set up the signal that allows to plot update to occur in the GUI thread
-        self.signal_holder=signal_holder()
-        self.signal_holder.signal.connect(self.swapFigures)
         
         #set up the matplotlib figures
         self.figure1=Figure()
@@ -117,7 +103,10 @@ class AnalysisWithFigure(Analysis):
     
     def updateFigure(self):
         #signal the GUI to redraw figure
-        self.signal_holder.signal.emit()
+        try:
+            deferred_call(self.swapFigures)
+        except RuntimeError: #application not started yet
+            self.swapFigures()
 
 class ImagePlotAnalysis(AnalysisWithFigure):
     data=Member()

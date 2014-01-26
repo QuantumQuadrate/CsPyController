@@ -9,7 +9,7 @@ This file holds everything needed to model the analog output from a National Ins
 '''
 
 from __future__ import division
-from atom.api import Bool, Typed, Member, Coerced
+from atom.api import Bool, Typed, Member
 from enaml.application import deferred_call
 from matplotlib.figure import Figure
 from instrument_property import BoolProp, FloatProp, StrProp, ListProp, EvalProp

@@ -32,7 +32,7 @@ p0
 .</saveData>
 <save2013styleFiles>I00
 .</save2013styleFiles>
-<localDataPath>S'C:\\Users\\QC\\Documents\\data'
+<localDataPath>S'D:\\data'
 p0
 .</localDataPath>
 <networkDataPath>S'Z:\\Public\\AQuA data\\2013 data'
@@ -60,22 +60,22 @@ p0
 .</measurement>
 <totalIterations>I9
 .</totalIterations>
-<timeStartedStr>S'2014-01-25 20:06:31'
+<timeStartedStr>S'2014-01-21 20:34:29'
 p0
 .</timeStartedStr>
-<currentTimeStr>S'2014-01-25 20:07:46'
+<currentTimeStr>S'2014-01-21 20:34:30'
 p0
 .</currentTimeStr>
-<timeElapsedStr>S'0:01:14.980000'
+<timeElapsedStr>S'0:00:00.850000'
 p0
 .</timeElapsedStr>
-<totalTimeStr>S'0:01:15.326759'
+<totalTimeStr>S'0:00:31.438230'
 p0
 .</totalTimeStr>
-<timeRemainingStr>S'0:00:00.346759'
+<timeRemainingStr>S'0:00:30.588230'
 p0
 .</timeRemainingStr>
-<completionTimeStr>S'2014-01-25 20:07:47'
+<completionTimeStr>S'2014-01-21 20:35:00'
 p0
 .</completionTimeStr>
 <variableReportFormat>S'"a is %(a)s.\\nThe speed of light is %(c0)d\\nbut some call it %(c0)e"'
@@ -100,7 +100,7 @@ p0
 .</port>
 <enabled>I01
 .</enabled>
-<connected>I01
+<connected>I00
 .</connected>
 <timeout><description>S'how long before LabView gives up and returns [s]'
 p0
