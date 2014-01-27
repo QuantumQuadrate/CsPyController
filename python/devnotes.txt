@@ -1,7 +1,7 @@
 CsController2 notes:
 
 current question:
-    camera enums
+    waveform upload error
 
 TODO:
     compressedGenerate
@@ -26,9 +26,11 @@ TODO:
     clean out unnecessary files in LabView section
     use http://olgabot.github.io/prettyplotlib/ ?
     change LabView demo data to be a more flexible "echo" from python, would be useful for running analysis tests
-    return error and log from LabView initialization
+    
+    
 
 Done:
+    return error and log from LabView initialization
     Make hexagon not read-only so I can push git to there
     Add instruments to backend and detail to front panel
     make waveform plotting even faster by changing data in plot objects, instead of creating new ones.

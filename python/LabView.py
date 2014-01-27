@@ -170,7 +170,7 @@ class LabView(Instrument):
                 hdf5[key]=value
         if ('error' in hdf5) and (hdf5['error'].value):
             if ('log' in hdf5):
-                logger.warning('LabView error.  Log:\n'+hdf5['log'])
+                logger.warning('LabView error.  Log:\n'+hdf5['log'].value)
             else:
                 logger.warning('LabView error.  No log available.')
             raise PauseError

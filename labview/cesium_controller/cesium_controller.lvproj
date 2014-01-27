@@ -2,32 +2,6 @@
 <Project Type="Project" LVVersion="13008000">
 	<Property Name="NI.LV.All.SourceOnly" Type="Bool">true</Property>
 	<Property Name="NI.Project.Description" Type="Str"></Property>
-	<Property Name="varPersistentID:{1362E479-44E9-4646-8B16-C5E0F4ABD572}" Type="Ref">/My Computer/Experiment_network_vars.lvlib/Flow Control/Pause after Iteration</Property>
-	<Property Name="varPersistentID:{182A758E-CEE1-4943-971E-8A54E97B159E}" Type="Ref">/My Computer/Experiment_network_vars.lvlib/Flow Control/Stop</Property>
-	<Property Name="varPersistentID:{23B9A585-203F-427D-81E0-526D18773128}" Type="Ref">/My Computer/Experiment_network_vars.lvlib/Flow Control/state</Property>
-	<Property Name="varPersistentID:{25031DF5-BF23-4192-B9D1-AA9D9500F078}" Type="Ref">/My Computer/Experiment_network_vars.lvlib/Variables/Current Iteration</Property>
-	<Property Name="varPersistentID:{28D49AB2-2F20-423F-9C93-C28D1F299936}" Type="Ref">/My Computer/Experiment_network_vars.lvlib/Flow Control/Log</Property>
-	<Property Name="varPersistentID:{2C330CE4-A148-487C-B71C-59F1B7D85D90}" Type="Ref">/My Computer/Experiment_network_vars.lvlib/AI/AI cost</Property>
-	<Property Name="varPersistentID:{3341C2D5-A9C8-4A11-A779-5CF3C5793AAF}" Type="Ref">/My Computer/backend_vars.lvlib/Picomotor controls</Property>
-	<Property Name="varPersistentID:{36A4DE73-022D-4615-A28B-298FA35868FB}" Type="Ref">/My Computer/Experiment_network_vars.lvlib/Flow Control/Restart</Property>
-	<Property Name="varPersistentID:{3A9614D7-F3EE-43CB-93E2-22A31E4D9B40}" Type="Ref">/My Computer/Experiment_network_vars.lvlib/Flow Control/Continue</Property>
-	<Property Name="varPersistentID:{3B1AC2C4-27CF-42BA-8396-16F877AD789A}" Type="Ref">/My Computer/Experiment_network_vars.lvlib/AI/samples_per_measurement</Property>
-	<Property Name="varPersistentID:{3EF32EA4-B2C8-4BE1-AEED-DD6AB91C3AD9}" Type="Ref">/My Computer/Experiment_network_vars.lvlib/Variables/current_variables_table</Property>
-	<Property Name="varPersistentID:{40D78D4B-60FA-4381-AF09-084CF388A51F}" Type="Ref">/My Computer/Experiment_network_vars.lvlib/AI/AI volts</Property>
-	<Property Name="varPersistentID:{4577BC7D-9F68-4FBC-BF91-C90275B98326}" Type="Ref">/My Computer/backend_vars.lvlib/Picomotor CmdLib</Property>
-	<Property Name="varPersistentID:{4C722629-FD56-41AD-8B1B-5556D0B63270}" Type="Ref">/My Computer/backend_vars.lvlib/AI Task</Property>
-	<Property Name="varPersistentID:{596872A0-2722-433F-A4FF-0E78FF72EE12}" Type="Ref">/My Computer/Experiment_network_vars.lvlib/Variables/Current Measurement</Property>
-	<Property Name="varPersistentID:{63D56E51-FEA1-4241-A8F8-9F5FF858B1F0}" Type="Ref">/My Computer/Experiment_network_vars.lvlib/TTL/is laser unlocked</Property>
-	<Property Name="varPersistentID:{733E627F-0C77-4BB7-9B75-3D5F8679C8AA}" Type="Ref">/My Computer/backend_vars.lvlib/Picomotor DeviceKey</Property>
-	<Property Name="varPersistentID:{79E16967-7DBD-4549-9BD0-CFBD9F8F8470}" Type="Ref">/My Computer/Experiment_network_vars.lvlib/Flow Control/isPaused after Iteration</Property>
-	<Property Name="varPersistentID:{7D98BFA6-8EEC-42F8-BE4C-F0D225D7BA54}" Type="Ref">/My Computer/Experiment_network_vars.lvlib/Variables/Wait Loops</Property>
-	<Property Name="varPersistentID:{A643479A-38D8-4272-806E-FE5CB0A81793}" Type="Ref">/My Computer/Experiment_network_vars.lvlib/Variables/Total Iterations</Property>
-	<Property Name="varPersistentID:{A91B4312-B2ED-4232-B500-10AEA4125E92}" Type="Ref">/My Computer/Experiment_network_vars.lvlib/Flow Control/Pause after Measurement</Property>
-	<Property Name="varPersistentID:{B3BB2CA6-368F-445F-B4F6-DFAA98BA058F}" Type="Ref">/My Computer/Experiment_network_vars.lvlib/AI/AI watts</Property>
-	<Property Name="varPersistentID:{C7594F46-771D-4029-8658-D6600DCB3B4B}" Type="Ref">/My Computer/Experiment_network_vars.lvlib/AI/AI timestamp</Property>
-	<Property Name="varPersistentID:{CEE72C26-4CCD-4CC6-8345-D0C242295A1E}" Type="Ref">/My Computer/Experiment_network_vars.lvlib/Flow Control/isPaused after Measurement</Property>
-	<Property Name="varPersistentID:{EE6B3976-27E5-4FFB-A257-F5CA0D4F0B51}" Type="Ref">/My Computer/Experiment_network_vars.lvlib/Variables/Variable Status</Property>
-	<Property Name="varPersistentID:{F50D40A7-1BBA-41DF-9932-A028772381EF}" Type="Ref">/My Computer/Experiment_network_vars.lvlib/TTL/TTL inputs</Property>
 	<Item Name="My Computer" Type="My Computer">
 		<Property Name="NI.SortType" Type="Int">3</Property>
 		<Property Name="server.app.propertiesEnabled" Type="Bool">true</Property>
@@ -63,10 +37,9 @@
 			<Item Name="TempScan.vi" Type="VI" URL="../Arroyo/TempScan.vi"/>
 			<Item Name="temp_monitor.vi" Type="VI" URL="../Arroyo/temp_monitor.vi"/>
 		</Item>
-		<Item Name="cesium_controller.vi" Type="VI" URL="../cesium_controller.vi"/>
 		<Item Name="Experiment.lvclass" Type="LVClass" URL="../Experiment/Experiment.lvclass"/>
-		<Item Name="HSDIO.lvclass" Type="LVClass" URL="../HSDIO/HSDIO.lvclass"/>
 		<Item Name="ExperimentVariables.lvclass" Type="LVClass" URL="../ExperimentVariables/ExperimentVariables.lvclass"/>
+		<Item Name="HSDIO.lvclass" Type="LVClass" URL="../HSDIO/HSDIO.lvclass"/>
 		<Item Name="DAQmx_pulse_out.lvclass" Type="LVClass" URL="../DAQmx_pulse_out/DAQmx_pulse_out.lvclass"/>
 		<Item Name="DDS.lvclass" Type="LVClass" URL="../DDS/DDS.lvclass"/>
 		<Item Name="Camera.lvclass" Type="LVClass" URL="../Camera/Camera.lvclass"/>
@@ -82,36 +55,10 @@
 		<Item Name="HP8662A_RF_Generator.lvclass" Type="LVClass" URL="../GPIB/HP8662A_RF_Generator/HP8662A_RF_Generator.lvclass"/>
 		<Item Name="TTL_input.lvclass" Type="LVClass" URL="../TTL_input/TTL_input.lvclass"/>
 		<Item Name="PI_Piezo.lvclass" Type="LVClass" URL="../PI_piezo/PI_Piezo.lvclass"/>
-		<Item Name="viewer.vi" Type="VI" URL="../viewer.vi"/>
-		<Item Name="ROI_array_to_cluster.vi" Type="VI" URL="../ROI_array_to_cluster.vi"/>
-		<Item Name="Save Defaults.vi" Type="VI" URL="../Save Defaults.vi"/>
-		<Item Name="ROI_boxes.vi" Type="VI" URL="../ROI_boxes.vi"/>
-		<Item Name="ROI_sum.vi" Type="VI" URL="../ROI_sum.vi"/>
 		<Item Name="append_to_log.vi" Type="VI" URL="../append_to_log.vi"/>
 		<Item Name="handle_errors.vi" Type="VI" URL="../handle_errors.vi"/>
-		<Item Name="plot_counter_data_1.vi" Type="VI" URL="../plot_counter_data_1.vi"/>
-		<Item Name="plot_counter_data_2.vi" Type="VI" URL="../plot_counter_data_2.vi"/>
-		<Item Name="save_comments.vi" Type="VI" URL="../save_comments.vi"/>
-		<Item Name="save_variables_table.vi" Type="VI" URL="../save_variables_table.vi"/>
-		<Item Name="save_parameters_table.vi" Type="VI" URL="../save_parameters_table.vi"/>
-		<Item Name="get_variable_start_values.vi" Type="VI" URL="../get_variable_start_values.vi"/>
-		<Item Name="all_settings_references.ctl" Type="VI" URL="../config_file_io/all_settings_references.ctl"/>
-		<Item Name="save_log.vi" Type="VI" URL="../save_log.vi"/>
-		<Item Name="save_avg_image.vi" Type="VI" URL="../save_avg_image.vi"/>
-		<Item Name="save_png.vi" Type="VI" URL="../save_png.vi"/>
-		<Item Name="iteration_graph_update.vi" Type="VI" URL="../iteration_graph_update.vi"/>
-		<Item Name="close_all.vi" Type="VI" URL="../close_all.vi"/>
-		<Item Name="backend_vars.lvlib" Type="Library" URL="../Analog_Input/backend_vars.lvlib"/>
-		<Item Name="Experiment_network_vars.lvlib" Type="Library" URL="../Experiment_network_vars.lvlib"/>
-		<Item Name="continue.vi" Type="VI" URL="../Experiment/continue.vi"/>
-		<Item Name="measurement_graph.ctl" Type="VI" URL="../gui/measurement_graph.ctl"/>
-		<Item Name="measurement_chart.vi" Type="VI" URL="../gui/measurement_chart.vi"/>
-		<Item Name="iteration.vi" Type="VI" URL="../iteration.vi"/>
-		<Item Name="clear_log.vi" Type="VI" URL="../clear_log.vi"/>
-		<Item Name="TTL_test.vi" Type="VI" URL="../TTL_test.vi"/>
 		<Item Name="states.ctl" Type="VI" URL="../Experiment/states.ctl"/>
 		<Item Name="Globals.vi" Type="VI" URL="../Experiment/Globals.vi"/>
-		<Item Name="HP83623A.ctl" Type="VI" URL="../GPIB/HP83623A_RF_Generator/HP83623A.ctl"/>
 		<Item Name="Dependencies" Type="Dependencies">
 			<Item Name="instr.lib" Type="Folder">
 				<Item Name="niHSDIO_ctl Trigger DigEdge - Edge Values (Ring).ctl" Type="VI" URL="/&lt;instrlib&gt;/niHSDIO/niHSDIO.llb/niHSDIO_ctl Trigger DigEdge - Edge Values (Ring).ctl"/>
@@ -238,10 +185,6 @@
 				<Item Name="ni845xSpiScriptControl.ctl" Type="VI" URL="/&lt;vilib&gt;/ni845x/ni845x.llb/ni845xSpiScriptControl.ctl"/>
 				<Item Name="NI_AALBase.lvlib" Type="Library" URL="/&lt;vilib&gt;/Analysis/NI_AALBase.lvlib"/>
 				<Item Name="NI_Gmath.lvlib" Type="Library" URL="/&lt;vilib&gt;/gmath/NI_Gmath.lvlib"/>
-				<Item Name="Read From Spreadsheet File (DBL).vi" Type="VI" URL="/&lt;vilib&gt;/Utility/file.llb/Read From Spreadsheet File (DBL).vi"/>
-				<Item Name="Read From Spreadsheet File (I64).vi" Type="VI" URL="/&lt;vilib&gt;/Utility/file.llb/Read From Spreadsheet File (I64).vi"/>
-				<Item Name="Read From Spreadsheet File (string).vi" Type="VI" URL="/&lt;vilib&gt;/Utility/file.llb/Read From Spreadsheet File (string).vi"/>
-				<Item Name="Read From Spreadsheet File.vi" Type="VI" URL="/&lt;vilib&gt;/Utility/file.llb/Read From Spreadsheet File.vi"/>
 				<Item Name="SessionLookUp.vi" Type="VI" URL="/&lt;vilib&gt;/vision/driver/DLLCalls.llb/SessionLookUp.vi"/>
 				<Item Name="Simple Error Handler.vi" Type="VI" URL="/&lt;vilib&gt;/Utility/error.llb/Simple Error Handler.vi"/>
 				<Item Name="subDisplayMessage.vi" Type="VI" URL="/&lt;vilib&gt;/express/express output/DisplayMessageBlock.llb/subDisplayMessage.vi"/>
@@ -250,7 +193,6 @@
 				<Item Name="Write To Spreadsheet File (string).vi" Type="VI" URL="/&lt;vilib&gt;/Utility/file.llb/Write To Spreadsheet File (string).vi"/>
 				<Item Name="Write To Spreadsheet File.vi" Type="VI" URL="/&lt;vilib&gt;/Utility/file.llb/Write To Spreadsheet File.vi"/>
 				<Item Name="subTimeDelay.vi" Type="VI" URL="/&lt;vilib&gt;/express/express execution control/TimeDelayBlock.llb/subTimeDelay.vi"/>
-				<Item Name="System Exec.vi" Type="VI" URL="/&lt;vilib&gt;/Platform/system.llb/System Exec.vi"/>
 				<Item Name="NI-845x SPI Script Ms Delay.vi" Type="VI" URL="/&lt;vilib&gt;/ni845x/ni845x.llb/NI-845x SPI Script Ms Delay.vi"/>
 				<Item Name="NI-845x SPI Script Us Delay.vi" Type="VI" URL="/&lt;vilib&gt;/ni845x/ni845x.llb/NI-845x SPI Script Us Delay.vi"/>
 				<Item Name="subFile Dialog.vi" Type="VI" URL="/&lt;vilib&gt;/express/express input/FileDialogBlock.llb/subFile Dialog.vi"/>
@@ -274,13 +216,6 @@
 				<Item Name="DAQmx Write.vi" Type="VI" URL="/&lt;vilib&gt;/DAQmx/write.llb/DAQmx Write.vi"/>
 				<Item Name="Three Button Dialog.vi" Type="VI" URL="/&lt;vilib&gt;/Utility/error.llb/Three Button Dialog.vi"/>
 				<Item Name="General Error Handler.vi" Type="VI" URL="/&lt;vilib&gt;/Utility/error.llb/General Error Handler.vi"/>
-				<Item Name="IMAQ Write PNG File 2" Type="VI" URL="/&lt;vilib&gt;/vision/Files.llb/IMAQ Write PNG File 2"/>
-				<Item Name="IMAQ Write TIFF File 2" Type="VI" URL="/&lt;vilib&gt;/vision/Files.llb/IMAQ Write TIFF File 2"/>
-				<Item Name="IMAQ Write JPEG2000 File 2" Type="VI" URL="/&lt;vilib&gt;/vision/Files.llb/IMAQ Write JPEG2000 File 2"/>
-				<Item Name="IMAQ Write JPEG File 2" Type="VI" URL="/&lt;vilib&gt;/vision/Files.llb/IMAQ Write JPEG File 2"/>
-				<Item Name="IMAQ Write Image And Vision Info File 2" Type="VI" URL="/&lt;vilib&gt;/vision/Files.llb/IMAQ Write Image And Vision Info File 2"/>
-				<Item Name="IMAQ Write BMP File 2" Type="VI" URL="/&lt;vilib&gt;/vision/Files.llb/IMAQ Write BMP File 2"/>
-				<Item Name="IMAQ Write File 2" Type="VI" URL="/&lt;vilib&gt;/vision/Files.llb/IMAQ Write File 2"/>
 				<Item Name="IMAQ Configure Buffer.vi" Type="VI" URL="/&lt;vilib&gt;/vision/driver/imaqll.llb/IMAQ Configure Buffer.vi"/>
 				<Item Name="imgSessionAcquire.vi" Type="VI" URL="/&lt;vilib&gt;/vision/driver/DLLCalls.llb/imgSessionAcquire.vi"/>
 				<Item Name="imgSessionConfigure.vi" Type="VI" URL="/&lt;vilib&gt;/vision/driver/DLLCalls.llb/imgSessionConfigure.vi"/>
@@ -347,12 +282,6 @@
 				<Item Name="TagReturnType.ctl" Type="VI" URL="/&lt;vilib&gt;/Utility/error.llb/TagReturnType.ctl"/>
 				<Item Name="Check Special Tags.vi" Type="VI" URL="/&lt;vilib&gt;/Utility/error.llb/Check Special Tags.vi"/>
 				<Item Name="General Error Handler CORE.vi" Type="VI" URL="/&lt;vilib&gt;/Utility/error.llb/General Error Handler CORE.vi"/>
-				<Item Name="Find First Error.vi" Type="VI" URL="/&lt;vilib&gt;/Utility/error.llb/Find First Error.vi"/>
-				<Item Name="Close File+.vi" Type="VI" URL="/&lt;vilib&gt;/Utility/file.llb/Close File+.vi"/>
-				<Item Name="compatReadText.vi" Type="VI" URL="/&lt;vilib&gt;/_oldvers/_oldvers.llb/compatReadText.vi"/>
-				<Item Name="Read File+ (string).vi" Type="VI" URL="/&lt;vilib&gt;/Utility/file.llb/Read File+ (string).vi"/>
-				<Item Name="Open File+.vi" Type="VI" URL="/&lt;vilib&gt;/Utility/file.llb/Open File+.vi"/>
-				<Item Name="Read Lines From File.vi" Type="VI" URL="/&lt;vilib&gt;/Utility/file.llb/Read Lines From File.vi"/>
 				<Item Name="TCP Listen List Operations.ctl" Type="VI" URL="/&lt;vilib&gt;/Utility/tcp.llb/TCP Listen List Operations.ctl"/>
 				<Item Name="TCP Listen Internal List.vi" Type="VI" URL="/&lt;vilib&gt;/Utility/tcp.llb/TCP Listen Internal List.vi"/>
 				<Item Name="Internecine Avoider.vi" Type="VI" URL="/&lt;vilib&gt;/Utility/tcp.llb/Internecine Avoider.vi"/>
@@ -562,7 +491,6 @@
 			<Item Name="AD9910 Register Info.vi" Type="VI" URL="../../DDS drivers v3/AD9910 Register Info.vi"/>
 			<Item Name="AD9910 registers.ctl" Type="VI" URL="../../DDS drivers v3/AD9910 registers.ctl"/>
 			<Item Name="array_sort_and_remove_redundancy.vi" Type="VI" URL="../array_sort_and_remove_redundancy.vi"/>
-			<Item Name="DDS box device reference.ctl" Type="VI" URL="../../DDS drivers v3/DDS box device reference.ctl"/>
 			<Item Name="DDS Channel to CS Pin.vi" Type="VI" URL="../../DDS drivers v3/DDS Channel to CS Pin.vi"/>
 			<Item Name="DDS Channel to IO Update Pin.vi" Type="VI" URL="../../DDS drivers v3/DDS Channel to IO Update Pin.vi"/>
 			<Item Name="DDS Channel to Master Reset Pin.vi" Type="VI" URL="../../DDS drivers v3/DDS Channel to Master Reset Pin.vi"/>
@@ -582,7 +510,6 @@
 			<Item Name="DDS Read Register.vi" Type="VI" URL="../../DDS drivers v3/DDS Read Register.vi"/>
 			<Item Name="DDS Set RAM Profile.vi" Type="VI" URL="../../DDS drivers v3/DDS Set RAM Profile.vi"/>
 			<Item Name="DDS Set Single-Tone Profile.vi" Type="VI" URL="../../DDS drivers v3/DDS Set Single-Tone Profile.vi"/>
-			<Item Name="DDS Settings.ctl" Type="VI" URL="../../DDS drivers v3/DDS Settings.ctl"/>
 			<Item Name="DDS Wake Up.vi" Type="VI" URL="../../DDS drivers v3/DDS Wake Up.vi"/>
 			<Item Name="DDS Write RAM register 2.vi" Type="VI" URL="../../DDS drivers v3/DDS Write RAM register 2.vi"/>
 			<Item Name="DDS Write Register.vi" Type="VI" URL="../../DDS drivers v3/DDS Write Register.vi"/>
@@ -603,34 +530,21 @@
 			<Item Name="Pulse DIO Line Script.vi" Type="VI" URL="../../DDS drivers v3/Pulse DIO Line Script.vi"/>
 			<Item Name="Read Write Script 2.vi" Type="VI" URL="../../DDS drivers v3/Read Write Script 2.vi"/>
 			<Item Name="Read Write Script.vi" Type="VI" URL="../../DDS drivers v3/Read Write Script.vi"/>
-			<Item Name="setup_gui.vi" Type="VI" URL="../setup_gui.vi"/>
 			<Item Name="DDS Read RAM register.vi" Type="VI" URL="../../DDS drivers v3/DDS Read RAM register.vi"/>
 			<Item Name="Read Write Script 3.vi" Type="VI" URL="../../DDS drivers v3/Read Write Script 3.vi"/>
-			<Item Name="edit_waveform.vi" Type="VI" URL="../edit_waveform.vi"/>
-			<Item Name="DDS Startup.vi" Type="VI" URL="../../DDS drivers v3/DDS Startup.vi"/>
 			<Item Name="counter_graph_refnums.ctl" Type="VI" URL="../Counter/counter_graph_refnums.ctl"/>
 			<Item Name="lvanlys.dll" Type="Document" URL="/&lt;resource&gt;/lvanlys.dll"/>
-			<Item Name="histogram.ctl" Type="VI" URL="../histogram.ctl"/>
 			<Item Name="gap_table_to_uncompressed_waveform.vi" Type="VI" URL="../gap_table_to_uncompressed_waveform.vi"/>
 			<Item Name="filters.ctl" Type="VI" URL="../filters/filters.ctl"/>
 			<Item Name="DDS_Settings_Cluster.ctl" Type="VI" URL="../DDS/DDS_Settings_Cluster.ctl"/>
 			<Item Name="Array_of_DDS_Boxes.ctl" Type="VI" URL="../../DDS drivers v3/Array_of_DDS_Boxes.ctl"/>
 			<Item Name="DDS_box_cluster.ctl" Type="VI" URL="../../DDS drivers v3/DDS_box_cluster.ctl"/>
 			<Item Name="DDS_box_device_reference.ctl" Type="VI" URL="../../DDS drivers v3/DDS_box_device_reference.ctl"/>
-			<Item Name="gui_refnum.ctl" Type="VI" URL="../gui_refnum.ctl"/>
-			<Item Name="gui_execution_controls.ctl" Type="VI" URL="../gui_execution_controls.ctl"/>
 			<Item Name="all_settings.ctl" Type="VI" URL="../config_file_io/all_settings.ctl"/>
-			<Item Name="save_settings.vi" Type="VI" URL="../config_file_io/save_settings.vi"/>
-			<Item Name="add_xml_headers.vi" Type="VI" URL="../config_file_io/add_xml_headers.vi"/>
 			<Item Name="DOMUserDefRef.dll" Type="Document" URL="DOMUserDefRef.dll">
 				<Property Name="NI.PreserveRelativePath" Type="Bool">true</Property>
 			</Item>
 			<Item Name="which_settings_to_load.vi" Type="VI" URL="../config_file_io/which_settings_to_load.vi"/>
-			<Item Name="manual_save_settings.vi" Type="VI" URL="../config_file_io/manual_save_settings.vi"/>
-			<Item Name="which_settings_to_save.vi" Type="VI" URL="../config_file_io/which_settings_to_save.vi"/>
-			<Item Name="DDS_Check_Box.vi" Type="VI" URL="../../DDS drivers v3/DDS_Check_Box.vi"/>
-			<Item Name="DDS Profile Settings.ctl" Type="VI" URL="../../DDS drivers v3/DDS Profile Settings.ctl"/>
-			<Item Name="add_xml_file_headers.vi" Type="VI" URL="../config_file_io/add_xml_file_headers.vi"/>
 			<Item Name="GCSTranslateError.vi" Type="VI" URL="../PI_piezo/GCS_LabVIEW_digital/Low Level/Support.llb/GCSTranslateError.vi"/>
 			<Item Name="ERR?.vi" Type="VI" URL="../PI_piezo/GCS_LabVIEW_digital/Low Level/General command.llb/ERR?.vi"/>
 			<Item Name="SVA.vi" Type="VI" URL="../PI_piezo/GCS_LabVIEW_digital/Low Level/PZT voltage.llb/SVA.vi"/>
@@ -715,27 +629,13 @@
 			<Item Name="GetPosition.vi" Type="VI" URL="../PicoMotor/NewFocus8742/Command VIs/GetPosition.vi"/>
 			<Item Name="Close connection if open.vi" Type="VI" URL="../PI_piezo/GCS_LabVIEW_digital/Low Level/Communication.llb/Close connection if open.vi"/>
 			<Item Name="Analog FGlobal.vi" Type="VI" URL="../PI_piezo/GCS_LabVIEW_digital/Low Level/Analog control.llb/Analog FGlobal.vi"/>
-			<Item Name="evaluate_dependent_vars.vi" Type="VI" URL="../evaluate_dependent_vars.vi"/>
 			<Item Name="Hamamatsu_serial.vi" Type="VI" URL="../Hamamatsu_serial.vi"/>
 			<Item Name="niHSDIO_64.dll" Type="Document" URL="niHSDIO_64.dll">
 				<Property Name="NI.PreserveRelativePath" Type="Bool">true</Property>
 			</Item>
-			<Item Name="auto_save_settings.vi" Type="VI" URL="../config_file_io/auto_save_settings.vi"/>
-			<Item Name="average_images.vi" Type="VI" URL="../average_images.vi"/>
-			<Item Name="close_tasks.vi" Type="VI" URL="../close_tasks.vi"/>
-			<Item Name="make_histogram.vi" Type="VI" URL="../make_histogram.vi"/>
-			<Item Name="pause_after_iteration.vi" Type="VI" URL="../pause_after_iteration.vi"/>
-			<Item Name="save_data.vi" Type="VI" URL="../save_data.vi"/>
-			<Item Name="start_tasks.vi" Type="VI" URL="../start_tasks.vi"/>
-			<Item Name="stop_tasks.vi" Type="VI" URL="../stop_tasks.vi"/>
-			<Item Name="filters.vi" Type="VI" URL="../filters/filters.vi"/>
-			<Item Name="pause_after_measurement.vi" Type="VI" URL="../pause_after_measurement.vi"/>
 			<Item Name="DDS_profile.ctl" Type="VI" URL="../../DDS drivers v3/DDS_profile.ctl"/>
 			<Item Name="DDS_Close_Multiple_Boxes.vi" Type="VI" URL="../../DDS drivers v3/DDS_Close_Multiple_Boxes.vi"/>
 			<Item Name="DDS Close.vi" Type="VI" URL="../../DDS drivers v3/DDS Close.vi"/>
-			<Item Name="save_processed_data.vi" Type="VI" URL="../save_processed_data.vi"/>
-			<Item Name="save_data_order_log.vi" Type="VI" URL="../save_data_order_log.vi"/>
-			<Item Name="save_all_signal.vi" Type="VI" URL="../save_all_signal.vi"/>
 			<Item Name="HP836xxA Initialize.vi" Type="VI" URL="../hp836xxa/HP836XXA.LLB/HP836xxA Initialize.vi"/>
 			<Item Name="HP836xxA Reset.vi" Type="VI" URL="../hp836xxa/HP836XXA.LLB/HP836xxA Reset.vi"/>
 			<Item Name="HP836xxA Configure Frequency.vi" Type="VI" URL="../hp836xxa/HP836XXA.LLB/HP836xxA Configure Frequency.vi"/>
@@ -751,7 +651,9 @@
 			<Item Name="Initialize Global1.vi" Type="VI" URL="../PI_piezo/GCS_LabVIEW_digital/Low Level/Communication.llb/Initialize Global1.vi"/>
 			<Item Name="PI Open Interface of one system.vi" Type="VI" URL="../PI_piezo/GCS_LabVIEW_digital/Low Level/Communication.llb/PI Open Interface of one system.vi"/>
 			<Item Name="E816_Configuration_Setup.vi" Type="VI" URL="../PI_piezo/GCS_LabVIEW_digital/E816_Configuration_Setup.vi"/>
+			<Item Name="measurement_graph.ctl" Type="VI" URL="../gui/measurement_graph.ctl"/>
 			<Item Name="XDNodeRunTimeDep.lvlib" Type="Library" URL="/&lt;vilib&gt;/Platform/TimedLoop/XDataNode/XDNodeRunTimeDep.lvlib"/>
+			<Item Name="continue.vi" Type="VI" URL="../Experiment/continue.vi"/>
 		</Item>
 		<Item Name="Build Specifications" Type="Build">
 			<Item Name="My Application" Type="EXE">
