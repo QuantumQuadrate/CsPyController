@@ -384,61 +384,62 @@ enamldef LabViewPage(Page):
     title = 'LabView'
 
     Container:
-        PushButton:
-            text='close connection'
-            clicked::
-                LabView.close()
-        Form:
-            Label:
-                text='enable communication with LabView system?'
-            CheckBox:
-                checked:=LabView.enabled
-            Label:
-                text='IP address of LabView system'
-            Field:
-                text:=LabView.IP
-            Label:
-                text='communications port'
-            IntField:
-                value:=LabView.port
-            Label:
-                text='connected'
-            CheckBox:
-                checked:=LabView.connected
-                enabled=False
+        Container:
+            hug_height='strong'
+            PushButton:
+                text='close connection'
+                clicked::
+                    LabView.close()
+            Form:
+                Label:
+                    text='enable communication with LabView system?'
+                CheckBox:
+                    checked:=LabView.enabled
+                Label:
+                    text='IP address of LabView system'
+                Field:
+                    text:=LabView.IP
+                Label:
+                    text='communications port'
+                IntField:
+                    value:=LabView.port
             EvalProp:
                 prop<<LabView.timeout
-			Label: text='LabView error'
-			Label: text<<str(LabView.error)
-        
-        GroupBox:
-            title='TCP output message'
-            constraints = [vbox(scroller),(height==500)|'strong']
-            hug_width='ignore'
-            ScrollArea:scroller:
-                Container:
-                    hug_height='ignore'
-                    hug_width='ignore'
-                    Label:
-                        hug_height='ignore'
-                        hug_width='ignore'
-                        text<<LabView.msg
-
-		GroupBox:
-            title='LabView log'
-            constraints = [vbox(scroller),(height==500)|'strong']
-            hug_width='ignore'
-            ScrollArea: scroller:
-                Container:
-                    hug_height='ignore'
-                    hug_width='ignore'
-                    Label:
-                        hug_height='ignore'
-                        hug_width='ignore'
-                        text<<LabView.msg
-
-		
+            Form:
+                Label:
+                    text='connected'
+                CheckBox:
+                    checked:=LabView.connected
+                    enabled=False
+                Label: text='LabView error'
+                Label: text<<str(LabView.error)
             
+            GroupBox:
+                title='TCP output message'
+                constraints = [vbox(scroller1),(height==500)|'strong']
+                hug_width='ignore'
+                ScrollArea:scroller1:
+                    Container:
+                        hug_height='ignore'
+                        hug_width='ignore'
+                        Label:
+                            hug_height='ignore'
+                            hug_width='ignore'
+                            text<<LabView.msg
+
+            GroupBox:
+                title='LabView log'
+                constraints = [vbox(scroller2),(height==500)|'strong']
+                hug_width='ignore'
+                ScrollArea: scroller2:
+                    Container:
+                        hug_height='ignore'
+                        hug_width='ignore'
+                        Label:
+                            hug_height='ignore'
+                            hug_width='ignore'
+                            text<<LabView.log
+
 enamldef DOchannel(Container):
     attr channel
     attr index

@@ -34,8 +34,8 @@ class LabView(Instrument):
     sock=Member()
     camera=Member()
     timeout=Typed(FloatProp)
-	error=Bool()
-	log=Str()
+    error=Bool()
+    log=Str()
 
     
     '''This is a meta instrument which encapsulates the capability of the HEXQC2 PXI system. It knows about several subsystems (HSDIO, DAQmx, Counters, Camera), and can send settings and commands to a corresponding Labview client.'''
@@ -90,13 +90,30 @@ class LabView(Instrument):
         super(LabView,self).update()
         self.msg=self.toHardware()
         if self.enabled:
-            if self.connected:
-                if self.sock is not None:
+            if self.isInitialized:
+                if self.connected:
+                    self.sock.settimeout(self.timeout.value)
                     self.sock.sendmsg(self.msg)
+                    #wait for response
+                    try:
+                        rawdata=self.sock.receive()
+                    except IOError:
+                        logger.warning('Timeout while waiting for LabView to return data in LabView.update()')
+                        raise PauseError
+                    else:
+                        self.results=self.sock.parsemsg(rawdata)
+                        for key,value in self.results.iteritems():
+                            #print 'key: {} value: {}'.format(key,str(value)[:40])
+                            if key=='error':
+                                self.error=bool(value)
+                            elif key=='log':
+                                self.log+=value
                 else:
-                    print "LabView TCP says self.connected=True, but has no sock"
+                    logger.warning('LabView instrument claims to be initialized, but is not connected in LabView.update()')
+                    raise PauseError
             else:
-                print "LabView TCP enabled but not connected"
+                logger.warning('LabView instrument should be initialized already, but is not, in LabView.update()')
+                raise PauseError
     
     def start(self):
         if self.enabled:
@@ -142,21 +159,21 @@ class LabView(Instrument):
                 except Exception as e:
                     print 'no resize:'+str(e)
                 hdf5[key]=array
-			elif key=='error':
-				self.error=value
-				hdf5[key]=value
-			elif key=='log':
-				self.log+=value
-				hdf5[key]=value
+            elif key=='error':
+                self.error=bool(value)
+                hdf5[key]=self.error
+            elif key=='log':
+                self.log+=value
+                hdf5[key]=value
             else:
                 # no special protocol
                 hdf5[key]=value
-		if ('error' in hdf5) and (hdf5['error'].value):
-			if ('log' in hdf5):
-				logger.warning('LabView error.  Log:\n'+hdf5['log'])
-			else:
-				logger.warning('LabView error.  No log available.')
-			raise PauseError
+        if ('error' in hdf5) and (hdf5['error'].value):
+            if ('log' in hdf5):
+                logger.warning('LabView error.  Log:\n'+hdf5['log'])
+            else:
+                logger.warning('LabView error.  No log available.')
+            raise PauseError
     
     def initializeDDS(self):
         raise NotImplementedError

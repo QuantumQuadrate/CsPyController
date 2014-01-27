@@ -11,7 +11,7 @@
 #a message with the correct format.
 
 
-import socket, struct, logging, numpy, threading
+import socket, struct, logging, numpy, threading, traceback
 logger = logging.getLogger(__name__)
 logging.basicConfig(format='%(asctime)s %(name)s %(levelname)s %(message)s', datefmt='%Y/%m/%d %H:%M:%S', level=logging.DEBUG)
 from cs_errors import PauseError
@@ -23,78 +23,80 @@ def prefixLength(txt):
         raise PauseError
     return struct.pack("!L",length)+txt
 
-def sendmsg(sock,msgtxt):
-    message='MESG'+prefixLength(msgtxt)
-    #print 'send: {}'.format(message)
-    try:
-        sock.sendall(message)
-    except Exception as e:
-        logger.error('Error sending message: '+str(e))
-        return
-
-def receive(sock):
-    #every message should start with 'MESG'
-    try:
-        header = sock.recv(4)
-        #print 'header: {}'.format(header)
-    except Exception as e:
-        logger.error('Error trying to receive message header: '+str(e))
-        raise PauseError
-    if not header:
-        #buffer is empty, no message yet
-        return
-    if header!='MESG':
-        logger.error('incorrectly formatted message does not being with "MESG".  Draining TCP input buffer')
-        #Clear the buffer so we aren't in the middle of a message
-        #TODO: There is some risk that this will result in lost messages, if
-        #a good one comes into the buffer before the bad one is cleared. We
-        #we may not want to do this.
-        while 1:
-            data = sock.recv(4096)
-            #print 'draining: {}...'.format(data[:40])
-            if not data: break
-
-    #the next part of the message is a 4 byte unsigned long interger that contains the length (in bytes) of the rest of the message
-    try:
-        datalenmsg=sock.recv(4)
-    except Exception as e:
-        logger.warning('exception trying to read 4 byte message length')
-        raise PauseError
-    #print 'data length msg: {}'.format(datalenmsg)
-    try:
-        datalen=struct.unpack("!L", datalenmsg)[0]
-    except Exception as e:
-        logger.warning('incorrectly formatted message: does not have 4 byte unsigned long for length. '+str(e))
-        raise PauseError
-    #print 'data length: {}'.format(datalen)
-    
-    #now get the real data
-    try:
-        rawdata=sock.recv(datalen)
-        #print 'rawdata: {}...'.format(rawdata[:40])
-        remaining=datalen-len(rawdata)
-        while remaining>0: #repeat until we've got all the data
-            #logger.info('waiting for more data: '+str(len(rawdata))+'/'+str(datalen))
-            rawdata+=sock.recv(remaining)
-            #print 'rawdata: {}'.format(rawdata[:40])
-            remaining=datalen-len(rawdata)
-    except Exception as e:
-        logger.error('error while trying to read message data:'+str(e))
-        raise PauseError
-    #check size
-    if len(rawdata)!=datalen:
-        logger.error('incorrect message size received')
-        return
-    #if we get here, we have gotten data of the right size
-    #print 'rawdata: {}...'.format(rawdata[:40])
-    return rawdata
-    #do something like this for data packets, but not here:  data=struct.unpack("!{}d".format(datalen/8),rawdata)
-
 class CsSock(socket.socket):
     def __init(self):
         super(CsSock,self).__init__(socket.AF_INET, socket.SOCK_STREAM)
+    
+    def sendmsg(self,sock,msgtxt):
+        message='MESG'+prefixLength(msgtxt)
+        #print 'send: {}'.format(message)
+        try:
+            sock.sendall(message)
+        except Exception as e:
+            logger.error('Error sending message: '+str(e))
+            raise PauseError
+            return
+    
+    def receive(self,sock):
+        #every message should start with 'MESG'
+        try:
+            header = sock.recv(4)
+            #print 'header: {}'.format(header)
+        except Exception as e:
+            logger.error('Error trying to receive message header: '+str(e))
+            raise PauseError
+        if not header:
+            #buffer is empty, no message yet
+            return
+        if header!='MESG':
+            logger.error('incorrectly formatted message does not being with "MESG".  Draining TCP input buffer')
+            #Clear the buffer so we aren't in the middle of a message
+            #TODO: There is some risk that this will result in lost messages, if
+            #a good one comes into the buffer before the bad one is cleared. We
+            #we may not want to do this.
+            while 1:
+                data = sock.recv(4096)
+                #print 'draining: {}...'.format(data[:40])
+                if not data: break
+
+        #the next part of the message is a 4 byte unsigned long interger that contains the length (in bytes) of the rest of the message
+        try:
+            datalenmsg=sock.recv(4)
+        except Exception as e:
+            logger.warning('exception trying to read 4 byte message length')
+            raise PauseError
+        #print 'data length msg: {}'.format(datalenmsg)
+        try:
+            datalen=struct.unpack("!L", datalenmsg)[0]
+        except Exception as e:
+            logger.warning('incorrectly formatted message: does not have 4 byte unsigned long for length. '+str(e))
+            raise PauseError
+        #print 'data length: {}'.format(datalen)
+        
+        #now get the real data
+        try:
+            rawdata=sock.recv(datalen)
+            #print 'rawdata: {}...'.format(rawdata[:40])
+            remaining=datalen-len(rawdata)
+            while remaining>0: #repeat until we've got all the data
+                #logger.info('waiting for more data: '+str(len(rawdata))+'/'+str(datalen))
+                rawdata+=sock.recv(remaining)
+                #print 'rawdata: {}'.format(rawdata[:40])
+                remaining=datalen-len(rawdata)
+        except Exception as e:
+            logger.error('error while trying to read message data:'+str(e))
+            raise PauseError
+        #check size
+        if len(rawdata)!=datalen:
+            logger.error('incorrect message size received')
+            return
+        #if we get here, we have gotten data of the right size
+        #print 'rawdata: {}...'.format(rawdata[:40])
+        return rawdata
+        #do something like this for data packets, but not here:  data=struct.unpack("!{}d".format(datalen/8),rawdata)
 
 class CsClientSock(CsSock):
+    
     #if provided, parent is used as a callback to set parent.connected
     def __init__(self,addressString,portNumber,parent=None):
         self.parent=parent
@@ -113,12 +115,12 @@ class CsClientSock(CsSock):
                 self.parent.connected=True
     
     def sendmsg(self,msgtxt):
-        #reference the common message format
-        sendmsg(self,msgtxt)
+        #reference the common message format, pass self as sock
+        super(CsClientSock,self).sendmsg(self,msgtxt)
     
     def receive(self):
-        #reference the common message format
-        return receive(self)
+        #reference the common message format, pass self as sock
+        return super(CsClientSock,self).receive(self)
     
     def close(self):
         if self.parent is not None:
@@ -134,11 +136,19 @@ class CsClientSock(CsSock):
         i=0
         result={}
         while i<l:
-            L=struct.unpack('!L',msg[i:i+4])[0]
+            try:
+                L=struct.unpack('!L',msg[i:i+4])[0]
+            except Exception as e:
+                logger.warning('Problem unpacking in TCP.parsemsg().\n'+str(e)+'\n'+traceback.format_exc()+'\npartial message: '+msg[i:i+4]+'\nfull message:\n'+msg)
+                raise PauseError
             i+=4
             name=msg[i:i+L]
             i+=L
-            L=struct.unpack('!L',msg[i:i+4])[0]
+            try:
+                L=struct.unpack('!L',msg[i:i+4])[0]
+            except Exception as e:
+                logger.warning('Problem unpacking in TCP.parsemsg().\n'+str(e)+'\n'+traceback.format_exc()+'\npartial message: '+msg[i:i+4]+'\nfull message:\n'+msg)
+                raise PauseError
             i+=4
             data=msg[i:i+L]
             i+=L
@@ -154,11 +164,11 @@ class CsServerSock(CsSock):
     
     def sendmsg(self,msgtxt):
         #reference the common message format
-        sendmsg(self.connection,msgtxt)
+        super(CsServerSock,self).sendmsg(self.connection,msgtxt)
     
     def receive(self):
         #reference the common message format
-        return receive(self.connection)
+        return super(CsServerSock,self).receive(self.connection)
 
     def __init__(self,portNumber):
         super(CsServerSock,self).__init__()
