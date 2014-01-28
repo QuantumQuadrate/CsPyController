@@ -652,8 +652,8 @@
 			<Item Name="PI Open Interface of one system.vi" Type="VI" URL="../PI_piezo/GCS_LabVIEW_digital/Low Level/Communication.llb/PI Open Interface of one system.vi"/>
 			<Item Name="E816_Configuration_Setup.vi" Type="VI" URL="../PI_piezo/GCS_LabVIEW_digital/E816_Configuration_Setup.vi"/>
 			<Item Name="measurement_graph.ctl" Type="VI" URL="../gui/measurement_graph.ctl"/>
-			<Item Name="XDNodeRunTimeDep.lvlib" Type="Library" URL="/&lt;vilib&gt;/Platform/TimedLoop/XDataNode/XDNodeRunTimeDep.lvlib"/>
 			<Item Name="continue.vi" Type="VI" URL="../Experiment/continue.vi"/>
+			<Item Name="XDNodeRunTimeDep.lvlib" Type="Library" URL="/&lt;vilib&gt;/Platform/TimedLoop/XDataNode/XDNodeRunTimeDep.lvlib"/>
 		</Item>
 		<Item Name="Build Specifications" Type="Build">
 			<Item Name="My Application" Type="EXE">

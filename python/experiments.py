@@ -98,8 +98,11 @@ class Experiment(Prop):
     
     #iteration Traits
     progress=Int()
+    path=Member() #full path to current experiment directory
     iteration=Int()
+    iterationPath=Str()
     measurement=Int()
+    measurementPath=Str()
     totalIterations=Int()
     
     #time Traits
@@ -317,6 +320,14 @@ class Experiment(Prop):
         self.completionTime=self.timeStarted+self.totalTime
         self.completionTimeStr=self.date2str(self.completionTime)
     
+    def applyToSelf(self,dict):
+        for key,value in dict.iteritems():
+            try:
+                setattr(self,key,value)
+            except Exception as e:
+                logger.warning('Exception applying {} with value {} in experiments.applyToSelf.\n{}'.format(key,value,e))
+                raise pauseError
+    
     def resetAndGo1(self):
         thread = threading.Thread(target=self.resetAndGo2)
         thread.daemon = True
@@ -368,23 +379,8 @@ class Experiment(Prop):
                 #only at the start of a new iteration
                 if self.measurement==0:
                     self.completedMeasurementsByIteration.append(0) #start a new counter for this iteration
-                    
-                    #write the iteration settings to the hdf5 file
-                    self.iterationResults=self.hdf5.create_group('iterations/'+str(self.iteration))
-                    self.iterationResults.attrs['start_time']=self.date2str(time.time())
-                    self.iterationResults.attrs['iteration']=self.iteration
-                    self.iterationResults.attrs['ivarNames']=self.ivarNames
-                    self.iterationResults.attrs['ivarValues']=[i.currentValue for i in self.independentVariables]
-                    self.iterationResults.attrs['ivarIndex']=self.ivarIndex
-                    self.iterationResults.attrs['variableReportStr']=self.variableReportStr
-                    v=self.iterationResults.create_group('v')
-                    ignoreList=self.variablesNotToSave.split(',')
-                    for key,value in self.vars.iteritems():
-                        if key not in ignoreList:
-                            try:
-                                v.attrs[key]=value
-                            except Exception as e:
-                                logger.warning('Could not save variable '+key+' as an hdf5 attribute with value: '+str(value)+'\n'+str(e))
+                    self.create_iteration_directory()
+                    self.create_hdf5_iteration()
                 
                 #loop until the desired number of measurements are taken
                 while (self.measurement < self.measurementsPerIteration) and (self.status=='running'):
@@ -501,16 +497,16 @@ class Experiment(Prop):
             #build the path
             dailyPath=datetime.datetime.fromtimestamp(self.timeStarted).strftime('%Y_%m_%d')
             experimentPath=datetime.datetime.fromtimestamp(self.timeStarted).strftime('%Y_%m_%d_%H_%M_%S_')+self.experimentDescriptionFilenameSuffix
-            path=os.path.join(self.localDataPath,dailyPath,experimentPath)
+            self.path=os.path.join(self.localDataPath,dailyPath,experimentPath)
             
             #check that it doesn't exist first
-            if not os.path.isdir(path):
+            if not os.path.isdir(self.path):
                 #create the directory
                 #use os.makedirs instead of os.mkdir to create the intermediate dailyPath directory if it does not exist
-                os.makedirs(path)
+                os.makedirs(self.path)
         
             #save to a real file
-            self.hdf5=h5py.File(os.path.join(path,'results.hdf5'),'a')
+            self.hdf5=h5py.File(os.path.join(self.path,'results.hdf5'),'a')
         
         else:
             #hold results only in memory
@@ -521,6 +517,42 @@ class Experiment(Prop):
         
         #store notes.  They will be stored again at the end of the experiment.
         self.hdf5.attrs['notes']=self.notes
+    
+    def create_hdf5_iteration(self):
+        #write the iteration settings to the hdf5 file
+        self.iterationResults=self.hdf5.create_group('iterations/'+str(self.iteration))
+        self.iterationResults.attrs['start_time']=self.date2str(time.time())
+        self.iterationResults.attrs['iteration']=self.iteration
+        self.iterationResults.attrs['ivarNames']=self.ivarNames
+        self.iterationResults.attrs['ivarValues']=[i.currentValue for i in self.independentVariables]
+        self.iterationResults.attrs['ivarIndex']=self.ivarIndex
+        self.iterationResults.attrs['variableReportStr']=self.variableReportStr
+        v=self.iterationResults.create_group('v')
+        ignoreList=self.variablesNotToSave.split(',')
+        for key,value in self.vars.iteritems():
+            if key not in ignoreList:
+                try:
+                    v.attrs[key]=value
+                except Exception as e:
+                    logger.warning('Could not save variable '+key+' as an hdf5 attribute with value: '+str(value)+'\n'+str(e))
+    
+    def create_iteration_directory(self):
+        if self.saveData and self.save2013styleFiles:
+            #check that it doesn't exist first
+            self.iterationPath=os.path.join(self.path,'iteration'+str(self.iteration))
+            if not os.path.isdir(iterationPath):
+                #create the directory
+                #use os.makedirs instead of os.mkdir to create the intermediate directory if it does not exist
+                os.makedirs(self.iterationPath)
+    
+    def create_measurement_directory(self):
+        if self.saveData and self.save2013styleFiles:
+            #check that it doesn't exist first
+            self.measurementPath=os.path.join(self.iterationPath,'measurement'+str(self.measurement))
+            if not os.path.isdir(measurementPath):
+                #create the directory
+                #use os.makedirs instead of os.mkdir to create the intermediate directory if it does not exist
+                os.makedirs(self.measurementPath)
     
     def postMeasurement(self):
         #run analysis

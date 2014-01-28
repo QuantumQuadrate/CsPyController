@@ -26,8 +26,7 @@ TODO:
     clean out unnecessary files in LabView section
     use http://olgabot.github.io/prettyplotlib/ ?
     change LabView demo data to be a more flexible "echo" from python, would be useful for running analysis tests
-    
-    
+    add useless 2013 style files
 
 Done:
     return error and log from LabView initialization
