@@ -13,13 +13,6 @@
 		<Property Name="server.vi.callsEnabled" Type="Bool">true</Property>
 		<Property Name="server.vi.propertiesEnabled" Type="Bool">true</Property>
 		<Property Name="specify.custom.address" Type="Bool">false</Property>
-		<Item Name="AQT" Type="Folder">
-			<Item Name="AQT_MEMS_switch_marty_version.vi" Type="VI" URL="../AQT_MEMS_switch/AQT_MEMS_switch_marty_version.vi"/>
-			<Item Name="AQT_initialize.vi" Type="VI" URL="../AQT_MEMS_switch/AQT_initialize.vi"/>
-			<Item Name="AQT_set_connection.vi" Type="VI" URL="../AQT_MEMS_switch/AQT_set_connection.vi"/>
-			<Item Name="AQT_get_board_info.vi" Type="VI" URL="../AQT_MEMS_switch/AQT_get_board_info.vi"/>
-		</Item>
-		<Item Name="PI_piezo" Type="Folder"/>
 		<Item Name="Andor" Type="Folder">
 			<Item Name="Andor_settings.ctl" Type="VI" URL="../Camera/Andor/Andor_settings.ctl"/>
 			<Item Name="move_andor_files.vi" Type="VI" URL="../Camera/Andor/move_andor_files.vi"/>
@@ -128,7 +121,6 @@
 				<Item Name="niHSDIO Write Named Waveform.vi" Type="VI" URL="/&lt;instrlib&gt;/niHSDIO/niHSDIO.llb/niHSDIO Write Named Waveform.vi"/>
 			</Item>
 			<Item Name="vi.lib" Type="Folder">
-				<Item Name="Check if File or Folder Exists.vi" Type="VI" URL="/&lt;vilib&gt;/Utility/libraryn.llb/Check if File or Folder Exists.vi"/>
 				<Item Name="Clear Errors.vi" Type="VI" URL="/&lt;vilib&gt;/Utility/error.llb/Clear Errors.vi"/>
 				<Item Name="DAQmx Clear Task.vi" Type="VI" URL="/&lt;vilib&gt;/DAQmx/configure/task.llb/DAQmx Clear Task.vi"/>
 				<Item Name="DAQmx Create Channel (AI-Voltage-Basic).vi" Type="VI" URL="/&lt;vilib&gt;/DAQmx/create/channels.llb/DAQmx Create Channel (AI-Voltage-Basic).vi"/>
@@ -286,8 +278,6 @@
 				<Item Name="TCP Listen Internal List.vi" Type="VI" URL="/&lt;vilib&gt;/Utility/tcp.llb/TCP Listen Internal List.vi"/>
 				<Item Name="Internecine Avoider.vi" Type="VI" URL="/&lt;vilib&gt;/Utility/tcp.llb/Internecine Avoider.vi"/>
 				<Item Name="Write Spreadsheet String.vi" Type="VI" URL="/&lt;vilib&gt;/Utility/file.llb/Write Spreadsheet String.vi"/>
-				<Item Name="NI_PackedLibraryUtility.lvlib" Type="Library" URL="/&lt;vilib&gt;/Utility/LVLibp/NI_PackedLibraryUtility.lvlib"/>
-				<Item Name="NI_FileType.lvlib" Type="Library" URL="/&lt;vilib&gt;/Utility/lvfile.llb/NI_FileType.lvlib"/>
 				<Item Name="ex_CorrectErrorChain.vi" Type="VI" URL="/&lt;vilib&gt;/express/express shared/ex_CorrectErrorChain.vi"/>
 				<Item Name="DAQmx Read (Analog 1D Wfm NChan NSamp).vi" Type="VI" URL="/&lt;vilib&gt;/DAQmx/read.llb/DAQmx Read (Analog 1D Wfm NChan NSamp).vi"/>
 				<Item Name="DAQmx Read (Analog 1D DBL 1Chan NSamp).vi" Type="VI" URL="/&lt;vilib&gt;/DAQmx/read.llb/DAQmx Read (Analog 1D DBL 1Chan NSamp).vi"/>
@@ -475,19 +465,6 @@
 				<Item Name="VISA Configure Serial Port (Serial Instr).vi" Type="VI" URL="/&lt;vilib&gt;/Instr/_visa.llb/VISA Configure Serial Port (Serial Instr).vi"/>
 				<Item Name="VISA Configure Serial Port" Type="VI" URL="/&lt;vilib&gt;/Instr/_visa.llb/VISA Configure Serial Port"/>
 			</Item>
-			<Item Name="user.lib" Type="Folder">
-				<Item Name="Construct.vi" Type="VI" URL="/&lt;userlib&gt;/okFrontPanel/VIs/Construct.vi"/>
-				<Item Name="Enable Asynchronous Transfers.vi" Type="VI" URL="/&lt;userlib&gt;/okFrontPanel/VIs/Enable Asynchronous Transfers.vi"/>
-				<Item Name="Open By Serial.vi" Type="VI" URL="/&lt;userlib&gt;/okFrontPanel/VIs/Open By Serial.vi"/>
-				<Item Name="Load Default PLL Configuration.vi" Type="VI" URL="/&lt;userlib&gt;/okFrontPanel/VIs/Load Default PLL Configuration.vi"/>
-				<Item Name="Configure FPGA.vi" Type="VI" URL="/&lt;userlib&gt;/okFrontPanel/VIs/Configure FPGA.vi"/>
-				<Item Name="Set Wire In Value.vi" Type="VI" URL="/&lt;userlib&gt;/okFrontPanel/VIs/Set Wire In Value.vi"/>
-				<Item Name="Update Wire Ins.vi" Type="VI" URL="/&lt;userlib&gt;/okFrontPanel/VIs/Update Wire Ins.vi"/>
-				<Item Name="Activate Trigger In.vi" Type="VI" URL="/&lt;userlib&gt;/okFrontPanel/VIs/Activate Trigger In.vi"/>
-				<Item Name="Destruct.vi" Type="VI" URL="/&lt;userlib&gt;/okFrontPanel/VIs/Destruct.vi"/>
-				<Item Name="Get Device ID.vi" Type="VI" URL="/&lt;userlib&gt;/okFrontPanel/VIs/Get Device ID.vi"/>
-				<Item Name="Get Board Model.vi" Type="VI" URL="/&lt;userlib&gt;/okFrontPanel/VIs/Get Board Model.vi"/>
-			</Item>
 			<Item Name="AD9910 Register Info.vi" Type="VI" URL="../../DDS drivers v3/AD9910 Register Info.vi"/>
 			<Item Name="AD9910 registers.ctl" Type="VI" URL="../../DDS drivers v3/AD9910 registers.ctl"/>
 			<Item Name="array_sort_and_remove_redundancy.vi" Type="VI" URL="../array_sort_and_remove_redundancy.vi"/>
@@ -654,6 +631,9 @@
 			<Item Name="measurement_graph.ctl" Type="VI" URL="../gui/measurement_graph.ctl"/>
 			<Item Name="continue.vi" Type="VI" URL="../Experiment/continue.vi"/>
 			<Item Name="XDNodeRunTimeDep.lvlib" Type="Library" URL="/&lt;vilib&gt;/Platform/TimedLoop/XDataNode/XDNodeRunTimeDep.lvlib"/>
+			<Item Name="current_variables_table.ctl" Type="VI" URL="../ExperimentVariables/current_variables_table.ctl"/>
+			<Item Name="Variable_Status.ctl" Type="VI" URL="../ExperimentVariables/Variable_Status.ctl"/>
+			<Item Name="Variable_Settings.ctl" Type="VI" URL="../ExperimentVariables/Variable_Settings.ctl"/>
 		</Item>
 		<Item Name="Build Specifications" Type="Build">
 			<Item Name="cs_server" Type="EXE">
@@ -671,7 +651,7 @@
 				<Property Name="Bld_localDestDirType" Type="Str">relativeToCommon</Property>
 				<Property Name="Bld_modifyLibraryFile" Type="Bool">true</Property>
 				<Property Name="Bld_previewCacheID" Type="Str">{574B9F9D-241F-4A68-8892-A5E401941744}</Property>
-				<Property Name="Bld_version.build" Type="Int">2</Property>
+				<Property Name="Bld_version.build" Type="Int">3</Property>
 				<Property Name="Bld_version.major" Type="Int">1</Property>
 				<Property Name="Destination[0].destName" Type="Str">cs_server.exe</Property>
 				<Property Name="Destination[0].path" Type="Path">../cs_server.exe</Property>
