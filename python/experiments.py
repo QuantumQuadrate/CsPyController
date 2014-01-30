@@ -353,9 +353,14 @@ class Experiment(Prop):
         
         self.status='paused before experiment'
         
-        self.go()
-
-    def go(self):
+        self.go2()
+    
+    def go1(self):
+        thread = threading.Thread(target=self.go2)
+        thread.daemon = True
+        thread.start()
+        
+    def go2(self):
         '''Pick up the experiment wherever it was left off.'''
         
         #check if we are ready to do an experiment

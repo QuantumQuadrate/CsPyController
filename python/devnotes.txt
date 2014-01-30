@@ -27,6 +27,14 @@ TODO:
     use http://olgabot.github.io/prettyplotlib/ ?
     change LabView demo data to be a more flexible "echo" from python, would be useful for running analysis tests
     add useless 2013 style files
+        -- average of all images -- as analysis
+        -- Camera Data Iteration (roi sums) as analysis
+        -- data order log from experiment ivars
+        -- appended each iteration
+        -- processed data just holds ivar names - save at beginning
+        -- "all signal" file?
+    filters
+    optimizer
 
 Done:
     return error and log from LabView initialization

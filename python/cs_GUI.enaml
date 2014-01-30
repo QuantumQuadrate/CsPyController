@@ -116,8 +116,7 @@ enamldef CsMenuBar(MenuBar): menuBar:
             triggered::experiment.resetAndGo1()
         Action:
             text = 'Continue\tCtrl+G'
-            #triggered::threading.Thread(target=experiment.go).start()
-            triggered::experiment.go()
+            triggered::experiment.go1()
         Action:
             text = 'Halt\tCtrl+H'
             #triggered::threading.Thread(target=experiment.halt).start()

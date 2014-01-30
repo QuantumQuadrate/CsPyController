@@ -20,11 +20,7 @@
 			<Item Name="Andor_load_xml.vi" Type="VI" URL="../config_file_io/Andor_load_xml.vi"/>
 		</Item>
 		<Item Name="config" Type="Folder">
-			<Item Name="filters_to_xml.vi" Type="VI" URL="../filters/filters_to_xml.vi"/>
-			<Item Name="filters_load_xml.vi" Type="VI" URL="../filters/filters_load_xml.vi"/>
 			<Item Name="string_to_boolean.vi" Type="VI" URL="../config_file_io/string_to_boolean.vi"/>
-			<Item Name="notes_to_xml.vi" Type="VI" URL="../config_file_io/notes_to_xml.vi"/>
-			<Item Name="notes_load_xml.vi" Type="VI" URL="../config_file_io/notes_load_xml.vi"/>
 		</Item>
 		<Item Name="Arroyo" Type="Folder">
 			<Item Name="TempScan.vi" Type="VI" URL="../Arroyo/TempScan.vi"/>
@@ -187,7 +183,6 @@
 				<Item Name="subTimeDelay.vi" Type="VI" URL="/&lt;vilib&gt;/express/express execution control/TimeDelayBlock.llb/subTimeDelay.vi"/>
 				<Item Name="NI-845x SPI Script Ms Delay.vi" Type="VI" URL="/&lt;vilib&gt;/ni845x/ni845x.llb/NI-845x SPI Script Ms Delay.vi"/>
 				<Item Name="NI-845x SPI Script Us Delay.vi" Type="VI" URL="/&lt;vilib&gt;/ni845x/ni845x.llb/NI-845x SPI Script Us Delay.vi"/>
-				<Item Name="subFile Dialog.vi" Type="VI" URL="/&lt;vilib&gt;/express/express input/FileDialogBlock.llb/subFile Dialog.vi"/>
 				<Item Name="NI_XML.lvlib" Type="Library" URL="/&lt;vilib&gt;/xml/NI_XML.lvlib"/>
 				<Item Name="Dynamic To Waveform Array.vi" Type="VI" URL="/&lt;vilib&gt;/express/express shared/transition.llb/Dynamic To Waveform Array.vi"/>
 				<Item Name="Trim Whitespace.vi" Type="VI" URL="/&lt;vilib&gt;/Utility/error.llb/Trim Whitespace.vi"/>
@@ -512,16 +507,13 @@
 			<Item Name="counter_graph_refnums.ctl" Type="VI" URL="../Counter/counter_graph_refnums.ctl"/>
 			<Item Name="lvanlys.dll" Type="Document" URL="/&lt;resource&gt;/lvanlys.dll"/>
 			<Item Name="gap_table_to_uncompressed_waveform.vi" Type="VI" URL="../gap_table_to_uncompressed_waveform.vi"/>
-			<Item Name="filters.ctl" Type="VI" URL="../filters/filters.ctl"/>
 			<Item Name="DDS_Settings_Cluster.ctl" Type="VI" URL="../DDS/DDS_Settings_Cluster.ctl"/>
 			<Item Name="Array_of_DDS_Boxes.ctl" Type="VI" URL="../../DDS drivers v3/Array_of_DDS_Boxes.ctl"/>
 			<Item Name="DDS_box_cluster.ctl" Type="VI" URL="../../DDS drivers v3/DDS_box_cluster.ctl"/>
 			<Item Name="DDS_box_device_reference.ctl" Type="VI" URL="../../DDS drivers v3/DDS_box_device_reference.ctl"/>
-			<Item Name="all_settings.ctl" Type="VI" URL="../config_file_io/all_settings.ctl"/>
 			<Item Name="DOMUserDefRef.dll" Type="Document" URL="DOMUserDefRef.dll">
 				<Property Name="NI.PreserveRelativePath" Type="Bool">true</Property>
 			</Item>
-			<Item Name="which_settings_to_load.vi" Type="VI" URL="../config_file_io/which_settings_to_load.vi"/>
 			<Item Name="GCSTranslateError.vi" Type="VI" URL="../PI_piezo/GCS_LabVIEW_digital/Low Level/Support.llb/GCSTranslateError.vi"/>
 			<Item Name="ERR?.vi" Type="VI" URL="../PI_piezo/GCS_LabVIEW_digital/Low Level/General command.llb/ERR?.vi"/>
 			<Item Name="SVA.vi" Type="VI" URL="../PI_piezo/GCS_LabVIEW_digital/Low Level/PZT voltage.llb/SVA.vi"/>
@@ -628,12 +620,11 @@
 			<Item Name="Initialize Global1.vi" Type="VI" URL="../PI_piezo/GCS_LabVIEW_digital/Low Level/Communication.llb/Initialize Global1.vi"/>
 			<Item Name="PI Open Interface of one system.vi" Type="VI" URL="../PI_piezo/GCS_LabVIEW_digital/Low Level/Communication.llb/PI Open Interface of one system.vi"/>
 			<Item Name="E816_Configuration_Setup.vi" Type="VI" URL="../PI_piezo/GCS_LabVIEW_digital/E816_Configuration_Setup.vi"/>
-			<Item Name="measurement_graph.ctl" Type="VI" URL="../gui/measurement_graph.ctl"/>
 			<Item Name="continue.vi" Type="VI" URL="../Experiment/continue.vi"/>
-			<Item Name="XDNodeRunTimeDep.lvlib" Type="Library" URL="/&lt;vilib&gt;/Platform/TimedLoop/XDataNode/XDNodeRunTimeDep.lvlib"/>
 			<Item Name="current_variables_table.ctl" Type="VI" URL="../ExperimentVariables/current_variables_table.ctl"/>
 			<Item Name="Variable_Status.ctl" Type="VI" URL="../ExperimentVariables/Variable_Status.ctl"/>
 			<Item Name="Variable_Settings.ctl" Type="VI" URL="../ExperimentVariables/Variable_Settings.ctl"/>
+			<Item Name="XDNodeRunTimeDep.lvlib" Type="Library" URL="/&lt;vilib&gt;/Platform/TimedLoop/XDataNode/XDNodeRunTimeDep.lvlib"/>
 		</Item>
 		<Item Name="Build Specifications" Type="Build">
 			<Item Name="cs_server" Type="EXE">
@@ -651,7 +642,7 @@
 				<Property Name="Bld_localDestDirType" Type="Str">relativeToCommon</Property>
 				<Property Name="Bld_modifyLibraryFile" Type="Bool">true</Property>
 				<Property Name="Bld_previewCacheID" Type="Str">{574B9F9D-241F-4A68-8892-A5E401941744}</Property>
-				<Property Name="Bld_version.build" Type="Int">3</Property>
+				<Property Name="Bld_version.build" Type="Int">5</Property>
 				<Property Name="Bld_version.major" Type="Int">1</Property>
 				<Property Name="Destination[0].destName" Type="Str">cs_server.exe</Property>
 				<Property Name="Destination[0].path" Type="Path">../cs_server.exe</Property>
