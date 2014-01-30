@@ -12,21 +12,35 @@ class Analysis(Prop):
     '''This is the parent class for all data analyses.  New analyses should subclass off this,
     and redefine at least one of postMeasurement(), postIteration() or postExperiment().'''
     
-    updateAfterMeasurement=Bool()
-    dropMeasurementIfSlow=Bool()
-    updateAfterIteration=Bool()
-    dropIterationIfSlow=Bool()
-    updateAfterExperiment=Bool()
+    updateBeforeExperiment=Bool() #Set to True to enable pre-measurement analysis.  Default is False.
+    updateAfterMeasurement=Bool() #Set to True to enable post-measurement analysis.  Default is False.
+    dropMeasurementIfSlow=Bool() #Set to True to skip measurements when slow.  Data can still be used post-iteration and post-experiment. Default is False.
+    updateAfterIteration=Bool() #Set to True to enable post-iteration analysis.  Default is False.
+    dropIterationIfSlow=Bool() #Set to True to skip iterations when slow.  Data can still be used in post-experiment.  Default is False.
+    updateAfterExperiment=Bool() #Set to True to enable post-experiment analysis.  Default is False.
+    
+    #internal variables, user should not modify
     measurementProcessing=Bool()
     iterationProcessing=Bool()
-    experimentProcessing=Bool()
     measurementQueue=[]
     iterationQueue=[]
+    
+    #Text output that can be updated back to the GUI
     text=Str()
     
     def __init__(self,name,experiment,description=''): #subclassing from Prop provides save/load mechanisms
         super(Analysis,self).__init__(name,experiment,description)
         self.properties+=['updateAfterMeasurement,dropMeasurementIfSlow,updateAfterIteration,dropIterationIfSlow,updateAfterExperiment,text']
+    
+    def preExperiment(self,experimentResults):
+        if self.updateBeforeExperiment:
+            self.setupExperiment(experimentResults)
+    
+    def setupExperiment(self,experimentResults):
+        '''This is called before an experiment.
+        The parameter experimentResults is a reference to the HDF5 file for this experiment.
+        Subclass this to update the analysis appropriately.'''
+        pass
     
     def postMeasurement(self,measurementResults,iterationResults,experimentResults):
         '''results is a tuple of (measurementResult,iterationResult,experimentResult) references to HDF5 nodes for this measurement'''
@@ -71,11 +85,11 @@ class Analysis(Prop):
     
     def postExperiment(self,experimentResults):
         if self.updateAfterExperiment:
-            postExperiment(experimentResults)
+            self.analyzeExperiment(experimentResults)
     
     def analyzeExperiment(self,experimentResults):
         '''This is called at the end of the experiment.
-        The parameter results is a tuple of (measurementResult,iterationResult,experimentResult) references to HDF5 nodes for this measurement.
+        The parameter experimentResults is a reference to the HDF5 file for the experiment.
         Subclass this to update the analysis appropriately.'''
         pass
 

@@ -10,7 +10,6 @@ modified>=2013-10-08
 '''
 
 import TCP, HSDIO, piezo, DDS, RF_generators, AnalogOutput, DAQmxPulse, Camera
-import png, itertools #for PyPNG support
 from atom.api import Bool, Int, Str, Member, Typed
 from instrument_property import FloatProp
 from cs_instruments import Instrument
@@ -184,13 +183,3 @@ class LabView(Instrument):
     
     def loadDDS(self):
         raise NotImplementedError
-    
-    def savePNG(self,array,filename):
-        #L indicates monochrome, ;16 indicates 16-bit
-        png.from_array(array,'L;16',info={'bitdepth':16}).save(filename)
-    
-    def readPNG(self,filename):
-        a=png.Reader(filename=filename)
-        b=a.read()
-        c=numpy.vstack(itertools.imap(numpy.uint16,b[2]))
-        return c

@@ -1,3 +1,9 @@
+'''experiments.py
+This file contains the model to describe and experiment, and the machinery of how an iteration based experiment is run.
+
+author=Martin Lichtman
+'''
+
 import threading, time, datetime, logging, traceback, xml.etree.ElementTree, pickle, os, numpy, h5py
 logger = logging.getLogger(__name__)
 
@@ -14,6 +20,7 @@ from instrument_property import Prop, EvalProp, ListProp
 from cs_errors import PauseError
 import LabView
 from analysis import ImagePlotAnalysis
+from save2013style import Save2013Analysis
 
 class independentVariables(ListProp):
     def fromXML(self,xmlNode):
@@ -77,7 +84,7 @@ class independentVariable(EvalProp):
 
 class Experiment(Prop):
 
-    version='2013.10.19'
+    version='2014.01.30'
 
     #experiment control Traits
     status=Str('idle')
@@ -100,9 +107,7 @@ class Experiment(Prop):
     progress=Int()
     path=Member() #full path to current experiment directory
     iteration=Int()
-    iterationPath=Str()
     measurement=Int()
-    measurementPath=Str()
     totalIterations=Int()
     
     #time Traits
@@ -228,55 +233,6 @@ class Experiment(Prop):
         for i in self.instruments:
             i.evaluate() #each instrument will calculate its properties
     
-    def measure(self):
-        '''Enables all instruments to begin a measurement.  Sent at the beginning of every measurement.
-        Actual output or input from the measurement may yet wait for a signal from another device.'''
-        
-        start_time = time.time() #record start time of measurement
-        self.timeOutExpired=False
-        
-        #for all instruments
-        for i in self.instruments:
-            #check that the instruments are initalized
-            if not i.isInitialized:
-                print 'experiment.measure() initializing '+i.name
-                i.initialize() #reinitialize
-                i.update() #put the settings to where they should be at this iteration
-            else:
-                #check that the instrument is not already occupied
-                if not i.isDone:
-                    logger.warning('Instrument '+i.name+' is already busy.')
-                else:
-                    #set a flag to indicate each instrument is now busy
-                    i.isDone=False
-                    #let each instrument begin measurement
-                    #put each in a different thread, so they can proceed simultaneously
-                    #TODO: enable threading?
-                    #threading.Thread(target=i.start).start()
-                    i.start()
-        
-        #loop until all instruments are done
-        #TODO: can we do this with a callback?
-        while not all([i.isDone for i in self.instruments]):
-            if time.time() - start_time > self.measurementTimeout: #break if timeout exceeded
-                self.timeOutExpired=True
-                logger.warning('The following instruments timed out: '+str([i.name for i in self.instruments if not i.isDone]))
-                return #exit without saving results
-            time.sleep(.01) #wait a bit, then check again
-        
-        #set up the results container
-        self.measurementResults=self.hdf5.create_group('iterations/'+str(self.iteration)+'/measurements/'+str(self.measurement))
-        self.measurementResults['start_time']=start_time
-        self.measurementResults['measurement']=self.measurement
-        self.measurementResults.create_group('data') #for storing data
-        for i in self.instruments:
-            #pass the hdf5 group to each instrument so they can write results to it
-            #we do it here because h5py is not thread safe, and also this way we avoid saving results for aborted measurements
-            i.writeResults(self.measurementResults['data'])
-        
-        self.postMeasurement()
-        self.completedMeasurementsByIteration[-1]+=1 #add one to the last counter in the list
-    
     def stop(self):
         '''Stops output as soon as possible.  This is not run during the course of a normal experiment.'''
         [i.__setattr__('isDone',True) for i in self.instruments]
@@ -321,6 +277,8 @@ class Experiment(Prop):
         self.completionTimeStr=self.date2str(self.completionTime)
     
     def applyToSelf(self,dict):
+        '''Used to apply a bunch of variables at once.  This function is called using an Enaml deferred_call so that the updates are done in the GUI thread.'''
+        
         for key,value in dict.iteritems():
             try:
                 setattr(self,key,value)
@@ -335,10 +293,15 @@ class Experiment(Prop):
     
     def resetAndGo2(self):
         '''Reset the iteration variables and timing, then proceed with an experiment.'''
+        self.reset()
+        self.go2()
+    
+    def reset(self):
+        '''Reset the iteration variables and timing.'''
         
         #check if we are ready to do an experiment
         if (self.status!='idle'):
-            logger.info('Current status is {}. Cannot reset experiment unless status is idle.'.format(self.status))
+            logger.info('Current status is {}. Cannot reset experiment unless status is idle.  Try halting first.'.format(self.status))
             return #exit
         
         #reset experiment variables
@@ -350,11 +313,13 @@ class Experiment(Prop):
         
         #setup data directory and files
         self.create_data_files()
+        #run analyses setupExperiment
+        self.preExperiment()
         
         self.status='paused before experiment'
         
         self.go2()
-    
+
     def go1(self):
         thread = threading.Thread(target=self.go2)
         thread.daemon = True
@@ -421,6 +386,55 @@ class Experiment(Prop):
             logger.error('Exception during experiment:\n'+str(e)+'\n'+str(traceback.format_exc())+'\n')
             if self.pauseAfterError:
                 self.status='paused after error'
+    
+    def measure(self):
+        '''Enables all instruments to begin a measurement.  Sent at the beginning of every measurement.
+        Actual output or input from the measurement may yet wait for a signal from another device.'''
+        
+        start_time = time.time() #record start time of measurement
+        self.timeOutExpired=False
+        
+        #for all instruments
+        for i in self.instruments:
+            #check that the instruments are initalized
+            if not i.isInitialized:
+                print 'experiment.measure() initializing '+i.name
+                i.initialize() #reinitialize
+                i.update() #put the settings to where they should be at this iteration
+            else:
+                #check that the instrument is not already occupied
+                if not i.isDone:
+                    logger.warning('Instrument '+i.name+' is already busy.')
+                else:
+                    #set a flag to indicate each instrument is now busy
+                    i.isDone=False
+                    #let each instrument begin measurement
+                    #put each in a different thread, so they can proceed simultaneously
+                    #TODO: enable threading?
+                    #threading.Thread(target=i.start).start()
+                    i.start()
+        
+        #loop until all instruments are done
+        #TODO: can we do this with a callback?
+        while not all([i.isDone for i in self.instruments]):
+            if time.time() - start_time > self.measurementTimeout: #break if timeout exceeded
+                self.timeOutExpired=True
+                logger.warning('The following instruments timed out: '+str([i.name for i in self.instruments if not i.isDone]))
+                return #exit without saving results
+            time.sleep(.01) #wait a bit, then check again
+        
+        #set up the results container
+        self.measurementResults=self.hdf5.create_group('iterations/'+str(self.iteration)+'/measurements/'+str(self.measurement))
+        self.measurementResults['start_time']=start_time
+        self.measurementResults['measurement']=self.measurement
+        self.measurementResults.create_group('data') #for storing data
+        for i in self.instruments:
+            #pass the hdf5 group to each instrument so they can write results to it
+            #we do it here because h5py is not thread safe, and also this way we avoid saving results for aborted measurements
+            i.writeResults(self.measurementResults['data'])
+        
+        self.postMeasurement()
+        self.completedMeasurementsByIteration[-1]+=1 #add one to the last counter in the list
     
     def halt(self):
         self.status='idle'
@@ -517,6 +531,11 @@ class Experiment(Prop):
             #hold results only in memory
             self.hdf5=h5py.File('results.hdf5','a',driver='core',backing_store=False)
         
+        #store independent variable data for experiment
+        self.hdf5.attrs['ivarNames']=self.ivarNames
+        self.hdf5.attrs['start_time']=self.date2str(time.time())
+        self.hdf5.attrs['ivarSteps']=[i.steps for in in self.independentVariables]
+        
         #create a group to hold iterations in the hdf5 file
         self.hdf5.create_group('iterations')
         
@@ -541,23 +560,10 @@ class Experiment(Prop):
                 except Exception as e:
                     logger.warning('Could not save variable '+key+' as an hdf5 attribute with value: '+str(value)+'\n'+str(e))
     
-    def create_iteration_directory(self):
-        if self.saveData and self.save2013styleFiles:
-            #check that it doesn't exist first
-            self.iterationPath=os.path.join(self.path,'iteration'+str(self.iteration))
-            if not os.path.isdir(iterationPath):
-                #create the directory
-                #use os.makedirs instead of os.mkdir to create the intermediate directory if it does not exist
-                os.makedirs(self.iterationPath)
-    
-    def create_measurement_directory(self):
-        if self.saveData and self.save2013styleFiles:
-            #check that it doesn't exist first
-            self.measurementPath=os.path.join(self.iterationPath,'measurement'+str(self.measurement))
-            if not os.path.isdir(measurementPath):
-                #create the directory
-                #use os.makedirs instead of os.mkdir to create the intermediate directory if it does not exist
-                os.makedirs(self.measurementPath)
+    def preExperiment(self):
+        #run analysis
+        for i in self.analyses:
+            i.preExperiment(self.hdf5)
     
     def postMeasurement(self):
         #run analysis
@@ -584,10 +590,9 @@ class AQuA(Experiment):
         
         #add instruments
         self.LabView=LabView.LabView(experiment=self)
-        self.properties+=['LabView']
         self.instruments=[self.LabView]
-        
-        self.analyses+=[ImagePlotAnalysis('analysisShot0',self.experiment,description='just show the incoming shot 0')]
+        self.analyses+=[ImagePlotAnalysis('analysisShot0',self.experiment,description='just show the incoming shot 0'),Save2013Analysis(self.experiment)]
+        self.properties+=['LabView']
         
         self.loadDefaultSettings()
         
@@ -596,3 +601,4 @@ class AQuA(Experiment):
             self.evaluateAll()
         except PauseError:
             logger.warning('PauseError')
+            

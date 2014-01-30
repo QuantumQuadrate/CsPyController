@@ -27,40 +27,41 @@ TODO:
     use http://olgabot.github.io/prettyplotlib/ ?
     change LabView demo data to be a more flexible "echo" from python, would be useful for running analysis tests
     add useless 2013 style files
-        .\images\average_of_all_images_in_experiment.png
-            average of images.  Do this in an analysis
-        autosave_settings.xml
-            This is the settings file.  We could save this as normal, but should also add all settings to HDF5 as a prelude to HDF5 settings storage.
-        Camera Data Iteration0 (signal).txt
-            First row:Camera Data	01/29/2014	03:23 PM	Shots per Measurement:	2	Regions per Measurement:	49
-            New row for each measurement.  49 columns contain roi sums.  Tab separated.  No leading or trailing tabs.
-        Counter 0 Data Iteration0.txt
-            First row:Counter Data	01/29/2014	03:23 PM
-            2 new rows for each measurement.
-                Measurement #0\tTotal: %d\n
-                tab delimited list of counter values (for each counter clock bin)
-        error_log.txt
-            saved error log
-        Data Order Log.txt
-            one line with ivar indices
-            (a,b,l0): 	0,0,0	0,0,1	0,0,2	0,0,3	0,0,4	0,0,5	0,0,6	0,0,7	0,0,8	0,0,9	0,0,10
-        Processed Data.txt
-            processed data just holds ivar names - save at beginning (or end in analysis?)
-            Row 1: tab separated ivar names
-            Row 2 onwards: supposed to be 2D array of variable values, but was never actually functional.  don't include
-        All Signal.txt
-            Lists number of steps for each ivar.  "Formulas" was never operational.
-            a Iterations:	1	b Iterations:	1	l0 Iterations:	11	Formulas:	0
+        pre-experiment:
+            autosave_settings.xml
+                This is the settings file.  We could save this as normal, but should also add all settings to HDF5 as a prelude to HDF5 settings storage.
+            All Signal.txt
+                Lists number of steps for each ivar.  "Formulas" was never operational.
+                a Iterations:	1	b Iterations:	1	l0 Iterations:	11	Formulas:	0
+        postMeasurement:
+            Camera Data Iteration0 (signal).txt
+                First row:Camera Data	01/29/2014	03:23 PM	Shots per Measurement:	2	Regions per Measurement:	49
+                New row for each measurement.  49 columns contain roi sums.  Tab separated.  No leading or trailing tabs.
+            Counter 0 Data Iteration0.txt
+                First row:Counter Data	01/29/2014	03:23 PM
+                2 new rows for each measurement.
+                    Measurement #0\tTotal: %d\n
+                    tab delimited list of counter values (for each counter clock bin)
+        PostIteration:
+            Data Order Log.txt
+                one line with ivar indices
+                (a,b,l0): 	0,0,0	0,0,1	0,0,2	0,0,3	0,0,4	0,0,5	0,0,6	0,0,7	0,0,8	0,0,9	0,0,10
         variables.txt
             Description	Name (a,a0...a9)	min	max	# steps
             raman frequency 	a	9172.618868	9172.618868	1
             microwave frequency	b	9192.632496	9192.632496	1
             459 Raman Pulse	l0	0.000000	0.030000	11
+        postExperiment:
+            .\images\average_of_all_images_in_experiment.png
+                average of images.
+            error_log.txt
+                saved error log
 
     filters
     optimizer
 
 Done:
+    2013 style files: Processed Data.txt
     return error and log from LabView initialization
     Make hexagon not read-only so I can push git to there
     Add instruments to backend and detail to front panel
