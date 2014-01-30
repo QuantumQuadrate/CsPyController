@@ -119,7 +119,6 @@ enamldef CsMenuBar(MenuBar): menuBar:
             triggered::experiment.go1()
         Action:
             text = 'Halt\tCtrl+H'
-            #triggered::threading.Thread(target=experiment.halt).start()
             triggered::experiment.halt()
 
 enamldef EvalProp(GroupBox):
