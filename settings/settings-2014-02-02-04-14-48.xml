@@ -60,7 +60,7 @@ p0
 .</measurement>
 <totalIterations>I9
 .</totalIterations>
-<timeStartedStr>S'2014-02-02 04:27:11'
+<timeStartedStr>S'2014-02-02 04:05:29'
 p0
 .</timeStartedStr>
 <currentTimeStr>S'2014-01-25 20:07:46'
@@ -125,7 +125,7 @@ p0
 <script><description>S'HSDIO script that says what waveforms to generate'
 p0
 .</description>
-<function>S"'script script1\\n  generate testWaveform\\n  repeat 2\\n    generate cameraTrigger\\n  end repeat\\nend script'"
+<function>S"'script script1\\n  generate testWaveform\\n  generate cameraTrigger\\nend script'"
 p0
 .</function>
 </script>
@@ -2070,7 +2070,7 @@ p0
 <time><description>S'when this transition happens'
 p0
 .</description>
-<function>S'.1'
+<function>S'.001'
 p0
 .</function>
 </time>
@@ -2306,7 +2306,7 @@ p0
 <time><description>S'when this transition happens'
 p0
 .</description>
-<function>S'.15'
+<function>S'.05'
 p0
 .</function>
 </time>

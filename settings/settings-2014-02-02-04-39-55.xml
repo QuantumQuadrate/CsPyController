@@ -60,7 +60,7 @@ p0
 .</measurement>
 <totalIterations>I9
 .</totalIterations>
-<timeStartedStr>S'2014-02-02 04:27:11'
+<timeStartedStr>S'2014-02-02 04:31:42'
 p0
 .</timeStartedStr>
 <currentTimeStr>S'2014-01-25 20:07:46'
@@ -10647,56 +10647,56 @@ p0
 <scanSpeed><description>S'CCD readout scan speed'
 p0
 .</description>
-<function>S'"High"'
+<function>S'"SSP H"'
 p0
 .</function>
 </scanSpeed>
 <lowLightSensitivity><description>S'low light sensitivity'
 p0
 .</description>
-<function>S'"Off"'
+<function>S'"LLS 0"'
 p0
 .</function>
 </lowLightSensitivity>
 <externalTriggerMode><description>S'external trigger mode'
 p0
 .</description>
-<function>S'"Level"'
+<function>S'"EMD L"'
 p0
 .</function>
 </externalTriggerMode>
 <triggerPolarity><description>S'trigger polarity'
 p0
 .</description>
-<function>S'"Positive"'
+<function>S'"ATP P"'
 p0
 .</function>
 </triggerPolarity>
 <externalTriggerSource><description>S'external trigger source'
 p0
 .</description>
-<function>S'"BNC on Power Supply"'
+<function>S'"ESC B"'
 p0
 .</function>
 </externalTriggerSource>
 <cooling><description>S'TEC cooling'
 p0
 .</description>
-<function>S'"Off"'
+<function>S'"CSW F"'
 p0
 .</function>
 </cooling>
 <fan><description>S'fan'
 p0
 .</description>
-<function>S'"Off"'
+<function>S'"FAN F"'
 p0
 .</function>
 </fan>
 <scanMode><description>S'scan mode'
 p0
 .</description>
-<function>S'"Normal"'
+<function>S'"SMD N"'
 p0
 .</function>
 </scanMode>
@@ -10738,7 +10738,7 @@ p0
 <superPixelBinning><description>S'super pixel binning'
 p0
 .</description>
-<function>S'"1x1"'
+<function>S'"SPX 1"'
 p0
 .</function>
 </superPixelBinning>
