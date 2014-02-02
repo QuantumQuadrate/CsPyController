@@ -9,6 +9,8 @@ from matplotlib.figure import Figure
 import logging
 logger = logging.getLogger(__name__)
 
+defaultState=0
+
 class Channel(Prop):
     active=Typed(BoolProp)
     
@@ -17,7 +19,7 @@ class Channel(Prop):
         self.active=BoolProp('active',experiment,'','True')
         self.properties+=['active']
 
-class Channels(ListProp):    
+class Channels(ListProp):
     digitalout=Member()
     
     def __init__(self,experiment,digitalout,description='A list of DAQmxPulse channels'):
@@ -43,14 +45,14 @@ class State(ListProp):
     
     def __init__(self,experiment,digitalout):
         super(State,self).__init__('state',experiment,
-            listProperty=[IntProp('channel'+str(i),experiment,'','5') for i in range(digitalout.numChannels)],
+            listProperty=[IntProp('channel'+str(i),experiment,'',str(defaultState)) for i in range(digitalout.numChannels)],
             listElementType=IntProp)
         self.digitalout=digitalout
     
     def fromXML(self,xmlNode):
         while self.listProperty: #go until the list is empty
             self.listProperty.pop()
-        self.listProperty+=[IntProp(str(i),self.experiment,'','5').fromXML(child) for i, child in enumerate(xmlNode)]
+        self.listProperty+=[IntProp(str(i),self.experiment,'',str(defaultState)).fromXML(child) for i, child in enumerate(xmlNode)]
         return self
 
 class Transition(Prop):
@@ -120,7 +122,7 @@ class Waveform(Prop):
         self.sequence.append(newTransition)
         self.updateFigure()
         return newTransition
-        
+    
     def format(self):
         '''Create timeList, a 1D array of transition times, and stateList a 2D array of output values.'''
         if len(self.sequence)==0:
@@ -130,24 +132,52 @@ class Waveform(Prop):
             self.duration=numpy.zeros(0,dtype=int)
         else:
             self.isEmpty=False
+            
+            #create arrays
             timeList=numpy.array([i.time.value for i in self.sequence])
             stateList=numpy.array([[channel.value for channel in transition.state] for transition in self.sequence],dtype='uint8') #channel here refers to an IntProp, not to a Channel
+
+            #convert to integral samples
+            timeList=numpy.array(timeList*self.digitalout.clockRate.value,dtype=int)
+
             #put the transition list in order
             order=timeList.argsort()
-            #convert to samples
-            self.timeList=numpy.array(timeList[order]*self.digitalout.clockRate.value,dtype=int) #convert to samples
-            self.stateList=stateList[order]
+            timeList=timeList[order]
+            stateList=stateList[order]
             
-            #if the waveform doesn't start with time 0, add it, and add 5's to the beginning of statelist
+            #if the waveform doesn't start with time 0, add it, and add defaultStates's to the beginning of statelist
             #LabView will modify the waveform in unpredictable ways if it doesn't start with time 0
-            if self.timeList[0]!=0:
-                self.timeList=numpy.insert(self.timeList,0,0,axis=0)
-                self.stateList=numpy.insert(self.stateList,0,5,axis=0)
+            if timeList[0]!=0:
+                print 'inserting timelist 0'
+                timeList=numpy.insert(timeList,0,0,axis=0)
+                stateList=numpy.insert(stateList,0,defaultState,axis=0)
+            
+            #remove redundant times
+            i=1
+            while i<len(timeList):
+                if timeList[i-1]==timeList[i]:
+                    timeList=numpy.delete(timeList,i-1,0)
+                    stateList=numpy.delete(stateList,i-1,0)
+                i+=1
+            
+            #resolve 5's
+            #set 5's in the first transition to 0
+            for i in range(self.digitalout.numChannels):
+                if stateList[0,i]==5:
+                    stateList[0,i]=0
+            #set other 5's to the prior state
+            for i in range(1,len(timeList)):
+                for j in range(self.digitalout.numChannels):
+                    if stateList[i,j]==5:
+                        stateList[i,j]=stateList[i-1,j]
+            
+            self.timeList=timeList
+            self.stateList=stateList
             
             # find the duration of each segment
-            self.duration=self.timeList[1:]-self.timeList[:-1]
+            self.duration=timeList[1:]-timeList[:-1]
             self.duration=numpy.append(self.duration,1) #add in a 1 sample duration at end for last transition
-
+    
     def colorMap(val):
         '''The color map for plotting digitalout sequence bar charts.  Red indicates an invalid value.'''
         if val==5:
@@ -234,5 +264,5 @@ class Waveform(Prop):
             return ('<waveform>'+
                 '<name>'+self.name+'</name>'+
                 '<transitions>'+' '.join([str(time) for time in self.timeList])+'</transitions>'+
-                '<states>\n'+'\n'.join([' '.join([str(sample) for sample in state]) for state in self.stateList])+'\n</states>\n'+
+                '<states>'+'\n'.join([' '.join([str(sample) for sample in state]) for state in self.stateList])+'</states>\n'+
                 '</waveform>\n')

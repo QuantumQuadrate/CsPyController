@@ -74,14 +74,11 @@ class CsSock(socket.socket):
         #print 'data length: {}'.format(datalen)
         
         #now get the real data
+        remaining=datalen
+        rawdata=''
         try:
-            rawdata=sock.recv(datalen)
-            #print 'rawdata: {}...'.format(rawdata[:40])
-            remaining=datalen-len(rawdata)
             while remaining>0: #repeat until we've got all the data
-                #logger.info('waiting for more data: '+str(len(rawdata))+'/'+str(datalen))
                 rawdata+=sock.recv(remaining)
-                #print 'rawdata: {}'.format(rawdata[:40])
                 remaining=datalen-len(rawdata)
         except Exception as e:
             logger.error('error while trying to read message data:'+str(e))

@@ -61,7 +61,7 @@ TODO:
     optimizer
 
 Done:
-    2013 style files: Processed Data.txt
+    2013 style files: Processed Data.txt, All Signal.txt, average_of_all_images_in_experiment.png, Data Order Log.txt
     return error and log from LabView initialization
     Make hexagon not read-only so I can push git to there
     Add instruments to backend and detail to front panel

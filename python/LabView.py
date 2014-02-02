@@ -18,6 +18,14 @@ import logging
 from cs_errors import PauseError
 logger = logging.getLogger(__name__)
 
+def toBool(x):
+    if (x=='False') or (x=='false'):
+        return False
+    elif (x=='True') or (x=='true'):
+        return True
+    else:
+        return bool(x)
+
 class LabView(Instrument):
     enabled=Bool()
     port=Int()
@@ -105,7 +113,7 @@ class LabView(Instrument):
                         for key,value in self.results.iteritems():
                             #print 'key: {} value: {}'.format(key,str(value)[:40])
                             if key=='error':
-                                self.error=bool(value)
+                                self.error=toBool(value)
                             elif key=='log':
                                 self.log+=value
                 else:
@@ -129,7 +137,9 @@ class LabView(Instrument):
                         except IOError:
                             print 'Waiting for data'
                         if rawdata is not None:
+                            #print 'data received: {}'.format(rawdata[:40])
                             self.results=self.sock.parsemsg(rawdata)
+                            #print 'len(self.results)={}'.format(len(self.results))
                             break
                 else:
                     logger.warning('LabView instrument claims to be initialized, but is not connected in LabView.start()')
@@ -157,25 +167,55 @@ class LabView(Instrument):
                 try: #if ('Hamamatsu/rows' in hdf5) and ('Hamamtsu/columns' in hdf5):
                     array.resize((int(hdf5['Hamamatsu/rows'].value),int(hdf5['Hamamatsu/columns'].value)))
                 except Exception as e:
-                    print 'no resize:'+str(e)
+                    print 'unable to resize image, check for Hamamatsu row/column data:'+str(e)
+                    raise PauseError
                 if self.experiment.saveData and self.experiment.save2013styleFiles:
                     if hasattr(self,camera) and self.camera.savePNG:
-                            self.savePNG(array,os.path.join(self.experiment.measurementPath,'shot'+key.split('/')[-1]+'.png'))
-                hdf5[key]=array
+                            try:
+                                self.savePNG(array,os.path.join(self.experiment.measurementPath,'shot'+key.split('/')[-1]+'.png'))
+                            except Exception as e:
+                                logger.warning('problem saving PNG in LabView.writeResults()\n'+str(e))
+                                raise PauseError
+                try:
+                    hdf5[key]=array
+                except KeyError as e:
+                    logger.warning('in LabView.writeResults() doing hdf5[key]=array for key='+key+'\n'+str(e))
+                    raise PauseError
             elif key=='error':
-                self.error=bool(value)
-                hdf5[key]=self.error
+                self.error=toBool(value)
+                try:
+                    hdf5[key]=self.error
+                except KeyError as e:
+                    logger.warning('in LabView.writeResults() doing hdf5[key]=self.error for key='+key+'\n'+str(e))
+                    raise PauseError
+
             elif key=='log':
                 self.log+=value
-                hdf5[key]=value
+                try:
+                    hdf5[key]=value
+                except KeyError as e:
+                    logger.warning('in LabView.writeResults() doing hdf5[key]=value for key='+key+'\n'+str(e))
+                    raise PauseError
+
             else:
                 # no special protocol
-                hdf5[key]=value
-        if ('error' in hdf5) and (hdf5['error'].value):
-            if ('log' in hdf5):
-                logger.warning('LabView error.  Log:\n'+hdf5['log'].value)
-            else:
-                logger.warning('LabView error.  No log available.')
+                try:
+                    hdf5[key]=value
+                except KeyError as e:
+                    logger.warning('in LabView.writeResults() doing hdf5[key]=value for key='+key+'\n'+str(e))
+                    raise PauseError
+        
+        try:
+            if ('error' in hdf5) and (hdf5['error'].value):
+                if ('log' in hdf5):
+                    logger.warning('LabView error.  Log:\n'+hdf5['log'].value)
+                else:
+                    logger.warning('LabView error.  No log available.')
+                raise PauseError
+        except PauseError:
+            raise PauseError
+        except Exception as e:
+            logger.warning("while getting hdf5['error']\n"+str(e))
             raise PauseError
     
     def initializeDDS(self):

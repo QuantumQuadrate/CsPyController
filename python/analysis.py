@@ -73,9 +73,9 @@ class Analysis(Prop):
                 self.iterationQueue.append((iterationResults,experimentResults))
     
     def iterationProcessLoop(self):
-        while len(iterationQueue)>0:
-            analyzeIteration(*iterationQueue.pop(0)) #process the oldest element
-        iterationProcessing=False
+        while len(self.iterationQueue)>0:
+            self.analyzeIteration(*self.iterationQueue.pop(0)) #process the oldest element
+        self.iterationProcessing=False
     
     def analyzeIteration(self,iterationResults,experimentResults):
         '''This is called after each iteration.
@@ -130,14 +130,19 @@ class ImagePlotAnalysis(AnalysisWithFigure):
         try:
             self.text='iteration {} measurement {}\n{}'.format(iterationResults.attrs['iteration'],measurementResults.name.split('/')[-1],iterationResults.attrs['variableReportStr'])
         except KeyError as e:
-            logger.warning('HDF5 data does not exist'+str(e))
-            return
-        try:
-            self.data=measurementResults['data/Hamamatsu/shots/0']
-        except KeyError as e:
-            logger.warning('HDF5 data does not exist'+str(e))
-            return
-        self.updateFigure()
+            logger.warning('HDF5 text does not exist in analysis.ImagePlotAnalysis.analyzeMeasurement()\n'+str(e))
+            raise PauseError
+        if ('data/Hamamatsu/shots/0' in measurementResults):
+            try:
+                self.data=measurementResults['data/Hamamatsu/shots/0']
+            except KeyError as e:
+                logger.warning('HDF5 data/Hamamatsu/shots/0 does not exist in analysis.ImagePlotAnalysis.analyzeMeasurement()\n'+str(e))
+                raise PauseError
+            self.updateFigure() #only update figure if image was loaded
+        else:
+            
+            self.text+='\n\nno image data'
+        
     
     def updateFigure(self):
         fig=self.backFigure
@@ -149,6 +154,7 @@ class ImagePlotAnalysis(AnalysisWithFigure):
         super(ImagePlotAnalysis,self).updateFigure()
 
 class XYPlotAnalysis(AnalysisWithFigure):
+    #needs updating
     X=Member()
     Y=Member()
     
@@ -161,6 +167,7 @@ class XYPlotAnalysis(AnalysisWithFigure):
         super(ImagePlotAnalysis,self).updateFigure()
 
 class SampleXYAnalysis(XYPlotAnalysis):
+    #needs updating
     updateAfterMeasurement=Bool(True)
 
     '''This analysis plots the sum of the whole camera image every measurement.'''

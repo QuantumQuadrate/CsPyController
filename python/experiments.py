@@ -319,12 +319,12 @@ class Experiment(Prop):
         self.status='paused before experiment'
         
         self.go2()
-
+    
     def go1(self):
         thread = threading.Thread(target=self.go2)
         thread.daemon = True
         thread.start()
-        
+    
     def go2(self):
         '''Pick up the experiment wherever it was left off.'''
         
@@ -349,7 +349,6 @@ class Experiment(Prop):
                 #only at the start of a new iteration
                 if self.measurement==0:
                     self.completedMeasurementsByIteration.append(0) #start a new counter for this iteration
-                    self.create_iteration_directory()
                     self.create_hdf5_iteration()
                 
                 #loop until the desired number of measurements are taken
@@ -498,7 +497,7 @@ class Experiment(Prop):
         f.close()
     
     def create_data_files(self):
-        '''CreateCreate a new HDF5 file to store results.  This is done at the beginning of
+        '''Create a new HDF5 file to store results.  This is done at the beginning of
         every experiment.'''
         
         #if a prior HDF5 file is open, then close it
@@ -534,7 +533,7 @@ class Experiment(Prop):
         #store independent variable data for experiment
         self.hdf5.attrs['ivarNames']=self.ivarNames
         self.hdf5.attrs['start_time']=self.date2str(time.time())
-        self.hdf5.attrs['ivarSteps']=[i.steps for in in self.independentVariables]
+        self.hdf5.attrs['ivarSteps']=[i.steps for i in self.independentVariables]
         
         #create a group to hold iterations in the hdf5 file
         self.hdf5.create_group('iterations')
