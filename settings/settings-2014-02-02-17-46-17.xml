@@ -43,7 +43,7 @@ p0
 <experimentDescriptionFilenameSuffix>S'test'
 p0
 .</experimentDescriptionFilenameSuffix>
-<measurementTimeout>F10.0
+<measurementTimeout>F2.0
 .</measurementTimeout>
 <measurementsPerIteration>I3
 .</measurementsPerIteration>
@@ -52,30 +52,30 @@ p0
 <emailAddresses>S'mlichtman@wisc.edu'
 p0
 .</emailAddresses>
-<progress>I3
+<progress>I7
 .</progress>
 <iteration>I0
 .</iteration>
-<measurement>I1
+<measurement>I2
 .</measurement>
 <totalIterations>I9
 .</totalIterations>
-<timeStartedStr>S'2014-02-02 22:09:41'
+<timeStartedStr>S'2014-02-02 17:45:00'
 p0
 .</timeStartedStr>
-<currentTimeStr>S'2014-02-02 22:09:49'
+<currentTimeStr>S'2014-02-02 17:45:03'
 p0
 .</currentTimeStr>
-<timeElapsedStr>S'0:00:07.631000'
+<timeElapsedStr>S'0:00:03.624000'
 p0
 .</timeElapsedStr>
-<totalTimeStr>S'0:00:11.038155'
+<totalTimeStr>S'0:00:17.420910'
 p0
 .</totalTimeStr>
-<timeRemainingStr>S'0:00:03.407155'
+<timeRemainingStr>S'0:00:13.796910'
 p0
 .</timeRemainingStr>
-<completionTimeStr>S'2014-02-02 22:09:52'
+<completionTimeStr>S'2014-02-02 17:45:17'
 p0
 .</completionTimeStr>
 <variableReportFormat>S'"a is %(a)s.\\nThe speed of light is %(c0)d\\nbut some call it %(c0)e"'
@@ -105,7 +105,7 @@ p0
 <timeout><description>S'how long before LabView gives up and returns [s]'
 p0
 .</description>
-<function>S'10'
+<function>S'2'
 p0
 .</function>
 </timeout>
