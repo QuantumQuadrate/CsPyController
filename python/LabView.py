@@ -160,6 +160,7 @@ class LabView(Instrument):
                 #specific protocol for images: turn them into 2D numpy arrays
                 
                 #unpack the image in 2 byte chunks
+                print "len(value)={}".format(len(value))
                 array=numpy.array(struct.unpack('!'+str(int(len(value)/2))+'H',value))
                 
                 #the dictionary is unpacked alphabetically, so if width and height were
@@ -178,14 +179,14 @@ class LabView(Instrument):
                                 raise PauseError
                 try:
                     hdf5[key]=array
-                except KeyError as e:
+                except Exception as e:
                     logger.warning('in LabView.writeResults() doing hdf5[key]=array for key='+key+'\n'+str(e))
                     raise PauseError
             elif key=='error':
                 self.error=toBool(value)
                 try:
                     hdf5[key]=self.error
-                except KeyError as e:
+                except Exception as e:
                     logger.warning('in LabView.writeResults() doing hdf5[key]=self.error for key='+key+'\n'+str(e))
                     raise PauseError
 
@@ -193,7 +194,7 @@ class LabView(Instrument):
                 self.log+=value
                 try:
                     hdf5[key]=value
-                except KeyError as e:
+                except Exception as e:
                     logger.warning('in LabView.writeResults() doing hdf5[key]=value for key='+key+'\n'+str(e))
                     raise PauseError
 
@@ -201,7 +202,7 @@ class LabView(Instrument):
                 # no special protocol
                 try:
                     hdf5[key]=value
-                except KeyError as e:
+                except Exception as e:
                     logger.warning('in LabView.writeResults() doing hdf5[key]=value for key='+key+'\n'+str(e))
                     raise PauseError
         

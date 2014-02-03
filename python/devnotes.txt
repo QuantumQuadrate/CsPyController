@@ -59,6 +59,9 @@ TODO:
 
     filters
     optimizer
+    autosave XML on experiment run
+    just one big timeout for whole thing, plus a LabView setup timeout
+    python menu Halt should send kill signal to LabView
 
 Done:
     2013 style files: Processed Data.txt, All Signal.txt, average_of_all_images_in_experiment.png, Data Order Log.txt
