@@ -25,7 +25,7 @@ TODO:
     implement settimeout instead of setblocking for TCP communication with timeout equal to experiment timeout or shorter
     clean out unnecessary files in LabView section
     use http://olgabot.github.io/prettyplotlib/ ?
-    change LabView demo data to be a more flexible "echo" from python, would be useful for running analysis tests
+    change LabView demo data to be a more flexible "echo" from python, would be useful for running analysis tests, implement in python test server as well
     add useless 2013 style files
         pre-experiment:
             autosave_settings.xml
@@ -57,11 +57,12 @@ TODO:
             error_log.txt
                 saved error log
 
-    filters
+    filters-implement as return values from analyses
     optimizer
     autosave XML on experiment run
     just one big timeout for whole thing, plus a LabView setup timeout
     python menu Halt should send kill signal to LabView
+    
 
 Done:
     2013 style files: Processed Data.txt, All Signal.txt, average_of_all_images_in_experiment.png, Data Order Log.txt
