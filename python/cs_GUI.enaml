@@ -1177,8 +1177,15 @@ enamldef Analysis(Container):
         hug_width='ignore'
         figure<<analysis.figure
 
-enamldef ResultsPage(Page):
-    title = 'Results'
+enamldef Shot0ResultsPage(Page):
+    title = 'Shot 0 Results'
+    attr analysis
+    
+    Analysis:
+        analysis<<parent.analysis
+
+enamldef ShotsBrowserPage(Page):
+    title = 'Shots Browser'
     attr analysis
     
     Analysis:
@@ -1238,5 +1245,7 @@ enamldef Main(MainWindow): main:
                         AO=main.experiment.LabView.AnalogOutput
                     PI_PiezoPage:
                         piezo=main.experiment.LabView.piezo
-                    ResultsPage:
+                    Shot0ResultsPage:
                         analysis=main.experiment.analyses[0]
+                    #ShotsBrowserPage:
+                    #    analysis=main.experimnt.analysis[1]
