@@ -352,7 +352,7 @@ class Experiment(Prop):
                     self.create_hdf5_iteration()
                 
                 #loop until the desired number of measurements are taken
-                while (self.measurement < self.measurementsPerIteration) and (self.status=='running'):
+                while (self.goodMeasurements < self.measurementsPerIteration) and (self.status=='running'):
                     print 'iteration {} measurement {}'.format(self.iteration,self.measurement)
                     self.measure()     #tell all instruments to do the experiment sequence and acquire data
                     self.updateTime()  #update the countdown/countup clocks
@@ -363,7 +363,7 @@ class Experiment(Prop):
                     #make sure results are written to disk
                     self.hdf5.flush()
                 
-                if self.measurement>=self.measurementsPerIteration:
+                if self.goodMeasurements>=self.measurementsPerIteration:
                     # We have completed this iteration, move on to the next one
                     self.postIteration() #run analysis
                     self.iteration+=1
@@ -566,8 +566,27 @@ class Experiment(Prop):
     
     def postMeasurement(self):
         #run analysis
+        delete=False
         for i in self.analyses:
-            i.postMeasurement(self.measurementResults,self.iterationResults,self.hdf5)
+            a=i.postMeasurement(self.measurementResults,self.iterationResults,self.hdf5)
+            if (a is None) or (a==0):
+                self.goodMeasurements+=1
+                continue
+            elif a==1:
+                #continue, but do not increment goodMeasurements
+                continue
+            elif a==2:
+                #continue, but do not increment goodMeasurements, delete data when done
+                delete=True
+                continue
+            elif a==3:
+                #stop, but do not increment goodMeasurements, delete data when done
+                delete=True
+                break
+            else:
+                logger.warning('bad return value {} in experiment.postMeasurement() for analysis {}: {}'.format(a,i.name,i.description))
+        if delete:
+            del self.measurementResults #remove the bad data
     
     def postIteration(self):
         #run analysis
@@ -590,7 +609,7 @@ class AQuA(Experiment):
         #add instruments
         self.LabView=LabView.LabView(experiment=self)
         self.instruments=[self.LabView]
-        self.analyses+=[ImagePlotAnalysis('analysisShot0',self.experiment,description='just show the incoming shot 0'),Save2013Analysis(self.experiment)]
+        self.analyses+=[ImagePlotAnalysis('analysisShot0',self.experiment,description='just show the incoming shot 0'),Save2013Analysis(self.experiment),ShotsBrowserAnalysis(self.experiment)]
         self.properties+=['LabView']
         
         self.loadDefaultSettings()

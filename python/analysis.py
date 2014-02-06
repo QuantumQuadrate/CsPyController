@@ -10,7 +10,13 @@ logger = logging.getLogger(__name__)
 
 class Analysis(Prop):
     '''This is the parent class for all data analyses.  New analyses should subclass off this,
-    and redefine at least one of postMeasurement(), postIteration() or postExperiment().'''
+    and redefine at least one of setupExperiment(), postMeasurement(), postIteration() or postExperiment(),
+    and enable those methods with either updateBeforeExperiment, updateAfterMeasurement, updateAfterIteration or updateAfterExperiment.
+    An analysis can return a success code after each of these methods, which can be used to filter results.  The highest returned code dominates others:
+        0 or None: good measurement, increment measurement total
+        1: soft fail, continue with other analyses, but do not increment measurement total
+        2: med fail, continue with other analyses, do not increment measurement total, and delete measurement data after all analyses
+        3: hard fail, do not continue with other analyses, do not increment measurement total, delete measurement data'''
     
     updateBeforeExperiment=Bool() #Set to True to enable pre-measurement analysis.  Default is False.
     updateAfterMeasurement=Bool() #Set to True to enable post-measurement analysis.  Default is False.
@@ -40,7 +46,7 @@ class Analysis(Prop):
         '''This is called before an experiment.
         The parameter experimentResults is a reference to the HDF5 file for this experiment.
         Subclass this to update the analysis appropriately.'''
-        pass
+        return 0
     
     def postMeasurement(self,measurementResults,iterationResults,experimentResults):
         '''results is a tuple of (measurementResult,iterationResult,experimentResult) references to HDF5 nodes for this measurement'''
@@ -61,7 +67,7 @@ class Analysis(Prop):
         '''This is called after each measurement.
         The parameter results is a tuple of (measurementResult,iterationResult,experimentResult) references to HDF5 nodes for this measurement.
         Subclass this to update the analysis appropriately.'''
-        pass
+        return 0
     
     def postIteration(self,iterationResults,experimentResults):
         if self.updateAfterIteration:
@@ -81,7 +87,7 @@ class Analysis(Prop):
         '''This is called after each iteration.
         The parameter results is a tuple of (iterationResult,experimentResult) references to HDF5 nodes for this measurement.
         Subclass this to update the analysis appropriately.'''
-        pass
+        return 0
     
     def postExperiment(self,experimentResults):
         if self.updateAfterExperiment:
@@ -91,7 +97,7 @@ class Analysis(Prop):
         '''This is called at the end of the experiment.
         The parameter experimentResults is a reference to the HDF5 file for the experiment.
         Subclass this to update the analysis appropriately.'''
-        pass
+        return 0
 
 class AnalysisWithFigure(Analysis):
     
@@ -176,3 +182,53 @@ class SampleXYAnalysis(XYPlotAnalysis):
         self.X=numpy.arange(len(self.Y))
         self.updateFigure()
 
+class ShotsBrowserAnalysis(Analysis):
+    updateBeforeExperiment=Bool()
+    
+    #matplotlib figures
+    figure=Typed(Figure)
+    backFigure=Typed(Figure)
+    figure1=Typed(Figure)
+    figure2=Typed(Figure)
+    
+    def __init__(self,experiment):
+        self.experiment=experiment
+    
+    def setupExperiment(self,experimentResults):
+        pass
+
+    def load(self,ivarIndices):
+        self.ivar_indices=numpy.zeros(len(experiment.independentVariables))
+        
+        #make a list of candidate pictures
+        candidates=[]
+        if 'iterations' in f:
+            for i in experimentResults['iterations'].itervalues():
+                if 'measurements' in i:
+                    for m in i['measurements'].itervalues():
+                        if 'data/Hamamatsu/shots' in m:
+                            for s in m['data/Hamamatsu/shots'].itervalues():
+                                sumlist.append(s.value)
+        sumarray=array(sumlist)
+        average_of_images=mean(sumarray,axis=0)
+        self.savePNG(average_of_images,os.path.join('images','average_of_all_images_in_experiment.png'))
+
+        super(AnalysisWithFigure,self).__init__(name,experiment,description)
+        
+        #set up the matplotlib figures
+        self.figure1=Figure()
+        self.figure2=Figure()
+        self.backFigure=self.figure2
+        self.figure=self.figure1
+    
+    def swapFigures(self):
+        temp=self.backFigure
+        self.backFigure=self.figure
+        self.figure=temp
+    
+    def updateFigure(self):
+        #signal the GUI to redraw figure
+        try:
+            deferred_call(self.swapFigures)
+        except RuntimeError: #application not started yet
+            self.swapFigures()
