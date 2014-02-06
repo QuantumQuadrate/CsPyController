@@ -46,7 +46,7 @@ class Analysis(Prop):
         '''This is called before an experiment.
         The parameter experimentResults is a reference to the HDF5 file for this experiment.
         Subclass this to update the analysis appropriately.'''
-        return 0
+        raise NotImplementedError
     
     def postMeasurement(self,measurementResults,iterationResults,experimentResults):
         '''results is a tuple of (measurementResult,iterationResult,experimentResult) references to HDF5 nodes for this measurement'''
@@ -67,7 +67,7 @@ class Analysis(Prop):
         '''This is called after each measurement.
         The parameter results is a tuple of (measurementResult,iterationResult,experimentResult) references to HDF5 nodes for this measurement.
         Subclass this to update the analysis appropriately.'''
-        return 0
+        raise NotImplementedError
     
     def postIteration(self,iterationResults,experimentResults):
         if self.updateAfterIteration:
@@ -87,7 +87,7 @@ class Analysis(Prop):
         '''This is called after each iteration.
         The parameter results is a tuple of (iterationResult,experimentResult) references to HDF5 nodes for this measurement.
         Subclass this to update the analysis appropriately.'''
-        return 0
+        raise NotImplementedError
     
     def postExperiment(self,experimentResults):
         if self.updateAfterExperiment:
@@ -97,7 +97,7 @@ class Analysis(Prop):
         '''This is called at the end of the experiment.
         The parameter experimentResults is a reference to the HDF5 file for the experiment.
         Subclass this to update the analysis appropriately.'''
-        return 0
+        raise NotImplementedError
 
 class AnalysisWithFigure(Analysis):
     
