@@ -1193,17 +1193,22 @@ enamldef ShotsBrowserPage(Page):
     Container:
         hug_height='ignore'
         hug_width='ignore'
-        Looper: looper
-            iterable << experiment.independentVariables
-            Container:
-                constraints=[hbox(l1,c1)]
-                Label: l1:
-                    text<<loop_item.name
-                ComboBox: c1:
-                    items<<[str(i) for i in loop_item.valueList]
-                    index::
-                        indexList=[i.c1.index for i in looper.items]
-                        analysis.load(loop_index,index) #send which ivar (loop_index) to update to index
+        Container:
+            hug_height='ignore'
+            hug_width='ignore'
+            Looper: looper:
+                iterable << experiment.independentVariables
+                Container:
+                    attr ind
+                    constraints=[hbox(l1,c1)]
+                    Label: l1:
+                        text<<loop_item.name
+                    ComboBox: c1:
+                        items<<[str(i) for i in loop_item.valueListList]
+                        ind<<index
+                        index::
+                            indexList=[i.ind for i in looper.items]
+                            analysis.load(indexList) #send which ivar (loop_index) to update to index
         MPLCanvas:
             constraints=[(height==700)|'strong']
             hug_width='ignore'
@@ -1257,8 +1262,8 @@ enamldef Main(MainWindow): main:
                         camera=main.experiment.LabView.camera
                     #CounterPage:
                     #    pass
-                    FiltersPage:
-                        pass
+                    #FiltersPage:
+                    #    pass
                     AnalogOutputPage:
                         AO=main.experiment.LabView.AnalogOutput
                     PI_PiezoPage:
@@ -1267,4 +1272,4 @@ enamldef Main(MainWindow): main:
                         analysis=main.experiment.analyses[0]
                     ShotsBrowserPage:
                         experiment=main.experiment
-                        analysis=main.experimnt.analysis[2]
+                        analysis=main.experiment.analyses[2]

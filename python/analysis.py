@@ -212,7 +212,7 @@ class ShotsBrowserAnalysis(Analysis):
         sumarray=array(sumlist)
         average_of_images=mean(sumarray,axis=0)
         self.savePNG(average_of_images,os.path.join('images','average_of_all_images_in_experiment.png'))
-
+        
         super(AnalysisWithFigure,self).__init__(name,experiment,description)
         
         #set up the matplotlib figures

@@ -11,7 +11,7 @@ logger = logging.getLogger(__name__)
 numpy.set_printoptions(formatter=dict(float=lambda t: "%.2e" % t))
 
 # Use Atom traits to automate Enaml updating
-from atom.api import Bool, Int, Float, Str, Typed, Member
+from atom.api import Bool, Int, Float, Str, Typed, Member, List
 from enaml.application import deferred_call
 
 # Bring in other files in this package
@@ -19,7 +19,7 @@ import cs_evaluate
 from instrument_property import Prop, EvalProp, ListProp
 from cs_errors import PauseError
 import LabView
-from analysis import ImagePlotAnalysis
+from analysis import ImagePlotAnalysis, ShotsBrowserAnalysis
 from save2013style import Save2013Analysis
 
 class independentVariables(ListProp):
@@ -42,6 +42,7 @@ class independentVariable(EvalProp):
     index=Int()
     currentValueStr=Str()
     valueList=Member()
+    valueListList=List()
     currentValue=Member()
     
     def __init__(self,name,experiment,description='',function='',kwargs={}):
@@ -66,6 +67,7 @@ class independentVariable(EvalProp):
         if a==None:
             a=numpy.array([]).flatten()
         self.valueList=a
+        self.valueListList=list(a)
         self.steps=len(a)
         self.valueListStr=str(self.valueList)
     
