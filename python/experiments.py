@@ -42,7 +42,6 @@ class independentVariable(EvalProp):
     index=Int()
     currentValueStr=Str()
     valueList=Member()
-    valueListList=List()
     currentValue=Member()
     
     def __init__(self,name,experiment,description='',function='',kwargs={}):
@@ -67,7 +66,6 @@ class independentVariable(EvalProp):
         if a==None:
             a=numpy.array([]).flatten()
         self.valueList=a
-        self.valueListList=list(a)
         self.steps=len(a)
         self.valueListStr=str(self.valueList)
     
@@ -110,6 +108,7 @@ class Experiment(Prop):
     path=Member() #full path to current experiment directory
     iteration=Int()
     measurement=Int()
+    goodMeasurements=Int()
     totalIterations=Int()
     
     #time Traits
@@ -149,6 +148,7 @@ class Experiment(Prop):
     hdf5=Member()
     measurementResults=Member()
     iterationResults=Member()
+    
      
     '''Defines a set of instruments, and a sequence of what to do with them.'''
     def __init__(self):
@@ -311,6 +311,7 @@ class Experiment(Prop):
         self.timeStartedStr=self.date2str(self.timeStarted)
         self.iteration=0
         self.measurement=0
+        self.goodMeasurements=0
         self.completedMeasurementsByIteration=[]
         
         #setup data directory and files
@@ -370,6 +371,7 @@ class Experiment(Prop):
                     self.postIteration() #run analysis
                     self.iteration+=1
                     self.measurement=0
+                    self.goodMeasurements=0
                     if (self.status=='running' or self.status=='paused after measurement') and self.pauseAfterIteration:
                         self.status='paused after iteration'            
                 if self.iteration>=self.totalIterations:
@@ -533,9 +535,10 @@ class Experiment(Prop):
             self.hdf5=h5py.File('results.hdf5','a',driver='core',backing_store=False)
         
         #store independent variable data for experiment
-        self.hdf5.attrs['ivarNames']=self.ivarNames
         self.hdf5.attrs['start_time']=self.date2str(time.time())
-        self.hdf5.attrs['ivarSteps']=[i.steps for i in self.independentVariables]
+        self.hdf5.attrs['ivarNames']=self.ivarNames
+        self.hdf5.attrs['ivarValueLists']=self.ivarValueLists
+        self.hdf5.attrs['ivarSteps']=self.ivarSteps
         
         #create a group to hold iterations in the hdf5 file
         self.hdf5.create_group('iterations')

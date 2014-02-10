@@ -19,7 +19,7 @@ from enaml.widgets.api import (MainWindow, MenuBar, Menu, Action,
 from enaml.core.declarative import d_
 from enaml.core.include import Include
 from enaml.stdlib.fields import FloatField, IntField
-from enaml.core.api import Looper
+from enaml.core.api import Looper, Conditional
 #from enaml.core.trait_types import EnamlEvent
 from enable_canvas import EnableCanvas
 #from traitsui.api import View #requires "set ETS_TOOLKIT=qt4" on windows command line
@@ -1189,26 +1189,34 @@ enamldef ShotsBrowserPage(Page):
     attr analysis
     attr experiment
     attr indexList=List()
+    attr ind
     
     Container:
         hug_height='ignore'
         hug_width='ignore'
-        Container:
-            hug_height='ignore'
-            hug_width='ignore'
+        Form:
+            hug_height='strong'
+            hug_width='strong'
+#            Conditional:
+#                condition<<(len(analysis.ivarNames)>0)
             Looper: looper:
-                iterable << experiment.independentVariables
-                Container:
-                    attr ind
-                    constraints=[hbox(l1,c1)]
-                    Label: l1:
-                        text<<loop_item.name
-                    ComboBox: c1:
-                        items<<[str(i) for i in loop_item.valueListList]
-                        ind<<index
-                        index::
-                            indexList=[i.ind for i in looper.items]
-                            analysis.load(indexList) #send which ivar (loop_index) to update to index
+                iterable << analysis.ivarNames
+                Label:
+                    text=loop_item
+                ComboBox:
+                    items=[str(i) for i in analysis.ivarValueLists[loop_index]]
+                    index::
+                        analysis.setIteration(loop_index, index) #send which ivar (loop_index) to update to index
+            Label:
+                text='Measurement'
+            SpinBox:
+                minimum=0
+                value:=analysis.measurement
+            Label:
+                text='Shot'
+            SpinBox:
+                minimum=0
+                value:=analysis.shot
         MPLCanvas:
             constraints=[(height==700)|'strong']
             hug_width='ignore'
@@ -1261,8 +1269,6 @@ enamldef Main(MainWindow): main:
                     CameraPage:
                         camera=main.experiment.LabView.camera
                     #CounterPage:
-                    #    pass
-                    #FiltersPage:
                     #    pass
                     AnalogOutputPage:
                         AO=main.experiment.LabView.AnalogOutput

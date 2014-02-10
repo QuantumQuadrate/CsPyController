@@ -1,12 +1,14 @@
-from atom.api import Bool, Typed, Str, Member
+from atom.api import Bool, Typed, Str, Member, List, Int, observe
 from instrument_property import Prop
 
 #MPL plotting
 from matplotlib.figure import Figure
 from enaml.application import deferred_call
 
-import threading, numpy, logging
+import threading, numpy, logging, traceback
 logger = logging.getLogger(__name__)
+
+from cs_errors import PauseError
 
 class Analysis(Prop):
     '''This is the parent class for all data analyses.  New analyses should subclass off this,
@@ -182,53 +184,63 @@ class SampleXYAnalysis(XYPlotAnalysis):
         self.X=numpy.arange(len(self.Y))
         self.updateFigure()
 
-class ShotsBrowserAnalysis(Analysis):
-    updateBeforeExperiment=Bool()
-    
-    #matplotlib figures
-    figure=Typed(Figure)
-    backFigure=Typed(Figure)
-    figure1=Typed(Figure)
-    figure2=Typed(Figure)
+class ShotsBrowserAnalysis(AnalysisWithFigure):
+    updateBeforeExperiment=Bool(True)
+       
+    ivarNames=List(default=[])
+    ivarValueLists=List(default=[])
+    selection=List(default=[])
+    measurement=Int(0)
+    shot=Int(0)
+    array=Member()
+    experimentResults=Member()
     
     def __init__(self,experiment):
-        self.experiment=experiment
+        super(ShotsBrowserAnalysis,self).__init__('ShotsBrowser',experiment,'Shows a particular shot from the experiment')
     
     def setupExperiment(self,experimentResults):
-        pass
-
-    def load(self,ivarIndices):
-        self.ivar_indices=numpy.zeros(len(experiment.independentVariables))
-        
-        #make a list of candidate pictures
-        candidates=[]
-        if 'iterations' in f:
-            for i in experimentResults['iterations'].itervalues():
-                if 'measurements' in i:
-                    for m in i['measurements'].itervalues():
-                        if 'data/Hamamatsu/shots' in m:
-                            for s in m['data/Hamamatsu/shots'].itervalues():
-                                sumlist.append(s.value)
-        sumarray=array(sumlist)
-        average_of_images=mean(sumarray,axis=0)
-        self.savePNG(average_of_images,os.path.join('images','average_of_all_images_in_experiment.png'))
-        
-        super(AnalysisWithFigure,self).__init__(name,experiment,description)
-        
-        #set up the matplotlib figures
-        self.figure1=Figure()
-        self.figure2=Figure()
-        self.backFigure=self.figure2
-        self.figure=self.figure1
+        self.experimentResults=experimentResults
+        self.ivarValueLists=[i for i in experimentResults.attrs['ivarValueLists']]
+        self.selection=[0]*len(self.ivarValueLists)
+        deferred_call(setattr,self,'ivarNames',[i for i in experimentResults.attrs['ivarNames']])
     
-    def swapFigures(self):
-        temp=self.backFigure
-        self.backFigure=self.figure
-        self.figure=temp
+    def setIteration(self,ivarIndex,index):
+        print 'selection {}'.format(self.selection)
+        print type(ivarIndex),type(index)
+        try:
+            self.selection[ivarIndex]=index
+        except Exception as e:
+            logger.warning('Invalid ivarIndex in analysis.ShotsBrowserAnalysis.setSelection({},{})\n{}\n[]'.format(ivarIndex,index,e,traceback.format_exc()))
+            raise PauseError
+        self.load()
+    
+    @observe('measurement')
+    def setMeasurement(self,change):
+        self.load()
+    
+    @observe('shot')
+    def setShot(self,change):
+        self.load()
+    
+    def load(self):
+        if self.experimentResults is not None:
+            #find the first matching iteration
+            m=str(self.measurement)
+            s=str(self.shot)
+            if 'iterations' in self.experimentResults:
+                for i in self.experimentResults['iterations'].itervalues():
+                    if numpy.all(i.attrs['ivarIndex']==self.selection):
+                        try:
+                            self.array=i['measurements/{}/data/Hamamatsu/shots/{}'.format(m,s)].value
+                            self.updateFigure()
+                        except Exception as e:
+                            logger.warning('Exception trying to plot measurement {}, shot {}, in analysis.ShotsBrowserAnalysis.load()\n{}\n{}'.format(m,s,e,traceback.format_exc()))
+                        break
     
     def updateFigure(self):
-        #signal the GUI to redraw figure
-        try:
-            deferred_call(self.swapFigures)
-        except RuntimeError: #application not started yet
-            self.swapFigures()
+        fig=self.backFigure
+        fig.clf()
+        ax=fig.add_subplot(111)
+        ax.matshow(self.array)
+        #super(ImagePlotAnalysis,self).updateFigure()
+        self.swapFigures()
