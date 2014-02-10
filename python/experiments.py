@@ -571,27 +571,32 @@ class Experiment(Prop):
     
     def postMeasurement(self):
         #run analysis
+        good=True
         delete=False
         for i in self.analyses:
             a=i.postMeasurement(self.measurementResults,self.iterationResults,self.hdf5)
             if (a is None) or (a==0):
-                self.goodMeasurements+=1
                 continue
             elif a==1:
                 #continue, but do not increment goodMeasurements
+                good=False
                 continue
             elif a==2:
                 #continue, but do not increment goodMeasurements, delete data when done
+                good=False
                 delete=True
                 continue
             elif a==3:
-                #stop, but do not increment goodMeasurements, delete data when done
+                #stop, do not increment goodMeasurements, delete data when done
+                good=False
                 delete=True
                 break
             else:
                 logger.warning('bad return value {} in experiment.postMeasurement() for analysis {}: {}'.format(a,i.name,i.description))
         if delete:
             del self.measurementResults #remove the bad data
+        if good:
+            self.goodMeasurements+=1
     
     def postIteration(self):
         #run analysis

@@ -205,8 +205,6 @@ class ShotsBrowserAnalysis(AnalysisWithFigure):
         deferred_call(setattr,self,'ivarNames',[i for i in experimentResults.attrs['ivarNames']])
     
     def setIteration(self,ivarIndex,index):
-        print 'selection {}'.format(self.selection)
-        print type(ivarIndex),type(index)
         try:
             self.selection[ivarIndex]=index
         except Exception as e:
@@ -234,13 +232,19 @@ class ShotsBrowserAnalysis(AnalysisWithFigure):
                             self.array=i['measurements/{}/data/Hamamatsu/shots/{}'.format(m,s)].value
                             self.updateFigure()
                         except Exception as e:
-                            logger.warning('Exception trying to plot measurement {}, shot {}, in analysis.ShotsBrowserAnalysis.load()\n{}\n{}'.format(m,s,e,traceback.format_exc()))
+                            logger.warning('Exception trying to plot measurement {}, shot {}, in analysis.ShotsBrowserAnalysis.load()\n'.format(m,s))
+                            self.blankFigure()
                         break
+    
+    def blankFigure(self):
+        fig=self.backFigure
+        fig.clf()
+        super(ShotsBrowserAnalysis,self).updateFigure()
     
     def updateFigure(self):
         fig=self.backFigure
         fig.clf()
         ax=fig.add_subplot(111)
         ax.matshow(self.array)
-        #super(ImagePlotAnalysis,self).updateFigure()
-        self.swapFigures()
+        super(ShotsBrowserAnalysis,self).updateFigure()
+        #self.swapFigures()

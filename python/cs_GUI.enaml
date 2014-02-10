@@ -263,6 +263,9 @@ enamldef ExperimentPage(Page):
             Label: text='Measurement'
             Label: text<<str(experiment.measurement)+' of '+str(experiment.measurementsPerIteration-1)
             
+            Label: text='Good Measurements'
+            Label: text<<str(experiment.goodMeasurements)+' of '+str(experiment.measurementsPerIteration-1)
+            
             Label: text='Time started'
             Label: text<<experiment.timeStartedStr
             
@@ -1240,7 +1243,7 @@ enamldef Main(MainWindow): main:
                 Container:
                     constraints=[hbox(status,progress)]
                     Label: status:
-                        text<<'Status: {}, Iteration: {}, Measurement: {}, Progress: {}'.format(experiment.status,str(experiment.iteration)+' of '+str(experiment.totalIterations-1),str(experiment.measurement)+' of '+str(experiment.measurementsPerIteration-1),str(experiment.progress))
+                        text<<'Status: {}, Iteration: {}, Measurement: {}, Good Measurements: {}, Progress: {}'.format(experiment.status,str(experiment.iteration)+' of '+str(experiment.totalIterations-1),str(experiment.measurement),str(experiment.goodMeasurements)+' of '+str(experiment.measurementsPerIteration-1),str(experiment.progress))
                     ProgressBar: progress:
                         minimum=0
                         maximum=100
