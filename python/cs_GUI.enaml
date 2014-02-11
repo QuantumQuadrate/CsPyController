@@ -397,10 +397,6 @@ enamldef LabViewPage(Page):
                 CheckBox:
                     checked:=LabView.enabled
                 Label:
-                    text='enable fake echoBox data'
-                CheckBox:
-                    checked:=LabView.echoBox.enabled
-                Label:
                     text='IP address of LabView system'
                 Field:
                     text:=LabView.IP
@@ -408,6 +404,8 @@ enamldef LabViewPage(Page):
                     text='communications port'
                 IntField:
                     value:=LabView.port
+            EvalProp:
+                    prop<<LabView.EchoBox.enable
             EvalProp:
                 prop<<LabView.timeout
             Form:

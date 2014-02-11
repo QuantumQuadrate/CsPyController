@@ -209,12 +209,21 @@ class CsServerSock(CsSock):
                     raise PauseError
                 #print 'received: {}'.format(data[:40])
                 if (data is not None):
-                    a=data.find('<echoBox>')
-                    b=data.find('</echoBox>')
+                    a=data.find('<EchoBox>')
+                    b=data.find('</EchoBox>')
                     if (a!=-1) and (b!=-1) and (b>a):
                         #load echo data into echoBox
                         self.echo=data[a+9:b]
-                    if data.startswith('<LabView><command>measure</command></LabView>'):
+                        print 'echoBox settings loaded'
+                        
+                        try:
+                            self.sendmsg(makemsg('log','Okay'))
+                        except Exception as e:
+                            logger.warning('error in CsServerSock sendmsg\n{}'.format(e))
+                            self.closeConnection()
+                            raise PauseError
+                    elif data.startswith('<LabView><command>measure</command></LabView>'):
+                        print 'got measure command'
                         ##create some dummy data 16-bit 512x512
                         #rows=512; columns=512; bytes=1; signed=''; highbit=2**(8*bytes);
                         #testdata=numpy.random.randint(0,highbit,(rows,columns))
@@ -224,7 +233,7 @@ class CsServerSock(CsSock):
                         #testdatamsg=''.join([myStruct.pack(t) for t in testdata.flatten()])
                         #msg=makemsg('Hamamatsu/rows',str(rows))+makemsg('Hamamatsu/columns',str(columns))+makemsg('Hamamatsu/bytes',str(bytes))+makemsg('Hamamatsu/signed',str(signed))+makemsg('Hamamatsu/shots/0',testdatamsg)
                         
-                        msg=self.echoBox
+                        msg=self.echo
                         
                         try:
                             self.sendmsg(msg)
