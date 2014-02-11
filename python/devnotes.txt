@@ -62,6 +62,7 @@ TODO:
     autosave XML on experiment run
     just one big timeout for whole thing, plus a LabView setup timeout
     python menu Halt should send kill signal to LabView
+    is it possible to do echoBox measurement by measurement?
     
 
 Done:

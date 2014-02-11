@@ -162,7 +162,7 @@ class LabView(Instrument):
                 #specific protocol for images: turn them into 2D numpy arrays
                 
                 #unpack the image in 2 byte chunks
-                print "len(value)={}".format(len(value))
+                #print "len(value)={}".format(len(value))
                 array=numpy.array(struct.unpack('!'+str(int(len(value)/2))+'H',value))
                 
                 #the dictionary is unpacked alphabetically, so if width and height were

@@ -44,7 +44,7 @@ class EchoBox(Instrument):
         for i in range(7):
             for j in range(7):
                 if numpy.random.random_integers(0,1)==1:
-                    testdata+=self.gaussian(A,3,X-i*(rows/7),Y-j*(rows/7))
+                    testdata+=self.gaussian(A,3,X-i*(rows/7+.5),Y-j*(rows/7+.5))
         return testdata
     
     def toHardware(self):
