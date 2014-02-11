@@ -27,7 +27,7 @@ def makemsg(name,data):
     return prefixLength(name)+prefixLength(data)
 
 class CsSock(socket.socket):
-    def __init(self):
+    def __init__(self):
         super(CsSock,self).__init__(socket.AF_INET, socket.SOCK_STREAM)
     
     def sendmsg(self,sock,msgtxt):
@@ -158,6 +158,23 @@ class CsClientSock(CsSock):
 
 class CsServerSock(CsSock):
     
+    def __init__(self,portNumber):
+        super(CsServerSock,self).__init__()
+        
+        self.echo=''
+        
+        self.portNumber=portNumber
+        # Bind the socket to the port given
+        server_address = ('', portNumber)
+        try:
+            self.bind(server_address)
+        except Exception as e:
+            logger.warning('error on CsServerSock.bind({}):\n{}'.format(server_address,str(e)))
+            raise PauseError
+        logger.info('server starting up on %s port %s' % self.getsockname())
+        threading.Thread(target=self.readLoop).start()
+
+    
     def closeConnection(self):
         if self.connection is not None:
             self.connection.shutdown(socket.SHUT_RDWR)
@@ -170,19 +187,6 @@ class CsServerSock(CsSock):
     def receive(self):
         #reference the common message format
         return super(CsServerSock,self).receive(self.connection)
-
-    def __init__(self,portNumber):
-        super(CsServerSock,self).__init__()
-        self.portNumber=portNumber
-        # Bind the socket to the port given
-        server_address = ('', portNumber)
-        try:
-            self.bind(server_address)
-        except Exception as e:
-            logger.warning('error on CsServerSock.bind({}):\n{}'.format(server_address,str(e)))
-            raise PauseError
-        logger.info('server starting up on %s port %s' % self.getsockname())
-        threading.Thread(target=self.readLoop).start()
     
     def readLoop(self):
         self.listen(0) #the 0 means do not listen to any backlogged connections
@@ -205,15 +209,22 @@ class CsServerSock(CsSock):
                     raise PauseError
                 #print 'received: {}'.format(data[:40])
                 if (data is not None):
+                    a=data.find('<echoBox>')
+                    b=data.find('</echoBox>')
+                    if (a!=-1) and (b!=-1) and (b>a):
+                        #load echo data into echoBox
+                        self.echo=data[a+9:b]
                     if data.startswith('<LabView><command>measure</command></LabView>'):
-                        #create some dummy data 16-bit 512x512
-                        rows=512; columns=512; bytes=1; signed=''; highbit=2**(8*bytes);
-                        testdata=numpy.random.randint(0,highbit,(rows,columns))
+                        ##create some dummy data 16-bit 512x512
+                        #rows=512; columns=512; bytes=1; signed=''; highbit=2**(8*bytes);
+                        #testdata=numpy.random.randint(0,highbit,(rows,columns))
                         #turn the image array into a long string composed of 2 bytes for each number
                         #first create a struct object, because reusing the same object is more efficient
-                        myStruct=struct.Struct('!H') #'!H' indicates unsigned short (2 byte) integers
-                        testdatamsg=''.join([myStruct.pack(t) for t in testdata.flatten()])
-                        msg=makemsg('Hamamatsu/rows',str(rows))+makemsg('Hamamatsu/columns',str(columns))+makemsg('Hamamatsu/bytes',str(bytes))+makemsg('Hamamatsu/signed',str(signed))+makemsg('Hamamatsu/shots/0',testdatamsg)
+                        #myStruct=struct.Struct('!H') #'!H' indicates unsigned short (2 byte) integers
+                        #testdatamsg=''.join([myStruct.pack(t) for t in testdata.flatten()])
+                        #msg=makemsg('Hamamatsu/rows',str(rows))+makemsg('Hamamatsu/columns',str(columns))+makemsg('Hamamatsu/bytes',str(bytes))+makemsg('Hamamatsu/signed',str(signed))+makemsg('Hamamatsu/shots/0',testdatamsg)
+                        
+                        msg=self.echoBox
                         
                         try:
                             self.sendmsg(msg)
@@ -222,7 +233,7 @@ class CsServerSock(CsSock):
                             self.closeConnection()
                             raise PauseError
                     else:
-                        logger.warning('bad command received: {}'.format(data[:40]))
+                        logger.warning('unknown command received: {}'.format(data[:40]))
 
 if __name__ == '__main__':
     CsServerSock(9000)

@@ -1,4 +1,4 @@
-'''echoBox.py
+'''EchoBox.py
     Part of the AQuA Cesium Controller software package.
     This Instrument sends some fake test data to the LabView server (or python test server), which will then be echoed back for display for test purposes.
 
@@ -21,8 +21,8 @@ class EchoBox(Instrument):
     enable=Typed(BoolProp)
     
     def __init__(self,experiment):
-        super(EchoBox,self).__init__('echoBox',experiment)
-        self.enable=BoolProp('enable',experiment,'enable echoBox','False')
+        super(EchoBox,self).__init__('EchoBox',experiment,description='parrots fake data back to the client')
+        self.enable=BoolProp('enable',experiment,'enable EchoBox','False')
         self.properties+=['enable']
     
     def initialize(self):

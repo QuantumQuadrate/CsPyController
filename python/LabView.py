@@ -9,7 +9,7 @@ created=2013-10-08
 modified>=2013-10-08
 '''
 
-import TCP, HSDIO, piezo, DDS, RF_generators, AnalogOutput, DAQmxPulse, Camera
+import TCP, HSDIO, piezo, DDS, RF_generators, AnalogOutput, DAQmxPulse, Camera, EchoBox
 from atom.api import Bool, Int, Str, Member, Typed
 from instrument_property import FloatProp
 from cs_instruments import Instrument
@@ -38,6 +38,7 @@ class LabView(Instrument):
     RF_generators=Member()
     AnalogOutput=Member()
     DAQmxPulse=Member()
+    EchoBox=Member()
     results=Member()
     sock=Member()
     camera=Member()
@@ -56,17 +57,18 @@ class LabView(Instrument):
         self.AnalogOutput=AnalogOutput.AnalogOutput(experiment)
         self.DAQmxPulse=DAQmxPulse.DAQmxPulse(experiment)
         self.camera=Camera.HamamatsuC9100_13(experiment)
+        self.EchoBox=EchoBox.EchoBox(experiment)
         self.results={}
         #self.Counter=Counter.Counter(experiment)
         
-        self.instruments=[self.HSDIO,self.DDS,self.piezo,self.RF_generators,self.AnalogOutput,self.DAQmxPulse,self.camera] #,self.Counter]
+        self.instruments=[self.HSDIO,self.DDS,self.piezo,self.RF_generators,self.AnalogOutput,self.DAQmxPulse,self.camera,self.EchoBox] #,self.Counter]
         
         self.sock=None
         self.connected=False
         
         self.timeout=FloatProp('timeout',experiment,'how long before LabView gives up and returns [s]','0.5')
         
-        self.properties+=['IP','port','enabled','connected','timeout','HSDIO','DDS','piezo','RF_generators','AnalogOutput','DAQmxPulse','camera']
+        self.properties+=['IP','port','enabled','connected','timeout','HSDIO','DDS','piezo','RF_generators','AnalogOutput','DAQmxPulse','camera','EchoBox']
     
     def initialize(self):
         if self.enabled:

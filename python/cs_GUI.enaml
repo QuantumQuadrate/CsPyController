@@ -397,6 +397,10 @@ enamldef LabViewPage(Page):
                 CheckBox:
                     checked:=LabView.enabled
                 Label:
+                    text='enable fake echoBox data'
+                CheckBox:
+                    checked:=LabView.echoBox.enabled
+                Label:
                     text='IP address of LabView system'
                 Field:
                     text:=LabView.IP
