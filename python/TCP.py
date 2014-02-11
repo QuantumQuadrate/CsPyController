@@ -23,6 +23,9 @@ def prefixLength(txt):
         raise PauseError
     return struct.pack("!L",length)+txt
 
+def makemsg(name,data):
+    return prefixLength(name)+prefixLength(data)
+
 class CsSock(socket.socket):
     def __init(self):
         super(CsSock,self).__init__(socket.AF_INET, socket.SOCK_STREAM)
@@ -181,9 +184,6 @@ class CsServerSock(CsSock):
         logger.info('server starting up on %s port %s' % self.getsockname())
         threading.Thread(target=self.readLoop).start()
     
-    def makemsg(self,name,data):
-        return prefixLength(name)+prefixLength(data)
-    
     def readLoop(self):
         self.listen(0) #the 0 means do not listen to any backlogged connections
         while True:
@@ -213,7 +213,7 @@ class CsServerSock(CsSock):
                         #first create a struct object, because reusing the same object is more efficient
                         myStruct=struct.Struct('!H') #'!H' indicates unsigned short (2 byte) integers
                         testdatamsg=''.join([myStruct.pack(t) for t in testdata.flatten()])
-                        msg=self.makemsg('Hamamatsu/rows',str(rows))+self.makemsg('Hamamatsu/columns',str(columns))+self.makemsg('Hamamatsu/bytes',str(bytes))+self.makemsg('Hamamatsu/signed',str(signed))+self.makemsg('Hamamatsu/shots/0',testdatamsg)
+                        msg=makemsg('Hamamatsu/rows',str(rows))+makemsg('Hamamatsu/columns',str(columns))+makemsg('Hamamatsu/bytes',str(bytes))+makemsg('Hamamatsu/signed',str(signed))+makemsg('Hamamatsu/shots/0',testdatamsg)
                         
                         try:
                             self.sendmsg(msg)

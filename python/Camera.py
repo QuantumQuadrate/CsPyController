@@ -86,7 +86,7 @@ class StartTrigger(Prop):
         self.edge=StrProp('edge',experiment,'start trigger edge','"rising"')
         self.properties+=['waitForStartTrigger','source','edge']
 
-#---- HSDIO instrument ----
+#---- instrument ----
 
 class Camera(Instrument):
     enable=Typed(BoolProp)

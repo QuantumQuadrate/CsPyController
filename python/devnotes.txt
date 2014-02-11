@@ -57,7 +57,7 @@ TODO:
             error_log.txt
                 saved error log
 
-    filters-implement as return values from analyses
+    don't multi-thread analyses, to ensure they run in order?  Also, so our filtering will actually work.  Potentially we could still analyze while the next iteration starts?  But not if we are going to implement an optimizer as an analysis.  So let's not multi-thread, it's simpler.
     optimizer
     autosave XML on experiment run
     just one big timeout for whole thing, plus a LabView setup timeout
@@ -65,6 +65,7 @@ TODO:
     
 
 Done:
+    filters-implement as return values from analyses
     2013 style files: Processed Data.txt, All Signal.txt, average_of_all_images_in_experiment.png, Data Order Log.txt
     return error and log from LabView initialization
     Make hexagon not read-only so I can push git to there

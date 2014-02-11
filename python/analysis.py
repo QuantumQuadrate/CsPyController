@@ -12,20 +12,19 @@ from cs_errors import PauseError
 
 class Analysis(Prop):
     '''This is the parent class for all data analyses.  New analyses should subclass off this,
-    and redefine at least one of setupExperiment(), postMeasurement(), postIteration() or postExperiment(),
-    and enable those methods with either updateBeforeExperiment, updateAfterMeasurement, updateAfterIteration or updateAfterExperiment.
-    An analysis can return a success code after each of these methods, which can be used to filter results.  The highest returned code dominates others:
+    and redefine at least one of setupExperiment(), postMeasurement(), postIteration() or postExperiment().
+    You can enable multi-threading of analyses using queueAfterMeasurement and queueAfterIteration, but only if those results are not needed for other things (filtering, other analyses, optimization).
+    If multi-threading, you can also chose to dropMeasurementIfSlow or dropIterationIfSlow, which will not delete the data but will just not process it.
+    An analysis can return a success code after analyzeMesurement, which can be used to filter results.  The highest returned code dominates others:
         0 or None: good measurement, increment measurement total
         1: soft fail, continue with other analyses, but do not increment measurement total
         2: med fail, continue with other analyses, do not increment measurement total, and delete measurement data after all analyses
         3: hard fail, do not continue with other analyses, do not increment measurement total, delete measurement data'''
     
-    updateBeforeExperiment=Bool() #Set to True to enable pre-measurement analysis.  Default is False.
-    updateAfterMeasurement=Bool() #Set to True to enable post-measurement analysis.  Default is False.
-    dropMeasurementIfSlow=Bool() #Set to True to skip measurements when slow.  Data can still be used post-iteration and post-experiment. Default is False.
-    updateAfterIteration=Bool() #Set to True to enable post-iteration analysis.  Default is False.
-    dropIterationIfSlow=Bool() #Set to True to skip iterations when slow.  Data can still be used in post-experiment.  Default is False.
-    updateAfterExperiment=Bool() #Set to True to enable post-experiment analysis.  Default is False.
+    queueAfterMeasurement=Bool() #Set to True to allow multi-threading on this analysis.  Only do this if you are NOT filtering on this analysis, and if you do NOT depend on the results of this analysis later. Default is False.
+    dropMeasurementIfSlow=Bool() #Set to True to skip measurements when slow.  Applies only to multi-threading.  Raw data can still be used post-iteration and post-experiment. Default is False.
+    queueAfterIteration=Bool() #Set to True to allow multi-threading on this analysis.  Only do this if you do NOT depend on the results of this analysis later. Default is False.
+    dropIterationIfSlow=Bool() #Set to True to skip iterations when slow.  Applies only to multi-threading.  Raw data can still be used in post-experiment.  Default is False.
     
     #internal variables, user should not modify
     measurementProcessing=Bool()
@@ -41,24 +40,27 @@ class Analysis(Prop):
         self.properties+=['updateAfterMeasurement,dropMeasurementIfSlow,updateAfterIteration,dropIterationIfSlow,updateAfterExperiment,text']
     
     def preExperiment(self,experimentResults):
-        if self.updateBeforeExperiment:
-            self.setupExperiment(experimentResults)
+        #no queueing, must complete this before experiment
+        self.setupExperiment(experimentResults)
     
     def setupExperiment(self,experimentResults):
         '''This is called before an experiment.
         The parameter experimentResults is a reference to the HDF5 file for this experiment.
         Subclass this to update the analysis appropriately.'''
-        raise NotImplementedError
+        return
     
     def postMeasurement(self,measurementResults,iterationResults,experimentResults):
         '''results is a tuple of (measurementResult,iterationResult,experimentResult) references to HDF5 nodes for this measurement'''
-        if self.updateAfterMeasurement:
+        if self.queueAfterMeasurement: #if self.updateAfterMeasurement:
             if not self.measurementProcessing: #check to see if a processing queue is already going
                 self.measurementProcessing=True
                 self.measurementQueue.append((measurementResults,iterationResults,experimentResults))
                 threading.Thread(target=self.measurementProcessLoop).start()
             elif not self.dropMeasurementIfSlow: #if a queue is already going, add to it, unless we can't tolerate being behind
                 self.measurementQueue.append((measurementResults,iterationResults,experimentResults))
+            return
+        else:
+            return self.analyzeMeasurement(measurementResults,iterationResults,experimentResults)
     
     def measurementProcessLoop(self):
         while len(self.measurementQueue)>0:
@@ -69,16 +71,19 @@ class Analysis(Prop):
         '''This is called after each measurement.
         The parameter results is a tuple of (measurementResult,iterationResult,experimentResult) references to HDF5 nodes for this measurement.
         Subclass this to update the analysis appropriately.'''
-        raise NotImplementedError
+        return
     
     def postIteration(self,iterationResults,experimentResults):
-        if self.updateAfterIteration:
+        if self.queueAfterIteration:
             if not self.iterationProcessing: #check to see if a processing queue is already going
                 self.iterationProcessing=True
                 self.iterationQueue.append((iterationResults,experimentResults))
                 threading.Thread(target=self.iterationProcessLoop).start()
             elif not self.dropIterationIfSlow: #if a queue is already going, add to it, unless we can't tolerate being behind
                 self.iterationQueue.append((iterationResults,experimentResults))
+            return
+        else:
+            return self.analyzeIteration(iterationResults,experimentResults)
     
     def iterationProcessLoop(self):
         while len(self.iterationQueue)>0:
@@ -89,17 +94,17 @@ class Analysis(Prop):
         '''This is called after each iteration.
         The parameter results is a tuple of (iterationResult,experimentResult) references to HDF5 nodes for this measurement.
         Subclass this to update the analysis appropriately.'''
-        raise NotImplementedError
+        return
     
     def postExperiment(self,experimentResults):
-        if self.updateAfterExperiment:
-            self.analyzeExperiment(experimentResults)
+        #no queueing, must do post experiment processing at this time
+        self.analyzeExperiment(experimentResults)
     
     def analyzeExperiment(self,experimentResults):
         '''This is called at the end of the experiment.
         The parameter experimentResults is a reference to the HDF5 file for the experiment.
         Subclass this to update the analysis appropriately.'''
-        raise NotImplementedError
+        return
 
 class AnalysisWithFigure(Analysis):
     
@@ -132,11 +137,10 @@ class AnalysisWithFigure(Analysis):
 
 class ImagePlotAnalysis(AnalysisWithFigure):
     data=Member()
-    updateAfterMeasurement=Bool(True)
-
+    
     def analyzeMeasurement(self,measurementResults,iterationResults,experimentResults):
         try:
-            self.text='iteration {} measurement {}\n{}'.format(iterationResults.attrs['iteration'],measurementResults.name.split('/')[-1],iterationResults.attrs['variableReportStr'])
+            text='iteration {} measurement {}\n{}'.format(iterationResults.attrs['iteration'],measurementResults.name.split('/')[-1],iterationResults.attrs['variableReportStr'])
         except KeyError as e:
             logger.warning('HDF5 text does not exist in analysis.ImagePlotAnalysis.analyzeMeasurement()\n'+str(e))
             raise PauseError
@@ -148,9 +152,8 @@ class ImagePlotAnalysis(AnalysisWithFigure):
                 raise PauseError
             self.updateFigure() #only update figure if image was loaded
         else:
-            
-            self.text+='\n\nno image data'
-        
+            text+='\n\nno image data'
+        deferred_call(setattr,self,'text',text)
     
     def updateFigure(self):
         fig=self.backFigure
@@ -162,7 +165,7 @@ class ImagePlotAnalysis(AnalysisWithFigure):
         super(ImagePlotAnalysis,self).updateFigure()
 
 class XYPlotAnalysis(AnalysisWithFigure):
-    #needs updating
+    #### needs updating
     X=Member()
     Y=Member()
     
@@ -175,9 +178,8 @@ class XYPlotAnalysis(AnalysisWithFigure):
         super(ImagePlotAnalysis,self).updateFigure()
 
 class SampleXYAnalysis(XYPlotAnalysis):
-    #needs updating
-    updateAfterMeasurement=Bool(True)
-
+    #### needs updating
+    
     '''This analysis plots the sum of the whole camera image every measurement.'''
     def analyzeMeasurement(self,measurementResults,iterationResults,experimentResults):
         self.Y=numpy.append(self.Y,numpy.sum(measurementResults['data/Hamamatsu/shots/0']))
@@ -185,8 +187,7 @@ class SampleXYAnalysis(XYPlotAnalysis):
         self.updateFigure()
 
 class ShotsBrowserAnalysis(AnalysisWithFigure):
-    updateBeforeExperiment=Bool(True)
-       
+    
     ivarNames=List(default=[])
     ivarValueLists=List(default=[])
     selection=List(default=[])
