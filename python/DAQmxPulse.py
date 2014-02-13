@@ -72,10 +72,3 @@ class DAQmxPulse(Instrument):
     def initialize(self):
         self.isInitialized=True
         
-    # def addWaveform(self):
-        # return self.waveforms.add()
-    
-    def addTrigger(self):
-        new=ScriptTrigger('trigger'+str(len(self.triggers)),self.experiment)
-        self.triggers.append(new)
-        return new

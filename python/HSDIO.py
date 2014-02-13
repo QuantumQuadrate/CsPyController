@@ -73,6 +73,10 @@ class Waveforms(ListProp):
     def refresh(self):
         if hasattr(self,'refreshButton') and (self.refreshButton is not None): #prevents trying to do this before GUI is active
             self.refreshButton.clicked()  #refresh the GUI
+    
+    def toHardware(self):
+        '''This returns an empty string, because this is handled in HSDIO.toHardware()'''
+        return ''
 
 class StartTrigger(Prop):
     waitForStartTrigger=Typed(BoolProp)
@@ -87,51 +91,10 @@ class StartTrigger(Prop):
         self.properties+=['waitForStartTrigger','source','edge']
 
 class Script(StrProp):
-    
-    #override to accommodate compressedGenerate
+
     def toHardware(self):
-        #need to pass in list of waveforms in HSDIO.waveforms
-        
-        waveforms={i.name:i for i in HSDIO.waveforms} #build dictionary of waveforms keyed on waveform name
-        for row in self.script.value.split('\n'):
-            words=row.strip().split()
-            if len(words)>1:
-                command=words[0].lower()
-                waveformName=words[1]
-                if command='generate':
-                    if waveformName not in waveformNames:
-                        logger.warning('HSDIO script says: {}, but waveform {} does not exist.'.format(row,words[1]))
-                        raise PauseError
-                    elif waveformName not in HSDIO.waveformsToLoad:
-                        #load it
-                        HSDIO.waveformsToLoad+=[waveformName]
-                        #add waveform to those to be transferred to LabView
-                        pass
-                elif command=='compressedgenerate':
-                    newString=''
-                    if waveformName not in waveformNames:
-                        logger.warning('HSDIO script says: {}, but waveform {} does not exist.'.format(row,words[1]))
-                        raise PauseError
-                    for state,duration in zip(waveform.stateList,waveform.duration): #iterates over first index, which is time points
-                        singleSampleWaveformName='w'+hex(int(''.join([str(i) for i in state])))[2:] #make a hexadecimal name for the waveform.  the [2:] drops the leading 0x on the hexadecimal
-                        newString+='generate '+singleSampleWaveformName+'\n'
-                        if duration > HSDIO.hardwareAlignmentQuantum.value:
-                            if (duration-HSDIO.hardwareAlignmentQuantum.value)%HSDIO.hardwareAlignmentQuantum.value!=0:
-                               waitTime=(int((duration-HSDIO.hardwareAlignmentQuantum.value)/HSDIO.hardwareAlignmentQuantum.value)+1)*HSDIO.hardwareAlignmentQuantum.value
-                            else:
-                                waitTime=int(duration-HSDIO.hardwareAlignmentQuantum.value)
-                            newString+=int(waitTime/536870912)*'wait 536870912\n' #the HSDIO card cannot handle a wait value longer than this, so we repeat it as many times as necessary
-                            newString+='wait '+str(waitTime%536870912)+'\n'
-                        if not singleSampleWaveformName in HSDIO.waveformsToLoad:
-                            #create waveformName (sample times hardwareAlignmentQuantum) and then add it to waveformsToLoad
-
-
-        try:
-            valueStr=str(self.value)
-        except Exception as e:
-            logger.warning('Exception in str(self.value) in EvalProp.toHardware() in '+self.name+' .\n'+str(e))
-            raise PauseError
-        return '<{}>{}</{}>\n'.format(self.name,valueStr,self.name)
+        '''This returns an empty string, because the script is handled in HSDIO.toHardware()'''
+        return ''
 
 #---- HSDIO instrument ----
 
@@ -163,12 +126,68 @@ class HSDIO(Instrument):
         self.channels=Channels(experiment,self)
         self.triggers=ListProp('triggers',self.experiment,listElementType=ScriptTrigger,listElementName='trigger')
         self.startTrigger=StartTrigger(experiment)
-        self.properties+=['version','enable','script','resourceName','clockRate','units','hardwareAlignmentQuantum','waveforms','triggers','channels','startTrigger']
+        self.properties+=['version','enable','resourceName','clockRate','units','hardwareAlignmentQuantum','waveforms','triggers','channels','startTrigger','script']
     
     def initialize(self):
         self.isInitialized=True
     
-    def addTrigger(self):
-        new=ScriptTrigger('trigger'+str(len(self.triggers)),self.experiment)
-        self.triggers.append(new)
-        return new
+    def toHardware(self):
+        '''override to accommodate compressedGenerate, and to only upload necessary waveforms
+        toHardware for HSDIO.waveforms and HSDIO.script will be overridden and return blank so they do not append conflicting results
+        no need to evaluate, that will already be done by this point'''
+        
+        #build dictionary of waveforms keyed on waveform name
+        definedWaveforms={i.name:i for i in HSDIO.waveforms}
+        
+        #keep track of which waveforms are to be uploaded
+        waveformsInUse=[]
+        
+        scriptOut=''
+        waveformXML=''
+        
+        #go through script line by line
+        for row in self.script.value.split('\n'):
+            words=row.strip().split()
+            if len(words)>1:
+                command=words[0].lower()
+                waveformName=words[1]
+                if command='generate':
+                    #for each generate, if waveformName not in list, add waveform to list of necessary waveforms,add waveform to waveform XML (if it does not exist give error
+                    if waveformName not in definedWaveforms:
+                        logger.warning('HSDIO script says: {}, but waveform {} does not exist.'.format(row,words[1]))
+                        raise PauseError
+                    elif waveformName not in waveformsInUse:
+                        #add waveform to those to be transferred to LabView
+                        waveformsInUse+=[waveformName]
+                        waveformXML+=definedWaveforms[waveformName].toHardware()
+                elif command=='compressedgenerate':
+                    #for each compressedGenerate, replace with a sequence of generate wXXXXXXXX, if wXXXXXXXX not in list, add wXXXXXXXX to list of necessary waveforms, create waveform and add it to waveform XML
+                    newString='' #this will replace the current line
+                    if waveformName not in waveformNames:
+                        logger.warning('HSDIO script says: {}, but waveform {} does not exist.'.format(row,words[1]))
+                        raise PauseError
+                    for state,duration in zip(waveform.stateList,waveform.duration): #iterates over first index in stateList, which is time points
+                        singleSampleWaveformName='w'+hex(int(''.join([str(i) for i in state])))[2:] #make a hexadecimal name for the waveform.  the [2:] drops the leading 0x on the hexadecimal
+                        newString+='generate '+singleSampleWaveformName+'\n'
+                        waitTime=duration-self.hardwareAlignmentQuantum.value
+                        if waitTime > 0: #if we need to wait after this sample to get the correct time delay
+                            if waitTime%self.hardwareAlignmentQuantum.value!=0: #if the wait time is not a multiple of the hardwareAlignmentQuantum
+                                waitTime=(int(waitTime/self.hardwareAlignmentQuantum.value)+1)*self.hardwareAlignmentQuantum.value #round up
+                            newString+=int(waitTime/536870912)*'wait 536870912\n' #the HSDIO card cannot handle a wait value longer than this, so we repeat it as many times as necessary
+                            newString+='wait '+str(waitTime%536870912)+'\n' #add the remaining wait
+                        if not singleSampleWaveformName in waveformsInUse:
+                            #add waveform to those to be transferred to LabView
+                            waveformsInUse+=[singleSampleWaveformName]
+                            #don't create a real waveform object, just its toHardware signature
+                            waveformXML+=('<waveform>'+
+                                '<name>'+singleSampleWaveformName+'</name>'+
+                                '<transitions>'+' '.join([str(time) for time in range(self.hardwareAlignmentQuantum)])+'</transitions>'+ #make as many time points as the minimum necessary for hardware
+                                '<states>'+'\n'.join([' '.join([str(sample) for sample in state]) for time in range(self.hardwareAlignmentQuantum)])+'</states>\n'+
+                                '</waveform>\n')
+                    scriptOut+=newString
+                    continue #don't do the scriptOut+=row+'\n'
+            scriptOut+=row+'\n'
+        
+        #then upload scriptOut instead of script.toHardware, waveformXML instead of waveforms.toHardware (those toHardware methods will return an empty string and so will not interfere)
+        #then process the rest of the properties as usual
+        return '<HSDIO><script>{}</script>\n<waveforms>{}</waveforms>\n'.format(scriptOut,waveformXML)+super(HSDIO,self).toHardware()
