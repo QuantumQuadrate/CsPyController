@@ -33,18 +33,21 @@ class EchoBox(Instrument):
     def gaussian(self,A,w,x,y):
         return A*numpy.exp(-(x**2+y**2)/(2*(w**2)))
     
+    def positionNoise(self):
+        return 10*(2*numpy.random.random()-1)
+    
     def randomLoading(self,rows,columns,bytes,highbit):
         print 'creating echoBox data'
         noise=int(highbit/50)
         testdata=numpy.random.randint(0,noise,(rows,columns))
-        x=numpy.arange(rows)
-        y=numpy.arange(columns)
+        x=numpy.arange(rows,dtype=float)
+        y=numpy.arange(columns,dtype=float)
         X,Y=numpy.meshgrid(x,y)
         A=highbit/2
         for i in range(7):
             for j in range(7):
                 if numpy.random.random_integers(0,1)==1:
-                    testdata+=self.gaussian(A,3,X-i*(rows/7+.5),Y-j*(rows/7+.5))
+                    testdata+=self.gaussian(A,3,X-(i+.5)*(rows/7)-self.positionNoise(),Y-(j+.5)*(rows/7)-self.positionNoise())
         return testdata
     
     def toHardware(self):

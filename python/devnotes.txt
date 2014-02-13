@@ -1,7 +1,6 @@
 CsController2 notes:
 
 current question:
-    waveform upload error
 
 TODO:
     compressedGenerate
@@ -56,16 +55,17 @@ TODO:
                 average of images.
             error_log.txt
                 saved error log
-
-    don't multi-thread analyses, to ensure they run in order?  Also, so our filtering will actually work.  Potentially we could still analyze while the next iteration starts?  But not if we are going to implement an optimizer as an analysis.  So let's not multi-thread, it's simpler.
     optimizer
     autosave XML on experiment run
     just one big timeout for whole thing, plus a LabView setup timeout
     python menu Halt should send kill signal to LabView
-    is it possible to do echoBox measurement by measurement?
-    
+    is it possible to do echoBox measurement by measurement? (send with "measure" command, instead of as instrument setup?)
+    send only changed commands on new iteration
+    send only waveforms actually used.
 
 Done:
+    waveform upload error (MSB LSB order is reversed)
+    threading made optional (default off) in analysis, so they can be run in a guaranteed order
     filters-implement as return values from analyses
     2013 style files: Processed Data.txt, All Signal.txt, average_of_all_images_in_experiment.png, Data Order Log.txt
     return error and log from LabView initialization
