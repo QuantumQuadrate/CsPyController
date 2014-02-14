@@ -249,3 +249,4 @@ class ShotsBrowserAnalysis(AnalysisWithFigure):
         ax.matshow(self.array)
         super(ShotsBrowserAnalysis,self).updateFigure()
         #self.swapFigures()
+        

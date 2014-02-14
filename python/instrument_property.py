@@ -194,7 +194,7 @@ class Prop(Atom):
     # def validate(self,text):
         # return self.valid
 
-class EvalProp(Prop):
+class EvalProp(Prop,Validator):
 
     '''The base class for any Prop that has a function, and can be evaluated to a value.'''
     
@@ -227,10 +227,10 @@ class EvalProp(Prop):
     #    '''Signals the GUI to update whether or not a red error box is shown, based on self.valid'''
     #    self.refresh=not self.refresh
     
-    #def validate(self,text):
-    #    '''This is the evaluation function that gets run on user GUI input.'''
-    #    self.valid=self.evalfunc(text)
-    #    return self.valid
+    def validate(self,text):
+        '''This is the evaluation function that gets run on user GUI input.'''
+        self.valid=self.evalfunc(text)
+        return self.valid
     
     def evalfunc(self,function):
         #If necessary we could call super(EvalProp,self).evaluate() to evaluate things in the properties list.  But I don't think an evalProp will ever need to do that.

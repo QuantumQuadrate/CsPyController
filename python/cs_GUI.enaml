@@ -134,7 +134,7 @@ enamldef EvalProp(GroupBox):
     Field: func:
         text:=prop.function
         placeholder=prop.placeholder
-        #validator=prop.validator
+        #validator=prop #.validator
         #valid<<prop.valid
     Label: val:
         text<<str(prop.value)
@@ -287,7 +287,7 @@ enamldef ExperimentPage(Page):
             Label: text='Notes'
             MultilineField:
                 text:=experiment.notes
-        
+
 enamldef VariableEntry(GroupBox):
     attr indepVar
     attr myIndependentVariables
@@ -1182,6 +1182,48 @@ enamldef Analysis(Container):
         hug_width='ignore'
         figure<<analysis.figure
 
+enamldef TwoImagePage(Page): page:
+    title='Side By Side'
+    attr experiment
+    attr analysis0
+    attr analysis2
+    
+    Container:
+        constraints=[hbox(a1,a2)]
+        
+        Analysis: a1:
+            analysis<<analysis0
+        Container: a2:
+            hug_height='ignore'
+            hug_width='ignore'
+            Form:
+                hug_height='strong'
+                hug_width='strong'
+    #            Conditional:
+    #                condition<<(len(analysis.ivarNames)>0)
+                Looper: looper:
+                    iterable << analysis2.ivarNames
+                    Label:
+                        text=loop_item
+                    ComboBox:
+                        items=[str(i) for i in analysis2.ivarValueLists[loop_index]]
+                        index::
+                            analysis2.setIteration(loop_index, index) #send which ivar (loop_index) to update to index
+                Label:
+                    text='Measurement'
+                SpinBox:
+                    minimum=0
+                    value:=analysis2.measurement
+                Label:
+                    text='Shot'
+                SpinBox:
+                    minimum=0
+                    value:=analysis2.shot
+            MPLCanvas:
+                constraints=[(height==700)|'strong']
+                hug_width='ignore'
+                figure<<analysis2.figure
+
 enamldef Shot0ResultsPage(Page):
     title = 'Shot 0 Results'
     attr analysis
@@ -1284,3 +1326,7 @@ enamldef Main(MainWindow): main:
                     ShotsBrowserPage:
                         experiment=main.experiment
                         analysis=main.experiment.analyses[2]
+                    TwoImagePage:
+                        experiment=main.experiment
+                        analysis0=main.experiment.analyses[0]
+                        analysis2=main.experiment.analyses[2]
