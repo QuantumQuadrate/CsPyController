@@ -214,7 +214,7 @@ class CsServerSock(CsSock):
                     if (a!=-1) and (b!=-1) and (b>a):
                         #load echo data into echoBox
                         self.echo=data[a+9:b]
-                        print 'echoBox settings loaded'
+                        #print 'echoBox settings loaded'
                         
                         try:
                             self.sendmsg(makemsg('log','Okay'))
@@ -223,7 +223,7 @@ class CsServerSock(CsSock):
                             self.closeConnection()
                             raise PauseError
                     elif data.startswith('<LabView><command>measure</command></LabView>'):
-                        print 'got measure command'
+                        #print 'got measure command'
                         ##create some dummy data 16-bit 512x512
                         #rows=512; columns=512; bytes=1; signed=''; highbit=2**(8*bytes);
                         #testdata=numpy.random.randint(0,highbit,(rows,columns))

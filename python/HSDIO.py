@@ -117,7 +117,7 @@ class HSDIO(Instrument):
         self.version='2014.01.22'
         self.numChannels=32
         self.enable=BoolProp('enable',experiment,'enable HSDIO output','False')
-        self.script=StrProp('script',experiment,'HSDIO script that says what waveforms to generate',"'script script1\\n  generate waveform1\\n  idle\\nend script'")
+        self.script=Script('script',experiment,'HSDIO script that says what waveforms to generate',"'script script1\\n  generate waveform1\\n  idle\\nend script'")
         self.resourceName=StrProp('resourceName',experiment,'the hardware location of the HSDIO card',"'Dev1'")
         self.clockRate=FloatProp('clockRate',experiment,'samples/channel/sec','1000')
         self.units=FloatProp('units',experiment,'multiplier for HSDIO timing values (milli=.001)','1')
@@ -137,7 +137,7 @@ class HSDIO(Instrument):
         no need to evaluate, that will already be done by this point'''
         
         #build dictionary of waveforms keyed on waveform name
-        definedWaveforms={i.name:i for i in HSDIO.waveforms}
+        definedWaveforms={i.name:i for i in self.waveforms}
         
         #keep track of which waveforms are to be uploaded
         waveformsInUse=[]
@@ -151,7 +151,7 @@ class HSDIO(Instrument):
             if len(words)>1:
                 command=words[0].lower()
                 waveformName=words[1]
-                if command='generate':
+                if command=='generate':
                     #for each generate, if waveformName not in list, add waveform to list of necessary waveforms,add waveform to waveform XML (if it does not exist give error
                     if waveformName not in definedWaveforms:
                         logger.warning('HSDIO script says: {}, but waveform {} does not exist.'.format(row,words[1]))
@@ -163,11 +163,12 @@ class HSDIO(Instrument):
                 elif command=='compressedgenerate':
                     #for each compressedGenerate, replace with a sequence of generate wXXXXXXXX, if wXXXXXXXX not in list, add wXXXXXXXX to list of necessary waveforms, create waveform and add it to waveform XML
                     newString='' #this will replace the current line
-                    if waveformName not in waveformNames:
+                    if waveformName not in definedWaveforms:
                         logger.warning('HSDIO script says: {}, but waveform {} does not exist.'.format(row,words[1]))
                         raise PauseError
+                    waveform=definedWaveforms[waveformName]
                     for state,duration in zip(waveform.stateList,waveform.duration): #iterates over first index in stateList, which is time points
-                        singleSampleWaveformName='w'+hex(int(''.join([str(i) for i in state])))[2:] #make a hexadecimal name for the waveform.  the [2:] drops the leading 0x on the hexadecimal
+                        singleSampleWaveformName='w'+''.join([str(i) for i in state]) #make a name for the waveform.  the name is w followed by the binary expression of the state
                         newString+='generate '+singleSampleWaveformName+'\n'
                         waitTime=duration-self.hardwareAlignmentQuantum.value
                         if waitTime > 0: #if we need to wait after this sample to get the correct time delay
@@ -181,8 +182,8 @@ class HSDIO(Instrument):
                             #don't create a real waveform object, just its toHardware signature
                             waveformXML+=('<waveform>'+
                                 '<name>'+singleSampleWaveformName+'</name>'+
-                                '<transitions>'+' '.join([str(time) for time in range(self.hardwareAlignmentQuantum)])+'</transitions>'+ #make as many time points as the minimum necessary for hardware
-                                '<states>'+'\n'.join([' '.join([str(sample) for sample in state]) for time in range(self.hardwareAlignmentQuantum)])+'</states>\n'+
+                                '<transitions>'+' '.join([str(time) for time in range(self.hardwareAlignmentQuantum.value)])+'</transitions>'+ #make as many time points as the minimum necessary for hardware
+                                '<states>'+'\n'.join([' '.join([str(sample) for sample in state]) for time in range(self.hardwareAlignmentQuantum.value)])+'</states>\n'+
                                 '</waveform>\n')
                     scriptOut+=newString
                     continue #don't do the scriptOut+=row+'\n'

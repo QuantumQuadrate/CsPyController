@@ -37,7 +37,7 @@ class EchoBox(Instrument):
         return 10*(2*numpy.random.random()-1)
     
     def randomLoading(self,rows,columns,bytes,highbit):
-        print 'creating echoBox data'
+        #print 'creating echoBox data'
         noise=int(highbit/50)
         testdata=numpy.random.randint(0,noise,(rows,columns))
         x=numpy.arange(rows,dtype=float)
