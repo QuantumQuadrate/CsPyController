@@ -191,4 +191,4 @@ class HSDIO(Instrument):
         
         #then upload scriptOut instead of script.toHardware, waveformXML instead of waveforms.toHardware (those toHardware methods will return an empty string and so will not interfere)
         #then process the rest of the properties as usual
-        return '<HSDIO><script>{}</script>\n<waveforms>{}</waveforms>\n'.format(scriptOut,waveformXML)+super(HSDIO,self).toHardware()
+        return '<HSDIO><script>{}</script>\n<waveforms>{}</waveforms>\n'.format(scriptOut,waveformXML)+super(HSDIO,self).toHardware()[7:] #[7:] removes the <HSDIO> on what is returned from super.toHardware
