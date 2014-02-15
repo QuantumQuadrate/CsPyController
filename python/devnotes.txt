@@ -61,9 +61,13 @@ TODO:
     python menu Halt should send kill signal to LabView
     is it possible to do echoBox measurement by measurement? (send with "measure" command, instead of as instrument setup?)
     send only changed commands on new iteration
-    send only waveforms actually used.
+    make red validation boxes work well enough to be used
+    side-by-side picture graphs?  With zoom? (use chaco?)
+    make shotsBrowser update each measurement if selected index is same as current iteration and measurement
+    selectable colors on digital waveform plot
 
 Done:
+    send only waveforms actually used.
     waveform upload error (MSB LSB order is reversed)
     threading made optional (default off) in analysis, so they can be run in a guaranteed order
     filters-implement as return values from analyses

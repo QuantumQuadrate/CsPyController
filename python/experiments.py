@@ -178,6 +178,9 @@ class Experiment(Prop):
         self.ivarValueLists=[i.valueList for i in self.independentVariables]
         self.ivarSteps=[i.steps for i in self.independentVariables]
         self.totalIterations=int(numpy.product(self.ivarSteps))
+        
+        #set the current value of the independent variables
+        self.iterationToIndexArray()
     
     def iterationToIndexArray(self):
         '''takes the iteration number and figures out which index number each independent variable should have'''
@@ -214,7 +217,6 @@ class Experiment(Prop):
         self.evaluate()
     
     def evaluateDependentVariables(self):
-        self.iterationToIndexArray() #set the current value of the independent variables
         
         #update variables dictionary.
         #overwrite the old list and make new list starting with independent variables
