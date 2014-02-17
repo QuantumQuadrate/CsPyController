@@ -405,6 +405,9 @@ class ListProp(Prop):
         self.listProperty.append(new)
         return new
     
+    def index(self,x):
+        return self.listProperty.index(x)
+    
     def evaluate(self):
     
         #go through the listProperty and evaluate each item

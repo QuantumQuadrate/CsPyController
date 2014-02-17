@@ -1,0 +1,264 @@
+#SI Prefixes
+giga=1e9; mega=1e6; kilo=1e3; milli=1e-3; micro=1e-6; nano=1e-9; pico=1e-12
+
+#physics constants
+c0=299792458 #m/s
+eps0=8.854187817e-12 # F/m
+alpha=7.2973525698e-3
+kB_SI=1.3806488e-23 #J/K
+
+#erstwhile independent variables
+raman_frequency=9172.6
+microwave_frequency=0.0
+microwave_raman_time=.08
+
+#dependent variables
+MOT_loading_time = 300
+MOT_frequency = 108
+MOT_power = 0
+
+hyperfine_time = MOT_loading_time
+hyperfine_frequency = 275
+hyperfine_power = 0
+
+trap_drop_time_before_loading=10
+MOT_2D_time=MOT_loading_time-12.5
+trap_off_time=20
+trap_on_time_during_loading = MOT_loading_time - trap_off_time - trap_drop_time_before_loading - 10
+
+MOT_gradient_field_setting = 4.5
+MOT_x2_5_shim_setting = -0.85
+MOT_x3_6_shim_setting = .7
+MOT_vertical_shim_setting = -1.33
+MOT_bias_shim_setting = 0
+
+PGC_1_time = 5
+PGC_1_frequency = 97
+PGC_1_power = -7
+PGC_hyperfine_time = PGC_1_time
+PGC_1_hyperfine_frequency = 278.5
+PGC_1_hyperfine_power = 0
+MOT_to_PGC_B_field_delay = .6
+trap_780_delay_for_PGC_1 = 4
+PGC_1_gradient_field = 0
+PGC_1_x2_5_shim_setting = -.45
+PGC_1_x3_6_shim_setting = -.6
+PGC_1_vertical_shim_setting = -1.5
+PGC_1_bias_field_setting = 1.8
+
+MOT_drop_time = 100
+Readout_time = 50
+Readout_frequency = 95
+Readout_Power = -8
+Readout_hyperfine_frequency = 278.5
+Readout_hyperfine_power = 0
+Pre_Readout_Time = 150
+Readout_gradient_field = 0
+Readout_x2_5_shim_setting = 0
+Readout_x3_6_shim_setting = -.5
+Readout_vertical_shim_setting = -1.7
+Readout_bias_field_setting = 1.64
+
+PGC_2_time = 50
+PGC_2_frequency = 91
+PGC_2_power = -9
+PGC_2_hyperfine_frequency = 278.5
+PGC_2_hyperfine_power = 0
+Readout_to_PGC_2_B_field_delay = .001
+
+optical_pumping_time = 2
+optical_pumping_frequency = 81
+OP_hyperfine_time = optical_pumping_time
+OP_2nd_time = 0
+OP_hyperfine_frequency = 278.5
+OP_hyperfine_power = 0
+depumping_894_time = 0
+single_site_459_OP_time = 0
+
+PGC_to_bias_B_field_delay = .1
+delay_before_excitation_pulse = .00005
+delay_before_blowaway = .5
+raman_459_pulse = 0
+
+microwave_pi_pulse_site_2_roi42 = 0.078
+microwave_pi_pulse_site_1_roi43 = 0.0751
+microwave_2pi_pulse_BB1 = 0.0389*4
+microwave_pi_pulse_BB1 = 0.0389*2
+
+rydberg_A_459_time_control = 0
+rydberg_B_459_time_control = 0
+rydberg_A_1038_time_control = 0
+rydberg_A_459_time_site2_target = 0
+rydberg_B_459_time_site2_target = 0
+rydberg_A_1038_time_site2_target = 0
+rydberg_B_1038_time_control = 0
+
+trap_modulation_time = 0
+blow_away_time = 1
+microwave_raman_time = 0
+
+scanner_1_frequency_1_459 = 149.93891
+scanner_2_frequency_1_459 = 153.945
+scanner_1_frequency_1_1038 = 145
+scanner_2_frequency_1_1038 = 154
+scanner_delay__extra_time_459 = .001
+scanner_delay__extra_time_1038 = .001
+scanner_1_frequency_2_459 = scanner_1_frequency_1_459 - .16 + 0.114
+scanner_2_frequency_2_459 = scanner_2_frequency_1_459 - 2.19
+scanner_AOM_1_freq_2_1038 = scanner_1_frequency_1_1038 + .5
+scanner_AOM_2_freq_2_1038 = scanner_2_frequency_1_1038 + 3.5
+
+RydA_switch_AOM_freqency_1__site_43 = 144.164+.007+0
+RydA_switch_AOM_freqency_2__site_42 = 144.649+.065-.063
+RydB_switch_AOM_freqency_1 = 143
+RydB_switch_AOM_freqency_2 = 143
+
+site_1_RydA_frequency_offset = (scanner_1_frequency_1_459-scanner_2_frequency_1_459)+(scanner_1_frequency_1_1038-scanner_2_frequency_1_1038)+2*RydA_switch_AOM_freqency_1__site_43
+site_1_calculator_based_on_previous_value = .5*(274.853 - scanner_1_frequency_1_459 + scanner_2_frequency_1_459 - scanner_1_frequency_1_1038 + scanner_2_frequency_1_1038)
+site_2_calculator_based_on_site_1 = .5*(site_1_RydA_frequency_offset - scanner_1_frequency_2_459 + scanner_2_frequency_2_459 - scanner_AOM_1_freq_2_1038 + scanner_AOM_2_freq_2_1038)
+site_2_RydA_frequency_offset = (scanner_1_frequency_2_459 - scanner_2_frequency_2_459) + (scanner_AOM_1_freq_2_1038 - scanner_AOM_2_freq_2_1038) + 2*RydA_switch_AOM_freqency_2__site_42
+
+raman_pulse_at_freq_2 = 0
+ramsey_gap_time = 0
+ramsey_total_time = delay_before_excitation_pulse + 2*raman_459_pulse + 2*scanner_delay__extra_time_459 + ramsey_gap_time
+raman_waveform_total_time = delay_before_excitation_pulse + 2*scanner_delay__extra_time_459 + raman_459_pulse
+microwave_waveform_total_time = delay_before_excitation_pulse + microwave_raman_time + 2*scanner_delay__extra_time_459
+
+trap_release_time = 0
+Rydberg_A_waveform_total_time = 4*scanner_delay__extra_time_459 + 2*rydberg_A_1038_time_control + delay_before_excitation_pulse + rydberg_A_1038_time_site2_target
+Rydberg_B_waveform_total_time = 0
+microwave_pi_site_2_total_time = delay_before_excitation_pulse + 2*scanner_delay__extra_time_459 + microwave_pi_pulse_site_2_roi42
+microwave_pi_site_1_total_time = delay_before_excitation_pulse + 2*scanner_delay__extra_time_459 + microwave_pi_pulse_site_1_roi43
+microwave_2_pi_total_time = delay_before_excitation_pulse + microwave_2pi_pulse_BB1
+microwave_pi_total_time = delay_before_excitation_pulse + microwave_pi_pulse_BB1
+
+exp_gradient_setting = 0
+exp_x2_5_shim_setting = 0
+exp_x3_6_shim_setting = -.32
+exp_vertical_shim_setting = -1.79
+exp_bias_shim_setting = -5.6
+
+raman_X_pi_by_2_time = 0
+raman_X_3pi_by_2_time = 0
+raman_Z_pi_by_ 2_time = 0
+raman_Z_3pi_2_time = 0
+raman_X_pi_time = 0
+raman_Z_pi_time = 0
+
+random_benchmark_total_time = 0
+blowaway_frequency = 220
+
+max_of_raman_pulses = max(raman_waveform_total_time,microwave_waveform_total_time)
+max_of_raman_or_ramsey = max(max_of_raman_pulses,ramsey_total_time)
+max_of_raman_or_randomized_benchmark = max(max_of_raman_or_ramsey,random_benchmark_total_time)
+max_of_rydberg_pulses = max(Rydberg_B_waveform_total_time,Rydberg_A_waveform_total_time)
+
+bias_field_on_time = optical_pumping_time + depumping_894_time + PGC_to_bias_B_field_delay + single_site_459_OP_time + trap_release_time + blow_away_time + microwave_waveform_total_time + 2*microwave_pi_total_time + microwave_2_pi_total_time
+delay_between_camera_shots = 45
+DDS_profile_delay = .00005
+
+gradient_field_685 = 0
+x2_5_shim_setting_685 = -.45-.1
+x3_6_shim_setting_685 = .45+.1
+vertical_shim_setting_685 = -1.55
+bias_shim_setting_685 = 1.65
+time_685 = 0
+frequency_685 = 194
+power_685 = 0
+
+6s1_2_hyperfine_splitting = 9.19263e9
+7p1_2_hyperfine_splitting = 377.4e6
+6p3_2_gamma = 2*pi*5.1e6
+7p1_2_gamma = 2*pi*1e6
+alpha_780_cgs = -247e-24
+alpha_780_SI = alpha_780_cgs*4*pi*eps0*1e-6
+saturation_intensity = 27 #W/m^2
+mot_beam_waist_1 = 2.5 #mm
+mot_beam_waist_2 = 2.5 #mm
+mot_beam_waist_3 = 1.54 #mm
+readout_beam_power_1 = 560 #uW
+readout_beam_power_2 = 415 #uW
+readout_beam_power_3 = 205 #uW
+readout_detuning = 18 #MHz
+numerical_aperture_of_jenoptiq = .4
+
+transmission_efficiency = .8
+quantum_efficiency = .7
+conversion_factor_for_camera = 5.8 #electrons/count
+analog_gain = 4
+EM_sensitivity = 225 #as_entered_on_camera_page
+EM_gain = 10^(((log(1000)-log(4))/250)*EM_sensitivity+log(4))
+average_background_pixel_value = 10914*(i0/.100)
+roi_area = 9
+imaging_system_mag = 25.5
+camera_pixel_size = 16 #um
+number_of_array_spots = 64 #n
+array_trap_spacing = 3.8#d_microns
+array_beam_waist = 1.73 #w0_microns
+power_out_of_the_fiber_780 = 4 #[W]
+transmission_to_atoms_780 = .6
+horizontal_waist_459 = 3e-6
+vertical_waist_459 = 3e-6
+
+scanner_transmission_459	v2	.132	0.132000
+Total_Raman_Power_at_fiber	v3	350E-6	0.000350
+Raman_Detuning_(Hz)	v4	20*10^9	20000000000.000000
+1038_horizontal_waist	w0	3.2*10^(-6)	0.000003
+1038_vertical_waist	w1	4.3*10^(-6)	0.000004
+1038_scanner_transmission	w2	.25	0.250000
+Rydberg_A_459_Power_at_fiber	w3	80*10^(-6)	0.000080
+Rydberg_B_459_Power_at_fiber	w4	120*10^(-6)	0.000120
+Rydberg_1038_Power_at_fiber	w5	11*10^(-3)	0.011000
+Rydberg_level	w6	65	65.000000
+Rydberg_detuning_(Hz)_relative_to_f=4	w7	-2.5*10^9	-2500000000.000000
+readout_detuning	x0	readout_detuning*2*pi*10^6	113097335.544000
+readout_beam_intensity_1	x1	2*readout_beam_power_1*10^(-6)/(pi*mot_beam_waist_1^2*10^(-6))	57.041132
+readout_beam_intensity_2	x2	2*readout_beam_power_2*10^(-6)/(pi*mot_beam_waist_2^2*10^(-6))	42.271553
+readout_beam_intensity_3	x3	2*readout_beam_power_3*10^(-6)/(pi*mot_beam_waist_3^2*10^(-6))	55.029117
+total_intensity	x4	2*x1+2*x2+2*x3	308.683602
+total_saturation_parameter	x5	x4/saturation_intensity	11.432726
+fractional_solid_angle	y0	.5*(1-sqrt(1-numerical_aperture_of_jenoptiq^2))	0.041742
+scattering_rate	y1	(6p3_2_gamma/2)*x5/(1+(4*x0^2)/(6p3_2_gamma^2)+x5)	2942135.782289
+detected_scattering_rate_for_single_atom	y2	y1*y0*transmission_efficiency*quantum_efficiency	68774.663119
+detected_photon_number_during_exposure_time	y3	y2*i0*(1E-3)	3438.733156
+Expected_Output_Signal_-_Dark_Signal	y4	y3*analog_gain*EM_gain*quantum_efficiency/conversion_factor_for_camera	955728.447303
+Expected_Output_Signal	y5	y4+average_background_pixel_value*roi_area	50068728.447303
+pixel_size_after_mag_(um)	y6	camera_pixel_size/imaging_system_mag	0.627451
+lattice_period_(in_pixels)	y7	array_trap_spacing/y6	6.056250
+array_ratio_(s=d/w)	z5	array_trap_spacing/array_beam_waist	2.196532
+total_power_at_atoms_(W)_	z6	power_out_of_the_fiber_780*transmission_to_atoms_780	2.400000
+peak_intensity_in_one_spot_(P0)	z7	(2.*z6/number_of_array_spots)/(pi*array_beam_waist^2_*_10^(-12))	7976625166.449631
+trap_depth_(mK)	z8	-(0.001*2*pi*alpha_780_cgs/(c3*c0))*z7*2*exp(-z5^2/2)*(1-2*exp(-z5^2/2))	0.439922
+Raman_Rabi_Freq_(Hz)	v5	v3/2*v2/(2*pi*horizontal_waist_459*vertical_waist_459)*((-1.305*10^9)/(v4-7p1_2_hyperfine_splitting)-7.83*10^8/v4)	-43159.802054
+Raman_Stark_Shift_(Hz)	v6	v3/2*v2/(2*pi*horizontal_waist_459*vertical_waist_459)*(4.1*10^9/(2*pi*(v4-7p1_2_hyperfine_splitting-6s1_2_hyperfine_splitting))-4.1*10^9/(2*pi*(v4-7p1_2_hyperfine_splitting+6s1_2_hyperfine_splitting)+2.46*10^9/(2*pi*(v4-6s1_2_hyperfine_splitting))-2.46*10^9/(2*pi*(v4+6s1_2_hyperfine_splitting))))	16306.404698
+Rydberg_A_flopping_to_nD3/2_(Hz)	w8	1/(2*pi*w6^(3/2))*sqrt(w3*w2*w5*w2/(horizontal_waist_459*vertical_waist_459*w0*w1))*(9.692*10^10/(w7)+5.815*10^10/(w7+7p1_2_hyperfine_splitting))	-423467.811639
+Rydberg_B_flopping_to_nD3/2_(Hz)	w9	1/(2*pi*w6^(3/2))*sqrt(w4*w2*w5*w2/(horizontal_waist_459*vertical_waist_459*w0*w1))*(9.692*10^10/(w7)+5.815*10^10/(w7+7p1_2_hyperfine_splitting))	-518640.030505
+Raman_459:_Power_out_of_fiber_(mW)	r0	v3*1E3	0.350000
+Raman_459:_Transmission_of_scanner	r1	v2	0.132000
+Raman_459:_Power_at_atoms_(mW)	r2	r0*r1	0.046200
+Raman__459:_detuning_(GHz)	r3	v4*1E-9	20.000000
+Raman_459:_Waist_at_atoms_(um)	r4	sqrt(horizontal_waist_459*vertical_waist_459)*1E6	3.000000
+Raman_459:_7p1/2_Delta_f3_(GHz)	r5	-.2123	-0.212300
+Raman_459:_7p1/2_Delta_f4_(GHz)	r6	.1651	0.165100
+Raman_459:_intermediate	r7	1/(r3-r5)+(5/3)/(r3-r6)	0.133502
+Raman_459:_Rabi_Omega/(2*pi)_(MHz)	r8	93.3*r7*r2/r4^2	0.063939
+Raman_459:_gamma_p_(GHz)	r9	1/150	0.006667
+Raman_459:_omega_q_(GHz)	s0	9.192	9.192000
+Raman_459:_Pse_in_pi_pulse	s1	r9/4*(1/abs(r7))*(2/(r3-r5)^2+1/(r3-r5+s0)^2+1/(r3-r5-s0)^2+(10/3)/(r3-r6)^2+(5/3)/(r3-r6+s0)^2+(5/3)/(r3-r6-s0)^2)
+	0.000493
+Raman_459:_differential_stark_shift_(MHz)	s2	r8*(r3/32)*((5/3)/(r3-r6+s0)+1/(r3-r5+s0)-(5/3)/(r3-r6-s0)-1/(r3-r5-s0))	-0.006231
+Rydberg:_459_A_power_at_atoms_(mW)	s3	w3*v2*(1E3)	0.010560
+Rydberg:_1038_Power_at_atoms_(mW)	s4	w5*w2*(1E3)	2.750000
+Rydberg:_459_beam_waist	s5	sqrt(horizontal_waist_459*vertical_waist_459)*(1E6)	3.000000
+Rydberg:_1038_beam_waist	s6	sqrt(w0*w1)*(1E6)	3.709447
+Rydberg:_level	s7	w6	65.000000
+Rydberg:_detuning_3,p_(MHz)	s8	-212.3*(2*pi)	-1333.920241
+Rydberg:_detuning_4,p_(MHz)	s9	165.1*(2*pi)	1037.353894
+Rydberg:_detuning_(GHz)	t2	w7*1E-9+.165	-2.335000
+Rydberg:_detuning/2Pi__(MHz)	t3	t2*(2*pi)*1E3	-14671.237694
+Rydberg:_Rabi_Frequency/2pi_(MHz)	t4	20600*(sqrt(s3*s4)/(s7^(3/2)*s5*s6*t2))*(1-(5/8)*(s8/t3)-(3/8)*(s9/t3))/((1-(s8/t3))*(1-(s9/t3)))	-0.256826
+Rydberg:_AC_stark_shift	t4	(160200*(s4/(s7^3*s6^2))-93.47*(s3/s5^2))*(1/t2)*((1/(1-s8/t3))+((5/3)/(1-s9/t3)))	-0.007864
+Rydberg:_Sponteneous_emission_rate	t4	(.43*(sqrt(s4)*s5/(s7^(3/2)*sqrt(s3)*s6))+(2.5E-4)*(sqrt(s3)*s6/(s7^(3/2)*sqrt(s4)*s5)))*(1/t2)*(1-2*((5/8)*(s8/t3)+(3/8)*(s9/t3))+(5/8)*(s8/t3)^2+(3/8)*(s9/t3)^2)/((1-s8/t3)*(1-s9/t3)*(1-(5/8)*(s8/t3)-(3/8)*(s9/t3)))	-0.004599
+Rydberg:_Blue_power_needed_to_match_red_Rabi	t5	(1/v2)*(s4*s5^2)/(.00058*s6^2*s7^3)	0.085549
+894_power_(uw)	t5	.450	0.450000
+OP_repumper_(uw)	t5	8.5	8.500000

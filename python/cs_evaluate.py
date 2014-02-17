@@ -4,6 +4,7 @@
 #created = 2013-08-22
 #modified >= 2013-08-22
 
+from __future__ import division #always do float division
 from numpy import * #make all numpy functions accessible in this scope
 import logging
 logger = logging.getLogger(__name__)
