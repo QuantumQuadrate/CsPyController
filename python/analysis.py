@@ -149,7 +149,7 @@ class ImagePlotAnalysis(AnalysisWithFigure):
                 self.data=measurementResults['data/Hamamatsu/shots/0']
             except KeyError as e:
                 logger.warning('HDF5 data/Hamamatsu/shots/0 does not exist in analysis.ImagePlotAnalysis.analyzeMeasurement()\n'+str(e))
-                raise PauseError
+                raise PauseError 
             self.updateFigure() #only update figure if image was loaded
         else:
             text+='\n\nno image data'
@@ -161,7 +161,6 @@ class ImagePlotAnalysis(AnalysisWithFigure):
         ax=fig.add_subplot(111)
         ax.matshow(numpy.array(self.data[...]))
         ax.set_title('shot 0')
-        #fig.tight_layout()
         super(ImagePlotAnalysis,self).updateFigure()
 
 class XYPlotAnalysis(AnalysisWithFigure):
@@ -247,6 +246,5 @@ class ShotsBrowserAnalysis(AnalysisWithFigure):
         fig.clf()
         ax=fig.add_subplot(111)
         ax.matshow(self.array)
-        super(ShotsBrowserAnalysis,self).updateFigure()
-        #self.swapFigures()
+        super(ShotsBrowserAnalysis,self).updateFigure() #makes a deferred_call to swap_figures()
         
