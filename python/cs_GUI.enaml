@@ -843,19 +843,21 @@ enamldef DDS_box(StackItem):
                     # index<<loop_index
 
 enamldef DDS_Page(Page):
-    attr LabView
     attr DDS
     title = 'DDS'
     
     Container:
-        constraints=[vbox(hbox(initButton,loadButton,enable,isInit),stackGroup),align('v_center',initButton,loadButton,enable,isInit)]
+        constraints=[vbox(hbox(getDevicesButton,initButton,loadButton,enable,isInit),stackGroup),align('v_center',getDevicesButton,initButton,loadButton,enable,isInit),getDevicesButton.width==initButton.width,getDevicesButton.width==loadButton.width]
+        
+        PushButton: getDevicesButton:
+            text='Get DDS Device List'
+            clicked::DDS.getDDSDeviceList()
         PushButton: initButton:
             text='Initialize and Load'
-            clicked::LabView.initializeDDS()
-            
+            clicked::DDS.initializeDDS()
         PushButton: loadButton:
             text='Load'
-            clicked::LabView.loadDDS()
+            clicked::DDS.loadDDS()
 
         LabelBox: enable:
             text='enable'
@@ -1306,7 +1308,6 @@ enamldef Main(MainWindow): main:
                         DAQmx=main.experiment.LabView.DAQmxPulse
                     DDS_Page:
                         DDS=main.experiment.LabView.DDS
-                        LabView=main.experiment.LabView
                     RFGenPage:
                         LabView=main.experiment.LabView
                     CameraPage:

@@ -2230,3 +2230,848 @@ name 'Tru' is not definedTraceback (most recent call last):
 NameError: name 'Tru' is not defined
 
 
+2014/02/18 14:33:57 MainThread cs_errors WARNING Exception in EvalProp.evaluate() in clockRate.
+description: 
+function: 100*kilo
+float division by zero
+
+2014/02/18 14:33:57 MainThread cs_errors WARNING Exception in EvalProp.evaluate() in clockRate.
+description: 
+function: 100*kilo
+float division by zero
+
+2014/02/18 14:33:57 MainThread cs_errors WARNING Exception in EvalProp.evaluate() in clockRate.
+description: 
+function: 100*kilo
+float division by zero
+
+2014/02/18 14:33:57 MainThread cs_errors WARNING Exception in EvalProp.evaluate() in clockRate.
+description: 
+function: 100*kilo
+float division by zero
+
+2014/02/18 14:33:57 MainThread cs_errors WARNING Exception in EvalProp.evaluate() in clockRate.
+description: 
+function: 100*kilo
+float division by zero
+
+2014/02/18 14:33:57 MainThread cs_errors WARNING Exception in EvalProp.evaluate() in totalAOTime.
+description: 5 ms total
+function: 5
+float division by zero
+
+2014/02/18 14:33:57 MainThread cs_errors WARNING Exception in EvalProp.evaluate() in totalAOTime.
+description: 5 ms total
+function: 5
+float division by zero
+
+2014/02/18 14:33:57 MainThread cs_errors WARNING Exception in EvalProp.evaluate() in totalAOTime.
+description: 5 ms total
+function: 5
+float division by zero
+
+2014/02/18 14:33:57 MainThread cs_errors WARNING Exception in EvalProp.evaluate() in totalAOTime.
+description: 5 ms total
+function: 5
+float division by zero
+
+2014/02/18 14:33:57 MainThread cs_errors WARNING Exception in EvalProp.evaluate() in totalAOTime.
+description: 5 ms total
+function: 5
+float division by zero
+
+2014/02/18 14:34:10 MainThread cs_errors INFO starting application
+2014/02/18 14:34:10 MainThread cs_errors INFO starting application
+2014/02/18 14:34:10 MainThread cs_errors INFO starting application
+2014/02/18 14:34:10 MainThread cs_errors INFO starting application
+2014/02/18 14:34:10 MainThread cs_errors INFO starting application
+2014/02/18 14:34:24 MainThread cs_errors WARNING evaluating property enable, enable camera, True
+Could not eval string: F
+name 'F' is not definedTraceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\cs_evaluate.py", line 21, in evalWithDict
+    return eval(string,globals(),varDict)
+  File "<string>", line 1, in <module>
+NameError: name 'F' is not defined
+
+
+2014/02/18 14:34:24 MainThread cs_errors WARNING evaluating property enable, enable camera, True
+Could not eval string: F
+name 'F' is not definedTraceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\cs_evaluate.py", line 21, in evalWithDict
+    return eval(string,globals(),varDict)
+  File "<string>", line 1, in <module>
+NameError: name 'F' is not defined
+
+
+2014/02/18 14:34:24 MainThread cs_errors WARNING evaluating property enable, enable camera, True
+Could not eval string: F
+name 'F' is not definedTraceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\cs_evaluate.py", line 21, in evalWithDict
+    return eval(string,globals(),varDict)
+  File "<string>", line 1, in <module>
+NameError: name 'F' is not defined
+
+
+2014/02/18 14:34:24 MainThread cs_errors WARNING evaluating property enable, enable camera, True
+Could not eval string: F
+name 'F' is not definedTraceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\cs_evaluate.py", line 21, in evalWithDict
+    return eval(string,globals(),varDict)
+  File "<string>", line 1, in <module>
+NameError: name 'F' is not defined
+
+
+2014/02/18 14:34:24 MainThread cs_errors WARNING evaluating property enable, enable camera, True
+Could not eval string: F
+name 'F' is not definedTraceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\cs_evaluate.py", line 21, in evalWithDict
+    return eval(string,globals(),varDict)
+  File "<string>", line 1, in <module>
+NameError: name 'F' is not defined
+
+
+2014/02/18 14:34:24 MainThread cs_errors WARNING evaluating property enable, enable camera, True
+Could not eval string: Fa
+name 'Fa' is not definedTraceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\cs_evaluate.py", line 21, in evalWithDict
+    return eval(string,globals(),varDict)
+  File "<string>", line 1, in <module>
+NameError: name 'Fa' is not defined
+
+
+2014/02/18 14:34:24 MainThread cs_errors WARNING evaluating property enable, enable camera, True
+Could not eval string: Fa
+name 'Fa' is not definedTraceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\cs_evaluate.py", line 21, in evalWithDict
+    return eval(string,globals(),varDict)
+  File "<string>", line 1, in <module>
+NameError: name 'Fa' is not defined
+
+
+2014/02/18 14:34:24 MainThread cs_errors WARNING evaluating property enable, enable camera, True
+Could not eval string: Fa
+name 'Fa' is not definedTraceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\cs_evaluate.py", line 21, in evalWithDict
+    return eval(string,globals(),varDict)
+  File "<string>", line 1, in <module>
+NameError: name 'Fa' is not defined
+
+
+2014/02/18 14:34:24 MainThread cs_errors WARNING evaluating property enable, enable camera, True
+Could not eval string: Fa
+name 'Fa' is not definedTraceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\cs_evaluate.py", line 21, in evalWithDict
+    return eval(string,globals(),varDict)
+  File "<string>", line 1, in <module>
+NameError: name 'Fa' is not defined
+
+
+2014/02/18 14:34:24 MainThread cs_errors WARNING evaluating property enable, enable camera, True
+Could not eval string: Fa
+name 'Fa' is not definedTraceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\cs_evaluate.py", line 21, in evalWithDict
+    return eval(string,globals(),varDict)
+  File "<string>", line 1, in <module>
+NameError: name 'Fa' is not defined
+
+
+2014/02/18 14:34:24 MainThread cs_errors WARNING evaluating property enable, enable camera, True
+Could not eval string: Fal
+name 'Fal' is not definedTraceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\cs_evaluate.py", line 21, in evalWithDict
+    return eval(string,globals(),varDict)
+  File "<string>", line 1, in <module>
+NameError: name 'Fal' is not defined
+
+
+2014/02/18 14:34:24 MainThread cs_errors WARNING evaluating property enable, enable camera, True
+Could not eval string: Fal
+name 'Fal' is not definedTraceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\cs_evaluate.py", line 21, in evalWithDict
+    return eval(string,globals(),varDict)
+  File "<string>", line 1, in <module>
+NameError: name 'Fal' is not defined
+
+
+2014/02/18 14:34:24 MainThread cs_errors WARNING evaluating property enable, enable camera, True
+Could not eval string: Fal
+name 'Fal' is not definedTraceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\cs_evaluate.py", line 21, in evalWithDict
+    return eval(string,globals(),varDict)
+  File "<string>", line 1, in <module>
+NameError: name 'Fal' is not defined
+
+
+2014/02/18 14:34:24 MainThread cs_errors WARNING evaluating property enable, enable camera, True
+Could not eval string: Fal
+name 'Fal' is not definedTraceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\cs_evaluate.py", line 21, in evalWithDict
+    return eval(string,globals(),varDict)
+  File "<string>", line 1, in <module>
+NameError: name 'Fal' is not defined
+
+
+2014/02/18 14:34:24 MainThread cs_errors WARNING evaluating property enable, enable camera, True
+Could not eval string: Fal
+name 'Fal' is not definedTraceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\cs_evaluate.py", line 21, in evalWithDict
+    return eval(string,globals(),varDict)
+  File "<string>", line 1, in <module>
+NameError: name 'Fal' is not defined
+
+
+2014/02/18 14:34:24 MainThread cs_errors WARNING evaluating property enable, enable camera, True
+Could not eval string: Fals
+name 'Fals' is not definedTraceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\cs_evaluate.py", line 21, in evalWithDict
+    return eval(string,globals(),varDict)
+  File "<string>", line 1, in <module>
+NameError: name 'Fals' is not defined
+
+
+2014/02/18 14:34:24 MainThread cs_errors WARNING evaluating property enable, enable camera, True
+Could not eval string: Fals
+name 'Fals' is not definedTraceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\cs_evaluate.py", line 21, in evalWithDict
+    return eval(string,globals(),varDict)
+  File "<string>", line 1, in <module>
+NameError: name 'Fals' is not defined
+
+
+2014/02/18 14:34:24 MainThread cs_errors WARNING evaluating property enable, enable camera, True
+Could not eval string: Fals
+name 'Fals' is not definedTraceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\cs_evaluate.py", line 21, in evalWithDict
+    return eval(string,globals(),varDict)
+  File "<string>", line 1, in <module>
+NameError: name 'Fals' is not defined
+
+
+2014/02/18 14:34:24 MainThread cs_errors WARNING evaluating property enable, enable camera, True
+Could not eval string: Fals
+name 'Fals' is not definedTraceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\cs_evaluate.py", line 21, in evalWithDict
+    return eval(string,globals(),varDict)
+  File "<string>", line 1, in <module>
+NameError: name 'Fals' is not defined
+
+
+2014/02/18 14:34:24 MainThread cs_errors WARNING evaluating property enable, enable camera, True
+Could not eval string: Fals
+name 'Fals' is not definedTraceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\cs_evaluate.py", line 21, in evalWithDict
+    return eval(string,globals(),varDict)
+  File "<string>", line 1, in <module>
+NameError: name 'Fals' is not defined
+
+
+2014/02/18 17:26:30 MainThread cs_errors WARNING Exception in EvalProp.evaluate() in clockRate.
+description: 
+function: 100*kilo
+float division by zero
+
+2014/02/18 17:26:30 MainThread cs_errors WARNING Exception in EvalProp.evaluate() in clockRate.
+description: 
+function: 100*kilo
+float division by zero
+
+2014/02/18 17:26:30 MainThread cs_errors WARNING Exception in EvalProp.evaluate() in clockRate.
+description: 
+function: 100*kilo
+float division by zero
+
+2014/02/18 17:26:30 MainThread cs_errors WARNING Exception in EvalProp.evaluate() in clockRate.
+description: 
+function: 100*kilo
+float division by zero
+
+2014/02/18 17:26:30 MainThread cs_errors WARNING Exception in EvalProp.evaluate() in clockRate.
+description: 
+function: 100*kilo
+float division by zero
+
+2014/02/18 17:26:30 MainThread cs_errors WARNING Exception in EvalProp.evaluate() in totalAOTime.
+description: 5 ms total
+function: 5
+float division by zero
+
+2014/02/18 17:26:30 MainThread cs_errors WARNING Exception in EvalProp.evaluate() in totalAOTime.
+description: 5 ms total
+function: 5
+float division by zero
+
+2014/02/18 17:26:30 MainThread cs_errors WARNING Exception in EvalProp.evaluate() in totalAOTime.
+description: 5 ms total
+function: 5
+float division by zero
+
+2014/02/18 17:26:30 MainThread cs_errors WARNING Exception in EvalProp.evaluate() in totalAOTime.
+description: 5 ms total
+function: 5
+float division by zero
+
+2014/02/18 17:26:30 MainThread cs_errors WARNING Exception in EvalProp.evaluate() in totalAOTime.
+description: 5 ms total
+function: 5
+float division by zero
+
+2014/02/18 17:26:44 MainThread cs_errors INFO starting application
+2014/02/18 17:26:44 MainThread cs_errors INFO starting application
+2014/02/18 17:26:44 MainThread cs_errors INFO starting application
+2014/02/18 17:26:44 MainThread cs_errors INFO starting application
+2014/02/18 17:26:44 MainThread cs_errors INFO starting application
+2014/02/18 17:27:53 MainThread cs_errors WARNING Exception in EvalProp.evaluate() in clockRate.
+description: 
+function: 100*kilo
+float division by zero
+
+2014/02/18 17:27:53 MainThread cs_errors WARNING Exception in EvalProp.evaluate() in clockRate.
+description: 
+function: 100*kilo
+float division by zero
+
+2014/02/18 17:27:53 MainThread cs_errors WARNING Exception in EvalProp.evaluate() in clockRate.
+description: 
+function: 100*kilo
+float division by zero
+
+2014/02/18 17:27:53 MainThread cs_errors WARNING Exception in EvalProp.evaluate() in clockRate.
+description: 
+function: 100*kilo
+float division by zero
+
+2014/02/18 17:27:53 MainThread cs_errors WARNING Exception in EvalProp.evaluate() in clockRate.
+description: 
+function: 100*kilo
+float division by zero
+
+2014/02/18 17:27:53 MainThread cs_errors WARNING Exception in EvalProp.evaluate() in totalAOTime.
+description: 5 ms total
+function: 5
+float division by zero
+
+2014/02/18 17:27:53 MainThread cs_errors WARNING Exception in EvalProp.evaluate() in totalAOTime.
+description: 5 ms total
+function: 5
+float division by zero
+
+2014/02/18 17:27:53 MainThread cs_errors WARNING Exception in EvalProp.evaluate() in totalAOTime.
+description: 5 ms total
+function: 5
+float division by zero
+
+2014/02/18 17:27:53 MainThread cs_errors WARNING Exception in EvalProp.evaluate() in totalAOTime.
+description: 5 ms total
+function: 5
+float division by zero
+
+2014/02/18 17:27:53 MainThread cs_errors WARNING Exception in EvalProp.evaluate() in totalAOTime.
+description: 5 ms total
+function: 5
+float division by zero
+
+2014/02/18 17:28:06 MainThread cs_errors INFO starting application
+2014/02/18 17:28:06 MainThread cs_errors INFO starting application
+2014/02/18 17:28:06 MainThread cs_errors INFO starting application
+2014/02/18 17:28:06 MainThread cs_errors INFO starting application
+2014/02/18 17:28:06 MainThread cs_errors INFO starting application
+2014/02/18 17:29:12 MainThread cs_errors WARNING Exception in EvalProp.evaluate() in clockRate.
+description: 
+function: 100*kilo
+float division by zero
+
+2014/02/18 17:29:12 MainThread cs_errors WARNING Exception in EvalProp.evaluate() in clockRate.
+description: 
+function: 100*kilo
+float division by zero
+
+2014/02/18 17:29:12 MainThread cs_errors WARNING Exception in EvalProp.evaluate() in clockRate.
+description: 
+function: 100*kilo
+float division by zero
+
+2014/02/18 17:29:12 MainThread cs_errors WARNING Exception in EvalProp.evaluate() in clockRate.
+description: 
+function: 100*kilo
+float division by zero
+
+2014/02/18 17:29:12 MainThread cs_errors WARNING Exception in EvalProp.evaluate() in clockRate.
+description: 
+function: 100*kilo
+float division by zero
+
+2014/02/18 17:29:12 MainThread cs_errors WARNING Exception in EvalProp.evaluate() in totalAOTime.
+description: 5 ms total
+function: 5
+float division by zero
+
+2014/02/18 17:29:12 MainThread cs_errors WARNING Exception in EvalProp.evaluate() in totalAOTime.
+description: 5 ms total
+function: 5
+float division by zero
+
+2014/02/18 17:29:12 MainThread cs_errors WARNING Exception in EvalProp.evaluate() in totalAOTime.
+description: 5 ms total
+function: 5
+float division by zero
+
+2014/02/18 17:29:12 MainThread cs_errors WARNING Exception in EvalProp.evaluate() in totalAOTime.
+description: 5 ms total
+function: 5
+float division by zero
+
+2014/02/18 17:29:12 MainThread cs_errors WARNING Exception in EvalProp.evaluate() in totalAOTime.
+description: 5 ms total
+function: 5
+float division by zero
+
+2014/02/18 17:29:26 MainThread cs_errors INFO starting application
+2014/02/18 17:29:26 MainThread cs_errors INFO starting application
+2014/02/18 17:29:26 MainThread cs_errors INFO starting application
+2014/02/18 17:29:26 MainThread cs_errors INFO starting application
+2014/02/18 17:29:26 MainThread cs_errors INFO starting application
+2014/02/18 17:29:53 Thread-1 cs_errors WARNING Failed to open TCP socket in LabView.initialize()
+2014/02/18 17:29:53 Thread-1 cs_errors WARNING Failed to open TCP socket in LabView.initialize()
+2014/02/18 17:29:53 Thread-1 cs_errors WARNING Failed to open TCP socket in LabView.initialize()
+2014/02/18 17:29:53 Thread-1 cs_errors WARNING Failed to open TCP socket in LabView.initialize()
+2014/02/18 17:29:53 Thread-1 cs_errors WARNING Failed to open TCP socket in LabView.initialize()
+2014/02/18 17:29:53 Thread-1 cs_errors WARNING LabView instrument claims to be initialized, but is not connected in LabView.update()
+2014/02/18 17:29:53 Thread-1 cs_errors WARNING LabView instrument claims to be initialized, but is not connected in LabView.update()
+2014/02/18 17:29:53 Thread-1 cs_errors WARNING LabView instrument claims to be initialized, but is not connected in LabView.update()
+2014/02/18 17:29:53 Thread-1 cs_errors WARNING LabView instrument claims to be initialized, but is not connected in LabView.update()
+2014/02/18 17:29:53 Thread-1 cs_errors WARNING LabView instrument claims to be initialized, but is not connected in LabView.update()
+2014/02/18 17:29:54 Thread-1 cs_errors WARNING LabView instrument claims to be initialized, but is not connected in LabView.update()
+2014/02/18 17:29:54 Thread-1 cs_errors WARNING LabView instrument claims to be initialized, but is not connected in LabView.update()
+2014/02/18 17:29:54 Thread-1 cs_errors WARNING LabView instrument claims to be initialized, but is not connected in LabView.update()
+2014/02/18 17:29:54 Thread-1 cs_errors WARNING LabView instrument claims to be initialized, but is not connected in LabView.update()
+2014/02/18 17:29:54 Thread-1 cs_errors WARNING LabView instrument claims to be initialized, but is not connected in LabView.update()
+2014/02/18 17:33:20 MainThread cs_errors WARNING Exception in EvalProp.evaluate() in clockRate.
+description: 
+function: 100*kilo
+float division by zero
+
+2014/02/18 17:33:20 MainThread cs_errors WARNING Exception in EvalProp.evaluate() in clockRate.
+description: 
+function: 100*kilo
+float division by zero
+
+2014/02/18 17:33:20 MainThread cs_errors WARNING Exception in EvalProp.evaluate() in clockRate.
+description: 
+function: 100*kilo
+float division by zero
+
+2014/02/18 17:33:20 MainThread cs_errors WARNING Exception in EvalProp.evaluate() in clockRate.
+description: 
+function: 100*kilo
+float division by zero
+
+2014/02/18 17:33:20 MainThread cs_errors WARNING Exception in EvalProp.evaluate() in clockRate.
+description: 
+function: 100*kilo
+float division by zero
+
+2014/02/18 17:33:20 MainThread cs_errors WARNING Exception in EvalProp.evaluate() in totalAOTime.
+description: 5 ms total
+function: 5
+float division by zero
+
+2014/02/18 17:33:20 MainThread cs_errors WARNING Exception in EvalProp.evaluate() in totalAOTime.
+description: 5 ms total
+function: 5
+float division by zero
+
+2014/02/18 17:33:20 MainThread cs_errors WARNING Exception in EvalProp.evaluate() in totalAOTime.
+description: 5 ms total
+function: 5
+float division by zero
+
+2014/02/18 17:33:20 MainThread cs_errors WARNING Exception in EvalProp.evaluate() in totalAOTime.
+description: 5 ms total
+function: 5
+float division by zero
+
+2014/02/18 17:33:20 MainThread cs_errors WARNING Exception in EvalProp.evaluate() in totalAOTime.
+description: 5 ms total
+function: 5
+float division by zero
+
+2014/02/18 17:33:33 MainThread cs_errors INFO starting application
+2014/02/18 17:33:33 MainThread cs_errors INFO starting application
+2014/02/18 17:33:33 MainThread cs_errors INFO starting application
+2014/02/18 17:33:33 MainThread cs_errors INFO starting application
+2014/02/18 17:33:33 MainThread cs_errors INFO starting application
+2014/02/18 17:34:08 MainThread cs_errors WARNING Initializing LabView LabView.command(getDDSDevices)
+2014/02/18 17:34:08 MainThread cs_errors WARNING Initializing LabView LabView.command(getDDSDevices)
+2014/02/18 17:34:08 MainThread cs_errors WARNING Initializing LabView LabView.command(getDDSDevices)
+2014/02/18 17:34:08 MainThread cs_errors WARNING Initializing LabView LabView.command(getDDSDevices)
+2014/02/18 17:34:08 MainThread cs_errors WARNING Initializing LabView LabView.command(getDDSDevices)
+2014/02/18 17:34:29 MainThread cs_errors WARNING Failed to open TCP socket in LabView.initialize()
+2014/02/18 17:34:29 MainThread cs_errors WARNING Failed to open TCP socket in LabView.initialize()
+2014/02/18 17:34:29 MainThread cs_errors WARNING Failed to open TCP socket in LabView.initialize()
+2014/02/18 17:34:29 MainThread cs_errors WARNING Failed to open TCP socket in LabView.initialize()
+2014/02/18 17:34:29 MainThread cs_errors WARNING Failed to open TCP socket in LabView.initialize()
+2014/02/18 17:34:29 MainThread cs_errors WARNING LabView instrument is not connected in LabView.command(getDDSDevices)
+2014/02/18 17:34:29 MainThread cs_errors WARNING LabView instrument is not connected in LabView.command(getDDSDevices)
+2014/02/18 17:34:29 MainThread cs_errors WARNING LabView instrument is not connected in LabView.command(getDDSDevices)
+2014/02/18 17:34:29 MainThread cs_errors WARNING LabView instrument is not connected in LabView.command(getDDSDevices)
+2014/02/18 17:34:29 MainThread cs_errors WARNING LabView instrument is not connected in LabView.command(getDDSDevices)
+2014/02/18 17:35:06 MainThread cs_errors WARNING Exception in EvalProp.evaluate() in clockRate.
+description: 
+function: 100*kilo
+float division by zero
+
+2014/02/18 17:35:06 MainThread cs_errors WARNING Exception in EvalProp.evaluate() in clockRate.
+description: 
+function: 100*kilo
+float division by zero
+
+2014/02/18 17:35:06 MainThread cs_errors WARNING Exception in EvalProp.evaluate() in clockRate.
+description: 
+function: 100*kilo
+float division by zero
+
+2014/02/18 17:35:06 MainThread cs_errors WARNING Exception in EvalProp.evaluate() in clockRate.
+description: 
+function: 100*kilo
+float division by zero
+
+2014/02/18 17:35:06 MainThread cs_errors WARNING Exception in EvalProp.evaluate() in clockRate.
+description: 
+function: 100*kilo
+float division by zero
+
+2014/02/18 17:35:06 MainThread cs_errors WARNING Exception in EvalProp.evaluate() in totalAOTime.
+description: 5 ms total
+function: 5
+float division by zero
+
+2014/02/18 17:35:06 MainThread cs_errors WARNING Exception in EvalProp.evaluate() in totalAOTime.
+description: 5 ms total
+function: 5
+float division by zero
+
+2014/02/18 17:35:06 MainThread cs_errors WARNING Exception in EvalProp.evaluate() in totalAOTime.
+description: 5 ms total
+function: 5
+float division by zero
+
+2014/02/18 17:35:06 MainThread cs_errors WARNING Exception in EvalProp.evaluate() in totalAOTime.
+description: 5 ms total
+function: 5
+float division by zero
+
+2014/02/18 17:35:06 MainThread cs_errors WARNING Exception in EvalProp.evaluate() in totalAOTime.
+description: 5 ms total
+function: 5
+float division by zero
+
+2014/02/18 17:35:19 MainThread cs_errors INFO starting application
+2014/02/18 17:35:19 MainThread cs_errors INFO starting application
+2014/02/18 17:35:19 MainThread cs_errors INFO starting application
+2014/02/18 17:35:19 MainThread cs_errors INFO starting application
+2014/02/18 17:35:19 MainThread cs_errors INFO starting application
+2014/02/18 17:36:38 MainThread cs_errors INFO LabView was not initialized.  Initializing LabView in LabView.command(getDDSDevices)
+2014/02/18 17:36:38 MainThread cs_errors INFO LabView was not initialized.  Initializing LabView in LabView.command(getDDSDevices)
+2014/02/18 17:36:38 MainThread cs_errors INFO LabView was not initialized.  Initializing LabView in LabView.command(getDDSDevices)
+2014/02/18 17:36:38 MainThread cs_errors INFO LabView was not initialized.  Initializing LabView in LabView.command(getDDSDevices)
+2014/02/18 17:36:38 MainThread cs_errors INFO LabView was not initialized.  Initializing LabView in LabView.command(getDDSDevices)
+2014/02/18 17:36:49 MainThread cs_errors WARNING Exception in EvalProp.evaluate() in clockRate.
+description: 
+function: 100*kilo
+float division by zero
+
+2014/02/18 17:36:49 MainThread cs_errors WARNING Exception in EvalProp.evaluate() in clockRate.
+description: 
+function: 100*kilo
+float division by zero
+
+2014/02/18 17:36:49 MainThread cs_errors WARNING Exception in EvalProp.evaluate() in clockRate.
+description: 
+function: 100*kilo
+float division by zero
+
+2014/02/18 17:36:49 MainThread cs_errors WARNING Exception in EvalProp.evaluate() in clockRate.
+description: 
+function: 100*kilo
+float division by zero
+
+2014/02/18 17:36:49 MainThread cs_errors WARNING Exception in EvalProp.evaluate() in clockRate.
+description: 
+function: 100*kilo
+float division by zero
+
+2014/02/18 17:36:49 MainThread cs_errors WARNING Exception in EvalProp.evaluate() in totalAOTime.
+description: 5 ms total
+function: 5
+float division by zero
+
+2014/02/18 17:36:49 MainThread cs_errors WARNING Exception in EvalProp.evaluate() in totalAOTime.
+description: 5 ms total
+function: 5
+float division by zero
+
+2014/02/18 17:36:49 MainThread cs_errors WARNING Exception in EvalProp.evaluate() in totalAOTime.
+description: 5 ms total
+function: 5
+float division by zero
+
+2014/02/18 17:36:49 MainThread cs_errors WARNING Exception in EvalProp.evaluate() in totalAOTime.
+description: 5 ms total
+function: 5
+float division by zero
+
+2014/02/18 17:36:49 MainThread cs_errors WARNING Exception in EvalProp.evaluate() in totalAOTime.
+description: 5 ms total
+function: 5
+float division by zero
+
+2014/02/18 17:37:02 MainThread cs_errors INFO starting application
+2014/02/18 17:37:02 MainThread cs_errors INFO starting application
+2014/02/18 17:37:02 MainThread cs_errors INFO starting application
+2014/02/18 17:37:02 MainThread cs_errors INFO starting application
+2014/02/18 17:37:02 MainThread cs_errors INFO starting application
+2014/02/18 17:37:18 MainThread cs_errors INFO LabView was not initialized.  Initializing LabView in LabView.command(getDDSDevices)
+2014/02/18 17:37:18 MainThread cs_errors INFO LabView was not initialized.  Initializing LabView in LabView.command(getDDSDevices)
+2014/02/18 17:37:18 MainThread cs_errors INFO LabView was not initialized.  Initializing LabView in LabView.command(getDDSDevices)
+2014/02/18 17:37:18 MainThread cs_errors INFO LabView was not initialized.  Initializing LabView in LabView.command(getDDSDevices)
+2014/02/18 17:37:18 MainThread cs_errors INFO LabView was not initialized.  Initializing LabView in LabView.command(getDDSDevices)
+2014/02/18 17:38:31 MainThread cs_errors WARNING Exception in EvalProp.evaluate() in clockRate.
+description: 
+function: 100*kilo
+float division by zero
+
+2014/02/18 17:38:31 MainThread cs_errors WARNING Exception in EvalProp.evaluate() in clockRate.
+description: 
+function: 100*kilo
+float division by zero
+
+2014/02/18 17:38:31 MainThread cs_errors WARNING Exception in EvalProp.evaluate() in clockRate.
+description: 
+function: 100*kilo
+float division by zero
+
+2014/02/18 17:38:31 MainThread cs_errors WARNING Exception in EvalProp.evaluate() in clockRate.
+description: 
+function: 100*kilo
+float division by zero
+
+2014/02/18 17:38:31 MainThread cs_errors WARNING Exception in EvalProp.evaluate() in clockRate.
+description: 
+function: 100*kilo
+float division by zero
+
+2014/02/18 17:38:31 MainThread cs_errors WARNING Exception in EvalProp.evaluate() in totalAOTime.
+description: 5 ms total
+function: 5
+float division by zero
+
+2014/02/18 17:38:31 MainThread cs_errors WARNING Exception in EvalProp.evaluate() in totalAOTime.
+description: 5 ms total
+function: 5
+float division by zero
+
+2014/02/18 17:38:31 MainThread cs_errors WARNING Exception in EvalProp.evaluate() in totalAOTime.
+description: 5 ms total
+function: 5
+float division by zero
+
+2014/02/18 17:38:31 MainThread cs_errors WARNING Exception in EvalProp.evaluate() in totalAOTime.
+description: 5 ms total
+function: 5
+float division by zero
+
+2014/02/18 17:38:31 MainThread cs_errors WARNING Exception in EvalProp.evaluate() in totalAOTime.
+description: 5 ms total
+function: 5
+float division by zero
+
+2014/02/18 17:38:45 MainThread cs_errors INFO starting application
+2014/02/18 17:38:45 MainThread cs_errors INFO starting application
+2014/02/18 17:38:45 MainThread cs_errors INFO starting application
+2014/02/18 17:38:45 MainThread cs_errors INFO starting application
+2014/02/18 17:38:45 MainThread cs_errors INFO starting application
+2014/02/18 17:38:53 MainThread cs_errors INFO LabView was not initialized.  Initializing LabView in LabView.command(getDDSDeviceList)
+2014/02/18 17:38:53 MainThread cs_errors INFO LabView was not initialized.  Initializing LabView in LabView.command(getDDSDeviceList)
+2014/02/18 17:38:53 MainThread cs_errors INFO LabView was not initialized.  Initializing LabView in LabView.command(getDDSDeviceList)
+2014/02/18 17:38:53 MainThread cs_errors INFO LabView was not initialized.  Initializing LabView in LabView.command(getDDSDeviceList)
+2014/02/18 17:38:53 MainThread cs_errors INFO LabView was not initialized.  Initializing LabView in LabView.command(getDDSDeviceList)
+2014/02/18 17:43:04 MainThread cs_errors WARNING Exception in EvalProp.evaluate() in clockRate.
+description: 
+function: 100*kilo
+float division by zero
+
+2014/02/18 17:43:04 MainThread cs_errors WARNING Exception in EvalProp.evaluate() in clockRate.
+description: 
+function: 100*kilo
+float division by zero
+
+2014/02/18 17:43:04 MainThread cs_errors WARNING Exception in EvalProp.evaluate() in clockRate.
+description: 
+function: 100*kilo
+float division by zero
+
+2014/02/18 17:43:04 MainThread cs_errors WARNING Exception in EvalProp.evaluate() in clockRate.
+description: 
+function: 100*kilo
+float division by zero
+
+2014/02/18 17:43:04 MainThread cs_errors WARNING Exception in EvalProp.evaluate() in clockRate.
+description: 
+function: 100*kilo
+float division by zero
+
+2014/02/18 17:43:04 MainThread cs_errors WARNING Exception in EvalProp.evaluate() in totalAOTime.
+description: 5 ms total
+function: 5
+float division by zero
+
+2014/02/18 17:43:04 MainThread cs_errors WARNING Exception in EvalProp.evaluate() in totalAOTime.
+description: 5 ms total
+function: 5
+float division by zero
+
+2014/02/18 17:43:04 MainThread cs_errors WARNING Exception in EvalProp.evaluate() in totalAOTime.
+description: 5 ms total
+function: 5
+float division by zero
+
+2014/02/18 17:43:04 MainThread cs_errors WARNING Exception in EvalProp.evaluate() in totalAOTime.
+description: 5 ms total
+function: 5
+float division by zero
+
+2014/02/18 17:43:04 MainThread cs_errors WARNING Exception in EvalProp.evaluate() in totalAOTime.
+description: 5 ms total
+function: 5
+float division by zero
+
+2014/02/18 17:43:18 MainThread cs_errors INFO starting application
+2014/02/18 17:43:18 MainThread cs_errors INFO starting application
+2014/02/18 17:43:18 MainThread cs_errors INFO starting application
+2014/02/18 17:43:18 MainThread cs_errors INFO starting application
+2014/02/18 17:43:18 MainThread cs_errors INFO starting application
+2014/02/18 17:43:29 MainThread cs_errors INFO LabView was not initialized.  Initializing LabView in LabView.command(getDDSDeviceList)
+2014/02/18 17:43:29 MainThread cs_errors INFO LabView was not initialized.  Initializing LabView in LabView.command(getDDSDeviceList)
+2014/02/18 17:43:29 MainThread cs_errors INFO LabView was not initialized.  Initializing LabView in LabView.command(getDDSDeviceList)
+2014/02/18 17:43:29 MainThread cs_errors INFO LabView was not initialized.  Initializing LabView in LabView.command(getDDSDeviceList)
+2014/02/18 17:43:29 MainThread cs_errors INFO LabView was not initialized.  Initializing LabView in LabView.command(getDDSDeviceList)
+2014/02/18 17:48:07 MainThread cs_errors WARNING Exception in EvalProp.evaluate() in clockRate.
+description: 
+function: 100*kilo
+float division by zero
+
+2014/02/18 17:48:07 MainThread cs_errors WARNING Exception in EvalProp.evaluate() in clockRate.
+description: 
+function: 100*kilo
+float division by zero
+
+2014/02/18 17:48:07 MainThread cs_errors WARNING Exception in EvalProp.evaluate() in clockRate.
+description: 
+function: 100*kilo
+float division by zero
+
+2014/02/18 17:48:07 MainThread cs_errors WARNING Exception in EvalProp.evaluate() in clockRate.
+description: 
+function: 100*kilo
+float division by zero
+
+2014/02/18 17:48:07 MainThread cs_errors WARNING Exception in EvalProp.evaluate() in clockRate.
+description: 
+function: 100*kilo
+float division by zero
+
+2014/02/18 17:48:07 MainThread cs_errors WARNING Exception in EvalProp.evaluate() in totalAOTime.
+description: 5 ms total
+function: 5
+float division by zero
+
+2014/02/18 17:48:07 MainThread cs_errors WARNING Exception in EvalProp.evaluate() in totalAOTime.
+description: 5 ms total
+function: 5
+float division by zero
+
+2014/02/18 17:48:07 MainThread cs_errors WARNING Exception in EvalProp.evaluate() in totalAOTime.
+description: 5 ms total
+function: 5
+float division by zero
+
+2014/02/18 17:48:07 MainThread cs_errors WARNING Exception in EvalProp.evaluate() in totalAOTime.
+description: 5 ms total
+function: 5
+float division by zero
+
+2014/02/18 17:48:07 MainThread cs_errors WARNING Exception in EvalProp.evaluate() in totalAOTime.
+description: 5 ms total
+function: 5
+float division by zero
+
+2014/02/18 17:48:20 MainThread cs_errors INFO starting application
+2014/02/18 17:48:20 MainThread cs_errors INFO starting application
+2014/02/18 17:48:20 MainThread cs_errors INFO starting application
+2014/02/18 17:48:20 MainThread cs_errors INFO starting application
+2014/02/18 17:48:20 MainThread cs_errors INFO starting application
+2014/02/18 17:49:02 MainThread cs_errors INFO LabView was not initialized.  Initializing LabView in LabView.command(getDDSDeviceList)
+2014/02/18 17:49:02 MainThread cs_errors INFO LabView was not initialized.  Initializing LabView in LabView.command(getDDSDeviceList)
+2014/02/18 17:49:02 MainThread cs_errors INFO LabView was not initialized.  Initializing LabView in LabView.command(getDDSDeviceList)
+2014/02/18 17:49:02 MainThread cs_errors INFO LabView was not initialized.  Initializing LabView in LabView.command(getDDSDeviceList)
+2014/02/18 17:49:02 MainThread cs_errors INFO LabView was not initialized.  Initializing LabView in LabView.command(getDDSDeviceList)
+2014/02/18 17:50:05 MainThread cs_errors WARNING Exception in EvalProp.evaluate() in clockRate.
+description: 
+function: 100*kilo
+float division by zero
+
+2014/02/18 17:50:05 MainThread cs_errors WARNING Exception in EvalProp.evaluate() in clockRate.
+description: 
+function: 100*kilo
+float division by zero
+
+2014/02/18 17:50:05 MainThread cs_errors WARNING Exception in EvalProp.evaluate() in clockRate.
+description: 
+function: 100*kilo
+float division by zero
+
+2014/02/18 17:50:05 MainThread cs_errors WARNING Exception in EvalProp.evaluate() in clockRate.
+description: 
+function: 100*kilo
+float division by zero
+
+2014/02/18 17:50:05 MainThread cs_errors WARNING Exception in EvalProp.evaluate() in clockRate.
+description: 
+function: 100*kilo
+float division by zero
+
+2014/02/18 17:50:05 MainThread cs_errors WARNING Exception in EvalProp.evaluate() in totalAOTime.
+description: 5 ms total
+function: 5
+float division by zero
+
+2014/02/18 17:50:05 MainThread cs_errors WARNING Exception in EvalProp.evaluate() in totalAOTime.
+description: 5 ms total
+function: 5
+float division by zero
+
+2014/02/18 17:50:05 MainThread cs_errors WARNING Exception in EvalProp.evaluate() in totalAOTime.
+description: 5 ms total
+function: 5
+float division by zero
+
+2014/02/18 17:50:05 MainThread cs_errors WARNING Exception in EvalProp.evaluate() in totalAOTime.
+description: 5 ms total
+function: 5
+float division by zero
+
+2014/02/18 17:50:05 MainThread cs_errors WARNING Exception in EvalProp.evaluate() in totalAOTime.
+description: 5 ms total
+function: 5
+float division by zero
+
+2014/02/18 17:50:18 MainThread cs_errors INFO starting application
+2014/02/18 17:50:18 MainThread cs_errors INFO starting application
+2014/02/18 17:50:18 MainThread cs_errors INFO starting application
+2014/02/18 17:50:18 MainThread cs_errors INFO starting application
+2014/02/18 17:50:18 MainThread cs_errors INFO starting application
+2014/02/18 17:50:30 MainThread cs_errors INFO LabView was not initialized.  Initializing LabView in LabView.command(getDDSDeviceList)
+2014/02/18 17:50:30 MainThread cs_errors INFO LabView was not initialized.  Initializing LabView in LabView.command(getDDSDeviceList)
+2014/02/18 17:50:30 MainThread cs_errors INFO LabView was not initialized.  Initializing LabView in LabView.command(getDDSDeviceList)
+2014/02/18 17:50:30 MainThread cs_errors INFO LabView was not initialized.  Initializing LabView in LabView.command(getDDSDeviceList)
+2014/02/18 17:50:30 MainThread cs_errors INFO LabView was not initialized.  Initializing LabView in LabView.command(getDDSDeviceList)

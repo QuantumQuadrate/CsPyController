@@ -51,7 +51,7 @@ class LabView(Instrument):
     def __init__(self,experiment):
         super(LabView,self).__init__('LabView',experiment,'for communicating with a LabView system')
         self.HSDIO=HSDIO.HSDIO(experiment)
-        self.DDS=DDS.DDS(experiment)
+        self.DDS=DDS.DDS(experiment,self)
         self.piezo=piezo.Piezo(experiment)
         self.RF_generators=RF_generators.RF_generators(experiment)
         self.AnalogOutput=AnalogOutput.AnalogOutput(experiment)
@@ -126,31 +126,7 @@ class LabView(Instrument):
                 raise PauseError
     
     def start(self):
-        if self.enabled:
-            if self.isInitialized:
-                if self.connected:
-                    #tell the LabView instruments to measure
-                    self.msg='<LabView><command>measure</command></LabView>'
-                    self.sock.sendmsg(self.msg)
-                    #wait for response
-                    while not self.experiment.timeOutExpired:
-                        try:
-                            rawdata=self.sock.receive()
-                        except IOError:
-                            print 'Waiting for data'
-                        if rawdata is not None:
-                            #print 'data received: {}'.format(rawdata[:40])
-                            self.results=self.sock.parsemsg(rawdata)
-                            #print 'len(self.results)={}'.format(len(self.results))
-                            break
-                else:
-                    logger.warning('LabView instrument claims to be initialized, but is not connected in LabView.start()')
-                    raise PauseError
-            else:
-                logger.warning('LabView instrument should be initialized already, but is not, in LabView.start()')
-                raise PauseError
-            
-        self.isDone=True
+        self.command('measure')
     
     def writeResults(self,hdf5):
         '''Write the previously obtained results to the experiment hdf5 file.
@@ -221,8 +197,30 @@ class LabView(Instrument):
             logger.warning("while getting hdf5['error']\n"+str(e))
             raise PauseError
     
-    def initializeDDS(self):
-        raise NotImplementedError
-    
-    def loadDDS(self):
-        raise NotImplementedError
+    def command(self,command):
+        results={}
+        if self.enabled:
+            if not self.isInitialized:
+                logger.info('LabView was not initialized.  Initializing LabView in LabView.command({})'.format(command))
+                self.initialize()
+            if self.connected:
+                #tell the LabView instruments to measure
+                self.msg='<LabView><command>'+command+'</command></LabView>'
+                self.sock.sendmsg(self.msg)
+                #wait for response
+                while not self.experiment.timeOutExpired:
+                    try:
+                        rawdata=self.sock.receive()
+                    except IOError:
+                        print 'Waiting for data'
+                    if rawdata is not None:
+                        #print 'data received: {}'.format(rawdata[:40])
+                        results=self.sock.parsemsg(rawdata)
+                        #print 'len(self.results)={}'.format(len(self.results))
+                        break
+            else:
+                logger.warning('LabView instrument is not connected in LabView.command({})'.format(command))
+                raise PauseError
+        self.results=results
+        self.isDone=True
+        return results

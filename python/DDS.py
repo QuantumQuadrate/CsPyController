@@ -20,9 +20,11 @@ class DDS(Instrument):
     enable=Typed(BoolProp)
     boxes=Typed(ListProp)
     version=Member()
+    communicator=Member() #holds the reference to the thing that sends DDS commands, usually the LabView object
     
-    def __init__(self,experiment):
+    def __init__(self,experiment,communicator):
         super(DDS,self).__init__('DDS',experiment)
+        self.communicator=communicator
         self.version='2014.01.22'
         self.enable=BoolProp('enable',self.experiment,'enable DDS output','False')
         self.boxes=ListProp('boxes',experiment,listElementType=DDSbox,listElementName='box')
@@ -33,6 +35,19 @@ class DDS(Instrument):
         newbox=DDSbox('box'+str(len(self.boxes)),self.experiment)
         self.boxes.append(newbox)
         return newbox
+    
+    def getDDSDeviceList(self):
+        result=self.communicator.command('getDDSDeviceList')
+        print result
+        print result['DDS/devices']
+    
+    def initializeDDS(self):
+        result=self.communicator.command('initializeDDS')
+        print result
+    
+    def loadDDS(self):
+        result=self.communicator.command('loadDDS')
+        print result
 
 class DDSbox(Prop):
     enable=Bool()
