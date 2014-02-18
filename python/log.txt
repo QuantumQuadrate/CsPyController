@@ -1,0 +1,2232 @@
+2014/02/17 15:13:32 MainThread __main__ INFO starting application
+2014/02/17 19:39:36 MainThread __main__ INFO starting application
+2014/02/17 19:41:30 MainThread __main__ INFO starting application
+2014/02/17 19:42:59 MainThread __main__ INFO starting application
+
+Could not exec string: #SI Prefixes
+giga=1e9; mega=1e6; kilo=1e3; milli=1e-3; micro=1e-6; nano=1e-9; pico=1e-12
+
+#physics constants
+c0=299792458 #m/s
+eps0=8.854187817e-12 # F/m
+alpha=7.2973525698e-3
+kB_SI=1.3806488e-23 #J/K
+
+#for use in analog output equations
+import scipy.signal
+
+#erstwhile independent variables
+raman_frequency=9172.6
+microwave_frequency=0.0
+microwave_raman_time=.08
+
+#dependent variables
+MOT_loading_time = 300
+MOT_frequency = 108
+MOT_power = 0
+
+hyperfine_time = MOT_loading_time
+hyperfine_frequency = 275
+hyperfine_power = 0
+
+trap_drop_time_before_loading=10
+MOT_2D_time=MOT_loading_time-12.5
+trap_off_time=20
+trap_on_time_during_loading = MOT_loading_time - trap_off_time - trap_drop_time_before_loading - 10
+
+MOT_gradient_field_setting = 4.5
+MOT_x2_5_shim_setting = -0.85
+MOT_x3_6_shim_setting = .7
+MOT_vertical_shim_setting = -1.33
+MOT_bias_shim_setting = 0
+
+PGC_1_time = 5
+PGC_1_frequency = 97
+PGC_1_power = -7
+PGC_hyperfine_time = PGC_1_time
+PGC_1_hyperfine_frequency = 278.5
+PGC_1_hyperfine_power = 0
+MOT_to_PGC_B_field_delay = .6
+trap_780_delay_for_PGC_1 = 4
+PGC_1_gradient_field = 0
+PGC_1_x2_5_shim_setting = -.45
+PGC_1_x3_6_shim_setting = -.6
+PGC_1_vertical_shim_setting = -1.5
+PGC_1_bias_field_setting = 1.8
+
+MOT_drop_time = 100
+Readout_time = 50
+Readout_frequency = 95
+Readout_Power = -8
+Readout_hyperfine_frequency = 278.5
+Readout_hyperfine_power = 0
+Pre_Readout_Time = 150
+Readout_gradient_field = 0
+Readout_x2_5_shim_setting = 0
+Readout_x3_6_shim_setting = -.5
+Readout_vertical_shim_setting = -1.7
+Readout_bias_field_setting = 1.64
+
+PGC_2_time = 50
+PGC_2_frequency = 91
+PGC_2_power = -9
+PGC_2_hyperfine_frequency = 278.5
+PGC_2_hyperfine_power = 0
+Readout_to_PGC_2_B_field_delay = .001
+
+optical_pumping_time = 2
+optical_pumping_frequency = 81
+OP_hyperfine_time = optical_pumping_time
+OP_2nd_time = 0
+OP_hyperfine_frequency = 278.5
+OP_hyperfine_power = 0
+depumping_894_time = 0
+single_site_459_OP_time = 0
+
+PGC_to_bias_B_field_delay = .1
+delay_before_excitation_pulse = .00005
+delay_before_blowaway = .5
+raman_459_pulse = 0
+
+microwave_pi_pulse_site_2_roi42 = 0.078
+microwave_pi_pulse_site_1_roi43 = 0.0751
+microwave_2pi_pulse_BB1 = 0.0389*4
+microwave_pi_pulse_BB1 = 0.0389*2
+
+rydberg_A_459_time_control = 0
+rydberg_B_459_time_control = 0
+rydberg_A_1038_time_control = 0
+rydberg_A_459_time_site2_target = 0
+rydberg_B_459_time_site2_target = 0
+rydberg_A_1038_time_site2_target = 0
+rydberg_B_1038_time_control = 0
+
+trap_modulation_time = 0
+blow_away_time = 1
+microwave_raman_time = 0
+
+scanner_1_frequency_1_459 = 149.93891
+scanner_2_frequency_1_459 = 153.945
+scanner_1_frequency_1_1038 = 145
+scanner_2_frequency_1_1038 = 154
+scanner_delay__extra_time_459 = .001
+scanner_delay__extra_time_1038 = .001
+scanner_1_frequency_2_459 = scanner_1_frequency_1_459 - .16 + 0.114
+scanner_2_frequency_2_459 = scanner_2_frequency_1_459 - 2.19
+scanner_AOM_1_freq_2_1038 = scanner_1_frequency_1_1038 + .5
+scanner_AOM_2_freq_2_1038 = scanner_2_frequency_1_1038 + 3.5
+
+RydA_switch_AOM_freqency_1__site_43 = 144.164+.007+0
+RydA_switch_AOM_freqency_2__site_42 = 144.649+.065-.063
+RydB_switch_AOM_freqency_1 = 143
+RydB_switch_AOM_freqency_2 = 143
+
+site_1_RydA_frequency_offset = (scanner_1_frequency_1_459-scanner_2_frequency_1_459)+(scanner_1_frequency_1_1038-scanner_2_frequency_1_1038)+2*RydA_switch_AOM_freqency_1__site_43
+site_1_calculator_based_on_previous_value = .5*(274.853 - scanner_1_frequency_1_459 + scanner_2_frequency_1_459 - scanner_1_frequency_1_1038 + scanner_2_frequency_1_1038)
+site_2_calculator_based_on_site_1 = .5*(site_1_RydA_frequency_offset - scanner_1_frequency_2_459 + scanner_2_frequency_2_459 - scanner_AOM_1_freq_2_1038 + scanner_AOM_2_freq_2_1038)
+site_2_RydA_frequency_offset = (scanner_1_frequency_2_459 - scanner_2_frequency_2_459) + (scanner_AOM_1_freq_2_1038 - scanner_AOM_2_freq_2_1038) + 2*RydA_switch_AOM_freqency_2__site_42
+
+raman_pulse_at_freq_2 = 0
+ramsey_gap_time = 0
+ramsey_total_time = delay_before_excitation_pulse + 2*raman_459_pulse + 2*scanner_delay__extra_time_459 + ramsey_gap_time
+raman_waveform_total_time = delay_before_excitation_pulse + 2*scanner_delay__extra_time_459 + raman_459_pulse
+microwave_waveform_total_time = delay_before_excitation_pulse + microwave_raman_time + 2*scanner_delay__extra_time_459
+
+trap_release_time = 0
+Rydberg_A_waveform_total_time = 4*scanner_delay__extra_time_459 + 2*rydberg_A_1038_time_control + delay_before_excitation_pulse + rydberg_A_1038_time_site2_target
+Rydberg_B_waveform_total_time = 0
+microwave_pi_site_2_total_time = delay_before_excitation_pulse + 2*scanner_delay__extra_time_459 + microwave_pi_pulse_site_2_roi42
+microwave_pi_site_1_total_time = delay_before_excitation_pulse + 2*scanner_delay__extra_time_459 + microwave_pi_pulse_site_1_roi43
+microwave_2_pi_total_time = delay_before_excitation_pulse + microwave_2pi_pulse_BB1
+microwave_pi_total_time = delay_before_excitation_pulse + microwave_pi_pulse_BB1
+
+exp_gradient_setting = 0
+exp_x2_5_shim_setting = 0
+exp_x3_6_shim_setting = -.32
+exp_vertical_shim_setting = -1.79
+exp_bias_shim_setting = -5.6
+
+raman_X_pi_by_2_time = 0
+raman_X_3pi_by_2_time = 0
+raman_Z_pi_by_2_time = 0
+raman_Z_3pi_2_time = 0
+raman_X_pi_time = 0
+raman_Z_pi_time = 0
+
+random_benchmark_total_time = 0
+blowaway_frequency = 220
+
+max_of_raman_pulses = max(raman_waveform_total_time,microwave_waveform_total_time)
+max_of_raman_or_ramsey = max(max_of_raman_pulses,ramsey_total_time)
+max_of_raman_or_randomized_benchmark = max(max_of_raman_or_ramsey,random_benchmark_total_time)
+max_of_rydberg_pulses = max(Rydberg_B_waveform_total_time,Rydberg_A_waveform_total_time)
+
+bias_field_on_time = optical_pumping_time + depumping_894_time + PGC_to_bias_B_field_delay + single_site_459_OP_time + trap_release_time + blow_away_time + microwave_waveform_total_time + 2*microwave_pi_total_time + microwave_2_pi_total_time
+delay_between_camera_shots = 45
+DDS_profile_delay = .00005
+
+gradient_field_685 = 0
+x2_5_shim_setting_685 = -.45-.1
+x3_6_shim_setting_685 = .45+.1
+vertical_shim_setting_685 = -1.55
+bias_shim_setting_685 = 1.65
+time_685 = 0
+frequency_685 = 194
+power_685 = 0
+
+hyperfine_splitting_6s1_2 = 9.19263e9
+hyperfine_splitting_7p1_2 = 377.4e6
+gamma_6p3_2 = 2*pi*5.1e6
+gamma_7p1_2 = 2*pi*1e6
+alpha_780_cgs = -247e-24
+alpha_780_SI = alpha_780_cgs*4*pi*eps0*1e-6
+saturation_intensity = 27 #W/m^2
+mot_beam_waist_1 = 2.5 #mm
+mot_beam_waist_2 = 2.5 #mm
+mot_beam_waist_3 = 1.54 #mm
+readout_beam_power_1 = 560 #uW
+readout_beam_power_2 = 415 #uW
+readout_beam_power_3 = 205 #uW
+readout_detuning = 18 #MHz
+numerical_aperture_of_jenoptiq = .4
+
+transmission_efficiency = .8
+quantum_efficiency = .7
+conversion_factor_for_camera = 5.8 #electrons/count
+analog_gain = 4
+EM_sensitivity = 225 #as_entered_on_camera_page
+EM_gain = 10**(((log(1000)-log(4))/250)*EM_sensitivity+log(4))
+average_background_pixel_value = 10914*(i0/.100)
+roi_area = 9
+imaging_system_mag = 25.5
+camera_pixel_size = 16 #um
+number_of_array_spots = 64 #n
+array_trap_spacing = 3.8#d_microns
+array_beam_waist = 1.73 #w0_microns
+power_out_of_the_fiber_780 = 4 #[W]
+transmission_to_atoms_780 = .6
+horizontal_waist_459 = 3e-6
+vertical_waist_459 = 3e-6
+
+scanner_transmission_459 = .132
+total_raman_power_at_fiber = 350e-6
+raman_detuning = 20e9 #Hz
+horizontal_waist_1038 = 3.2e-6
+vertical_waist_1038 = 4.3e-6
+scanner_transmission_1038 = .25
+
+Rydberg_A_459_power_at_fiber = 80e-6
+Rydberg_B_459_power_at_fiber = 120e-6
+Rydberg_1038_power_at_fiber = 11e-3
+Rydberg_level = 65
+Rydberg_detuning = -2.5e9 #Hz relative to f=4
+readout_detuning = readout_detuning*2*pi*1e6
+
+readout_beam_intensity_1 = 2*readout_beam_power_1*1e-6/(pi*mot_beam_waist_1**2*1e-6)
+readout_beam_intensity_2 = 2*readout_beam_power_2*1e-6/(pi*mot_beam_waist_2**2*1e-6)
+readout_beam_intensity_3 = 2*readout_beam_power_3*1e-6/(pi*mot_beam_waist_3**2*1e-6)
+total_intensity = 2*readout_beam_intensity_1+2*readout_beam_intensity_2+2*readout_beam_intensity_3
+total_saturation_parameter = total_intensity/saturation_intensity
+fractional_solid_angle = .5*(1-sqrt(1-numerical_aperture_of_jenoptiq**2))
+scattering_rate = (gamma_6p3_2/2)*total_saturation_parameter/(1+(4*readout_detuning**2)/(gamma_6p3_2**2)+total_saturation_parameter)
+detected_scattering_rate_for_single_atom = scattering_rate*fractional_solid_angle*transmission_efficiency*quantum_efficiency
+detected_photon_number_during_exposure_time = detected_scattering_rate_for_single_atom*i0*(1e-3)
+expected_output_signal_dark_signal = detected_photon_number_during_exposure_time*analog_gain*EM_gain*quantum_efficiency/conversion_factor_for_camera
+expected_output_signal = expected_output_signal_dark_signal+average_background_pixel_value*roi_area
+pixel_size_after_mag = camera_pixel_size/imaging_system_mag #um
+lattice_period = array_trap_spacing/pixel_size_after_mag #in pixels
+array_ratio = array_trap_spacing/array_beam_waist #s=d/w
+total_power_at_atoms = power_out_of_the_fiber_780*transmission_to_atoms_780 #W
+P0 = (2*total_power_at_atoms/number_of_array_spots)/(pi*array_beam_waist**2e-12) #peak_intensity_in_one_spot
+trap_depth = -(0.001*2*pi*alpha_780_cgs/(kB_SI*c0))*P0*2*exp(-array_ratio**2/2)*(1-2*exp(-array_ratio**2/2)) #mK
+
+Raman_Rabi_freq = total_raman_power_at_fiber/2*scanner_transmission_459/(2*pi*horizontal_waist_459*vertical_waist_459)*((-1.305e9)/(raman_detuning-hyperfine_splitting_7p1_2)-7.83e8/raman_detuning) #Hz
+Raman_Stark_shift = total_raman_power_at_fiber/2*scanner_transmission_459/(2*pi*horizontal_waist_459*vertical_waist_459)*(4.1e9/(2*pi*(raman_detuning-hyperfine_splitting_7p1_2-hyperfine_splitting_6s1_2))-4.1e9/(2*pi*(raman_detuning-hyperfine_splitting_7p1_2+hyperfine_splitting_6s1_2)+2.46e9/(2*pi*(raman_detuning-hyperfine_splitting_6s1_2))-2.46e9/(2*pi*(raman_detuning+hyperfine_splitting_6s1_2)))) #Hz
+Rydberg_A_flopping_to_nD3_2 = 1/(2*pi*Rydberg_level**(3/2))*sqrt(Rydberg_A_459_power_at_fiber*scanner_transmission_1038*Rydberg_1038_power_at_fiber*scanner_transmission_1038/(horizontal_waist_459*vertical_waist_459*horizontal_waist_1038*vertical_waist_1038))*(9.692e10/(Rydberg_detuning)+5.815e10/(Rydberg_detuning+hyperfine_splitting_7p1_2)) #Hz
+Rydberg_B_flopping_to_nD3_2 = 1/(2*pi*Rydberg_level**(3/2))*sqrt(Rydberg_B_459_power_at_fiber*scanner_transmission_1038*Rydberg_1038_power_at_fiber*scanner_transmission_1038/(horizontal_waist_459*vertical_waist_459*horizontal_waist_1038*vertical_waist_1038))*(9.692e10/(Rydberg_detuning)+5.815e10/(Rydberg_detuning+hyperfine_splitting_7p1_2)) #Hz
+Raman_459_power_out_of_fiber = total_raman_power_at_fiber*1e3 #mW
+Raman_459_transmission_of_scanner = scanner_transmission_459
+Raman_459_power_at_atoms = Raman_459_power_out_of_fiber*Raman_459_transmission_of_scanner #mW
+Raman_459_detuning = raman_detuning*1e-9 #GHz
+Raman_459_waist_at_atoms = sqrt(horizontal_waist_459*vertical_waist_459)*1E6 #um
+Raman_459_7p1_2_Delta_f3 = -.2123 #GHz
+Raman_459_7p1_2_Delta_f4 = .1651 #GHz
+Raman_459_intermediate = 1/(Raman_459_detuning-Raman_459_7p1_2_Delta_f3)+(5/3)/(Raman_459_detuning-Raman_459_7p1_2_Delta_f4)
+Raman_459_Rabi_Omega_over_2pi = 93.3*Raman_459_intermediate*Raman_459_power_at_atoms/Raman_459_waist_at_atoms**2 #MHz
+Raman_459_gamma_p = 1/150 #GHz
+Raman_459_omega_q = 9.192 #GHz
+#Raman_459_Pse_in_pi_pulse = Raman_459_gamma_p/4*(1/abs(Raman_459_intermediate))*(2/(Raman_459_detuning-Raman_459_7p1_2_Delta_f3)**2+1/(Raman_459_detuning-Raman_459_7p1_2_Delta_f3+Raman_459_omega_q)**2+1/(Raman_459_detuning-Raman_459_7p1_2_Delta_f3-Raman_459_omega_q)**2+(10/3)/(Raman_459_detuning-Raman_459_7p1_2_Delta_f4)**2+(5/3)/(Raman_459_detuning-Raman_459_7p1_2_Delta_f4+Raman_459_omega_q)**2+(5/3)/(Raman_459_detuning-Raman_459_7p1_2_Delta_f4-Raman_459_omega_q)**2)
+Raman_459_differential_stark_shift = Raman_459_Rabi_Omega_over_2pi*(Raman_459_detuning/32)*((5/3)/(Raman_459_detuning-Raman_459_7p1_2_Delta_f4+Raman_459_omega_q)+1/(Raman_459_detuning-Raman_459_7p1_2_Delta_f3+Raman_459_omega_q)-(5/3)/(Raman_459_detuning-Raman_459_7p1_2_Delta_f4-Raman_459_omega_q)-1/(Raman_459_detuning-Raman_459_7p1_2_Delta_f3-Raman_459_omega_q)) #MHz
+Rydberg_459_A_power_at_atoms = Rydberg_A_459_power_at_fiber*scanner_transmission_459*(1e3) #mW
+Rydberg_1038_power_at_atoms = Rydberg_1038_power_at_fiber*scanner_transmission_1038*(1e3) #mW
+Rydberg_459_beam_waist = sqrt(horizontal_waist_459*vertical_waist_459)*(1e6)
+Rydberg_1038_beam_waist = sqrt(horizontal_waist_1038*vertical_waist_1038)*(1e6)
+Rydberg_level = Rydberg_level
+Rydberg_detuning_3p = -212.3*(2*pi) #MHz
+Rydberg_detuning_4p = 165.1*(2*pi) #MHz
+Rydberg_detuning = Rydberg_detuning*1e-9+.165 #GHz
+Rydberg_detuning_over_2pi = Rydberg_detuning*(2*pi)*1e3 #MHz
+Rydberg_Rabi_Frequency_over_2pi = 20600*(sqrt(Rydberg_459_A_power_at_atoms*Rydberg_1038_power_at_atoms)/(Rydberg_level**(3/2)*Rydberg_459_beam_waist*Rydberg_1038_beam_waist*Rydberg_detuning))*(1-(5/8)*(Rydberg_detuning_3p/Rydberg_detuning_over_2pi)-(3/8)*(Rydberg_detuning_4p/Rydberg_detuning_over_2pi))/((1-(Rydberg_detuning_3p/Rydberg_detuning_over_2pi))*(1-(Rydberg_detuning_4p/Rydberg_detuning_over_2pi))) #MHz
+Rydberg_AC_stark_shift = (160200*(Rydberg_1038_power_at_atoms/(Rydberg_level**3*Rydberg_1038_beam_waist**2))-93.47*(Rydberg_459_A_power_at_atoms/Rydberg_459_beam_waist**2))*(1/Rydberg_detuning)*((1/(1-Rydberg_detuning_3p/Rydberg_detuning_over_2pi))+((5/3)/(1-Rydberg_detuning_4p/Rydberg_detuning_over_2pi)))
+Rydberg_sponteneous_emission_rate = (.43*(sqrt(Rydberg_1038_power_at_atoms)*Rydberg_459_beam_waist/(Rydberg_level**(3/2)*sqrt(Rydberg_459_A_power_at_atoms)*Rydberg_1038_beam_waist))+(2.5e-4)*(sqrt(Rydberg_459_A_power_at_atoms)*Rydberg_1038_beam_waist/(Rydberg_level**(3/2)*sqrt(Rydberg_1038_power_at_atoms)*Rydberg_459_beam_waist)))*(1/Rydberg_detuning)*(1-2*((5/8)*(Rydberg_detuning_3p/Rydberg_detuning_over_2pi)+(3/8)*(Rydberg_detuning_4p/Rydberg_detuning_over_2pi))+(5/8)*(Rydberg_detuning_3p/Rydberg_detuning_over_2pi)**2+(3/8)*(Rydberg_detuning_4p/Rydberg_detuning_over_2pi)**2)/((1-Rydberg_detuning_3p/Rydberg_detuning_over_2pi)*(1-Rydberg_detuning_4p/Rydberg_detuning_over_2pi)*(1-(5/8)*(Rydberg_detuning_3p/Rydberg_detuning_over_2pi)-(3/8)*(Rydberg_detuning_4p/Rydberg_detuning_over_2pi)))
+Rydberg_blue_power_needed_to_match_red_Rabi = (1/scanner_transmission_459)*(Rydberg_1038_power_at_atoms*Rydberg_459_beam_waist**2)/(.00058*Rydberg_1038_beam_waist**2*Rydberg_level**3)
+power_894 = .450 #uW
+OP_repumper = 8.5 #uW
+
+unsupported operand type(s) for /: 'function' and 'float'Traceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\cs_evaluate.py", line 35, in execWithDict
+    exec(string,globals(),varDict)
+  File "<string>", line 194, in <module>
+TypeError: unsupported operand type(s) for /: 'function' and 'float'
+
+
+2014/02/17 19:55:39 MainThread __main__ INFO starting application
+2014/02/17 19:58:31 MainThread __main__ INFO starting application
+2014/02/17 20:06:30 MainThread cs_errors INFO starting application
+2014/02/17 20:06:30 MainThread cs_errors INFO starting application
+2014/02/17 20:07:17 MainThread cs_evaluate WARNING evaluating property enable, enable HSDIO output, asdf
+Could not eval string: asdf
+name 'asdf' is not definedTraceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\cs_evaluate.py", line 24, in evalWithDict
+    return eval(string,globals(),varDict)
+  File "<string>", line 1, in <module>
+NameError: name 'asdf' is not defined
+
+
+2014/02/17 20:13:19 MainThread cs_errors INFO starting application
+2014/02/17 20:13:19 MainThread cs_errors INFO starting application
+2014/02/17 20:15:03 MainThread cs_errors WARNING Exception in EvalProp.evaluate() in clockRate.
+description: 
+function: 100*kilo
+float division by zero
+
+2014/02/17 20:15:03 MainThread cs_errors WARNING Exception in EvalProp.evaluate() in clockRate.
+description: 
+function: 100*kilo
+float division by zero
+
+2014/02/17 20:15:03 MainThread cs_errors WARNING Exception in EvalProp.evaluate() in clockRate.
+description: 
+function: 100*kilo
+float division by zero
+
+2014/02/17 20:15:03 MainThread cs_errors WARNING Exception in EvalProp.evaluate() in clockRate.
+description: 
+function: 100*kilo
+float division by zero
+
+2014/02/17 20:15:03 MainThread cs_errors WARNING Exception in EvalProp.evaluate() in clockRate.
+description: 
+function: 100*kilo
+float division by zero
+
+2014/02/17 20:15:03 MainThread cs_errors WARNING Exception in EvalProp.evaluate() in totalAOTime.
+description: 5 ms total
+function: 5
+float division by zero
+
+2014/02/17 20:15:03 MainThread cs_errors WARNING Exception in EvalProp.evaluate() in totalAOTime.
+description: 5 ms total
+function: 5
+float division by zero
+
+2014/02/17 20:15:03 MainThread cs_errors WARNING Exception in EvalProp.evaluate() in totalAOTime.
+description: 5 ms total
+function: 5
+float division by zero
+
+2014/02/17 20:15:03 MainThread cs_errors WARNING Exception in EvalProp.evaluate() in totalAOTime.
+description: 5 ms total
+function: 5
+float division by zero
+
+2014/02/17 20:15:03 MainThread cs_errors WARNING Exception in EvalProp.evaluate() in totalAOTime.
+description: 5 ms total
+function: 5
+float division by zero
+
+2014/02/17 20:15:16 MainThread cs_errors INFO starting application
+2014/02/17 20:15:16 MainThread cs_errors INFO starting application
+2014/02/17 20:15:16 MainThread cs_errors INFO starting application
+2014/02/17 20:15:16 MainThread cs_errors INFO starting application
+2014/02/17 20:15:16 MainThread cs_errors INFO starting application
+2014/02/17 20:18:33 MainThread cs_errors WARNING Exception in EvalProp.evaluate() in clockRate.
+description: 
+function: 100*kilo
+float division by zero
+
+2014/02/17 20:18:33 MainThread cs_errors WARNING Exception in EvalProp.evaluate() in clockRate.
+description: 
+function: 100*kilo
+float division by zero
+
+2014/02/17 20:18:33 MainThread cs_errors WARNING Exception in EvalProp.evaluate() in clockRate.
+description: 
+function: 100*kilo
+float division by zero
+
+2014/02/17 20:18:33 MainThread cs_errors WARNING Exception in EvalProp.evaluate() in clockRate.
+description: 
+function: 100*kilo
+float division by zero
+
+2014/02/17 20:18:33 MainThread cs_errors WARNING Exception in EvalProp.evaluate() in clockRate.
+description: 
+function: 100*kilo
+float division by zero
+
+2014/02/17 20:18:33 MainThread cs_errors WARNING Exception in EvalProp.evaluate() in totalAOTime.
+description: 5 ms total
+function: 5
+float division by zero
+
+2014/02/17 20:18:33 MainThread cs_errors WARNING Exception in EvalProp.evaluate() in totalAOTime.
+description: 5 ms total
+function: 5
+float division by zero
+
+2014/02/17 20:18:33 MainThread cs_errors WARNING Exception in EvalProp.evaluate() in totalAOTime.
+description: 5 ms total
+function: 5
+float division by zero
+
+2014/02/17 20:18:33 MainThread cs_errors WARNING Exception in EvalProp.evaluate() in totalAOTime.
+description: 5 ms total
+function: 5
+float division by zero
+
+2014/02/17 20:18:33 MainThread cs_errors WARNING Exception in EvalProp.evaluate() in totalAOTime.
+description: 5 ms total
+function: 5
+float division by zero
+
+2014/02/17 20:19:05 MainThread cs_errors WARNING Exception in EvalProp.evaluate() in clockRate.
+description: 
+function: 100*kilo
+float division by zero
+
+2014/02/17 20:19:05 MainThread cs_errors WARNING Exception in EvalProp.evaluate() in clockRate.
+description: 
+function: 100*kilo
+float division by zero
+
+2014/02/17 20:19:05 MainThread cs_errors WARNING Exception in EvalProp.evaluate() in clockRate.
+description: 
+function: 100*kilo
+float division by zero
+
+2014/02/17 20:19:05 MainThread cs_errors WARNING Exception in EvalProp.evaluate() in clockRate.
+description: 
+function: 100*kilo
+float division by zero
+
+2014/02/17 20:19:05 MainThread cs_errors WARNING Exception in EvalProp.evaluate() in clockRate.
+description: 
+function: 100*kilo
+float division by zero
+
+2014/02/17 20:19:05 MainThread cs_errors WARNING Exception in EvalProp.evaluate() in totalAOTime.
+description: 5 ms total
+function: 5
+float division by zero
+
+2014/02/17 20:19:05 MainThread cs_errors WARNING Exception in EvalProp.evaluate() in totalAOTime.
+description: 5 ms total
+function: 5
+float division by zero
+
+2014/02/17 20:19:05 MainThread cs_errors WARNING Exception in EvalProp.evaluate() in totalAOTime.
+description: 5 ms total
+function: 5
+float division by zero
+
+2014/02/17 20:19:05 MainThread cs_errors WARNING Exception in EvalProp.evaluate() in totalAOTime.
+description: 5 ms total
+function: 5
+float division by zero
+
+2014/02/17 20:19:05 MainThread cs_errors WARNING Exception in EvalProp.evaluate() in totalAOTime.
+description: 5 ms total
+function: 5
+float division by zero
+
+2014/02/17 20:19:18 MainThread cs_errors INFO starting application
+2014/02/17 20:19:18 MainThread cs_errors INFO starting application
+2014/02/17 20:19:18 MainThread cs_errors INFO starting application
+2014/02/17 20:19:18 MainThread cs_errors INFO starting application
+2014/02/17 20:19:18 MainThread cs_errors INFO starting application
+2014/02/17 20:21:02 MainThread cs_errors WARNING Exception in EvalProp.evaluate() in clockRate.
+description: 
+function: 100*kilo
+float division by zero
+
+2014/02/17 20:21:02 MainThread cs_errors WARNING Exception in EvalProp.evaluate() in clockRate.
+description: 
+function: 100*kilo
+float division by zero
+
+2014/02/17 20:21:02 MainThread cs_errors WARNING Exception in EvalProp.evaluate() in clockRate.
+description: 
+function: 100*kilo
+float division by zero
+
+2014/02/17 20:21:02 MainThread cs_errors WARNING Exception in EvalProp.evaluate() in clockRate.
+description: 
+function: 100*kilo
+float division by zero
+
+2014/02/17 20:21:02 MainThread cs_errors WARNING Exception in EvalProp.evaluate() in clockRate.
+description: 
+function: 100*kilo
+float division by zero
+
+2014/02/17 20:21:02 MainThread cs_errors WARNING Exception in EvalProp.evaluate() in totalAOTime.
+description: 5 ms total
+function: 5
+float division by zero
+
+2014/02/17 20:21:02 MainThread cs_errors WARNING Exception in EvalProp.evaluate() in totalAOTime.
+description: 5 ms total
+function: 5
+float division by zero
+
+2014/02/17 20:21:02 MainThread cs_errors WARNING Exception in EvalProp.evaluate() in totalAOTime.
+description: 5 ms total
+function: 5
+float division by zero
+
+2014/02/17 20:21:02 MainThread cs_errors WARNING Exception in EvalProp.evaluate() in totalAOTime.
+description: 5 ms total
+function: 5
+float division by zero
+
+2014/02/17 20:21:02 MainThread cs_errors WARNING Exception in EvalProp.evaluate() in totalAOTime.
+description: 5 ms total
+function: 5
+float division by zero
+
+2014/02/17 20:21:15 MainThread cs_errors INFO starting application
+2014/02/17 20:21:15 MainThread cs_errors INFO starting application
+2014/02/17 20:21:15 MainThread cs_errors INFO starting application
+2014/02/17 20:21:15 MainThread cs_errors INFO starting application
+2014/02/17 20:21:15 MainThread cs_errors INFO starting application
+2014/02/17 20:22:40 MainThread cs_errors WARNING Exception in EvalProp.evaluate() in clockRate.
+description: 
+function: 100*kilo
+float division by zero
+
+2014/02/17 20:22:40 MainThread cs_errors WARNING Exception in EvalProp.evaluate() in clockRate.
+description: 
+function: 100*kilo
+float division by zero
+
+2014/02/17 20:22:40 MainThread cs_errors WARNING Exception in EvalProp.evaluate() in clockRate.
+description: 
+function: 100*kilo
+float division by zero
+
+2014/02/17 20:22:40 MainThread cs_errors WARNING Exception in EvalProp.evaluate() in clockRate.
+description: 
+function: 100*kilo
+float division by zero
+
+2014/02/17 20:22:40 MainThread cs_errors WARNING Exception in EvalProp.evaluate() in clockRate.
+description: 
+function: 100*kilo
+float division by zero
+
+2014/02/17 20:22:40 MainThread cs_errors WARNING Exception in EvalProp.evaluate() in totalAOTime.
+description: 5 ms total
+function: 5
+float division by zero
+
+2014/02/17 20:22:40 MainThread cs_errors WARNING Exception in EvalProp.evaluate() in totalAOTime.
+description: 5 ms total
+function: 5
+float division by zero
+
+2014/02/17 20:22:40 MainThread cs_errors WARNING Exception in EvalProp.evaluate() in totalAOTime.
+description: 5 ms total
+function: 5
+float division by zero
+
+2014/02/17 20:22:40 MainThread cs_errors WARNING Exception in EvalProp.evaluate() in totalAOTime.
+description: 5 ms total
+function: 5
+float division by zero
+
+2014/02/17 20:22:40 MainThread cs_errors WARNING Exception in EvalProp.evaluate() in totalAOTime.
+description: 5 ms total
+function: 5
+float division by zero
+
+2014/02/17 20:24:26 MainThread cs_errors WARNING Exception in EvalProp.evaluate() in clockRate.
+description: 
+function: 100*kilo
+float division by zero
+
+2014/02/17 20:24:26 MainThread cs_errors WARNING Exception in EvalProp.evaluate() in clockRate.
+description: 
+function: 100*kilo
+float division by zero
+
+2014/02/17 20:24:26 MainThread cs_errors WARNING Exception in EvalProp.evaluate() in clockRate.
+description: 
+function: 100*kilo
+float division by zero
+
+2014/02/17 20:24:26 MainThread cs_errors WARNING Exception in EvalProp.evaluate() in clockRate.
+description: 
+function: 100*kilo
+float division by zero
+
+2014/02/17 20:24:26 MainThread cs_errors WARNING Exception in EvalProp.evaluate() in clockRate.
+description: 
+function: 100*kilo
+float division by zero
+
+2014/02/17 20:24:26 MainThread cs_errors WARNING Exception in EvalProp.evaluate() in totalAOTime.
+description: 5 ms total
+function: 5
+float division by zero
+
+2014/02/17 20:24:26 MainThread cs_errors WARNING Exception in EvalProp.evaluate() in totalAOTime.
+description: 5 ms total
+function: 5
+float division by zero
+
+2014/02/17 20:24:26 MainThread cs_errors WARNING Exception in EvalProp.evaluate() in totalAOTime.
+description: 5 ms total
+function: 5
+float division by zero
+
+2014/02/17 20:24:26 MainThread cs_errors WARNING Exception in EvalProp.evaluate() in totalAOTime.
+description: 5 ms total
+function: 5
+float division by zero
+
+2014/02/17 20:24:26 MainThread cs_errors WARNING Exception in EvalProp.evaluate() in totalAOTime.
+description: 5 ms total
+function: 5
+float division by zero
+
+2014/02/17 20:24:40 MainThread cs_errors INFO starting application
+2014/02/17 20:24:40 MainThread cs_errors INFO starting application
+2014/02/17 20:24:40 MainThread cs_errors INFO starting application
+2014/02/17 20:24:40 MainThread cs_errors INFO starting application
+2014/02/17 20:24:40 MainThread cs_errors INFO starting application
+2014/02/17 20:32:14 MainThread cs_errors WARNING Exception in EvalProp.evaluate() in clockRate.
+description: 
+function: 100*kilo
+float division by zero
+
+2014/02/17 20:32:14 MainThread cs_errors WARNING Exception in EvalProp.evaluate() in clockRate.
+description: 
+function: 100*kilo
+float division by zero
+
+2014/02/17 20:32:14 MainThread cs_errors WARNING Exception in EvalProp.evaluate() in clockRate.
+description: 
+function: 100*kilo
+float division by zero
+
+2014/02/17 20:32:14 MainThread cs_errors WARNING Exception in EvalProp.evaluate() in clockRate.
+description: 
+function: 100*kilo
+float division by zero
+
+2014/02/17 20:32:14 MainThread cs_errors WARNING Exception in EvalProp.evaluate() in clockRate.
+description: 
+function: 100*kilo
+float division by zero
+
+2014/02/17 20:32:14 MainThread cs_errors WARNING Exception in EvalProp.evaluate() in totalAOTime.
+description: 5 ms total
+function: 5
+float division by zero
+
+2014/02/17 20:32:14 MainThread cs_errors WARNING Exception in EvalProp.evaluate() in totalAOTime.
+description: 5 ms total
+function: 5
+float division by zero
+
+2014/02/17 20:32:14 MainThread cs_errors WARNING Exception in EvalProp.evaluate() in totalAOTime.
+description: 5 ms total
+function: 5
+float division by zero
+
+2014/02/17 20:32:14 MainThread cs_errors WARNING Exception in EvalProp.evaluate() in totalAOTime.
+description: 5 ms total
+function: 5
+float division by zero
+
+2014/02/17 20:32:14 MainThread cs_errors WARNING Exception in EvalProp.evaluate() in totalAOTime.
+description: 5 ms total
+function: 5
+float division by zero
+
+2014/02/17 20:32:46 MainThread cs_errors WARNING Exception in EvalProp.evaluate() in clockRate.
+description: 
+function: 100*kilo
+float division by zero
+
+2014/02/17 20:32:46 MainThread cs_errors WARNING Exception in EvalProp.evaluate() in clockRate.
+description: 
+function: 100*kilo
+float division by zero
+
+2014/02/17 20:32:46 MainThread cs_errors WARNING Exception in EvalProp.evaluate() in clockRate.
+description: 
+function: 100*kilo
+float division by zero
+
+2014/02/17 20:32:46 MainThread cs_errors WARNING Exception in EvalProp.evaluate() in clockRate.
+description: 
+function: 100*kilo
+float division by zero
+
+2014/02/17 20:32:46 MainThread cs_errors WARNING Exception in EvalProp.evaluate() in clockRate.
+description: 
+function: 100*kilo
+float division by zero
+
+2014/02/17 20:32:46 MainThread cs_errors WARNING Exception in EvalProp.evaluate() in totalAOTime.
+description: 5 ms total
+function: 5
+float division by zero
+
+2014/02/17 20:32:46 MainThread cs_errors WARNING Exception in EvalProp.evaluate() in totalAOTime.
+description: 5 ms total
+function: 5
+float division by zero
+
+2014/02/17 20:32:46 MainThread cs_errors WARNING Exception in EvalProp.evaluate() in totalAOTime.
+description: 5 ms total
+function: 5
+float division by zero
+
+2014/02/17 20:32:46 MainThread cs_errors WARNING Exception in EvalProp.evaluate() in totalAOTime.
+description: 5 ms total
+function: 5
+float division by zero
+
+2014/02/17 20:32:46 MainThread cs_errors WARNING Exception in EvalProp.evaluate() in totalAOTime.
+description: 5 ms total
+function: 5
+float division by zero
+
+2014/02/17 20:34:33 MainThread cs_errors WARNING Exception in EvalProp.evaluate() in clockRate.
+description: 
+function: 100*kilo
+float division by zero
+
+2014/02/17 20:34:33 MainThread cs_errors WARNING Exception in EvalProp.evaluate() in clockRate.
+description: 
+function: 100*kilo
+float division by zero
+
+2014/02/17 20:34:33 MainThread cs_errors WARNING Exception in EvalProp.evaluate() in clockRate.
+description: 
+function: 100*kilo
+float division by zero
+
+2014/02/17 20:34:33 MainThread cs_errors WARNING Exception in EvalProp.evaluate() in clockRate.
+description: 
+function: 100*kilo
+float division by zero
+
+2014/02/17 20:34:33 MainThread cs_errors WARNING Exception in EvalProp.evaluate() in clockRate.
+description: 
+function: 100*kilo
+float division by zero
+
+2014/02/17 20:34:33 MainThread cs_errors WARNING Exception in EvalProp.evaluate() in totalAOTime.
+description: 5 ms total
+function: 5
+float division by zero
+
+2014/02/17 20:34:33 MainThread cs_errors WARNING Exception in EvalProp.evaluate() in totalAOTime.
+description: 5 ms total
+function: 5
+float division by zero
+
+2014/02/17 20:34:33 MainThread cs_errors WARNING Exception in EvalProp.evaluate() in totalAOTime.
+description: 5 ms total
+function: 5
+float division by zero
+
+2014/02/17 20:34:33 MainThread cs_errors WARNING Exception in EvalProp.evaluate() in totalAOTime.
+description: 5 ms total
+function: 5
+float division by zero
+
+2014/02/17 20:34:33 MainThread cs_errors WARNING Exception in EvalProp.evaluate() in totalAOTime.
+description: 5 ms total
+function: 5
+float division by zero
+
+2014/02/17 20:37:58 MainThread cs_errors WARNING Exception in EvalProp.evaluate() in clockRate.
+description: 
+function: 100*kilo
+float division by zero
+
+2014/02/17 20:37:58 MainThread cs_errors WARNING Exception in EvalProp.evaluate() in clockRate.
+description: 
+function: 100*kilo
+float division by zero
+
+2014/02/17 20:37:58 MainThread cs_errors WARNING Exception in EvalProp.evaluate() in clockRate.
+description: 
+function: 100*kilo
+float division by zero
+
+2014/02/17 20:37:58 MainThread cs_errors WARNING Exception in EvalProp.evaluate() in clockRate.
+description: 
+function: 100*kilo
+float division by zero
+
+2014/02/17 20:37:58 MainThread cs_errors WARNING Exception in EvalProp.evaluate() in clockRate.
+description: 
+function: 100*kilo
+float division by zero
+
+2014/02/17 20:37:58 MainThread cs_errors WARNING Exception in EvalProp.evaluate() in totalAOTime.
+description: 5 ms total
+function: 5
+float division by zero
+
+2014/02/17 20:37:58 MainThread cs_errors WARNING Exception in EvalProp.evaluate() in totalAOTime.
+description: 5 ms total
+function: 5
+float division by zero
+
+2014/02/17 20:37:58 MainThread cs_errors WARNING Exception in EvalProp.evaluate() in totalAOTime.
+description: 5 ms total
+function: 5
+float division by zero
+
+2014/02/17 20:37:58 MainThread cs_errors WARNING Exception in EvalProp.evaluate() in totalAOTime.
+description: 5 ms total
+function: 5
+float division by zero
+
+2014/02/17 20:37:58 MainThread cs_errors WARNING Exception in EvalProp.evaluate() in totalAOTime.
+description: 5 ms total
+function: 5
+float division by zero
+
+2014/02/17 20:38:12 MainThread cs_errors INFO starting application
+2014/02/17 20:38:12 MainThread cs_errors INFO starting application
+2014/02/17 20:38:12 MainThread cs_errors INFO starting application
+2014/02/17 20:38:12 MainThread cs_errors INFO starting application
+2014/02/17 20:38:12 MainThread cs_errors INFO starting application
+2014/02/17 20:39:20 MainThread cs_errors WARNING Exception in EvalProp.evaluate() in clockRate.
+description: 
+function: 100*kilo
+float division by zero
+
+2014/02/17 20:39:20 MainThread cs_errors WARNING Exception in EvalProp.evaluate() in clockRate.
+description: 
+function: 100*kilo
+float division by zero
+
+2014/02/17 20:39:20 MainThread cs_errors WARNING Exception in EvalProp.evaluate() in clockRate.
+description: 
+function: 100*kilo
+float division by zero
+
+2014/02/17 20:39:20 MainThread cs_errors WARNING Exception in EvalProp.evaluate() in clockRate.
+description: 
+function: 100*kilo
+float division by zero
+
+2014/02/17 20:39:20 MainThread cs_errors WARNING Exception in EvalProp.evaluate() in clockRate.
+description: 
+function: 100*kilo
+float division by zero
+
+2014/02/17 20:39:20 MainThread cs_errors WARNING Exception in EvalProp.evaluate() in totalAOTime.
+description: 5 ms total
+function: 5
+float division by zero
+
+2014/02/17 20:39:20 MainThread cs_errors WARNING Exception in EvalProp.evaluate() in totalAOTime.
+description: 5 ms total
+function: 5
+float division by zero
+
+2014/02/17 20:39:20 MainThread cs_errors WARNING Exception in EvalProp.evaluate() in totalAOTime.
+description: 5 ms total
+function: 5
+float division by zero
+
+2014/02/17 20:39:20 MainThread cs_errors WARNING Exception in EvalProp.evaluate() in totalAOTime.
+description: 5 ms total
+function: 5
+float division by zero
+
+2014/02/17 20:39:20 MainThread cs_errors WARNING Exception in EvalProp.evaluate() in totalAOTime.
+description: 5 ms total
+function: 5
+float division by zero
+
+2014/02/17 20:39:34 MainThread cs_errors INFO starting application
+2014/02/17 20:39:34 MainThread cs_errors INFO starting application
+2014/02/17 20:39:34 MainThread cs_errors INFO starting application
+2014/02/17 20:39:34 MainThread cs_errors INFO starting application
+2014/02/17 20:39:34 MainThread cs_errors INFO starting application
+2014/02/17 20:44:13 MainThread cs_errors WARNING Exception in EvalProp.evaluate() in clockRate.
+description: 
+function: 100*kilo
+float division by zero
+
+2014/02/17 20:44:13 MainThread cs_errors WARNING Exception in EvalProp.evaluate() in clockRate.
+description: 
+function: 100*kilo
+float division by zero
+
+2014/02/17 20:44:13 MainThread cs_errors WARNING Exception in EvalProp.evaluate() in clockRate.
+description: 
+function: 100*kilo
+float division by zero
+
+2014/02/17 20:44:13 MainThread cs_errors WARNING Exception in EvalProp.evaluate() in clockRate.
+description: 
+function: 100*kilo
+float division by zero
+
+2014/02/17 20:44:13 MainThread cs_errors WARNING Exception in EvalProp.evaluate() in clockRate.
+description: 
+function: 100*kilo
+float division by zero
+
+2014/02/17 20:44:13 MainThread cs_errors WARNING Exception in EvalProp.evaluate() in totalAOTime.
+description: 5 ms total
+function: 5
+float division by zero
+
+2014/02/17 20:44:13 MainThread cs_errors WARNING Exception in EvalProp.evaluate() in totalAOTime.
+description: 5 ms total
+function: 5
+float division by zero
+
+2014/02/17 20:44:13 MainThread cs_errors WARNING Exception in EvalProp.evaluate() in totalAOTime.
+description: 5 ms total
+function: 5
+float division by zero
+
+2014/02/17 20:44:13 MainThread cs_errors WARNING Exception in EvalProp.evaluate() in totalAOTime.
+description: 5 ms total
+function: 5
+float division by zero
+
+2014/02/17 20:44:13 MainThread cs_errors WARNING Exception in EvalProp.evaluate() in totalAOTime.
+description: 5 ms total
+function: 5
+float division by zero
+
+2014/02/17 20:44:27 MainThread cs_errors INFO starting application
+2014/02/17 20:44:27 MainThread cs_errors INFO starting application
+2014/02/17 20:44:27 MainThread cs_errors INFO starting application
+2014/02/17 20:44:27 MainThread cs_errors INFO starting application
+2014/02/17 20:44:27 MainThread cs_errors INFO starting application
+2014/02/17 20:48:24 MainThread cs_errors WARNING Exception in EvalProp.evaluate() in clockRate.
+description: 
+function: 100*kilo
+float division by zero
+
+2014/02/17 20:48:24 MainThread cs_errors WARNING Exception in EvalProp.evaluate() in clockRate.
+description: 
+function: 100*kilo
+float division by zero
+
+2014/02/17 20:48:24 MainThread cs_errors WARNING Exception in EvalProp.evaluate() in clockRate.
+description: 
+function: 100*kilo
+float division by zero
+
+2014/02/17 20:48:24 MainThread cs_errors WARNING Exception in EvalProp.evaluate() in clockRate.
+description: 
+function: 100*kilo
+float division by zero
+
+2014/02/17 20:48:24 MainThread cs_errors WARNING Exception in EvalProp.evaluate() in clockRate.
+description: 
+function: 100*kilo
+float division by zero
+
+2014/02/17 20:48:24 MainThread cs_errors WARNING Exception in EvalProp.evaluate() in totalAOTime.
+description: 5 ms total
+function: 5
+float division by zero
+
+2014/02/17 20:48:24 MainThread cs_errors WARNING Exception in EvalProp.evaluate() in totalAOTime.
+description: 5 ms total
+function: 5
+float division by zero
+
+2014/02/17 20:48:24 MainThread cs_errors WARNING Exception in EvalProp.evaluate() in totalAOTime.
+description: 5 ms total
+function: 5
+float division by zero
+
+2014/02/17 20:48:24 MainThread cs_errors WARNING Exception in EvalProp.evaluate() in totalAOTime.
+description: 5 ms total
+function: 5
+float division by zero
+
+2014/02/17 20:48:24 MainThread cs_errors WARNING Exception in EvalProp.evaluate() in totalAOTime.
+description: 5 ms total
+function: 5
+float division by zero
+
+2014/02/17 20:48:36 MainThread cs_errors WARNING Exception in EvalProp.evaluate() in clockRate.
+description: 
+function: 100*kilo
+float division by zero
+
+2014/02/17 20:48:36 MainThread cs_errors WARNING Exception in EvalProp.evaluate() in clockRate.
+description: 
+function: 100*kilo
+float division by zero
+
+2014/02/17 20:48:36 MainThread cs_errors WARNING Exception in EvalProp.evaluate() in clockRate.
+description: 
+function: 100*kilo
+float division by zero
+
+2014/02/17 20:48:36 MainThread cs_errors WARNING Exception in EvalProp.evaluate() in clockRate.
+description: 
+function: 100*kilo
+float division by zero
+
+2014/02/17 20:48:36 MainThread cs_errors WARNING Exception in EvalProp.evaluate() in clockRate.
+description: 
+function: 100*kilo
+float division by zero
+
+2014/02/17 20:48:36 MainThread cs_errors WARNING Exception in EvalProp.evaluate() in totalAOTime.
+description: 5 ms total
+function: 5
+float division by zero
+
+2014/02/17 20:48:36 MainThread cs_errors WARNING Exception in EvalProp.evaluate() in totalAOTime.
+description: 5 ms total
+function: 5
+float division by zero
+
+2014/02/17 20:48:36 MainThread cs_errors WARNING Exception in EvalProp.evaluate() in totalAOTime.
+description: 5 ms total
+function: 5
+float division by zero
+
+2014/02/17 20:48:36 MainThread cs_errors WARNING Exception in EvalProp.evaluate() in totalAOTime.
+description: 5 ms total
+function: 5
+float division by zero
+
+2014/02/17 20:48:36 MainThread cs_errors WARNING Exception in EvalProp.evaluate() in totalAOTime.
+description: 5 ms total
+function: 5
+float division by zero
+
+2014/02/17 20:48:50 MainThread cs_errors WARNING Exception in EvalProp.evaluate() in clockRate.
+description: 
+function: 100*kilo
+float division by zero
+
+2014/02/17 20:48:50 MainThread cs_errors WARNING Exception in EvalProp.evaluate() in clockRate.
+description: 
+function: 100*kilo
+float division by zero
+
+2014/02/17 20:48:50 MainThread cs_errors WARNING Exception in EvalProp.evaluate() in clockRate.
+description: 
+function: 100*kilo
+float division by zero
+
+2014/02/17 20:48:50 MainThread cs_errors WARNING Exception in EvalProp.evaluate() in clockRate.
+description: 
+function: 100*kilo
+float division by zero
+
+2014/02/17 20:48:50 MainThread cs_errors WARNING Exception in EvalProp.evaluate() in clockRate.
+description: 
+function: 100*kilo
+float division by zero
+
+2014/02/17 20:48:50 MainThread cs_errors WARNING Exception in EvalProp.evaluate() in totalAOTime.
+description: 5 ms total
+function: 5
+float division by zero
+
+2014/02/17 20:48:50 MainThread cs_errors WARNING Exception in EvalProp.evaluate() in totalAOTime.
+description: 5 ms total
+function: 5
+float division by zero
+
+2014/02/17 20:48:50 MainThread cs_errors WARNING Exception in EvalProp.evaluate() in totalAOTime.
+description: 5 ms total
+function: 5
+float division by zero
+
+2014/02/17 20:48:50 MainThread cs_errors WARNING Exception in EvalProp.evaluate() in totalAOTime.
+description: 5 ms total
+function: 5
+float division by zero
+
+2014/02/17 20:48:50 MainThread cs_errors WARNING Exception in EvalProp.evaluate() in totalAOTime.
+description: 5 ms total
+function: 5
+float division by zero
+
+2014/02/17 20:49:04 MainThread cs_errors INFO starting application
+2014/02/17 20:49:04 MainThread cs_errors INFO starting application
+2014/02/17 20:49:04 MainThread cs_errors INFO starting application
+2014/02/17 20:49:04 MainThread cs_errors INFO starting application
+2014/02/17 20:49:04 MainThread cs_errors INFO starting application
+2014/02/17 20:50:17 MainThread cs_errors WARNING Exception in EvalProp.evaluate() in time.
+description: when this transition happens
+function: b
+global name 'traceback' is not defined
+
+2014/02/17 20:50:17 MainThread cs_errors WARNING Exception in EvalProp.evaluate() in time.
+description: when this transition happens
+function: b
+global name 'traceback' is not defined
+
+2014/02/17 20:50:17 MainThread cs_errors WARNING Exception in EvalProp.evaluate() in time.
+description: when this transition happens
+function: b
+global name 'traceback' is not defined
+
+2014/02/17 20:50:17 MainThread cs_errors WARNING Exception in EvalProp.evaluate() in time.
+description: when this transition happens
+function: b
+global name 'traceback' is not defined
+
+2014/02/17 20:50:17 MainThread cs_errors WARNING Exception in EvalProp.evaluate() in time.
+description: when this transition happens
+function: b
+global name 'traceback' is not defined
+
+2014/02/17 20:50:17 MainThread cs_errors WARNING Exception in EvalProp.evaluate() in time.
+description: when this transition happens
+function: b+.01
+global name 'traceback' is not defined
+
+2014/02/17 20:50:17 MainThread cs_errors WARNING Exception in EvalProp.evaluate() in time.
+description: when this transition happens
+function: b+.01
+global name 'traceback' is not defined
+
+2014/02/17 20:50:17 MainThread cs_errors WARNING Exception in EvalProp.evaluate() in time.
+description: when this transition happens
+function: b+.01
+global name 'traceback' is not defined
+
+2014/02/17 20:50:17 MainThread cs_errors WARNING Exception in EvalProp.evaluate() in time.
+description: when this transition happens
+function: b+.01
+global name 'traceback' is not defined
+
+2014/02/17 20:50:17 MainThread cs_errors WARNING Exception in EvalProp.evaluate() in time.
+description: when this transition happens
+function: b+.01
+global name 'traceback' is not defined
+
+2014/02/17 20:54:34 MainThread cs_errors WARNING Exception in EvalProp.evaluate() in clockRate.
+description: 
+function: 100*kilo
+float division by zero
+
+2014/02/17 20:54:34 MainThread cs_errors WARNING Exception in EvalProp.evaluate() in clockRate.
+description: 
+function: 100*kilo
+float division by zero
+
+2014/02/17 20:54:34 MainThread cs_errors WARNING Exception in EvalProp.evaluate() in clockRate.
+description: 
+function: 100*kilo
+float division by zero
+
+2014/02/17 20:54:34 MainThread cs_errors WARNING Exception in EvalProp.evaluate() in clockRate.
+description: 
+function: 100*kilo
+float division by zero
+
+2014/02/17 20:54:34 MainThread cs_errors WARNING Exception in EvalProp.evaluate() in clockRate.
+description: 
+function: 100*kilo
+float division by zero
+
+2014/02/17 20:54:34 MainThread cs_errors WARNING Exception in EvalProp.evaluate() in totalAOTime.
+description: 5 ms total
+function: 5
+float division by zero
+
+2014/02/17 20:54:34 MainThread cs_errors WARNING Exception in EvalProp.evaluate() in totalAOTime.
+description: 5 ms total
+function: 5
+float division by zero
+
+2014/02/17 20:54:34 MainThread cs_errors WARNING Exception in EvalProp.evaluate() in totalAOTime.
+description: 5 ms total
+function: 5
+float division by zero
+
+2014/02/17 20:54:34 MainThread cs_errors WARNING Exception in EvalProp.evaluate() in totalAOTime.
+description: 5 ms total
+function: 5
+float division by zero
+
+2014/02/17 20:54:34 MainThread cs_errors WARNING Exception in EvalProp.evaluate() in totalAOTime.
+description: 5 ms total
+function: 5
+float division by zero
+
+2014/02/17 20:54:52 MainThread cs_errors WARNING Exception in EvalProp.evaluate() in clockRate.
+description: 
+function: 100*kilo
+float division by zero
+
+2014/02/17 20:54:52 MainThread cs_errors WARNING Exception in EvalProp.evaluate() in clockRate.
+description: 
+function: 100*kilo
+float division by zero
+
+2014/02/17 20:54:52 MainThread cs_errors WARNING Exception in EvalProp.evaluate() in clockRate.
+description: 
+function: 100*kilo
+float division by zero
+
+2014/02/17 20:54:52 MainThread cs_errors WARNING Exception in EvalProp.evaluate() in clockRate.
+description: 
+function: 100*kilo
+float division by zero
+
+2014/02/17 20:54:52 MainThread cs_errors WARNING Exception in EvalProp.evaluate() in clockRate.
+description: 
+function: 100*kilo
+float division by zero
+
+2014/02/17 20:54:52 MainThread cs_errors WARNING Exception in EvalProp.evaluate() in totalAOTime.
+description: 5 ms total
+function: 5
+float division by zero
+
+2014/02/17 20:54:52 MainThread cs_errors WARNING Exception in EvalProp.evaluate() in totalAOTime.
+description: 5 ms total
+function: 5
+float division by zero
+
+2014/02/17 20:54:52 MainThread cs_errors WARNING Exception in EvalProp.evaluate() in totalAOTime.
+description: 5 ms total
+function: 5
+float division by zero
+
+2014/02/17 20:54:52 MainThread cs_errors WARNING Exception in EvalProp.evaluate() in totalAOTime.
+description: 5 ms total
+function: 5
+float division by zero
+
+2014/02/17 20:54:52 MainThread cs_errors WARNING Exception in EvalProp.evaluate() in totalAOTime.
+description: 5 ms total
+function: 5
+float division by zero
+
+2014/02/17 20:55:06 MainThread cs_errors INFO starting application
+2014/02/17 20:55:06 MainThread cs_errors INFO starting application
+2014/02/17 20:55:06 MainThread cs_errors INFO starting application
+2014/02/17 20:55:06 MainThread cs_errors INFO starting application
+2014/02/17 20:55:06 MainThread cs_errors INFO starting application
+2014/02/17 21:04:22 MainThread cs_errors WARNING Exception in EvalProp.evaluate() in clockRate.
+description: 
+function: 100*kilo
+float division by zero
+
+2014/02/17 21:04:22 MainThread cs_errors WARNING Exception in EvalProp.evaluate() in clockRate.
+description: 
+function: 100*kilo
+float division by zero
+
+2014/02/17 21:04:22 MainThread cs_errors WARNING Exception in EvalProp.evaluate() in clockRate.
+description: 
+function: 100*kilo
+float division by zero
+
+2014/02/17 21:04:22 MainThread cs_errors WARNING Exception in EvalProp.evaluate() in clockRate.
+description: 
+function: 100*kilo
+float division by zero
+
+2014/02/17 21:04:22 MainThread cs_errors WARNING Exception in EvalProp.evaluate() in clockRate.
+description: 
+function: 100*kilo
+float division by zero
+
+2014/02/17 21:04:22 MainThread cs_errors WARNING Exception in EvalProp.evaluate() in totalAOTime.
+description: 5 ms total
+function: 5
+float division by zero
+
+2014/02/17 21:04:22 MainThread cs_errors WARNING Exception in EvalProp.evaluate() in totalAOTime.
+description: 5 ms total
+function: 5
+float division by zero
+
+2014/02/17 21:04:22 MainThread cs_errors WARNING Exception in EvalProp.evaluate() in totalAOTime.
+description: 5 ms total
+function: 5
+float division by zero
+
+2014/02/17 21:04:22 MainThread cs_errors WARNING Exception in EvalProp.evaluate() in totalAOTime.
+description: 5 ms total
+function: 5
+float division by zero
+
+2014/02/17 21:04:22 MainThread cs_errors WARNING Exception in EvalProp.evaluate() in totalAOTime.
+description: 5 ms total
+function: 5
+float division by zero
+
+2014/02/17 21:13:13 MainThread cs_errors WARNING Exception in EvalProp.evaluate() in clockRate.
+description: 
+function: 100*kilo
+float division by zero
+
+2014/02/17 21:13:13 MainThread cs_errors WARNING Exception in EvalProp.evaluate() in clockRate.
+description: 
+function: 100*kilo
+float division by zero
+
+2014/02/17 21:13:13 MainThread cs_errors WARNING Exception in EvalProp.evaluate() in clockRate.
+description: 
+function: 100*kilo
+float division by zero
+
+2014/02/17 21:13:13 MainThread cs_errors WARNING Exception in EvalProp.evaluate() in clockRate.
+description: 
+function: 100*kilo
+float division by zero
+
+2014/02/17 21:13:13 MainThread cs_errors WARNING Exception in EvalProp.evaluate() in clockRate.
+description: 
+function: 100*kilo
+float division by zero
+
+2014/02/17 21:13:13 MainThread cs_errors WARNING Exception in EvalProp.evaluate() in totalAOTime.
+description: 5 ms total
+function: 5
+float division by zero
+
+2014/02/17 21:13:13 MainThread cs_errors WARNING Exception in EvalProp.evaluate() in totalAOTime.
+description: 5 ms total
+function: 5
+float division by zero
+
+2014/02/17 21:13:13 MainThread cs_errors WARNING Exception in EvalProp.evaluate() in totalAOTime.
+description: 5 ms total
+function: 5
+float division by zero
+
+2014/02/17 21:13:13 MainThread cs_errors WARNING Exception in EvalProp.evaluate() in totalAOTime.
+description: 5 ms total
+function: 5
+float division by zero
+
+2014/02/17 21:13:13 MainThread cs_errors WARNING Exception in EvalProp.evaluate() in totalAOTime.
+description: 5 ms total
+function: 5
+float division by zero
+
+2014/02/17 21:13:27 MainThread cs_errors INFO starting application
+2014/02/17 21:13:27 MainThread cs_errors INFO starting application
+2014/02/17 21:13:27 MainThread cs_errors INFO starting application
+2014/02/17 21:13:27 MainThread cs_errors INFO starting application
+2014/02/17 21:13:27 MainThread cs_errors INFO starting application
+2014/02/17 21:14:24 Thread-1 cs_errors INFO Current status is idle. Cannot continue an experiment unless status is paused.
+2014/02/17 21:14:24 Thread-1 cs_errors INFO Current status is idle. Cannot continue an experiment unless status is paused.
+2014/02/17 21:14:24 Thread-1 cs_errors INFO Current status is idle. Cannot continue an experiment unless status is paused.
+2014/02/17 21:14:24 Thread-1 cs_errors INFO Current status is idle. Cannot continue an experiment unless status is paused.
+2014/02/17 21:14:24 Thread-1 cs_errors INFO Current status is idle. Cannot continue an experiment unless status is paused.
+2014/02/17 21:14:59 Thread-2 cs_errors INFO Current status is idle. Cannot continue an experiment unless status is paused.
+2014/02/17 21:14:59 Thread-2 cs_errors INFO Current status is idle. Cannot continue an experiment unless status is paused.
+2014/02/17 21:14:59 Thread-2 cs_errors INFO Current status is idle. Cannot continue an experiment unless status is paused.
+2014/02/17 21:14:59 Thread-2 cs_errors INFO Current status is idle. Cannot continue an experiment unless status is paused.
+2014/02/17 21:14:59 Thread-2 cs_errors INFO Current status is idle. Cannot continue an experiment unless status is paused.
+2014/02/17 21:17:25 Thread-4 cs_errors INFO Current status is paused after measurement. Cannot reset experiment unless status is idle.  Try halting first.
+2014/02/17 21:17:25 Thread-4 cs_errors INFO Current status is paused after measurement. Cannot reset experiment unless status is idle.  Try halting first.
+2014/02/17 21:17:25 Thread-4 cs_errors INFO Current status is paused after measurement. Cannot reset experiment unless status is idle.  Try halting first.
+2014/02/17 21:17:25 Thread-4 cs_errors INFO Current status is paused after measurement. Cannot reset experiment unless status is idle.  Try halting first.
+2014/02/17 21:17:25 Thread-4 cs_errors INFO Current status is paused after measurement. Cannot reset experiment unless status is idle.  Try halting first.
+2014/02/17 21:18:49 MainThread cs_errors WARNING Exception in EvalProp.evaluate() in clockRate.
+description: 
+function: 100*kilo
+float division by zero
+
+2014/02/17 21:18:49 MainThread cs_errors WARNING Exception in EvalProp.evaluate() in clockRate.
+description: 
+function: 100*kilo
+float division by zero
+
+2014/02/17 21:18:49 MainThread cs_errors WARNING Exception in EvalProp.evaluate() in clockRate.
+description: 
+function: 100*kilo
+float division by zero
+
+2014/02/17 21:18:49 MainThread cs_errors WARNING Exception in EvalProp.evaluate() in clockRate.
+description: 
+function: 100*kilo
+float division by zero
+
+2014/02/17 21:18:49 MainThread cs_errors WARNING Exception in EvalProp.evaluate() in clockRate.
+description: 
+function: 100*kilo
+float division by zero
+
+2014/02/17 21:18:49 MainThread cs_errors WARNING Exception in EvalProp.evaluate() in totalAOTime.
+description: 5 ms total
+function: 5
+float division by zero
+
+2014/02/17 21:18:49 MainThread cs_errors WARNING Exception in EvalProp.evaluate() in totalAOTime.
+description: 5 ms total
+function: 5
+float division by zero
+
+2014/02/17 21:18:49 MainThread cs_errors WARNING Exception in EvalProp.evaluate() in totalAOTime.
+description: 5 ms total
+function: 5
+float division by zero
+
+2014/02/17 21:18:49 MainThread cs_errors WARNING Exception in EvalProp.evaluate() in totalAOTime.
+description: 5 ms total
+function: 5
+float division by zero
+
+2014/02/17 21:18:49 MainThread cs_errors WARNING Exception in EvalProp.evaluate() in totalAOTime.
+description: 5 ms total
+function: 5
+float division by zero
+
+2014/02/17 21:19:02 MainThread cs_errors INFO starting application
+2014/02/17 21:19:02 MainThread cs_errors INFO starting application
+2014/02/17 21:19:02 MainThread cs_errors INFO starting application
+2014/02/17 21:19:02 MainThread cs_errors INFO starting application
+2014/02/17 21:19:02 MainThread cs_errors INFO starting application
+2014/02/17 21:20:28 MainThread cs_errors WARNING Exception in EvalProp.evaluate() in enable.
+description: enable fake EchoBox data
+function: False
+global name 'traceback' is not defined
+
+2014/02/17 21:20:28 MainThread cs_errors WARNING Exception in EvalProp.evaluate() in enable.
+description: enable fake EchoBox data
+function: False
+global name 'traceback' is not defined
+
+2014/02/17 21:20:28 MainThread cs_errors WARNING Exception in EvalProp.evaluate() in enable.
+description: enable fake EchoBox data
+function: False
+global name 'traceback' is not defined
+
+2014/02/17 21:20:28 MainThread cs_errors WARNING Exception in EvalProp.evaluate() in enable.
+description: enable fake EchoBox data
+function: False
+global name 'traceback' is not defined
+
+2014/02/17 21:20:28 MainThread cs_errors WARNING Exception in EvalProp.evaluate() in enable.
+description: enable fake EchoBox data
+function: False
+global name 'traceback' is not defined
+
+2014/02/17 21:20:28 MainThread cs_errors WARNING Exception in EvalProp.evaluate() in enable.
+description: enable fake EchoBox data
+function: False
+global name 'traceback' is not defined
+
+2014/02/17 21:20:28 MainThread cs_errors WARNING Exception in EvalProp.evaluate() in enable.
+description: enable fake EchoBox data
+function: False
+global name 'traceback' is not defined
+
+2014/02/17 21:20:28 MainThread cs_errors WARNING Exception in EvalProp.evaluate() in enable.
+description: enable fake EchoBox data
+function: False
+global name 'traceback' is not defined
+
+2014/02/17 21:20:28 MainThread cs_errors WARNING Exception in EvalProp.evaluate() in enable.
+description: enable fake EchoBox data
+function: False
+global name 'traceback' is not defined
+
+2014/02/17 21:20:28 MainThread cs_errors WARNING Exception in EvalProp.evaluate() in enable.
+description: enable fake EchoBox data
+function: False
+global name 'traceback' is not defined
+
+2014/02/17 21:20:28 MainThread cs_errors WARNING Exception in EvalProp.evaluate() in enable.
+description: enable fake EchoBox data
+function: False
+global name 'traceback' is not defined
+
+2014/02/17 21:20:28 MainThread cs_errors WARNING Exception in EvalProp.evaluate() in enable.
+description: enable fake EchoBox data
+function: False
+global name 'traceback' is not defined
+
+2014/02/17 21:20:28 MainThread cs_errors WARNING Exception in EvalProp.evaluate() in enable.
+description: enable fake EchoBox data
+function: False
+global name 'traceback' is not defined
+
+2014/02/17 21:20:28 MainThread cs_errors WARNING Exception in EvalProp.evaluate() in enable.
+description: enable fake EchoBox data
+function: False
+global name 'traceback' is not defined
+
+2014/02/17 21:20:28 MainThread cs_errors WARNING Exception in EvalProp.evaluate() in enable.
+description: enable fake EchoBox data
+function: False
+global name 'traceback' is not defined
+
+2014/02/17 21:20:28 MainThread cs_errors WARNING Exception in EvalProp.evaluate() in enable.
+description: enable fake EchoBox data
+function: False
+global name 'traceback' is not defined
+
+2014/02/17 21:20:28 MainThread cs_errors WARNING Exception in EvalProp.evaluate() in enable.
+description: enable fake EchoBox data
+function: False
+global name 'traceback' is not defined
+
+2014/02/17 21:20:28 MainThread cs_errors WARNING Exception in EvalProp.evaluate() in enable.
+description: enable fake EchoBox data
+function: False
+global name 'traceback' is not defined
+
+2014/02/17 21:20:28 MainThread cs_errors WARNING Exception in EvalProp.evaluate() in enable.
+description: enable fake EchoBox data
+function: False
+global name 'traceback' is not defined
+
+2014/02/17 21:20:28 MainThread cs_errors WARNING Exception in EvalProp.evaluate() in enable.
+description: enable fake EchoBox data
+function: False
+global name 'traceback' is not defined
+
+2014/02/17 21:20:28 MainThread cs_errors WARNING Exception in EvalProp.evaluate() in enable.
+description: enable fake EchoBox data
+function: False
+global name 'traceback' is not defined
+
+2014/02/17 21:20:28 MainThread cs_errors WARNING Exception in EvalProp.evaluate() in enable.
+description: enable fake EchoBox data
+function: False
+global name 'traceback' is not defined
+
+2014/02/17 21:20:28 MainThread cs_errors WARNING Exception in EvalProp.evaluate() in enable.
+description: enable fake EchoBox data
+function: False
+global name 'traceback' is not defined
+
+2014/02/17 21:20:28 MainThread cs_errors WARNING Exception in EvalProp.evaluate() in enable.
+description: enable fake EchoBox data
+function: False
+global name 'traceback' is not defined
+
+2014/02/17 21:20:28 MainThread cs_errors WARNING Exception in EvalProp.evaluate() in enable.
+description: enable fake EchoBox data
+function: False
+global name 'traceback' is not defined
+
+2014/02/17 21:20:29 MainThread cs_errors WARNING Exception in EvalProp.evaluate() in enable.
+description: enable fake EchoBox data
+function: False
+global name 'traceback' is not defined
+
+2014/02/17 21:20:29 MainThread cs_errors WARNING Exception in EvalProp.evaluate() in enable.
+description: enable fake EchoBox data
+function: False
+global name 'traceback' is not defined
+
+2014/02/17 21:20:29 MainThread cs_errors WARNING Exception in EvalProp.evaluate() in enable.
+description: enable fake EchoBox data
+function: False
+global name 'traceback' is not defined
+
+2014/02/17 21:20:29 MainThread cs_errors WARNING Exception in EvalProp.evaluate() in enable.
+description: enable fake EchoBox data
+function: False
+global name 'traceback' is not defined
+
+2014/02/17 21:20:29 MainThread cs_errors WARNING Exception in EvalProp.evaluate() in enable.
+description: enable fake EchoBox data
+function: False
+global name 'traceback' is not defined
+
+2014/02/17 21:20:29 MainThread cs_errors WARNING Exception in EvalProp.evaluate() in enable.
+description: enable fake EchoBox data
+function: False
+global name 'traceback' is not defined
+
+2014/02/17 21:20:29 MainThread cs_errors WARNING Exception in EvalProp.evaluate() in enable.
+description: enable fake EchoBox data
+function: False
+global name 'traceback' is not defined
+
+2014/02/17 21:20:29 MainThread cs_errors WARNING Exception in EvalProp.evaluate() in enable.
+description: enable fake EchoBox data
+function: False
+global name 'traceback' is not defined
+
+2014/02/17 21:20:29 MainThread cs_errors WARNING Exception in EvalProp.evaluate() in enable.
+description: enable fake EchoBox data
+function: False
+global name 'traceback' is not defined
+
+2014/02/17 21:20:29 MainThread cs_errors WARNING Exception in EvalProp.evaluate() in enable.
+description: enable fake EchoBox data
+function: False
+global name 'traceback' is not defined
+
+2014/02/17 21:20:29 MainThread cs_errors WARNING Exception in EvalProp.evaluate() in enable.
+description: enable fake EchoBox data
+function: False
+global name 'traceback' is not defined
+
+2014/02/17 21:20:29 MainThread cs_errors WARNING Exception in EvalProp.evaluate() in enable.
+description: enable fake EchoBox data
+function: False
+global name 'traceback' is not defined
+
+2014/02/17 21:20:29 MainThread cs_errors WARNING Exception in EvalProp.evaluate() in enable.
+description: enable fake EchoBox data
+function: False
+global name 'traceback' is not defined
+
+2014/02/17 21:20:29 MainThread cs_errors WARNING Exception in EvalProp.evaluate() in enable.
+description: enable fake EchoBox data
+function: False
+global name 'traceback' is not defined
+
+2014/02/17 21:20:29 MainThread cs_errors WARNING Exception in EvalProp.evaluate() in enable.
+description: enable fake EchoBox data
+function: False
+global name 'traceback' is not defined
+
+2014/02/17 21:20:30 MainThread cs_errors WARNING Exception in EvalProp.evaluate() in enable.
+description: enable fake EchoBox data
+function: False
+global name 'traceback' is not defined
+
+2014/02/17 21:20:30 MainThread cs_errors WARNING Exception in EvalProp.evaluate() in enable.
+description: enable fake EchoBox data
+function: False
+global name 'traceback' is not defined
+
+2014/02/17 21:20:30 MainThread cs_errors WARNING Exception in EvalProp.evaluate() in enable.
+description: enable fake EchoBox data
+function: False
+global name 'traceback' is not defined
+
+2014/02/17 21:20:30 MainThread cs_errors WARNING Exception in EvalProp.evaluate() in enable.
+description: enable fake EchoBox data
+function: False
+global name 'traceback' is not defined
+
+2014/02/17 21:20:30 MainThread cs_errors WARNING Exception in EvalProp.evaluate() in enable.
+description: enable fake EchoBox data
+function: False
+global name 'traceback' is not defined
+
+2014/02/17 21:21:44 Thread-2 cs_errors INFO Current status is paused after error. Cannot reset experiment unless status is idle.  Try halting first.
+2014/02/17 21:21:44 Thread-2 cs_errors INFO Current status is paused after error. Cannot reset experiment unless status is idle.  Try halting first.
+2014/02/17 21:21:44 Thread-2 cs_errors INFO Current status is paused after error. Cannot reset experiment unless status is idle.  Try halting first.
+2014/02/17 21:21:44 Thread-2 cs_errors INFO Current status is paused after error. Cannot reset experiment unless status is idle.  Try halting first.
+2014/02/17 21:21:44 Thread-2 cs_errors INFO Current status is paused after error. Cannot reset experiment unless status is idle.  Try halting first.
+2014/02/17 21:22:04 MainThread cs_errors WARNING Exception in EvalProp.evaluate() in clockRate.
+description: 
+function: 100*kilo
+float division by zero
+
+2014/02/17 21:22:04 MainThread cs_errors WARNING Exception in EvalProp.evaluate() in clockRate.
+description: 
+function: 100*kilo
+float division by zero
+
+2014/02/17 21:22:04 MainThread cs_errors WARNING Exception in EvalProp.evaluate() in clockRate.
+description: 
+function: 100*kilo
+float division by zero
+
+2014/02/17 21:22:04 MainThread cs_errors WARNING Exception in EvalProp.evaluate() in clockRate.
+description: 
+function: 100*kilo
+float division by zero
+
+2014/02/17 21:22:04 MainThread cs_errors WARNING Exception in EvalProp.evaluate() in clockRate.
+description: 
+function: 100*kilo
+float division by zero
+
+2014/02/17 21:22:04 MainThread cs_errors WARNING Exception in EvalProp.evaluate() in totalAOTime.
+description: 5 ms total
+function: 5
+float division by zero
+
+2014/02/17 21:22:04 MainThread cs_errors WARNING Exception in EvalProp.evaluate() in totalAOTime.
+description: 5 ms total
+function: 5
+float division by zero
+
+2014/02/17 21:22:04 MainThread cs_errors WARNING Exception in EvalProp.evaluate() in totalAOTime.
+description: 5 ms total
+function: 5
+float division by zero
+
+2014/02/17 21:22:04 MainThread cs_errors WARNING Exception in EvalProp.evaluate() in totalAOTime.
+description: 5 ms total
+function: 5
+float division by zero
+
+2014/02/17 21:22:04 MainThread cs_errors WARNING Exception in EvalProp.evaluate() in totalAOTime.
+description: 5 ms total
+function: 5
+float division by zero
+
+2014/02/17 21:22:17 MainThread cs_errors INFO starting application
+2014/02/17 21:22:17 MainThread cs_errors INFO starting application
+2014/02/17 21:22:17 MainThread cs_errors INFO starting application
+2014/02/17 21:22:17 MainThread cs_errors INFO starting application
+2014/02/17 21:22:17 MainThread cs_errors INFO starting application
+2014/02/17 21:25:16 MainThread cs_errors WARNING evaluating property enable, enable fake EchoBox data, False
+Could not eval string: T
+name 'T' is not definedTraceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\cs_evaluate.py", line 21, in evalWithDict
+    return eval(string,globals(),varDict)
+  File "<string>", line 1, in <module>
+NameError: name 'T' is not defined
+
+
+2014/02/17 21:25:16 MainThread cs_errors WARNING evaluating property enable, enable fake EchoBox data, False
+Could not eval string: T
+name 'T' is not definedTraceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\cs_evaluate.py", line 21, in evalWithDict
+    return eval(string,globals(),varDict)
+  File "<string>", line 1, in <module>
+NameError: name 'T' is not defined
+
+
+2014/02/17 21:25:16 MainThread cs_errors WARNING evaluating property enable, enable fake EchoBox data, False
+Could not eval string: T
+name 'T' is not definedTraceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\cs_evaluate.py", line 21, in evalWithDict
+    return eval(string,globals(),varDict)
+  File "<string>", line 1, in <module>
+NameError: name 'T' is not defined
+
+
+2014/02/17 21:25:16 MainThread cs_errors WARNING evaluating property enable, enable fake EchoBox data, False
+Could not eval string: T
+name 'T' is not definedTraceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\cs_evaluate.py", line 21, in evalWithDict
+    return eval(string,globals(),varDict)
+  File "<string>", line 1, in <module>
+NameError: name 'T' is not defined
+
+
+2014/02/17 21:25:16 MainThread cs_errors WARNING evaluating property enable, enable fake EchoBox data, False
+Could not eval string: T
+name 'T' is not definedTraceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\cs_evaluate.py", line 21, in evalWithDict
+    return eval(string,globals(),varDict)
+  File "<string>", line 1, in <module>
+NameError: name 'T' is not defined
+
+
+2014/02/17 21:25:16 MainThread cs_errors WARNING evaluating property enable, enable fake EchoBox data, False
+Could not eval string: Tr
+name 'Tr' is not definedTraceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\cs_evaluate.py", line 21, in evalWithDict
+    return eval(string,globals(),varDict)
+  File "<string>", line 1, in <module>
+NameError: name 'Tr' is not defined
+
+
+2014/02/17 21:25:16 MainThread cs_errors WARNING evaluating property enable, enable fake EchoBox data, False
+Could not eval string: Tr
+name 'Tr' is not definedTraceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\cs_evaluate.py", line 21, in evalWithDict
+    return eval(string,globals(),varDict)
+  File "<string>", line 1, in <module>
+NameError: name 'Tr' is not defined
+
+
+2014/02/17 21:25:16 MainThread cs_errors WARNING evaluating property enable, enable fake EchoBox data, False
+Could not eval string: Tr
+name 'Tr' is not definedTraceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\cs_evaluate.py", line 21, in evalWithDict
+    return eval(string,globals(),varDict)
+  File "<string>", line 1, in <module>
+NameError: name 'Tr' is not defined
+
+
+2014/02/17 21:25:16 MainThread cs_errors WARNING evaluating property enable, enable fake EchoBox data, False
+Could not eval string: Tr
+name 'Tr' is not definedTraceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\cs_evaluate.py", line 21, in evalWithDict
+    return eval(string,globals(),varDict)
+  File "<string>", line 1, in <module>
+NameError: name 'Tr' is not defined
+
+
+2014/02/17 21:25:16 MainThread cs_errors WARNING evaluating property enable, enable fake EchoBox data, False
+Could not eval string: Tr
+name 'Tr' is not definedTraceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\cs_evaluate.py", line 21, in evalWithDict
+    return eval(string,globals(),varDict)
+  File "<string>", line 1, in <module>
+NameError: name 'Tr' is not defined
+
+
+2014/02/17 21:25:16 MainThread cs_errors WARNING evaluating property enable, enable fake EchoBox data, False
+Could not eval string: Tru
+name 'Tru' is not definedTraceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\cs_evaluate.py", line 21, in evalWithDict
+    return eval(string,globals(),varDict)
+  File "<string>", line 1, in <module>
+NameError: name 'Tru' is not defined
+
+
+2014/02/17 21:25:16 MainThread cs_errors WARNING evaluating property enable, enable fake EchoBox data, False
+Could not eval string: Tru
+name 'Tru' is not definedTraceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\cs_evaluate.py", line 21, in evalWithDict
+    return eval(string,globals(),varDict)
+  File "<string>", line 1, in <module>
+NameError: name 'Tru' is not defined
+
+
+2014/02/17 21:25:16 MainThread cs_errors WARNING evaluating property enable, enable fake EchoBox data, False
+Could not eval string: Tru
+name 'Tru' is not definedTraceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\cs_evaluate.py", line 21, in evalWithDict
+    return eval(string,globals(),varDict)
+  File "<string>", line 1, in <module>
+NameError: name 'Tru' is not defined
+
+
+2014/02/17 21:25:16 MainThread cs_errors WARNING evaluating property enable, enable fake EchoBox data, False
+Could not eval string: Tru
+name 'Tru' is not definedTraceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\cs_evaluate.py", line 21, in evalWithDict
+    return eval(string,globals(),varDict)
+  File "<string>", line 1, in <module>
+NameError: name 'Tru' is not defined
+
+
+2014/02/17 21:25:16 MainThread cs_errors WARNING evaluating property enable, enable fake EchoBox data, False
+Could not eval string: Tru
+name 'Tru' is not definedTraceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\cs_evaluate.py", line 21, in evalWithDict
+    return eval(string,globals(),varDict)
+  File "<string>", line 1, in <module>
+NameError: name 'Tru' is not defined
+
+
+2014/02/17 21:25:43 Thread-1 cs_errors WARNING Failed to open TCP socket in LabView.initialize()
+2014/02/17 21:25:43 Thread-1 cs_errors WARNING Failed to open TCP socket in LabView.initialize()
+2014/02/17 21:25:43 Thread-1 cs_errors WARNING Failed to open TCP socket in LabView.initialize()
+2014/02/17 21:25:43 Thread-1 cs_errors WARNING Failed to open TCP socket in LabView.initialize()
+2014/02/17 21:25:43 Thread-1 cs_errors WARNING Failed to open TCP socket in LabView.initialize()
+2014/02/17 21:25:43 Thread-1 cs_errors WARNING LabView instrument claims to be initialized, but is not connected in LabView.update()
+2014/02/17 21:25:43 Thread-1 cs_errors WARNING LabView instrument claims to be initialized, but is not connected in LabView.update()
+2014/02/17 21:25:43 Thread-1 cs_errors WARNING LabView instrument claims to be initialized, but is not connected in LabView.update()
+2014/02/17 21:25:43 Thread-1 cs_errors WARNING LabView instrument claims to be initialized, but is not connected in LabView.update()
+2014/02/17 21:25:43 Thread-1 cs_errors WARNING LabView instrument claims to be initialized, but is not connected in LabView.update()
+2014/02/17 21:25:44 Thread-1 cs_errors WARNING LabView instrument claims to be initialized, but is not connected in LabView.update()
+2014/02/17 21:25:44 Thread-1 cs_errors WARNING LabView instrument claims to be initialized, but is not connected in LabView.update()
+2014/02/17 21:25:44 Thread-1 cs_errors WARNING LabView instrument claims to be initialized, but is not connected in LabView.update()
+2014/02/17 21:25:44 Thread-1 cs_errors WARNING LabView instrument claims to be initialized, but is not connected in LabView.update()
+2014/02/17 21:25:44 Thread-1 cs_errors WARNING LabView instrument claims to be initialized, but is not connected in LabView.update()
+2014/02/17 21:27:54 MainThread cs_errors WARNING Exception in EvalProp.evaluate() in clockRate.
+description: 
+function: 100*kilo
+float division by zero
+
+2014/02/17 21:27:54 MainThread cs_errors WARNING Exception in EvalProp.evaluate() in clockRate.
+description: 
+function: 100*kilo
+float division by zero
+
+2014/02/17 21:27:54 MainThread cs_errors WARNING Exception in EvalProp.evaluate() in clockRate.
+description: 
+function: 100*kilo
+float division by zero
+
+2014/02/17 21:27:54 MainThread cs_errors WARNING Exception in EvalProp.evaluate() in clockRate.
+description: 
+function: 100*kilo
+float division by zero
+
+2014/02/17 21:27:54 MainThread cs_errors WARNING Exception in EvalProp.evaluate() in clockRate.
+description: 
+function: 100*kilo
+float division by zero
+
+2014/02/17 21:27:54 MainThread cs_errors WARNING Exception in EvalProp.evaluate() in totalAOTime.
+description: 5 ms total
+function: 5
+float division by zero
+
+2014/02/17 21:27:54 MainThread cs_errors WARNING Exception in EvalProp.evaluate() in totalAOTime.
+description: 5 ms total
+function: 5
+float division by zero
+
+2014/02/17 21:27:54 MainThread cs_errors WARNING Exception in EvalProp.evaluate() in totalAOTime.
+description: 5 ms total
+function: 5
+float division by zero
+
+2014/02/17 21:27:54 MainThread cs_errors WARNING Exception in EvalProp.evaluate() in totalAOTime.
+description: 5 ms total
+function: 5
+float division by zero
+
+2014/02/17 21:27:54 MainThread cs_errors WARNING Exception in EvalProp.evaluate() in totalAOTime.
+description: 5 ms total
+function: 5
+float division by zero
+
+2014/02/17 21:28:07 MainThread cs_errors INFO starting application
+2014/02/17 21:28:07 MainThread cs_errors INFO starting application
+2014/02/17 21:28:07 MainThread cs_errors INFO starting application
+2014/02/17 21:28:07 MainThread cs_errors INFO starting application
+2014/02/17 21:28:07 MainThread cs_errors INFO starting application
+2014/02/17 21:28:13 MainThread cs_errors WARNING evaluating property enable, enable fake EchoBox data, False
+Could not eval string: T
+name 'T' is not definedTraceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\cs_evaluate.py", line 21, in evalWithDict
+    return eval(string,globals(),varDict)
+  File "<string>", line 1, in <module>
+NameError: name 'T' is not defined
+
+
+2014/02/17 21:28:13 MainThread cs_errors WARNING evaluating property enable, enable fake EchoBox data, False
+Could not eval string: T
+name 'T' is not definedTraceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\cs_evaluate.py", line 21, in evalWithDict
+    return eval(string,globals(),varDict)
+  File "<string>", line 1, in <module>
+NameError: name 'T' is not defined
+
+
+2014/02/17 21:28:13 MainThread cs_errors WARNING evaluating property enable, enable fake EchoBox data, False
+Could not eval string: T
+name 'T' is not definedTraceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\cs_evaluate.py", line 21, in evalWithDict
+    return eval(string,globals(),varDict)
+  File "<string>", line 1, in <module>
+NameError: name 'T' is not defined
+
+
+2014/02/17 21:28:13 MainThread cs_errors WARNING evaluating property enable, enable fake EchoBox data, False
+Could not eval string: T
+name 'T' is not definedTraceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\cs_evaluate.py", line 21, in evalWithDict
+    return eval(string,globals(),varDict)
+  File "<string>", line 1, in <module>
+NameError: name 'T' is not defined
+
+
+2014/02/17 21:28:13 MainThread cs_errors WARNING evaluating property enable, enable fake EchoBox data, False
+Could not eval string: T
+name 'T' is not definedTraceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\cs_evaluate.py", line 21, in evalWithDict
+    return eval(string,globals(),varDict)
+  File "<string>", line 1, in <module>
+NameError: name 'T' is not defined
+
+
+2014/02/17 21:28:13 MainThread cs_errors WARNING evaluating property enable, enable fake EchoBox data, False
+Could not eval string: Tr
+name 'Tr' is not definedTraceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\cs_evaluate.py", line 21, in evalWithDict
+    return eval(string,globals(),varDict)
+  File "<string>", line 1, in <module>
+NameError: name 'Tr' is not defined
+
+
+2014/02/17 21:28:13 MainThread cs_errors WARNING evaluating property enable, enable fake EchoBox data, False
+Could not eval string: Tr
+name 'Tr' is not definedTraceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\cs_evaluate.py", line 21, in evalWithDict
+    return eval(string,globals(),varDict)
+  File "<string>", line 1, in <module>
+NameError: name 'Tr' is not defined
+
+
+2014/02/17 21:28:13 MainThread cs_errors WARNING evaluating property enable, enable fake EchoBox data, False
+Could not eval string: Tr
+name 'Tr' is not definedTraceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\cs_evaluate.py", line 21, in evalWithDict
+    return eval(string,globals(),varDict)
+  File "<string>", line 1, in <module>
+NameError: name 'Tr' is not defined
+
+
+2014/02/17 21:28:13 MainThread cs_errors WARNING evaluating property enable, enable fake EchoBox data, False
+Could not eval string: Tr
+name 'Tr' is not definedTraceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\cs_evaluate.py", line 21, in evalWithDict
+    return eval(string,globals(),varDict)
+  File "<string>", line 1, in <module>
+NameError: name 'Tr' is not defined
+
+
+2014/02/17 21:28:13 MainThread cs_errors WARNING evaluating property enable, enable fake EchoBox data, False
+Could not eval string: Tr
+name 'Tr' is not definedTraceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\cs_evaluate.py", line 21, in evalWithDict
+    return eval(string,globals(),varDict)
+  File "<string>", line 1, in <module>
+NameError: name 'Tr' is not defined
+
+
+2014/02/17 21:28:14 MainThread cs_errors WARNING evaluating property enable, enable fake EchoBox data, False
+Could not eval string: Tru
+name 'Tru' is not definedTraceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\cs_evaluate.py", line 21, in evalWithDict
+    return eval(string,globals(),varDict)
+  File "<string>", line 1, in <module>
+NameError: name 'Tru' is not defined
+
+
+2014/02/17 21:28:14 MainThread cs_errors WARNING evaluating property enable, enable fake EchoBox data, False
+Could not eval string: Tru
+name 'Tru' is not definedTraceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\cs_evaluate.py", line 21, in evalWithDict
+    return eval(string,globals(),varDict)
+  File "<string>", line 1, in <module>
+NameError: name 'Tru' is not defined
+
+
+2014/02/17 21:28:14 MainThread cs_errors WARNING evaluating property enable, enable fake EchoBox data, False
+Could not eval string: Tru
+name 'Tru' is not definedTraceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\cs_evaluate.py", line 21, in evalWithDict
+    return eval(string,globals(),varDict)
+  File "<string>", line 1, in <module>
+NameError: name 'Tru' is not defined
+
+
+2014/02/17 21:28:14 MainThread cs_errors WARNING evaluating property enable, enable fake EchoBox data, False
+Could not eval string: Tru
+name 'Tru' is not definedTraceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\cs_evaluate.py", line 21, in evalWithDict
+    return eval(string,globals(),varDict)
+  File "<string>", line 1, in <module>
+NameError: name 'Tru' is not defined
+
+
+2014/02/17 21:28:14 MainThread cs_errors WARNING evaluating property enable, enable fake EchoBox data, False
+Could not eval string: Tru
+name 'Tru' is not definedTraceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\cs_evaluate.py", line 21, in evalWithDict
+    return eval(string,globals(),varDict)
+  File "<string>", line 1, in <module>
+NameError: name 'Tru' is not defined
+
+
+2014/02/17 21:31:41 MainThread cs_errors WARNING Exception in EvalProp.evaluate() in clockRate.
+description: 
+function: 100*kilo
+float division by zero
+
+2014/02/17 21:31:41 MainThread cs_errors WARNING Exception in EvalProp.evaluate() in clockRate.
+description: 
+function: 100*kilo
+float division by zero
+
+2014/02/17 21:31:41 MainThread cs_errors WARNING Exception in EvalProp.evaluate() in clockRate.
+description: 
+function: 100*kilo
+float division by zero
+
+2014/02/17 21:31:41 MainThread cs_errors WARNING Exception in EvalProp.evaluate() in clockRate.
+description: 
+function: 100*kilo
+float division by zero
+
+2014/02/17 21:31:41 MainThread cs_errors WARNING Exception in EvalProp.evaluate() in clockRate.
+description: 
+function: 100*kilo
+float division by zero
+
+2014/02/17 21:31:41 MainThread cs_errors WARNING Exception in EvalProp.evaluate() in totalAOTime.
+description: 5 ms total
+function: 5
+float division by zero
+
+2014/02/17 21:31:41 MainThread cs_errors WARNING Exception in EvalProp.evaluate() in totalAOTime.
+description: 5 ms total
+function: 5
+float division by zero
+
+2014/02/17 21:31:41 MainThread cs_errors WARNING Exception in EvalProp.evaluate() in totalAOTime.
+description: 5 ms total
+function: 5
+float division by zero
+
+2014/02/17 21:31:41 MainThread cs_errors WARNING Exception in EvalProp.evaluate() in totalAOTime.
+description: 5 ms total
+function: 5
+float division by zero
+
+2014/02/17 21:31:41 MainThread cs_errors WARNING Exception in EvalProp.evaluate() in totalAOTime.
+description: 5 ms total
+function: 5
+float division by zero
+
+2014/02/17 21:31:54 MainThread cs_errors INFO starting application
+2014/02/17 21:31:54 MainThread cs_errors INFO starting application
+2014/02/17 21:31:54 MainThread cs_errors INFO starting application
+2014/02/17 21:31:54 MainThread cs_errors INFO starting application
+2014/02/17 21:31:54 MainThread cs_errors INFO starting application
+2014/02/17 21:32:25 MainThread cs_errors WARNING evaluating property enable, enable fake EchoBox data, False
+Could not eval string: T
+name 'T' is not definedTraceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\cs_evaluate.py", line 21, in evalWithDict
+    return eval(string,globals(),varDict)
+  File "<string>", line 1, in <module>
+NameError: name 'T' is not defined
+
+
+2014/02/17 21:32:25 MainThread cs_errors WARNING evaluating property enable, enable fake EchoBox data, False
+Could not eval string: T
+name 'T' is not definedTraceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\cs_evaluate.py", line 21, in evalWithDict
+    return eval(string,globals(),varDict)
+  File "<string>", line 1, in <module>
+NameError: name 'T' is not defined
+
+
+2014/02/17 21:32:25 MainThread cs_errors WARNING evaluating property enable, enable fake EchoBox data, False
+Could not eval string: T
+name 'T' is not definedTraceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\cs_evaluate.py", line 21, in evalWithDict
+    return eval(string,globals(),varDict)
+  File "<string>", line 1, in <module>
+NameError: name 'T' is not defined
+
+
+2014/02/17 21:32:25 MainThread cs_errors WARNING evaluating property enable, enable fake EchoBox data, False
+Could not eval string: T
+name 'T' is not definedTraceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\cs_evaluate.py", line 21, in evalWithDict
+    return eval(string,globals(),varDict)
+  File "<string>", line 1, in <module>
+NameError: name 'T' is not defined
+
+
+2014/02/17 21:32:25 MainThread cs_errors WARNING evaluating property enable, enable fake EchoBox data, False
+Could not eval string: T
+name 'T' is not definedTraceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\cs_evaluate.py", line 21, in evalWithDict
+    return eval(string,globals(),varDict)
+  File "<string>", line 1, in <module>
+NameError: name 'T' is not defined
+
+
+2014/02/17 21:32:25 MainThread cs_errors WARNING evaluating property enable, enable fake EchoBox data, False
+Could not eval string: Tr
+name 'Tr' is not definedTraceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\cs_evaluate.py", line 21, in evalWithDict
+    return eval(string,globals(),varDict)
+  File "<string>", line 1, in <module>
+NameError: name 'Tr' is not defined
+
+
+2014/02/17 21:32:25 MainThread cs_errors WARNING evaluating property enable, enable fake EchoBox data, False
+Could not eval string: Tr
+name 'Tr' is not definedTraceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\cs_evaluate.py", line 21, in evalWithDict
+    return eval(string,globals(),varDict)
+  File "<string>", line 1, in <module>
+NameError: name 'Tr' is not defined
+
+
+2014/02/17 21:32:25 MainThread cs_errors WARNING evaluating property enable, enable fake EchoBox data, False
+Could not eval string: Tr
+name 'Tr' is not definedTraceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\cs_evaluate.py", line 21, in evalWithDict
+    return eval(string,globals(),varDict)
+  File "<string>", line 1, in <module>
+NameError: name 'Tr' is not defined
+
+
+2014/02/17 21:32:25 MainThread cs_errors WARNING evaluating property enable, enable fake EchoBox data, False
+Could not eval string: Tr
+name 'Tr' is not definedTraceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\cs_evaluate.py", line 21, in evalWithDict
+    return eval(string,globals(),varDict)
+  File "<string>", line 1, in <module>
+NameError: name 'Tr' is not defined
+
+
+2014/02/17 21:32:25 MainThread cs_errors WARNING evaluating property enable, enable fake EchoBox data, False
+Could not eval string: Tr
+name 'Tr' is not definedTraceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\cs_evaluate.py", line 21, in evalWithDict
+    return eval(string,globals(),varDict)
+  File "<string>", line 1, in <module>
+NameError: name 'Tr' is not defined
+
+
+2014/02/17 21:32:25 MainThread cs_errors WARNING evaluating property enable, enable fake EchoBox data, False
+Could not eval string: Tru
+name 'Tru' is not definedTraceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\cs_evaluate.py", line 21, in evalWithDict
+    return eval(string,globals(),varDict)
+  File "<string>", line 1, in <module>
+NameError: name 'Tru' is not defined
+
+
+2014/02/17 21:32:25 MainThread cs_errors WARNING evaluating property enable, enable fake EchoBox data, False
+Could not eval string: Tru
+name 'Tru' is not definedTraceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\cs_evaluate.py", line 21, in evalWithDict
+    return eval(string,globals(),varDict)
+  File "<string>", line 1, in <module>
+NameError: name 'Tru' is not defined
+
+
+2014/02/17 21:32:25 MainThread cs_errors WARNING evaluating property enable, enable fake EchoBox data, False
+Could not eval string: Tru
+name 'Tru' is not definedTraceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\cs_evaluate.py", line 21, in evalWithDict
+    return eval(string,globals(),varDict)
+  File "<string>", line 1, in <module>
+NameError: name 'Tru' is not defined
+
+
+2014/02/17 21:32:25 MainThread cs_errors WARNING evaluating property enable, enable fake EchoBox data, False
+Could not eval string: Tru
+name 'Tru' is not definedTraceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\cs_evaluate.py", line 21, in evalWithDict
+    return eval(string,globals(),varDict)
+  File "<string>", line 1, in <module>
+NameError: name 'Tru' is not defined
+
+
+2014/02/17 21:32:25 MainThread cs_errors WARNING evaluating property enable, enable fake EchoBox data, False
+Could not eval string: Tru
+name 'Tru' is not definedTraceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\cs_evaluate.py", line 21, in evalWithDict
+    return eval(string,globals(),varDict)
+  File "<string>", line 1, in <module>
+NameError: name 'Tru' is not defined
+
+

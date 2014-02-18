@@ -1,11 +1,10 @@
+from cs_errors import PauseError, setupLog
+logger=setupLog()
 from atom.api import Atom, Str, Bool, Int, Float, List, Member, Value, observe
 from enaml.validator import Validator
 
-import logging, pickle, traceback
-logger = logging.getLogger(__name__)
+import pickle, traceback, time
 import cs_evaluate
-from cs_errors import PauseError
-import time
 
 class Prop(Atom):
     '''The base class for all stored info about instruments and their properties.'''

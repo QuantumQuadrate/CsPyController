@@ -15,8 +15,8 @@ from instrument_property import FloatProp
 from cs_instruments import Instrument
 import numpy, struct
 import logging
-from cs_errors import PauseError
-logger = logging.getLogger(__name__)
+from cs_errors import PauseError, setupLog
+logger=setupLog()
 
 def toBool(x):
     if (x=='False') or (x=='false'):

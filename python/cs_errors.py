@@ -31,3 +31,12 @@ class PauseError(Exception):
     If general Exceptions are not caught, then unexpected Exceptions will cause the code to stop and the error will be reported by the default mechanism.
     '''
     pass
+
+def setupLog():
+    import logging
+    logger = logging.getLogger(__name__)
+    hdlr = logging.FileHandler('log.txt')
+    formatter = logging.Formatter(fmt='%(asctime)s %(threadName)s %(name)s %(levelname)s %(message)s', datefmt='%Y/%m/%d %H:%M:%S')
+    hdlr.setFormatter(formatter)
+    logger.addHandler(hdlr)
+    return logger

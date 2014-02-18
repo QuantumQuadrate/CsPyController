@@ -1,4 +1,4 @@
-#cs_evaluat.py
+#cs_evaluate.py
 #A separate module where things can be evaluated without access to programmatic variables.
 #author: Martin Lichtman
 #created = 2013-08-22
@@ -6,8 +6,10 @@
 
 from __future__ import division #always do float division
 from numpy import * #make all numpy functions accessible in this scope
-import logging
-logger = logging.getLogger(__name__)
+import traceback
+from cs_errors import PauseError, setupLog
+logger=setupLog()
+
 
 def evalWithDict(string,varDict={},errStr=''):
     '''string: the python expression to be evaluated
@@ -18,7 +20,7 @@ def evalWithDict(string,varDict={},errStr=''):
         try:
             return eval(string,globals(),varDict)
         except Exception as e:
-            logger.warning(errStr+'Could not eval string: '+string+'\n'+str(e)+'\n')
+            logger.warning(errStr+'Could not eval string: '+string+'\n'+str(e)+str(traceback.format_exc())+'\n')
             return None
     return None
 
@@ -30,4 +32,4 @@ def execWithDict(string,varDict={}):
             exec(string,globals(),varDict)
             #varDict gets updated implicitly
         except Exception as e:
-            logger.warning('\nCould not exec string: '+string+'\n'+str(e)+'\n')
+            logger.warning('\nCould not exec string: '+string+'\n'+str(e)+str(traceback.format_exc())+'\n')

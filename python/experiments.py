@@ -4,8 +4,7 @@ This file contains the model to describe and experiment, and the machinery of ho
 author=Martin Lichtman
 '''
 
-import threading, time, datetime, logging, traceback, xml.etree.ElementTree, pickle, os, numpy, h5py
-logger = logging.getLogger(__name__)
+import threading, time, datetime, traceback, xml.etree.ElementTree, pickle, os, numpy, h5py
 
 #set numpy print options to limit to 2 digits
 numpy.set_printoptions(formatter=dict(float=lambda t: "%.2e" % t))
@@ -17,16 +16,24 @@ from enaml.application import deferred_call
 # Bring in other files in this package
 import cs_evaluate
 from instrument_property import Prop, EvalProp, ListProp
-from cs_errors import PauseError
+from cs_errors import PauseError, setupLog
+logger=setupLog()
 import LabView
 from analysis import ImagePlotAnalysis, ShotsBrowserAnalysis
 from save2013style import Save2013Analysis
 
 class independentVariables(ListProp):
+    dyno=Member()
+    
+    def __init__(self,experiment=None):
+        super(independentVariables,self).__init__('independentVariables',experiment,listElementType=independentVariable,listElementName='independentVariable')
+    
     def fromXML(self,xmlNode):
         super(independentVariables,self).fromXML(xmlNode)
-        if hasattr(self.experiment,'ivarRefreshButton'): #prevents trying to do this before GUI is active
-            self.experiment.ivarRefreshButton.clicked() #refresh variables GUI
+        if self.dyno is not None:
+            self.dyno.refresh_items()
+        #if hasattr(self.experiment,'ivarRefreshButton'): #prevents trying to do this before GUI is active
+        #    self.experiment.ivarRefreshButton.clicked() #refresh variables GUI
         return self
 
 class independentVariable(EvalProp):
@@ -143,7 +150,7 @@ class Experiment(Prop):
     ivarIndex=Member()
     ivarValueLists=Member()
     ivarSteps=Member()
-    ivarRefreshButton=Member()
+    #ivarRefreshButton=Member()
     vars=Member()
     hdf5=Member()
     measurementResults=Member()
@@ -155,7 +162,8 @@ class Experiment(Prop):
         super(Experiment,self).__init__('experiment',self) #name is 'experiment', associated experiment is self
         self.instruments=[] #a list of the instruments this experiment has defined
         self.completedMeasurementsByIteration=[]
-        self.independentVariables=ListProp('independentVariables',self,listElementType=independentVariable,listElementName='independentVariable')
+        #self.independentVariables=ListProp('independentVariables',self,listElementType=independentVariable,listElementName='independentVariable')
+        self.independentVariables=independentVariables(self)
         self.ivarIndex=[]
         self.vars={}
         self.variableReportFormat='""'

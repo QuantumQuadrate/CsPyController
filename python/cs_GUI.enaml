@@ -126,7 +126,7 @@ enamldef EvalProp(GroupBox):
     padding=0
     flat=True
     title<<prop.name
-    constraints=[desc.width==func.width,func.width==val.width,hbox(desc,func,val,check),align('v_center',desc,func,val,check)]
+    constraints=[desc.width==func.width,func.width==val.width,hbox(desc,func,val),align('v_center',desc,func,val)]
 
     Field: desc:
         text:=prop.description
@@ -134,13 +134,13 @@ enamldef EvalProp(GroupBox):
     Field: func:
         text:=prop.function
         placeholder=prop.placeholder
-        #validator=prop #.validator
+        validator=prop #.validator
         #valid<<prop.valid
     Label: val:
         text<<str(prop.value)
-    CheckBox: check:
-        checked<<prop.valid
-        enabled=False
+#    CheckBox: check:
+#        checked<<prop.valid
+#        enabled=False
         
     
 enamldef MultilineProp(GroupBox):        
@@ -298,9 +298,9 @@ enamldef VariableEntry(GroupBox):
     PushButton: remove:
         text='-'
         clicked::
-            i=myIndependentVariables.index(indepVar) #find current index
-            myIndependentVariables.pop(i) #remove from backend list
-            myDyno.objects.pop(i) #remove from GUI list
+            #i=myIndependentVariables.index(indepVar) #find current index
+            myIndependentVariables.remove(indepVar) #remove from backend list
+            myDyno.refresh_items() #refresh GUI
     Field: nameCont:
         text:=indepVar.name
         placeholder='name'
@@ -319,66 +319,62 @@ enamldef VariableEntry(GroupBox):
 
 enamldef IndependentVariablesGroupBox(GroupBox): iVarBox:
     attr experiment
+    title='Independent Variables'
     
     initialized::
-        experiment.ivarRefreshButton=refreshButton
+        experiment.independentVariables.dyno=dyno
     
-    title='Independent Variables'
-    constraints=[vbox(hbox(refreshButton,addbutton),varlistContainer),height==150]
-    
-    PushButton: refreshButton:
-        text='refresh'
-        clicked::
-            dynamicInclude.objects=[VariableEntry(myIndependentVariables=iVarBox.experiment.independentVariables, indepVar=i, myDyno=dynamicInclude) for i in iVarBox.experiment.independentVariables]
-
     PushButton: addbutton:
         text='+'
         clicked::
             newvar=independentVariable('new',experiment) #new blank independentVariable
             iVarBox.experiment.independentVariables.append(newvar) #add a new variable to the list
-            newItem=VariableEntry(myIndependentVariables=iVarBox.experiment.independentVariables, indepVar=newvar, myDyno=dynamicInclude)
-            dynamicInclude.objects.append(newItem) #add row to the GUI
-        #icon_source = 'icon://myicons/plus'
-        #icon_size = (28, 28)
+            dyno.refresh_items()
     GroupBox: varlistContainer:
-        Include: dynamicInclude:
-            objects=[VariableEntry(myIndependentVariables=iVarBox.experiment.independentVariables, indepVar=i, myDyno=dynamicInclude) for i in iVarBox.experiment.independentVariables]
+        Looper: dyno:
+            iterable<<iVarBox.experiment.independentVariables
+            VariableEntry:
+                myIndependentVariables=iVarBox.experiment.independentVariables
+                indepVar=loop_item
+                myDyno=dyno
 
-enamldef VariablesPage(Page):
+enamldef VariablesPage(Page): main:
     attr experiment
     title = 'Variables'
     Container:
-        constraints=[vbox(updateButton,hbox(independent,dependent,report)),align('top',independent,dependent,report)]
-        PushButton: updateButton:
-            text='Update variables throughout experiment'
-            clicked::
-                experiment.evaluateAll()
-        IndependentVariablesGroupBox: independent:
-            experiment<<parent.parent.experiment
-            
-        GroupBox: dependent:
-            title='Dependent Variables'
-            constraints=[vbox(lb1,field,variablesNotToSave)]
-            Label: lb1:
-                text='Define dependent variables using python code below.'
-            MultilineField: field:
-                constraints=[height==600]
-                text:=experiment.dependentVariablesStr
-            GroupBox: variablesNotToSave:
-                hug_height='strong'
-                title='Variables Not To Save to HDF5 (comma separated)'
-                Field:
-                    text:=experiment.variablesNotToSave
-                    placeholder='scipy,numpy,x'
-        GroupBox: report:
-            constraints=[vbox(lb2,f1)]
-            title='Report'
-            MultilineField: f1:
-                constraints=[height==600]
-                #placeholder='report format'
-                text:=experiment.variableReportFormat
-            Label: lb2:
-                text<<experiment.variableReportStr
+        Container:
+            constraints=[hbox(vbox(updateButton,independent,dependent),report)]
+            hug_height='strong'
+            hug_width='strong'
+            PushButton: updateButton:
+                text='Update variables throughout experiment'
+                clicked::
+                    experiment.evaluateAll()
+            IndependentVariablesGroupBox: independent:
+                experiment<<main.experiment
+                
+            GroupBox: dependent:
+                title='Dependent Variables'
+                constraints=[vbox(lb1,field,variablesNotToSave)]
+                Label: lb1:
+                    text='Define dependent variables using python code below.'
+                MultilineField: field:
+                    constraints=[height==600]
+                    text:=experiment.dependentVariablesStr
+                GroupBox: variablesNotToSave:
+                    hug_height='strong'
+                    title='Variables Not To Save to HDF5 (comma separated)'
+                    Field:
+                        text:=experiment.variablesNotToSave
+                        placeholder='scipy,numpy,x'
+            GroupBox: report:
+                constraints=[vbox(lb2,f1)]
+                title='Report'
+                MultilineField: f1:
+                    constraints=[height==600]
+                    text:=experiment.variableReportFormat
+                Label: lb2:
+                    text<<experiment.variableReportStr
 
 enamldef LabViewPage(Page):
     attr LabView
