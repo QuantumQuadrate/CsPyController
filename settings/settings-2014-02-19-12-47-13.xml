@@ -3249,9 +3249,9 @@ p0
 <boxes><box0><description>S'Box A'
 p0
 .</description>
-<enable>I01
+<enable>I00
 .</enable>
-<deviceReference>S'USB0::0x3923::0x7166::01574F73::RAW'
+<deviceReference>S''
 p0
 .</deviceReference>
 <DIOport>I0
@@ -9455,10 +9455,6 @@ p0
 </channels>
 </box1>
 </boxes>
-<deviceList>(lp0
-S'USB0::0x3923::0x7166::01574F73::RAW'
-p1
-a.</deviceList>
 </DDS>
 <piezo><description>S''
 p0

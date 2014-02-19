@@ -16,7 +16,7 @@ from cs_instruments import Instrument
 import numpy, struct
 import logging
 from cs_errors import PauseError, setupLog
-logger=setupLog()
+logger=setupLog(__name__)
 
 def toBool(x):
     if (x=='False') or (x=='false'):
@@ -74,7 +74,7 @@ class LabView(Instrument):
         if self.enabled:
             #check for an old socket and delete it
             if self.sock is not None:
-                print 'debug LabView.initialize() closing sock'
+                logger.debug('debug LabView.initialize() closing sock')
                 self.sock.close()
                 del self.sock
             # Create a TCP/IP socket
@@ -84,7 +84,7 @@ class LabView(Instrument):
             except:
                 logger.warning('Failed to open TCP socket in LabView.initialize()')
             else:
-                print 'LabView.initialize sock opened'
+                logger.debug('LabView.initialize sock opened')
                 self.connected=True
             for i in self.instruments:
                 i.initialize()

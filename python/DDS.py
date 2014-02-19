@@ -10,17 +10,21 @@ from LabView, via USB.
 '''
 
 #from cs_errors import PauseError
-from atom.api import Bool, Int, Str, Typed, Member
+from atom.api import Bool, Int, Str, Typed, Member, List
+from enaml.application import deferred_call
 from instrument_property import Prop, BoolProp, IntProp, FloatProp, StrProp, ListProp
 from cs_instruments import Instrument
-import logging
-logger = logging.getLogger(__name__)
+from cs_errors import PauseError, setupLog
+logger=setupLog(__name__)
+
 
 class DDS(Instrument):
     enable=Typed(BoolProp)
     boxes=Typed(ListProp)
     version=Member()
     communicator=Member() #holds the reference to the thing that sends DDS commands, usually the LabView object
+    #deviceListStr=Str()
+    deviceList=Member()
     
     def __init__(self,experiment,communicator):
         super(DDS,self).__init__('DDS',experiment)
@@ -29,7 +33,9 @@ class DDS(Instrument):
         self.enable=BoolProp('enable',self.experiment,'enable DDS output','False')
         self.boxes=ListProp('boxes',experiment,listElementType=DDSbox,listElementName='box')
         self.addBox() #TODO:don't add this initial box, but if we don't then the comboBox doesn't update for some reason
-        self.properties+=['version','enable','boxes']
+        #self.deviceList=self.deviceListStr.split('\n')
+        self.deviceList=[]
+        self.properties+=['version','enable','boxes','deviceList']
     
     def addBox(self):
         newbox=DDSbox('box'+str(len(self.boxes)),self.experiment)
@@ -38,8 +44,9 @@ class DDS(Instrument):
     
     def getDDSDeviceList(self):
         result=self.communicator.command('getDDSDeviceList')
-        print result
-        print result['DDS/devices']
+        deviceListStr=result['DDS/devices']
+        print 'available devices:\n'+deviceListStr
+        deferred_call(setattr,self,'deviceList',deviceListStr.split('\n'))
     
     def initializeDDS(self):
         result=self.communicator.command('initializeDDS')

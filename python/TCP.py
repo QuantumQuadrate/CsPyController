@@ -12,9 +12,9 @@
 
 
 import socket, struct, logging, numpy, threading, traceback
-logger = logging.getLogger(__name__)
-logging.basicConfig(format='%(asctime)s %(name)s %(levelname)s %(message)s', datefmt='%Y/%m/%d %H:%M:%S', level=logging.DEBUG)
-from cs_errors import PauseError
+from cs_errors import PauseError, setupLog
+logger=setupLog(__name__)
+
 
 def prefixLength(txt):
     length=len(txt)

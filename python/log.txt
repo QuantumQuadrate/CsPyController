@@ -3075,3 +3075,575 @@ float division by zero
 2014/02/18 17:50:30 MainThread cs_errors INFO LabView was not initialized.  Initializing LabView in LabView.command(getDDSDeviceList)
 2014/02/18 17:50:30 MainThread cs_errors INFO LabView was not initialized.  Initializing LabView in LabView.command(getDDSDeviceList)
 2014/02/18 17:50:30 MainThread cs_errors INFO LabView was not initialized.  Initializing LabView in LabView.command(getDDSDeviceList)
+2014/02/19 12:46:02 MainThread cs_errors WARNING Exception in EvalProp.evaluate() in clockRate.
+description: 
+function: 100*kilo
+float division by zero
+
+2014/02/19 12:46:02 MainThread cs_errors WARNING Exception in EvalProp.evaluate() in clockRate.
+description: 
+function: 100*kilo
+float division by zero
+
+2014/02/19 12:46:02 MainThread cs_errors WARNING Exception in EvalProp.evaluate() in clockRate.
+description: 
+function: 100*kilo
+float division by zero
+
+2014/02/19 12:46:02 MainThread cs_errors WARNING Exception in EvalProp.evaluate() in clockRate.
+description: 
+function: 100*kilo
+float division by zero
+
+2014/02/19 12:46:02 MainThread cs_errors WARNING Exception in EvalProp.evaluate() in clockRate.
+description: 
+function: 100*kilo
+float division by zero
+
+2014/02/19 12:46:02 MainThread cs_errors WARNING Exception in EvalProp.evaluate() in totalAOTime.
+description: 5 ms total
+function: 5
+float division by zero
+
+2014/02/19 12:46:02 MainThread cs_errors WARNING Exception in EvalProp.evaluate() in totalAOTime.
+description: 5 ms total
+function: 5
+float division by zero
+
+2014/02/19 12:46:02 MainThread cs_errors WARNING Exception in EvalProp.evaluate() in totalAOTime.
+description: 5 ms total
+function: 5
+float division by zero
+
+2014/02/19 12:46:02 MainThread cs_errors WARNING Exception in EvalProp.evaluate() in totalAOTime.
+description: 5 ms total
+function: 5
+float division by zero
+
+2014/02/19 12:46:02 MainThread cs_errors WARNING Exception in EvalProp.evaluate() in totalAOTime.
+description: 5 ms total
+function: 5
+float division by zero
+
+2014/02/19 12:46:15 MainThread cs_errors INFO starting application
+2014/02/19 12:46:15 MainThread cs_errors INFO starting application
+2014/02/19 12:46:15 MainThread cs_errors INFO starting application
+2014/02/19 12:46:15 MainThread cs_errors INFO starting application
+2014/02/19 12:46:15 MainThread cs_errors INFO starting application
+2014/02/19 12:46:30 MainThread cs_errors WARNING evaluating property enable, enable HSDIO output, True
+Could not eval string: F
+name 'F' is not definedTraceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\cs_evaluate.py", line 21, in evalWithDict
+    return eval(string,globals(),varDict)
+  File "<string>", line 1, in <module>
+NameError: name 'F' is not defined
+
+
+2014/02/19 12:46:30 MainThread cs_errors WARNING evaluating property enable, enable HSDIO output, True
+Could not eval string: F
+name 'F' is not definedTraceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\cs_evaluate.py", line 21, in evalWithDict
+    return eval(string,globals(),varDict)
+  File "<string>", line 1, in <module>
+NameError: name 'F' is not defined
+
+
+2014/02/19 12:46:30 MainThread cs_errors WARNING evaluating property enable, enable HSDIO output, True
+Could not eval string: F
+name 'F' is not definedTraceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\cs_evaluate.py", line 21, in evalWithDict
+    return eval(string,globals(),varDict)
+  File "<string>", line 1, in <module>
+NameError: name 'F' is not defined
+
+
+2014/02/19 12:46:30 MainThread cs_errors WARNING evaluating property enable, enable HSDIO output, True
+Could not eval string: F
+name 'F' is not definedTraceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\cs_evaluate.py", line 21, in evalWithDict
+    return eval(string,globals(),varDict)
+  File "<string>", line 1, in <module>
+NameError: name 'F' is not defined
+
+
+2014/02/19 12:46:30 MainThread cs_errors WARNING evaluating property enable, enable HSDIO output, True
+Could not eval string: F
+name 'F' is not definedTraceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\cs_evaluate.py", line 21, in evalWithDict
+    return eval(string,globals(),varDict)
+  File "<string>", line 1, in <module>
+NameError: name 'F' is not defined
+
+
+2014/02/19 12:46:30 MainThread cs_errors WARNING evaluating property enable, enable HSDIO output, True
+Could not eval string: Fa
+name 'Fa' is not definedTraceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\cs_evaluate.py", line 21, in evalWithDict
+    return eval(string,globals(),varDict)
+  File "<string>", line 1, in <module>
+NameError: name 'Fa' is not defined
+
+
+2014/02/19 12:46:30 MainThread cs_errors WARNING evaluating property enable, enable HSDIO output, True
+Could not eval string: Fa
+name 'Fa' is not definedTraceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\cs_evaluate.py", line 21, in evalWithDict
+    return eval(string,globals(),varDict)
+  File "<string>", line 1, in <module>
+NameError: name 'Fa' is not defined
+
+
+2014/02/19 12:46:30 MainThread cs_errors WARNING evaluating property enable, enable HSDIO output, True
+Could not eval string: Fa
+name 'Fa' is not definedTraceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\cs_evaluate.py", line 21, in evalWithDict
+    return eval(string,globals(),varDict)
+  File "<string>", line 1, in <module>
+NameError: name 'Fa' is not defined
+
+
+2014/02/19 12:46:30 MainThread cs_errors WARNING evaluating property enable, enable HSDIO output, True
+Could not eval string: Fa
+name 'Fa' is not definedTraceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\cs_evaluate.py", line 21, in evalWithDict
+    return eval(string,globals(),varDict)
+  File "<string>", line 1, in <module>
+NameError: name 'Fa' is not defined
+
+
+2014/02/19 12:46:30 MainThread cs_errors WARNING evaluating property enable, enable HSDIO output, True
+Could not eval string: Fa
+name 'Fa' is not definedTraceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\cs_evaluate.py", line 21, in evalWithDict
+    return eval(string,globals(),varDict)
+  File "<string>", line 1, in <module>
+NameError: name 'Fa' is not defined
+
+
+2014/02/19 12:46:30 MainThread cs_errors WARNING evaluating property enable, enable HSDIO output, True
+Could not eval string: Fal
+name 'Fal' is not definedTraceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\cs_evaluate.py", line 21, in evalWithDict
+    return eval(string,globals(),varDict)
+  File "<string>", line 1, in <module>
+NameError: name 'Fal' is not defined
+
+
+2014/02/19 12:46:30 MainThread cs_errors WARNING evaluating property enable, enable HSDIO output, True
+Could not eval string: Fal
+name 'Fal' is not definedTraceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\cs_evaluate.py", line 21, in evalWithDict
+    return eval(string,globals(),varDict)
+  File "<string>", line 1, in <module>
+NameError: name 'Fal' is not defined
+
+
+2014/02/19 12:46:30 MainThread cs_errors WARNING evaluating property enable, enable HSDIO output, True
+Could not eval string: Fal
+name 'Fal' is not definedTraceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\cs_evaluate.py", line 21, in evalWithDict
+    return eval(string,globals(),varDict)
+  File "<string>", line 1, in <module>
+NameError: name 'Fal' is not defined
+
+
+2014/02/19 12:46:30 MainThread cs_errors WARNING evaluating property enable, enable HSDIO output, True
+Could not eval string: Fal
+name 'Fal' is not definedTraceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\cs_evaluate.py", line 21, in evalWithDict
+    return eval(string,globals(),varDict)
+  File "<string>", line 1, in <module>
+NameError: name 'Fal' is not defined
+
+
+2014/02/19 12:46:30 MainThread cs_errors WARNING evaluating property enable, enable HSDIO output, True
+Could not eval string: Fal
+name 'Fal' is not definedTraceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\cs_evaluate.py", line 21, in evalWithDict
+    return eval(string,globals(),varDict)
+  File "<string>", line 1, in <module>
+NameError: name 'Fal' is not defined
+
+
+2014/02/19 12:46:30 MainThread cs_errors WARNING evaluating property enable, enable HSDIO output, True
+Could not eval string: Fals
+name 'Fals' is not definedTraceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\cs_evaluate.py", line 21, in evalWithDict
+    return eval(string,globals(),varDict)
+  File "<string>", line 1, in <module>
+NameError: name 'Fals' is not defined
+
+
+2014/02/19 12:46:30 MainThread cs_errors WARNING evaluating property enable, enable HSDIO output, True
+Could not eval string: Fals
+name 'Fals' is not definedTraceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\cs_evaluate.py", line 21, in evalWithDict
+    return eval(string,globals(),varDict)
+  File "<string>", line 1, in <module>
+NameError: name 'Fals' is not defined
+
+
+2014/02/19 12:46:30 MainThread cs_errors WARNING evaluating property enable, enable HSDIO output, True
+Could not eval string: Fals
+name 'Fals' is not definedTraceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\cs_evaluate.py", line 21, in evalWithDict
+    return eval(string,globals(),varDict)
+  File "<string>", line 1, in <module>
+NameError: name 'Fals' is not defined
+
+
+2014/02/19 12:46:30 MainThread cs_errors WARNING evaluating property enable, enable HSDIO output, True
+Could not eval string: Fals
+name 'Fals' is not definedTraceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\cs_evaluate.py", line 21, in evalWithDict
+    return eval(string,globals(),varDict)
+  File "<string>", line 1, in <module>
+NameError: name 'Fals' is not defined
+
+
+2014/02/19 12:46:30 MainThread cs_errors WARNING evaluating property enable, enable HSDIO output, True
+Could not eval string: Fals
+name 'Fals' is not definedTraceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\cs_evaluate.py", line 21, in evalWithDict
+    return eval(string,globals(),varDict)
+  File "<string>", line 1, in <module>
+NameError: name 'Fals' is not defined
+
+
+2014/02/19 12:46:55 MainThread cs_errors WARNING evaluating property enable, enable camera, True
+Could not eval string: F
+name 'F' is not definedTraceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\cs_evaluate.py", line 21, in evalWithDict
+    return eval(string,globals(),varDict)
+  File "<string>", line 1, in <module>
+NameError: name 'F' is not defined
+
+
+2014/02/19 12:46:55 MainThread cs_errors WARNING evaluating property enable, enable camera, True
+Could not eval string: F
+name 'F' is not definedTraceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\cs_evaluate.py", line 21, in evalWithDict
+    return eval(string,globals(),varDict)
+  File "<string>", line 1, in <module>
+NameError: name 'F' is not defined
+
+
+2014/02/19 12:46:55 MainThread cs_errors WARNING evaluating property enable, enable camera, True
+Could not eval string: F
+name 'F' is not definedTraceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\cs_evaluate.py", line 21, in evalWithDict
+    return eval(string,globals(),varDict)
+  File "<string>", line 1, in <module>
+NameError: name 'F' is not defined
+
+
+2014/02/19 12:46:55 MainThread cs_errors WARNING evaluating property enable, enable camera, True
+Could not eval string: F
+name 'F' is not definedTraceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\cs_evaluate.py", line 21, in evalWithDict
+    return eval(string,globals(),varDict)
+  File "<string>", line 1, in <module>
+NameError: name 'F' is not defined
+
+
+2014/02/19 12:46:55 MainThread cs_errors WARNING evaluating property enable, enable camera, True
+Could not eval string: F
+name 'F' is not definedTraceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\cs_evaluate.py", line 21, in evalWithDict
+    return eval(string,globals(),varDict)
+  File "<string>", line 1, in <module>
+NameError: name 'F' is not defined
+
+
+2014/02/19 12:46:55 MainThread cs_errors WARNING evaluating property enable, enable camera, True
+Could not eval string: Fa
+name 'Fa' is not definedTraceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\cs_evaluate.py", line 21, in evalWithDict
+    return eval(string,globals(),varDict)
+  File "<string>", line 1, in <module>
+NameError: name 'Fa' is not defined
+
+
+2014/02/19 12:46:55 MainThread cs_errors WARNING evaluating property enable, enable camera, True
+Could not eval string: Fa
+name 'Fa' is not definedTraceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\cs_evaluate.py", line 21, in evalWithDict
+    return eval(string,globals(),varDict)
+  File "<string>", line 1, in <module>
+NameError: name 'Fa' is not defined
+
+
+2014/02/19 12:46:55 MainThread cs_errors WARNING evaluating property enable, enable camera, True
+Could not eval string: Fa
+name 'Fa' is not definedTraceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\cs_evaluate.py", line 21, in evalWithDict
+    return eval(string,globals(),varDict)
+  File "<string>", line 1, in <module>
+NameError: name 'Fa' is not defined
+
+
+2014/02/19 12:46:55 MainThread cs_errors WARNING evaluating property enable, enable camera, True
+Could not eval string: Fa
+name 'Fa' is not definedTraceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\cs_evaluate.py", line 21, in evalWithDict
+    return eval(string,globals(),varDict)
+  File "<string>", line 1, in <module>
+NameError: name 'Fa' is not defined
+
+
+2014/02/19 12:46:55 MainThread cs_errors WARNING evaluating property enable, enable camera, True
+Could not eval string: Fa
+name 'Fa' is not definedTraceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\cs_evaluate.py", line 21, in evalWithDict
+    return eval(string,globals(),varDict)
+  File "<string>", line 1, in <module>
+NameError: name 'Fa' is not defined
+
+
+2014/02/19 12:46:55 MainThread cs_errors WARNING evaluating property enable, enable camera, True
+Could not eval string: Fal
+name 'Fal' is not definedTraceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\cs_evaluate.py", line 21, in evalWithDict
+    return eval(string,globals(),varDict)
+  File "<string>", line 1, in <module>
+NameError: name 'Fal' is not defined
+
+
+2014/02/19 12:46:55 MainThread cs_errors WARNING evaluating property enable, enable camera, True
+Could not eval string: Fal
+name 'Fal' is not definedTraceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\cs_evaluate.py", line 21, in evalWithDict
+    return eval(string,globals(),varDict)
+  File "<string>", line 1, in <module>
+NameError: name 'Fal' is not defined
+
+
+2014/02/19 12:46:55 MainThread cs_errors WARNING evaluating property enable, enable camera, True
+Could not eval string: Fal
+name 'Fal' is not definedTraceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\cs_evaluate.py", line 21, in evalWithDict
+    return eval(string,globals(),varDict)
+  File "<string>", line 1, in <module>
+NameError: name 'Fal' is not defined
+
+
+2014/02/19 12:46:55 MainThread cs_errors WARNING evaluating property enable, enable camera, True
+Could not eval string: Fal
+name 'Fal' is not definedTraceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\cs_evaluate.py", line 21, in evalWithDict
+    return eval(string,globals(),varDict)
+  File "<string>", line 1, in <module>
+NameError: name 'Fal' is not defined
+
+
+2014/02/19 12:46:55 MainThread cs_errors WARNING evaluating property enable, enable camera, True
+Could not eval string: Fal
+name 'Fal' is not definedTraceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\cs_evaluate.py", line 21, in evalWithDict
+    return eval(string,globals(),varDict)
+  File "<string>", line 1, in <module>
+NameError: name 'Fal' is not defined
+
+
+2014/02/19 12:46:55 MainThread cs_errors WARNING evaluating property enable, enable camera, True
+Could not eval string: Fals
+name 'Fals' is not definedTraceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\cs_evaluate.py", line 21, in evalWithDict
+    return eval(string,globals(),varDict)
+  File "<string>", line 1, in <module>
+NameError: name 'Fals' is not defined
+
+
+2014/02/19 12:46:55 MainThread cs_errors WARNING evaluating property enable, enable camera, True
+Could not eval string: Fals
+name 'Fals' is not definedTraceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\cs_evaluate.py", line 21, in evalWithDict
+    return eval(string,globals(),varDict)
+  File "<string>", line 1, in <module>
+NameError: name 'Fals' is not defined
+
+
+2014/02/19 12:46:55 MainThread cs_errors WARNING evaluating property enable, enable camera, True
+Could not eval string: Fals
+name 'Fals' is not definedTraceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\cs_evaluate.py", line 21, in evalWithDict
+    return eval(string,globals(),varDict)
+  File "<string>", line 1, in <module>
+NameError: name 'Fals' is not defined
+
+
+2014/02/19 12:46:55 MainThread cs_errors WARNING evaluating property enable, enable camera, True
+Could not eval string: Fals
+name 'Fals' is not definedTraceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\cs_evaluate.py", line 21, in evalWithDict
+    return eval(string,globals(),varDict)
+  File "<string>", line 1, in <module>
+NameError: name 'Fals' is not defined
+
+
+2014/02/19 12:46:55 MainThread cs_errors WARNING evaluating property enable, enable camera, True
+Could not eval string: Fals
+name 'Fals' is not definedTraceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\cs_evaluate.py", line 21, in evalWithDict
+    return eval(string,globals(),varDict)
+  File "<string>", line 1, in <module>
+NameError: name 'Fals' is not defined
+
+
+2014/02/19 12:57:16 MainThread cs_errors WARNING Exception in EvalProp.evaluate() in clockRate.
+description: 
+function: 100*kilo
+float division by zero
+
+2014/02/19 12:57:16 MainThread cs_errors WARNING Exception in EvalProp.evaluate() in clockRate.
+description: 
+function: 100*kilo
+float division by zero
+
+2014/02/19 12:57:16 MainThread cs_errors WARNING Exception in EvalProp.evaluate() in clockRate.
+description: 
+function: 100*kilo
+float division by zero
+
+2014/02/19 12:57:16 MainThread cs_errors WARNING Exception in EvalProp.evaluate() in clockRate.
+description: 
+function: 100*kilo
+float division by zero
+
+2014/02/19 12:57:16 MainThread cs_errors WARNING Exception in EvalProp.evaluate() in clockRate.
+description: 
+function: 100*kilo
+float division by zero
+
+2014/02/19 12:57:16 MainThread cs_errors WARNING Exception in EvalProp.evaluate() in totalAOTime.
+description: 5 ms total
+function: 5
+float division by zero
+
+2014/02/19 12:57:16 MainThread cs_errors WARNING Exception in EvalProp.evaluate() in totalAOTime.
+description: 5 ms total
+function: 5
+float division by zero
+
+2014/02/19 12:57:16 MainThread cs_errors WARNING Exception in EvalProp.evaluate() in totalAOTime.
+description: 5 ms total
+function: 5
+float division by zero
+
+2014/02/19 12:57:16 MainThread cs_errors WARNING Exception in EvalProp.evaluate() in totalAOTime.
+description: 5 ms total
+function: 5
+float division by zero
+
+2014/02/19 12:57:16 MainThread cs_errors WARNING Exception in EvalProp.evaluate() in totalAOTime.
+description: 5 ms total
+function: 5
+float division by zero
+
+2014/02/19 12:57:30 MainThread cs_errors INFO starting application
+2014/02/19 12:57:30 MainThread cs_errors INFO starting application
+2014/02/19 12:57:30 MainThread cs_errors INFO starting application
+2014/02/19 12:57:30 MainThread cs_errors INFO starting application
+2014/02/19 12:57:30 MainThread cs_errors INFO starting application
+2014/02/19 13:00:00 MainThread cs_errors DEBUG LabView.initialize sock opened
+2014/02/19 13:00:00 MainThread cs_errors DEBUG LabView.initialize sock opened
+2014/02/19 13:00:00 MainThread cs_errors DEBUG LabView.initialize sock opened
+2014/02/19 13:00:00 MainThread cs_errors DEBUG LabView.initialize sock opened
+2014/02/19 13:00:00 MainThread cs_errors DEBUG LabView.initialize sock opened
+2014/02/19 13:23:33 MainThread cs_errors INFO LabView was not initialized.  Initializing LabView in LabView.command(getDDSDeviceList)
+2014/02/19 13:23:33 MainThread cs_errors INFO LabView was not initialized.  Initializing LabView in LabView.command(getDDSDeviceList)
+2014/02/19 13:23:33 MainThread cs_errors INFO LabView was not initialized.  Initializing LabView in LabView.command(getDDSDeviceList)
+2014/02/19 13:23:33 MainThread cs_errors INFO LabView was not initialized.  Initializing LabView in LabView.command(getDDSDeviceList)
+2014/02/19 13:23:33 MainThread cs_errors INFO LabView was not initialized.  Initializing LabView in LabView.command(getDDSDeviceList)
+2014/02/19 13:23:33 MainThread cs_errors DEBUG debug LabView.initialize() closing sock
+2014/02/19 13:23:33 MainThread cs_errors DEBUG debug LabView.initialize() closing sock
+2014/02/19 13:23:33 MainThread cs_errors DEBUG debug LabView.initialize() closing sock
+2014/02/19 13:23:33 MainThread cs_errors DEBUG debug LabView.initialize() closing sock
+2014/02/19 13:23:33 MainThread cs_errors DEBUG debug LabView.initialize() closing sock
+2014/02/19 13:32:41 MainThread instrument_property WARNING Exception in EvalProp.evaluate() in clockRate.
+description: 
+function: 100*kilo
+float division by zero
+
+2014/02/19 13:32:41 MainThread instrument_property WARNING Exception in EvalProp.evaluate() in totalAOTime.
+description: 5 ms total
+function: 5
+float division by zero
+
+2014/02/19 13:32:55 MainThread __main__ INFO starting application
+2014/02/19 13:33:26 MainThread LabView DEBUG LabView.initialize sock opened
+2014/02/19 14:43:12 MainThread instrument_property WARNING Exception in EvalProp.evaluate() in clockRate.
+description: 
+function: 100*kilo
+float division by zero
+
+2014/02/19 14:43:12 MainThread instrument_property WARNING Exception in EvalProp.evaluate() in totalAOTime.
+description: 5 ms total
+function: 5
+float division by zero
+
+2014/02/19 14:43:25 MainThread __main__ INFO starting application
+2014/02/19 14:43:36 MainThread LabView DEBUG LabView.initialize sock opened
+2014/02/19 14:44:25 MainThread instrument_property WARNING Exception in EvalProp.evaluate() in clockRate.
+description: 
+function: 100*kilo
+float division by zero
+
+2014/02/19 14:44:25 MainThread instrument_property WARNING Exception in EvalProp.evaluate() in totalAOTime.
+description: 5 ms total
+function: 5
+float division by zero
+
+2014/02/19 14:44:38 MainThread __main__ INFO starting application
+2014/02/19 14:45:02 MainThread LabView DEBUG LabView.initialize sock opened
+2014/02/19 14:45:52 MainThread instrument_property WARNING Exception in EvalProp.evaluate() in clockRate.
+description: 
+function: 100*kilo
+float division by zero
+
+2014/02/19 14:45:52 MainThread instrument_property WARNING Exception in EvalProp.evaluate() in totalAOTime.
+description: 5 ms total
+function: 5
+float division by zero
+
+2014/02/19 14:46:52 MainThread instrument_property WARNING Exception in EvalProp.evaluate() in clockRate.
+description: 
+function: 100*kilo
+float division by zero
+
+2014/02/19 14:46:52 MainThread instrument_property WARNING Exception in EvalProp.evaluate() in totalAOTime.
+description: 5 ms total
+function: 5
+float division by zero
+
+2014/02/19 14:47:06 MainThread __main__ INFO starting application
+2014/02/19 14:49:07 MainThread LabView DEBUG LabView.initialize sock opened
+2014/02/19 14:52:04 MainThread instrument_property WARNING Exception in EvalProp.evaluate() in clockRate.
+description: 
+function: 100*kilo
+float division by zero
+
+2014/02/19 14:52:04 MainThread instrument_property WARNING Exception in EvalProp.evaluate() in totalAOTime.
+description: 5 ms total
+function: 5
+float division by zero
+
+2014/02/19 14:52:17 MainThread __main__ INFO starting application
+2014/02/19 14:52:41 MainThread LabView INFO LabView was not initialized.  Initializing LabView in LabView.command(getDDSDeviceList)
+2014/02/19 14:52:42 MainThread TCP ERROR Error while opening socket: [Errno 10061] No connection could be made because the target machine actively refused it
+2014/02/19 14:52:42 MainThread LabView WARNING Failed to open TCP socket in LabView.initialize()
+2014/02/19 14:52:42 MainThread LabView WARNING LabView instrument is not connected in LabView.command(getDDSDeviceList)
+2014/02/19 14:56:21 MainThread instrument_property WARNING Exception in EvalProp.evaluate() in clockRate.
+description: 
+function: 100*kilo
+float division by zero
+
+2014/02/19 14:56:21 MainThread instrument_property WARNING Exception in EvalProp.evaluate() in totalAOTime.
+description: 5 ms total
+function: 5
+float division by zero
+
+2014/02/19 14:56:34 MainThread __main__ INFO starting application
+2014/02/19 15:01:28 MainThread TCP ERROR Error while opening socket: [Errno 10061] No connection could be made because the target machine actively refused it
+2014/02/19 15:01:28 MainThread LabView WARNING Failed to open TCP socket in LabView.initialize()
+2014/02/19 15:04:09 MainThread LabView DEBUG LabView.initialize sock opened

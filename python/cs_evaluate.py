@@ -8,8 +8,7 @@ from __future__ import division #always do float division
 from numpy import * #make all numpy functions accessible in this scope
 import traceback
 from cs_errors import PauseError, setupLog
-logger=setupLog()
-
+logger=setupLog(__name__)
 
 def evalWithDict(string,varDict={},errStr=''):
     '''string: the python expression to be evaluated

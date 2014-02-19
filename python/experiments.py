@@ -4,6 +4,9 @@ This file contains the model to describe and experiment, and the machinery of ho
 author=Martin Lichtman
 '''
 
+from cs_errors import PauseError, setupLog
+logger=setupLog(__name__)
+
 import threading, time, datetime, traceback, xml.etree.ElementTree, pickle, os, numpy, h5py
 
 #set numpy print options to limit to 2 digits
@@ -16,8 +19,6 @@ from enaml.application import deferred_call
 # Bring in other files in this package
 import cs_evaluate
 from instrument_property import Prop, EvalProp, ListProp
-from cs_errors import PauseError, setupLog
-logger=setupLog()
 import LabView
 from analysis import ImagePlotAnalysis, ShotsBrowserAnalysis
 from save2013style import Save2013Analysis

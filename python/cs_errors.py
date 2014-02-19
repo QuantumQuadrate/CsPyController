@@ -32,9 +32,13 @@ class PauseError(Exception):
     '''
     pass
 
-def setupLog():
+def setupLog(name):
+    '''This function sets up the error logging to both console and file, and should be imported and run at the top of each module in this package, by doing:
+    from cs_errors import PauseError, setupLog
+    logger=setupLog(__name__)
+    '''
     import logging
-    logger = logging.getLogger(__name__)
+    logger = logging.getLogger(name)
     hdlr = logging.FileHandler('log.txt')
     formatter = logging.Formatter(fmt='%(asctime)s %(threadName)s %(name)s %(levelname)s %(message)s', datefmt='%Y/%m/%d %H:%M:%S')
     hdlr.setFormatter(formatter)

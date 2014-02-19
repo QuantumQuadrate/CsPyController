@@ -27,8 +27,8 @@ import threading
 
 import logging
 logging.basicConfig(format='%(asctime)s %(threadName)s %(name)s %(levelname)s %(message)s', datefmt='%Y/%m/%d %H:%M:%S', level=logging.DEBUG)
-from cs_errors import setupLog
-logger=setupLog()
+from cs_errors import PauseError, setupLog
+logger=setupLog(__name__)
 
 import experiments
 
