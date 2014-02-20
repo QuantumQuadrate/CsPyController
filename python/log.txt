@@ -3754,3 +3754,54 @@ float division by zero
 2014/02/19 18:28:44 MainThread __main__ INFO starting application
 2014/02/19 18:33:06 MainThread LabView DEBUG LabView.open() opening sock
 2014/02/19 18:33:06 MainThread LabView DEBUG LabView.open() sock opened
+2014/02/20 12:07:17 MainThread instrument_property WARNING Exception in EvalProp.evaluate() in clockRate.
+description: 
+function: 100*kilo
+float division by zero
+
+2014/02/20 12:07:17 MainThread instrument_property WARNING Exception in EvalProp.evaluate() in totalAOTime.
+description: 5 ms total
+function: 5
+float division by zero
+
+2014/02/20 12:07:51 MainThread __main__ INFO starting application
+2014/02/20 12:39:29 MainThread instrument_property WARNING Exception in EvalProp.evaluate() in clockRate.
+description: 
+function: 100*kilo
+float division by zero
+
+2014/02/20 12:39:29 MainThread instrument_property WARNING Exception in EvalProp.evaluate() in totalAOTime.
+description: 5 ms total
+function: 5
+float division by zero
+
+2014/02/20 12:40:11 MainThread instrument_property WARNING Exception in EvalProp.evaluate() in clockRate.
+description: 
+function: 100*kilo
+float division by zero
+
+2014/02/20 12:40:11 MainThread instrument_property WARNING Exception in EvalProp.evaluate() in totalAOTime.
+description: 5 ms total
+function: 5
+float division by zero
+
+2014/02/20 12:40:41 MainThread __main__ INFO starting application
+2014/02/20 13:38:38 MainThread instrument_property WARNING in boxes in ListProp.fromXML() for xml tag: boxes.
+__init__() takes at least 4 arguments (5 given)
+Traceback (most recent call last):
+  File "/Users/lichtman/Documents/UW-Madison/git/CsPyController/python/instrument_property.py", line 456, in fromXML
+    self.listProperty+=[self.listElementType(str(i),self.experiment,description='',kwargs=self.listElementKwargs).fromXML(child) for i, child in enumerate(xmlNode)]
+TypeError: __init__() takes at least 4 arguments (5 given)
+
+
+2014/02/20 13:38:39 MainThread instrument_property WARNING Exception in EvalProp.evaluate() in clockRate.
+description: 
+function: 100*kilo
+float division by zero
+
+2014/02/20 13:38:39 MainThread instrument_property WARNING Exception in EvalProp.evaluate() in totalAOTime.
+description: 5 ms total
+function: 5
+float division by zero
+
+2014/02/20 13:38:58 MainThread __main__ INFO starting application

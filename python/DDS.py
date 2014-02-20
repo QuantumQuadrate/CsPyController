@@ -10,7 +10,7 @@ from LabView, via USB.
 '''
 
 #from cs_errors import PauseError
-from atom.api import Bool, Int, Str, Typed, Member, List
+from atom.api import Bool, Int, Str, Typed, Member, List, observe
 from enaml.application import deferred_call
 from instrument_property import Prop, BoolProp, IntProp, FloatProp, StrProp, ListProp
 from cs_instruments import Instrument
@@ -24,6 +24,7 @@ class DDS(Instrument):
     communicator=Member() #holds the reference to the thing that sends DDS commands, usually the LabView object
     #deviceListStr=Str()
     deviceList=Member()
+    boxDescriptionList=Member()
     
     def __init__(self,experiment,communicator):
         super(DDS,self).__init__('DDS',experiment)
@@ -34,10 +35,11 @@ class DDS(Instrument):
         self.addBox() #TODO:don't add this initial box, but if we don't then the comboBox doesn't update for some reason
         #self.deviceList=self.deviceListStr.split('\n')
         self.deviceList=[]
+        self.boxDescriptionList=[]
         self.properties+=['version','enable','boxes','deviceList']
     
     def addBox(self):
-        newbox=DDSbox('box'+str(len(self.boxes)),self.experiment)
+        newbox=DDSbox('box'+str(len(self.boxes)),self.experiment,self)
         self.boxes.append(newbox)
         return newbox
     
@@ -45,6 +47,14 @@ class DDS(Instrument):
         result=self.communicator.send('<getDDSDeviceList/>')
         deviceListStr=result['DDS/devices']
         deferred_call(setattr,self,'deviceList',deviceListStr.split('\n'))
+    
+    def updateBoxDescriptionList(self):
+        #sets the descriptions shown in the combo box in the GUI
+        try:
+            deferred_call(setattr,self,'boxDescriptionList',[str(i)+' '+n.description for i,n in enumerate(self.boxes)])
+        except RuntimeError:
+            #the GUI is not yet active
+            self.boxDescriptionList=[str(i)+' '+n.description for i,n in enumerate(self.boxes)]
     
     def initializeDDS(self):
         #send just the DDS settings, force initialization, and then set DDS settings
@@ -61,12 +71,19 @@ class DDSbox(Prop):
     deviceReference=Str()
     DIOport=Int()
     channels=Typed(ListProp)
-
-    def __init__(self,name,experiment,description='',kwargs={}):
+    DDS=Member()
+    
+    def __init__(self,name,experiment,DDS,description='',kwargs={}):
+        self.DDS=DDS
         super(DDSbox,self).__init__(name,experiment,description)
         '''each box has exactly 4 channels'''
         self.channels=ListProp('channels',experiment,listProperty=[DDSchannel('channel'+str(i),self.experiment) for i in range(4)],listElementType=DDSchannel,listElementName='channel')
         self.properties+=['enable','deviceReference','DIOport','channels']
+    
+    @observe('description')
+    def descriptionChanged(self,change):
+        
+        self.DDS.updateBoxDescriptionList()
 
 class DDSchannel(Prop):
     power=Typed(BoolProp)

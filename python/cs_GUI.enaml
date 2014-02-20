@@ -809,7 +809,6 @@ enamldef DDS_channel(GroupBox):
     
 enamldef DDS_box(StackItem):
     attr box
-    attr DDS
     
     Container:
         padding=0
@@ -829,7 +828,7 @@ enamldef DDS_box(StackItem):
                 clicked::
                     box.deviceReference=combo.selected_item
             ComboBox: combo:
-                items<<DDS.deviceList
+                items<<box.DDS.deviceList
                 
             Label:
                 text='NI USB-8451 device reference'
@@ -889,21 +888,32 @@ enamldef DDS_Page(Page): page:
                 text='+'
                 constraints=[width==50,height==20]
                 clicked::
-                    dyno.objects.append(DDS_box(box=DDS.addBox(),DDS=page.DDS))
+                    DDS.addBox()
+                    dyno.refresh_items()
+                    combo.index=len(DDS.boxes)-1 #point to new box
+                    #dyno.objects.append(DDS_box(box=DDS.addBox(),DDS=page.DDS))
             PushButton: removeButton:
                 text='-'
                 constraints=[width==50,height==20]
                 clicked::
                     i=combo.index
                     if i>=0:
-                        dyno.objects.pop(i)
+                        combo.index=i-1
                         DDS.boxes.pop(i)
+                        dyno.refresh_items()
+#                        dyno.objects.pop(i)
+#                        DDS.boxes.pop(i)
             ComboBox: combo:
-                items<<[str(i)+' '+n.description for i,n in enumerate(DDS.boxes)]
+                items<<DDS.boxDescriptionList
             Stack: stack:
                 index<<combo.index
-                Include: dyno:
-                    objects<<[DDS_box(box=i,DDS=page.DDS) for i in DDS.boxes]
+                Looper: dyno:
+                    iterable<<DDS.boxes
+                    DDS_box:
+                        box=loop_item
+#                        DDS=page.DDS
+#                Include: dyno:
+#                    objects<<[DDS_box(box=i,DDS=page.DDS) for i in DDS.boxes]
 
 enamldef RF_gen(StackItem):
     attr item
