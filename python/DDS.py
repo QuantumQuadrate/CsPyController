@@ -17,7 +17,6 @@ from cs_instruments import Instrument
 from cs_errors import PauseError, setupLog
 logger=setupLog(__name__)
 
-
 class DDS(Instrument):
     enable=Typed(BoolProp)
     boxes=Typed(ListProp)
@@ -43,17 +42,18 @@ class DDS(Instrument):
         return newbox
     
     def getDDSDeviceList(self):
-        result=self.communicator.command('getDDSDeviceList')
+        result=self.communicator.send('<getDDSDeviceList/>')
         deviceListStr=result['DDS/devices']
-        print 'available devices:\n'+deviceListStr
         deferred_call(setattr,self,'deviceList',deviceListStr.split('\n'))
     
     def initializeDDS(self):
-        result=self.communicator.command('initializeDDS')
+        #send just the DDS settings, force initialization, and then set DDS settings
+        result=self.communicator.send('<uninitializeDDS/>'+self.toHardware())
         print result
     
     def loadDDS(self):
-        result=self.communicator.command('loadDDS')
+        #send just the DDS settings, initialize if neccessary, and then set DDS settings
+        result=self.communicator.send(self.toHardware())
         print result
 
 class DDSbox(Prop):

@@ -388,7 +388,7 @@ enamldef LabViewPage(Page):
                 PushButton: b1:
                     text='open connection'
                     clicked::
-                        LabView.initialize()
+                        LabView.open()
                 PushButton: b2:
                     text='close connection'
                     clicked::

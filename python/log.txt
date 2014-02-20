@@ -3647,3 +3647,110 @@ float division by zero
 2014/02/19 15:01:28 MainThread TCP ERROR Error while opening socket: [Errno 10061] No connection could be made because the target machine actively refused it
 2014/02/19 15:01:28 MainThread LabView WARNING Failed to open TCP socket in LabView.initialize()
 2014/02/19 15:04:09 MainThread LabView DEBUG LabView.initialize sock opened
+2014/02/19 15:37:17 MainThread instrument_property WARNING Exception in EvalProp.evaluate() in clockRate.
+description: 
+function: 100*kilo
+float division by zero
+
+2014/02/19 15:37:17 MainThread instrument_property WARNING Exception in EvalProp.evaluate() in totalAOTime.
+description: 5 ms total
+function: 5
+float division by zero
+
+2014/02/19 15:37:31 MainThread __main__ INFO starting application
+2014/02/19 15:38:28 MainThread TCP ERROR Error while opening socket: [Errno 10061] No connection could be made because the target machine actively refused it
+2014/02/19 15:38:28 MainThread LabView WARNING Failed to open TCP socket in LabView.initialize()
+2014/02/19 15:38:36 MainThread LabView DEBUG LabView.initialize sock opened
+2014/02/19 15:40:37 MainThread cs_evaluate WARNING evaluating property fullScaleOutputPower, [dBm], 0
+Could not eval string: -
+unexpected EOF while parsing (<string>, line 1)Traceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\cs_evaluate.py", line 20, in evalWithDict
+    return eval(string,globals(),varDict)
+  File "<string>", line 1
+    -
+    ^
+SyntaxError: unexpected EOF while parsing
+
+
+2014/02/19 15:40:48 MainThread cs_evaluate WARNING evaluating property fullScaleOutputPower, [dBm], 0
+Could not eval string: -
+unexpected EOF while parsing (<string>, line 1)Traceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\cs_evaluate.py", line 20, in evalWithDict
+    return eval(string,globals(),varDict)
+  File "<string>", line 1
+    -
+    ^
+SyntaxError: unexpected EOF while parsing
+
+
+2014/02/19 15:40:59 MainThread cs_evaluate WARNING evaluating property fullScaleOutputPower, [dBm], 0
+Could not eval string: -
+unexpected EOF while parsing (<string>, line 1)Traceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\cs_evaluate.py", line 20, in evalWithDict
+    return eval(string,globals(),varDict)
+  File "<string>", line 1
+    -
+    ^
+SyntaxError: unexpected EOF while parsing
+
+
+2014/02/19 15:41:13 MainThread cs_evaluate WARNING evaluating property fullScaleOutputPower, [dBm], 0
+Could not eval string: -
+unexpected EOF while parsing (<string>, line 1)Traceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\cs_evaluate.py", line 20, in evalWithDict
+    return eval(string,globals(),varDict)
+  File "<string>", line 1
+    -
+    ^
+SyntaxError: unexpected EOF while parsing
+
+
+2014/02/19 15:42:16 Thread-1 experiments INFO Current status is idle. Cannot continue an experiment unless status is paused.
+2014/02/19 18:01:12 MainThread instrument_property WARNING Exception in EvalProp.evaluate() in clockRate.
+description: 
+function: 100*kilo
+float division by zero
+
+2014/02/19 18:01:12 MainThread instrument_property WARNING Exception in EvalProp.evaluate() in totalAOTime.
+description: 5 ms total
+function: 5
+float division by zero
+
+2014/02/19 18:01:25 MainThread __main__ INFO starting application
+2014/02/19 18:04:47 MainThread LabView INFO LabView was not initialized.  Initializing LabView in LabView.send(<getDDSDeviceList/>...)
+2014/02/19 18:04:47 MainThread LabView DEBUG LabView.initialize sock opened
+2014/02/19 18:09:51 MainThread instrument_property WARNING Exception in EvalProp.evaluate() in clockRate.
+description: 
+function: 100*kilo
+float division by zero
+
+2014/02/19 18:09:51 MainThread instrument_property WARNING Exception in EvalProp.evaluate() in totalAOTime.
+description: 5 ms total
+function: 5
+float division by zero
+
+2014/02/19 18:10:04 MainThread __main__ INFO starting application
+2014/02/19 18:27:41 MainThread instrument_property WARNING Exception in EvalProp.evaluate() in clockRate.
+description: 
+function: 100*kilo
+float division by zero
+
+2014/02/19 18:27:41 MainThread instrument_property WARNING Exception in EvalProp.evaluate() in totalAOTime.
+description: 5 ms total
+function: 5
+float division by zero
+
+2014/02/19 18:27:54 MainThread __main__ INFO starting application
+2014/02/19 18:28:30 MainThread instrument_property WARNING Exception in EvalProp.evaluate() in clockRate.
+description: 
+function: 100*kilo
+float division by zero
+
+2014/02/19 18:28:30 MainThread instrument_property WARNING Exception in EvalProp.evaluate() in totalAOTime.
+description: 5 ms total
+function: 5
+float division by zero
+
+2014/02/19 18:28:44 MainThread __main__ INFO starting application
+2014/02/19 18:33:06 MainThread LabView DEBUG LabView.open() opening sock
+2014/02/19 18:33:06 MainThread LabView DEBUG LabView.open() sock opened

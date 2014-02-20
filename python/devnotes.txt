@@ -65,6 +65,7 @@ TODO:
     side-by-side picture graphs?  With zoom? (use chaco?)
     make shotsBrowser update each measurement if selected index is same as current iteration and measurement
     selectable colors on digital waveform plot
+    use setupLOG on all modules
 
 Done:
     send only waveforms actually used.

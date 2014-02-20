@@ -30,7 +30,7 @@ class LabView(Instrument):
     enabled=Bool()
     port=Int()
     IP=Str()
-    connected=Bool()
+    connected=Bool(False)
     msg=Str()
     HSDIO=Member()
     DDS=Member()
@@ -70,25 +70,28 @@ class LabView(Instrument):
         
         self.properties+=['IP','port','enabled','connected','timeout','HSDIO','DDS','piezo','RF_generators','AnalogOutput','DAQmxPulse','camera']#,'EchoBox']
     
-    def initialize(self):
+    def open(self):
         if self.enabled:
             #check for an old socket and delete it
             if self.sock is not None:
-                logger.debug('debug LabView.initialize() closing sock')
+                logger.debug('debug LabView.open() closing sock')
                 self.sock.close()
                 del self.sock
             # Create a TCP/IP socket
             try:
-                print 'debug LabView.initialize() opening sock'
+                logger.debug('LabView.open() opening sock')
                 self.sock=TCP.CsClientSock(self.IP,self.port,parent=self)
             except:
-                logger.warning('Failed to open TCP socket in LabView.initialize()')
+                logger.warning('Failed to open TCP socket in LabView.open()')
             else:
-                logger.debug('LabView.initialize sock opened')
+                logger.debug('LabView.open() sock opened')
                 self.connected=True
-            for i in self.instruments:
-                i.initialize()
-            self.isInitialized=True
+    
+    def initialize(self):
+        self.open()
+        for i in self.instruments:
+            i.initialize()
+        self.isInitialized=True
         
     def close(self):
         if self.sock:
@@ -126,7 +129,7 @@ class LabView(Instrument):
                 raise PauseError
     
     def start(self):
-        self.command('measure')
+        self.send('<measure/>')
     
     def writeResults(self,hdf5):
         '''Write the previously obtained results to the experiment hdf5 file.
@@ -197,15 +200,15 @@ class LabView(Instrument):
             logger.warning("while getting hdf5['error']\n"+str(e))
             raise PauseError
     
-    def command(self,command):
+    def send(self,msg):
         results={}
         if self.enabled:
-            if not self.isInitialized:
-                logger.info('LabView was not initialized.  Initializing LabView in LabView.command({})'.format(command))
-                self.initialize()
+            if not self.connected:
+                logger.info('LabView was not initialized.  Initializing LabView in LabView.send({}...)'.format(msg[:40]))
+                self.open()
             if self.connected:
                 #tell the LabView instruments to measure
-                self.msg='<LabView><command>'+command+'</command></LabView>'
+                self.msg='<LabView>'+msg+'</LabView>'
                 self.sock.sendmsg(self.msg)
                 #wait for response
                 while not self.experiment.timeOutExpired:
@@ -219,8 +222,9 @@ class LabView(Instrument):
                         #print 'len(self.results)={}'.format(len(self.results))
                         break
             else:
-                logger.warning('LabView instrument is not connected in LabView.command({})'.format(command))
+                logger.warning('LabView instrument is not connected in LabView.send({})'.format(msg))
                 raise PauseError
         self.results=results
         self.isDone=True
         return results
+        
