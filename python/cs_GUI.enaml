@@ -890,19 +890,18 @@ enamldef DDS_Page(Page): page:
                 clicked::
                     DDS.addBox()
                     dyno.refresh_items()
-                    combo.index=len(DDS.boxes)-1 #point to new box
-                    #dyno.objects.append(DDS_box(box=DDS.addBox(),DDS=page.DDS))
+                    DDS.updateBoxDescriptionList()
+                    combo.index=len(DDS.boxes)-2 #point to new box
             PushButton: removeButton:
                 text='-'
                 constraints=[width==50,height==20]
                 clicked::
                     i=combo.index
                     if i>=0:
-                        combo.index=i-1
                         DDS.boxes.pop(i)
                         dyno.refresh_items()
-#                        dyno.objects.pop(i)
-#                        DDS.boxes.pop(i)
+                        DDS.updateBoxDescriptionList()
+                        combo.index=i-1
             ComboBox: combo:
                 items<<DDS.boxDescriptionList
             Stack: stack:
@@ -911,9 +910,6 @@ enamldef DDS_Page(Page): page:
                     iterable<<DDS.boxes
                     DDS_box:
                         box=loop_item
-#                        DDS=page.DDS
-#                Include: dyno:
-#                    objects<<[DDS_box(box=i,DDS=page.DDS) for i in DDS.boxes]
 
 enamldef RF_gen(StackItem):
     attr item

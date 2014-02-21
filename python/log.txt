@@ -3805,3 +3805,98 @@ function: 5
 float division by zero
 
 2014/02/20 13:38:58 MainThread __main__ INFO starting application
+2014/02/21 10:14:57 MainThread instrument_property WARNING in boxes in ListProp.fromXML() for xml tag: boxes.
+__init__() takes at least 4 arguments (5 given)
+Traceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\instrument_property.py", line 456, in fromXML
+    self.listProperty+=[self.listElementType(str(i),self.experiment,description='',kwargs=self.listElementKwargs).fromXML(child) for i, child in enumerate(xmlNode)]
+TypeError: __init__() takes at least 4 arguments (5 given)
+
+
+2014/02/21 10:14:57 MainThread instrument_property WARNING Exception in EvalProp.evaluate() in clockRate.
+description: 
+function: 100*kilo
+float division by zero
+
+2014/02/21 10:14:57 MainThread instrument_property WARNING Exception in EvalProp.evaluate() in totalAOTime.
+description: 5 ms total
+function: 5
+float division by zero
+
+2014/02/21 10:15:06 MainThread __main__ INFO starting application
+2014/02/21 10:20:33 MainThread instrument_property WARNING in boxes in ListProp.fromXML() for xml tag: boxes.
+__init__() takes at least 4 arguments (5 given)
+Traceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\instrument_property.py", line 456, in fromXML
+    self.listProperty+=[self.listElementType(str(i),self.experiment,description='',kwargs=self.listElementKwargs).fromXML(child) for i, child in enumerate(xmlNode)]
+TypeError: __init__() takes at least 4 arguments (5 given)
+
+
+2014/02/21 10:20:33 MainThread instrument_property WARNING Exception in EvalProp.evaluate() in clockRate.
+description: 
+function: 100*kilo
+float division by zero
+
+2014/02/21 10:20:33 MainThread instrument_property WARNING Exception in EvalProp.evaluate() in totalAOTime.
+description: 5 ms total
+function: 5
+float division by zero
+
+2014/02/21 10:20:42 MainThread __main__ INFO starting application
+2014/02/21 10:42:36 MainThread instrument_property WARNING in boxes in ListProp.fromXML() for xml tag: boxes.
+__init__() takes at least 4 arguments (5 given)
+Traceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\instrument_property.py", line 456, in fromXML
+    self.listProperty+=[self.listElementType(str(i),self.experiment,description='',kwargs=self.listElementKwargs).fromXML(child) for i, child in enumerate(xmlNode)]
+TypeError: __init__() takes at least 4 arguments (5 given)
+
+
+2014/02/21 10:42:36 MainThread instrument_property WARNING Exception in EvalProp.evaluate() in clockRate.
+description: 
+function: 100*kilo
+float division by zero
+
+2014/02/21 10:42:36 MainThread instrument_property WARNING Exception in EvalProp.evaluate() in totalAOTime.
+description: 5 ms total
+function: 5
+float division by zero
+
+2014/02/21 10:42:45 MainThread __main__ INFO starting application
+2014/02/21 10:45:47 MainThread instrument_property WARNING in boxes in ListProp.fromXML() for xml tag: boxes.
+__init__() takes at least 4 arguments (5 given)
+Traceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\instrument_property.py", line 456, in fromXML
+    self.listProperty+=[self.listElementType(str(i),self.experiment,description='',kwargs=self.listElementKwargs).fromXML(child) for i, child in enumerate(xmlNode)]
+TypeError: __init__() takes at least 4 arguments (5 given)
+
+
+2014/02/21 10:45:47 MainThread instrument_property WARNING Exception in EvalProp.evaluate() in clockRate.
+description: 
+function: 100*kilo
+float division by zero
+
+2014/02/21 10:45:47 MainThread instrument_property WARNING Exception in EvalProp.evaluate() in totalAOTime.
+description: 5 ms total
+function: 5
+float division by zero
+
+2014/02/21 10:45:55 MainThread __main__ INFO starting application
+2014/02/21 10:47:25 MainThread instrument_property WARNING in boxes in ListProp.fromXML() for xml tag: boxes.
+__init__() takes at least 4 arguments (5 given)
+Traceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\instrument_property.py", line 456, in fromXML
+    self.listProperty+=[self.listElementType(str(i),self.experiment,description='',kwargs=self.listElementKwargs).fromXML(child) for i, child in enumerate(xmlNode)]
+TypeError: __init__() takes at least 4 arguments (5 given)
+
+
+2014/02/21 10:47:25 MainThread instrument_property WARNING Exception in EvalProp.evaluate() in clockRate.
+description: 
+function: 100*kilo
+float division by zero
+
+2014/02/21 10:47:25 MainThread instrument_property WARNING Exception in EvalProp.evaluate() in totalAOTime.
+description: 5 ms total
+function: 5
+float division by zero
+
+2014/02/21 10:47:34 MainThread __main__ INFO starting application

@@ -10,12 +10,16 @@ from LabView, via USB.
 '''
 
 #from cs_errors import PauseError
-from atom.api import Bool, Int, Str, Typed, Member, List, observe
+from atom.api import Bool, Int, Str, Typed, Member, List, observe, Atom
 from enaml.application import deferred_call
 from instrument_property import Prop, BoolProp, IntProp, FloatProp, StrProp, ListProp
 from cs_instruments import Instrument
 from cs_errors import PauseError, setupLog
 logger=setupLog(__name__)
+
+class DDS_gui(Atom):
+    deviceList=Member()
+    boxDescriptionList=Member()
 
 class DDS(Instrument):
     enable=Typed(BoolProp)
@@ -36,7 +40,12 @@ class DDS(Instrument):
         #self.deviceList=self.deviceListStr.split('\n')
         self.deviceList=[]
         self.boxDescriptionList=[]
-        self.properties+=['version','enable','boxes','deviceList']
+        self.properties+=['version','enable','boxes','deviceList','boxDescriptionList']
+    
+    def evaluate(self):
+        super(DDS,self).evaluate()
+        self.updateBoxDescriptionList()
+        
     
     def addBox(self):
         newbox=DDSbox('box'+str(len(self.boxes)),self.experiment,self)
