@@ -5827,3 +5827,109 @@ function: 5
 float division by zero
 
 2014/02/23 23:31:57 MainThread __main__ INFO starting application
+2014/02/24 10:48:09 MainThread instrument_property WARNING Exception in EvalProp.evaluate() in clockRate.
+description: 
+function: 100*kilo
+float division by zero
+
+2014/02/24 10:48:09 MainThread instrument_property WARNING Exception in EvalProp.evaluate() in totalAOTime.
+description: 5 ms total
+function: 5
+float division by zero
+
+2014/02/24 10:48:29 MainThread __main__ INFO starting application
+2014/02/24 10:53:00 MainThread instrument_property WARNING Exception in EvalProp.evaluate() in clockRate.
+description: 
+function: 100*kilo
+float division by zero
+
+2014/02/24 10:53:00 MainThread instrument_property WARNING Exception in EvalProp.evaluate() in totalAOTime.
+description: 5 ms total
+function: 5
+float division by zero
+
+2014/02/24 10:56:43 MainThread instrument_property WARNING Exception in EvalProp.evaluate() in clockRate.
+description: 
+function: 100*kilo
+float division by zero
+
+2014/02/24 10:56:43 MainThread instrument_property WARNING Exception in EvalProp.evaluate() in totalAOTime.
+description: 5 ms total
+function: 5
+float division by zero
+
+2014/02/24 10:57:07 MainThread instrument_property WARNING Exception in EvalProp.evaluate() in clockRate.
+description: 
+function: 100*kilo
+float division by zero
+
+2014/02/24 10:57:07 MainThread instrument_property WARNING Exception in EvalProp.evaluate() in totalAOTime.
+description: 5 ms total
+function: 5
+float division by zero
+
+2014/02/24 10:57:29 MainThread __main__ INFO starting application
+2014/02/24 11:09:04 MainThread instrument_property WARNING Exception in EvalProp.evaluate() in clockRate.
+description: 
+function: 100*kilo
+float division by zero
+
+2014/02/24 11:09:04 MainThread instrument_property WARNING Exception in EvalProp.evaluate() in totalAOTime.
+description: 5 ms total
+function: 5
+float division by zero
+
+2014/02/24 11:09:47 MainThread instrument_property WARNING Exception in EvalProp.evaluate() in clockRate.
+description: 
+function: 100*kilo
+float division by zero
+
+2014/02/24 11:09:47 MainThread instrument_property WARNING Exception in EvalProp.evaluate() in totalAOTime.
+description: 5 ms total
+function: 5
+float division by zero
+
+2014/02/24 11:10:09 MainThread __main__ INFO starting application
+2014/02/24 11:12:13 MainThread instrument_property WARNING Exception in EvalProp.evaluate() in clockRate.
+description: 
+function: 100*kilo
+float division by zero
+
+2014/02/24 11:12:13 MainThread instrument_property WARNING Exception in EvalProp.evaluate() in totalAOTime.
+description: 5 ms total
+function: 5
+float division by zero
+
+2014/02/24 11:12:36 MainThread __main__ INFO starting application
+2014/02/24 11:20:56 MainThread instrument_property WARNING Exception in EvalProp.evaluate() in clockRate.
+description: 
+function: 100*kilo
+float division by zero
+
+2014/02/24 11:20:56 MainThread instrument_property WARNING Exception in EvalProp.evaluate() in totalAOTime.
+description: 5 ms total
+function: 5
+float division by zero
+
+2014/02/24 11:21:12 MainThread instrument_property WARNING Exception in EvalProp.evaluate() in clockRate.
+description: 
+function: 100*kilo
+float division by zero
+
+2014/02/24 11:21:12 MainThread instrument_property WARNING Exception in EvalProp.evaluate() in totalAOTime.
+description: 5 ms total
+function: 5
+float division by zero
+
+2014/02/24 11:21:34 MainThread __main__ INFO starting application
+2014/02/24 11:22:26 MainThread instrument_property WARNING Exception in EvalProp.evaluate() in clockRate.
+description: 
+function: 100*kilo
+float division by zero
+
+2014/02/24 11:22:26 MainThread instrument_property WARNING Exception in EvalProp.evaluate() in totalAOTime.
+description: 5 ms total
+function: 5
+float division by zero
+
+2014/02/24 11:22:48 MainThread __main__ INFO starting application

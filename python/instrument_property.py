@@ -405,7 +405,7 @@ class ListProp(Prop):
         self.listProperty.remove(x)
     
     def add(self):
-        new=self.listElementType(self.listElementName+str(len(self.listProperty)),self.experiment,'',self.listElementKwargs)
+        new=self.listElementType(self.listElementName+str(len(self.listProperty)),self.experiment,'',**self.listElementKwargs)
         self.listProperty.append(new)
         return new
     

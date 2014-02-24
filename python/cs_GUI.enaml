@@ -720,43 +720,60 @@ enamldef DDS_profile(StackItem):
     
     Container:
         padding=0
-        constraints=[vbox(description,hbox(container1,container2))]
-        Form: description:
-            Label:
-                text='description'
-            Field:
-                placeholder='description'
-                text:=profile.description
-        Container: container1:
-            EvalProp:
-                prop<<profile.frequency
-            EvalProp:
-                prop<<profile.amplitude
-            EvalProp:
-                prop<<profile.phase
-            EvalProp:
-                prop<<profile.RAMMode
-            EvalProp:
-                prop<<profile.ZeroCrossing
-            EvalProp:
-                prop<<profile.NoDwellHigh
-            EvalProp:
-                prop<<profile.FunctionOrStatic
-        Container: container2:
-            EvalProp:
-                prop<<profile.RAMFunction
-            EvalProp:
-                prop<<profile.RAMInitialValue
-            EvalProp:
-                prop<<profile.RAMStepValue
-            EvalProp:
-                prop<<profile.RAMTimeStep
-            EvalProp:
-                prop<<profile.RAMNumSteps
-        #TODO: make a list
-        #EvalProp:
-        #        prop<<profile.RAMStaticArray
+        Container:
+            padding=0
+            hug_height='strong'
+            hug_width='strong'
+            constraints=[vbox(description,hbox(container1,container2))]
+            Form: description:
+                Label:
+                    text='description'
+                Field:
+                    placeholder='description'
+                    text:=profile.description
+            Container: container1:
+                
+                EvalProp:
+                    prop<<profile.frequency
+                EvalProp:
+                    prop<<profile.amplitude
+                EvalProp:
+                    prop<<profile.phase
+                EvalProp:
+                    prop<<profile.RAMMode
+                EvalProp:
+                    prop<<profile.ZeroCrossing
+                EvalProp:
+                    prop<<profile.NoDwellHigh
+                EvalProp:
+                    prop<<profile.FunctionOrStatic
+            Container: container2:
+                EvalProp:
+                    prop<<profile.RAMFunction
+                EvalProp:
+                    prop<<profile.RAMInitialValue
+                EvalProp:
+                    prop<<profile.RAMStepValue
+                EvalProp:
+                    prop<<profile.RAMTimeStep
+                EvalProp:
+                    prop<<profile.RAMNumSteps
+                IndexedStack:
+                    title='RAMStaticArray'
+                    iterable<<profile.RAMStaticArray
+                    viewType=RAMStaticArrayField
+            #TODO: make a list
+            #EvalProp:
+            #        prop<<profile.RAMStaticArray
 
+enamldef RAMStaticArrayField(StackItem):
+    attr item
+    
+    Container:
+        padding=0
+        Field:
+            text:=item.function
+                
 enamldef DDS_channel(GroupBox):
     attr channel
     attr index
