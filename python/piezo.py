@@ -12,7 +12,7 @@ class PiezoChannel(Prop):
     readServo=Bool()
     readPosition=Float()
     
-    def __init__(self,name,experiment,description='',kwargs={}):
+    def __init__(self,name,experiment,description=''):
         super(PiezoChannel,self).__init__(name,experiment,description)
         self.setServo=BoolProp('setServo',self.experiment,'','False')
         self.setPosition=FloatProp('setPosition',self.experiment,'','0')
@@ -28,7 +28,7 @@ class PiezoController(Prop):
     serialNumberRead=Str()
     channels=Typed(ListProp)
     
-    def __init__(self,name,experiment,description='',kwargs={}):
+    def __init__(self,name,experiment,description=''):
         super(PiezoController,self).__init__(name,experiment,description)
         self.enable=False
         self.serialNumber=''

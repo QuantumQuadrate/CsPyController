@@ -5933,3 +5933,23 @@ function: 5
 float division by zero
 
 2014/02/24 11:22:48 MainThread __main__ INFO starting application
+2014/02/24 12:00:40 MainThread instrument_property WARNING Exception in EvalProp.evaluate() in clockRate.
+description: 
+function: 100*kilo
+float division by zero
+
+2014/02/24 12:00:40 MainThread instrument_property WARNING Exception in EvalProp.evaluate() in totalAOTime.
+description: 5 ms total
+function: 5
+float division by zero
+
+2014/02/24 12:01:03 MainThread __main__ INFO starting application
+2014/02/24 12:02:34 MainThread cs_evaluate WARNING evaluating property int1, , asdf
+Could not eval string: asdf
+name 'asdf' is not definedTraceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\cs_evaluate.py", line 20, in evalWithDict
+    return eval(string,globals(),varDict)
+  File "<string>", line 1, in <module>
+NameError: name 'asdf' is not defined
+
+

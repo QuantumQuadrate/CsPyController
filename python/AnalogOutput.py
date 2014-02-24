@@ -24,8 +24,8 @@ class AOEquation(EvalProp):
     #properties will already include 'function' from EvalProp, which is what holds our equation string
     placeholder='AO equation'
     
-    def __init__(self,name,experiment,description='',kwargs={}):
-        self.AO=kwargs['AO']
+    def __init__(self,name,experiment,description='',AO=None):
+        self.AO=AO
         super(AOEquation,self).__init__(name,experiment,function='0*t')
     
     #update the plot titles when the description changes

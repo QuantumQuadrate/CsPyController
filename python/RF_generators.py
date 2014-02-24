@@ -50,7 +50,7 @@ class RF_generator(Prop):
     frequency=Typed(FloatProp)
     power=Typed(FloatProp)
     
-    def __init__(self,name,experiment,description='',kwargs=None):
+    def __init__(self,name,experiment,description=''):
         super(RF_generator,self).__init__(name,experiment,description)
         self.frequency=FloatProp('frequency',self.experiment,'[MHz]','10')
         self.power=FloatProp('power',self.experiment,'[dBm]','0')
@@ -60,7 +60,7 @@ class HP83623A(RF_generator):
     RFoutput=Typed(BoolProp)
     externalTrigger=Typed(BoolProp)
     
-    def __init__(self,name,experiment,description='',kwargs=None):
+    def __init__(self,name,experiment,description=''):
         super(HP83623A,self).__init__(name,experiment,description)
         self.RFoutput=BoolProp('RFoutput',self.experiment,'','False')
         self.externalTrigger=BoolProp('externalTrigger',self.experiment,'','False')

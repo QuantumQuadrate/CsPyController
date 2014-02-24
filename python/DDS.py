@@ -48,7 +48,7 @@ class DDS(Instrument):
         
     
     def addBox(self):
-        newbox=DDSbox('box'+str(len(self.boxes)),self.experiment,description="newbox",kwargs={'DDS':self})
+        newbox=DDSbox('box'+str(len(self.boxes)),self.experiment,description='newbox',DDS=self)
         self.boxes.append(newbox)
         return newbox
     
@@ -82,8 +82,8 @@ class DDSbox(Prop):
     channels=Typed(ListProp)
     DDS=Member()
     
-    def __init__(self,name,experiment,description='',kwargs={}):
-        self.DDS=kwargs['DDS']
+    def __init__(self,name,experiment,description='',DDS=None):
+        self.DDS=DDS
         super(DDSbox,self).__init__(name,experiment,description)
         '''each box has exactly 4 channels'''
         self.channels=ListProp('channels',experiment,listProperty=[DDSchannel('channel'+str(i),self.experiment) for i in range(4)],listElementType=DDSchannel,listElementName='channel')
@@ -105,7 +105,7 @@ class DDSchannel(Prop):
     profiles=Typed(ListProp)
     profileDescriptionList=Member()
     
-    def __init__(self,name,experiment,description='',kwargs={}):
+    def __init__(self,name,experiment,description=''):
         super(DDSchannel,self).__init__(name,experiment,description)
         self.power=BoolProp('power',self.experiment,'enable RF output from this channel','False')
         self.refClockRate=IntProp('refClockRate',self.experiment,'[MHz]','1000')
@@ -117,7 +117,7 @@ class DDSchannel(Prop):
         self.RAMDefaultPhase=FloatProp('RAMDefaultPhase',self.experiment,'[rad]','0')
         '''each channel has exactly 8 profiles'''
         self.profileDescriptionList=[]
-        self.profiles=ListProp('profiles',self.experiment,listProperty=[DDSprofile('profile'+str(i),self.experiment,kwargs={'channel':self}) for i in range(8)],listElementType=DDSprofile,listElementName='profile',listElementKwargs={'channel':self})
+        self.profiles=ListProp('profiles',self.experiment,listProperty=[DDSprofile('profile'+str(i),self.experiment,channel=self) for i in range(8)],listElementType=DDSprofile,listElementName='profile',listElementKwargs={'channel':self})
         self.properties+=['power','refClockRate','fullScaleOutputPower','RAMenable','RAMDestType','RAMDefaultFrequency',
             'RAMDefaultAmplitude','RAMDefaultPhase','profiles','profileDescriptionList']
     
@@ -150,8 +150,8 @@ class DDSprofile(Prop):
     RAMStaticArray=Typed(ListProp)
     channel=Member()
     
-    def __init__(self,name,experiment,description='',kwargs={}):
-        self.channel=kwargs['channel']
+    def __init__(self,name,experiment,description='',channel=None):
+        self.channel=channel
         super(DDSprofile,self).__init__(name,experiment,description)
         self.frequency=FloatProp('frequency',self.experiment,'[MHz]','0')
         self.amplitude=FloatProp('amplitude',self.experiment,'[dBm]','0')

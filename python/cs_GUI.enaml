@@ -762,9 +762,6 @@ enamldef DDS_profile(StackItem):
                     title='RAMStaticArray'
                     iterable<<profile.RAMStaticArray
                     viewType=RAMStaticArrayField
-            #TODO: make a list
-            #EvalProp:
-            #        prop<<profile.RAMStaticArray
 
 enamldef RAMStaticArrayField(StackItem):
     attr item
@@ -813,6 +810,8 @@ enamldef DDS_channel(GroupBox):
 
     GroupBox: profiles:
         title='profiles'
+        hug_height='strong'
+        hug_width='strong'
         ComboBox: combo:
             items<<channel.profileDescriptionList
         Stack:

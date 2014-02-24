@@ -52,7 +52,7 @@ class independentVariable(EvalProp):
     valueList=Member()
     currentValue=Member()
     
-    def __init__(self,name,experiment,description='',function='',kwargs={}):
+    def __init__(self,name,experiment,description='',function=''):
         super(independentVariable,self).__init__(name,experiment,description,function)
         self.valueList=[]
         self.currentValue=None

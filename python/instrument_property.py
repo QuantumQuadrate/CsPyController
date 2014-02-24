@@ -405,7 +405,7 @@ class ListProp(Prop):
         self.listProperty.remove(x)
     
     def add(self):
-        new=self.listElementType(self.listElementName+str(len(self.listProperty)),self.experiment,'',**self.listElementKwargs)
+        new=self.listElementType(self.listElementName+str(len(self.listProperty)),self.experiment,**self.listElementKwargs)
         self.listProperty.append(new)
         return new
     
@@ -453,7 +453,7 @@ class ListProp(Prop):
             #so we don't lose our list identity
             while self.listProperty: #go until the list is empty
                 self.listProperty.pop()
-            self.listProperty+=[self.listElementType(str(i),self.experiment,description='',kwargs=self.listElementKwargs).fromXML(child) for i, child in enumerate(xmlNode)]
+            self.listProperty+=[self.listElementType(self.listElementName+str(i),self.experiment,**self.listElementKwargs).fromXML(child) for i, child in enumerate(xmlNode)]
         except Exception as e:
             logger.warning('in '+self.name+' in ListProp.fromXML() for xml tag: '+xmlNode.tag+'.\n'+str(e)+'\n'+str(traceback.format_exc())+'\n')
         return self

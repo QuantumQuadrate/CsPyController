@@ -14,7 +14,7 @@ defaultState=0
 class Channel(Prop):
     active=Typed(BoolProp)
     
-    def __init__(self,name,experiment,description='',kwargs={}):
+    def __init__(self,name,experiment,description=''):
         super(Channel,self).__init__(name,experiment,description)
         self.active=BoolProp('active',experiment,'','True')
         self.properties+=['active']

@@ -28,7 +28,7 @@ class ScriptTrigger(Prop):
     edge=Typed(StrProp)
     level=Typed(StrProp)
     
-    def __init__(self,name,experiment,description='',kwargs={}):
+    def __init__(self,name,experiment,description=''):
         super(ScriptTrigger,self).__init__('trigger',experiment,description)
         self.id=StrProp('id',experiment,'','"ScriptTrigger0"')
         self.source=StrProp('source',experiment,'','"PFI0"')
