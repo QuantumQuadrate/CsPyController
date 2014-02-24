@@ -45,7 +45,7 @@ def get_save_file_callback(experiment):
             experiment.save(dlg.path)
     return save_file_callback
 
-enamldef IndexedStack(GroupBox):
+enamldef IndexedStack(GroupBox): indexedStack:
     attr iterable=Typed(ListProp)
     attr viewType #=Class(StackItem)  #do we really have to declare what type? I suppose this was so that we would be okay with creating an instance
     hug_height = 'strong'
@@ -57,17 +57,25 @@ enamldef IndexedStack(GroupBox):
             text='+'
             constraints=[width==50,height==20]
             clicked::
-                dyno.objects.append(viewType(item=iterable.add()))
+                iterable.add()
+                dyno.refresh_items()
+                #dyno.objects.append(viewType(item=iterable.add()))
                 combo.maximum=len(iterable)-1
+                combo.value=combo.maximum
         PushButton: removeButton:
             text='-'
             constraints=[width==50,height==20]
             clicked::
                 i=combo.value
                 if i>=0:
-                    dyno.objects.pop(i)
+                    #dyno.objects.pop(i)
                     iterable.pop(i)
+                    dyno.refresh_items()
                     combo.maximum=len(iterable)-1
+                    if i>1:
+                        combo.value=i-1
+                    else:
+                        combo.value=0
         # RefreshableComboBox: combo:
             # items<<[str(i)+' '+n.description for i,n in enumerate(iterable)]
         SpinBox: combo:
@@ -76,8 +84,12 @@ enamldef IndexedStack(GroupBox):
             minimum=0
     Stack: stack:
         index<<combo.value
-        Include: dyno:
-            objects<<[viewType(item=i) for i in iterable]
+        #Include: dyno:
+        #    objects<<[viewType(item=i) for i in iterable]
+        Looper: dyno:
+            iterable<<indexedStack.iterable
+            Include:
+                objects=[viewType(item=loop_item)]
 
 enamldef CsMenuBar(MenuBar): menuBar:
     attr experiment
@@ -719,6 +731,8 @@ enamldef DDS_profile(StackItem):
     attr profile
     
     Container:
+        hug_height='strong'
+        hug_width='strong'
         padding=0
         Container:
             padding=0
@@ -732,7 +746,8 @@ enamldef DDS_profile(StackItem):
                     placeholder='description'
                     text:=profile.description
             Container: container1:
-                
+                hug_height='strong'
+                hug_width='strong'
                 EvalProp:
                     prop<<profile.frequency
                 EvalProp:
@@ -748,6 +763,8 @@ enamldef DDS_profile(StackItem):
                 EvalProp:
                     prop<<profile.FunctionOrStatic
             Container: container2:
+                hug_height='strong'
+                hug_width='strong'
                 EvalProp:
                     prop<<profile.RAMFunction
                 EvalProp:
@@ -761,15 +778,15 @@ enamldef DDS_profile(StackItem):
                 IndexedStack:
                     title='RAMStaticArray'
                     iterable<<profile.RAMStaticArray
-                    viewType=RAMStaticArrayField
+                    viewType=ItemProp
 
-enamldef RAMStaticArrayField(StackItem):
+enamldef ItemProp(StackItem):
     attr item
     
     Container:
         padding=0
-        Field:
-            text:=item.function
+        EvalProp:
+            prop<<item
                 
 enamldef DDS_channel(GroupBox):
     attr channel
@@ -862,14 +879,16 @@ enamldef DDS_box(StackItem):
                 value:=box.DIOport
         
         GroupBox:
+            hug_height='strong'
+            hug_width='strong'
             title='channels'
-            Include: dyno:
-                objects<<[DDS_channel(index=i,channel=c) for i,c in enumerate(box.channels)]
-            # Looper:
-                # iterable<<box.channels
-                # DDS_channel:
-                    # channel<<loop_item
-                    # index<<loop_index
+            #Include: dyno:
+            #    objects<<[DDS_channel(index=i,channel=c) for i,c in enumerate(box.channels)]
+            Looper:
+                iterable<<box.channels
+                DDS_channel:
+                    index<<loop_index
+                    channel<<loop_item
 
 enamldef DDS_Page(Page): page:
     attr DDS

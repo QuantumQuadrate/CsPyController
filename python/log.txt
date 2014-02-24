@@ -5953,3 +5953,241 @@ name 'asdf' is not definedTraceback (most recent call last):
 NameError: name 'asdf' is not defined
 
 
+2014/02/24 12:59:55 MainThread instrument_property WARNING Exception in EvalProp.evaluate() in clockRate.
+description: 
+function: 100*kilo
+float division by zero
+
+2014/02/24 12:59:55 MainThread instrument_property WARNING Exception in EvalProp.evaluate() in totalAOTime.
+description: 5 ms total
+function: 5
+float division by zero
+
+2014/02/24 13:57:01 MainThread instrument_property WARNING Exception in EvalProp.evaluate() in clockRate.
+description: 
+function: 100*kilo
+float division by zero
+
+2014/02/24 13:57:01 MainThread instrument_property WARNING Exception in EvalProp.evaluate() in totalAOTime.
+description: 5 ms total
+function: 5
+float division by zero
+
+2014/02/24 14:05:45 MainThread instrument_property WARNING Exception in EvalProp.evaluate() in clockRate.
+description: 
+function: 100*kilo
+float division by zero
+
+2014/02/24 14:05:45 MainThread instrument_property WARNING Exception in EvalProp.evaluate() in totalAOTime.
+description: 5 ms total
+function: 5
+float division by zero
+
+2014/02/24 15:46:34 MainThread instrument_property WARNING Exception in EvalProp.evaluate() in clockRate.
+description: 
+function: 100*kilo
+float division by zero
+
+2014/02/24 15:46:34 MainThread instrument_property WARNING Exception in EvalProp.evaluate() in totalAOTime.
+description: 5 ms total
+function: 5
+float division by zero
+
+2014/02/24 15:46:57 MainThread __main__ INFO starting application
+2014/02/24 15:48:05 MainThread instrument_property WARNING Exception in EvalProp.evaluate() in clockRate.
+description: 
+function: 100*kilo
+float division by zero
+
+2014/02/24 15:48:05 MainThread instrument_property WARNING Exception in EvalProp.evaluate() in totalAOTime.
+description: 5 ms total
+function: 5
+float division by zero
+
+2014/02/24 15:48:28 MainThread __main__ INFO starting application
+2014/02/24 15:53:43 MainThread instrument_property WARNING Exception in EvalProp.evaluate() in clockRate.
+description: 
+function: 100*kilo
+float division by zero
+
+2014/02/24 15:53:43 MainThread instrument_property WARNING Exception in EvalProp.evaluate() in totalAOTime.
+description: 5 ms total
+function: 5
+float division by zero
+
+2014/02/24 15:54:05 MainThread __main__ INFO starting application
+2014/02/24 15:56:34 MainThread instrument_property WARNING TypeError while evaluating:
+property: int0
+description: 
+function: 
+The 'value' member on the 'IntProp' object must be of type 'int'. Got object of type 'float' instead.
+
+2014/02/24 15:56:34 MainThread instrument_property WARNING TypeError while evaluating:
+property: int0
+description: 
+function: 
+The 'value' member on the 'IntProp' object must be of type 'int'. Got object of type 'float' instead.
+
+2014/02/24 15:56:36 MainThread instrument_property WARNING TypeError while evaluating:
+property: int0
+description: 
+function: 
+The 'value' member on the 'IntProp' object must be of type 'int'. Got object of type 'float' instead.
+
+2014/02/24 15:56:36 MainThread instrument_property WARNING TypeError while evaluating:
+property: int0
+description: 
+function: 
+The 'value' member on the 'IntProp' object must be of type 'int'. Got object of type 'float' instead.
+
+2014/02/24 15:56:41 MainThread cs_evaluate WARNING evaluating property int0, , 4
+Could not eval string: i
+name 'i' is not definedTraceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\cs_evaluate.py", line 20, in evalWithDict
+    return eval(string,globals(),varDict)
+  File "<string>", line 1, in <module>
+NameError: name 'i' is not defined
+
+
+2014/02/24 15:56:41 MainThread cs_evaluate WARNING evaluating property int0, , 4
+Could not eval string: in
+unexpected EOF while parsing (<string>, line 1)Traceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\cs_evaluate.py", line 20, in evalWithDict
+    return eval(string,globals(),varDict)
+  File "<string>", line 1
+    in
+     ^
+SyntaxError: unexpected EOF while parsing
+
+
+2014/02/24 15:56:41 MainThread instrument_property WARNING TypeError while evaluating:
+property: int0
+description: 
+function: 4
+The 'value' member on the 'IntProp' object must be of type 'int'. Got object of type 'type' instead.
+
+2014/02/24 15:56:41 MainThread cs_evaluate WARNING evaluating property int0, , 4
+Could not eval string: int(
+unexpected EOF while parsing (<string>, line 1)Traceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\cs_evaluate.py", line 20, in evalWithDict
+    return eval(string,globals(),varDict)
+  File "<string>", line 1
+    int(
+       ^
+SyntaxError: unexpected EOF while parsing
+
+
+2014/02/24 15:56:41 MainThread cs_evaluate WARNING evaluating property int0, , 4
+Could not eval string: int(s
+unexpected EOF while parsing (<string>, line 1)Traceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\cs_evaluate.py", line 20, in evalWithDict
+    return eval(string,globals(),varDict)
+  File "<string>", line 1
+    int(s
+        ^
+SyntaxError: unexpected EOF while parsing
+
+
+2014/02/24 15:56:42 MainThread cs_evaluate WARNING evaluating property int0, , 4
+Could not eval string: int(si
+unexpected EOF while parsing (<string>, line 1)Traceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\cs_evaluate.py", line 20, in evalWithDict
+    return eval(string,globals(),varDict)
+  File "<string>", line 1
+    int(si
+         ^
+SyntaxError: unexpected EOF while parsing
+
+
+2014/02/24 15:56:42 MainThread cs_evaluate WARNING evaluating property int0, , 4
+Could not eval string: int(sin
+unexpected EOF while parsing (<string>, line 1)Traceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\cs_evaluate.py", line 20, in evalWithDict
+    return eval(string,globals(),varDict)
+  File "<string>", line 1
+    int(sin
+          ^
+SyntaxError: unexpected EOF while parsing
+
+
+2014/02/24 15:56:42 MainThread cs_evaluate WARNING evaluating property int0, , 4
+Could not eval string: int(sin(
+unexpected EOF while parsing (<string>, line 1)Traceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\cs_evaluate.py", line 20, in evalWithDict
+    return eval(string,globals(),varDict)
+  File "<string>", line 1
+    int(sin(
+           ^
+SyntaxError: unexpected EOF while parsing
+
+
+2014/02/24 15:56:43 MainThread cs_evaluate WARNING evaluating property int0, , 4
+Could not eval string: int(sin(4
+unexpected EOF while parsing (<string>, line 1)Traceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\cs_evaluate.py", line 20, in evalWithDict
+    return eval(string,globals(),varDict)
+  File "<string>", line 1
+    int(sin(4
+            ^
+SyntaxError: unexpected EOF while parsing
+
+
+2014/02/24 15:56:43 MainThread cs_evaluate WARNING evaluating property int0, , 4
+Could not eval string: int(sin(4)
+unexpected EOF while parsing (<string>, line 1)Traceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\cs_evaluate.py", line 20, in evalWithDict
+    return eval(string,globals(),varDict)
+  File "<string>", line 1
+    int(sin(4)
+             ^
+SyntaxError: unexpected EOF while parsing
+
+
+2014/02/24 15:57:15 MainThread cs_evaluate WARNING evaluating property channel0, the state of channel 0, sin(q)
+Could not eval string: sin(q)
+name 'q' is not definedTraceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\cs_evaluate.py", line 20, in evalWithDict
+    return eval(string,globals(),varDict)
+  File "<string>", line 1, in <module>
+NameError: name 'q' is not defined
+
+
+2014/02/24 15:57:15 MainThread cs_evaluate WARNING evaluating property channel0, the state of channel 0, sin(q)
+Could not eval string: sin(q)
+name 'q' is not definedTraceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\cs_evaluate.py", line 20, in evalWithDict
+    return eval(string,globals(),varDict)
+  File "<string>", line 1, in <module>
+NameError: name 'q' is not defined
+
+
+2014/02/24 15:59:48 MainThread cs_evaluate WARNING evaluating property channel0, the state of channel 0, sin(q)
+Could not eval string: sin(q)
+name 'q' is not definedTraceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\cs_evaluate.py", line 20, in evalWithDict
+    return eval(string,globals(),varDict)
+  File "<string>", line 1, in <module>
+NameError: name 'q' is not defined
+
+
+2014/02/24 15:59:50 MainThread cs_evaluate WARNING evaluating property channel0, the state of channel 0, sin(q)
+Could not eval string: sin(q)
+name 'q' is not definedTraceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\cs_evaluate.py", line 20, in evalWithDict
+    return eval(string,globals(),varDict)
+  File "<string>", line 1, in <module>
+NameError: name 'q' is not defined
+
+
+2014/02/24 15:59:54 MainThread instrument_property WARNING TypeError while evaluating:
+property: channel0
+description: the state of channel 0
+function: sin(3)
+The 'value' member on the 'IntProp' object must be of type 'int'. Got object of type 'numpy.float64' instead.
+
+2014/02/24 15:59:54 MainThread instrument_property WARNING TypeError while evaluating:
+property: channel0
+description: the state of channel 0
+function: sin(3)
+The 'value' member on the 'IntProp' object must be of type 'int'. Got object of type 'numpy.float64' instead.
+
