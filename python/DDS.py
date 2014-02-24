@@ -35,8 +35,8 @@ class DDS(Instrument):
         self.communicator=communicator
         self.version='2014.01.22'
         self.enable=BoolProp('enable',self.experiment,'enable DDS output','False')
-        self.boxes=ListProp('boxes',experiment,listElementType=DDSbox,listElementName='box')
-        self.addBox() #TODO:don't add this initial box, but if we don't then the comboBox doesn't update for some reason
+        self.boxes=ListProp('boxes',experiment,listElementType=DDSbox,listElementName='box',listElementKwargs={'DDS':self})
+        #self.addBox() #TODO:don't add this initial box, but if we don't then the comboBox doesn't update for some reason
         #self.deviceList=self.deviceListStr.split('\n')
         self.deviceList=[]
         self.boxDescriptionList=[]
@@ -48,7 +48,7 @@ class DDS(Instrument):
         
     
     def addBox(self):
-        newbox=DDSbox('box'+str(len(self.boxes)),self.experiment,self)
+        newbox=DDSbox('box'+str(len(self.boxes)),self.experiment,description="newbox",kwargs={'DDS':self})
         self.boxes.append(newbox)
         return newbox
     
@@ -82,8 +82,8 @@ class DDSbox(Prop):
     channels=Typed(ListProp)
     DDS=Member()
     
-    def __init__(self,name,experiment,DDS,description='',kwargs={}):
-        self.DDS=DDS
+    def __init__(self,name,experiment,description='',kwargs={}):
+        self.DDS=kwargs['DDS']
         super(DDSbox,self).__init__(name,experiment,description)
         '''each box has exactly 4 channels'''
         self.channels=ListProp('channels',experiment,listProperty=[DDSchannel('channel'+str(i),self.experiment) for i in range(4)],listElementType=DDSchannel,listElementName='channel')
@@ -91,7 +91,6 @@ class DDSbox(Prop):
     
     @observe('description')
     def descriptionChanged(self,change):
-        
         self.DDS.updateBoxDescriptionList()
 
 class DDSchannel(Prop):
@@ -104,11 +103,12 @@ class DDSchannel(Prop):
     RAMDefaultAmplitude=Typed(FloatProp)
     RAMDefaultPhase=Typed(FloatProp)
     profiles=Typed(ListProp)
+    profileDescriptionList=Member()
     
     def __init__(self,name,experiment,description='',kwargs={}):
         super(DDSchannel,self).__init__(name,experiment,description)
         self.power=BoolProp('power',self.experiment,'enable RF output from this channel','False')
-        self.refClockRate=IntProp('refClockRate',self.experiment,'[kHz]','0')
+        self.refClockRate=IntProp('refClockRate',self.experiment,'[MHz]','1000')
         self.fullScaleOutputPower=FloatProp('fullScaleOutputPower',self.experiment,'[dBm]','0')
         self.RAMenable=BoolProp('RAMenable',self.experiment,'RAM enable','False')
         self.RAMDestType=IntProp('RAMDestType',self.experiment,'RAM Destination Type (integer code)','0')
@@ -116,9 +116,23 @@ class DDSchannel(Prop):
         self.RAMDefaultAmplitude=FloatProp('RAMDefaultAmplitude',self.experiment,'[dBm]','0')
         self.RAMDefaultPhase=FloatProp('RAMDefaultPhase',self.experiment,'[rad]','0')
         '''each channel has exactly 8 profiles'''
-        self.profiles=ListProp('profiles',self.experiment,listProperty=[DDSprofile('profile'+str(i),self.experiment) for i in range(8)],listElementType=DDSprofile,listElementName='profile')
+        self.profileDescriptionList=[]
+        self.profiles=ListProp('profiles',self.experiment,listProperty=[DDSprofile('profile'+str(i),self.experiment,kwargs={'channel':self}) for i in range(8)],listElementType=DDSprofile,listElementName='profile',listElementKwargs={'channel':self})
         self.properties+=['power','refClockRate','fullScaleOutputPower','RAMenable','RAMDestType','RAMDefaultFrequency',
-            'RAMDefaultAmplitude','RAMDefaultPhase','profiles']
+            'RAMDefaultAmplitude','RAMDefaultPhase','profiles','profileDescriptionList']
+    
+    def evaluate(self):
+        super(DDSchannel,self).evaluate()
+        self.updateProfileDescriptionList()
+    
+    def updateProfileDescriptionList(self):
+        if self.profiles is not None:
+            #sets the descriptions shown in the combo box in the GUI
+            try:
+                deferred_call(setattr,self,'profileDescriptionList',['{} {}'.format(i,n.description) for i,n in enumerate(self.profiles)])
+            except RuntimeError:
+                #the GUI is not yet active
+                self.profileDescriptionList=['{} {}'.format(i,n.description) for i,n in enumerate(self.profiles)]
 
 class DDSprofile(Prop):
     frequency=Typed(FloatProp)
@@ -134,8 +148,10 @@ class DDSprofile(Prop):
     RAMTimeStep=Typed(FloatProp)
     RAMNumSteps=Typed(IntProp)
     RAMStaticArray=Typed(ListProp)
+    channel=Member()
     
     def __init__(self,name,experiment,description='',kwargs={}):
+        self.channel=kwargs['channel']
         super(DDSprofile,self).__init__(name,experiment,description)
         self.frequency=FloatProp('frequency',self.experiment,'[MHz]','0')
         self.amplitude=FloatProp('amplitude',self.experiment,'[dBm]','0')
@@ -152,3 +168,7 @@ class DDSprofile(Prop):
         self.RAMStaticArray=ListProp('RAMStaticArray',self.experiment,listElementType=IntProp,listElementName='int')
         self.properties+=['frequency','amplitude','phase','RAMMode','ZeroCrossing','NoDwellHigh',
             'FunctionOrStatic','RAMFunction','RAMInitialValue','RAMStepValue','RAMTimeStep','RAMNumSteps','RAMStaticArray']
+    
+    @observe('description')
+    def descriptionChanged(self,change):
+        self.channel.updateProfileDescriptionList()

@@ -3249,7 +3249,7 @@ p0
 <boxes><box0><description>S'Box the 0th'
 p0
 .</description>
-<enable>I01
+<enable>I00
 .</enable>
 <deviceReference>S'USB0::0x3923::0x7166::01574F57::RAW\r'
 p0
@@ -6355,12 +6355,12 @@ p0
 .</description>
 <enable>I00
 .</enable>
-<deviceReference>S'USB0::0x3923::0x7166::01574FA5::RAW\r'
+<deviceReference>S'USB0::0x3923::0x7166::01574F95::RAW\r'
 p0
 .</deviceReference>
 <DIOport>I0
 .</DIOport>
-<channels><channel0><description>S'1038 scanner AOM1'
+<channels><channel0><description>S''
 p0
 .</description>
 <power><description>S'enable RF output from this channel'
@@ -6370,10 +6370,10 @@ p0
 p0
 .</function>
 </power>
-<refClockRate><description>S'[MHz]'
+<refClockRate><description>S'[kHz]'
 p0
 .</description>
-<function>S'1000'
+<function>S'0'
 p0
 .</function>
 </refClockRate>

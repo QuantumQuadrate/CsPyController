@@ -797,15 +797,15 @@ enamldef DDS_channel(GroupBox):
     GroupBox: profiles:
         title='profiles'
         ComboBox: combo:
-            items<<[str(i)+' '+n.description for i,n in enumerate(channel.profiles)]
+            items<<channel.profileDescriptionList
         Stack:
             index<<combo.index
-            Include: dyno:
-                objects<<[DDS_profile(profile=i) for i in channel.profiles]
-            # Looper:
-                # iterable<<channel.profiles
-                # DDS_profile:
-                    # profile<<loop_item
+            #Include: dyno:
+            #    objects<<[DDS_profile(profile=i) for i in channel.profiles]
+            Looper:
+                iterable<<channel.profiles
+                DDS_profile:
+                    profile=loop_item
     
 enamldef DDS_box(StackItem):
     attr box

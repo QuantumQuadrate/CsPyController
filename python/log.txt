@@ -3900,3 +3900,1930 @@ function: 5
 float division by zero
 
 2014/02/21 10:47:34 MainThread __main__ INFO starting application
+2014/02/23 14:08:31 MainThread instrument_property WARNING in boxes in ListProp.fromXML() for xml tag: boxes.
+__init__() takes at least 4 arguments (5 given)
+Traceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\instrument_property.py", line 456, in fromXML
+    self.listProperty+=[self.listElementType(str(i),self.experiment,description='',kwargs=self.listElementKwargs).fromXML(child) for i, child in enumerate(xmlNode)]
+TypeError: __init__() takes at least 4 arguments (5 given)
+
+
+2014/02/23 14:08:31 MainThread instrument_property WARNING Exception in EvalProp.evaluate() in clockRate.
+description: 
+function: 100*kilo
+float division by zero
+
+2014/02/23 14:08:31 MainThread instrument_property WARNING Exception in EvalProp.evaluate() in totalAOTime.
+description: 5 ms total
+function: 5
+float division by zero
+
+2014/02/23 14:08:39 MainThread __main__ INFO starting application
+2014/02/23 14:13:02 MainThread LabView DEBUG LabView.open() opening sock
+2014/02/23 14:13:02 MainThread LabView DEBUG LabView.open() sock opened
+2014/02/23 14:48:31 MainThread instrument_property WARNING in boxes in ListProp.fromXML() for xml tag: boxes.
+__init__() takes at least 4 arguments (5 given)
+Traceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\instrument_property.py", line 456, in fromXML
+    self.listProperty+=[self.listElementType(str(i),self.experiment,description='',kwargs=self.listElementKwargs).fromXML(child) for i, child in enumerate(xmlNode)]
+TypeError: __init__() takes at least 4 arguments (5 given)
+
+
+2014/02/23 14:48:31 MainThread instrument_property WARNING Exception in EvalProp.evaluate() in clockRate.
+description: 
+function: 100*kilo
+float division by zero
+
+2014/02/23 14:48:31 MainThread instrument_property WARNING Exception in EvalProp.evaluate() in totalAOTime.
+description: 5 ms total
+function: 5
+float division by zero
+
+2014/02/23 14:48:40 MainThread __main__ INFO starting application
+2014/02/23 14:58:07 MainThread instrument_property WARNING Exception in EvalProp.evaluate() in clockRate.
+description: 
+function: 100*kilo
+float division by zero
+
+2014/02/23 14:58:07 MainThread instrument_property WARNING Exception in EvalProp.evaluate() in totalAOTime.
+description: 5 ms total
+function: 5
+float division by zero
+
+2014/02/23 14:58:22 MainThread __main__ INFO starting application
+2014/02/23 14:59:03 MainThread LabView DEBUG LabView.open() opening sock
+2014/02/23 14:59:24 MainThread instrument_property WARNING Exception in EvalProp.evaluate() in clockRate.
+description: 
+function: 100*kilo
+float division by zero
+
+2014/02/23 14:59:24 MainThread instrument_property WARNING Exception in EvalProp.evaluate() in totalAOTime.
+description: 5 ms total
+function: 5
+float division by zero
+
+2014/02/23 14:59:39 MainThread __main__ INFO starting application
+2014/02/23 15:02:21 MainThread LabView DEBUG LabView.open() opening sock
+2014/02/23 15:02:21 MainThread LabView DEBUG LabView.open() sock opened
+2014/02/23 15:03:09 MainThread TCP ERROR Error trying to receive message header: [Errno 10054] An existing connection was forcibly closed by the remote host
+2014/02/23 15:47:08 MainThread instrument_property WARNING Exception in EvalProp.evaluate() in clockRate.
+description: 
+function: 100*kilo
+float division by zero
+
+2014/02/23 15:47:08 MainThread instrument_property WARNING Exception in EvalProp.evaluate() in totalAOTime.
+description: 5 ms total
+function: 5
+float division by zero
+
+2014/02/23 15:47:24 MainThread __main__ INFO starting application
+2014/02/23 15:47:58 MainThread LabView DEBUG LabView.open() opening sock
+2014/02/23 15:47:58 MainThread LabView DEBUG LabView.open() sock opened
+2014/02/23 16:19:00 MainThread cs_evaluate WARNING evaluating property RAMenable, RAM enable, False
+Could not eval string: T
+name 'T' is not definedTraceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\cs_evaluate.py", line 20, in evalWithDict
+    return eval(string,globals(),varDict)
+  File "<string>", line 1, in <module>
+NameError: name 'T' is not defined
+
+
+2014/02/23 16:19:00 MainThread cs_evaluate WARNING evaluating property RAMenable, RAM enable, False
+Could not eval string: Tr
+name 'Tr' is not definedTraceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\cs_evaluate.py", line 20, in evalWithDict
+    return eval(string,globals(),varDict)
+  File "<string>", line 1, in <module>
+NameError: name 'Tr' is not defined
+
+
+2014/02/23 16:19:00 MainThread cs_evaluate WARNING evaluating property RAMenable, RAM enable, False
+Could not eval string: Tru
+name 'Tru' is not definedTraceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\cs_evaluate.py", line 20, in evalWithDict
+    return eval(string,globals(),varDict)
+  File "<string>", line 1, in <module>
+NameError: name 'Tru' is not defined
+
+
+2014/02/23 16:19:03 MainThread cs_evaluate WARNING evaluating property power, enable RF output from this channel, False
+Could not eval string: T
+name 'T' is not definedTraceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\cs_evaluate.py", line 20, in evalWithDict
+    return eval(string,globals(),varDict)
+  File "<string>", line 1, in <module>
+NameError: name 'T' is not defined
+
+
+2014/02/23 16:19:03 MainThread cs_evaluate WARNING evaluating property power, enable RF output from this channel, False
+Could not eval string: Tr
+name 'Tr' is not definedTraceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\cs_evaluate.py", line 20, in evalWithDict
+    return eval(string,globals(),varDict)
+  File "<string>", line 1, in <module>
+NameError: name 'Tr' is not defined
+
+
+2014/02/23 16:19:04 MainThread cs_evaluate WARNING evaluating property power, enable RF output from this channel, False
+Could not eval string: Tru
+name 'Tru' is not definedTraceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\cs_evaluate.py", line 20, in evalWithDict
+    return eval(string,globals(),varDict)
+  File "<string>", line 1, in <module>
+NameError: name 'Tru' is not defined
+
+
+2014/02/23 16:19:29 MainThread cs_evaluate WARNING evaluating property RAMDefaultAmplitude, [dBm], 0
+Could not eval string: -
+unexpected EOF while parsing (<string>, line 1)Traceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\cs_evaluate.py", line 20, in evalWithDict
+    return eval(string,globals(),varDict)
+  File "<string>", line 1
+    -
+    ^
+SyntaxError: unexpected EOF while parsing
+
+
+2014/02/23 16:20:10 MainThread cs_evaluate WARNING evaluating property power, enable RF output from this channel, False
+Could not eval string: T
+name 'T' is not definedTraceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\cs_evaluate.py", line 20, in evalWithDict
+    return eval(string,globals(),varDict)
+  File "<string>", line 1, in <module>
+NameError: name 'T' is not defined
+
+
+2014/02/23 16:20:10 MainThread cs_evaluate WARNING evaluating property power, enable RF output from this channel, False
+Could not eval string: Tr
+name 'Tr' is not definedTraceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\cs_evaluate.py", line 20, in evalWithDict
+    return eval(string,globals(),varDict)
+  File "<string>", line 1, in <module>
+NameError: name 'Tr' is not defined
+
+
+2014/02/23 16:20:10 MainThread cs_evaluate WARNING evaluating property power, enable RF output from this channel, False
+Could not eval string: Tru
+name 'Tru' is not definedTraceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\cs_evaluate.py", line 20, in evalWithDict
+    return eval(string,globals(),varDict)
+  File "<string>", line 1, in <module>
+NameError: name 'Tru' is not defined
+
+
+2014/02/23 16:20:16 MainThread cs_evaluate WARNING evaluating property RAMDefaultFrequency, [MHz], 0
+Could not eval string: -
+unexpected EOF while parsing (<string>, line 1)Traceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\cs_evaluate.py", line 20, in evalWithDict
+    return eval(string,globals(),varDict)
+  File "<string>", line 1
+    -
+    ^
+SyntaxError: unexpected EOF while parsing
+
+
+2014/02/23 16:20:39 MainThread cs_evaluate WARNING evaluating property power, enable RF output from this channel, False
+Could not eval string: T
+name 'T' is not definedTraceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\cs_evaluate.py", line 20, in evalWithDict
+    return eval(string,globals(),varDict)
+  File "<string>", line 1, in <module>
+NameError: name 'T' is not defined
+
+
+2014/02/23 16:20:39 MainThread cs_evaluate WARNING evaluating property power, enable RF output from this channel, False
+Could not eval string: Tr
+name 'Tr' is not definedTraceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\cs_evaluate.py", line 20, in evalWithDict
+    return eval(string,globals(),varDict)
+  File "<string>", line 1, in <module>
+NameError: name 'Tr' is not defined
+
+
+2014/02/23 16:20:39 MainThread cs_evaluate WARNING evaluating property power, enable RF output from this channel, False
+Could not eval string: Tru
+name 'Tru' is not definedTraceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\cs_evaluate.py", line 20, in evalWithDict
+    return eval(string,globals(),varDict)
+  File "<string>", line 1, in <module>
+NameError: name 'Tru' is not defined
+
+
+2014/02/23 16:20:54 MainThread cs_evaluate WARNING evaluating property RAMDefaultAmplitude, [dBm], 0
+Could not eval string: -
+unexpected EOF while parsing (<string>, line 1)Traceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\cs_evaluate.py", line 20, in evalWithDict
+    return eval(string,globals(),varDict)
+  File "<string>", line 1
+    -
+    ^
+SyntaxError: unexpected EOF while parsing
+
+
+2014/02/23 16:22:20 MainThread cs_evaluate WARNING evaluating property amplitude, [dBm], 0
+Could not eval string: -
+unexpected EOF while parsing (<string>, line 1)Traceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\cs_evaluate.py", line 20, in evalWithDict
+    return eval(string,globals(),varDict)
+  File "<string>", line 1
+    -
+    ^
+SyntaxError: unexpected EOF while parsing
+
+
+2014/02/23 16:24:22 MainThread cs_evaluate WARNING evaluating property RAMStepValue, , 0
+Could not eval string: .01*1/f
+name 'f' is not definedTraceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\cs_evaluate.py", line 20, in evalWithDict
+    return eval(string,globals(),varDict)
+  File "<string>", line 1, in <module>
+NameError: name 'f' is not defined
+
+
+2014/02/23 16:24:30 MainThread cs_evaluate WARNING evaluating property RAMStepValue, , 0
+Could not eval string: .01*1/f
+name 'f' is not definedTraceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\cs_evaluate.py", line 20, in evalWithDict
+    return eval(string,globals(),varDict)
+  File "<string>", line 1, in <module>
+NameError: name 'f' is not defined
+
+
+2014/02/23 16:24:30 MainThread cs_evaluate WARNING evaluating property RAMStepValue, , 0
+Could not eval string: .01*1/f
+name 'f' is not definedTraceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\cs_evaluate.py", line 20, in evalWithDict
+    return eval(string,globals(),varDict)
+  File "<string>", line 1, in <module>
+NameError: name 'f' is not defined
+
+
+2014/02/23 16:24:42 MainThread cs_evaluate WARNING evaluating property RAMStepValue, , 0
+Could not eval string: .01*1/f"
+EOL while scanning string literal (<string>, line 1)Traceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\cs_evaluate.py", line 20, in evalWithDict
+    return eval(string,globals(),varDict)
+  File "<string>", line 1
+    .01*1/f"
+           ^
+SyntaxError: EOL while scanning string literal
+
+
+2014/02/23 16:24:43 MainThread instrument_property WARNING TypeError while evaluating:
+property: RAMStepValue
+description: 
+function: 0
+The 'value' member on the 'FloatProp' object must be of type 'float'. Got object of type 'str' instead.
+
+2014/02/23 16:24:44 MainThread instrument_property WARNING TypeError while evaluating:
+property: RAMStepValue
+description: 
+function: 0
+The 'value' member on the 'FloatProp' object must be of type 'float'. Got object of type 'str' instead.
+
+2014/02/23 16:24:44 MainThread instrument_property WARNING TypeError while evaluating:
+property: RAMStepValue
+description: 
+function: 0
+The 'value' member on the 'FloatProp' object must be of type 'float'. Got object of type 'str' instead.
+
+2014/02/23 16:24:44 MainThread instrument_property WARNING TypeError while evaluating:
+property: RAMStepValue
+description: 
+function: 0
+The 'value' member on the 'FloatProp' object must be of type 'float'. Got object of type 'str' instead.
+
+2014/02/23 16:24:44 MainThread instrument_property WARNING TypeError while evaluating:
+property: RAMStepValue
+description: 
+function: 0
+The 'value' member on the 'FloatProp' object must be of type 'float'. Got object of type 'str' instead.
+
+2014/02/23 16:24:47 MainThread cs_evaluate WARNING evaluating property RAMStepValue, , 0
+Could not eval string: .01*1/f"
+EOL while scanning string literal (<string>, line 1)Traceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\cs_evaluate.py", line 20, in evalWithDict
+    return eval(string,globals(),varDict)
+  File "<string>", line 1
+    .01*1/f"
+           ^
+SyntaxError: EOL while scanning string literal
+
+
+2014/02/23 16:24:47 MainThread cs_evaluate WARNING evaluating property RAMStepValue, , 0
+Could not eval string: .01*1/f
+name 'f' is not definedTraceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\cs_evaluate.py", line 20, in evalWithDict
+    return eval(string,globals(),varDict)
+  File "<string>", line 1, in <module>
+NameError: name 'f' is not defined
+
+
+2014/02/23 16:24:49 MainThread cs_evaluate WARNING evaluating property RAMStepValue, , 0
+Could not eval string: .01*1/f
+name 'f' is not definedTraceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\cs_evaluate.py", line 20, in evalWithDict
+    return eval(string,globals(),varDict)
+  File "<string>", line 1, in <module>
+NameError: name 'f' is not defined
+
+
+2014/02/23 16:24:49 MainThread cs_evaluate WARNING evaluating property RAMStepValue, , 0
+Could not eval string: .01*1/f
+name 'f' is not definedTraceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\cs_evaluate.py", line 20, in evalWithDict
+    return eval(string,globals(),varDict)
+  File "<string>", line 1, in <module>
+NameError: name 'f' is not defined
+
+
+2014/02/23 16:25:51 MainThread cs_evaluate WARNING evaluating property RAMFunction, , "-5+5*sin(2*3.14*f)"
+Could not eval string: "
+EOL while scanning string literal (<string>, line 1)Traceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\cs_evaluate.py", line 20, in evalWithDict
+    return eval(string,globals(),varDict)
+  File "<string>", line 1
+    "
+    ^
+SyntaxError: EOL while scanning string literal
+
+
+2014/02/23 16:27:39 MainThread cs_evaluate WARNING evaluating property amplitude, [dBm], 0
+Could not eval string: -
+unexpected EOF while parsing (<string>, line 1)Traceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\cs_evaluate.py", line 20, in evalWithDict
+    return eval(string,globals(),varDict)
+  File "<string>", line 1
+    -
+    ^
+SyntaxError: unexpected EOF while parsing
+
+
+2014/02/23 16:27:55 MainThread cs_evaluate WARNING evaluating property amplitude, [dBm], 0
+Could not eval string: -
+unexpected EOF while parsing (<string>, line 1)Traceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\cs_evaluate.py", line 20, in evalWithDict
+    return eval(string,globals(),varDict)
+  File "<string>", line 1
+    -
+    ^
+SyntaxError: unexpected EOF while parsing
+
+
+2014/02/23 16:28:00 MainThread cs_evaluate WARNING evaluating property amplitude, [dBm], 0
+Could not eval string: -
+unexpected EOF while parsing (<string>, line 1)Traceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\cs_evaluate.py", line 20, in evalWithDict
+    return eval(string,globals(),varDict)
+  File "<string>", line 1
+    -
+    ^
+SyntaxError: unexpected EOF while parsing
+
+
+2014/02/23 16:28:10 MainThread cs_evaluate WARNING evaluating property amplitude, [dBm], 0
+Could not eval string: -
+unexpected EOF while parsing (<string>, line 1)Traceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\cs_evaluate.py", line 20, in evalWithDict
+    return eval(string,globals(),varDict)
+  File "<string>", line 1
+    -
+    ^
+SyntaxError: unexpected EOF while parsing
+
+
+2014/02/23 16:28:34 MainThread cs_evaluate WARNING evaluating property frequency, [MHz], 0
+Could not eval string: d
+name 'd' is not definedTraceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\cs_evaluate.py", line 20, in evalWithDict
+    return eval(string,globals(),varDict)
+  File "<string>", line 1, in <module>
+NameError: name 'd' is not defined
+
+
+2014/02/23 16:28:34 MainThread cs_evaluate WARNING evaluating property frequency, [MHz], 0
+Could not eval string: d4
+name 'd4' is not definedTraceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\cs_evaluate.py", line 20, in evalWithDict
+    return eval(string,globals(),varDict)
+  File "<string>", line 1, in <module>
+NameError: name 'd4' is not defined
+
+
+2014/02/23 16:28:35 MainThread cs_evaluate WARNING evaluating property frequency, [MHz], 0
+Could not eval string: d4
+name 'd4' is not definedTraceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\cs_evaluate.py", line 20, in evalWithDict
+    return eval(string,globals(),varDict)
+  File "<string>", line 1, in <module>
+NameError: name 'd4' is not defined
+
+
+2014/02/23 16:28:35 MainThread cs_evaluate WARNING evaluating property frequency, [MHz], 0
+Could not eval string: d4
+name 'd4' is not definedTraceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\cs_evaluate.py", line 20, in evalWithDict
+    return eval(string,globals(),varDict)
+  File "<string>", line 1, in <module>
+NameError: name 'd4' is not defined
+
+
+2014/02/23 16:28:46 MainThread cs_evaluate WARNING evaluating property frequency, [MHz], 0
+Could not eval string: h
+name 'h' is not definedTraceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\cs_evaluate.py", line 20, in evalWithDict
+    return eval(string,globals(),varDict)
+  File "<string>", line 1, in <module>
+NameError: name 'h' is not defined
+
+
+2014/02/23 16:28:46 MainThread cs_evaluate WARNING evaluating property frequency, [MHz], 0
+Could not eval string: hy
+name 'hy' is not definedTraceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\cs_evaluate.py", line 20, in evalWithDict
+    return eval(string,globals(),varDict)
+  File "<string>", line 1, in <module>
+NameError: name 'hy' is not defined
+
+
+2014/02/23 16:28:46 MainThread cs_evaluate WARNING evaluating property frequency, [MHz], 0
+Could not eval string: hyp
+name 'hyp' is not definedTraceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\cs_evaluate.py", line 20, in evalWithDict
+    return eval(string,globals(),varDict)
+  File "<string>", line 1, in <module>
+NameError: name 'hyp' is not defined
+
+
+2014/02/23 16:28:46 MainThread cs_evaluate WARNING evaluating property frequency, [MHz], 0
+Could not eval string: hype
+name 'hype' is not definedTraceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\cs_evaluate.py", line 20, in evalWithDict
+    return eval(string,globals(),varDict)
+  File "<string>", line 1, in <module>
+NameError: name 'hype' is not defined
+
+
+2014/02/23 16:28:46 MainThread cs_evaluate WARNING evaluating property frequency, [MHz], 0
+Could not eval string: hyper
+name 'hyper' is not definedTraceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\cs_evaluate.py", line 20, in evalWithDict
+    return eval(string,globals(),varDict)
+  File "<string>", line 1, in <module>
+NameError: name 'hyper' is not defined
+
+
+2014/02/23 16:28:47 MainThread cs_evaluate WARNING evaluating property frequency, [MHz], 0
+Could not eval string: hyperf
+name 'hyperf' is not definedTraceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\cs_evaluate.py", line 20, in evalWithDict
+    return eval(string,globals(),varDict)
+  File "<string>", line 1, in <module>
+NameError: name 'hyperf' is not defined
+
+
+2014/02/23 16:28:47 MainThread cs_evaluate WARNING evaluating property frequency, [MHz], 0
+Could not eval string: hyperfi
+name 'hyperfi' is not definedTraceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\cs_evaluate.py", line 20, in evalWithDict
+    return eval(string,globals(),varDict)
+  File "<string>", line 1, in <module>
+NameError: name 'hyperfi' is not defined
+
+
+2014/02/23 16:28:47 MainThread cs_evaluate WARNING evaluating property frequency, [MHz], 0
+Could not eval string: hyperfin
+name 'hyperfin' is not definedTraceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\cs_evaluate.py", line 20, in evalWithDict
+    return eval(string,globals(),varDict)
+  File "<string>", line 1, in <module>
+NameError: name 'hyperfin' is not defined
+
+
+2014/02/23 16:28:47 MainThread cs_evaluate WARNING evaluating property frequency, [MHz], 0
+Could not eval string: hyperfine
+name 'hyperfine' is not definedTraceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\cs_evaluate.py", line 20, in evalWithDict
+    return eval(string,globals(),varDict)
+  File "<string>", line 1, in <module>
+NameError: name 'hyperfine' is not defined
+
+
+2014/02/23 16:28:47 MainThread cs_evaluate WARNING evaluating property frequency, [MHz], 0
+Could not eval string: hyperfine_
+name 'hyperfine_' is not definedTraceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\cs_evaluate.py", line 20, in evalWithDict
+    return eval(string,globals(),varDict)
+  File "<string>", line 1, in <module>
+NameError: name 'hyperfine_' is not defined
+
+
+2014/02/23 16:28:47 MainThread cs_evaluate WARNING evaluating property frequency, [MHz], 0
+Could not eval string: hyperfine_f
+name 'hyperfine_f' is not definedTraceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\cs_evaluate.py", line 20, in evalWithDict
+    return eval(string,globals(),varDict)
+  File "<string>", line 1, in <module>
+NameError: name 'hyperfine_f' is not defined
+
+
+2014/02/23 16:28:47 MainThread cs_evaluate WARNING evaluating property frequency, [MHz], 0
+Could not eval string: hyperfine_fr
+name 'hyperfine_fr' is not definedTraceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\cs_evaluate.py", line 20, in evalWithDict
+    return eval(string,globals(),varDict)
+  File "<string>", line 1, in <module>
+NameError: name 'hyperfine_fr' is not defined
+
+
+2014/02/23 16:28:48 MainThread cs_evaluate WARNING evaluating property frequency, [MHz], 0
+Could not eval string: hyperfine_fre
+name 'hyperfine_fre' is not definedTraceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\cs_evaluate.py", line 20, in evalWithDict
+    return eval(string,globals(),varDict)
+  File "<string>", line 1, in <module>
+NameError: name 'hyperfine_fre' is not defined
+
+
+2014/02/23 16:28:48 MainThread cs_evaluate WARNING evaluating property frequency, [MHz], 0
+Could not eval string: hyperfine_freq
+name 'hyperfine_freq' is not definedTraceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\cs_evaluate.py", line 20, in evalWithDict
+    return eval(string,globals(),varDict)
+  File "<string>", line 1, in <module>
+NameError: name 'hyperfine_freq' is not defined
+
+
+2014/02/23 16:28:48 MainThread cs_evaluate WARNING evaluating property frequency, [MHz], 0
+Could not eval string: hyperfine_frequ
+name 'hyperfine_frequ' is not definedTraceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\cs_evaluate.py", line 20, in evalWithDict
+    return eval(string,globals(),varDict)
+  File "<string>", line 1, in <module>
+NameError: name 'hyperfine_frequ' is not defined
+
+
+2014/02/23 16:28:48 MainThread cs_evaluate WARNING evaluating property frequency, [MHz], 0
+Could not eval string: hyperfine_freque
+name 'hyperfine_freque' is not definedTraceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\cs_evaluate.py", line 20, in evalWithDict
+    return eval(string,globals(),varDict)
+  File "<string>", line 1, in <module>
+NameError: name 'hyperfine_freque' is not defined
+
+
+2014/02/23 16:28:48 MainThread cs_evaluate WARNING evaluating property frequency, [MHz], 0
+Could not eval string: hyperfine_frequen
+name 'hyperfine_frequen' is not definedTraceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\cs_evaluate.py", line 20, in evalWithDict
+    return eval(string,globals(),varDict)
+  File "<string>", line 1, in <module>
+NameError: name 'hyperfine_frequen' is not defined
+
+
+2014/02/23 16:28:48 MainThread cs_evaluate WARNING evaluating property frequency, [MHz], 0
+Could not eval string: hyperfine_frequenc
+name 'hyperfine_frequenc' is not definedTraceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\cs_evaluate.py", line 20, in evalWithDict
+    return eval(string,globals(),varDict)
+  File "<string>", line 1, in <module>
+NameError: name 'hyperfine_frequenc' is not defined
+
+
+2014/02/23 16:29:02 MainThread cs_evaluate WARNING evaluating property amplitude, [dBm], 0
+Could not eval string: h
+name 'h' is not definedTraceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\cs_evaluate.py", line 20, in evalWithDict
+    return eval(string,globals(),varDict)
+  File "<string>", line 1, in <module>
+NameError: name 'h' is not defined
+
+
+2014/02/23 16:29:02 MainThread cs_evaluate WARNING evaluating property amplitude, [dBm], 0
+Could not eval string: hy
+name 'hy' is not definedTraceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\cs_evaluate.py", line 20, in evalWithDict
+    return eval(string,globals(),varDict)
+  File "<string>", line 1, in <module>
+NameError: name 'hy' is not defined
+
+
+2014/02/23 16:29:02 MainThread cs_evaluate WARNING evaluating property amplitude, [dBm], 0
+Could not eval string: hyo
+name 'hyo' is not definedTraceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\cs_evaluate.py", line 20, in evalWithDict
+    return eval(string,globals(),varDict)
+  File "<string>", line 1, in <module>
+NameError: name 'hyo' is not defined
+
+
+2014/02/23 16:29:03 MainThread cs_evaluate WARNING evaluating property amplitude, [dBm], 0
+Could not eval string: hyoe
+name 'hyoe' is not definedTraceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\cs_evaluate.py", line 20, in evalWithDict
+    return eval(string,globals(),varDict)
+  File "<string>", line 1, in <module>
+NameError: name 'hyoe' is not defined
+
+
+2014/02/23 16:29:03 MainThread cs_evaluate WARNING evaluating property amplitude, [dBm], 0
+Could not eval string: hyoer
+name 'hyoer' is not definedTraceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\cs_evaluate.py", line 20, in evalWithDict
+    return eval(string,globals(),varDict)
+  File "<string>", line 1, in <module>
+NameError: name 'hyoer' is not defined
+
+
+2014/02/23 16:29:03 MainThread cs_evaluate WARNING evaluating property amplitude, [dBm], 0
+Could not eval string: hyoerf
+name 'hyoerf' is not definedTraceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\cs_evaluate.py", line 20, in evalWithDict
+    return eval(string,globals(),varDict)
+  File "<string>", line 1, in <module>
+NameError: name 'hyoerf' is not defined
+
+
+2014/02/23 16:29:03 MainThread cs_evaluate WARNING evaluating property amplitude, [dBm], 0
+Could not eval string: hyoerfu
+name 'hyoerfu' is not definedTraceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\cs_evaluate.py", line 20, in evalWithDict
+    return eval(string,globals(),varDict)
+  File "<string>", line 1, in <module>
+NameError: name 'hyoerfu' is not defined
+
+
+2014/02/23 16:29:03 MainThread cs_evaluate WARNING evaluating property amplitude, [dBm], 0
+Could not eval string: hyoerfun
+name 'hyoerfun' is not definedTraceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\cs_evaluate.py", line 20, in evalWithDict
+    return eval(string,globals(),varDict)
+  File "<string>", line 1, in <module>
+NameError: name 'hyoerfun' is not defined
+
+
+2014/02/23 16:29:03 MainThread cs_evaluate WARNING evaluating property amplitude, [dBm], 0
+Could not eval string: hyoerfune
+name 'hyoerfune' is not definedTraceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\cs_evaluate.py", line 20, in evalWithDict
+    return eval(string,globals(),varDict)
+  File "<string>", line 1, in <module>
+NameError: name 'hyoerfune' is not defined
+
+
+2014/02/23 16:29:03 MainThread cs_evaluate WARNING evaluating property amplitude, [dBm], 0
+Could not eval string: hyoerfun
+name 'hyoerfun' is not definedTraceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\cs_evaluate.py", line 20, in evalWithDict
+    return eval(string,globals(),varDict)
+  File "<string>", line 1, in <module>
+NameError: name 'hyoerfun' is not defined
+
+
+2014/02/23 16:29:04 MainThread cs_evaluate WARNING evaluating property amplitude, [dBm], 0
+Could not eval string: hyoerfu
+name 'hyoerfu' is not definedTraceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\cs_evaluate.py", line 20, in evalWithDict
+    return eval(string,globals(),varDict)
+  File "<string>", line 1, in <module>
+NameError: name 'hyoerfu' is not defined
+
+
+2014/02/23 16:29:04 MainThread cs_evaluate WARNING evaluating property amplitude, [dBm], 0
+Could not eval string: hyoerf
+name 'hyoerf' is not definedTraceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\cs_evaluate.py", line 20, in evalWithDict
+    return eval(string,globals(),varDict)
+  File "<string>", line 1, in <module>
+NameError: name 'hyoerf' is not defined
+
+
+2014/02/23 16:29:04 MainThread cs_evaluate WARNING evaluating property amplitude, [dBm], 0
+Could not eval string: hyoer
+name 'hyoer' is not definedTraceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\cs_evaluate.py", line 20, in evalWithDict
+    return eval(string,globals(),varDict)
+  File "<string>", line 1, in <module>
+NameError: name 'hyoer' is not defined
+
+
+2014/02/23 16:29:04 MainThread cs_evaluate WARNING evaluating property amplitude, [dBm], 0
+Could not eval string: hyoe
+name 'hyoe' is not definedTraceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\cs_evaluate.py", line 20, in evalWithDict
+    return eval(string,globals(),varDict)
+  File "<string>", line 1, in <module>
+NameError: name 'hyoe' is not defined
+
+
+2014/02/23 16:29:04 MainThread cs_evaluate WARNING evaluating property amplitude, [dBm], 0
+Could not eval string: hyo
+name 'hyo' is not definedTraceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\cs_evaluate.py", line 20, in evalWithDict
+    return eval(string,globals(),varDict)
+  File "<string>", line 1, in <module>
+NameError: name 'hyo' is not defined
+
+
+2014/02/23 16:29:04 MainThread cs_evaluate WARNING evaluating property amplitude, [dBm], 0
+Could not eval string: hy
+name 'hy' is not definedTraceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\cs_evaluate.py", line 20, in evalWithDict
+    return eval(string,globals(),varDict)
+  File "<string>", line 1, in <module>
+NameError: name 'hy' is not defined
+
+
+2014/02/23 16:29:05 MainThread cs_evaluate WARNING evaluating property amplitude, [dBm], 0
+Could not eval string: hyp
+name 'hyp' is not definedTraceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\cs_evaluate.py", line 20, in evalWithDict
+    return eval(string,globals(),varDict)
+  File "<string>", line 1, in <module>
+NameError: name 'hyp' is not defined
+
+
+2014/02/23 16:29:05 MainThread cs_evaluate WARNING evaluating property amplitude, [dBm], 0
+Could not eval string: hype
+name 'hype' is not definedTraceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\cs_evaluate.py", line 20, in evalWithDict
+    return eval(string,globals(),varDict)
+  File "<string>", line 1, in <module>
+NameError: name 'hype' is not defined
+
+
+2014/02/23 16:29:05 MainThread cs_evaluate WARNING evaluating property amplitude, [dBm], 0
+Could not eval string: hyper
+name 'hyper' is not definedTraceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\cs_evaluate.py", line 20, in evalWithDict
+    return eval(string,globals(),varDict)
+  File "<string>", line 1, in <module>
+NameError: name 'hyper' is not defined
+
+
+2014/02/23 16:29:06 MainThread cs_evaluate WARNING evaluating property amplitude, [dBm], 0
+Could not eval string: hyperf
+name 'hyperf' is not definedTraceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\cs_evaluate.py", line 20, in evalWithDict
+    return eval(string,globals(),varDict)
+  File "<string>", line 1, in <module>
+NameError: name 'hyperf' is not defined
+
+
+2014/02/23 16:29:06 MainThread cs_evaluate WARNING evaluating property amplitude, [dBm], 0
+Could not eval string: hyperfi
+name 'hyperfi' is not definedTraceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\cs_evaluate.py", line 20, in evalWithDict
+    return eval(string,globals(),varDict)
+  File "<string>", line 1, in <module>
+NameError: name 'hyperfi' is not defined
+
+
+2014/02/23 16:29:06 MainThread cs_evaluate WARNING evaluating property amplitude, [dBm], 0
+Could not eval string: hyperfin
+name 'hyperfin' is not definedTraceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\cs_evaluate.py", line 20, in evalWithDict
+    return eval(string,globals(),varDict)
+  File "<string>", line 1, in <module>
+NameError: name 'hyperfin' is not defined
+
+
+2014/02/23 16:29:06 MainThread cs_evaluate WARNING evaluating property amplitude, [dBm], 0
+Could not eval string: hyperfine
+name 'hyperfine' is not definedTraceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\cs_evaluate.py", line 20, in evalWithDict
+    return eval(string,globals(),varDict)
+  File "<string>", line 1, in <module>
+NameError: name 'hyperfine' is not defined
+
+
+2014/02/23 16:29:06 MainThread cs_evaluate WARNING evaluating property amplitude, [dBm], 0
+Could not eval string: hyperfine_
+name 'hyperfine_' is not definedTraceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\cs_evaluate.py", line 20, in evalWithDict
+    return eval(string,globals(),varDict)
+  File "<string>", line 1, in <module>
+NameError: name 'hyperfine_' is not defined
+
+
+2014/02/23 16:29:07 MainThread cs_evaluate WARNING evaluating property amplitude, [dBm], 0
+Could not eval string: hyperfine_p
+name 'hyperfine_p' is not definedTraceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\cs_evaluate.py", line 20, in evalWithDict
+    return eval(string,globals(),varDict)
+  File "<string>", line 1, in <module>
+NameError: name 'hyperfine_p' is not defined
+
+
+2014/02/23 16:29:07 MainThread cs_evaluate WARNING evaluating property amplitude, [dBm], 0
+Could not eval string: hyperfine_po
+name 'hyperfine_po' is not definedTraceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\cs_evaluate.py", line 20, in evalWithDict
+    return eval(string,globals(),varDict)
+  File "<string>", line 1, in <module>
+NameError: name 'hyperfine_po' is not defined
+
+
+2014/02/23 16:29:07 MainThread cs_evaluate WARNING evaluating property amplitude, [dBm], 0
+Could not eval string: hyperfine_pow
+name 'hyperfine_pow' is not definedTraceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\cs_evaluate.py", line 20, in evalWithDict
+    return eval(string,globals(),varDict)
+  File "<string>", line 1, in <module>
+NameError: name 'hyperfine_pow' is not defined
+
+
+2014/02/23 16:29:07 MainThread cs_evaluate WARNING evaluating property amplitude, [dBm], 0
+Could not eval string: hyperfine_powe
+name 'hyperfine_powe' is not definedTraceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\cs_evaluate.py", line 20, in evalWithDict
+    return eval(string,globals(),varDict)
+  File "<string>", line 1, in <module>
+NameError: name 'hyperfine_powe' is not defined
+
+
+2014/02/23 16:29:33 MainThread cs_evaluate WARNING evaluating property amplitude, [dBm], 0
+Could not eval string: -
+unexpected EOF while parsing (<string>, line 1)Traceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\cs_evaluate.py", line 20, in evalWithDict
+    return eval(string,globals(),varDict)
+  File "<string>", line 1
+    -
+    ^
+SyntaxError: unexpected EOF while parsing
+
+
+2014/02/23 16:30:04 MainThread cs_evaluate WARNING evaluating property frequency, [MHz], 0
+Could not eval string: O
+name 'O' is not definedTraceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\cs_evaluate.py", line 20, in evalWithDict
+    return eval(string,globals(),varDict)
+  File "<string>", line 1, in <module>
+NameError: name 'O' is not defined
+
+
+2014/02/23 16:30:04 MainThread cs_evaluate WARNING evaluating property frequency, [MHz], 0
+Could not eval string: OP
+name 'OP' is not definedTraceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\cs_evaluate.py", line 20, in evalWithDict
+    return eval(string,globals(),varDict)
+  File "<string>", line 1, in <module>
+NameError: name 'OP' is not defined
+
+
+2014/02/23 16:30:04 MainThread cs_evaluate WARNING evaluating property frequency, [MHz], 0
+Could not eval string: OP_
+name 'OP_' is not definedTraceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\cs_evaluate.py", line 20, in evalWithDict
+    return eval(string,globals(),varDict)
+  File "<string>", line 1, in <module>
+NameError: name 'OP_' is not defined
+
+
+2014/02/23 16:30:05 MainThread cs_evaluate WARNING evaluating property frequency, [MHz], 0
+Could not eval string: OP_h
+name 'OP_h' is not definedTraceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\cs_evaluate.py", line 20, in evalWithDict
+    return eval(string,globals(),varDict)
+  File "<string>", line 1, in <module>
+NameError: name 'OP_h' is not defined
+
+
+2014/02/23 16:30:05 MainThread cs_evaluate WARNING evaluating property frequency, [MHz], 0
+Could not eval string: OP_hy
+name 'OP_hy' is not definedTraceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\cs_evaluate.py", line 20, in evalWithDict
+    return eval(string,globals(),varDict)
+  File "<string>", line 1, in <module>
+NameError: name 'OP_hy' is not defined
+
+
+2014/02/23 16:30:05 MainThread cs_evaluate WARNING evaluating property frequency, [MHz], 0
+Could not eval string: OP_hyp
+name 'OP_hyp' is not definedTraceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\cs_evaluate.py", line 20, in evalWithDict
+    return eval(string,globals(),varDict)
+  File "<string>", line 1, in <module>
+NameError: name 'OP_hyp' is not defined
+
+
+2014/02/23 16:30:06 MainThread cs_evaluate WARNING evaluating property frequency, [MHz], 0
+Could not eval string: OP_hype
+name 'OP_hype' is not definedTraceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\cs_evaluate.py", line 20, in evalWithDict
+    return eval(string,globals(),varDict)
+  File "<string>", line 1, in <module>
+NameError: name 'OP_hype' is not defined
+
+
+2014/02/23 16:30:06 MainThread cs_evaluate WARNING evaluating property frequency, [MHz], 0
+Could not eval string: OP_hyper
+name 'OP_hyper' is not definedTraceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\cs_evaluate.py", line 20, in evalWithDict
+    return eval(string,globals(),varDict)
+  File "<string>", line 1, in <module>
+NameError: name 'OP_hyper' is not defined
+
+
+2014/02/23 16:30:06 MainThread cs_evaluate WARNING evaluating property frequency, [MHz], 0
+Could not eval string: OP_hyperf
+name 'OP_hyperf' is not definedTraceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\cs_evaluate.py", line 20, in evalWithDict
+    return eval(string,globals(),varDict)
+  File "<string>", line 1, in <module>
+NameError: name 'OP_hyperf' is not defined
+
+
+2014/02/23 16:30:06 MainThread cs_evaluate WARNING evaluating property frequency, [MHz], 0
+Could not eval string: OP_hyperfi
+name 'OP_hyperfi' is not definedTraceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\cs_evaluate.py", line 20, in evalWithDict
+    return eval(string,globals(),varDict)
+  File "<string>", line 1, in <module>
+NameError: name 'OP_hyperfi' is not defined
+
+
+2014/02/23 16:30:06 MainThread cs_evaluate WARNING evaluating property frequency, [MHz], 0
+Could not eval string: OP_hyperfin
+name 'OP_hyperfin' is not definedTraceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\cs_evaluate.py", line 20, in evalWithDict
+    return eval(string,globals(),varDict)
+  File "<string>", line 1, in <module>
+NameError: name 'OP_hyperfin' is not defined
+
+
+2014/02/23 16:30:06 MainThread cs_evaluate WARNING evaluating property frequency, [MHz], 0
+Could not eval string: OP_hyperfine
+name 'OP_hyperfine' is not definedTraceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\cs_evaluate.py", line 20, in evalWithDict
+    return eval(string,globals(),varDict)
+  File "<string>", line 1, in <module>
+NameError: name 'OP_hyperfine' is not defined
+
+
+2014/02/23 16:30:07 MainThread cs_evaluate WARNING evaluating property frequency, [MHz], 0
+Could not eval string: OP_hyperfine_
+name 'OP_hyperfine_' is not definedTraceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\cs_evaluate.py", line 20, in evalWithDict
+    return eval(string,globals(),varDict)
+  File "<string>", line 1, in <module>
+NameError: name 'OP_hyperfine_' is not defined
+
+
+2014/02/23 16:30:07 MainThread cs_evaluate WARNING evaluating property frequency, [MHz], 0
+Could not eval string: OP_hyperfine_f
+name 'OP_hyperfine_f' is not definedTraceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\cs_evaluate.py", line 20, in evalWithDict
+    return eval(string,globals(),varDict)
+  File "<string>", line 1, in <module>
+NameError: name 'OP_hyperfine_f' is not defined
+
+
+2014/02/23 16:30:07 MainThread cs_evaluate WARNING evaluating property frequency, [MHz], 0
+Could not eval string: OP_hyperfine_fr
+name 'OP_hyperfine_fr' is not definedTraceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\cs_evaluate.py", line 20, in evalWithDict
+    return eval(string,globals(),varDict)
+  File "<string>", line 1, in <module>
+NameError: name 'OP_hyperfine_fr' is not defined
+
+
+2014/02/23 16:30:07 MainThread cs_evaluate WARNING evaluating property frequency, [MHz], 0
+Could not eval string: OP_hyperfine_fre
+name 'OP_hyperfine_fre' is not definedTraceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\cs_evaluate.py", line 20, in evalWithDict
+    return eval(string,globals(),varDict)
+  File "<string>", line 1, in <module>
+NameError: name 'OP_hyperfine_fre' is not defined
+
+
+2014/02/23 16:30:07 MainThread cs_evaluate WARNING evaluating property frequency, [MHz], 0
+Could not eval string: OP_hyperfine_freq
+name 'OP_hyperfine_freq' is not definedTraceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\cs_evaluate.py", line 20, in evalWithDict
+    return eval(string,globals(),varDict)
+  File "<string>", line 1, in <module>
+NameError: name 'OP_hyperfine_freq' is not defined
+
+
+2014/02/23 16:30:07 MainThread cs_evaluate WARNING evaluating property frequency, [MHz], 0
+Could not eval string: OP_hyperfine_frequ
+name 'OP_hyperfine_frequ' is not definedTraceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\cs_evaluate.py", line 20, in evalWithDict
+    return eval(string,globals(),varDict)
+  File "<string>", line 1, in <module>
+NameError: name 'OP_hyperfine_frequ' is not defined
+
+
+2014/02/23 16:30:08 MainThread cs_evaluate WARNING evaluating property frequency, [MHz], 0
+Could not eval string: OP_hyperfine_freque
+name 'OP_hyperfine_freque' is not definedTraceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\cs_evaluate.py", line 20, in evalWithDict
+    return eval(string,globals(),varDict)
+  File "<string>", line 1, in <module>
+NameError: name 'OP_hyperfine_freque' is not defined
+
+
+2014/02/23 16:30:08 MainThread cs_evaluate WARNING evaluating property frequency, [MHz], 0
+Could not eval string: OP_hyperfine_frequen
+name 'OP_hyperfine_frequen' is not definedTraceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\cs_evaluate.py", line 20, in evalWithDict
+    return eval(string,globals(),varDict)
+  File "<string>", line 1, in <module>
+NameError: name 'OP_hyperfine_frequen' is not defined
+
+
+2014/02/23 16:30:08 MainThread cs_evaluate WARNING evaluating property frequency, [MHz], 0
+Could not eval string: OP_hyperfine_frequenc
+name 'OP_hyperfine_frequenc' is not definedTraceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\cs_evaluate.py", line 20, in evalWithDict
+    return eval(string,globals(),varDict)
+  File "<string>", line 1, in <module>
+NameError: name 'OP_hyperfine_frequenc' is not defined
+
+
+2014/02/23 16:30:10 MainThread cs_evaluate WARNING evaluating property amplitude, [dBm], 0
+Could not eval string: O
+name 'O' is not definedTraceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\cs_evaluate.py", line 20, in evalWithDict
+    return eval(string,globals(),varDict)
+  File "<string>", line 1, in <module>
+NameError: name 'O' is not defined
+
+
+2014/02/23 16:30:10 MainThread cs_evaluate WARNING evaluating property amplitude, [dBm], 0
+Could not eval string: OP
+name 'OP' is not definedTraceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\cs_evaluate.py", line 20, in evalWithDict
+    return eval(string,globals(),varDict)
+  File "<string>", line 1, in <module>
+NameError: name 'OP' is not defined
+
+
+2014/02/23 16:30:10 MainThread cs_evaluate WARNING evaluating property amplitude, [dBm], 0
+Could not eval string: OP_
+name 'OP_' is not definedTraceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\cs_evaluate.py", line 20, in evalWithDict
+    return eval(string,globals(),varDict)
+  File "<string>", line 1, in <module>
+NameError: name 'OP_' is not defined
+
+
+2014/02/23 16:30:13 MainThread cs_evaluate WARNING evaluating property amplitude, [dBm], 0
+Could not eval string: OP_h
+name 'OP_h' is not definedTraceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\cs_evaluate.py", line 20, in evalWithDict
+    return eval(string,globals(),varDict)
+  File "<string>", line 1, in <module>
+NameError: name 'OP_h' is not defined
+
+
+2014/02/23 16:30:13 MainThread cs_evaluate WARNING evaluating property amplitude, [dBm], 0
+Could not eval string: OP_hy
+name 'OP_hy' is not definedTraceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\cs_evaluate.py", line 20, in evalWithDict
+    return eval(string,globals(),varDict)
+  File "<string>", line 1, in <module>
+NameError: name 'OP_hy' is not defined
+
+
+2014/02/23 16:30:13 MainThread cs_evaluate WARNING evaluating property amplitude, [dBm], 0
+Could not eval string: OP_hyp
+name 'OP_hyp' is not definedTraceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\cs_evaluate.py", line 20, in evalWithDict
+    return eval(string,globals(),varDict)
+  File "<string>", line 1, in <module>
+NameError: name 'OP_hyp' is not defined
+
+
+2014/02/23 16:30:13 MainThread cs_evaluate WARNING evaluating property amplitude, [dBm], 0
+Could not eval string: OP_hype
+name 'OP_hype' is not definedTraceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\cs_evaluate.py", line 20, in evalWithDict
+    return eval(string,globals(),varDict)
+  File "<string>", line 1, in <module>
+NameError: name 'OP_hype' is not defined
+
+
+2014/02/23 16:30:13 MainThread cs_evaluate WARNING evaluating property amplitude, [dBm], 0
+Could not eval string: OP_hyper
+name 'OP_hyper' is not definedTraceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\cs_evaluate.py", line 20, in evalWithDict
+    return eval(string,globals(),varDict)
+  File "<string>", line 1, in <module>
+NameError: name 'OP_hyper' is not defined
+
+
+2014/02/23 16:30:13 MainThread cs_evaluate WARNING evaluating property amplitude, [dBm], 0
+Could not eval string: OP_hyperf
+name 'OP_hyperf' is not definedTraceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\cs_evaluate.py", line 20, in evalWithDict
+    return eval(string,globals(),varDict)
+  File "<string>", line 1, in <module>
+NameError: name 'OP_hyperf' is not defined
+
+
+2014/02/23 16:30:14 MainThread cs_evaluate WARNING evaluating property amplitude, [dBm], 0
+Could not eval string: OP_hyperfi
+name 'OP_hyperfi' is not definedTraceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\cs_evaluate.py", line 20, in evalWithDict
+    return eval(string,globals(),varDict)
+  File "<string>", line 1, in <module>
+NameError: name 'OP_hyperfi' is not defined
+
+
+2014/02/23 16:30:14 MainThread cs_evaluate WARNING evaluating property amplitude, [dBm], 0
+Could not eval string: OP_hyperfin
+name 'OP_hyperfin' is not definedTraceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\cs_evaluate.py", line 20, in evalWithDict
+    return eval(string,globals(),varDict)
+  File "<string>", line 1, in <module>
+NameError: name 'OP_hyperfin' is not defined
+
+
+2014/02/23 16:30:14 MainThread cs_evaluate WARNING evaluating property amplitude, [dBm], 0
+Could not eval string: OP_hyperfine
+name 'OP_hyperfine' is not definedTraceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\cs_evaluate.py", line 20, in evalWithDict
+    return eval(string,globals(),varDict)
+  File "<string>", line 1, in <module>
+NameError: name 'OP_hyperfine' is not defined
+
+
+2014/02/23 16:30:14 MainThread cs_evaluate WARNING evaluating property amplitude, [dBm], 0
+Could not eval string: OP_hyperfine_
+name 'OP_hyperfine_' is not definedTraceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\cs_evaluate.py", line 20, in evalWithDict
+    return eval(string,globals(),varDict)
+  File "<string>", line 1, in <module>
+NameError: name 'OP_hyperfine_' is not defined
+
+
+2014/02/23 16:30:14 MainThread cs_evaluate WARNING evaluating property amplitude, [dBm], 0
+Could not eval string: OP_hyperfine_p
+name 'OP_hyperfine_p' is not definedTraceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\cs_evaluate.py", line 20, in evalWithDict
+    return eval(string,globals(),varDict)
+  File "<string>", line 1, in <module>
+NameError: name 'OP_hyperfine_p' is not defined
+
+
+2014/02/23 16:30:14 MainThread cs_evaluate WARNING evaluating property amplitude, [dBm], 0
+Could not eval string: OP_hyperfine_po
+name 'OP_hyperfine_po' is not definedTraceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\cs_evaluate.py", line 20, in evalWithDict
+    return eval(string,globals(),varDict)
+  File "<string>", line 1, in <module>
+NameError: name 'OP_hyperfine_po' is not defined
+
+
+2014/02/23 16:30:14 MainThread cs_evaluate WARNING evaluating property amplitude, [dBm], 0
+Could not eval string: OP_hyperfine_pow
+name 'OP_hyperfine_pow' is not definedTraceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\cs_evaluate.py", line 20, in evalWithDict
+    return eval(string,globals(),varDict)
+  File "<string>", line 1, in <module>
+NameError: name 'OP_hyperfine_pow' is not defined
+
+
+2014/02/23 16:30:14 MainThread cs_evaluate WARNING evaluating property amplitude, [dBm], 0
+Could not eval string: OP_hyperfine_powe
+name 'OP_hyperfine_powe' is not definedTraceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\cs_evaluate.py", line 20, in evalWithDict
+    return eval(string,globals(),varDict)
+  File "<string>", line 1, in <module>
+NameError: name 'OP_hyperfine_powe' is not defined
+
+
+2014/02/23 17:03:55 MainThread cs_evaluate WARNING evaluating property frequency, [MHz], 0
+Could not eval string: Readout hyperfine frequency
+invalid syntax (<string>, line 1)Traceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\cs_evaluate.py", line 20, in evalWithDict
+    return eval(string,globals(),varDict)
+  File "<string>", line 1
+    Readout hyperfine frequency
+                    ^
+SyntaxError: invalid syntax
+
+
+2014/02/23 17:03:58 MainThread cs_evaluate WARNING evaluating property frequency, [MHz], 0
+Could not eval string: Readouthyperfine frequency
+unexpected EOF while parsing (<string>, line 1)Traceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\cs_evaluate.py", line 20, in evalWithDict
+    return eval(string,globals(),varDict)
+  File "<string>", line 1
+    Readouthyperfine frequency
+                             ^
+SyntaxError: unexpected EOF while parsing
+
+
+2014/02/23 17:03:59 MainThread cs_evaluate WARNING evaluating property frequency, [MHz], 0
+Could not eval string: Readout_hyperfine frequency
+unexpected EOF while parsing (<string>, line 1)Traceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\cs_evaluate.py", line 20, in evalWithDict
+    return eval(string,globals(),varDict)
+  File "<string>", line 1
+    Readout_hyperfine frequency
+                              ^
+SyntaxError: unexpected EOF while parsing
+
+
+2014/02/23 17:04:01 MainThread cs_evaluate WARNING evaluating property frequency, [MHz], 0
+Could not eval string: Readout_hyperfinefrequency
+name 'Readout_hyperfinefrequency' is not definedTraceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\cs_evaluate.py", line 20, in evalWithDict
+    return eval(string,globals(),varDict)
+  File "<string>", line 1, in <module>
+NameError: name 'Readout_hyperfinefrequency' is not defined
+
+
+2014/02/23 17:04:07 MainThread cs_evaluate WARNING evaluating property amplitude, [dBm], 0
+Could not eval string: Readout hyperfine power
+invalid syntax (<string>, line 1)Traceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\cs_evaluate.py", line 20, in evalWithDict
+    return eval(string,globals(),varDict)
+  File "<string>", line 1
+    Readout hyperfine power
+                    ^
+SyntaxError: invalid syntax
+
+
+2014/02/23 17:04:09 MainThread cs_evaluate WARNING evaluating property amplitude, [dBm], 0
+Could not eval string: Readouthyperfine power
+unexpected EOF while parsing (<string>, line 1)Traceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\cs_evaluate.py", line 20, in evalWithDict
+    return eval(string,globals(),varDict)
+  File "<string>", line 1
+    Readouthyperfine power
+                         ^
+SyntaxError: unexpected EOF while parsing
+
+
+2014/02/23 17:04:09 MainThread cs_evaluate WARNING evaluating property amplitude, [dBm], 0
+Could not eval string: Readout_hyperfine power
+unexpected EOF while parsing (<string>, line 1)Traceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\cs_evaluate.py", line 20, in evalWithDict
+    return eval(string,globals(),varDict)
+  File "<string>", line 1
+    Readout_hyperfine power
+                          ^
+SyntaxError: unexpected EOF while parsing
+
+
+2014/02/23 17:04:12 MainThread cs_evaluate WARNING evaluating property amplitude, [dBm], 0
+Could not eval string: Readout_hyperfinepower
+name 'Readout_hyperfinepower' is not definedTraceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\cs_evaluate.py", line 20, in evalWithDict
+    return eval(string,globals(),varDict)
+  File "<string>", line 1, in <module>
+NameError: name 'Readout_hyperfinepower' is not defined
+
+
+2014/02/23 17:04:38 MainThread cs_evaluate WARNING evaluating property amplitude, [dBm], 0
+Could not eval string: -
+unexpected EOF while parsing (<string>, line 1)Traceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\cs_evaluate.py", line 20, in evalWithDict
+    return eval(string,globals(),varDict)
+  File "<string>", line 1
+    -
+    ^
+SyntaxError: unexpected EOF while parsing
+
+
+2014/02/23 17:04:50 MainThread cs_evaluate WARNING evaluating property amplitude, [dBm], 0
+Could not eval string: -
+unexpected EOF while parsing (<string>, line 1)Traceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\cs_evaluate.py", line 20, in evalWithDict
+    return eval(string,globals(),varDict)
+  File "<string>", line 1
+    -
+    ^
+SyntaxError: unexpected EOF while parsing
+
+
+2014/02/23 17:05:19 MainThread cs_evaluate WARNING evaluating property amplitude, [dBm], 0
+Could not eval string: -
+unexpected EOF while parsing (<string>, line 1)Traceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\cs_evaluate.py", line 20, in evalWithDict
+    return eval(string,globals(),varDict)
+  File "<string>", line 1
+    -
+    ^
+SyntaxError: unexpected EOF while parsing
+
+
+2014/02/23 17:05:29 MainThread cs_evaluate WARNING evaluating property amplitude, [dBm], 0
+Could not eval string: -
+unexpected EOF while parsing (<string>, line 1)Traceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\cs_evaluate.py", line 20, in evalWithDict
+    return eval(string,globals(),varDict)
+  File "<string>", line 1
+    -
+    ^
+SyntaxError: unexpected EOF while parsing
+
+
+2014/02/23 17:05:55 MainThread cs_evaluate WARNING evaluating property frequency, [MHz], 0
+Could not eval string: MOT frequency
+unexpected EOF while parsing (<string>, line 1)Traceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\cs_evaluate.py", line 20, in evalWithDict
+    return eval(string,globals(),varDict)
+  File "<string>", line 1
+    MOT frequency
+                ^
+SyntaxError: unexpected EOF while parsing
+
+
+2014/02/23 17:05:58 MainThread cs_evaluate WARNING evaluating property frequency, [MHz], 0
+Could not eval string: MOTfrequency
+name 'MOTfrequency' is not definedTraceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\cs_evaluate.py", line 20, in evalWithDict
+    return eval(string,globals(),varDict)
+  File "<string>", line 1, in <module>
+NameError: name 'MOTfrequency' is not defined
+
+
+2014/02/23 17:06:04 MainThread cs_evaluate WARNING evaluating property amplitude, [dBm], 0
+Could not eval string: MOT power
+unexpected EOF while parsing (<string>, line 1)Traceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\cs_evaluate.py", line 20, in evalWithDict
+    return eval(string,globals(),varDict)
+  File "<string>", line 1
+    MOT power
+            ^
+SyntaxError: unexpected EOF while parsing
+
+
+2014/02/23 17:06:08 MainThread cs_evaluate WARNING evaluating property amplitude, [dBm], 0
+Could not eval string: MOTpower
+name 'MOTpower' is not definedTraceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\cs_evaluate.py", line 20, in evalWithDict
+    return eval(string,globals(),varDict)
+  File "<string>", line 1, in <module>
+NameError: name 'MOTpower' is not defined
+
+
+2014/02/23 17:06:31 MainThread cs_evaluate WARNING evaluating property frequency, [MHz], 0
+Could not eval string: PGC 1 frequency
+invalid syntax (<string>, line 1)Traceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\cs_evaluate.py", line 20, in evalWithDict
+    return eval(string,globals(),varDict)
+  File "<string>", line 1
+    PGC 1 frequency
+        ^
+SyntaxError: invalid syntax
+
+
+2014/02/23 17:06:33 MainThread cs_evaluate WARNING evaluating property frequency, [MHz], 0
+Could not eval string: PGC1 frequency
+unexpected EOF while parsing (<string>, line 1)Traceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\cs_evaluate.py", line 20, in evalWithDict
+    return eval(string,globals(),varDict)
+  File "<string>", line 1
+    PGC1 frequency
+                 ^
+SyntaxError: unexpected EOF while parsing
+
+
+2014/02/23 17:06:33 MainThread cs_evaluate WARNING evaluating property frequency, [MHz], 0
+Could not eval string: PGC_1 frequency
+unexpected EOF while parsing (<string>, line 1)Traceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\cs_evaluate.py", line 20, in evalWithDict
+    return eval(string,globals(),varDict)
+  File "<string>", line 1
+    PGC_1 frequency
+                  ^
+SyntaxError: unexpected EOF while parsing
+
+
+2014/02/23 17:06:35 MainThread cs_evaluate WARNING evaluating property frequency, [MHz], 0
+Could not eval string: PGC_1frequency
+name 'PGC_1frequency' is not definedTraceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\cs_evaluate.py", line 20, in evalWithDict
+    return eval(string,globals(),varDict)
+  File "<string>", line 1, in <module>
+NameError: name 'PGC_1frequency' is not defined
+
+
+2014/02/23 17:06:47 MainThread cs_evaluate WARNING evaluating property amplitude, [dBm], 0
+Could not eval string: PGC 1 power
+invalid syntax (<string>, line 1)Traceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\cs_evaluate.py", line 20, in evalWithDict
+    return eval(string,globals(),varDict)
+  File "<string>", line 1
+    PGC 1 power
+        ^
+SyntaxError: invalid syntax
+
+
+2014/02/23 17:06:49 MainThread cs_evaluate WARNING evaluating property amplitude, [dBm], 0
+Could not eval string: PGC1 power
+unexpected EOF while parsing (<string>, line 1)Traceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\cs_evaluate.py", line 20, in evalWithDict
+    return eval(string,globals(),varDict)
+  File "<string>", line 1
+    PGC1 power
+             ^
+SyntaxError: unexpected EOF while parsing
+
+
+2014/02/23 17:06:50 MainThread cs_evaluate WARNING evaluating property amplitude, [dBm], 0
+Could not eval string: PGC_1 power
+unexpected EOF while parsing (<string>, line 1)Traceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\cs_evaluate.py", line 20, in evalWithDict
+    return eval(string,globals(),varDict)
+  File "<string>", line 1
+    PGC_1 power
+              ^
+SyntaxError: unexpected EOF while parsing
+
+
+2014/02/23 17:06:50 MainThread cs_evaluate WARNING evaluating property amplitude, [dBm], 0
+Could not eval string: PGC_1power
+name 'PGC_1power' is not definedTraceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\cs_evaluate.py", line 20, in evalWithDict
+    return eval(string,globals(),varDict)
+  File "<string>", line 1, in <module>
+NameError: name 'PGC_1power' is not defined
+
+
+2014/02/23 17:07:05 MainThread cs_evaluate WARNING evaluating property amplitude, [dBm], 0
+Could not eval string: -
+unexpected EOF while parsing (<string>, line 1)Traceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\cs_evaluate.py", line 20, in evalWithDict
+    return eval(string,globals(),varDict)
+  File "<string>", line 1
+    -
+    ^
+SyntaxError: unexpected EOF while parsing
+
+
+2014/02/23 17:07:37 MainThread cs_evaluate WARNING evaluating property frequency, [MHz], 0
+Could not eval string: Readout frequency
+unexpected EOF while parsing (<string>, line 1)Traceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\cs_evaluate.py", line 20, in evalWithDict
+    return eval(string,globals(),varDict)
+  File "<string>", line 1
+    Readout frequency
+                    ^
+SyntaxError: unexpected EOF while parsing
+
+
+2014/02/23 17:07:39 MainThread cs_evaluate WARNING evaluating property frequency, [MHz], 0
+Could not eval string: Readoutfrequency
+name 'Readoutfrequency' is not definedTraceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\cs_evaluate.py", line 20, in evalWithDict
+    return eval(string,globals(),varDict)
+  File "<string>", line 1, in <module>
+NameError: name 'Readoutfrequency' is not defined
+
+
+2014/02/23 17:07:44 MainThread cs_evaluate WARNING evaluating property amplitude, [dBm], 0
+Could not eval string: Readout Power
+unexpected EOF while parsing (<string>, line 1)Traceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\cs_evaluate.py", line 20, in evalWithDict
+    return eval(string,globals(),varDict)
+  File "<string>", line 1
+    Readout Power
+                ^
+SyntaxError: unexpected EOF while parsing
+
+
+2014/02/23 17:07:46 MainThread cs_evaluate WARNING evaluating property amplitude, [dBm], 0
+Could not eval string: ReadoutPower
+name 'ReadoutPower' is not definedTraceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\cs_evaluate.py", line 20, in evalWithDict
+    return eval(string,globals(),varDict)
+  File "<string>", line 1, in <module>
+NameError: name 'ReadoutPower' is not defined
+
+
+2014/02/23 17:07:47 MainThread cs_evaluate WARNING evaluating property amplitude, [dBm], 0
+Could not eval string: Readout_ower
+name 'Readout_ower' is not definedTraceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\cs_evaluate.py", line 20, in evalWithDict
+    return eval(string,globals(),varDict)
+  File "<string>", line 1, in <module>
+NameError: name 'Readout_ower' is not defined
+
+
+2014/02/23 17:07:48 MainThread cs_evaluate WARNING evaluating property amplitude, [dBm], 0
+Could not eval string: Readout_power
+name 'Readout_power' is not definedTraceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\cs_evaluate.py", line 20, in evalWithDict
+    return eval(string,globals(),varDict)
+  File "<string>", line 1, in <module>
+NameError: name 'Readout_power' is not defined
+
+
+2014/02/23 17:07:49 MainThread cs_evaluate WARNING evaluating property amplitude, [dBm], 0
+Could not eval string: Readout_power
+name 'Readout_power' is not definedTraceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\cs_evaluate.py", line 20, in evalWithDict
+    return eval(string,globals(),varDict)
+  File "<string>", line 1, in <module>
+NameError: name 'Readout_power' is not defined
+
+
+2014/02/23 17:07:49 MainThread cs_evaluate WARNING evaluating property amplitude, [dBm], 0
+Could not eval string: Readout_power
+name 'Readout_power' is not definedTraceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\cs_evaluate.py", line 20, in evalWithDict
+    return eval(string,globals(),varDict)
+  File "<string>", line 1, in <module>
+NameError: name 'Readout_power' is not defined
+
+
+2014/02/23 17:07:52 MainThread cs_evaluate WARNING evaluating property amplitude, [dBm], 0
+Could not eval string: Readout_ower
+name 'Readout_ower' is not definedTraceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\cs_evaluate.py", line 20, in evalWithDict
+    return eval(string,globals(),varDict)
+  File "<string>", line 1, in <module>
+NameError: name 'Readout_ower' is not defined
+
+
+2014/02/23 17:07:54 MainThread cs_evaluate WARNING evaluating property amplitude, [dBm], 0
+Could not eval string: Readout_ower
+name 'Readout_ower' is not definedTraceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\cs_evaluate.py", line 20, in evalWithDict
+    return eval(string,globals(),varDict)
+  File "<string>", line 1, in <module>
+NameError: name 'Readout_ower' is not defined
+
+
+2014/02/23 17:07:54 MainThread cs_evaluate WARNING evaluating property amplitude, [dBm], 0
+Could not eval string: Readout_power
+name 'Readout_power' is not definedTraceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\cs_evaluate.py", line 20, in evalWithDict
+    return eval(string,globals(),varDict)
+  File "<string>", line 1, in <module>
+NameError: name 'Readout_power' is not defined
+
+
+2014/02/23 17:08:00 MainThread cs_evaluate WARNING evaluating property amplitude, [dBm], 0
+Could not eval string: Readout_power
+name 'Readout_power' is not definedTraceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\cs_evaluate.py", line 20, in evalWithDict
+    return eval(string,globals(),varDict)
+  File "<string>", line 1, in <module>
+NameError: name 'Readout_power' is not defined
+
+
+2014/02/23 17:08:00 MainThread cs_evaluate WARNING evaluating property amplitude, [dBm], 0
+Could not eval string: Readout_power
+name 'Readout_power' is not definedTraceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\cs_evaluate.py", line 20, in evalWithDict
+    return eval(string,globals(),varDict)
+  File "<string>", line 1, in <module>
+NameError: name 'Readout_power' is not defined
+
+
+2014/02/23 17:08:25 MainThread cs_evaluate WARNING evaluating property amplitude, [dBm], 0
+Could not eval string: Readout_ower
+name 'Readout_ower' is not definedTraceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\cs_evaluate.py", line 20, in evalWithDict
+    return eval(string,globals(),varDict)
+  File "<string>", line 1, in <module>
+NameError: name 'Readout_ower' is not defined
+
+
+2014/02/23 17:08:25 MainThread cs_evaluate WARNING evaluating property amplitude, [dBm], 0
+Could not eval string: Readout_power
+name 'Readout_power' is not definedTraceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\cs_evaluate.py", line 20, in evalWithDict
+    return eval(string,globals(),varDict)
+  File "<string>", line 1, in <module>
+NameError: name 'Readout_power' is not defined
+
+
+2014/02/23 17:08:28 MainThread cs_evaluate WARNING evaluating property amplitude, [dBm], 0
+Could not eval string: Readout_power
+name 'Readout_power' is not definedTraceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\cs_evaluate.py", line 20, in evalWithDict
+    return eval(string,globals(),varDict)
+  File "<string>", line 1, in <module>
+NameError: name 'Readout_power' is not defined
+
+
+2014/02/23 17:08:28 MainThread cs_evaluate WARNING evaluating property amplitude, [dBm], 0
+Could not eval string: Readout_power
+name 'Readout_power' is not definedTraceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\cs_evaluate.py", line 20, in evalWithDict
+    return eval(string,globals(),varDict)
+  File "<string>", line 1, in <module>
+NameError: name 'Readout_power' is not defined
+
+
+2014/02/23 17:08:38 MainThread cs_evaluate WARNING evaluating property amplitude, [dBm], 0
+Could not eval string: Readout_ower
+name 'Readout_ower' is not definedTraceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\cs_evaluate.py", line 20, in evalWithDict
+    return eval(string,globals(),varDict)
+  File "<string>", line 1, in <module>
+NameError: name 'Readout_ower' is not defined
+
+
+2014/02/23 17:08:38 MainThread cs_evaluate WARNING evaluating property amplitude, [dBm], 0
+Could not eval string: Readout_ower
+name 'Readout_ower' is not definedTraceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\cs_evaluate.py", line 20, in evalWithDict
+    return eval(string,globals(),varDict)
+  File "<string>", line 1, in <module>
+NameError: name 'Readout_ower' is not defined
+
+
+2014/02/23 17:08:38 MainThread cs_evaluate WARNING evaluating property amplitude, [dBm], 0
+Could not eval string: Readout_ower
+name 'Readout_ower' is not definedTraceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\cs_evaluate.py", line 20, in evalWithDict
+    return eval(string,globals(),varDict)
+  File "<string>", line 1, in <module>
+NameError: name 'Readout_ower' is not defined
+
+
+2014/02/23 17:09:25 MainThread cs_evaluate WARNING evaluating property frequency, [MHz], 0
+Could not eval string: PGC 2 frequency
+invalid syntax (<string>, line 1)Traceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\cs_evaluate.py", line 20, in evalWithDict
+    return eval(string,globals(),varDict)
+  File "<string>", line 1
+    PGC 2 frequency
+        ^
+SyntaxError: invalid syntax
+
+
+2014/02/23 17:09:27 MainThread cs_evaluate WARNING evaluating property frequency, [MHz], 0
+Could not eval string: PGC 2frequency
+invalid syntax (<string>, line 1)Traceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\cs_evaluate.py", line 20, in evalWithDict
+    return eval(string,globals(),varDict)
+  File "<string>", line 1
+    PGC 2frequency
+        ^
+SyntaxError: invalid syntax
+
+
+2014/02/23 17:09:27 MainThread cs_evaluate WARNING evaluating property frequency, [MHz], 0
+Could not eval string: PGC 2_frequency
+invalid syntax (<string>, line 1)Traceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\cs_evaluate.py", line 20, in evalWithDict
+    return eval(string,globals(),varDict)
+  File "<string>", line 1
+    PGC 2_frequency
+        ^
+SyntaxError: invalid syntax
+
+
+2014/02/23 17:09:28 MainThread cs_evaluate WARNING evaluating property frequency, [MHz], 0
+Could not eval string: PGC2_frequency
+name 'PGC2_frequency' is not definedTraceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\cs_evaluate.py", line 20, in evalWithDict
+    return eval(string,globals(),varDict)
+  File "<string>", line 1, in <module>
+NameError: name 'PGC2_frequency' is not defined
+
+
+2014/02/23 17:09:35 MainThread cs_evaluate WARNING evaluating property amplitude, [dBm], 0
+Could not eval string: PGC 2 power
+invalid syntax (<string>, line 1)Traceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\cs_evaluate.py", line 20, in evalWithDict
+    return eval(string,globals(),varDict)
+  File "<string>", line 1
+    PGC 2 power
+        ^
+SyntaxError: invalid syntax
+
+
+2014/02/23 17:09:38 MainThread cs_evaluate WARNING evaluating property amplitude, [dBm], 0
+Could not eval string: PGC2 power
+unexpected EOF while parsing (<string>, line 1)Traceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\cs_evaluate.py", line 20, in evalWithDict
+    return eval(string,globals(),varDict)
+  File "<string>", line 1
+    PGC2 power
+             ^
+SyntaxError: unexpected EOF while parsing
+
+
+2014/02/23 17:09:38 MainThread cs_evaluate WARNING evaluating property amplitude, [dBm], 0
+Could not eval string: PGC_2 power
+unexpected EOF while parsing (<string>, line 1)Traceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\cs_evaluate.py", line 20, in evalWithDict
+    return eval(string,globals(),varDict)
+  File "<string>", line 1
+    PGC_2 power
+              ^
+SyntaxError: unexpected EOF while parsing
+
+
+2014/02/23 17:09:39 MainThread cs_evaluate WARNING evaluating property amplitude, [dBm], 0
+Could not eval string: PGC_2power
+name 'PGC_2power' is not definedTraceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\cs_evaluate.py", line 20, in evalWithDict
+    return eval(string,globals(),varDict)
+  File "<string>", line 1, in <module>
+NameError: name 'PGC_2power' is not defined
+
+
+2014/02/23 17:09:55 MainThread cs_evaluate WARNING evaluating property amplitude, [dBm], 0
+Could not eval string: -
+unexpected EOF while parsing (<string>, line 1)Traceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\cs_evaluate.py", line 20, in evalWithDict
+    return eval(string,globals(),varDict)
+  File "<string>", line 1
+    -
+    ^
+SyntaxError: unexpected EOF while parsing
+
+
+2014/02/23 17:10:08 MainThread cs_evaluate WARNING evaluating property frequency, [MHz], 0
+Could not eval string: PGC 2 frequency
+invalid syntax (<string>, line 1)Traceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\cs_evaluate.py", line 20, in evalWithDict
+    return eval(string,globals(),varDict)
+  File "<string>", line 1
+    PGC 2 frequency
+        ^
+SyntaxError: invalid syntax
+
+
+2014/02/23 17:10:14 MainThread cs_evaluate WARNING evaluating property frequency, [MHz], 0
+Could not eval string: PGC2 frequency
+unexpected EOF while parsing (<string>, line 1)Traceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\cs_evaluate.py", line 20, in evalWithDict
+    return eval(string,globals(),varDict)
+  File "<string>", line 1
+    PGC2 frequency
+                 ^
+SyntaxError: unexpected EOF while parsing
+
+
+2014/02/23 17:10:15 MainThread cs_evaluate WARNING evaluating property frequency, [MHz], 0
+Could not eval string: PGC_2 frequency
+unexpected EOF while parsing (<string>, line 1)Traceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\cs_evaluate.py", line 20, in evalWithDict
+    return eval(string,globals(),varDict)
+  File "<string>", line 1
+    PGC_2 frequency
+                  ^
+SyntaxError: unexpected EOF while parsing
+
+
+2014/02/23 17:10:16 MainThread cs_evaluate WARNING evaluating property frequency, [MHz], 0
+Could not eval string: PGC_2frequency
+name 'PGC_2frequency' is not definedTraceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\cs_evaluate.py", line 20, in evalWithDict
+    return eval(string,globals(),varDict)
+  File "<string>", line 1, in <module>
+NameError: name 'PGC_2frequency' is not defined
+
+
+2014/02/23 17:10:21 MainThread cs_evaluate WARNING evaluating property amplitude, [dBm], 0
+Could not eval string: PGC 2 power
+invalid syntax (<string>, line 1)Traceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\cs_evaluate.py", line 20, in evalWithDict
+    return eval(string,globals(),varDict)
+  File "<string>", line 1
+    PGC 2 power
+        ^
+SyntaxError: invalid syntax
+
+
+2014/02/23 17:10:23 MainThread cs_evaluate WARNING evaluating property amplitude, [dBm], 0
+Could not eval string: PGC2 power
+unexpected EOF while parsing (<string>, line 1)Traceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\cs_evaluate.py", line 20, in evalWithDict
+    return eval(string,globals(),varDict)
+  File "<string>", line 1
+    PGC2 power
+             ^
+SyntaxError: unexpected EOF while parsing
+
+
+2014/02/23 17:10:23 MainThread cs_evaluate WARNING evaluating property amplitude, [dBm], 0
+Could not eval string: PGC_2 power
+unexpected EOF while parsing (<string>, line 1)Traceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\cs_evaluate.py", line 20, in evalWithDict
+    return eval(string,globals(),varDict)
+  File "<string>", line 1
+    PGC_2 power
+              ^
+SyntaxError: unexpected EOF while parsing
+
+
+2014/02/23 17:10:24 MainThread cs_evaluate WARNING evaluating property amplitude, [dBm], 0
+Could not eval string: PGC_2power
+name 'PGC_2power' is not definedTraceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\cs_evaluate.py", line 20, in evalWithDict
+    return eval(string,globals(),varDict)
+  File "<string>", line 1, in <module>
+NameError: name 'PGC_2power' is not defined
+
+
+2014/02/23 17:10:44 MainThread cs_evaluate WARNING evaluating property amplitude, [dBm], 0
+Could not eval string: -
+unexpected EOF while parsing (<string>, line 1)Traceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\cs_evaluate.py", line 20, in evalWithDict
+    return eval(string,globals(),varDict)
+  File "<string>", line 1
+    -
+    ^
+SyntaxError: unexpected EOF while parsing
+
+
+2014/02/23 17:11:19 MainThread cs_evaluate WARNING evaluating property amplitude, [dBm], 0
+Could not eval string: -
+unexpected EOF while parsing (<string>, line 1)Traceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\cs_evaluate.py", line 20, in evalWithDict
+    return eval(string,globals(),varDict)
+  File "<string>", line 1
+    -
+    ^
+SyntaxError: unexpected EOF while parsing
+
+
+2014/02/23 17:11:38 MainThread cs_evaluate WARNING evaluating property amplitude, [dBm], 0
+Could not eval string: -
+unexpected EOF while parsing (<string>, line 1)Traceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\cs_evaluate.py", line 20, in evalWithDict
+    return eval(string,globals(),varDict)
+  File "<string>", line 1
+    -
+    ^
+SyntaxError: unexpected EOF while parsing
+
+
+2014/02/23 17:12:35 MainThread instrument_property WARNING Exception in EvalProp.evaluate() in clockRate.
+description: 
+function: 100*kilo
+float division by zero
+
+2014/02/23 17:12:35 MainThread instrument_property WARNING Exception in EvalProp.evaluate() in totalAOTime.
+description: 5 ms total
+function: 5
+float division by zero
+
+2014/02/23 17:12:56 MainThread __main__ INFO starting application
+2014/02/23 17:15:34 MainThread LabView DEBUG LabView.open() opening sock
+2014/02/23 17:15:34 MainThread LabView DEBUG LabView.open() sock opened
+2014/02/23 23:04:47 MainThread instrument_property WARNING Exception in EvalProp.evaluate() in clockRate.
+description: 
+function: 100*kilo
+float division by zero
+
+2014/02/23 23:04:47 MainThread instrument_property WARNING Exception in EvalProp.evaluate() in totalAOTime.
+description: 5 ms total
+function: 5
+float division by zero
+
+2014/02/23 23:05:08 MainThread __main__ INFO starting application
+2014/02/23 23:07:09 MainThread instrument_property WARNING Exception in EvalProp.evaluate() in clockRate.
+description: 
+function: 100*kilo
+float division by zero
+
+2014/02/23 23:07:09 MainThread instrument_property WARNING Exception in EvalProp.evaluate() in totalAOTime.
+description: 5 ms total
+function: 5
+float division by zero
+
+2014/02/23 23:07:30 MainThread __main__ INFO starting application
+2014/02/23 23:21:50 MainThread instrument_property WARNING Exception in EvalProp.evaluate() in clockRate.
+description: 
+function: 100*kilo
+float division by zero
+
+2014/02/23 23:21:50 MainThread instrument_property WARNING Exception in EvalProp.evaluate() in totalAOTime.
+description: 5 ms total
+function: 5
+float division by zero
+
+2014/02/23 23:22:10 MainThread __main__ INFO starting application
+2014/02/23 23:30:54 MainThread instrument_property WARNING Exception in EvalProp.evaluate() in clockRate.
+description: 
+function: 100*kilo
+float division by zero
+
+2014/02/23 23:30:54 MainThread instrument_property WARNING Exception in EvalProp.evaluate() in totalAOTime.
+description: 5 ms total
+function: 5
+float division by zero
+
+2014/02/23 23:30:54 MainThread instrument_property WARNING Evaluating list item 0 channel0 in ListProp.evaluate() in channels.
+'DDSchannel' object has no attribute 'updatePropfileDescriptionList'
+2014/02/23 23:30:54 MainThread instrument_property WARNING Evaluating list item 0 box0 in ListProp.evaluate() in boxes.
+
+2014/02/23 23:30:54 MainThread experiments WARNING PauseError
+2014/02/23 23:31:14 MainThread __main__ INFO starting application
+2014/02/23 23:31:37 MainThread instrument_property WARNING Exception in EvalProp.evaluate() in clockRate.
+description: 
+function: 100*kilo
+float division by zero
+
+2014/02/23 23:31:37 MainThread instrument_property WARNING Exception in EvalProp.evaluate() in totalAOTime.
+description: 5 ms total
+function: 5
+float division by zero
+
+2014/02/23 23:31:57 MainThread __main__ INFO starting application
