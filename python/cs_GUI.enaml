@@ -563,8 +563,11 @@ enamldef Transition(Container):
             waveformContainer.itemToRemove=parent #we can't just do the removing from here because once the GUI reference is gone, we get garbage collected and can't trigger the resetting of constraints
             #remove ourselves from the GUI
             waveformContainer.remove = not waveformContainer.remove #TODO: figure out how to do this with a true callable event, rather than signaling with a changed Bool
-    Form: form:
-        padding=0
+    Field:
+        constraints = [width==150,height==20]
+        placeholder = 'description'
+        text:=transition.description
+    Form:
         Field:
             constraints = [width == 100,height==20]
             placeholder='time'
@@ -575,10 +578,13 @@ enamldef Transition(Container):
             text<<str(transition.time.value)
         Looper:
             iterable<<transition.state
+        #EvalProp:
+            #prop<<loop_item
             Field:
                 constraints = [width == 100,height==20]
                 text:=loop_item.function
-                placeholder=str(loop_index)
+                placeholder=loop_item.placeholder #or perhaps use str(loop_index)
+                validator=prop
                 text::waveform.evaluate()
             Label:
                 constraints = [width == 50,height==20]

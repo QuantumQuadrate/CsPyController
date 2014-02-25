@@ -6191,3 +6191,58 @@ description: the state of channel 0
 function: sin(3)
 The 'value' member on the 'IntProp' object must be of type 'int'. Got object of type 'numpy.float64' instead.
 
+2014/02/24 16:05:10 MainThread instrument_property WARNING Exception in EvalProp.evaluate() in clockRate.
+description: 
+function: 100*kilo
+float division by zero
+
+2014/02/24 16:05:10 MainThread instrument_property WARNING Exception in EvalProp.evaluate() in totalAOTime.
+description: 5 ms total
+function: 5
+float division by zero
+
+2014/02/24 16:05:31 MainThread __main__ INFO starting application
+2014/02/24 16:07:15 MainThread instrument_property WARNING Exception in EvalProp.evaluate() in clockRate.
+description: 
+function: 100*kilo
+float division by zero
+
+2014/02/24 16:07:15 MainThread instrument_property WARNING Exception in EvalProp.evaluate() in totalAOTime.
+description: 5 ms total
+function: 5
+float division by zero
+
+2014/02/24 16:07:35 MainThread __main__ INFO starting application
+2014/02/24 16:11:19 MainThread instrument_property WARNING Exception in EvalProp.evaluate() in clockRate.
+description: 
+function: 100*kilo
+float division by zero
+
+2014/02/24 16:11:19 MainThread instrument_property WARNING Exception in EvalProp.evaluate() in totalAOTime.
+description: 5 ms total
+function: 5
+float division by zero
+
+2014/02/24 16:11:39 MainThread __main__ INFO starting application
+2014/02/24 16:17:02 MainThread instrument_property WARNING Exception in EvalProp.evaluate() in clockRate.
+description: 
+function: 100*kilo
+float division by zero
+
+2014/02/24 16:17:02 MainThread instrument_property WARNING Exception in EvalProp.evaluate() in totalAOTime.
+description: 5 ms total
+function: 5
+float division by zero
+
+2014/02/24 16:17:19 MainThread __main__ INFO starting application
+2014/02/24 16:20:28 MainThread instrument_property WARNING Exception in EvalProp.evaluate() in clockRate.
+description: 
+function: 100*kilo
+float division by zero
+
+2014/02/24 16:20:28 MainThread instrument_property WARNING Exception in EvalProp.evaluate() in totalAOTime.
+description: 5 ms total
+function: 5
+float division by zero
+
+2014/02/24 16:20:50 MainThread __main__ INFO starting application
