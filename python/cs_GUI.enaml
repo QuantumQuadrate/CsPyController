@@ -584,7 +584,7 @@ enamldef Transition(Container):
                 constraints = [width == 100,height==20]
                 text:=loop_item.function
                 placeholder=loop_item.placeholder #or perhaps use str(loop_index)
-                validator=prop
+                validator=loop_item
                 text::waveform.evaluate()
             Label:
                 constraints = [width == 50,height==20]

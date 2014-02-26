@@ -451,9 +451,9 @@ class ListProp(Prop):
         # you may need to override this in a subclass if listElementType.__init__ takes in other things besides name and experiment
         try:
             #so we don't lose our list identity
-            while self.listProperty: #go until the list is empty
-                self.listProperty.pop()
-            self.listProperty+=[self.listElementType(self.listElementName+str(i),self.experiment,**self.listElementKwargs).fromXML(child) for i, child in enumerate(xmlNode)]
+            #while self.listProperty: #go until the list is empty
+            #    self.listProperty.pop()
+            self.listProperty=[self.listElementType(self.listElementName+str(i),self.experiment,**self.listElementKwargs).fromXML(child) for i, child in enumerate(xmlNode)]
         except Exception as e:
             logger.warning('in '+self.name+' in ListProp.fromXML() for xml tag: '+xmlNode.tag+'.\n'+str(e)+'\n'+str(traceback.format_exc())+'\n')
         return self

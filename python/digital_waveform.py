@@ -2,9 +2,9 @@
 
 import numpy
 
-from atom.api import Atom, Range, Member, Bool, Typed
+from atom.api import Atom, Range, Member, Bool, Typed, List
 from enaml.application import deferred_call
-from instrument_property import Prop, BoolProp, IntProp, FloatProp, StrProp, ListProp
+from instrument_property import Prop, BoolProp, IntProp, FloatProp, StrProp, ListProp, EnumProp
 from matplotlib.figure import Figure
 import logging
 logger = logging.getLogger(__name__)
@@ -42,17 +42,18 @@ class Channels(ListProp):
 
 class State(ListProp):
     digitalout=Member()
+    allowedValues=[0,1,5]
     
     def __init__(self,experiment,digitalout):
         super(State,self).__init__('state',experiment,
-            listProperty=[IntProp('channel'+str(i),experiment,'',str(defaultState)) for i in range(digitalout.numChannels)],
-            listElementType=IntProp)
+            listProperty=[EnumProp('channel'+str(i),experiment,'',str(defaultState),allowedValues=self.allowedValues) for i in range(digitalout.numChannels)], #defaultState is a global at the top of the module
+            listElementType=EnumProp,listElementKwargs={'allowedValues':self.allowedValues})
         self.digitalout=digitalout
     
     def fromXML(self,xmlNode):
-        while self.listProperty: #go until the list is empty
-            self.listProperty.pop()
-        self.listProperty+=[IntProp(str(i),self.experiment,'',str(defaultState)).fromXML(child) for i, child in enumerate(xmlNode)]
+        #while self.listProperty: #go until the list is empty
+        #    self.listProperty.pop()
+        self.listProperty=[EnumProp(str(i),self.experiment,'',str(defaultState),allowedValues=self.allowedValues).fromXML(child) for i, child in enumerate(xmlNode)] #defaultState is a global at the top of the module
         return self
 
 class Transition(Prop):
@@ -152,13 +153,13 @@ class Waveform(Prop):
                 timeList=numpy.insert(timeList,0,0,axis=0)
                 stateList=numpy.insert(stateList,0,defaultState,axis=0)
             
-            #remove redundant times
-            i=1
-            while i<len(timeList):
-                if timeList[i-1]==timeList[i]:
-                    timeList=numpy.delete(timeList,i-1,0)
-                    stateList=numpy.delete(stateList,i-1,0)
-                i+=1
+            #remove redundant times ### WHY?
+            #i=1
+            #while i<len(timeList):
+            #    if timeList[i-1]==timeList[i]:
+            #        timeList=numpy.delete(timeList,i-1,0)
+            #        stateList=numpy.delete(stateList,i-1,0)
+            #    i+=1
             
             #resolve 5's
             #set 5's in the first transition to 0

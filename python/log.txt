@@ -6246,3 +6246,3331 @@ function: 5
 float division by zero
 
 2014/02/24 16:20:50 MainThread __main__ INFO starting application
+2014/02/26 11:04:28 MainThread instrument_property WARNING Exception in EvalProp.evaluate() in clockRate.
+description: 
+function: 100*kilo
+float division by zero
+
+2014/02/26 11:04:28 MainThread instrument_property WARNING Exception in EvalProp.evaluate() in totalAOTime.
+description: 5 ms total
+function: 5
+float division by zero
+
+2014/02/26 11:04:50 MainThread __main__ INFO starting application
+2014/02/26 11:06:25 MainThread cs_evaluate WARNING evaluating property time, when this transition happens, q
+Could not eval string: q
+name 'q' is not definedTraceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\cs_evaluate.py", line 20, in evalWithDict
+    return eval(string,globals(),varDict)
+  File "<string>", line 1, in <module>
+NameError: name 'q' is not defined
+
+
+2014/02/26 11:06:25 MainThread cs_evaluate WARNING evaluating property time, when this transition happens, q
+Could not eval string: q
+name 'q' is not definedTraceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\cs_evaluate.py", line 20, in evalWithDict
+    return eval(string,globals(),varDict)
+  File "<string>", line 1, in <module>
+NameError: name 'q' is not defined
+
+
+2014/02/26 11:12:39 MainThread instrument_property WARNING Exception in EvalProp.evaluate() in clockRate.
+description: 
+function: 100*kilo
+float division by zero
+
+2014/02/26 11:12:39 MainThread instrument_property WARNING Exception in EvalProp.evaluate() in totalAOTime.
+description: 5 ms total
+function: 5
+float division by zero
+
+2014/02/26 11:13:01 MainThread __main__ INFO starting application
+2014/02/26 11:13:13 MainThread cs_evaluate WARNING evaluating property time, when this transition happens, q
+Could not eval string: q
+name 'q' is not definedTraceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\cs_evaluate.py", line 20, in evalWithDict
+    return eval(string,globals(),varDict)
+  File "<string>", line 1, in <module>
+NameError: name 'q' is not defined
+
+
+2014/02/26 11:13:13 MainThread cs_evaluate WARNING evaluating property time, when this transition happens, q
+Could not eval string: q
+name 'q' is not definedTraceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\cs_evaluate.py", line 20, in evalWithDict
+    return eval(string,globals(),varDict)
+  File "<string>", line 1, in <module>
+NameError: name 'q' is not defined
+
+
+2014/02/26 11:22:28 MainThread instrument_property WARNING Exception in EvalProp.evaluate() in clockRate.
+description: 
+function: 100*kilo
+float division by zero
+
+2014/02/26 11:22:28 MainThread instrument_property WARNING Exception in EvalProp.evaluate() in totalAOTime.
+description: 5 ms total
+function: 5
+float division by zero
+
+2014/02/26 11:22:51 MainThread __main__ INFO starting application
+2014/02/26 11:24:38 MainThread cs_evaluate WARNING evaluating property channel1, the state of channel 1, 7
+Could not eval string: q
+name 'q' is not definedTraceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\cs_evaluate.py", line 20, in evalWithDict
+    return eval(string,globals(),varDict)
+  File "<string>", line 1, in <module>
+NameError: name 'q' is not defined
+
+
+2014/02/26 11:24:52 MainThread instrument_property WARNING TypeError while evaluating:
+property: channel1
+description: the state of channel 1
+function: 5
+The 'value' member on the 'IntProp' object must be of type 'int'. Got object of type 'numpy.float64' instead.
+
+2014/02/26 11:24:52 MainThread cs_evaluate WARNING evaluating property channel1, the state of channel 1, 5
+Could not eval string: as
+unexpected EOF while parsing (<string>, line 1)Traceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\cs_evaluate.py", line 20, in evalWithDict
+    return eval(string,globals(),varDict)
+  File "<string>", line 1
+    as
+     ^
+SyntaxError: unexpected EOF while parsing
+
+
+2014/02/26 11:24:52 MainThread cs_evaluate WARNING evaluating property channel1, the state of channel 1, 5
+Could not eval string: asd
+name 'asd' is not definedTraceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\cs_evaluate.py", line 20, in evalWithDict
+    return eval(string,globals(),varDict)
+  File "<string>", line 1, in <module>
+NameError: name 'asd' is not defined
+
+
+2014/02/26 11:25:01 MainThread cs_evaluate WARNING evaluating property channel1, the state of channel 1, 5
+Could not eval string: asd
+name 'asd' is not definedTraceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\cs_evaluate.py", line 20, in evalWithDict
+    return eval(string,globals(),varDict)
+  File "<string>", line 1, in <module>
+NameError: name 'asd' is not defined
+
+
+2014/02/26 11:25:01 MainThread cs_evaluate WARNING evaluating property channel1, the state of channel 1, 5
+Could not eval string: asd
+name 'asd' is not definedTraceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\cs_evaluate.py", line 20, in evalWithDict
+    return eval(string,globals(),varDict)
+  File "<string>", line 1, in <module>
+NameError: name 'asd' is not defined
+
+
+2014/02/26 12:07:53 MainThread experiments WARNING Exception while loading experiment variables XML
+global name 'EnumProp' is not defined
+Traceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\experiments.py", line 491, in load
+    self.fromXML(xmlNode)
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\instrument_property.py", line 169, in fromXML
+    var.fromXML(child)
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\instrument_property.py", line 169, in fromXML
+    var.fromXML(child)
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\instrument_property.py", line 169, in fromXML
+    var.fromXML(child)
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\HSDIO.py", line 69, in fromXML
+    self.listProperty+=[Waveform(self.getNextAvailableName(),self.experiment,self.digitalout,waveforms=self).fromXML(child) for child in xmlNode]
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\digital_waveform.py", line 117, in fromXML
+    super(Waveform,self).fromXML(xmlNode)
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\instrument_property.py", line 169, in fromXML
+    var.fromXML(child)
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\digital_waveform.py", line 81, in fromXML
+    self.listProperty+=[Transition(self.experiment,self.digitalout).fromXML(child) for child in xmlNode]
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\digital_waveform.py", line 68, in __init__
+    self.state=State(self.experiment,self.digitalout)
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\digital_waveform.py", line 49, in __init__
+    listProperty=[EnumProp('channel'+str(i),experiment,'',str(defaultState),allowedValues=self.allowedValues) for i in range(digitalout.numChannels)], #defaultState is a global at the top of the module
+NameError: global name 'EnumProp' is not defined
+
+2014/02/26 12:07:53 MainThread instrument_property WARNING Evaluating AnalogOutput in LabView.properties.
+float division by zeroTraceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\instrument_property.py", line 39, in evaluate
+    o.evaluate() #evaluate it
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\AnalogOutput.py", line 135, in evaluate
+    self.timesteps=numpy.arange(0.0,self.totalAOTime.value,1.0/(self.clockRate.value*self.units.value))
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\instrument_property.py", line 194, in call_evaluate
+    self.evaluate()
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\AnalogOutput.py", line 135, in evaluate
+    self.timesteps=numpy.arange(0.0,self.totalAOTime.value,1.0/(self.clockRate.value*self.units.value))
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\instrument_property.py", line 194, in call_evaluate
+    self.evaluate()
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\AnalogOutput.py", line 135, in evaluate
+    self.timesteps=numpy.arange(0.0,self.totalAOTime.value,1.0/(self.clockRate.value*self.units.value))
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\instrument_property.py", line 194, in call_evaluate
+    self.evaluate()
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\AnalogOutput.py", line 135, in evaluate
+    self.timesteps=numpy.arange(0.0,self.totalAOTime.value,1.0/(self.clockRate.value*self.units.value))
+ZeroDivisionError: float division by zero
+
+
+2014/02/26 12:07:53 MainThread experiments WARNING PauseError
+2014/02/26 12:07:55 MainThread __main__ INFO starting application
+2014/02/26 12:08:26 MainThread instrument_property WARNING TypeError while evaluating:
+property: channel0
+description: 
+function: 0
+Attempt to assign 0 to EnumProp channel0 but the only allowed values are: []
+
+2014/02/26 12:08:26 MainThread instrument_property WARNING TypeError while evaluating:
+property: channel1
+description: 
+function: 0
+Attempt to assign 0 to EnumProp channel1 but the only allowed values are: []
+
+2014/02/26 12:08:26 MainThread instrument_property WARNING TypeError while evaluating:
+property: channel2
+description: 
+function: 0
+Attempt to assign 0 to EnumProp channel2 but the only allowed values are: []
+
+2014/02/26 12:08:26 MainThread instrument_property WARNING TypeError while evaluating:
+property: channel3
+description: 
+function: 0
+Attempt to assign 0 to EnumProp channel3 but the only allowed values are: []
+
+2014/02/26 12:08:26 MainThread instrument_property WARNING TypeError while evaluating:
+property: channel4
+description: 
+function: 0
+Attempt to assign 0 to EnumProp channel4 but the only allowed values are: []
+
+2014/02/26 12:08:26 MainThread instrument_property WARNING TypeError while evaluating:
+property: channel5
+description: 
+function: 0
+Attempt to assign 0 to EnumProp channel5 but the only allowed values are: []
+
+2014/02/26 12:08:26 MainThread instrument_property WARNING TypeError while evaluating:
+property: channel6
+description: 
+function: 0
+Attempt to assign 0 to EnumProp channel6 but the only allowed values are: []
+
+2014/02/26 12:08:26 MainThread instrument_property WARNING TypeError while evaluating:
+property: channel7
+description: 
+function: 0
+Attempt to assign 0 to EnumProp channel7 but the only allowed values are: []
+
+2014/02/26 12:08:26 MainThread instrument_property WARNING TypeError while evaluating:
+property: channel8
+description: 
+function: 0
+Attempt to assign 0 to EnumProp channel8 but the only allowed values are: []
+
+2014/02/26 12:08:26 MainThread instrument_property WARNING TypeError while evaluating:
+property: channel9
+description: 
+function: 0
+Attempt to assign 0 to EnumProp channel9 but the only allowed values are: []
+
+2014/02/26 12:08:26 MainThread instrument_property WARNING TypeError while evaluating:
+property: channel10
+description: 
+function: 0
+Attempt to assign 0 to EnumProp channel10 but the only allowed values are: []
+
+2014/02/26 12:08:26 MainThread instrument_property WARNING TypeError while evaluating:
+property: channel11
+description: 
+function: 0
+Attempt to assign 0 to EnumProp channel11 but the only allowed values are: []
+
+2014/02/26 12:08:26 MainThread instrument_property WARNING TypeError while evaluating:
+property: channel12
+description: 
+function: 0
+Attempt to assign 0 to EnumProp channel12 but the only allowed values are: []
+
+2014/02/26 12:08:26 MainThread instrument_property WARNING TypeError while evaluating:
+property: channel13
+description: 
+function: 0
+Attempt to assign 0 to EnumProp channel13 but the only allowed values are: []
+
+2014/02/26 12:08:26 MainThread instrument_property WARNING TypeError while evaluating:
+property: channel14
+description: 
+function: 0
+Attempt to assign 0 to EnumProp channel14 but the only allowed values are: []
+
+2014/02/26 12:08:26 MainThread instrument_property WARNING TypeError while evaluating:
+property: channel15
+description: 
+function: 0
+Attempt to assign 0 to EnumProp channel15 but the only allowed values are: []
+
+2014/02/26 12:08:26 MainThread instrument_property WARNING TypeError while evaluating:
+property: channel16
+description: 
+function: 0
+Attempt to assign 0 to EnumProp channel16 but the only allowed values are: []
+
+2014/02/26 12:08:26 MainThread instrument_property WARNING TypeError while evaluating:
+property: channel17
+description: 
+function: 0
+Attempt to assign 0 to EnumProp channel17 but the only allowed values are: []
+
+2014/02/26 12:08:26 MainThread instrument_property WARNING TypeError while evaluating:
+property: channel18
+description: 
+function: 0
+Attempt to assign 0 to EnumProp channel18 but the only allowed values are: []
+
+2014/02/26 12:08:26 MainThread instrument_property WARNING TypeError while evaluating:
+property: channel19
+description: 
+function: 0
+Attempt to assign 0 to EnumProp channel19 but the only allowed values are: []
+
+2014/02/26 12:08:26 MainThread instrument_property WARNING TypeError while evaluating:
+property: channel20
+description: 
+function: 0
+Attempt to assign 0 to EnumProp channel20 but the only allowed values are: []
+
+2014/02/26 12:08:26 MainThread instrument_property WARNING TypeError while evaluating:
+property: channel21
+description: 
+function: 0
+Attempt to assign 0 to EnumProp channel21 but the only allowed values are: []
+
+2014/02/26 12:08:27 MainThread instrument_property WARNING TypeError while evaluating:
+property: channel22
+description: 
+function: 0
+Attempt to assign 0 to EnumProp channel22 but the only allowed values are: []
+
+2014/02/26 12:08:27 MainThread instrument_property WARNING TypeError while evaluating:
+property: channel23
+description: 
+function: 0
+Attempt to assign 0 to EnumProp channel23 but the only allowed values are: []
+
+2014/02/26 12:08:27 MainThread instrument_property WARNING TypeError while evaluating:
+property: channel24
+description: 
+function: 0
+Attempt to assign 0 to EnumProp channel24 but the only allowed values are: []
+
+2014/02/26 12:08:27 MainThread instrument_property WARNING TypeError while evaluating:
+property: channel25
+description: 
+function: 0
+Attempt to assign 0 to EnumProp channel25 but the only allowed values are: []
+
+2014/02/26 12:08:27 MainThread instrument_property WARNING TypeError while evaluating:
+property: channel26
+description: 
+function: 0
+Attempt to assign 0 to EnumProp channel26 but the only allowed values are: []
+
+2014/02/26 12:08:27 MainThread instrument_property WARNING TypeError while evaluating:
+property: channel27
+description: 
+function: 0
+Attempt to assign 0 to EnumProp channel27 but the only allowed values are: []
+
+2014/02/26 12:08:27 MainThread instrument_property WARNING TypeError while evaluating:
+property: channel28
+description: 
+function: 0
+Attempt to assign 0 to EnumProp channel28 but the only allowed values are: []
+
+2014/02/26 12:08:27 MainThread instrument_property WARNING TypeError while evaluating:
+property: channel29
+description: 
+function: 0
+Attempt to assign 0 to EnumProp channel29 but the only allowed values are: []
+
+2014/02/26 12:08:27 MainThread instrument_property WARNING TypeError while evaluating:
+property: channel30
+description: 
+function: 0
+Attempt to assign 0 to EnumProp channel30 but the only allowed values are: []
+
+2014/02/26 12:08:27 MainThread instrument_property WARNING TypeError while evaluating:
+property: channel31
+description: 
+function: 0
+Attempt to assign 0 to EnumProp channel31 but the only allowed values are: []
+
+2014/02/26 12:08:27 MainThread instrument_property WARNING TypeError while evaluating:
+property: 0
+description: 
+function: 0
+Attempt to assign 0 to EnumProp 0 but the only allowed values are: []
+
+2014/02/26 12:08:27 MainThread instrument_property WARNING TypeError while evaluating:
+property: 1
+description: 
+function: 0
+Attempt to assign 0 to EnumProp 1 but the only allowed values are: []
+
+2014/02/26 12:08:27 MainThread instrument_property WARNING TypeError while evaluating:
+property: 2
+description: 
+function: 0
+Attempt to assign 0 to EnumProp 2 but the only allowed values are: []
+
+2014/02/26 12:08:27 MainThread instrument_property WARNING TypeError while evaluating:
+property: channel2
+description: the state of channel 2
+function: 5
+Attempt to assign 5 to EnumProp channel2 but the only allowed values are: []
+
+2014/02/26 12:08:27 MainThread instrument_property WARNING TypeError while evaluating:
+property: 3
+description: 
+function: 0
+Attempt to assign 0 to EnumProp 3 but the only allowed values are: []
+
+2014/02/26 12:08:27 MainThread instrument_property WARNING TypeError while evaluating:
+property: channel3
+description: the state of channel 3
+function: 5
+Attempt to assign 5 to EnumProp channel3 but the only allowed values are: []
+
+2014/02/26 12:08:27 MainThread instrument_property WARNING TypeError while evaluating:
+property: 4
+description: 
+function: 0
+Attempt to assign 0 to EnumProp 4 but the only allowed values are: []
+
+2014/02/26 12:08:27 MainThread instrument_property WARNING TypeError while evaluating:
+property: channel4
+description: the state of channel 4
+function: 5
+Attempt to assign 5 to EnumProp channel4 but the only allowed values are: []
+
+2014/02/26 12:08:27 MainThread instrument_property WARNING TypeError while evaluating:
+property: 5
+description: 
+function: 0
+Attempt to assign 0 to EnumProp 5 but the only allowed values are: []
+
+2014/02/26 12:08:27 MainThread instrument_property WARNING TypeError while evaluating:
+property: channel5
+description: the state of channel 5
+function: 5
+Attempt to assign 5 to EnumProp channel5 but the only allowed values are: []
+
+2014/02/26 12:08:27 MainThread instrument_property WARNING TypeError while evaluating:
+property: 6
+description: 
+function: 0
+Attempt to assign 0 to EnumProp 6 but the only allowed values are: []
+
+2014/02/26 12:08:27 MainThread instrument_property WARNING TypeError while evaluating:
+property: channel6
+description: the state of channel 6
+function: 5
+Attempt to assign 5 to EnumProp channel6 but the only allowed values are: []
+
+2014/02/26 12:08:27 MainThread instrument_property WARNING TypeError while evaluating:
+property: 7
+description: 
+function: 0
+Attempt to assign 0 to EnumProp 7 but the only allowed values are: []
+
+2014/02/26 12:08:27 MainThread instrument_property WARNING TypeError while evaluating:
+property: channel7
+description: the state of channel 7
+function: 5
+Attempt to assign 5 to EnumProp channel7 but the only allowed values are: []
+
+2014/02/26 12:08:27 MainThread instrument_property WARNING TypeError while evaluating:
+property: 8
+description: 
+function: 0
+Attempt to assign 0 to EnumProp 8 but the only allowed values are: []
+
+2014/02/26 12:08:27 MainThread instrument_property WARNING TypeError while evaluating:
+property: channel8
+description: the state of channel 8
+function: 5
+Attempt to assign 5 to EnumProp channel8 but the only allowed values are: []
+
+2014/02/26 12:08:27 MainThread instrument_property WARNING TypeError while evaluating:
+property: 9
+description: 
+function: 0
+Attempt to assign 0 to EnumProp 9 but the only allowed values are: []
+
+2014/02/26 12:08:27 MainThread instrument_property WARNING TypeError while evaluating:
+property: channel9
+description: the state of channel 9
+function: 5
+Attempt to assign 5 to EnumProp channel9 but the only allowed values are: []
+
+2014/02/26 12:08:27 MainThread instrument_property WARNING TypeError while evaluating:
+property: 10
+description: 
+function: 0
+Attempt to assign 0 to EnumProp 10 but the only allowed values are: []
+
+2014/02/26 12:08:27 MainThread instrument_property WARNING TypeError while evaluating:
+property: channel10
+description: the state of channel 10
+function: 5
+Attempt to assign 5 to EnumProp channel10 but the only allowed values are: []
+
+2014/02/26 12:08:27 MainThread instrument_property WARNING TypeError while evaluating:
+property: 11
+description: 
+function: 0
+Attempt to assign 0 to EnumProp 11 but the only allowed values are: []
+
+2014/02/26 12:08:27 MainThread instrument_property WARNING TypeError while evaluating:
+property: channel11
+description: the state of channel 11
+function: 5
+Attempt to assign 5 to EnumProp channel11 but the only allowed values are: []
+
+2014/02/26 12:08:27 MainThread instrument_property WARNING TypeError while evaluating:
+property: 12
+description: 
+function: 0
+Attempt to assign 0 to EnumProp 12 but the only allowed values are: []
+
+2014/02/26 12:08:27 MainThread instrument_property WARNING TypeError while evaluating:
+property: channel12
+description: the state of channel 12
+function: 5
+Attempt to assign 5 to EnumProp channel12 but the only allowed values are: []
+
+2014/02/26 12:08:27 MainThread instrument_property WARNING TypeError while evaluating:
+property: 13
+description: 
+function: 0
+Attempt to assign 0 to EnumProp 13 but the only allowed values are: []
+
+2014/02/26 12:08:27 MainThread instrument_property WARNING TypeError while evaluating:
+property: channel13
+description: the state of channel 13
+function: 5
+Attempt to assign 5 to EnumProp channel13 but the only allowed values are: []
+
+2014/02/26 12:08:27 MainThread instrument_property WARNING TypeError while evaluating:
+property: 14
+description: 
+function: 0
+Attempt to assign 0 to EnumProp 14 but the only allowed values are: []
+
+2014/02/26 12:08:27 MainThread instrument_property WARNING TypeError while evaluating:
+property: channel14
+description: the state of channel 14
+function: 5
+Attempt to assign 5 to EnumProp channel14 but the only allowed values are: []
+
+2014/02/26 12:08:27 MainThread instrument_property WARNING TypeError while evaluating:
+property: 15
+description: 
+function: 0
+Attempt to assign 0 to EnumProp 15 but the only allowed values are: []
+
+2014/02/26 12:08:27 MainThread instrument_property WARNING TypeError while evaluating:
+property: channel15
+description: the state of channel 15
+function: 5
+Attempt to assign 5 to EnumProp channel15 but the only allowed values are: []
+
+2014/02/26 12:08:27 MainThread instrument_property WARNING TypeError while evaluating:
+property: 16
+description: 
+function: 0
+Attempt to assign 0 to EnumProp 16 but the only allowed values are: []
+
+2014/02/26 12:08:27 MainThread instrument_property WARNING TypeError while evaluating:
+property: channel16
+description: the state of channel 16
+function: 5
+Attempt to assign 5 to EnumProp channel16 but the only allowed values are: []
+
+2014/02/26 12:08:27 MainThread instrument_property WARNING TypeError while evaluating:
+property: 17
+description: 
+function: 0
+Attempt to assign 0 to EnumProp 17 but the only allowed values are: []
+
+2014/02/26 12:08:27 MainThread instrument_property WARNING TypeError while evaluating:
+property: channel17
+description: the state of channel 17
+function: 5
+Attempt to assign 5 to EnumProp channel17 but the only allowed values are: []
+
+2014/02/26 12:08:27 MainThread instrument_property WARNING TypeError while evaluating:
+property: 18
+description: 
+function: 0
+Attempt to assign 0 to EnumProp 18 but the only allowed values are: []
+
+2014/02/26 12:08:27 MainThread instrument_property WARNING TypeError while evaluating:
+property: channel18
+description: the state of channel 18
+function: 5
+Attempt to assign 5 to EnumProp channel18 but the only allowed values are: []
+
+2014/02/26 12:08:27 MainThread instrument_property WARNING TypeError while evaluating:
+property: 19
+description: 
+function: 0
+Attempt to assign 0 to EnumProp 19 but the only allowed values are: []
+
+2014/02/26 12:08:27 MainThread instrument_property WARNING TypeError while evaluating:
+property: channel19
+description: the state of channel 19
+function: 5
+Attempt to assign 5 to EnumProp channel19 but the only allowed values are: []
+
+2014/02/26 12:08:27 MainThread instrument_property WARNING TypeError while evaluating:
+property: 20
+description: 
+function: 0
+Attempt to assign 0 to EnumProp 20 but the only allowed values are: []
+
+2014/02/26 12:08:27 MainThread instrument_property WARNING TypeError while evaluating:
+property: channel20
+description: the state of channel 20
+function: 5
+Attempt to assign 5 to EnumProp channel20 but the only allowed values are: []
+
+2014/02/26 12:08:27 MainThread instrument_property WARNING TypeError while evaluating:
+property: 21
+description: 
+function: 0
+Attempt to assign 0 to EnumProp 21 but the only allowed values are: []
+
+2014/02/26 12:08:27 MainThread instrument_property WARNING TypeError while evaluating:
+property: channel21
+description: the state of channel 21
+function: 5
+Attempt to assign 5 to EnumProp channel21 but the only allowed values are: []
+
+2014/02/26 12:08:27 MainThread instrument_property WARNING TypeError while evaluating:
+property: 22
+description: 
+function: 0
+Attempt to assign 0 to EnumProp 22 but the only allowed values are: []
+
+2014/02/26 12:08:27 MainThread instrument_property WARNING TypeError while evaluating:
+property: channel22
+description: the state of channel 22
+function: 5
+Attempt to assign 5 to EnumProp channel22 but the only allowed values are: []
+
+2014/02/26 12:08:27 MainThread instrument_property WARNING TypeError while evaluating:
+property: 23
+description: 
+function: 0
+Attempt to assign 0 to EnumProp 23 but the only allowed values are: []
+
+2014/02/26 12:08:27 MainThread instrument_property WARNING TypeError while evaluating:
+property: channel23
+description: the state of channel 23
+function: 5
+Attempt to assign 5 to EnumProp channel23 but the only allowed values are: []
+
+2014/02/26 12:08:28 MainThread instrument_property WARNING TypeError while evaluating:
+property: 24
+description: 
+function: 0
+Attempt to assign 0 to EnumProp 24 but the only allowed values are: []
+
+2014/02/26 12:08:28 MainThread instrument_property WARNING TypeError while evaluating:
+property: channel24
+description: the state of channel 24
+function: 5
+Attempt to assign 5 to EnumProp channel24 but the only allowed values are: []
+
+2014/02/26 12:08:28 MainThread instrument_property WARNING TypeError while evaluating:
+property: 25
+description: 
+function: 0
+Attempt to assign 0 to EnumProp 25 but the only allowed values are: []
+
+2014/02/26 12:08:28 MainThread instrument_property WARNING TypeError while evaluating:
+property: channel25
+description: the state of channel 25
+function: 5
+Attempt to assign 5 to EnumProp channel25 but the only allowed values are: []
+
+2014/02/26 12:08:28 MainThread instrument_property WARNING TypeError while evaluating:
+property: 26
+description: 
+function: 0
+Attempt to assign 0 to EnumProp 26 but the only allowed values are: []
+
+2014/02/26 12:08:28 MainThread instrument_property WARNING TypeError while evaluating:
+property: channel26
+description: the state of channel 26
+function: 5
+Attempt to assign 5 to EnumProp channel26 but the only allowed values are: []
+
+2014/02/26 12:08:28 MainThread instrument_property WARNING TypeError while evaluating:
+property: 27
+description: 
+function: 0
+Attempt to assign 0 to EnumProp 27 but the only allowed values are: []
+
+2014/02/26 12:08:28 MainThread instrument_property WARNING TypeError while evaluating:
+property: channel27
+description: the state of channel 27
+function: 5
+Attempt to assign 5 to EnumProp channel27 but the only allowed values are: []
+
+2014/02/26 12:08:28 MainThread instrument_property WARNING TypeError while evaluating:
+property: 28
+description: 
+function: 0
+Attempt to assign 0 to EnumProp 28 but the only allowed values are: []
+
+2014/02/26 12:08:28 MainThread instrument_property WARNING TypeError while evaluating:
+property: channel28
+description: the state of channel 28
+function: 5
+Attempt to assign 5 to EnumProp channel28 but the only allowed values are: []
+
+2014/02/26 12:08:28 MainThread instrument_property WARNING TypeError while evaluating:
+property: 29
+description: 
+function: 0
+Attempt to assign 0 to EnumProp 29 but the only allowed values are: []
+
+2014/02/26 12:08:28 MainThread instrument_property WARNING TypeError while evaluating:
+property: channel29
+description: the state of channel 29
+function: 5
+Attempt to assign 5 to EnumProp channel29 but the only allowed values are: []
+
+2014/02/26 12:08:28 MainThread instrument_property WARNING TypeError while evaluating:
+property: 30
+description: 
+function: 0
+Attempt to assign 0 to EnumProp 30 but the only allowed values are: []
+
+2014/02/26 12:08:28 MainThread instrument_property WARNING TypeError while evaluating:
+property: channel30
+description: the state of channel 30
+function: 5
+Attempt to assign 5 to EnumProp channel30 but the only allowed values are: []
+
+2014/02/26 12:08:28 MainThread instrument_property WARNING TypeError while evaluating:
+property: 31
+description: 
+function: 0
+Attempt to assign 0 to EnumProp 31 but the only allowed values are: []
+
+2014/02/26 12:08:28 MainThread instrument_property WARNING TypeError while evaluating:
+property: channel31
+description: the state of channel 31
+function: 5
+Attempt to assign 5 to EnumProp channel31 but the only allowed values are: []
+
+2014/02/26 12:08:28 MainThread instrument_property WARNING TypeError while evaluating:
+property: channel0
+description: 
+function: 0
+Attempt to assign 0 to EnumProp channel0 but the only allowed values are: []
+
+2014/02/26 12:08:28 MainThread instrument_property WARNING TypeError while evaluating:
+property: channel1
+description: 
+function: 0
+Attempt to assign 0 to EnumProp channel1 but the only allowed values are: []
+
+2014/02/26 12:08:28 MainThread instrument_property WARNING TypeError while evaluating:
+property: channel2
+description: 
+function: 0
+Attempt to assign 0 to EnumProp channel2 but the only allowed values are: []
+
+2014/02/26 12:08:28 MainThread instrument_property WARNING TypeError while evaluating:
+property: channel3
+description: 
+function: 0
+Attempt to assign 0 to EnumProp channel3 but the only allowed values are: []
+
+2014/02/26 12:08:28 MainThread instrument_property WARNING TypeError while evaluating:
+property: channel4
+description: 
+function: 0
+Attempt to assign 0 to EnumProp channel4 but the only allowed values are: []
+
+2014/02/26 12:08:28 MainThread instrument_property WARNING TypeError while evaluating:
+property: channel5
+description: 
+function: 0
+Attempt to assign 0 to EnumProp channel5 but the only allowed values are: []
+
+2014/02/26 12:08:28 MainThread instrument_property WARNING TypeError while evaluating:
+property: channel6
+description: 
+function: 0
+Attempt to assign 0 to EnumProp channel6 but the only allowed values are: []
+
+2014/02/26 12:08:28 MainThread instrument_property WARNING TypeError while evaluating:
+property: channel7
+description: 
+function: 0
+Attempt to assign 0 to EnumProp channel7 but the only allowed values are: []
+
+2014/02/26 12:08:28 MainThread instrument_property WARNING TypeError while evaluating:
+property: channel8
+description: 
+function: 0
+Attempt to assign 0 to EnumProp channel8 but the only allowed values are: []
+
+2014/02/26 12:08:28 MainThread instrument_property WARNING TypeError while evaluating:
+property: channel9
+description: 
+function: 0
+Attempt to assign 0 to EnumProp channel9 but the only allowed values are: []
+
+2014/02/26 12:08:28 MainThread instrument_property WARNING TypeError while evaluating:
+property: channel10
+description: 
+function: 0
+Attempt to assign 0 to EnumProp channel10 but the only allowed values are: []
+
+2014/02/26 12:08:28 MainThread instrument_property WARNING TypeError while evaluating:
+property: channel11
+description: 
+function: 0
+Attempt to assign 0 to EnumProp channel11 but the only allowed values are: []
+
+2014/02/26 12:08:28 MainThread instrument_property WARNING TypeError while evaluating:
+property: channel12
+description: 
+function: 0
+Attempt to assign 0 to EnumProp channel12 but the only allowed values are: []
+
+2014/02/26 12:08:28 MainThread instrument_property WARNING TypeError while evaluating:
+property: channel13
+description: 
+function: 0
+Attempt to assign 0 to EnumProp channel13 but the only allowed values are: []
+
+2014/02/26 12:08:28 MainThread instrument_property WARNING TypeError while evaluating:
+property: channel14
+description: 
+function: 0
+Attempt to assign 0 to EnumProp channel14 but the only allowed values are: []
+
+2014/02/26 12:08:28 MainThread instrument_property WARNING TypeError while evaluating:
+property: channel15
+description: 
+function: 0
+Attempt to assign 0 to EnumProp channel15 but the only allowed values are: []
+
+2014/02/26 12:08:28 MainThread instrument_property WARNING TypeError while evaluating:
+property: channel16
+description: 
+function: 0
+Attempt to assign 0 to EnumProp channel16 but the only allowed values are: []
+
+2014/02/26 12:08:28 MainThread instrument_property WARNING TypeError while evaluating:
+property: channel17
+description: 
+function: 0
+Attempt to assign 0 to EnumProp channel17 but the only allowed values are: []
+
+2014/02/26 12:08:28 MainThread instrument_property WARNING TypeError while evaluating:
+property: channel18
+description: 
+function: 0
+Attempt to assign 0 to EnumProp channel18 but the only allowed values are: []
+
+2014/02/26 12:08:28 MainThread instrument_property WARNING TypeError while evaluating:
+property: channel19
+description: 
+function: 0
+Attempt to assign 0 to EnumProp channel19 but the only allowed values are: []
+
+2014/02/26 12:08:28 MainThread instrument_property WARNING TypeError while evaluating:
+property: channel20
+description: 
+function: 0
+Attempt to assign 0 to EnumProp channel20 but the only allowed values are: []
+
+2014/02/26 12:08:28 MainThread instrument_property WARNING TypeError while evaluating:
+property: channel21
+description: 
+function: 0
+Attempt to assign 0 to EnumProp channel21 but the only allowed values are: []
+
+2014/02/26 12:08:28 MainThread instrument_property WARNING TypeError while evaluating:
+property: channel22
+description: 
+function: 0
+Attempt to assign 0 to EnumProp channel22 but the only allowed values are: []
+
+2014/02/26 12:08:28 MainThread instrument_property WARNING TypeError while evaluating:
+property: channel23
+description: 
+function: 0
+Attempt to assign 0 to EnumProp channel23 but the only allowed values are: []
+
+2014/02/26 12:08:28 MainThread instrument_property WARNING TypeError while evaluating:
+property: channel24
+description: 
+function: 0
+Attempt to assign 0 to EnumProp channel24 but the only allowed values are: []
+
+2014/02/26 12:08:28 MainThread instrument_property WARNING TypeError while evaluating:
+property: channel25
+description: 
+function: 0
+Attempt to assign 0 to EnumProp channel25 but the only allowed values are: []
+
+2014/02/26 12:08:28 MainThread instrument_property WARNING TypeError while evaluating:
+property: channel26
+description: 
+function: 0
+Attempt to assign 0 to EnumProp channel26 but the only allowed values are: []
+
+2014/02/26 12:08:28 MainThread instrument_property WARNING TypeError while evaluating:
+property: channel27
+description: 
+function: 0
+Attempt to assign 0 to EnumProp channel27 but the only allowed values are: []
+
+2014/02/26 12:08:28 MainThread instrument_property WARNING TypeError while evaluating:
+property: channel28
+description: 
+function: 0
+Attempt to assign 0 to EnumProp channel28 but the only allowed values are: []
+
+2014/02/26 12:08:28 MainThread instrument_property WARNING TypeError while evaluating:
+property: channel29
+description: 
+function: 0
+Attempt to assign 0 to EnumProp channel29 but the only allowed values are: []
+
+2014/02/26 12:08:28 MainThread instrument_property WARNING TypeError while evaluating:
+property: channel30
+description: 
+function: 0
+Attempt to assign 0 to EnumProp channel30 but the only allowed values are: []
+
+2014/02/26 12:08:28 MainThread instrument_property WARNING TypeError while evaluating:
+property: channel31
+description: 
+function: 0
+Attempt to assign 0 to EnumProp channel31 but the only allowed values are: []
+
+2014/02/26 12:08:28 MainThread instrument_property WARNING TypeError while evaluating:
+property: 0
+description: 
+function: 0
+Attempt to assign 0 to EnumProp 0 but the only allowed values are: []
+
+2014/02/26 12:08:28 MainThread instrument_property WARNING TypeError while evaluating:
+property: channel0
+description: the state of channel 0
+function: 1
+Attempt to assign 1 to EnumProp channel0 but the only allowed values are: []
+
+2014/02/26 12:08:28 MainThread instrument_property WARNING TypeError while evaluating:
+property: 1
+description: 
+function: 0
+Attempt to assign 0 to EnumProp 1 but the only allowed values are: []
+
+2014/02/26 12:08:28 MainThread instrument_property WARNING TypeError while evaluating:
+property: channel1
+description: the state of channel 1
+function: 5
+Attempt to assign 5 to EnumProp channel1 but the only allowed values are: []
+
+2014/02/26 12:08:28 MainThread instrument_property WARNING TypeError while evaluating:
+property: 2
+description: 
+function: 0
+Attempt to assign 0 to EnumProp 2 but the only allowed values are: []
+
+2014/02/26 12:08:28 MainThread instrument_property WARNING TypeError while evaluating:
+property: channel2
+description: the state of channel 2
+function: 5
+Attempt to assign 5 to EnumProp channel2 but the only allowed values are: []
+
+2014/02/26 12:08:28 MainThread instrument_property WARNING TypeError while evaluating:
+property: 3
+description: 
+function: 0
+Attempt to assign 0 to EnumProp 3 but the only allowed values are: []
+
+2014/02/26 12:08:28 MainThread instrument_property WARNING TypeError while evaluating:
+property: channel3
+description: the state of channel 3
+function: 5
+Attempt to assign 5 to EnumProp channel3 but the only allowed values are: []
+
+2014/02/26 12:08:28 MainThread instrument_property WARNING TypeError while evaluating:
+property: 4
+description: 
+function: 0
+Attempt to assign 0 to EnumProp 4 but the only allowed values are: []
+
+2014/02/26 12:08:28 MainThread instrument_property WARNING TypeError while evaluating:
+property: channel4
+description: the state of channel 4
+function: 5
+Attempt to assign 5 to EnumProp channel4 but the only allowed values are: []
+
+2014/02/26 12:08:28 MainThread instrument_property WARNING TypeError while evaluating:
+property: 5
+description: 
+function: 0
+Attempt to assign 0 to EnumProp 5 but the only allowed values are: []
+
+2014/02/26 12:08:29 MainThread instrument_property WARNING TypeError while evaluating:
+property: channel5
+description: the state of channel 5
+function: 5
+Attempt to assign 5 to EnumProp channel5 but the only allowed values are: []
+
+2014/02/26 12:08:29 MainThread instrument_property WARNING TypeError while evaluating:
+property: 6
+description: 
+function: 0
+Attempt to assign 0 to EnumProp 6 but the only allowed values are: []
+
+2014/02/26 12:08:29 MainThread instrument_property WARNING TypeError while evaluating:
+property: channel6
+description: the state of channel 6
+function: 5
+Attempt to assign 5 to EnumProp channel6 but the only allowed values are: []
+
+2014/02/26 12:08:29 MainThread instrument_property WARNING TypeError while evaluating:
+property: 7
+description: 
+function: 0
+Attempt to assign 0 to EnumProp 7 but the only allowed values are: []
+
+2014/02/26 12:08:29 MainThread instrument_property WARNING TypeError while evaluating:
+property: channel7
+description: the state of channel 7
+function: 5
+Attempt to assign 5 to EnumProp channel7 but the only allowed values are: []
+
+2014/02/26 12:08:29 MainThread instrument_property WARNING TypeError while evaluating:
+property: 8
+description: 
+function: 0
+Attempt to assign 0 to EnumProp 8 but the only allowed values are: []
+
+2014/02/26 12:08:29 MainThread instrument_property WARNING TypeError while evaluating:
+property: channel8
+description: the state of channel 8
+function: 5
+Attempt to assign 5 to EnumProp channel8 but the only allowed values are: []
+
+2014/02/26 12:08:29 MainThread instrument_property WARNING TypeError while evaluating:
+property: 9
+description: 
+function: 0
+Attempt to assign 0 to EnumProp 9 but the only allowed values are: []
+
+2014/02/26 12:08:29 MainThread instrument_property WARNING TypeError while evaluating:
+property: channel9
+description: the state of channel 9
+function: 5
+Attempt to assign 5 to EnumProp channel9 but the only allowed values are: []
+
+2014/02/26 12:08:29 MainThread instrument_property WARNING TypeError while evaluating:
+property: 10
+description: 
+function: 0
+Attempt to assign 0 to EnumProp 10 but the only allowed values are: []
+
+2014/02/26 12:08:29 MainThread instrument_property WARNING TypeError while evaluating:
+property: channel10
+description: the state of channel 10
+function: 5
+Attempt to assign 5 to EnumProp channel10 but the only allowed values are: []
+
+2014/02/26 12:08:29 MainThread instrument_property WARNING TypeError while evaluating:
+property: 11
+description: 
+function: 0
+Attempt to assign 0 to EnumProp 11 but the only allowed values are: []
+
+2014/02/26 12:08:29 MainThread instrument_property WARNING TypeError while evaluating:
+property: channel11
+description: the state of channel 11
+function: 5
+Attempt to assign 5 to EnumProp channel11 but the only allowed values are: []
+
+2014/02/26 12:08:29 MainThread instrument_property WARNING TypeError while evaluating:
+property: 12
+description: 
+function: 0
+Attempt to assign 0 to EnumProp 12 but the only allowed values are: []
+
+2014/02/26 12:08:29 MainThread instrument_property WARNING TypeError while evaluating:
+property: channel12
+description: the state of channel 12
+function: 5
+Attempt to assign 5 to EnumProp channel12 but the only allowed values are: []
+
+2014/02/26 12:08:29 MainThread instrument_property WARNING TypeError while evaluating:
+property: 13
+description: 
+function: 0
+Attempt to assign 0 to EnumProp 13 but the only allowed values are: []
+
+2014/02/26 12:08:29 MainThread instrument_property WARNING TypeError while evaluating:
+property: channel13
+description: the state of channel 13
+function: 5
+Attempt to assign 5 to EnumProp channel13 but the only allowed values are: []
+
+2014/02/26 12:08:29 MainThread instrument_property WARNING TypeError while evaluating:
+property: 14
+description: 
+function: 0
+Attempt to assign 0 to EnumProp 14 but the only allowed values are: []
+
+2014/02/26 12:08:29 MainThread instrument_property WARNING TypeError while evaluating:
+property: channel14
+description: the state of channel 14
+function: 5
+Attempt to assign 5 to EnumProp channel14 but the only allowed values are: []
+
+2014/02/26 12:08:29 MainThread instrument_property WARNING TypeError while evaluating:
+property: 15
+description: 
+function: 0
+Attempt to assign 0 to EnumProp 15 but the only allowed values are: []
+
+2014/02/26 12:08:29 MainThread instrument_property WARNING TypeError while evaluating:
+property: channel15
+description: the state of channel 15
+function: 5
+Attempt to assign 5 to EnumProp channel15 but the only allowed values are: []
+
+2014/02/26 12:08:29 MainThread instrument_property WARNING TypeError while evaluating:
+property: 16
+description: 
+function: 0
+Attempt to assign 0 to EnumProp 16 but the only allowed values are: []
+
+2014/02/26 12:08:29 MainThread instrument_property WARNING TypeError while evaluating:
+property: channel16
+description: the state of channel 16
+function: 5
+Attempt to assign 5 to EnumProp channel16 but the only allowed values are: []
+
+2014/02/26 12:08:29 MainThread instrument_property WARNING TypeError while evaluating:
+property: 17
+description: 
+function: 0
+Attempt to assign 0 to EnumProp 17 but the only allowed values are: []
+
+2014/02/26 12:08:29 MainThread instrument_property WARNING TypeError while evaluating:
+property: channel17
+description: the state of channel 17
+function: 5
+Attempt to assign 5 to EnumProp channel17 but the only allowed values are: []
+
+2014/02/26 12:08:29 MainThread instrument_property WARNING TypeError while evaluating:
+property: 18
+description: 
+function: 0
+Attempt to assign 0 to EnumProp 18 but the only allowed values are: []
+
+2014/02/26 12:08:29 MainThread instrument_property WARNING TypeError while evaluating:
+property: channel18
+description: the state of channel 18
+function: 5
+Attempt to assign 5 to EnumProp channel18 but the only allowed values are: []
+
+2014/02/26 12:08:29 MainThread instrument_property WARNING TypeError while evaluating:
+property: 19
+description: 
+function: 0
+Attempt to assign 0 to EnumProp 19 but the only allowed values are: []
+
+2014/02/26 12:08:29 MainThread instrument_property WARNING TypeError while evaluating:
+property: channel19
+description: the state of channel 19
+function: 5
+Attempt to assign 5 to EnumProp channel19 but the only allowed values are: []
+
+2014/02/26 12:08:29 MainThread instrument_property WARNING TypeError while evaluating:
+property: 20
+description: 
+function: 0
+Attempt to assign 0 to EnumProp 20 but the only allowed values are: []
+
+2014/02/26 12:08:29 MainThread instrument_property WARNING TypeError while evaluating:
+property: channel20
+description: the state of channel 20
+function: 5
+Attempt to assign 5 to EnumProp channel20 but the only allowed values are: []
+
+2014/02/26 12:08:29 MainThread instrument_property WARNING TypeError while evaluating:
+property: 21
+description: 
+function: 0
+Attempt to assign 0 to EnumProp 21 but the only allowed values are: []
+
+2014/02/26 12:08:29 MainThread instrument_property WARNING TypeError while evaluating:
+property: channel21
+description: the state of channel 21
+function: 5
+Attempt to assign 5 to EnumProp channel21 but the only allowed values are: []
+
+2014/02/26 12:08:29 MainThread instrument_property WARNING TypeError while evaluating:
+property: 22
+description: 
+function: 0
+Attempt to assign 0 to EnumProp 22 but the only allowed values are: []
+
+2014/02/26 12:08:29 MainThread instrument_property WARNING TypeError while evaluating:
+property: channel22
+description: the state of channel 22
+function: 5
+Attempt to assign 5 to EnumProp channel22 but the only allowed values are: []
+
+2014/02/26 12:08:29 MainThread instrument_property WARNING TypeError while evaluating:
+property: 23
+description: 
+function: 0
+Attempt to assign 0 to EnumProp 23 but the only allowed values are: []
+
+2014/02/26 12:08:29 MainThread instrument_property WARNING TypeError while evaluating:
+property: channel23
+description: the state of channel 23
+function: 5
+Attempt to assign 5 to EnumProp channel23 but the only allowed values are: []
+
+2014/02/26 12:08:29 MainThread instrument_property WARNING TypeError while evaluating:
+property: 24
+description: 
+function: 0
+Attempt to assign 0 to EnumProp 24 but the only allowed values are: []
+
+2014/02/26 12:08:29 MainThread instrument_property WARNING TypeError while evaluating:
+property: channel24
+description: the state of channel 24
+function: 5
+Attempt to assign 5 to EnumProp channel24 but the only allowed values are: []
+
+2014/02/26 12:08:29 MainThread instrument_property WARNING TypeError while evaluating:
+property: 25
+description: 
+function: 0
+Attempt to assign 0 to EnumProp 25 but the only allowed values are: []
+
+2014/02/26 12:08:29 MainThread instrument_property WARNING TypeError while evaluating:
+property: channel25
+description: the state of channel 25
+function: 5
+Attempt to assign 5 to EnumProp channel25 but the only allowed values are: []
+
+2014/02/26 12:08:29 MainThread instrument_property WARNING TypeError while evaluating:
+property: 26
+description: 
+function: 0
+Attempt to assign 0 to EnumProp 26 but the only allowed values are: []
+
+2014/02/26 12:08:29 MainThread instrument_property WARNING TypeError while evaluating:
+property: channel26
+description: the state of channel 26
+function: 5
+Attempt to assign 5 to EnumProp channel26 but the only allowed values are: []
+
+2014/02/26 12:08:29 MainThread instrument_property WARNING TypeError while evaluating:
+property: 27
+description: 
+function: 0
+Attempt to assign 0 to EnumProp 27 but the only allowed values are: []
+
+2014/02/26 12:08:29 MainThread instrument_property WARNING TypeError while evaluating:
+property: channel27
+description: the state of channel 27
+function: 5
+Attempt to assign 5 to EnumProp channel27 but the only allowed values are: []
+
+2014/02/26 12:08:29 MainThread instrument_property WARNING TypeError while evaluating:
+property: 28
+description: 
+function: 0
+Attempt to assign 0 to EnumProp 28 but the only allowed values are: []
+
+2014/02/26 12:08:29 MainThread instrument_property WARNING TypeError while evaluating:
+property: channel28
+description: the state of channel 28
+function: 5
+Attempt to assign 5 to EnumProp channel28 but the only allowed values are: []
+
+2014/02/26 12:08:29 MainThread instrument_property WARNING TypeError while evaluating:
+property: 29
+description: 
+function: 0
+Attempt to assign 0 to EnumProp 29 but the only allowed values are: []
+
+2014/02/26 12:08:29 MainThread instrument_property WARNING TypeError while evaluating:
+property: channel29
+description: the state of channel 29
+function: 5
+Attempt to assign 5 to EnumProp channel29 but the only allowed values are: []
+
+2014/02/26 12:08:29 MainThread instrument_property WARNING TypeError while evaluating:
+property: 30
+description: 
+function: 0
+Attempt to assign 0 to EnumProp 30 but the only allowed values are: []
+
+2014/02/26 12:08:29 MainThread instrument_property WARNING TypeError while evaluating:
+property: channel30
+description: the state of channel 30
+function: 5
+Attempt to assign 5 to EnumProp channel30 but the only allowed values are: []
+
+2014/02/26 12:08:29 MainThread instrument_property WARNING TypeError while evaluating:
+property: 31
+description: 
+function: 0
+Attempt to assign 0 to EnumProp 31 but the only allowed values are: []
+
+2014/02/26 12:08:30 MainThread instrument_property WARNING TypeError while evaluating:
+property: channel31
+description: the state of channel 31
+function: 5
+Attempt to assign 5 to EnumProp channel31 but the only allowed values are: []
+
+2014/02/26 12:08:30 MainThread instrument_property WARNING TypeError while evaluating:
+property: channel0
+description: 
+function: 0
+Attempt to assign 0 to EnumProp channel0 but the only allowed values are: []
+
+2014/02/26 12:08:30 MainThread instrument_property WARNING TypeError while evaluating:
+property: channel1
+description: 
+function: 0
+Attempt to assign 0 to EnumProp channel1 but the only allowed values are: []
+
+2014/02/26 12:08:30 MainThread instrument_property WARNING TypeError while evaluating:
+property: channel2
+description: 
+function: 0
+Attempt to assign 0 to EnumProp channel2 but the only allowed values are: []
+
+2014/02/26 12:08:30 MainThread instrument_property WARNING TypeError while evaluating:
+property: channel3
+description: 
+function: 0
+Attempt to assign 0 to EnumProp channel3 but the only allowed values are: []
+
+2014/02/26 12:08:30 MainThread instrument_property WARNING TypeError while evaluating:
+property: channel4
+description: 
+function: 0
+Attempt to assign 0 to EnumProp channel4 but the only allowed values are: []
+
+2014/02/26 12:08:30 MainThread instrument_property WARNING TypeError while evaluating:
+property: channel5
+description: 
+function: 0
+Attempt to assign 0 to EnumProp channel5 but the only allowed values are: []
+
+2014/02/26 12:08:30 MainThread instrument_property WARNING TypeError while evaluating:
+property: channel6
+description: 
+function: 0
+Attempt to assign 0 to EnumProp channel6 but the only allowed values are: []
+
+2014/02/26 12:08:30 MainThread instrument_property WARNING TypeError while evaluating:
+property: channel7
+description: 
+function: 0
+Attempt to assign 0 to EnumProp channel7 but the only allowed values are: []
+
+2014/02/26 12:08:30 MainThread instrument_property WARNING TypeError while evaluating:
+property: channel8
+description: 
+function: 0
+Attempt to assign 0 to EnumProp channel8 but the only allowed values are: []
+
+2014/02/26 12:08:30 MainThread instrument_property WARNING TypeError while evaluating:
+property: channel9
+description: 
+function: 0
+Attempt to assign 0 to EnumProp channel9 but the only allowed values are: []
+
+2014/02/26 12:08:30 MainThread instrument_property WARNING TypeError while evaluating:
+property: channel10
+description: 
+function: 0
+Attempt to assign 0 to EnumProp channel10 but the only allowed values are: []
+
+2014/02/26 12:08:30 MainThread instrument_property WARNING TypeError while evaluating:
+property: channel11
+description: 
+function: 0
+Attempt to assign 0 to EnumProp channel11 but the only allowed values are: []
+
+2014/02/26 12:08:30 MainThread instrument_property WARNING TypeError while evaluating:
+property: channel12
+description: 
+function: 0
+Attempt to assign 0 to EnumProp channel12 but the only allowed values are: []
+
+2014/02/26 12:08:30 MainThread instrument_property WARNING TypeError while evaluating:
+property: channel13
+description: 
+function: 0
+Attempt to assign 0 to EnumProp channel13 but the only allowed values are: []
+
+2014/02/26 12:08:30 MainThread instrument_property WARNING TypeError while evaluating:
+property: channel14
+description: 
+function: 0
+Attempt to assign 0 to EnumProp channel14 but the only allowed values are: []
+
+2014/02/26 12:08:30 MainThread instrument_property WARNING TypeError while evaluating:
+property: channel15
+description: 
+function: 0
+Attempt to assign 0 to EnumProp channel15 but the only allowed values are: []
+
+2014/02/26 12:08:30 MainThread instrument_property WARNING TypeError while evaluating:
+property: channel16
+description: 
+function: 0
+Attempt to assign 0 to EnumProp channel16 but the only allowed values are: []
+
+2014/02/26 12:08:30 MainThread instrument_property WARNING TypeError while evaluating:
+property: channel17
+description: 
+function: 0
+Attempt to assign 0 to EnumProp channel17 but the only allowed values are: []
+
+2014/02/26 12:08:30 MainThread instrument_property WARNING TypeError while evaluating:
+property: channel18
+description: 
+function: 0
+Attempt to assign 0 to EnumProp channel18 but the only allowed values are: []
+
+2014/02/26 12:08:30 MainThread instrument_property WARNING TypeError while evaluating:
+property: channel19
+description: 
+function: 0
+Attempt to assign 0 to EnumProp channel19 but the only allowed values are: []
+
+2014/02/26 12:08:30 MainThread instrument_property WARNING TypeError while evaluating:
+property: channel20
+description: 
+function: 0
+Attempt to assign 0 to EnumProp channel20 but the only allowed values are: []
+
+2014/02/26 12:08:30 MainThread instrument_property WARNING TypeError while evaluating:
+property: channel21
+description: 
+function: 0
+Attempt to assign 0 to EnumProp channel21 but the only allowed values are: []
+
+2014/02/26 12:08:30 MainThread instrument_property WARNING TypeError while evaluating:
+property: channel22
+description: 
+function: 0
+Attempt to assign 0 to EnumProp channel22 but the only allowed values are: []
+
+2014/02/26 12:08:30 MainThread instrument_property WARNING TypeError while evaluating:
+property: channel23
+description: 
+function: 0
+Attempt to assign 0 to EnumProp channel23 but the only allowed values are: []
+
+2014/02/26 12:08:30 MainThread instrument_property WARNING TypeError while evaluating:
+property: channel24
+description: 
+function: 0
+Attempt to assign 0 to EnumProp channel24 but the only allowed values are: []
+
+2014/02/26 12:08:30 MainThread instrument_property WARNING TypeError while evaluating:
+property: channel25
+description: 
+function: 0
+Attempt to assign 0 to EnumProp channel25 but the only allowed values are: []
+
+2014/02/26 12:08:30 MainThread instrument_property WARNING TypeError while evaluating:
+property: channel26
+description: 
+function: 0
+Attempt to assign 0 to EnumProp channel26 but the only allowed values are: []
+
+2014/02/26 12:08:30 MainThread instrument_property WARNING TypeError while evaluating:
+property: channel27
+description: 
+function: 0
+Attempt to assign 0 to EnumProp channel27 but the only allowed values are: []
+
+2014/02/26 12:08:30 MainThread instrument_property WARNING TypeError while evaluating:
+property: channel28
+description: 
+function: 0
+Attempt to assign 0 to EnumProp channel28 but the only allowed values are: []
+
+2014/02/26 12:08:30 MainThread instrument_property WARNING TypeError while evaluating:
+property: channel29
+description: 
+function: 0
+Attempt to assign 0 to EnumProp channel29 but the only allowed values are: []
+
+2014/02/26 12:08:30 MainThread instrument_property WARNING TypeError while evaluating:
+property: channel30
+description: 
+function: 0
+Attempt to assign 0 to EnumProp channel30 but the only allowed values are: []
+
+2014/02/26 12:08:30 MainThread instrument_property WARNING TypeError while evaluating:
+property: channel31
+description: 
+function: 0
+Attempt to assign 0 to EnumProp channel31 but the only allowed values are: []
+
+2014/02/26 12:08:30 MainThread instrument_property WARNING TypeError while evaluating:
+property: 0
+description: 
+function: 0
+Attempt to assign 0 to EnumProp 0 but the only allowed values are: []
+
+2014/02/26 12:08:30 MainThread instrument_property WARNING TypeError while evaluating:
+property: 1
+description: 
+function: 0
+Attempt to assign 0 to EnumProp 1 but the only allowed values are: []
+
+2014/02/26 12:08:30 MainThread instrument_property WARNING TypeError while evaluating:
+property: channel1
+description: the state of channel 1
+function: 5
+Attempt to assign 5 to EnumProp channel1 but the only allowed values are: []
+
+2014/02/26 12:08:30 MainThread instrument_property WARNING TypeError while evaluating:
+property: 2
+description: 
+function: 0
+Attempt to assign 0 to EnumProp 2 but the only allowed values are: []
+
+2014/02/26 12:08:30 MainThread instrument_property WARNING TypeError while evaluating:
+property: channel2
+description: the state of channel 2
+function: 5
+Attempt to assign 5 to EnumProp channel2 but the only allowed values are: []
+
+2014/02/26 12:08:30 MainThread instrument_property WARNING TypeError while evaluating:
+property: 3
+description: 
+function: 0
+Attempt to assign 0 to EnumProp 3 but the only allowed values are: []
+
+2014/02/26 12:08:30 MainThread instrument_property WARNING TypeError while evaluating:
+property: channel3
+description: the state of channel 3
+function: 5
+Attempt to assign 5 to EnumProp channel3 but the only allowed values are: []
+
+2014/02/26 12:08:30 MainThread instrument_property WARNING TypeError while evaluating:
+property: 4
+description: 
+function: 0
+Attempt to assign 0 to EnumProp 4 but the only allowed values are: []
+
+2014/02/26 12:08:30 MainThread instrument_property WARNING TypeError while evaluating:
+property: channel4
+description: the state of channel 4
+function: 5
+Attempt to assign 5 to EnumProp channel4 but the only allowed values are: []
+
+2014/02/26 12:08:30 MainThread instrument_property WARNING TypeError while evaluating:
+property: 5
+description: 
+function: 0
+Attempt to assign 0 to EnumProp 5 but the only allowed values are: []
+
+2014/02/26 12:08:30 MainThread instrument_property WARNING TypeError while evaluating:
+property: channel5
+description: the state of channel 5
+function: 5
+Attempt to assign 5 to EnumProp channel5 but the only allowed values are: []
+
+2014/02/26 12:08:30 MainThread instrument_property WARNING TypeError while evaluating:
+property: 6
+description: 
+function: 0
+Attempt to assign 0 to EnumProp 6 but the only allowed values are: []
+
+2014/02/26 12:08:30 MainThread instrument_property WARNING TypeError while evaluating:
+property: channel6
+description: the state of channel 6
+function: 5
+Attempt to assign 5 to EnumProp channel6 but the only allowed values are: []
+
+2014/02/26 12:08:30 MainThread instrument_property WARNING TypeError while evaluating:
+property: 7
+description: 
+function: 0
+Attempt to assign 0 to EnumProp 7 but the only allowed values are: []
+
+2014/02/26 12:08:30 MainThread instrument_property WARNING TypeError while evaluating:
+property: channel7
+description: the state of channel 7
+function: 5
+Attempt to assign 5 to EnumProp channel7 but the only allowed values are: []
+
+2014/02/26 12:08:30 MainThread instrument_property WARNING TypeError while evaluating:
+property: 8
+description: 
+function: 0
+Attempt to assign 0 to EnumProp 8 but the only allowed values are: []
+
+2014/02/26 12:08:30 MainThread instrument_property WARNING TypeError while evaluating:
+property: channel8
+description: the state of channel 8
+function: 5
+Attempt to assign 5 to EnumProp channel8 but the only allowed values are: []
+
+2014/02/26 12:08:30 MainThread instrument_property WARNING TypeError while evaluating:
+property: 9
+description: 
+function: 0
+Attempt to assign 0 to EnumProp 9 but the only allowed values are: []
+
+2014/02/26 12:08:30 MainThread instrument_property WARNING TypeError while evaluating:
+property: channel9
+description: the state of channel 9
+function: 5
+Attempt to assign 5 to EnumProp channel9 but the only allowed values are: []
+
+2014/02/26 12:08:30 MainThread instrument_property WARNING TypeError while evaluating:
+property: 10
+description: 
+function: 0
+Attempt to assign 0 to EnumProp 10 but the only allowed values are: []
+
+2014/02/26 12:08:30 MainThread instrument_property WARNING TypeError while evaluating:
+property: channel10
+description: the state of channel 10
+function: 5
+Attempt to assign 5 to EnumProp channel10 but the only allowed values are: []
+
+2014/02/26 12:08:30 MainThread instrument_property WARNING TypeError while evaluating:
+property: 11
+description: 
+function: 0
+Attempt to assign 0 to EnumProp 11 but the only allowed values are: []
+
+2014/02/26 12:08:30 MainThread instrument_property WARNING TypeError while evaluating:
+property: channel11
+description: the state of channel 11
+function: 5
+Attempt to assign 5 to EnumProp channel11 but the only allowed values are: []
+
+2014/02/26 12:08:30 MainThread instrument_property WARNING TypeError while evaluating:
+property: 12
+description: 
+function: 0
+Attempt to assign 0 to EnumProp 12 but the only allowed values are: []
+
+2014/02/26 12:08:30 MainThread instrument_property WARNING TypeError while evaluating:
+property: channel12
+description: the state of channel 12
+function: 5
+Attempt to assign 5 to EnumProp channel12 but the only allowed values are: []
+
+2014/02/26 12:08:31 MainThread instrument_property WARNING TypeError while evaluating:
+property: 13
+description: 
+function: 0
+Attempt to assign 0 to EnumProp 13 but the only allowed values are: []
+
+2014/02/26 12:08:31 MainThread instrument_property WARNING TypeError while evaluating:
+property: channel13
+description: the state of channel 13
+function: 5
+Attempt to assign 5 to EnumProp channel13 but the only allowed values are: []
+
+2014/02/26 12:08:31 MainThread instrument_property WARNING TypeError while evaluating:
+property: 14
+description: 
+function: 0
+Attempt to assign 0 to EnumProp 14 but the only allowed values are: []
+
+2014/02/26 12:08:31 MainThread instrument_property WARNING TypeError while evaluating:
+property: channel14
+description: the state of channel 14
+function: 5
+Attempt to assign 5 to EnumProp channel14 but the only allowed values are: []
+
+2014/02/26 12:08:31 MainThread instrument_property WARNING TypeError while evaluating:
+property: 15
+description: 
+function: 0
+Attempt to assign 0 to EnumProp 15 but the only allowed values are: []
+
+2014/02/26 12:08:31 MainThread instrument_property WARNING TypeError while evaluating:
+property: channel15
+description: the state of channel 15
+function: 5
+Attempt to assign 5 to EnumProp channel15 but the only allowed values are: []
+
+2014/02/26 12:08:31 MainThread instrument_property WARNING TypeError while evaluating:
+property: 16
+description: 
+function: 0
+Attempt to assign 0 to EnumProp 16 but the only allowed values are: []
+
+2014/02/26 12:08:31 MainThread instrument_property WARNING TypeError while evaluating:
+property: channel16
+description: the state of channel 16
+function: 5
+Attempt to assign 5 to EnumProp channel16 but the only allowed values are: []
+
+2014/02/26 12:08:31 MainThread instrument_property WARNING TypeError while evaluating:
+property: 17
+description: 
+function: 0
+Attempt to assign 0 to EnumProp 17 but the only allowed values are: []
+
+2014/02/26 12:08:31 MainThread instrument_property WARNING TypeError while evaluating:
+property: channel17
+description: the state of channel 17
+function: 5
+Attempt to assign 5 to EnumProp channel17 but the only allowed values are: []
+
+2014/02/26 12:08:31 MainThread instrument_property WARNING TypeError while evaluating:
+property: 18
+description: 
+function: 0
+Attempt to assign 0 to EnumProp 18 but the only allowed values are: []
+
+2014/02/26 12:08:31 MainThread instrument_property WARNING TypeError while evaluating:
+property: channel18
+description: the state of channel 18
+function: 5
+Attempt to assign 5 to EnumProp channel18 but the only allowed values are: []
+
+2014/02/26 12:08:31 MainThread instrument_property WARNING TypeError while evaluating:
+property: 19
+description: 
+function: 0
+Attempt to assign 0 to EnumProp 19 but the only allowed values are: []
+
+2014/02/26 12:08:31 MainThread instrument_property WARNING TypeError while evaluating:
+property: channel19
+description: the state of channel 19
+function: 5
+Attempt to assign 5 to EnumProp channel19 but the only allowed values are: []
+
+2014/02/26 12:08:31 MainThread instrument_property WARNING TypeError while evaluating:
+property: 20
+description: 
+function: 0
+Attempt to assign 0 to EnumProp 20 but the only allowed values are: []
+
+2014/02/26 12:08:31 MainThread instrument_property WARNING TypeError while evaluating:
+property: channel20
+description: the state of channel 20
+function: 5
+Attempt to assign 5 to EnumProp channel20 but the only allowed values are: []
+
+2014/02/26 12:08:31 MainThread instrument_property WARNING TypeError while evaluating:
+property: 21
+description: 
+function: 0
+Attempt to assign 0 to EnumProp 21 but the only allowed values are: []
+
+2014/02/26 12:08:31 MainThread instrument_property WARNING TypeError while evaluating:
+property: channel21
+description: the state of channel 21
+function: 5
+Attempt to assign 5 to EnumProp channel21 but the only allowed values are: []
+
+2014/02/26 12:08:31 MainThread instrument_property WARNING TypeError while evaluating:
+property: 22
+description: 
+function: 0
+Attempt to assign 0 to EnumProp 22 but the only allowed values are: []
+
+2014/02/26 12:08:31 MainThread instrument_property WARNING TypeError while evaluating:
+property: channel22
+description: the state of channel 22
+function: 5
+Attempt to assign 5 to EnumProp channel22 but the only allowed values are: []
+
+2014/02/26 12:08:31 MainThread instrument_property WARNING TypeError while evaluating:
+property: 23
+description: 
+function: 0
+Attempt to assign 0 to EnumProp 23 but the only allowed values are: []
+
+2014/02/26 12:08:31 MainThread instrument_property WARNING TypeError while evaluating:
+property: channel23
+description: the state of channel 23
+function: 5
+Attempt to assign 5 to EnumProp channel23 but the only allowed values are: []
+
+2014/02/26 12:08:31 MainThread instrument_property WARNING TypeError while evaluating:
+property: 24
+description: 
+function: 0
+Attempt to assign 0 to EnumProp 24 but the only allowed values are: []
+
+2014/02/26 12:08:31 MainThread instrument_property WARNING TypeError while evaluating:
+property: channel24
+description: the state of channel 24
+function: 5
+Attempt to assign 5 to EnumProp channel24 but the only allowed values are: []
+
+2014/02/26 12:08:31 MainThread instrument_property WARNING TypeError while evaluating:
+property: 25
+description: 
+function: 0
+Attempt to assign 0 to EnumProp 25 but the only allowed values are: []
+
+2014/02/26 12:08:31 MainThread instrument_property WARNING TypeError while evaluating:
+property: channel25
+description: the state of channel 25
+function: 5
+Attempt to assign 5 to EnumProp channel25 but the only allowed values are: []
+
+2014/02/26 12:08:31 MainThread instrument_property WARNING TypeError while evaluating:
+property: 26
+description: 
+function: 0
+Attempt to assign 0 to EnumProp 26 but the only allowed values are: []
+
+2014/02/26 12:08:31 MainThread instrument_property WARNING TypeError while evaluating:
+property: channel26
+description: the state of channel 26
+function: 5
+Attempt to assign 5 to EnumProp channel26 but the only allowed values are: []
+
+2014/02/26 12:08:31 MainThread instrument_property WARNING TypeError while evaluating:
+property: 27
+description: 
+function: 0
+Attempt to assign 0 to EnumProp 27 but the only allowed values are: []
+
+2014/02/26 12:08:31 MainThread instrument_property WARNING TypeError while evaluating:
+property: channel27
+description: the state of channel 27
+function: 5
+Attempt to assign 5 to EnumProp channel27 but the only allowed values are: []
+
+2014/02/26 12:08:31 MainThread instrument_property WARNING TypeError while evaluating:
+property: 28
+description: 
+function: 0
+Attempt to assign 0 to EnumProp 28 but the only allowed values are: []
+
+2014/02/26 12:08:31 MainThread instrument_property WARNING TypeError while evaluating:
+property: channel28
+description: the state of channel 28
+function: 5
+Attempt to assign 5 to EnumProp channel28 but the only allowed values are: []
+
+2014/02/26 12:08:31 MainThread instrument_property WARNING TypeError while evaluating:
+property: 29
+description: 
+function: 0
+Attempt to assign 0 to EnumProp 29 but the only allowed values are: []
+
+2014/02/26 12:08:31 MainThread instrument_property WARNING TypeError while evaluating:
+property: channel29
+description: the state of channel 29
+function: 5
+Attempt to assign 5 to EnumProp channel29 but the only allowed values are: []
+
+2014/02/26 12:08:31 MainThread instrument_property WARNING TypeError while evaluating:
+property: 30
+description: 
+function: 0
+Attempt to assign 0 to EnumProp 30 but the only allowed values are: []
+
+2014/02/26 12:08:31 MainThread instrument_property WARNING TypeError while evaluating:
+property: channel30
+description: the state of channel 30
+function: 5
+Attempt to assign 5 to EnumProp channel30 but the only allowed values are: []
+
+2014/02/26 12:08:31 MainThread instrument_property WARNING TypeError while evaluating:
+property: 31
+description: 
+function: 0
+Attempt to assign 0 to EnumProp 31 but the only allowed values are: []
+
+2014/02/26 12:08:31 MainThread instrument_property WARNING TypeError while evaluating:
+property: channel31
+description: the state of channel 31
+function: 5
+Attempt to assign 5 to EnumProp channel31 but the only allowed values are: []
+
+2014/02/26 12:08:31 MainThread instrument_property WARNING TypeError while evaluating:
+property: channel0
+description: 
+function: 0
+Attempt to assign 0 to EnumProp channel0 but the only allowed values are: []
+
+2014/02/26 12:08:31 MainThread instrument_property WARNING TypeError while evaluating:
+property: channel1
+description: 
+function: 0
+Attempt to assign 0 to EnumProp channel1 but the only allowed values are: []
+
+2014/02/26 12:08:31 MainThread instrument_property WARNING TypeError while evaluating:
+property: channel2
+description: 
+function: 0
+Attempt to assign 0 to EnumProp channel2 but the only allowed values are: []
+
+2014/02/26 12:08:31 MainThread instrument_property WARNING TypeError while evaluating:
+property: channel3
+description: 
+function: 0
+Attempt to assign 0 to EnumProp channel3 but the only allowed values are: []
+
+2014/02/26 12:08:31 MainThread instrument_property WARNING TypeError while evaluating:
+property: channel4
+description: 
+function: 0
+Attempt to assign 0 to EnumProp channel4 but the only allowed values are: []
+
+2014/02/26 12:08:31 MainThread instrument_property WARNING TypeError while evaluating:
+property: channel5
+description: 
+function: 0
+Attempt to assign 0 to EnumProp channel5 but the only allowed values are: []
+
+2014/02/26 12:08:31 MainThread instrument_property WARNING TypeError while evaluating:
+property: channel6
+description: 
+function: 0
+Attempt to assign 0 to EnumProp channel6 but the only allowed values are: []
+
+2014/02/26 12:08:31 MainThread instrument_property WARNING TypeError while evaluating:
+property: channel7
+description: 
+function: 0
+Attempt to assign 0 to EnumProp channel7 but the only allowed values are: []
+
+2014/02/26 12:08:31 MainThread instrument_property WARNING TypeError while evaluating:
+property: channel8
+description: 
+function: 0
+Attempt to assign 0 to EnumProp channel8 but the only allowed values are: []
+
+2014/02/26 12:08:31 MainThread instrument_property WARNING TypeError while evaluating:
+property: channel9
+description: 
+function: 0
+Attempt to assign 0 to EnumProp channel9 but the only allowed values are: []
+
+2014/02/26 12:08:31 MainThread instrument_property WARNING TypeError while evaluating:
+property: channel10
+description: 
+function: 0
+Attempt to assign 0 to EnumProp channel10 but the only allowed values are: []
+
+2014/02/26 12:08:31 MainThread instrument_property WARNING TypeError while evaluating:
+property: channel11
+description: 
+function: 0
+Attempt to assign 0 to EnumProp channel11 but the only allowed values are: []
+
+2014/02/26 12:08:31 MainThread instrument_property WARNING TypeError while evaluating:
+property: channel12
+description: 
+function: 0
+Attempt to assign 0 to EnumProp channel12 but the only allowed values are: []
+
+2014/02/26 12:08:31 MainThread instrument_property WARNING TypeError while evaluating:
+property: channel13
+description: 
+function: 0
+Attempt to assign 0 to EnumProp channel13 but the only allowed values are: []
+
+2014/02/26 12:08:31 MainThread instrument_property WARNING TypeError while evaluating:
+property: channel14
+description: 
+function: 0
+Attempt to assign 0 to EnumProp channel14 but the only allowed values are: []
+
+2014/02/26 12:08:31 MainThread instrument_property WARNING TypeError while evaluating:
+property: channel15
+description: 
+function: 0
+Attempt to assign 0 to EnumProp channel15 but the only allowed values are: []
+
+2014/02/26 12:08:31 MainThread instrument_property WARNING TypeError while evaluating:
+property: channel16
+description: 
+function: 0
+Attempt to assign 0 to EnumProp channel16 but the only allowed values are: []
+
+2014/02/26 12:08:31 MainThread instrument_property WARNING TypeError while evaluating:
+property: channel17
+description: 
+function: 0
+Attempt to assign 0 to EnumProp channel17 but the only allowed values are: []
+
+2014/02/26 12:08:31 MainThread instrument_property WARNING TypeError while evaluating:
+property: channel18
+description: 
+function: 0
+Attempt to assign 0 to EnumProp channel18 but the only allowed values are: []
+
+2014/02/26 12:08:31 MainThread instrument_property WARNING TypeError while evaluating:
+property: channel19
+description: 
+function: 0
+Attempt to assign 0 to EnumProp channel19 but the only allowed values are: []
+
+2014/02/26 12:08:31 MainThread instrument_property WARNING TypeError while evaluating:
+property: channel20
+description: 
+function: 0
+Attempt to assign 0 to EnumProp channel20 but the only allowed values are: []
+
+2014/02/26 12:08:32 MainThread instrument_property WARNING TypeError while evaluating:
+property: channel21
+description: 
+function: 0
+Attempt to assign 0 to EnumProp channel21 but the only allowed values are: []
+
+2014/02/26 12:08:32 MainThread instrument_property WARNING TypeError while evaluating:
+property: channel22
+description: 
+function: 0
+Attempt to assign 0 to EnumProp channel22 but the only allowed values are: []
+
+2014/02/26 12:08:32 MainThread instrument_property WARNING TypeError while evaluating:
+property: channel23
+description: 
+function: 0
+Attempt to assign 0 to EnumProp channel23 but the only allowed values are: []
+
+2014/02/26 12:08:32 MainThread instrument_property WARNING TypeError while evaluating:
+property: channel24
+description: 
+function: 0
+Attempt to assign 0 to EnumProp channel24 but the only allowed values are: []
+
+2014/02/26 12:08:32 MainThread instrument_property WARNING TypeError while evaluating:
+property: channel25
+description: 
+function: 0
+Attempt to assign 0 to EnumProp channel25 but the only allowed values are: []
+
+2014/02/26 12:08:32 MainThread instrument_property WARNING TypeError while evaluating:
+property: channel26
+description: 
+function: 0
+Attempt to assign 0 to EnumProp channel26 but the only allowed values are: []
+
+2014/02/26 12:08:32 MainThread instrument_property WARNING TypeError while evaluating:
+property: channel27
+description: 
+function: 0
+Attempt to assign 0 to EnumProp channel27 but the only allowed values are: []
+
+2014/02/26 12:08:32 MainThread instrument_property WARNING TypeError while evaluating:
+property: channel28
+description: 
+function: 0
+Attempt to assign 0 to EnumProp channel28 but the only allowed values are: []
+
+2014/02/26 12:08:32 MainThread instrument_property WARNING TypeError while evaluating:
+property: channel29
+description: 
+function: 0
+Attempt to assign 0 to EnumProp channel29 but the only allowed values are: []
+
+2014/02/26 12:08:32 MainThread instrument_property WARNING TypeError while evaluating:
+property: channel30
+description: 
+function: 0
+Attempt to assign 0 to EnumProp channel30 but the only allowed values are: []
+
+2014/02/26 12:08:32 MainThread instrument_property WARNING TypeError while evaluating:
+property: channel31
+description: 
+function: 0
+Attempt to assign 0 to EnumProp channel31 but the only allowed values are: []
+
+2014/02/26 12:08:32 MainThread instrument_property WARNING TypeError while evaluating:
+property: 0
+description: 
+function: 0
+Attempt to assign 0 to EnumProp 0 but the only allowed values are: []
+
+2014/02/26 12:08:32 MainThread instrument_property WARNING TypeError while evaluating:
+property: channel0
+description: the state of channel 0
+function: 5
+Attempt to assign 5 to EnumProp channel0 but the only allowed values are: []
+
+2014/02/26 12:08:32 MainThread instrument_property WARNING TypeError while evaluating:
+property: 1
+description: 
+function: 0
+Attempt to assign 0 to EnumProp 1 but the only allowed values are: []
+
+2014/02/26 12:08:32 MainThread instrument_property WARNING TypeError while evaluating:
+property: channel1
+description: the state of channel 1
+function: 1
+Attempt to assign 1 to EnumProp channel1 but the only allowed values are: []
+
+2014/02/26 12:08:32 MainThread instrument_property WARNING TypeError while evaluating:
+property: 2
+description: 
+function: 0
+Attempt to assign 0 to EnumProp 2 but the only allowed values are: []
+
+2014/02/26 12:08:32 MainThread instrument_property WARNING TypeError while evaluating:
+property: channel2
+description: the state of channel 2
+function: 5
+Attempt to assign 5 to EnumProp channel2 but the only allowed values are: []
+
+2014/02/26 12:08:32 MainThread instrument_property WARNING TypeError while evaluating:
+property: 3
+description: 
+function: 0
+Attempt to assign 0 to EnumProp 3 but the only allowed values are: []
+
+2014/02/26 12:08:32 MainThread instrument_property WARNING TypeError while evaluating:
+property: channel3
+description: the state of channel 3
+function: 5
+Attempt to assign 5 to EnumProp channel3 but the only allowed values are: []
+
+2014/02/26 12:08:32 MainThread instrument_property WARNING TypeError while evaluating:
+property: 4
+description: 
+function: 0
+Attempt to assign 0 to EnumProp 4 but the only allowed values are: []
+
+2014/02/26 12:08:32 MainThread instrument_property WARNING TypeError while evaluating:
+property: channel4
+description: the state of channel 4
+function: 5
+Attempt to assign 5 to EnumProp channel4 but the only allowed values are: []
+
+2014/02/26 12:08:32 MainThread instrument_property WARNING TypeError while evaluating:
+property: 5
+description: 
+function: 0
+Attempt to assign 0 to EnumProp 5 but the only allowed values are: []
+
+2014/02/26 12:08:32 MainThread instrument_property WARNING TypeError while evaluating:
+property: channel5
+description: the state of channel 5
+function: 5
+Attempt to assign 5 to EnumProp channel5 but the only allowed values are: []
+
+2014/02/26 12:08:32 MainThread instrument_property WARNING TypeError while evaluating:
+property: 6
+description: 
+function: 0
+Attempt to assign 0 to EnumProp 6 but the only allowed values are: []
+
+2014/02/26 12:08:32 MainThread instrument_property WARNING TypeError while evaluating:
+property: channel6
+description: the state of channel 6
+function: 5
+Attempt to assign 5 to EnumProp channel6 but the only allowed values are: []
+
+2014/02/26 12:08:32 MainThread instrument_property WARNING TypeError while evaluating:
+property: 7
+description: 
+function: 0
+Attempt to assign 0 to EnumProp 7 but the only allowed values are: []
+
+2014/02/26 12:08:32 MainThread instrument_property WARNING TypeError while evaluating:
+property: channel7
+description: the state of channel 7
+function: 5
+Attempt to assign 5 to EnumProp channel7 but the only allowed values are: []
+
+2014/02/26 12:08:32 MainThread instrument_property WARNING TypeError while evaluating:
+property: 8
+description: 
+function: 0
+Attempt to assign 0 to EnumProp 8 but the only allowed values are: []
+
+2014/02/26 12:08:32 MainThread instrument_property WARNING TypeError while evaluating:
+property: channel8
+description: the state of channel 8
+function: 5
+Attempt to assign 5 to EnumProp channel8 but the only allowed values are: []
+
+2014/02/26 12:08:32 MainThread instrument_property WARNING TypeError while evaluating:
+property: 9
+description: 
+function: 0
+Attempt to assign 0 to EnumProp 9 but the only allowed values are: []
+
+2014/02/26 12:08:32 MainThread instrument_property WARNING TypeError while evaluating:
+property: channel9
+description: the state of channel 9
+function: 5
+Attempt to assign 5 to EnumProp channel9 but the only allowed values are: []
+
+2014/02/26 12:08:32 MainThread instrument_property WARNING TypeError while evaluating:
+property: 10
+description: 
+function: 0
+Attempt to assign 0 to EnumProp 10 but the only allowed values are: []
+
+2014/02/26 12:08:32 MainThread instrument_property WARNING TypeError while evaluating:
+property: channel10
+description: the state of channel 10
+function: 5
+Attempt to assign 5 to EnumProp channel10 but the only allowed values are: []
+
+2014/02/26 12:08:32 MainThread instrument_property WARNING TypeError while evaluating:
+property: 11
+description: 
+function: 0
+Attempt to assign 0 to EnumProp 11 but the only allowed values are: []
+
+2014/02/26 12:08:32 MainThread instrument_property WARNING TypeError while evaluating:
+property: channel11
+description: the state of channel 11
+function: 5
+Attempt to assign 5 to EnumProp channel11 but the only allowed values are: []
+
+2014/02/26 12:08:32 MainThread instrument_property WARNING TypeError while evaluating:
+property: 12
+description: 
+function: 0
+Attempt to assign 0 to EnumProp 12 but the only allowed values are: []
+
+2014/02/26 12:08:32 MainThread instrument_property WARNING TypeError while evaluating:
+property: channel12
+description: the state of channel 12
+function: 5
+Attempt to assign 5 to EnumProp channel12 but the only allowed values are: []
+
+2014/02/26 12:08:32 MainThread instrument_property WARNING TypeError while evaluating:
+property: 13
+description: 
+function: 0
+Attempt to assign 0 to EnumProp 13 but the only allowed values are: []
+
+2014/02/26 12:08:32 MainThread instrument_property WARNING TypeError while evaluating:
+property: channel13
+description: the state of channel 13
+function: 5
+Attempt to assign 5 to EnumProp channel13 but the only allowed values are: []
+
+2014/02/26 12:08:32 MainThread instrument_property WARNING TypeError while evaluating:
+property: 14
+description: 
+function: 0
+Attempt to assign 0 to EnumProp 14 but the only allowed values are: []
+
+2014/02/26 12:08:32 MainThread instrument_property WARNING TypeError while evaluating:
+property: channel14
+description: the state of channel 14
+function: 5
+Attempt to assign 5 to EnumProp channel14 but the only allowed values are: []
+
+2014/02/26 12:08:32 MainThread instrument_property WARNING TypeError while evaluating:
+property: 15
+description: 
+function: 0
+Attempt to assign 0 to EnumProp 15 but the only allowed values are: []
+
+2014/02/26 12:08:32 MainThread instrument_property WARNING TypeError while evaluating:
+property: channel15
+description: the state of channel 15
+function: 5
+Attempt to assign 5 to EnumProp channel15 but the only allowed values are: []
+
+2014/02/26 12:08:32 MainThread instrument_property WARNING TypeError while evaluating:
+property: 16
+description: 
+function: 0
+Attempt to assign 0 to EnumProp 16 but the only allowed values are: []
+
+2014/02/26 12:08:32 MainThread instrument_property WARNING TypeError while evaluating:
+property: channel16
+description: the state of channel 16
+function: 5
+Attempt to assign 5 to EnumProp channel16 but the only allowed values are: []
+
+2014/02/26 12:08:32 MainThread instrument_property WARNING TypeError while evaluating:
+property: 17
+description: 
+function: 0
+Attempt to assign 0 to EnumProp 17 but the only allowed values are: []
+
+2014/02/26 12:08:32 MainThread instrument_property WARNING TypeError while evaluating:
+property: channel17
+description: the state of channel 17
+function: 5
+Attempt to assign 5 to EnumProp channel17 but the only allowed values are: []
+
+2014/02/26 12:08:32 MainThread instrument_property WARNING TypeError while evaluating:
+property: 18
+description: 
+function: 0
+Attempt to assign 0 to EnumProp 18 but the only allowed values are: []
+
+2014/02/26 12:08:32 MainThread instrument_property WARNING TypeError while evaluating:
+property: channel18
+description: the state of channel 18
+function: 5
+Attempt to assign 5 to EnumProp channel18 but the only allowed values are: []
+
+2014/02/26 12:08:32 MainThread instrument_property WARNING TypeError while evaluating:
+property: 19
+description: 
+function: 0
+Attempt to assign 0 to EnumProp 19 but the only allowed values are: []
+
+2014/02/26 12:08:32 MainThread instrument_property WARNING TypeError while evaluating:
+property: channel19
+description: the state of channel 19
+function: 5
+Attempt to assign 5 to EnumProp channel19 but the only allowed values are: []
+
+2014/02/26 12:08:32 MainThread instrument_property WARNING TypeError while evaluating:
+property: 20
+description: 
+function: 0
+Attempt to assign 0 to EnumProp 20 but the only allowed values are: []
+
+2014/02/26 12:08:32 MainThread instrument_property WARNING TypeError while evaluating:
+property: channel20
+description: the state of channel 20
+function: 5
+Attempt to assign 5 to EnumProp channel20 but the only allowed values are: []
+
+2014/02/26 12:08:32 MainThread instrument_property WARNING TypeError while evaluating:
+property: 21
+description: 
+function: 0
+Attempt to assign 0 to EnumProp 21 but the only allowed values are: []
+
+2014/02/26 12:08:32 MainThread instrument_property WARNING TypeError while evaluating:
+property: channel21
+description: the state of channel 21
+function: 5
+Attempt to assign 5 to EnumProp channel21 but the only allowed values are: []
+
+2014/02/26 12:08:32 MainThread instrument_property WARNING TypeError while evaluating:
+property: 22
+description: 
+function: 0
+Attempt to assign 0 to EnumProp 22 but the only allowed values are: []
+
+2014/02/26 12:08:32 MainThread instrument_property WARNING TypeError while evaluating:
+property: channel22
+description: the state of channel 22
+function: 5
+Attempt to assign 5 to EnumProp channel22 but the only allowed values are: []
+
+2014/02/26 12:08:32 MainThread instrument_property WARNING TypeError while evaluating:
+property: 23
+description: 
+function: 0
+Attempt to assign 0 to EnumProp 23 but the only allowed values are: []
+
+2014/02/26 12:08:32 MainThread instrument_property WARNING TypeError while evaluating:
+property: channel23
+description: the state of channel 23
+function: 5
+Attempt to assign 5 to EnumProp channel23 but the only allowed values are: []
+
+2014/02/26 12:08:33 MainThread instrument_property WARNING TypeError while evaluating:
+property: 24
+description: 
+function: 0
+Attempt to assign 0 to EnumProp 24 but the only allowed values are: []
+
+2014/02/26 12:08:33 MainThread instrument_property WARNING TypeError while evaluating:
+property: channel24
+description: the state of channel 24
+function: 5
+Attempt to assign 5 to EnumProp channel24 but the only allowed values are: []
+
+2014/02/26 12:08:33 MainThread instrument_property WARNING TypeError while evaluating:
+property: 25
+description: 
+function: 0
+Attempt to assign 0 to EnumProp 25 but the only allowed values are: []
+
+2014/02/26 12:08:33 MainThread instrument_property WARNING TypeError while evaluating:
+property: channel25
+description: the state of channel 25
+function: 5
+Attempt to assign 5 to EnumProp channel25 but the only allowed values are: []
+
+2014/02/26 12:08:33 MainThread instrument_property WARNING TypeError while evaluating:
+property: 26
+description: 
+function: 0
+Attempt to assign 0 to EnumProp 26 but the only allowed values are: []
+
+2014/02/26 12:08:33 MainThread instrument_property WARNING TypeError while evaluating:
+property: channel26
+description: the state of channel 26
+function: 5
+Attempt to assign 5 to EnumProp channel26 but the only allowed values are: []
+
+2014/02/26 12:08:33 MainThread instrument_property WARNING TypeError while evaluating:
+property: 27
+description: 
+function: 0
+Attempt to assign 0 to EnumProp 27 but the only allowed values are: []
+
+2014/02/26 12:08:33 MainThread instrument_property WARNING TypeError while evaluating:
+property: channel27
+description: the state of channel 27
+function: 5
+Attempt to assign 5 to EnumProp channel27 but the only allowed values are: []
+
+2014/02/26 12:08:33 MainThread instrument_property WARNING TypeError while evaluating:
+property: 28
+description: 
+function: 0
+Attempt to assign 0 to EnumProp 28 but the only allowed values are: []
+
+2014/02/26 12:08:33 MainThread instrument_property WARNING TypeError while evaluating:
+property: channel28
+description: the state of channel 28
+function: 5
+Attempt to assign 5 to EnumProp channel28 but the only allowed values are: []
+
+2014/02/26 12:08:33 MainThread instrument_property WARNING TypeError while evaluating:
+property: 29
+description: 
+function: 0
+Attempt to assign 0 to EnumProp 29 but the only allowed values are: []
+
+2014/02/26 12:08:33 MainThread instrument_property WARNING TypeError while evaluating:
+property: channel29
+description: the state of channel 29
+function: 5
+Attempt to assign 5 to EnumProp channel29 but the only allowed values are: []
+
+2014/02/26 12:08:33 MainThread instrument_property WARNING TypeError while evaluating:
+property: 30
+description: 
+function: 0
+Attempt to assign 0 to EnumProp 30 but the only allowed values are: []
+
+2014/02/26 12:08:33 MainThread instrument_property WARNING TypeError while evaluating:
+property: channel30
+description: the state of channel 30
+function: 5
+Attempt to assign 5 to EnumProp channel30 but the only allowed values are: []
+
+2014/02/26 12:08:33 MainThread instrument_property WARNING TypeError while evaluating:
+property: 31
+description: 
+function: 0
+Attempt to assign 0 to EnumProp 31 but the only allowed values are: []
+
+2014/02/26 12:08:33 MainThread instrument_property WARNING TypeError while evaluating:
+property: channel31
+description: the state of channel 31
+function: 5
+Attempt to assign 5 to EnumProp channel31 but the only allowed values are: []
+
+2014/02/26 12:08:33 MainThread instrument_property WARNING TypeError while evaluating:
+property: channel0
+description: 
+function: 0
+Attempt to assign 0 to EnumProp channel0 but the only allowed values are: []
+
+2014/02/26 12:08:33 MainThread instrument_property WARNING TypeError while evaluating:
+property: channel1
+description: 
+function: 0
+Attempt to assign 0 to EnumProp channel1 but the only allowed values are: []
+
+2014/02/26 12:08:33 MainThread instrument_property WARNING TypeError while evaluating:
+property: channel2
+description: 
+function: 0
+Attempt to assign 0 to EnumProp channel2 but the only allowed values are: []
+
+2014/02/26 12:08:33 MainThread instrument_property WARNING TypeError while evaluating:
+property: channel3
+description: 
+function: 0
+Attempt to assign 0 to EnumProp channel3 but the only allowed values are: []
+
+2014/02/26 12:08:33 MainThread instrument_property WARNING TypeError while evaluating:
+property: channel4
+description: 
+function: 0
+Attempt to assign 0 to EnumProp channel4 but the only allowed values are: []
+
+2014/02/26 12:08:33 MainThread instrument_property WARNING TypeError while evaluating:
+property: channel5
+description: 
+function: 0
+Attempt to assign 0 to EnumProp channel5 but the only allowed values are: []
+
+2014/02/26 12:08:33 MainThread instrument_property WARNING TypeError while evaluating:
+property: channel6
+description: 
+function: 0
+Attempt to assign 0 to EnumProp channel6 but the only allowed values are: []
+
+2014/02/26 12:08:33 MainThread instrument_property WARNING TypeError while evaluating:
+property: channel7
+description: 
+function: 0
+Attempt to assign 0 to EnumProp channel7 but the only allowed values are: []
+
+2014/02/26 12:08:33 MainThread instrument_property WARNING TypeError while evaluating:
+property: channel8
+description: 
+function: 0
+Attempt to assign 0 to EnumProp channel8 but the only allowed values are: []
+
+2014/02/26 12:08:33 MainThread instrument_property WARNING TypeError while evaluating:
+property: channel9
+description: 
+function: 0
+Attempt to assign 0 to EnumProp channel9 but the only allowed values are: []
+
+2014/02/26 12:08:33 MainThread instrument_property WARNING TypeError while evaluating:
+property: channel10
+description: 
+function: 0
+Attempt to assign 0 to EnumProp channel10 but the only allowed values are: []
+
+2014/02/26 12:08:33 MainThread instrument_property WARNING TypeError while evaluating:
+property: channel11
+description: 
+function: 0
+Attempt to assign 0 to EnumProp channel11 but the only allowed values are: []
+
+2014/02/26 12:08:33 MainThread instrument_property WARNING TypeError while evaluating:
+property: channel12
+description: 
+function: 0
+Attempt to assign 0 to EnumProp channel12 but the only allowed values are: []
+
+2014/02/26 12:08:33 MainThread instrument_property WARNING TypeError while evaluating:
+property: channel13
+description: 
+function: 0
+Attempt to assign 0 to EnumProp channel13 but the only allowed values are: []
+
+2014/02/26 12:08:33 MainThread instrument_property WARNING TypeError while evaluating:
+property: channel14
+description: 
+function: 0
+Attempt to assign 0 to EnumProp channel14 but the only allowed values are: []
+
+2014/02/26 12:08:33 MainThread instrument_property WARNING TypeError while evaluating:
+property: channel15
+description: 
+function: 0
+Attempt to assign 0 to EnumProp channel15 but the only allowed values are: []
+
+2014/02/26 12:08:33 MainThread instrument_property WARNING TypeError while evaluating:
+property: channel16
+description: 
+function: 0
+Attempt to assign 0 to EnumProp channel16 but the only allowed values are: []
+
+2014/02/26 12:08:33 MainThread instrument_property WARNING TypeError while evaluating:
+property: channel17
+description: 
+function: 0
+Attempt to assign 0 to EnumProp channel17 but the only allowed values are: []
+
+2014/02/26 12:08:33 MainThread instrument_property WARNING TypeError while evaluating:
+property: channel18
+description: 
+function: 0
+Attempt to assign 0 to EnumProp channel18 but the only allowed values are: []
+
+2014/02/26 12:08:33 MainThread instrument_property WARNING TypeError while evaluating:
+property: channel19
+description: 
+function: 0
+Attempt to assign 0 to EnumProp channel19 but the only allowed values are: []
+
+2014/02/26 12:08:33 MainThread instrument_property WARNING TypeError while evaluating:
+property: channel20
+description: 
+function: 0
+Attempt to assign 0 to EnumProp channel20 but the only allowed values are: []
+
+2014/02/26 12:08:33 MainThread instrument_property WARNING TypeError while evaluating:
+property: channel21
+description: 
+function: 0
+Attempt to assign 0 to EnumProp channel21 but the only allowed values are: []
+
+2014/02/26 12:08:33 MainThread instrument_property WARNING TypeError while evaluating:
+property: channel22
+description: 
+function: 0
+Attempt to assign 0 to EnumProp channel22 but the only allowed values are: []
+
+2014/02/26 12:08:33 MainThread instrument_property WARNING TypeError while evaluating:
+property: channel23
+description: 
+function: 0
+Attempt to assign 0 to EnumProp channel23 but the only allowed values are: []
+
+2014/02/26 12:08:33 MainThread instrument_property WARNING TypeError while evaluating:
+property: channel24
+description: 
+function: 0
+Attempt to assign 0 to EnumProp channel24 but the only allowed values are: []
+
+2014/02/26 12:08:33 MainThread instrument_property WARNING TypeError while evaluating:
+property: channel25
+description: 
+function: 0
+Attempt to assign 0 to EnumProp channel25 but the only allowed values are: []
+
+2014/02/26 12:08:33 MainThread instrument_property WARNING TypeError while evaluating:
+property: channel26
+description: 
+function: 0
+Attempt to assign 0 to EnumProp channel26 but the only allowed values are: []
+
+2014/02/26 12:08:33 MainThread instrument_property WARNING TypeError while evaluating:
+property: channel27
+description: 
+function: 0
+Attempt to assign 0 to EnumProp channel27 but the only allowed values are: []
+
+2014/02/26 12:08:33 MainThread instrument_property WARNING TypeError while evaluating:
+property: channel28
+description: 
+function: 0
+Attempt to assign 0 to EnumProp channel28 but the only allowed values are: []
+
+2014/02/26 12:08:33 MainThread instrument_property WARNING TypeError while evaluating:
+property: channel29
+description: 
+function: 0
+Attempt to assign 0 to EnumProp channel29 but the only allowed values are: []
+
+2014/02/26 12:08:33 MainThread instrument_property WARNING TypeError while evaluating:
+property: channel30
+description: 
+function: 0
+Attempt to assign 0 to EnumProp channel30 but the only allowed values are: []
+
+2014/02/26 12:08:33 MainThread instrument_property WARNING TypeError while evaluating:
+property: channel31
+description: 
+function: 0
+Attempt to assign 0 to EnumProp channel31 but the only allowed values are: []
+
+2014/02/26 12:08:33 MainThread instrument_property WARNING TypeError while evaluating:
+property: 0
+description: 
+function: 0
+Attempt to assign 0 to EnumProp 0 but the only allowed values are: []
+
+2014/02/26 12:08:33 MainThread instrument_property WARNING TypeError while evaluating:
+property: channel0
+description: the state of channel 0
+function: 5
+Attempt to assign 5 to EnumProp channel0 but the only allowed values are: []
+
+2014/02/26 12:08:33 MainThread instrument_property WARNING TypeError while evaluating:
+property: 1
+description: 
+function: 0
+Attempt to assign 0 to EnumProp 1 but the only allowed values are: []
+
+2014/02/26 12:08:33 MainThread instrument_property WARNING TypeError while evaluating:
+property: 2
+description: 
+function: 0
+Attempt to assign 0 to EnumProp 2 but the only allowed values are: []
+
+2014/02/26 12:08:33 MainThread instrument_property WARNING TypeError while evaluating:
+property: channel2
+description: the state of channel 2
+function: 5
+Attempt to assign 5 to EnumProp channel2 but the only allowed values are: []
+
+2014/02/26 12:08:33 MainThread instrument_property WARNING TypeError while evaluating:
+property: 3
+description: 
+function: 0
+Attempt to assign 0 to EnumProp 3 but the only allowed values are: []
+
+2014/02/26 12:08:33 MainThread instrument_property WARNING TypeError while evaluating:
+property: channel3
+description: the state of channel 3
+function: 5
+Attempt to assign 5 to EnumProp channel3 but the only allowed values are: []
+
+2014/02/26 12:08:33 MainThread instrument_property WARNING TypeError while evaluating:
+property: 4
+description: 
+function: 0
+Attempt to assign 0 to EnumProp 4 but the only allowed values are: []
+
+2014/02/26 12:08:33 MainThread instrument_property WARNING TypeError while evaluating:
+property: channel4
+description: the state of channel 4
+function: 5
+Attempt to assign 5 to EnumProp channel4 but the only allowed values are: []
+
+2014/02/26 12:08:33 MainThread instrument_property WARNING TypeError while evaluating:
+property: 5
+description: 
+function: 0
+Attempt to assign 0 to EnumProp 5 but the only allowed values are: []
+
+2014/02/26 12:08:33 MainThread instrument_property WARNING TypeError while evaluating:
+property: channel5
+description: the state of channel 5
+function: 5
+Attempt to assign 5 to EnumProp channel5 but the only allowed values are: []
+
+2014/02/26 12:08:34 MainThread instrument_property WARNING TypeError while evaluating:
+property: 6
+description: 
+function: 0
+Attempt to assign 0 to EnumProp 6 but the only allowed values are: []
+
+2014/02/26 12:08:34 MainThread instrument_property WARNING TypeError while evaluating:
+property: channel6
+description: the state of channel 6
+function: 5
+Attempt to assign 5 to EnumProp channel6 but the only allowed values are: []
+
+2014/02/26 12:08:34 MainThread instrument_property WARNING TypeError while evaluating:
+property: 7
+description: 
+function: 0
+Attempt to assign 0 to EnumProp 7 but the only allowed values are: []
+
+2014/02/26 12:08:34 MainThread instrument_property WARNING TypeError while evaluating:
+property: channel7
+description: the state of channel 7
+function: 5
+Attempt to assign 5 to EnumProp channel7 but the only allowed values are: []
+
+2014/02/26 12:08:34 MainThread instrument_property WARNING TypeError while evaluating:
+property: 8
+description: 
+function: 0
+Attempt to assign 0 to EnumProp 8 but the only allowed values are: []
+
+2014/02/26 12:08:34 MainThread instrument_property WARNING TypeError while evaluating:
+property: channel8
+description: the state of channel 8
+function: 5
+Attempt to assign 5 to EnumProp channel8 but the only allowed values are: []
+
+2014/02/26 12:08:34 MainThread instrument_property WARNING TypeError while evaluating:
+property: 9
+description: 
+function: 0
+Attempt to assign 0 to EnumProp 9 but the only allowed values are: []
+
+2014/02/26 12:08:34 MainThread instrument_property WARNING TypeError while evaluating:
+property: channel9
+description: the state of channel 9
+function: 5
+Attempt to assign 5 to EnumProp channel9 but the only allowed values are: []
+
+2014/02/26 12:08:34 MainThread instrument_property WARNING TypeError while evaluating:
+property: 10
+description: 
+function: 0
+Attempt to assign 0 to EnumProp 10 but the only allowed values are: []
+
+2014/02/26 12:08:34 MainThread instrument_property WARNING TypeError while evaluating:
+property: channel10
+description: the state of channel 10
+function: 5
+Attempt to assign 5 to EnumProp channel10 but the only allowed values are: []
+
+2014/02/26 12:08:34 MainThread instrument_property WARNING TypeError while evaluating:
+property: 11
+description: 
+function: 0
+Attempt to assign 0 to EnumProp 11 but the only allowed values are: []
+
+2014/02/26 12:08:34 MainThread instrument_property WARNING TypeError while evaluating:
+property: channel11
+description: the state of channel 11
+function: 5
+Attempt to assign 5 to EnumProp channel11 but the only allowed values are: []
+
+2014/02/26 12:08:34 MainThread instrument_property WARNING TypeError while evaluating:
+property: 12
+description: 
+function: 0
+Attempt to assign 0 to EnumProp 12 but the only allowed values are: []
+
+2014/02/26 12:08:34 MainThread instrument_property WARNING TypeError while evaluating:
+property: channel12
+description: the state of channel 12
+function: 5
+Attempt to assign 5 to EnumProp channel12 but the only allowed values are: []
+
+2014/02/26 12:08:34 MainThread instrument_property WARNING TypeError while evaluating:
+property: 13
+description: 
+function: 0
+Attempt to assign 0 to EnumProp 13 but the only allowed values are: []
+
+2014/02/26 12:08:34 MainThread instrument_property WARNING TypeError while evaluating:
+property: channel13
+description: the state of channel 13
+function: 5
+Attempt to assign 5 to EnumProp channel13 but the only allowed values are: []
+
+2014/02/26 12:08:34 MainThread instrument_property WARNING TypeError while evaluating:
+property: 14
+description: 
+function: 0
+Attempt to assign 0 to EnumProp 14 but the only allowed values are: []
+
+2014/02/26 12:08:34 MainThread instrument_property WARNING TypeError while evaluating:
+property: channel14
+description: the state of channel 14
+function: 5
+Attempt to assign 5 to EnumProp channel14 but the only allowed values are: []
+
+2014/02/26 12:08:34 MainThread instrument_property WARNING TypeError while evaluating:
+property: 15
+description: 
+function: 0
+Attempt to assign 0 to EnumProp 15 but the only allowed values are: []
+
+2014/02/26 12:08:34 MainThread instrument_property WARNING TypeError while evaluating:
+property: channel15
+description: the state of channel 15
+function: 5
+Attempt to assign 5 to EnumProp channel15 but the only allowed values are: []
+
+2014/02/26 12:08:34 MainThread instrument_property WARNING TypeError while evaluating:
+property: 16
+description: 
+function: 0
+Attempt to assign 0 to EnumProp 16 but the only allowed values are: []
+
+2014/02/26 12:08:34 MainThread instrument_property WARNING TypeError while evaluating:
+property: channel16
+description: the state of channel 16
+function: 5
+Attempt to assign 5 to EnumProp channel16 but the only allowed values are: []
+
+2014/02/26 12:08:34 MainThread instrument_property WARNING TypeError while evaluating:
+property: 17
+description: 
+function: 0
+Attempt to assign 0 to EnumProp 17 but the only allowed values are: []
+
+2014/02/26 12:08:34 MainThread instrument_property WARNING TypeError while evaluating:
+property: channel17
+description: the state of channel 17
+function: 5
+Attempt to assign 5 to EnumProp channel17 but the only allowed values are: []
+
+2014/02/26 12:08:34 MainThread instrument_property WARNING TypeError while evaluating:
+property: 18
+description: 
+function: 0
+Attempt to assign 0 to EnumProp 18 but the only allowed values are: []
+
+2014/02/26 12:08:34 MainThread instrument_property WARNING TypeError while evaluating:
+property: channel18
+description: the state of channel 18
+function: 5
+Attempt to assign 5 to EnumProp channel18 but the only allowed values are: []
+
+2014/02/26 12:08:34 MainThread instrument_property WARNING TypeError while evaluating:
+property: 19
+description: 
+function: 0
+Attempt to assign 0 to EnumProp 19 but the only allowed values are: []
+
+2014/02/26 12:08:34 MainThread instrument_property WARNING TypeError while evaluating:
+property: channel19
+description: the state of channel 19
+function: 5
+Attempt to assign 5 to EnumProp channel19 but the only allowed values are: []
+
+2014/02/26 12:08:34 MainThread instrument_property WARNING TypeError while evaluating:
+property: 20
+description: 
+function: 0
+Attempt to assign 0 to EnumProp 20 but the only allowed values are: []
+
+2014/02/26 12:08:34 MainThread instrument_property WARNING TypeError while evaluating:
+property: channel20
+description: the state of channel 20
+function: 5
+Attempt to assign 5 to EnumProp channel20 but the only allowed values are: []
+
+2014/02/26 12:08:34 MainThread instrument_property WARNING TypeError while evaluating:
+property: 21
+description: 
+function: 0
+Attempt to assign 0 to EnumProp 21 but the only allowed values are: []
+
+2014/02/26 12:08:34 MainThread instrument_property WARNING TypeError while evaluating:
+property: channel21
+description: the state of channel 21
+function: 5
+Attempt to assign 5 to EnumProp channel21 but the only allowed values are: []
+
+2014/02/26 12:08:34 MainThread instrument_property WARNING TypeError while evaluating:
+property: 22
+description: 
+function: 0
+Attempt to assign 0 to EnumProp 22 but the only allowed values are: []
+
+2014/02/26 12:08:34 MainThread instrument_property WARNING TypeError while evaluating:
+property: channel22
+description: the state of channel 22
+function: 5
+Attempt to assign 5 to EnumProp channel22 but the only allowed values are: []
+
+2014/02/26 12:08:34 MainThread instrument_property WARNING TypeError while evaluating:
+property: 23
+description: 
+function: 0
+Attempt to assign 0 to EnumProp 23 but the only allowed values are: []
+
+2014/02/26 12:08:34 MainThread instrument_property WARNING TypeError while evaluating:
+property: channel23
+description: the state of channel 23
+function: 5
+Attempt to assign 5 to EnumProp channel23 but the only allowed values are: []
+
+2014/02/26 12:08:34 MainThread instrument_property WARNING TypeError while evaluating:
+property: 24
+description: 
+function: 0
+Attempt to assign 0 to EnumProp 24 but the only allowed values are: []
+
+2014/02/26 12:08:34 MainThread instrument_property WARNING TypeError while evaluating:
+property: channel24
+description: the state of channel 24
+function: 5
+Attempt to assign 5 to EnumProp channel24 but the only allowed values are: []
+
+2014/02/26 12:08:34 MainThread instrument_property WARNING TypeError while evaluating:
+property: 25
+description: 
+function: 0
+Attempt to assign 0 to EnumProp 25 but the only allowed values are: []
+
+2014/02/26 12:08:34 MainThread instrument_property WARNING TypeError while evaluating:
+property: channel25
+description: the state of channel 25
+function: 5
+Attempt to assign 5 to EnumProp channel25 but the only allowed values are: []
+
+2014/02/26 12:08:34 MainThread instrument_property WARNING TypeError while evaluating:
+property: 26
+description: 
+function: 0
+Attempt to assign 0 to EnumProp 26 but the only allowed values are: []
+
+2014/02/26 12:08:34 MainThread instrument_property WARNING TypeError while evaluating:
+property: channel26
+description: the state of channel 26
+function: 5
+Attempt to assign 5 to EnumProp channel26 but the only allowed values are: []
+
+2014/02/26 12:08:34 MainThread instrument_property WARNING TypeError while evaluating:
+property: 27
+description: 
+function: 0
+Attempt to assign 0 to EnumProp 27 but the only allowed values are: []
+
+2014/02/26 12:08:34 MainThread instrument_property WARNING TypeError while evaluating:
+property: channel27
+description: the state of channel 27
+function: 5
+Attempt to assign 5 to EnumProp channel27 but the only allowed values are: []
+
+2014/02/26 12:08:34 MainThread instrument_property WARNING TypeError while evaluating:
+property: 28
+description: 
+function: 0
+Attempt to assign 0 to EnumProp 28 but the only allowed values are: []
+
+2014/02/26 12:08:34 MainThread instrument_property WARNING TypeError while evaluating:
+property: channel28
+description: the state of channel 28
+function: 5
+Attempt to assign 5 to EnumProp channel28 but the only allowed values are: []
+
+2014/02/26 12:08:34 MainThread instrument_property WARNING TypeError while evaluating:
+property: 29
+description: 
+function: 0
+Attempt to assign 0 to EnumProp 29 but the only allowed values are: []
+
+2014/02/26 12:08:34 MainThread instrument_property WARNING TypeError while evaluating:
+property: channel29
+description: the state of channel 29
+function: 5
+Attempt to assign 5 to EnumProp channel29 but the only allowed values are: []
+
+2014/02/26 12:08:34 MainThread instrument_property WARNING TypeError while evaluating:
+property: 30
+description: 
+function: 0
+Attempt to assign 0 to EnumProp 30 but the only allowed values are: []
+
+2014/02/26 12:08:34 MainThread instrument_property WARNING TypeError while evaluating:
+property: channel30
+description: the state of channel 30
+function: 5
+Attempt to assign 5 to EnumProp channel30 but the only allowed values are: []
+
+2014/02/26 12:08:34 MainThread instrument_property WARNING TypeError while evaluating:
+property: 31
+description: 
+function: 0
+Attempt to assign 0 to EnumProp 31 but the only allowed values are: []
+
+2014/02/26 12:08:34 MainThread instrument_property WARNING TypeError while evaluating:
+property: channel31
+description: the state of channel 31
+function: 5
+Attempt to assign 5 to EnumProp channel31 but the only allowed values are: []
+
+2014/02/26 12:09:23 MainThread instrument_property WARNING Exception in EvalProp.evaluate() in clockRate.
+description: 
+function: 100*kilo
+float division by zero
+
+2014/02/26 12:09:23 MainThread instrument_property WARNING Exception in EvalProp.evaluate() in totalAOTime.
+description: 5 ms total
+function: 5
+float division by zero
+
+2014/02/26 12:09:44 MainThread __main__ INFO starting application
+2014/02/26 12:09:55 MainThread instrument_property WARNING TypeError while evaluating:
+property: channel1
+description: the state of channel 1
+function: 0
+Attempt to assign 2 to EnumProp channel1 but the only allowed values are: [0, 1, 5]
+
+2014/02/26 12:09:59 MainThread cs_evaluate WARNING evaluating property channel1, the state of channel 1, 0
+Could not eval string: q
+name 'q' is not definedTraceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\cs_evaluate.py", line 20, in evalWithDict
+    return eval(string,globals(),varDict)
+  File "<string>", line 1, in <module>
+NameError: name 'q' is not defined
+
+
+2014/02/26 12:10:22 MainThread cs_evaluate WARNING evaluating property channel2, the state of channel 2, 0.0
+Could not eval string: i
+name 'i' is not definedTraceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\cs_evaluate.py", line 20, in evalWithDict
+    return eval(string,globals(),varDict)
+  File "<string>", line 1, in <module>
+NameError: name 'i' is not defined
+
+
+2014/02/26 12:10:23 MainThread cs_evaluate WARNING evaluating property channel2, the state of channel 2, 0.0
+Could not eval string: in
+unexpected EOF while parsing (<string>, line 1)Traceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\cs_evaluate.py", line 20, in evalWithDict
+    return eval(string,globals(),varDict)
+  File "<string>", line 1
+    in
+     ^
+SyntaxError: unexpected EOF while parsing
+
+
+2014/02/26 12:10:23 MainThread instrument_property WARNING TypeError while evaluating:
+property: channel2
+description: the state of channel 2
+function: 0.0
+Attempt to assign <type 'int'> to EnumProp channel2 but the only allowed values are: [0, 1, 5]
+
+2014/02/26 12:10:23 MainThread cs_evaluate WARNING evaluating property channel2, the state of channel 2, 0.0
+Could not eval string: int(
+unexpected EOF while parsing (<string>, line 1)Traceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\cs_evaluate.py", line 20, in evalWithDict
+    return eval(string,globals(),varDict)
+  File "<string>", line 1
+    int(
+       ^
+SyntaxError: unexpected EOF while parsing
+
+
+2014/02/26 12:10:23 MainThread cs_evaluate WARNING evaluating property channel2, the state of channel 2, 0.0
+Could not eval string: int(0
+unexpected EOF while parsing (<string>, line 1)Traceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\cs_evaluate.py", line 20, in evalWithDict
+    return eval(string,globals(),varDict)
+  File "<string>", line 1
+    int(0
+        ^
+SyntaxError: unexpected EOF while parsing
+
+
+2014/02/26 12:10:25 MainThread cs_evaluate WARNING evaluating property channel2, the state of channel 2, 0.0
+Could not eval string: int(0
+unexpected EOF while parsing (<string>, line 1)Traceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\cs_evaluate.py", line 20, in evalWithDict
+    return eval(string,globals(),varDict)
+  File "<string>", line 1
+    int(0
+        ^
+SyntaxError: unexpected EOF while parsing
+
+
+2014/02/26 12:10:25 MainThread cs_evaluate WARNING evaluating property channel2, the state of channel 2, 0.0
+Could not eval string: int(
+unexpected EOF while parsing (<string>, line 1)Traceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\cs_evaluate.py", line 20, in evalWithDict
+    return eval(string,globals(),varDict)
+  File "<string>", line 1
+    int(
+       ^
+SyntaxError: unexpected EOF while parsing
+
+
+2014/02/26 12:10:25 MainThread instrument_property WARNING TypeError while evaluating:
+property: channel2
+description: the state of channel 2
+function: 0.0
+Attempt to assign <type 'int'> to EnumProp channel2 but the only allowed values are: [0, 1, 5]
+
+2014/02/26 12:10:26 MainThread cs_evaluate WARNING evaluating property channel2, the state of channel 2, 0.0
+Could not eval string: in
+unexpected EOF while parsing (<string>, line 1)Traceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\cs_evaluate.py", line 20, in evalWithDict
+    return eval(string,globals(),varDict)
+  File "<string>", line 1
+    in
+     ^
+SyntaxError: unexpected EOF while parsing
+
+
+2014/02/26 12:10:26 MainThread cs_evaluate WARNING evaluating property channel2, the state of channel 2, 0.0
+Could not eval string: i
+name 'i' is not definedTraceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\cs_evaluate.py", line 20, in evalWithDict
+    return eval(string,globals(),varDict)
+  File "<string>", line 1, in <module>
+NameError: name 'i' is not defined
+
+
+2014/02/26 12:10:26 MainThread cs_evaluate WARNING evaluating property channel2, the state of channel 2, 0.0
+Could not eval string: f
+name 'f' is not definedTraceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\cs_evaluate.py", line 20, in evalWithDict
+    return eval(string,globals(),varDict)
+  File "<string>", line 1, in <module>
+NameError: name 'f' is not defined
+
+
+2014/02/26 12:10:26 MainThread cs_evaluate WARNING evaluating property channel2, the state of channel 2, 0.0
+Could not eval string: fl
+name 'fl' is not definedTraceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\cs_evaluate.py", line 20, in evalWithDict
+    return eval(string,globals(),varDict)
+  File "<string>", line 1, in <module>
+NameError: name 'fl' is not defined
+
+
+2014/02/26 12:10:26 MainThread cs_evaluate WARNING evaluating property channel2, the state of channel 2, 0.0
+Could not eval string: flo
+name 'flo' is not definedTraceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\cs_evaluate.py", line 20, in evalWithDict
+    return eval(string,globals(),varDict)
+  File "<string>", line 1, in <module>
+NameError: name 'flo' is not defined
+
+
+2014/02/26 12:10:27 MainThread cs_evaluate WARNING evaluating property channel2, the state of channel 2, 0.0
+Could not eval string: floa
+name 'floa' is not definedTraceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\cs_evaluate.py", line 20, in evalWithDict
+    return eval(string,globals(),varDict)
+  File "<string>", line 1, in <module>
+NameError: name 'floa' is not defined
+
+
+2014/02/26 12:10:27 MainThread instrument_property WARNING TypeError while evaluating:
+property: channel2
+description: the state of channel 2
+function: 0.0
+Attempt to assign <type 'float'> to EnumProp channel2 but the only allowed values are: [0, 1, 5]
+
+2014/02/26 12:10:27 MainThread cs_evaluate WARNING evaluating property channel2, the state of channel 2, 0.0
+Could not eval string: float(
+unexpected EOF while parsing (<string>, line 1)Traceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\cs_evaluate.py", line 20, in evalWithDict
+    return eval(string,globals(),varDict)
+  File "<string>", line 1
+    float(
+         ^
+SyntaxError: unexpected EOF while parsing
+
+
+2014/02/26 12:10:27 MainThread cs_evaluate WARNING evaluating property channel2, the state of channel 2, 0.0
+Could not eval string: float(0
+unexpected EOF while parsing (<string>, line 1)Traceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\cs_evaluate.py", line 20, in evalWithDict
+    return eval(string,globals(),varDict)
+  File "<string>", line 1
+    float(0
+          ^
+SyntaxError: unexpected EOF while parsing
+
+
+2014/02/26 12:10:32 MainThread instrument_property WARNING TypeError while evaluating:
+property: channel2
+description: the state of channel 2
+function: 0.0
+Attempt to assign 1.1 to EnumProp channel2 but the only allowed values are: [0, 1, 5]
+
+2014/02/26 12:10:44 MainThread cs_evaluate WARNING evaluating property channel2, the state of channel 2, 0.0
+Could not eval string: float(1
+unexpected EOF while parsing (<string>, line 1)Traceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\cs_evaluate.py", line 20, in evalWithDict
+    return eval(string,globals(),varDict)
+  File "<string>", line 1
+    float(1
+          ^
+SyntaxError: unexpected EOF while parsing
+
+
+2014/02/26 12:10:44 MainThread cs_evaluate WARNING evaluating property channel2, the state of channel 2, 0.0
+Could not eval string: float(
+unexpected EOF while parsing (<string>, line 1)Traceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\cs_evaluate.py", line 20, in evalWithDict
+    return eval(string,globals(),varDict)
+  File "<string>", line 1
+    float(
+         ^
+SyntaxError: unexpected EOF while parsing
+
+
+2014/02/26 12:10:45 MainThread instrument_property WARNING TypeError while evaluating:
+property: channel2
+description: the state of channel 2
+function: 0.0
+Attempt to assign <type 'float'> to EnumProp channel2 but the only allowed values are: [0, 1, 5]
+
+2014/02/26 12:10:45 MainThread cs_evaluate WARNING evaluating property channel2, the state of channel 2, 0.0
+Could not eval string: floa
+name 'floa' is not definedTraceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\cs_evaluate.py", line 20, in evalWithDict
+    return eval(string,globals(),varDict)
+  File "<string>", line 1, in <module>
+NameError: name 'floa' is not defined
+
+
+2014/02/26 12:10:45 MainThread cs_evaluate WARNING evaluating property channel2, the state of channel 2, 0.0
+Could not eval string: flo
+name 'flo' is not definedTraceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\cs_evaluate.py", line 20, in evalWithDict
+    return eval(string,globals(),varDict)
+  File "<string>", line 1, in <module>
+NameError: name 'flo' is not defined
+
+
+2014/02/26 12:10:45 MainThread cs_evaluate WARNING evaluating property channel2, the state of channel 2, 0.0
+Could not eval string: fl
+name 'fl' is not definedTraceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\cs_evaluate.py", line 20, in evalWithDict
+    return eval(string,globals(),varDict)
+  File "<string>", line 1, in <module>
+NameError: name 'fl' is not defined
+
+
+2014/02/26 12:10:45 MainThread cs_evaluate WARNING evaluating property channel2, the state of channel 2, 0.0
+Could not eval string: f
+name 'f' is not definedTraceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\cs_evaluate.py", line 20, in evalWithDict
+    return eval(string,globals(),varDict)
+  File "<string>", line 1, in <module>
+NameError: name 'f' is not defined
+
+
+2014/02/26 12:10:53 MainThread cs_evaluate WARNING evaluating property channel2, the state of channel 2, 0.0
+Could not eval string: ab
+name 'ab' is not definedTraceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\cs_evaluate.py", line 20, in evalWithDict
+    return eval(string,globals(),varDict)
+  File "<string>", line 1, in <module>
+NameError: name 'ab' is not defined
+
+
+2014/02/26 12:10:55 MainThread cs_evaluate WARNING evaluating property channel2, the state of channel 2, 0.0
+Could not eval string: q
+name 'q' is not definedTraceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\cs_evaluate.py", line 20, in evalWithDict
+    return eval(string,globals(),varDict)
+  File "<string>", line 1, in <module>
+NameError: name 'q' is not defined
+
+
+2014/02/26 12:11:35 MainThread instrument_property WARNING Exception in EvalProp.evaluate() in clockRate.
+description: 
+function: 100*kilo
+float division by zero
+
+2014/02/26 12:11:35 MainThread instrument_property WARNING Exception in EvalProp.evaluate() in totalAOTime.
+description: 5 ms total
+function: 5
+float division by zero
+
+2014/02/26 12:11:57 MainThread __main__ INFO starting application
+2014/02/26 12:12:47 MainThread instrument_property WARNING TypeError while evaluating:
+property: channel3
+description: the state of channel 3
+function: 1
+Attempt to assign 3 to EnumProp channel3 but the only allowed values are: [0, 1, 5]
+
+2014/02/26 12:15:43 MainThread instrument_property WARNING Exception in EvalProp.evaluate() in clockRate.
+description: 
+function: 100*kilo
+float division by zero
+
+2014/02/26 12:15:43 MainThread instrument_property WARNING Exception in EvalProp.evaluate() in totalAOTime.
+description: 5 ms total
+function: 5
+float division by zero
+
+2014/02/26 12:16:04 MainThread __main__ INFO starting application
