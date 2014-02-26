@@ -9574,3 +9574,14 @@ function: 5
 float division by zero
 
 2014/02/26 12:16:04 MainThread __main__ INFO starting application
+2014/02/26 15:19:00 MainThread instrument_property WARNING Exception in EvalProp.evaluate() in clockRate.
+description: 
+function: 100*kilo
+float division by zero
+
+2014/02/26 15:19:00 MainThread instrument_property WARNING Exception in EvalProp.evaluate() in totalAOTime.
+description: 5 ms total
+function: 5
+float division by zero
+
+2014/02/26 15:19:21 MainThread __main__ INFO starting application

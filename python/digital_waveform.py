@@ -142,7 +142,7 @@ class Waveform(Prop):
             timeList=numpy.array(timeList*self.digitalout.clockRate.value,dtype=int)
 
             #put the transition list in order
-            order=timeList.argsort()
+            order=numpy.argsort(timeList,kind='mergesort') #mergesort is slower than the default quicksort, but it is 'stable' which means items of the same value are kept in their relative order, which is desired here
             timeList=timeList[order]
             stateList=stateList[order]
             
@@ -152,14 +152,6 @@ class Waveform(Prop):
                 print 'inserting timelist 0'
                 timeList=numpy.insert(timeList,0,0,axis=0)
                 stateList=numpy.insert(stateList,0,defaultState,axis=0)
-            
-            #remove redundant times ### WHY?
-            #i=1
-            #while i<len(timeList):
-            #    if timeList[i-1]==timeList[i]:
-            #        timeList=numpy.delete(timeList,i-1,0)
-            #        stateList=numpy.delete(stateList,i-1,0)
-            #    i+=1
             
             #resolve 5's
             #set 5's in the first transition to 0
@@ -172,12 +164,25 @@ class Waveform(Prop):
                     if stateList[i,j]==5:
                         stateList[i,j]=stateList[i-1,j]
             
+            #remove redundant times
+            #TODO:  If it becomes possible to send 5's to hardware, we will want to remove this section
+            i=1 #start at 1 so we can compare to i-1=0
+            while i<len(timeList):  #check list length each loop cycle, because it may get shorter
+                if timeList[i-1]==timeList[i]:
+                    timeList=numpy.delete(timeList,i-1,0) #remove the prior transition, because only the later one will stick anyway
+                    stateList=numpy.delete(stateList,i-1,0)
+                else:
+                    i+=1 #if we deleted an item, the list position is advanced implicitly through the deletion of a prior element, and so we don't need to do this
+                        
             self.timeList=timeList
             self.stateList=stateList
             
             # find the duration of each segment
             self.duration=timeList[1:]-timeList[:-1]
             self.duration=numpy.append(self.duration,1) #add in a 1 sample duration at end for last transition
+            
+
+
     
     def colorMap(val):
         '''The color map for plotting digitalout sequence bar charts.  Red indicates an invalid value.'''
