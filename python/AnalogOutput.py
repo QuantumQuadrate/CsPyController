@@ -9,14 +9,17 @@ This file holds everything needed to model the analog output from a National Ins
 '''
 
 from __future__ import division
+
+from cs_errors import PauseError, setupLog
+logger=setupLog(__name__)
+
 from atom.api import Bool, Typed, Member
 from enaml.application import deferred_call
 from matplotlib.figure import Figure
 from instrument_property import BoolProp, FloatProp, StrProp, ListProp, EvalProp
 import cs_evaluate
 from cs_instruments import Instrument
-import numpy, logging
-logger = logging.getLogger(__name__)
+import numpy
 
 class AOEquation(EvalProp):
     value=Member()

@@ -8,13 +8,12 @@ modified>=2013-10-22
 This file holds everything needed to model the microwave RF generators (HP/Agilient) which are controlled by GPIB.  It communicates to LabView via the higher up HEXQC2 class.
 '''
 
+from cs_errors import PauseError, setupLog
+logger=setupLog(__name__)
 
-#from cs_errors import PauseError
 from atom.api import Bool, Int, Typed, Member
 from instrument_property import Prop, BoolProp, FloatProp, ListProp #IntProp, StrProp
 from cs_instruments import Instrument
-import logging
-logger = logging.getLogger(__name__)
 
 class RFGenList(ListProp):
     def __init__(self,name,experiment,description='',listProperty=None,listElementType=None,listElementName='element'):

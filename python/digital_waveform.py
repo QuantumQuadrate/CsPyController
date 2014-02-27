@@ -1,4 +1,7 @@
-#this files contains the workings to store a digital waveform and plot it using Chaco
+#this files contains the workings to store a digital waveform and plot it using Matplotlib
+
+from cs_errors import PauseError, setupLog
+logger=setupLog(__name__)
 
 import numpy
 
@@ -6,8 +9,6 @@ from atom.api import Atom, Range, Member, Bool, Typed, List
 from enaml.application import deferred_call
 from instrument_property import Prop, BoolProp, IntProp, FloatProp, StrProp, ListProp, EnumProp
 from matplotlib.figure import Figure
-import logging
-logger = logging.getLogger(__name__)
 
 defaultState=0
 

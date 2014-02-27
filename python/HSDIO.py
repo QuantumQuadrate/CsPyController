@@ -8,14 +8,15 @@ modified>=2013-10-08
 This file holds everything needed to model the high speed digital output from the National Instruments HSDIO card.  It communicates to LabView via the higher up LabView(Instrument) class.
 '''
 
-from cs_errors import PauseError
+from cs_errors import PauseError, setupLog
+logger=setupLog(__name__)
+
 from atom.api import Bool, Typed, Str, Int, Member
 #from enthought.chaco.api import ArrayPlotData, Plot #for chaco plot
 from instrument_property import Prop, BoolProp, IntProp, FloatProp, StrProp, ListProp
 from cs_instruments import Instrument
 import matplotlib.pyplot as plt
 import numpy, logging
-logger = logging.getLogger(__name__)
 
 from digital_waveform import Waveform, Channels
 #import digital_waveform #my helper class for making Chaco plots of waveforms

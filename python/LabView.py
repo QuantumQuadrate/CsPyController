@@ -9,14 +9,14 @@ created=2013-10-08
 modified>=2013-10-08
 '''
 
+from cs_errors import PauseError, setupLog
+logger=setupLog(__name__)
+
 import TCP, HSDIO, piezo, DDS, RF_generators, AnalogOutput, DAQmxPulse, Camera, EchoBox
 from atom.api import Bool, Int, Str, Member, Typed
 from instrument_property import FloatProp
 from cs_instruments import Instrument
 import numpy, struct
-import logging
-from cs_errors import PauseError, setupLog
-logger=setupLog(__name__)
 
 def toBool(x):
     if (x=='False') or (x=='false'):

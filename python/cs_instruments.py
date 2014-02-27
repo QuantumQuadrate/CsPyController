@@ -6,8 +6,9 @@
 #This file is part of the Cesium Control program designed by Martin Lichtman in 2013 for the AQuA project.
 #It contains classes that represent instruments
 
-import logging
-logger = logging.getLogger(__name__)
+from cs_errors import PauseError, setupLog
+logger=setupLog(__name__)
+
 from atom.api import Bool, Member
 from instrument_property import Prop
     

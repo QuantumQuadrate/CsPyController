@@ -1,7 +1,7 @@
+from cs_errors import PauseError, setupLog
+logger=setupLog(__name__)
+
 from atom.api import Bool, Float, Str, Typed, Member
-import logging
-logger = logging.getLogger(__name__)
-#from cs_errors import PauseError
 from instrument_property import Prop, BoolProp, FloatProp, ListProp
 from cs_instruments import Instrument
 

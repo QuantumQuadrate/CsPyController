@@ -9585,3 +9585,35 @@ function: 5
 float division by zero
 
 2014/02/26 15:19:21 MainThread __main__ INFO starting application
+2014/02/26 15:21:41 MainThread cs_evaluate WARNING evaluating property channel1, the state of channel 1, 0
+Could not eval string: q
+name 'q' is not definedTraceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\cs_evaluate.py", line 20, in evalWithDict
+    return eval(string,globals(),varDict)
+  File "<string>", line 1, in <module>
+NameError: name 'q' is not defined
+
+
+2014/02/26 15:21:44 MainThread instrument_property WARNING TypeError while evaluating:
+property: channel1
+description: the state of channel 1
+function: 0
+Attempt to assign 4 to EnumProp channel1 but the only allowed values are: [0, 1, 5]
+
+2014/02/26 15:22:18 MainThread instrument_property WARNING TypeError while evaluating:
+property: channel7
+description: the state of channel 7
+function: 1
+Attempt to assign 6 to EnumProp channel7 but the only allowed values are: [0, 1, 5]
+
+2014/02/26 15:34:01 MainThread instrument_property WARNING Exception in EvalProp.evaluate() in clockRate.
+description: 
+function: 100*kilo
+float division by zero
+
+2014/02/26 15:34:01 MainThread instrument_property WARNING Exception in EvalProp.evaluate() in totalAOTime.
+description: 5 ms total
+function: 5
+float division by zero
+
+2014/02/26 15:34:23 MainThread __main__ INFO starting application
