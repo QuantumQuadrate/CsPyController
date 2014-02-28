@@ -1,6 +1,9 @@
 #support for icons
 #based on enthought example icons.py and icons_view.enaml
 
+from cs_errors import PauseError, setupLog
+logger=setupLog(__name__)
+
 from os.path import dirname, join
 from enaml.image_provider import Image
 from enaml.icon_provider import IconProvider, Icon, IconImage

@@ -8,11 +8,14 @@
     '''
 
 from __future__ import division
+
+from cs_errors import PauseError, setupLog
+logger=setupLog(__name__)
+
 from atom.api import Bool, Typed, Str, Int, Member
 from instrument_property import BoolProp
 from cs_instruments import Instrument
-import numpy, logging, struct
-logger = logging.getLogger(__name__)
+import numpy, struct
 from TCP import makemsg
 from digital_waveform import Waveform, Channels
 

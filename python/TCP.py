@@ -10,10 +10,10 @@
 #The class CsSock inherets from socket.socket, and makes it easier to open up the type of socket we use, and then send or receive
 #a message with the correct format.
 
-
-import socket, struct, logging, numpy, threading, traceback
 from cs_errors import PauseError, setupLog
 logger=setupLog(__name__)
+
+import socket, struct, logging, numpy, threading, traceback
 
 
 def prefixLength(txt):

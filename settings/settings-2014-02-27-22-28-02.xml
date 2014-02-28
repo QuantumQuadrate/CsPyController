@@ -19803,7 +19803,7 @@ p0
 <clockRate><description>S''
 p0
 .</description>
-<function>S'20*kilo'
+<function>S'100*kilo'
 p0
 .</function>
 </clockRate>

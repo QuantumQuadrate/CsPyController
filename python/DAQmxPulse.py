@@ -8,20 +8,16 @@ modified>=2013-10-19
 This file holds everything to model a National Instruments DAQmx pulse output.  It communicated to LabView via the higher up LabView class.
 '''
 
-#from cs_errors import PauseError
+from cs_errors import PauseError, setupLog
+logger=setupLog(__name__)
+
 from cs_instruments import Instrument
-import logging
-logger = logging.getLogger(__name__)
 
-
-
-#from cs_errors import PauseError
 from atom.api import Bool, Typed, Member
 #from enthought.chaco.api import ArrayPlotData, Plot #for chaco plot
 from instrument_property import Prop, BoolProp, IntProp, FloatProp, StrProp, ListProp
 import matplotlib.pyplot as plt
-import numpy, logging
-logger = logging.getLogger(__name__)
+import numpy
 from digital_waveform import Waveform, Channels
 
 #---- DAQmx properties ----

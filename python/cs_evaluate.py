@@ -5,19 +5,27 @@
 #modified >= 2013-08-22
 
 from __future__ import division #always do float division
-from numpy import * #make all numpy functions accessible in this scope
-import traceback
+
 from cs_errors import PauseError, setupLog
 logger=setupLog(__name__)
+
+import traceback
+
+from numpy import * #make all numpy functions accessible in this scope
+#import numpy
+#numpyDict={v:getattr(numpy, v) for v in dir(numpy)}
 
 def evalWithDict(string,varDict={},errStr=''):
     '''string: the python expression to be evaluated
        varDict: a dictionary of variables, functions, modules, etc, to be used during the evaluation
        errStr: a string that says something about what is being evaluated, to make the error reporting useful
        '''
+    
+    globals().update(varDict) #bring the varDict into the namespace
+    
     if string!='':
         try:
-            return eval(string,globals(),varDict)
+            return eval(string,globals()) #,varDict.copy()) #dict(numpyDict.items()+varDict.items())) #create a new dictionary so all numpy functions and everything defined in varDict is available as a global during evaluation
         except Exception as e:
             logger.warning(errStr+'Could not eval string: '+string+'\n'+str(e)+str(traceback.format_exc())+'\n')
             return None
@@ -26,6 +34,7 @@ def evalWithDict(string,varDict={},errStr=''):
 def execWithDict(string,varDict={}):
     '''This executes a string with the globals context including only numpy, and the locals including only what is passed in.
     The passed in dictionary gets updated with newly defined locals.'''
+    
     if string!='':
         try:
             exec(string,globals(),varDict)

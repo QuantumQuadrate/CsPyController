@@ -1,0 +1,5 @@
+AO_equation(t,gradient_field)
+AO_equation(t,x2_5_shim)
+AO_equation(t,x3_6_shim)
+AO_equation(t,vertical_shim)
+AO_equation(t,bias_shim)

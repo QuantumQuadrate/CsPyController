@@ -19803,7 +19803,7 @@ p0
 <clockRate><description>S''
 p0
 .</description>
-<function>S'20*kilo'
+<function>S'100*kilo'
 p0
 .</function>
 </clockRate>
@@ -19863,20 +19863,6 @@ p0
 p0
 .</function>
 </equation2>
-<equation3><description>S'vertical shim'
-p0
-.</description>
-<function>S'AO_equation(t,vertical_shim)'
-p0
-.</function>
-</equation3>
-<equation4><description>S'bias shim'
-p0
-.</description>
-<function>S'AO_equation(t,bias_shim)'
-p0
-.</function>
-</equation4>
 </equations>
 <exportStartTrigger><description>S'Should we trigger all other cards off the AO card?'
 p0

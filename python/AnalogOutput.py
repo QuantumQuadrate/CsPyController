@@ -61,6 +61,8 @@ class AnalogOutput(Instrument):
     triggerSource=Typed(StrProp)
     triggerEdge=Typed(StrProp)
     equations=Typed(ListProp)
+    exportStartTrigger=Typed(BoolProp)
+    exportStartTriggerDestination=Typed(StrProp)
     
     timesteps=Member()
     version=Member()
@@ -74,7 +76,7 @@ class AnalogOutput(Instrument):
     
     def __init__(self,experiment):
         super(AnalogOutput,self).__init__('AnalogOutput',experiment)
-        self.version='2014.01.22'
+        self.version='2014.02.27'
         self.enable=False
         self.physicalChannels=StrProp('physicalChannels',self.experiment,'','"PXI1Slot2/ao0:7"')
         self.minimum=FloatProp('minimum',self.experiment,'','-10')
@@ -87,7 +89,9 @@ class AnalogOutput(Instrument):
         self.triggerEdge=StrProp('triggerEdge',self.experiment,'','"Rising"')
         self.equations=ListProp('equations',self.experiment,listElementType=AOEquation,
                             listElementName='equation',listElementKwargs={'AO':self})
-        self.properties+=['version','enable','physicalChannels','minimum','maximum','clockRate','totalAOTime','units','waitForStartTrigger','triggerSource','triggerEdge','equations']
+        self.exportStartTrigger=BoolProp('exportStartTrigger',self.experiment,'Should we trigger all other cards off the AO card?','True')
+        self.exportStartTriggerDestination=StrProp('exportStartTriggerDestination',self.experiment,'What line to send the AO StartTrigger out to?','"/PXISlot2/PXI_Trig0"')
+        self.properties+=['version','enable','physicalChannels','minimum','maximum','clockRate','totalAOTime','units','waitForStartTrigger','triggerSource','triggerEdge','equations','exportStartTrigger','exportStartTriggerDestination']
         
         
         self.figure1=Figure()

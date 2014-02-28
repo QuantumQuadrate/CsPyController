@@ -1,3 +1,6 @@
+from cs_errors import PauseError, setupLog
+logger=setupLog(__name__)
+
 from atom.api import Bool, Typed, Str, Member, List, Int, observe
 from instrument_property import Prop
 
@@ -5,10 +8,7 @@ from instrument_property import Prop
 from matplotlib.figure import Figure
 from enaml.application import deferred_call
 
-import threading, numpy, logging, traceback
-logger = logging.getLogger(__name__)
-
-from cs_errors import PauseError
+import threading, numpy, traceback
 
 class Analysis(Prop):
     '''This is the parent class for all data analyses.  New analyses should subclass off this,

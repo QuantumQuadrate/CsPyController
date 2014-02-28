@@ -5,6 +5,7 @@ A Prop has extensions like EvalProp from a setting that takes some string input 
 '''
 from cs_errors import PauseError, setupLog
 logger=setupLog(__name__)
+
 from atom.api import Atom, Str, Bool, Int, Float, List, Member, Value, observe
 from enaml.validator import Validator
 

@@ -1,5 +1,8 @@
 '''This file contains all the machinery to save 2013 style files (individual PNGs and text files with variable info).  This is done in the structure of an analysis routine.'''
 
+from cs_errors import PauseError, setupLog
+logger=setupLog(__name__)
+
 from analysis import Analysis
 import os
 import png, itertools #for PyPNG support

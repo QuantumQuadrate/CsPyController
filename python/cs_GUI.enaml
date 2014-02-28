@@ -1140,7 +1140,7 @@ enamldef AnalogOutputPage(Page):
         Container: c1:
             hug_height='strong'
             hug_width='strong'
-            constraints=[grid([e2,e3,e4],[e5,e6,e7],[e8,e9,e10])]
+            constraints=[grid([e2,e3,e4],[e5,e6,e7],[e8,e9,e10],[e11,e12])]
             EvalProp: e2:
                 prop<<AO.physicalChannels
             EvalProp: e3:
@@ -1159,7 +1159,10 @@ enamldef AnalogOutputPage(Page):
                 prop<<AO.triggerSource
             EvalProp: e10:
                 prop<<AO.triggerEdge
-
+            EvalProp: e11:
+                prop<<AO.exportStartTrigger
+            EvalProp: e12:
+                prop<<AO.exportStartTriggerDestination
 
 enamldef PiezoChannel(Container):
     attr channel

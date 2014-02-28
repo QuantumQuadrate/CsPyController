@@ -65,9 +65,12 @@ TODO:
     side-by-side picture graphs?  With zoom? (use chaco?)
     make shotsBrowser update each measurement if selected index is same as current iteration and measurement
     selectable colors on digital waveform plot
-    use setupLOG on all modules
+    make sure HSDIO script is always written AFTER waveforms
+    clear HSDIO waveform memory between iterations?
+    make dependent variables a fixed-width (courier) font
 
 Done:
+    use setupLOG on all modules
     send only waveforms actually used.
     waveform upload error (MSB LSB order is reversed)
     threading made optional (default off) in analysis, so they can be run in a guaranteed order
