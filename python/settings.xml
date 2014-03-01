@@ -3228,7 +3228,7 @@ p0
 <script><description>S'HSDIO script that says what waveforms to generate'
 p0
 .</description>
-<function>S"'script script1\\n repeat 2\\n  generate cameraTrigger\\n end repeat\\nend script'"
+<function>S"'script script1\\ncompressedGenerate MOT_Loading\\ncompressedGenerate PGC_1\\ncompressedGenerate MOT_drop\\ncompressedGenerate PreReadout\\ncompressedGenerate Readout\\ncompressedGenerate PGC_2\\ncompressedGenerate close_3D_shutter\\ncompressedGenerate close_HF_shutter\\ncompressedGenerate Optical_Pumping\\ncompressedGenerate uwave_wStark_site2\\ncompressedGenerate Blowaway\\ncompressedGenerate Camera_delay\\ncompressedGenerate Readout\\ncompressedGenerate slow_noise_eater_ms\\nidle\\nend script'"
 p0
 .</function>
 </script>

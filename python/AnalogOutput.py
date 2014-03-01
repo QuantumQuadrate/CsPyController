@@ -118,8 +118,8 @@ class AnalogOutput(Instrument):
         for i in range(n):
             ax=fig.add_subplot(n,1,i+1)
             ax.plot(self.timesteps,self.equations[i].value)
-            ax.set_title=self.equations[i].description
-        if fig.axes:
+            ax.set_ylabel(self.equations[i].description)
+        if fig.axes:  #TODO: this should equal something
             ax.set_xlabel('time') #label only the last (bottom) plot
     
     def swapFigures(self):
