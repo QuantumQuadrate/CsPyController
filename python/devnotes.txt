@@ -68,6 +68,7 @@ TODO:
     make sure HSDIO script is always written AFTER waveforms
     clear HSDIO waveform memory between iterations?
     make dependent variables a fixed-width (courier) font
+    add 2nd HSDIO card, and combine them so it looks like 1 card with 64 channels
 
 Done:
     use setupLOG on all modules

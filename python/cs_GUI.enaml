@@ -556,7 +556,7 @@ enamldef Transition(Container):
     #constraints=[vbox(remove,form)]
     padding=0
     PushButton: remove:
-        constraints = [height == 20]
+        constraints = [height==20]
         text='-'
         clicked::
             waveform.sequence.remove(transition) #remove ourselves from the backend
@@ -564,10 +564,11 @@ enamldef Transition(Container):
             #remove ourselves from the GUI
             waveformContainer.remove = not waveformContainer.remove #TODO: figure out how to do this with a true callable event, rather than signaling with a changed Bool
     Field:
-        constraints = [width==150,height==20]
+        constraints = [height==20]
         placeholder = 'description'
         text:=transition.description
     Form:
+        padding=0
         Field:
             constraints = [width == 100,height==20]
             placeholder='time'
@@ -597,7 +598,7 @@ class RefreshableMPLCanvas(MPLCanvas):
         def on_action_set_refresh(self, content):
             self.refresh_mpl_widget()
     """
-
+    
     #: Toggle this to refresh the canvas
     refresh = d_(Bool())
 
@@ -648,6 +649,9 @@ enamldef Waveform(RemoveEventContainer): thisWaveformContainer:
             Field: f1:
                 constraints = [width == 150, height == 20]
                 text:=waveform.name
+            Label:
+                constraints = [height == 20]
+                text='description'                
             Label: l1:
                 constraints = [height == 20]
                 text='time'
@@ -1366,6 +1370,8 @@ enamldef Main(MainWindow): main:
                         LabView=main.experiment.LabView
                     HSDIO_DigitalOutPage:
                         HSDIO=main.experiment.LabView.HSDIO
+                    #HSDIO_DigitalOutPage:
+                    #    HSDIO=main.experiment.LabView.HSDIO2
                     WaveformsPage:
                         HSDIO=main.experiment.LabView.HSDIO
                     DAQmxDigitalOutPage:

@@ -9,8 +9,9 @@ from atom.api import Atom, Range, Member, Bool, Typed, List
 from enaml.application import deferred_call
 from instrument_property import Prop, BoolProp, IntProp, FloatProp, StrProp, ListProp, EnumProp
 from matplotlib.figure import Figure
+from matplotlib.ticker import NullLocator, FixedLocator
 
-defaultState=0
+defaultState=5
 
 class Channel(Prop):
     active=Typed(BoolProp)
@@ -149,7 +150,7 @@ class Waveform(Prop):
             
             #if the waveform doesn't start with time 0, add it, and add defaultStates's to the beginning of statelist
             #LabView will modify the waveform in unpredictable ways if it doesn't start with time 0
-            if timeList[0]!=0:
+            if timeList[0]>0:
                 print 'inserting timelist 0'
                 timeList=numpy.insert(timeList,0,0,axis=0)
                 stateList=numpy.insert(stateList,0,defaultState,axis=0)
@@ -199,7 +200,7 @@ class Waveform(Prop):
     #create a version of the colorMap function that can be passed arrays
     vColorMap=numpy.vectorize(colorMap) 
     
-    def drawMPL(self,displayArray,data):
+    def drawMPL(self,displayArray,timeList,duration):
         #draw on the inactive figure
         fig=self.backFigure
         
@@ -222,11 +223,16 @@ class Waveform(Prop):
             #Make a broken horizontal bar plot, i.e. one with gaps
             for i in xrange(self.digitalout.numChannels):
                 facecolors=self.vColorMap(displayArray[:,i]) #convert the digital values to colors
-                ax.broken_barh(data,(i,0.8),facecolors=facecolors,linewidth=0)
-            ax.set_xlim(self.timeList[0],self.timeList[-1]+1)
-            tickList=self.timeList.copy()
-            tickList=numpy.insert(self.timeList,-1,self.timeList[-1]+1) #add one sample to the end
-            ax.set_xticks(tickList)
+                ax.broken_barh(zip(timeList,duration),(i,0.8),facecolors=facecolors,linewidth=0)
+            
+            #tickList=self.timeList.astype(float)
+            #tickList=numpy.array([timeList[0],timeList[-1]],dtype=float) #TODO: fix tick labeler so we don't have to do this
+            #tickList=numpy.insert(timeList,-1,timeList[-1]+1) #add one sample to the end
+            #ax.xaxis.set_major_locator( FixedLocator(tickList) )
+            ax.xaxis.set_major_locator( NullLocator() )
+            ax.xaxis.set_minor_locator( NullLocator() )
+            ax.set_xlim(timeList[0],timeList[-1]+1)
+            #ax.set_xticks(tickList)
             ax.set_yticks(numpy.arange(self.digitalout.numChannels)+0.4)
             ax.set_yticklabels([str(i)+': '+self.digitalout.channels[i].description for i in range(self.digitalout.numChannels)])
     
@@ -234,30 +240,19 @@ class Waveform(Prop):
         temp=self.backFigure
         self.backFigure=self.figure
         self.figure=temp
-
+    
     def updateFigure(self):
         '''This function redraws the broken bar chart display of the waveform sequences.'''
         self.format() #update processed sequence
-        
-        if not self.isEmpty:
-            #resolve '5' unchanged samples
-            displayArray=self.stateList.copy()
-            for i in xrange(self.digitalout.numChannels): #for each channel
-                for j in range(1,len(self.timeList)): #go through the sequence, but not the first item
-                    if displayArray[j,i]==5:
-                        displayArray[j,i]=displayArray[j-1,i] #change the '5' to be whatever was before it
-        else:
-            displayArray=None
-        
-        data=zip(self.timeList,self.duration)
+    
         #Make the matplotlib plot
-        self.drawMPL(displayArray,data)
+        self.drawMPL(self.stateList,self.timeList.astype('float64'),self.duration.astype('float64'))
         
         try:
             deferred_call(self.swapFigures)
         except RuntimeError: #application not started yet
             self.swapFigures()
-        
+    
     def remove(self):
         if self.waveforms is not None:
             index=self.waveforms.remove(self) #remove ourselves from the master list, becoming subject to garbage collection
