@@ -1,5 +1,7 @@
 #this files contains the workings to store a digital waveform and plot it using Matplotlib
 
+from __future__ import division
+
 from cs_errors import PauseError, setupLog
 logger=setupLog(__name__)
 
@@ -130,18 +132,18 @@ class Waveform(Prop):
         '''Create timeList, a 1D array of transition times, and stateList a 2D array of output values.'''
         if len(self.sequence)==0:
             self.isEmpty=True
-            self.timeList=numpy.zeros(0,dtype=int)
+            self.timeList=numpy.zeros(0,dtype='uint64')
             self.stateList=numpy.zeros((0,self.digitalout.numChannels),dtype='uint8')
-            self.duration=numpy.zeros(0,dtype=int)
+            self.duration=numpy.zeros(0,dtype='uint64')
         else:
             self.isEmpty=False
             
             #create arrays
-            timeList=numpy.array([i.time.value for i in self.sequence])
+            timeList=numpy.array([i.time.value for i in self.sequence],dtype='float64')
             stateList=numpy.array([[channel.value for channel in transition.state] for transition in self.sequence],dtype='uint8') #channel here refers to an IntProp, not to a Channel
 
             #convert to integral samples
-            timeList=numpy.array(timeList*self.digitalout.clockRate.value,dtype=int)
+            timeList=(timeList*self.digitalout.clockRate.value).astype('uint64')
 
             #put the transition list in order
             order=numpy.argsort(timeList,kind='mergesort') #mergesort is slower than the default quicksort, but it is 'stable' which means items of the same value are kept in their relative order, which is desired here
@@ -182,9 +184,6 @@ class Waveform(Prop):
             # find the duration of each segment
             self.duration=timeList[1:]-timeList[:-1]
             self.duration=numpy.append(self.duration,1) #add in a 1 sample duration at end for last transition
-            
-
-
     
     def colorMap(val):
         '''The color map for plotting digitalout sequence bar charts.  Red indicates an invalid value.'''
@@ -200,16 +199,19 @@ class Waveform(Prop):
     #create a version of the colorMap function that can be passed arrays
     vColorMap=numpy.vectorize(colorMap) 
     
-    def drawMPL(self,displayArray,timeList,duration):
+    def drawMPL(self,stateList,timeList,duration):
         #draw on the inactive figure
         fig=self.backFigure
         
         #clear figure
         fig.clf()
-
+        
+        #get plot info
+        numTransitions,numChannels=numpy.shape(stateList)
+        
         #create axis
         ax=fig.add_subplot(111)
-        ax.set_ylim(0,self.digitalout.numChannels)
+        ax.set_ylim(0,numChannels)
         ax.set_xlabel('samples')
         
         #create dummy lines for legend
@@ -220,21 +222,33 @@ class Waveform(Prop):
         ax.legend(loc='upper center',bbox_to_anchor=(0.5, 1.1), fancybox=True, ncol=4)
         
         if not self.isEmpty:
+            #create a timeList on the scale 0 to 1
+            relativeTimeList=timeList/(timeList[-1]+1)
+            relativeDuration=duration/(timeList[-1]+1)
+
             #Make a broken horizontal bar plot, i.e. one with gaps
-            for i in xrange(self.digitalout.numChannels):
-                facecolors=self.vColorMap(displayArray[:,i]) #convert the digital values to colors
-                ax.broken_barh(zip(timeList,duration),(i,0.8),facecolors=facecolors,linewidth=0)
             
-            #tickList=self.timeList.astype(float)
+            for i in xrange(numChannels):
+                for j in xrange(numTransitions):
+#                    ax.broken_barh(zip(timeList,duration),(i,0.8),facecolors=facecolors,linewidth=0)
+                    if stateList[j,i]==1:
+                        ax.axhspan(i+.1,i+.9, relativeTimeList[j],relativeTimeList[j]+relativeDuration[j], color='black',alpha=0.5)
+                    elif stateList[j,i]==5:
+                        ax.axhspan(i+.1,i+.9, relativeTimeList[j],relativeTimeList[j]+relativeDuration[j], color='grey',alpha=0.5)
+                    elif stateList[j,i]>0:
+                        ax.axhspan(i+.1,i+.9, relativeTimeList[j],relativeTimeList[j]+relativeDuration[j], color='red',alpha=0.5)
+                    #do nothing on zero
+            
+            tickList=self.timeList.copy()
             #tickList=numpy.array([timeList[0],timeList[-1]],dtype=float) #TODO: fix tick labeler so we don't have to do this
-            #tickList=numpy.insert(timeList,-1,timeList[-1]+1) #add one sample to the end
+            tickList=numpy.insert(timeList,-1,timeList[-1]+1) #add one sample to the end
             #ax.xaxis.set_major_locator( FixedLocator(tickList) )
-            ax.xaxis.set_major_locator( NullLocator() )
-            ax.xaxis.set_minor_locator( NullLocator() )
+            #ax.xaxis.set_major_locator( NullLocator() )
+            #ax.xaxis.set_minor_locator( NullLocator() )
+            ax.set_xticks(tickList)
             ax.set_xlim(timeList[0],timeList[-1]+1)
-            #ax.set_xticks(tickList)
-            ax.set_yticks(numpy.arange(self.digitalout.numChannels)+0.4)
-            ax.set_yticklabels([str(i)+': '+self.digitalout.channels[i].description for i in range(self.digitalout.numChannels)])
+            ax.set_yticks(numpy.arange(numChannels)+0.4)
+            ax.set_yticklabels([str(i)+': '+self.digitalout.channels[i].description for i in range(numChannels)])
     
     def swapFigures(self):
         temp=self.backFigure
@@ -246,7 +260,7 @@ class Waveform(Prop):
         self.format() #update processed sequence
     
         #Make the matplotlib plot
-        self.drawMPL(self.stateList,self.timeList.astype('float64'),self.duration.astype('float64'))
+        self.drawMPL(self.stateList,self.timeList,self.duration)
         
         try:
             deferred_call(self.swapFigures)

@@ -21745,3 +21745,327 @@ name 'meg' is not definedTraceback (most recent call last):
 NameError: name 'meg' is not defined
 
 
+2014/03/04 18:12:52 MainThread instrument_property WARNING Exception in EvalProp.evaluate() in clockRate.
+description: 
+function: 20*kilo
+float division by zero
+
+2014/03/04 18:12:52 MainThread instrument_property WARNING Exception in EvalProp.evaluate() in totalAOTime.
+description: 5 ms total
+function: total_AO_time
+float division by zero
+
+2014/03/04 18:13:16 MainThread __main__ INFO starting application
+2014/03/04 18:16:35 MainThread instrument_property WARNING Exception in EvalProp.evaluate() in clockRate.
+description: 
+function: 20*kilo
+float division by zero
+
+2014/03/04 18:16:35 MainThread instrument_property WARNING Exception in EvalProp.evaluate() in totalAOTime.
+description: 5 ms total
+function: total_AO_time
+float division by zero
+
+2014/03/04 18:16:58 MainThread __main__ INFO starting application
+2014/03/04 18:17:47 MainThread instrument_property WARNING Exception in EvalProp.evaluate() in clockRate.
+description: 
+function: 20*kilo
+float division by zero
+
+2014/03/04 18:17:47 MainThread instrument_property WARNING Exception in EvalProp.evaluate() in totalAOTime.
+description: 5 ms total
+function: total_AO_time
+float division by zero
+
+2014/03/04 18:18:10 MainThread __main__ INFO starting application
+2014/03/04 18:18:42 MainThread instrument_property WARNING Exception in EvalProp.evaluate() in clockRate.
+description: 
+function: 20*kilo
+float division by zero
+
+2014/03/04 18:18:42 MainThread instrument_property WARNING Exception in EvalProp.evaluate() in totalAOTime.
+description: 5 ms total
+function: total_AO_time
+float division by zero
+
+2014/03/04 18:19:06 MainThread __main__ INFO starting application
+2014/03/04 18:27:42 MainThread instrument_property WARNING Exception in EvalProp.evaluate() in clockRate.
+description: 
+function: 20*kilo
+float division by zero
+
+2014/03/04 18:27:42 MainThread instrument_property WARNING Exception in EvalProp.evaluate() in totalAOTime.
+description: 5 ms total
+function: total_AO_time
+float division by zero
+
+2014/03/04 18:28:06 MainThread __main__ INFO starting application
+2014/03/04 18:28:34 MainThread cs_evaluate WARNING evaluating property clockRate, samples/channel/sec, 20*kilo
+Could not eval string: 20*m
+name 'm' is not definedTraceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\cs_evaluate.py", line 28, in evalWithDict
+    return eval(string,globals()) #,varDict.copy()) #dict(numpyDict.items()+varDict.items())) #create a new dictionary so all numpy functions and everything defined in varDict is available as a global during evaluation
+  File "<string>", line 1, in <module>
+NameError: name 'm' is not defined
+
+
+2014/03/04 18:28:34 MainThread cs_evaluate WARNING evaluating property clockRate, samples/channel/sec, 20*kilo
+Could not eval string: 20*me
+name 'me' is not definedTraceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\cs_evaluate.py", line 28, in evalWithDict
+    return eval(string,globals()) #,varDict.copy()) #dict(numpyDict.items()+varDict.items())) #create a new dictionary so all numpy functions and everything defined in varDict is available as a global during evaluation
+  File "<string>", line 1, in <module>
+NameError: name 'me' is not defined
+
+
+2014/03/04 18:28:34 MainThread cs_evaluate WARNING evaluating property clockRate, samples/channel/sec, 20*kilo
+Could not eval string: 20*meg
+name 'meg' is not definedTraceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\cs_evaluate.py", line 28, in evalWithDict
+    return eval(string,globals()) #,varDict.copy()) #dict(numpyDict.items()+varDict.items())) #create a new dictionary so all numpy functions and everything defined in varDict is available as a global during evaluation
+  File "<string>", line 1, in <module>
+NameError: name 'meg' is not defined
+
+
+2014/03/04 18:47:07 MainThread experiments WARNING Exception while loading experiment variables XML
+delete() got an unexpected keyword argument 'dtype'
+Traceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\experiments.py", line 491, in load
+    self.fromXML(xmlNode)
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\instrument_property.py", line 170, in fromXML
+    var.fromXML(child)
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\instrument_property.py", line 170, in fromXML
+    var.fromXML(child)
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\instrument_property.py", line 170, in fromXML
+    var.fromXML(child)
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\HSDIO.py", line 70, in fromXML
+    self.listProperty+=[Waveform(self.getNextAvailableName(),self.experiment,self.digitalout,waveforms=self).fromXML(child) for child in xmlNode]
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\digital_waveform.py", line 122, in fromXML
+    self.updateFigure()
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\digital_waveform.py", line 260, in updateFigure
+    self.format() #update processed sequence
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\digital_waveform.py", line 176, in format
+    timeList=numpy.delete(timeList,i-1,0,dtype='uint64') #remove the prior transition, because only the later one will stick anyway
+TypeError: delete() got an unexpected keyword argument 'dtype'
+
+2014/03/04 18:47:07 MainThread instrument_property WARNING Evaluating AnalogOutput in LabView.properties.
+float division by zeroTraceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\instrument_property.py", line 40, in evaluate
+    o.evaluate() #evaluate it
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\AnalogOutput.py", line 142, in evaluate
+    self.timesteps=numpy.arange(0.0,self.totalAOTime.value,1.0/(self.clockRate.value*self.units.value))
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\instrument_property.py", line 195, in call_evaluate
+    self.evaluate()
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\AnalogOutput.py", line 142, in evaluate
+    self.timesteps=numpy.arange(0.0,self.totalAOTime.value,1.0/(self.clockRate.value*self.units.value))
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\instrument_property.py", line 195, in call_evaluate
+    self.evaluate()
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\AnalogOutput.py", line 142, in evaluate
+    self.timesteps=numpy.arange(0.0,self.totalAOTime.value,1.0/(self.clockRate.value*self.units.value))
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\instrument_property.py", line 195, in call_evaluate
+    self.evaluate()
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\AnalogOutput.py", line 142, in evaluate
+    self.timesteps=numpy.arange(0.0,self.totalAOTime.value,1.0/(self.clockRate.value*self.units.value))
+ZeroDivisionError: float division by zero
+
+
+2014/03/04 18:47:07 MainThread experiments WARNING PauseError
+2014/03/04 18:47:10 MainThread __main__ INFO starting application
+2014/03/04 18:48:26 MainThread experiments WARNING Exception while loading experiment variables XML
+append() got an unexpected keyword argument 'dtype'
+Traceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\experiments.py", line 491, in load
+    self.fromXML(xmlNode)
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\instrument_property.py", line 170, in fromXML
+    var.fromXML(child)
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\instrument_property.py", line 170, in fromXML
+    var.fromXML(child)
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\instrument_property.py", line 170, in fromXML
+    var.fromXML(child)
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\HSDIO.py", line 70, in fromXML
+    self.listProperty+=[Waveform(self.getNextAvailableName(),self.experiment,self.digitalout,waveforms=self).fromXML(child) for child in xmlNode]
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\digital_waveform.py", line 122, in fromXML
+    self.updateFigure()
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\digital_waveform.py", line 260, in updateFigure
+    self.format() #update processed sequence
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\digital_waveform.py", line 186, in format
+    self.duration=numpy.append(self.duration,1,dtype='uint64') #add in a 1 sample duration at end for last transition
+TypeError: append() got an unexpected keyword argument 'dtype'
+
+2014/03/04 18:48:26 MainThread instrument_property WARNING Evaluating AnalogOutput in LabView.properties.
+float division by zeroTraceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\instrument_property.py", line 40, in evaluate
+    o.evaluate() #evaluate it
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\AnalogOutput.py", line 142, in evaluate
+    self.timesteps=numpy.arange(0.0,self.totalAOTime.value,1.0/(self.clockRate.value*self.units.value))
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\instrument_property.py", line 195, in call_evaluate
+    self.evaluate()
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\AnalogOutput.py", line 142, in evaluate
+    self.timesteps=numpy.arange(0.0,self.totalAOTime.value,1.0/(self.clockRate.value*self.units.value))
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\instrument_property.py", line 195, in call_evaluate
+    self.evaluate()
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\AnalogOutput.py", line 142, in evaluate
+    self.timesteps=numpy.arange(0.0,self.totalAOTime.value,1.0/(self.clockRate.value*self.units.value))
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\instrument_property.py", line 195, in call_evaluate
+    self.evaluate()
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\AnalogOutput.py", line 142, in evaluate
+    self.timesteps=numpy.arange(0.0,self.totalAOTime.value,1.0/(self.clockRate.value*self.units.value))
+ZeroDivisionError: float division by zero
+
+
+2014/03/04 18:48:26 MainThread experiments WARNING PauseError
+2014/03/04 18:48:29 MainThread __main__ INFO starting application
+2014/03/04 18:50:14 MainThread experiments WARNING Exception while loading experiment variables XML
+global name 'none' is not defined
+Traceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\experiments.py", line 491, in load
+    self.fromXML(xmlNode)
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\instrument_property.py", line 170, in fromXML
+    var.fromXML(child)
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\instrument_property.py", line 170, in fromXML
+    var.fromXML(child)
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\instrument_property.py", line 170, in fromXML
+    var.fromXML(child)
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\HSDIO.py", line 70, in fromXML
+    self.listProperty+=[Waveform(self.getNextAvailableName(),self.experiment,self.digitalout,waveforms=self).fromXML(child) for child in xmlNode]
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\digital_waveform.py", line 122, in fromXML
+    self.updateFigure()
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\digital_waveform.py", line 263, in updateFigure
+    self.drawMPL(self.stateList,self.timeList,self.duration)
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\digital_waveform.py", line 235, in drawMPL
+    ax.axhspan(i+.1,i+.9, relativeTimeList[j],relativeTimeList[j]+relativeDuration[j], facecolor='black',edgecolor=none,alpha=0.5)
+NameError: global name 'none' is not defined
+
+2014/03/04 18:50:14 MainThread instrument_property WARNING Evaluating AnalogOutput in LabView.properties.
+float division by zeroTraceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\instrument_property.py", line 40, in evaluate
+    o.evaluate() #evaluate it
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\AnalogOutput.py", line 142, in evaluate
+    self.timesteps=numpy.arange(0.0,self.totalAOTime.value,1.0/(self.clockRate.value*self.units.value))
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\instrument_property.py", line 195, in call_evaluate
+    self.evaluate()
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\AnalogOutput.py", line 142, in evaluate
+    self.timesteps=numpy.arange(0.0,self.totalAOTime.value,1.0/(self.clockRate.value*self.units.value))
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\instrument_property.py", line 195, in call_evaluate
+    self.evaluate()
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\AnalogOutput.py", line 142, in evaluate
+    self.timesteps=numpy.arange(0.0,self.totalAOTime.value,1.0/(self.clockRate.value*self.units.value))
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\instrument_property.py", line 195, in call_evaluate
+    self.evaluate()
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\AnalogOutput.py", line 142, in evaluate
+    self.timesteps=numpy.arange(0.0,self.totalAOTime.value,1.0/(self.clockRate.value*self.units.value))
+ZeroDivisionError: float division by zero
+
+
+2014/03/04 18:50:14 MainThread experiments WARNING PauseError
+2014/03/04 18:50:16 MainThread __main__ INFO starting application
+2014/03/04 18:52:02 MainThread instrument_property WARNING Exception in EvalProp.evaluate() in clockRate.
+description: 
+function: 20*kilo
+float division by zero
+
+2014/03/04 18:52:02 MainThread instrument_property WARNING Exception in EvalProp.evaluate() in totalAOTime.
+description: 5 ms total
+function: total_AO_time
+float division by zero
+
+2014/03/04 18:52:25 MainThread __main__ INFO starting application
+2014/03/04 18:54:29 MainThread instrument_property WARNING TypeError while evaluating:
+property: channel1
+description: 
+function: 1
+Attempt to assign 3 to EnumProp channel1 but the only allowed values are: [0, 1, 5]
+
+2014/03/04 18:54:33 MainThread instrument_property WARNING TypeError while evaluating:
+property: channel2
+description: 
+function: 1
+Attempt to assign 3 to EnumProp channel2 but the only allowed values are: [0, 1, 5]
+
+2014/03/04 18:55:01 MainThread cs_evaluate WARNING evaluating property clockRate, samples/channel/sec, 20*kilo
+Could not eval string: 20*
+unexpected EOF while parsing (<string>, line 1)Traceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\cs_evaluate.py", line 28, in evalWithDict
+    return eval(string,globals()) #,varDict.copy()) #dict(numpyDict.items()+varDict.items())) #create a new dictionary so all numpy functions and everything defined in varDict is available as a global during evaluation
+  File "<string>", line 1
+    20*
+      ^
+SyntaxError: unexpected EOF while parsing
+
+
+2014/03/04 18:55:01 MainThread cs_evaluate WARNING evaluating property clockRate, samples/channel/sec, 20*kilo
+Could not eval string: 20*m
+name 'm' is not definedTraceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\cs_evaluate.py", line 28, in evalWithDict
+    return eval(string,globals()) #,varDict.copy()) #dict(numpyDict.items()+varDict.items())) #create a new dictionary so all numpy functions and everything defined in varDict is available as a global during evaluation
+  File "<string>", line 1, in <module>
+NameError: name 'm' is not defined
+
+
+2014/03/04 18:55:01 MainThread cs_evaluate WARNING evaluating property clockRate, samples/channel/sec, 20*kilo
+Could not eval string: 20*me
+name 'me' is not definedTraceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\cs_evaluate.py", line 28, in evalWithDict
+    return eval(string,globals()) #,varDict.copy()) #dict(numpyDict.items()+varDict.items())) #create a new dictionary so all numpy functions and everything defined in varDict is available as a global during evaluation
+  File "<string>", line 1, in <module>
+NameError: name 'me' is not defined
+
+
+2014/03/04 18:55:01 MainThread cs_evaluate WARNING evaluating property clockRate, samples/channel/sec, 20*kilo
+Could not eval string: 20*meg
+name 'meg' is not definedTraceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\cs_evaluate.py", line 28, in evalWithDict
+    return eval(string,globals()) #,varDict.copy()) #dict(numpyDict.items()+varDict.items())) #create a new dictionary so all numpy functions and everything defined in varDict is available as a global during evaluation
+  File "<string>", line 1, in <module>
+NameError: name 'meg' is not defined
+
+
+2014/03/04 19:00:41 MainThread instrument_property WARNING Exception in EvalProp.evaluate() in clockRate.
+description: 
+function: 20*kilo
+float division by zero
+
+2014/03/04 19:00:41 MainThread instrument_property WARNING Exception in EvalProp.evaluate() in totalAOTime.
+description: 5 ms total
+function: total_AO_time
+float division by zero
+
+2014/03/04 19:01:05 MainThread __main__ INFO starting application
+2014/03/04 19:01:56 MainThread cs_evaluate WARNING evaluating property clockRate, samples/channel/sec, 20*kilo
+Could not eval string: 20*m
+name 'm' is not definedTraceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\cs_evaluate.py", line 28, in evalWithDict
+    return eval(string,globals()) #,varDict.copy()) #dict(numpyDict.items()+varDict.items())) #create a new dictionary so all numpy functions and everything defined in varDict is available as a global during evaluation
+  File "<string>", line 1, in <module>
+NameError: name 'm' is not defined
+
+
+2014/03/04 19:01:56 MainThread cs_evaluate WARNING evaluating property clockRate, samples/channel/sec, 20*kilo
+Could not eval string: 20*me
+name 'me' is not definedTraceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\cs_evaluate.py", line 28, in evalWithDict
+    return eval(string,globals()) #,varDict.copy()) #dict(numpyDict.items()+varDict.items())) #create a new dictionary so all numpy functions and everything defined in varDict is available as a global during evaluation
+  File "<string>", line 1, in <module>
+NameError: name 'me' is not defined
+
+
+2014/03/04 19:01:56 MainThread cs_evaluate WARNING evaluating property clockRate, samples/channel/sec, 20*kilo
+Could not eval string: 20*meg
+name 'meg' is not definedTraceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\cs_evaluate.py", line 28, in evalWithDict
+    return eval(string,globals()) #,varDict.copy()) #dict(numpyDict.items()+varDict.items())) #create a new dictionary so all numpy functions and everything defined in varDict is available as a global during evaluation
+  File "<string>", line 1, in <module>
+NameError: name 'meg' is not defined
+
+
+2014/03/04 19:20:42 MainThread instrument_property WARNING Exception in EvalProp.evaluate() in clockRate.
+description: 
+function: 20*kilo
+float division by zero
+
+2014/03/04 19:20:42 MainThread instrument_property WARNING Exception in EvalProp.evaluate() in totalAOTime.
+description: 5 ms total
+function: total_AO_time
+float division by zero
+
+2014/03/04 19:21:07 MainThread __main__ INFO starting application
