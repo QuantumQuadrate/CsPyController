@@ -22069,3 +22069,190 @@ function: total_AO_time
 float division by zero
 
 2014/03/04 19:21:07 MainThread __main__ INFO starting application
+2014/03/05 10:58:09 MainThread instrument_property WARNING Exception in EvalProp.evaluate() in clockRate.
+description: 
+function: 20*kilo
+float division by zero
+
+2014/03/05 10:58:09 MainThread instrument_property WARNING Exception in EvalProp.evaluate() in totalAOTime.
+description: 5 ms total
+function: total_AO_time
+float division by zero
+
+2014/03/05 10:58:35 MainThread __main__ INFO starting application
+2014/03/05 11:31:34 MainThread instrument_property WARNING Exception in EvalProp.evaluate() in clockRate.
+description: 
+function: 20*kilo
+float division by zero
+
+2014/03/05 11:31:34 MainThread instrument_property WARNING Exception in EvalProp.evaluate() in totalAOTime.
+description: 5 ms total
+function: total_AO_time
+float division by zero
+
+2014/03/05 11:32:01 MainThread __main__ INFO starting application
+2014/03/05 14:03:55 MainThread instrument_property WARNING Exception in EvalProp.evaluate() in clockRate.
+description: 
+function: 20*kilo
+float division by zero
+
+2014/03/05 14:03:55 MainThread instrument_property WARNING Exception in EvalProp.evaluate() in totalAOTime.
+description: 5 ms total
+function: total_AO_time
+float division by zero
+
+2014/03/05 14:04:22 MainThread __main__ INFO starting application
+2014/03/05 14:08:16 MainThread instrument_property WARNING Exception in EvalProp.evaluate() in clockRate.
+description: 
+function: 20*kilo
+float division by zero
+
+2014/03/05 14:08:16 MainThread instrument_property WARNING Exception in EvalProp.evaluate() in totalAOTime.
+description: 5 ms total
+function: total_AO_time
+float division by zero
+
+2014/03/05 14:08:43 MainThread __main__ INFO starting application
+2014/03/05 14:14:38 MainThread instrument_property WARNING Exception in EvalProp.evaluate() in clockRate.
+description: 
+function: 20*kilo
+float division by zero
+
+2014/03/05 14:14:38 MainThread instrument_property WARNING Exception in EvalProp.evaluate() in totalAOTime.
+description: 5 ms total
+function: total_AO_time
+float division by zero
+
+2014/03/05 14:15:07 MainThread __main__ INFO starting application
+2014/03/05 14:33:54 MainThread instrument_property WARNING Exception in EvalProp.evaluate() in clockRate.
+description: 
+function: 20*kilo
+float division by zero
+
+2014/03/05 14:33:54 MainThread instrument_property WARNING Exception in EvalProp.evaluate() in totalAOTime.
+description: 5 ms total
+function: total_AO_time
+float division by zero
+
+2014/03/05 14:34:23 MainThread __main__ INFO starting application
+2014/03/05 14:38:54 MainThread experiments WARNING Exception while loading experiment variables XML
+'AxesSubplot' object has no attribute 'subplots_adjust'
+Traceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\experiments.py", line 491, in load
+    self.fromXML(xmlNode)
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\instrument_property.py", line 170, in fromXML
+    var.fromXML(child)
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\instrument_property.py", line 170, in fromXML
+    var.fromXML(child)
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\instrument_property.py", line 170, in fromXML
+    var.fromXML(child)
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\HSDIO.py", line 70, in fromXML
+    self.listProperty+=[Waveform(self.getNextAvailableName(),self.experiment,self.digitalout,waveforms=self).fromXML(child) for child in xmlNode]
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\digital_waveform.py", line 122, in fromXML
+    self.updateFigure()
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\digital_waveform.py", line 270, in updateFigure
+    self.drawMPL(self.stateList,self.timeList,self.duration)
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\digital_waveform.py", line 252, in drawMPL
+    ax.subplots_adjust(left=.2,right=.99)
+AttributeError: 'AxesSubplot' object has no attribute 'subplots_adjust'
+
+2014/03/05 14:38:54 MainThread instrument_property WARNING Evaluating AnalogOutput in LabView.properties.
+float division by zeroTraceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\instrument_property.py", line 40, in evaluate
+    o.evaluate() #evaluate it
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\AnalogOutput.py", line 142, in evaluate
+    self.timesteps=numpy.arange(0.0,self.totalAOTime.value,1.0/(self.clockRate.value*self.units.value))
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\instrument_property.py", line 195, in call_evaluate
+    self.evaluate()
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\AnalogOutput.py", line 142, in evaluate
+    self.timesteps=numpy.arange(0.0,self.totalAOTime.value,1.0/(self.clockRate.value*self.units.value))
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\instrument_property.py", line 195, in call_evaluate
+    self.evaluate()
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\AnalogOutput.py", line 142, in evaluate
+    self.timesteps=numpy.arange(0.0,self.totalAOTime.value,1.0/(self.clockRate.value*self.units.value))
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\instrument_property.py", line 195, in call_evaluate
+    self.evaluate()
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\AnalogOutput.py", line 142, in evaluate
+    self.timesteps=numpy.arange(0.0,self.totalAOTime.value,1.0/(self.clockRate.value*self.units.value))
+ZeroDivisionError: float division by zero
+
+
+2014/03/05 14:38:54 MainThread experiments WARNING PauseError
+2014/03/05 14:38:56 MainThread __main__ INFO starting application
+2014/03/05 14:45:37 MainThread experiments WARNING Exception while loading experiment variables XML
+'AxesSubplot' object has no attribute 'subplots_adjust'
+Traceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\experiments.py", line 491, in load
+    self.fromXML(xmlNode)
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\instrument_property.py", line 170, in fromXML
+    var.fromXML(child)
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\instrument_property.py", line 170, in fromXML
+    var.fromXML(child)
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\instrument_property.py", line 170, in fromXML
+    var.fromXML(child)
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\HSDIO.py", line 70, in fromXML
+    self.listProperty+=[Waveform(self.getNextAvailableName(),self.experiment,self.digitalout,waveforms=self).fromXML(child) for child in xmlNode]
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\digital_waveform.py", line 122, in fromXML
+    self.updateFigure()
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\digital_waveform.py", line 272, in updateFigure
+    self.drawMPL(self.stateList,self.timeList,self.duration)
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\digital_waveform.py", line 252, in drawMPL
+    ax.subplots_adjust(left=.2,right=.99)
+AttributeError: 'AxesSubplot' object has no attribute 'subplots_adjust'
+
+2014/03/05 14:45:38 MainThread instrument_property WARNING Evaluating AnalogOutput in LabView.properties.
+float division by zeroTraceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\instrument_property.py", line 40, in evaluate
+    o.evaluate() #evaluate it
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\AnalogOutput.py", line 142, in evaluate
+    self.timesteps=numpy.arange(0.0,self.totalAOTime.value,1.0/(self.clockRate.value*self.units.value))
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\instrument_property.py", line 195, in call_evaluate
+    self.evaluate()
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\AnalogOutput.py", line 142, in evaluate
+    self.timesteps=numpy.arange(0.0,self.totalAOTime.value,1.0/(self.clockRate.value*self.units.value))
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\instrument_property.py", line 195, in call_evaluate
+    self.evaluate()
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\AnalogOutput.py", line 142, in evaluate
+    self.timesteps=numpy.arange(0.0,self.totalAOTime.value,1.0/(self.clockRate.value*self.units.value))
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\instrument_property.py", line 195, in call_evaluate
+    self.evaluate()
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\AnalogOutput.py", line 142, in evaluate
+    self.timesteps=numpy.arange(0.0,self.totalAOTime.value,1.0/(self.clockRate.value*self.units.value))
+ZeroDivisionError: float division by zero
+
+
+2014/03/05 14:45:38 MainThread experiments WARNING PauseError
+2014/03/05 14:45:40 MainThread __main__ INFO starting application
+2014/03/05 14:46:17 MainThread instrument_property WARNING Exception in EvalProp.evaluate() in clockRate.
+description: 
+function: 20*kilo
+float division by zero
+
+2014/03/05 14:46:17 MainThread instrument_property WARNING Exception in EvalProp.evaluate() in totalAOTime.
+description: 5 ms total
+function: total_AO_time
+float division by zero
+
+2014/03/05 14:46:47 MainThread __main__ INFO starting application
+2014/03/05 14:51:49 MainThread instrument_property WARNING Exception in EvalProp.evaluate() in clockRate.
+description: 
+function: 20*kilo
+float division by zero
+
+2014/03/05 14:51:49 MainThread instrument_property WARNING Exception in EvalProp.evaluate() in totalAOTime.
+description: 5 ms total
+function: total_AO_time
+float division by zero
+
+2014/03/05 14:52:19 MainThread __main__ INFO starting application
+2014/03/05 14:53:20 MainThread instrument_property WARNING Exception in EvalProp.evaluate() in clockRate.
+description: 
+function: 20*kilo
+float division by zero
+
+2014/03/05 14:53:20 MainThread instrument_property WARNING Exception in EvalProp.evaluate() in totalAOTime.
+description: 5 ms total
+function: total_AO_time
+float division by zero
+
+2014/03/05 14:53:50 MainThread __main__ INFO starting application
