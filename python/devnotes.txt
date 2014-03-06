@@ -69,6 +69,9 @@ TODO:
     clear HSDIO waveform memory between iterations?
     make dependent variables a fixed-width (courier) font
     add 2nd HSDIO card, and combine them so it looks like 1 card with 64 channels
+    horizontal scroll bar must show up when too many waveform transitions are added (it used to, did this stop when we changed the container constraints?)
+    make it so that only relevant channels are shown in waveform (can we do this is hardware too?)
+    finish noise eater waveform
 
 Note: changed waveform PGC_1 slightly regarding t1 delay, should be as intended now
     

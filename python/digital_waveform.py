@@ -111,8 +111,8 @@ class Waveform(Prop):
         self.isEmpty=True
         self.properties+=['isEmpty','sequence']
         
-        self.figure1=Figure()
-        self.figure2=Figure()
+        self.figure1=Figure(figsize=(5,5))
+        self.figure2=Figure(figsize=(5,5))
         self.backFigure=self.figure2
         self.figure=self.figure1
         self.updateFigure()
@@ -206,25 +206,27 @@ class Waveform(Prop):
         #clear figure
         fig.clf()
         
-        #get plot info
-        numTransitions,numChannels=numpy.shape(stateList)
-        
-        #create axis
-        ax=fig.add_subplot(111)
-        ax.set_ylim(0,numChannels)
-        ax.set_xlabel('samples')
-        
-        #create dummy lines for legend
-        ax.plot((),(),linewidth=5,alpha=0.5,color='white',label='off 0')
-        ax.plot((),(),linewidth=5,alpha=0.5,color='black',label='on 1')
-        ax.plot((),(),linewidth=5,alpha=0.5,color='grey',label='unresolved 5')
-        ax.plot((),(),linewidth=5,alpha=0.5,color='red',label='invalid')
-        ax.legend(loc='upper center',bbox_to_anchor=(0.5, 1.1), fancybox=True, ncol=4)
-        
-        #make horizontal grid lines
-        ax.grid(True)
-        
         if not self.isEmpty:
+        
+            #get plot info
+            numTransitions,numChannels=numpy.shape(stateList)
+            
+            #create axis
+            ax=fig.add_subplot(111)
+            ax.set_ylim(0,numChannels)
+            ax.set_xlabel('samples')
+            
+            #create dummy lines for legend
+            ax.plot((),(),linewidth=5,alpha=0.5,color='white',label='off 0')
+            ax.plot((),(),linewidth=5,alpha=0.5,color='black',label='on 1')
+            ax.plot((),(),linewidth=5,alpha=0.5,color='grey',label='unresolved 5')
+            ax.plot((),(),linewidth=5,alpha=0.5,color='red',label='invalid')
+            ax.legend(loc='upper center',bbox_to_anchor=(0.5, 1.1), fancybox=True, ncol=4)
+            
+            #make horizontal grid lines
+            ax.grid(True)
+            
+            
             #create a timeList on the scale 0 to 1
             relativeTimeList=timeList/(timeList[-1]+1)
             relativeDuration=duration/(timeList[-1]+1)
@@ -250,13 +252,16 @@ class Waveform(Prop):
             #ax.xaxis.set_minor_locator( NullLocator() )
             ax.set_xticks(tickList)
             ax.set_xlim(timeList[0],timeList[-1]+1)
+        
             #make vertical tick labels on the bottom
             for label in ax.xaxis.get_ticklabels():
                 label.set_rotation(90)
+            
             ax.set_yticks(numpy.arange(numChannels)+0.5)
             ax.set_yticklabels([self.digitalout.channels[i].description+(' : ' if self.digitalout.channels[i].description else ' ')+str(i) for i in range(numChannels)])
-        #make sure the tick labels have room
-        fig.subplots_adjust(left=.3,right=.1)
+        
+            #make sure the tick labels have room
+            fig.subplots_adjust(left=.2,right=.95,bottom=.15)
     
     def swapFigures(self):
         temp=self.backFigure

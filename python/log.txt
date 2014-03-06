@@ -22256,3 +22256,501 @@ function: total_AO_time
 float division by zero
 
 2014/03/05 14:53:50 MainThread __main__ INFO starting application
+2014/03/05 15:17:38 MainThread instrument_property WARNING Exception in EvalProp.evaluate() in clockRate.
+description: 
+function: 20*kilo
+float division by zero
+
+2014/03/05 15:17:38 MainThread instrument_property WARNING Exception in EvalProp.evaluate() in totalAOTime.
+description: 5 ms total
+function: total_AO_time
+float division by zero
+
+2014/03/05 15:18:11 MainThread __main__ INFO starting application
+2014/03/05 15:33:05 MainThread instrument_property WARNING Exception in EvalProp.evaluate() in clockRate.
+description: 
+function: 20*kilo
+float division by zero
+
+2014/03/05 15:33:05 MainThread instrument_property WARNING Exception in EvalProp.evaluate() in totalAOTime.
+description: 5 ms total
+function: total_AO_time
+float division by zero
+
+2014/03/05 15:33:40 MainThread __main__ INFO starting application
+2014/03/05 15:40:18 MainThread instrument_property WARNING Exception in EvalProp.evaluate() in clockRate.
+description: 
+function: 20*kilo
+float division by zero
+
+2014/03/05 15:40:18 MainThread instrument_property WARNING Exception in EvalProp.evaluate() in totalAOTime.
+description: 5 ms total
+function: total_AO_time
+float division by zero
+
+2014/03/05 15:40:50 MainThread __main__ INFO starting application
+2014/03/05 15:45:17 MainThread instrument_property WARNING Exception in EvalProp.evaluate() in clockRate.
+description: 
+function: 20*kilo
+float division by zero
+
+2014/03/05 15:45:17 MainThread instrument_property WARNING Exception in EvalProp.evaluate() in totalAOTime.
+description: 5 ms total
+function: total_AO_time
+float division by zero
+
+2014/03/05 15:45:49 MainThread __main__ INFO starting application
+2014/03/05 17:47:20 MainThread instrument_property WARNING Exception in EvalProp.evaluate() in clockRate.
+description: 
+function: 20*kilo
+float division by zero
+
+2014/03/05 17:47:20 MainThread instrument_property WARNING Exception in EvalProp.evaluate() in totalAOTime.
+description: 5 ms total
+function: total_AO_time
+float division by zero
+
+2014/03/05 17:47:52 MainThread __main__ INFO starting application
+2014/03/05 17:50:30 MainThread instrument_property WARNING Exception in EvalProp.evaluate() in clockRate.
+description: 
+function: 20*kilo
+float division by zero
+
+2014/03/05 17:50:30 MainThread instrument_property WARNING Exception in EvalProp.evaluate() in totalAOTime.
+description: 5 ms total
+function: total_AO_time
+float division by zero
+
+2014/03/05 17:51:03 MainThread __main__ INFO starting application
+2014/03/05 17:54:49 MainThread instrument_property WARNING Exception in EvalProp.evaluate() in clockRate.
+description: 
+function: 20*kilo
+float division by zero
+
+2014/03/05 17:54:49 MainThread instrument_property WARNING Exception in EvalProp.evaluate() in totalAOTime.
+description: 5 ms total
+function: total_AO_time
+float division by zero
+
+2014/03/05 17:55:22 MainThread __main__ INFO starting application
+2014/03/05 17:57:44 MainThread instrument_property WARNING Exception in EvalProp.evaluate() in clockRate.
+description: 
+function: 20*kilo
+float division by zero
+
+2014/03/05 17:57:44 MainThread instrument_property WARNING Exception in EvalProp.evaluate() in totalAOTime.
+description: 5 ms total
+function: total_AO_time
+float division by zero
+
+2014/03/05 17:58:16 MainThread __main__ INFO starting application
+2014/03/05 17:59:19 MainThread instrument_property WARNING Exception in EvalProp.evaluate() in clockRate.
+description: 
+function: 20*kilo
+float division by zero
+
+2014/03/05 17:59:19 MainThread instrument_property WARNING Exception in EvalProp.evaluate() in totalAOTime.
+description: 5 ms total
+function: total_AO_time
+float division by zero
+
+2014/03/05 17:59:52 MainThread __main__ INFO starting application
+2014/03/05 18:01:00 MainThread instrument_property WARNING Exception in EvalProp.evaluate() in clockRate.
+description: 
+function: 20*kilo
+float division by zero
+
+2014/03/05 18:01:00 MainThread instrument_property WARNING Exception in EvalProp.evaluate() in totalAOTime.
+description: 5 ms total
+function: total_AO_time
+float division by zero
+
+2014/03/05 18:01:33 MainThread __main__ INFO starting application
+2014/03/05 18:06:09 MainThread instrument_property WARNING Exception in EvalProp.evaluate() in clockRate.
+description: 
+function: 20*kilo
+float division by zero
+
+2014/03/05 18:06:09 MainThread instrument_property WARNING Exception in EvalProp.evaluate() in totalAOTime.
+description: 5 ms total
+function: total_AO_time
+float division by zero
+
+2014/03/05 18:06:41 MainThread __main__ INFO starting application
+2014/03/05 18:10:29 MainThread instrument_property WARNING Exception in EvalProp.evaluate() in clockRate.
+description: 
+function: 20*kilo
+float division by zero
+
+2014/03/05 18:10:29 MainThread instrument_property WARNING Exception in EvalProp.evaluate() in totalAOTime.
+description: 5 ms total
+function: total_AO_time
+float division by zero
+
+2014/03/05 18:11:01 MainThread __main__ INFO starting application
+2014/03/05 18:41:38 MainThread instrument_property WARNING TypeError while evaluating:
+property: channel1
+description: 
+function: 5
+Attempt to assign 2 to EnumProp channel1 but the only allowed values are: [0, 1, 5]
+
+2014/03/05 18:51:04 MainThread cs_evaluate WARNING evaluating property time, when this transition happens, Optical_Pumping_time
+Could not eval string: Optical_Pumping_time
+name 'Optical_Pumping_time' is not definedTraceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\cs_evaluate.py", line 28, in evalWithDict
+    return eval(string,globals()) #,varDict.copy()) #dict(numpyDict.items()+varDict.items())) #create a new dictionary so all numpy functions and everything defined in varDict is available as a global during evaluation
+  File "<string>", line 1, in <module>
+NameError: name 'Optical_Pumping_time' is not defined
+
+
+2014/03/05 18:51:04 MainThread cs_evaluate WARNING evaluating property time, when this transition happens, Optical_Pumping_time
+Could not eval string: Optical_Pumping_time
+name 'Optical_Pumping_time' is not definedTraceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\cs_evaluate.py", line 28, in evalWithDict
+    return eval(string,globals()) #,varDict.copy()) #dict(numpyDict.items()+varDict.items())) #create a new dictionary so all numpy functions and everything defined in varDict is available as a global during evaluation
+  File "<string>", line 1, in <module>
+NameError: name 'Optical_Pumping_time' is not defined
+
+
+2014/03/05 19:01:58 MainThread cs_evaluate WARNING evaluating property time, when this transition happens, Microwave_waveform_total_time
+Could not eval string: Microwave_waveform_total_time
+name 'Microwave_waveform_total_time' is not definedTraceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\cs_evaluate.py", line 28, in evalWithDict
+    return eval(string,globals()) #,varDict.copy()) #dict(numpyDict.items()+varDict.items())) #create a new dictionary so all numpy functions and everything defined in varDict is available as a global during evaluation
+  File "<string>", line 1, in <module>
+NameError: name 'Microwave_waveform_total_time' is not defined
+
+
+2014/03/05 19:01:58 MainThread cs_evaluate WARNING evaluating property time, when this transition happens, Microwave_waveform_total_time
+Could not eval string: Microwave_waveform_total_time
+name 'Microwave_waveform_total_time' is not definedTraceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\cs_evaluate.py", line 28, in evalWithDict
+    return eval(string,globals()) #,varDict.copy()) #dict(numpyDict.items()+varDict.items())) #create a new dictionary so all numpy functions and everything defined in varDict is available as a global during evaluation
+  File "<string>", line 1, in <module>
+NameError: name 'Microwave_waveform_total_time' is not defined
+
+
+2014/03/05 19:05:01 MainThread cs_evaluate WARNING evaluating property time, when this transition happens, Microwave_Raman_time
+Could not eval string: Microwave_Raman_time
+name 'Microwave_Raman_time' is not definedTraceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\cs_evaluate.py", line 28, in evalWithDict
+    return eval(string,globals()) #,varDict.copy()) #dict(numpyDict.items()+varDict.items())) #create a new dictionary so all numpy functions and everything defined in varDict is available as a global during evaluation
+  File "<string>", line 1, in <module>
+NameError: name 'Microwave_Raman_time' is not defined
+
+
+2014/03/05 19:05:01 MainThread cs_evaluate WARNING evaluating property time, when this transition happens, Microwave_Raman_time
+Could not eval string: Microwave_Raman_time
+name 'Microwave_Raman_time' is not definedTraceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\cs_evaluate.py", line 28, in evalWithDict
+    return eval(string,globals()) #,varDict.copy()) #dict(numpyDict.items()+varDict.items())) #create a new dictionary so all numpy functions and everything defined in varDict is available as a global during evaluation
+  File "<string>", line 1, in <module>
+NameError: name 'Microwave_Raman_time' is not defined
+
+
+2014/03/05 19:05:08 MainThread cs_evaluate WARNING evaluating property time, when this transition happens, microwave_Raman_time
+Could not eval string: microwave_Raman_time
+name 'microwave_Raman_time' is not definedTraceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\cs_evaluate.py", line 28, in evalWithDict
+    return eval(string,globals()) #,varDict.copy()) #dict(numpyDict.items()+varDict.items())) #create a new dictionary so all numpy functions and everything defined in varDict is available as a global during evaluation
+  File "<string>", line 1, in <module>
+NameError: name 'microwave_Raman_time' is not defined
+
+
+2014/03/05 19:05:08 MainThread cs_evaluate WARNING evaluating property time, when this transition happens, microwave_Raman_time
+Could not eval string: microwave_Raman_time
+name 'microwave_Raman_time' is not definedTraceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\cs_evaluate.py", line 28, in evalWithDict
+    return eval(string,globals()) #,varDict.copy()) #dict(numpyDict.items()+varDict.items())) #create a new dictionary so all numpy functions and everything defined in varDict is available as a global during evaluation
+  File "<string>", line 1, in <module>
+NameError: name 'microwave_Raman_time' is not defined
+
+
+2014/03/05 19:09:09 MainThread cs_evaluate WARNING evaluating property time, when this transition happens, microwave_raman_tim
+Could not eval string: microwave_raman_tim
+name 'microwave_raman_tim' is not definedTraceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\cs_evaluate.py", line 28, in evalWithDict
+    return eval(string,globals()) #,varDict.copy()) #dict(numpyDict.items()+varDict.items())) #create a new dictionary so all numpy functions and everything defined in varDict is available as a global during evaluation
+  File "<string>", line 1, in <module>
+NameError: name 'microwave_raman_tim' is not defined
+
+
+2014/03/05 19:09:09 MainThread cs_evaluate WARNING evaluating property time, when this transition happens, microwave_raman_tim
+Could not eval string: microwave_raman_tim
+name 'microwave_raman_tim' is not definedTraceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\cs_evaluate.py", line 28, in evalWithDict
+    return eval(string,globals()) #,varDict.copy()) #dict(numpyDict.items()+varDict.items())) #create a new dictionary so all numpy functions and everything defined in varDict is available as a global during evaluation
+  File "<string>", line 1, in <module>
+NameError: name 'microwave_raman_tim' is not defined
+
+
+2014/03/05 19:10:28 MainThread cs_evaluate WARNING evaluating property channel0, , 5
+Could not eval string: m
+name 'm' is not definedTraceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\cs_evaluate.py", line 28, in evalWithDict
+    return eval(string,globals()) #,varDict.copy()) #dict(numpyDict.items()+varDict.items())) #create a new dictionary so all numpy functions and everything defined in varDict is available as a global during evaluation
+  File "<string>", line 1, in <module>
+NameError: name 'm' is not defined
+
+
+2014/03/05 19:10:28 MainThread cs_evaluate WARNING evaluating property channel0, , 5
+Could not eval string: mc
+name 'mc' is not definedTraceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\cs_evaluate.py", line 28, in evalWithDict
+    return eval(string,globals()) #,varDict.copy()) #dict(numpyDict.items()+varDict.items())) #create a new dictionary so all numpy functions and everything defined in varDict is available as a global during evaluation
+  File "<string>", line 1, in <module>
+NameError: name 'mc' is not defined
+
+
+2014/03/05 19:10:29 MainThread cs_evaluate WARNING evaluating property channel0, , 5
+Could not eval string: m
+name 'm' is not definedTraceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\cs_evaluate.py", line 28, in evalWithDict
+    return eval(string,globals()) #,varDict.copy()) #dict(numpyDict.items()+varDict.items())) #create a new dictionary so all numpy functions and everything defined in varDict is available as a global during evaluation
+  File "<string>", line 1, in <module>
+NameError: name 'm' is not defined
+
+
+2014/03/05 19:10:29 MainThread cs_evaluate WARNING evaluating property channel0, , 5
+Could not eval string: mi
+name 'mi' is not definedTraceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\cs_evaluate.py", line 28, in evalWithDict
+    return eval(string,globals()) #,varDict.copy()) #dict(numpyDict.items()+varDict.items())) #create a new dictionary so all numpy functions and everything defined in varDict is available as a global during evaluation
+  File "<string>", line 1, in <module>
+NameError: name 'mi' is not defined
+
+
+2014/03/05 19:10:29 MainThread cs_evaluate WARNING evaluating property channel0, , 5
+Could not eval string: mic
+name 'mic' is not definedTraceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\cs_evaluate.py", line 28, in evalWithDict
+    return eval(string,globals()) #,varDict.copy()) #dict(numpyDict.items()+varDict.items())) #create a new dictionary so all numpy functions and everything defined in varDict is available as a global during evaluation
+  File "<string>", line 1, in <module>
+NameError: name 'mic' is not defined
+
+
+2014/03/05 19:10:29 MainThread cs_evaluate WARNING evaluating property channel0, , 5
+Could not eval string: micr
+name 'micr' is not definedTraceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\cs_evaluate.py", line 28, in evalWithDict
+    return eval(string,globals()) #,varDict.copy()) #dict(numpyDict.items()+varDict.items())) #create a new dictionary so all numpy functions and everything defined in varDict is available as a global during evaluation
+  File "<string>", line 1, in <module>
+NameError: name 'micr' is not defined
+
+
+2014/03/05 19:10:29 MainThread instrument_property WARNING TypeError while evaluating:
+property: channel0
+description: 
+function: 5
+Attempt to assign 1e-06 to EnumProp channel0 but the only allowed values are: [0, 1, 5]
+
+2014/03/05 19:10:29 MainThread cs_evaluate WARNING evaluating property channel0, , 5
+Could not eval string: microw
+name 'microw' is not definedTraceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\cs_evaluate.py", line 28, in evalWithDict
+    return eval(string,globals()) #,varDict.copy()) #dict(numpyDict.items()+varDict.items())) #create a new dictionary so all numpy functions and everything defined in varDict is available as a global during evaluation
+  File "<string>", line 1, in <module>
+NameError: name 'microw' is not defined
+
+
+2014/03/05 19:10:30 MainThread cs_evaluate WARNING evaluating property channel0, , 5
+Could not eval string: microwa
+name 'microwa' is not definedTraceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\cs_evaluate.py", line 28, in evalWithDict
+    return eval(string,globals()) #,varDict.copy()) #dict(numpyDict.items()+varDict.items())) #create a new dictionary so all numpy functions and everything defined in varDict is available as a global during evaluation
+  File "<string>", line 1, in <module>
+NameError: name 'microwa' is not defined
+
+
+2014/03/05 19:10:30 MainThread cs_evaluate WARNING evaluating property channel0, , 5
+Could not eval string: microwav
+name 'microwav' is not definedTraceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\cs_evaluate.py", line 28, in evalWithDict
+    return eval(string,globals()) #,varDict.copy()) #dict(numpyDict.items()+varDict.items())) #create a new dictionary so all numpy functions and everything defined in varDict is available as a global during evaluation
+  File "<string>", line 1, in <module>
+NameError: name 'microwav' is not defined
+
+
+2014/03/05 19:10:30 MainThread cs_evaluate WARNING evaluating property channel0, , 5
+Could not eval string: microwave
+name 'microwave' is not definedTraceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\cs_evaluate.py", line 28, in evalWithDict
+    return eval(string,globals()) #,varDict.copy()) #dict(numpyDict.items()+varDict.items())) #create a new dictionary so all numpy functions and everything defined in varDict is available as a global during evaluation
+  File "<string>", line 1, in <module>
+NameError: name 'microwave' is not defined
+
+
+2014/03/05 19:10:30 MainThread cs_evaluate WARNING evaluating property channel0, , 5
+Could not eval string: microwave_
+name 'microwave_' is not definedTraceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\cs_evaluate.py", line 28, in evalWithDict
+    return eval(string,globals()) #,varDict.copy()) #dict(numpyDict.items()+varDict.items())) #create a new dictionary so all numpy functions and everything defined in varDict is available as a global during evaluation
+  File "<string>", line 1, in <module>
+NameError: name 'microwave_' is not defined
+
+
+2014/03/05 19:10:30 MainThread cs_evaluate WARNING evaluating property channel0, , 5
+Could not eval string: microwave_r
+name 'microwave_r' is not definedTraceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\cs_evaluate.py", line 28, in evalWithDict
+    return eval(string,globals()) #,varDict.copy()) #dict(numpyDict.items()+varDict.items())) #create a new dictionary so all numpy functions and everything defined in varDict is available as a global during evaluation
+  File "<string>", line 1, in <module>
+NameError: name 'microwave_r' is not defined
+
+
+2014/03/05 19:10:30 MainThread cs_evaluate WARNING evaluating property channel0, , 5
+Could not eval string: microwave_ra
+name 'microwave_ra' is not definedTraceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\cs_evaluate.py", line 28, in evalWithDict
+    return eval(string,globals()) #,varDict.copy()) #dict(numpyDict.items()+varDict.items())) #create a new dictionary so all numpy functions and everything defined in varDict is available as a global during evaluation
+  File "<string>", line 1, in <module>
+NameError: name 'microwave_ra' is not defined
+
+
+2014/03/05 19:10:30 MainThread cs_evaluate WARNING evaluating property channel0, , 5
+Could not eval string: microwave_ram
+name 'microwave_ram' is not definedTraceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\cs_evaluate.py", line 28, in evalWithDict
+    return eval(string,globals()) #,varDict.copy()) #dict(numpyDict.items()+varDict.items())) #create a new dictionary so all numpy functions and everything defined in varDict is available as a global during evaluation
+  File "<string>", line 1, in <module>
+NameError: name 'microwave_ram' is not defined
+
+
+2014/03/05 19:10:31 MainThread cs_evaluate WARNING evaluating property channel0, , 5
+Could not eval string: microwave_rama
+name 'microwave_rama' is not definedTraceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\cs_evaluate.py", line 28, in evalWithDict
+    return eval(string,globals()) #,varDict.copy()) #dict(numpyDict.items()+varDict.items())) #create a new dictionary so all numpy functions and everything defined in varDict is available as a global during evaluation
+  File "<string>", line 1, in <module>
+NameError: name 'microwave_rama' is not defined
+
+
+2014/03/05 19:10:31 MainThread cs_evaluate WARNING evaluating property channel0, , 5
+Could not eval string: microwave_raman
+name 'microwave_raman' is not definedTraceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\cs_evaluate.py", line 28, in evalWithDict
+    return eval(string,globals()) #,varDict.copy()) #dict(numpyDict.items()+varDict.items())) #create a new dictionary so all numpy functions and everything defined in varDict is available as a global during evaluation
+  File "<string>", line 1, in <module>
+NameError: name 'microwave_raman' is not defined
+
+
+2014/03/05 19:10:31 MainThread cs_evaluate WARNING evaluating property channel0, , 5
+Could not eval string: microwave_raman_
+name 'microwave_raman_' is not definedTraceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\cs_evaluate.py", line 28, in evalWithDict
+    return eval(string,globals()) #,varDict.copy()) #dict(numpyDict.items()+varDict.items())) #create a new dictionary so all numpy functions and everything defined in varDict is available as a global during evaluation
+  File "<string>", line 1, in <module>
+NameError: name 'microwave_raman_' is not defined
+
+
+2014/03/05 19:10:32 MainThread cs_evaluate WARNING evaluating property channel0, , 5
+Could not eval string: microwave_raman_t
+name 'microwave_raman_t' is not definedTraceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\cs_evaluate.py", line 28, in evalWithDict
+    return eval(string,globals()) #,varDict.copy()) #dict(numpyDict.items()+varDict.items())) #create a new dictionary so all numpy functions and everything defined in varDict is available as a global during evaluation
+  File "<string>", line 1, in <module>
+NameError: name 'microwave_raman_t' is not defined
+
+
+2014/03/05 19:10:32 MainThread cs_evaluate WARNING evaluating property channel0, , 5
+Could not eval string: microwave_raman_ti
+name 'microwave_raman_ti' is not definedTraceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\cs_evaluate.py", line 28, in evalWithDict
+    return eval(string,globals()) #,varDict.copy()) #dict(numpyDict.items()+varDict.items())) #create a new dictionary so all numpy functions and everything defined in varDict is available as a global during evaluation
+  File "<string>", line 1, in <module>
+NameError: name 'microwave_raman_ti' is not defined
+
+
+2014/03/05 19:10:32 MainThread cs_evaluate WARNING evaluating property channel0, , 5
+Could not eval string: microwave_raman_tim
+name 'microwave_raman_tim' is not definedTraceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\cs_evaluate.py", line 28, in evalWithDict
+    return eval(string,globals()) #,varDict.copy()) #dict(numpyDict.items()+varDict.items())) #create a new dictionary so all numpy functions and everything defined in varDict is available as a global during evaluation
+  File "<string>", line 1, in <module>
+NameError: name 'microwave_raman_tim' is not defined
+
+
+2014/03/05 19:13:12 MainThread cs_evaluate WARNING evaluating property time, when this transition happens, microwave_raan_time
+Could not eval string: microwave_raan_time
+name 'microwave_raan_time' is not definedTraceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\cs_evaluate.py", line 28, in evalWithDict
+    return eval(string,globals()) #,varDict.copy()) #dict(numpyDict.items()+varDict.items())) #create a new dictionary so all numpy functions and everything defined in varDict is available as a global during evaluation
+  File "<string>", line 1, in <module>
+NameError: name 'microwave_raan_time' is not defined
+
+
+2014/03/05 19:13:12 MainThread cs_evaluate WARNING evaluating property time, when this transition happens, microwave_raan_time
+Could not eval string: microwave_raan_time
+name 'microwave_raan_time' is not definedTraceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\cs_evaluate.py", line 28, in evalWithDict
+    return eval(string,globals()) #,varDict.copy()) #dict(numpyDict.items()+varDict.items())) #create a new dictionary so all numpy functions and everything defined in varDict is available as a global during evaluation
+  File "<string>", line 1, in <module>
+NameError: name 'microwave_raan_time' is not defined
+
+
+2014/03/05 19:13:19 MainThread cs_evaluate WARNING evaluating variables report
+Could not eval string: "a is %(a)s.\nThe speed of light is %(c0)d\nbut some call it %(c0)e\nmicrowave raman time=%(microwave_raman_time)\n"%locals()
+unsupported format character '
+' (0xa) at index 109Traceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\cs_evaluate.py", line 28, in evalWithDict
+    return eval(string,globals()) #,varDict.copy()) #dict(numpyDict.items()+varDict.items())) #create a new dictionary so all numpy functions and everything defined in varDict is available as a global during evaluation
+  File "<string>", line 1, in <module>
+ValueError: unsupported format character '
+' (0xa) at index 109
+
+
+2014/03/05 19:13:38 MainThread cs_evaluate WARNING evaluating variables report
+Could not eval string: "a is %(a)s.\nThe speed of light is %(c0)d\nbut some call it %(c0)e\nmicrowave raman time=%(microwave_raman_time)\n"%locals()
+unsupported format character '
+' (0xa) at index 109Traceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\cs_evaluate.py", line 28, in evalWithDict
+    return eval(string,globals()) #,varDict.copy()) #dict(numpyDict.items()+varDict.items())) #create a new dictionary so all numpy functions and everything defined in varDict is available as a global during evaluation
+  File "<string>", line 1, in <module>
+ValueError: unsupported format character '
+' (0xa) at index 109
+
+
+2014/03/05 19:16:55 MainThread cs_evaluate WARNING evaluating property time, when this transition happens, delay before blowaway
+Could not eval string: delay before blowaway
+invalid syntax (<string>, line 1)Traceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\cs_evaluate.py", line 28, in evalWithDict
+    return eval(string,globals()) #,varDict.copy()) #dict(numpyDict.items()+varDict.items())) #create a new dictionary so all numpy functions and everything defined in varDict is available as a global during evaluation
+  File "<string>", line 1
+    delay before blowaway
+               ^
+SyntaxError: invalid syntax
+
+
+2014/03/05 19:16:55 MainThread cs_evaluate WARNING evaluating property time, when this transition happens, delay before blowaway
+Could not eval string: delay before blowaway
+invalid syntax (<string>, line 1)Traceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\cs_evaluate.py", line 28, in evalWithDict
+    return eval(string,globals()) #,varDict.copy()) #dict(numpyDict.items()+varDict.items())) #create a new dictionary so all numpy functions and everything defined in varDict is available as a global during evaluation
+  File "<string>", line 1
+    delay before blowaway
+               ^
+SyntaxError: invalid syntax
+
+
+2014/03/05 19:44:39 MainThread cs_evaluate WARNING evaluating property time, when this transition happens, 1+.5+.005+2+4+
+Could not eval string: 1+.5+.005+2+4+
+unexpected EOF while parsing (<string>, line 1)Traceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\cs_evaluate.py", line 28, in evalWithDict
+    return eval(string,globals()) #,varDict.copy()) #dict(numpyDict.items()+varDict.items())) #create a new dictionary so all numpy functions and everything defined in varDict is available as a global during evaluation
+  File "<string>", line 1
+    1+.5+.005+2+4+
+                 ^
+SyntaxError: unexpected EOF while parsing
+
+
+2014/03/05 19:44:39 MainThread cs_evaluate WARNING evaluating property time, when this transition happens, 1+.5+.005+2+4+
+Could not eval string: 1+.5+.005+2+4+
+unexpected EOF while parsing (<string>, line 1)Traceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\cs_evaluate.py", line 28, in evalWithDict
+    return eval(string,globals()) #,varDict.copy()) #dict(numpyDict.items()+varDict.items())) #create a new dictionary so all numpy functions and everything defined in varDict is available as a global during evaluation
+  File "<string>", line 1
+    1+.5+.005+2+4+
+                 ^
+SyntaxError: unexpected EOF while parsing
+
+

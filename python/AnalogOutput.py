@@ -98,7 +98,7 @@ class AnalogOutput(Instrument):
         self.figure2=Figure()
         self.backFigure=self.figure2
         self.figure=self.figure1
-        self.update_plot()
+        ##self.update_plot()
         
         #set up Atom notifications from sub-traits
         self.clockRate.observe('value',self.call_evaluate)
