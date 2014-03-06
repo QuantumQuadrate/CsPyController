@@ -22754,3 +22754,14 @@ unexpected EOF while parsing (<string>, line 1)Traceback (most recent call last)
 SyntaxError: unexpected EOF while parsing
 
 
+2014/03/05 20:03:19 MainThread instrument_property WARNING Exception in EvalProp.evaluate() in clockRate.
+description: 
+function: 20*kilo
+float division by zero
+
+2014/03/05 20:03:19 MainThread instrument_property WARNING Exception in EvalProp.evaluate() in totalAOTime.
+description: 5 ms total
+function: total_AO_time
+float division by zero
+
+2014/03/05 20:04:02 MainThread __main__ INFO starting application
