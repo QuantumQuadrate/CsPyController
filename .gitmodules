@@ -1,3 +1,0 @@
-[submodule "python/enaml"]
-	path = python/enaml
-	url = https://github.com/nucleic/enaml.git
