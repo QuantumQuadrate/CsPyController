@@ -140,7 +140,7 @@ class ImagePlotAnalysis(AnalysisWithFigure):
     
     def analyzeMeasurement(self,measurementResults,iterationResults,experimentResults):
         try:
-            text='iteration {} measurement {}\n{}'.format(iterationResults.attrs['iteration'],measurementResults.name.split('/')[-1],iterationResults.attrs['variableReportStr'])
+            text='iteration {} measurement {}\n{}\nCamera temperature: {} C'.format(iterationResults.attrs['iteration'],measurementResults.name.split('/')[-1],iterationResults.attrs['variableReportStr'],measurementResults['data/Hamamatsu/temperature'].value)
         except KeyError as e:
             logger.warning('HDF5 text does not exist in analysis.ImagePlotAnalysis.analyzeMeasurement()\n'+str(e))
             raise PauseError

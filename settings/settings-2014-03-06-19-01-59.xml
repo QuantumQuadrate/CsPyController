@@ -38,7 +38,7 @@ p0
 .</experimentDescriptionFilenameSuffix>
 <measurementTimeout>F10.0
 .</measurementTimeout>
-<measurementsPerIteration>I2
+<measurementsPerIteration>I100
 .</measurementsPerIteration>
 <willSendEmail>I01
 .</willSendEmail>
@@ -30103,14 +30103,14 @@ p0
 <EMGain><description>S'EMCCD gain'
 p0
 .</description>
-<function>S'175'
+<function>S'0'
 p0
 .</function>
 </EMGain>
 <analogGain><description>S'analog gain'
 p0
 .</description>
-<function>S'1'
+<function>S'0'
 p0
 .</function>
 </analogGain>
@@ -30180,7 +30180,7 @@ p0
 <photoelectronScaling><description>S'photoelectron scaling'
 p0
 .</description>
-<function>S'0.007600'
+<function>S'1'
 p0
 .</function>
 </photoelectronScaling>
@@ -30257,7 +30257,7 @@ p0
 <shotsPerMeasurement><description>S'shots per measurement'
 p0
 .</description>
-<function>S'2'
+<function>S'1'
 p0
 .</function>
 </shotsPerMeasurement>

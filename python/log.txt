@@ -22765,3 +22765,1899 @@ function: total_AO_time
 float division by zero
 
 2014/03/05 20:04:02 MainThread __main__ INFO starting application
+2014/03/06 17:07:38 MainThread instrument_property WARNING Exception in EvalProp.evaluate() in clockRate.
+description: 
+function: 20*kilo
+float division by zero
+
+2014/03/06 17:07:38 MainThread instrument_property WARNING Exception in EvalProp.evaluate() in totalAOTime.
+description: 5 ms total
+function: total_AO_time
+float division by zero
+
+2014/03/06 17:08:22 MainThread __main__ INFO starting application
+2014/03/06 17:18:11 MainThread instrument_property WARNING TypeError while evaluating:
+property: cooling
+description: TEC cooling
+function: "Off"
+Attempt to assign Of to EnumProp cooling but the only allowed values are: ['Off', 'On']
+
+2014/03/06 17:18:12 MainThread instrument_property WARNING TypeError while evaluating:
+property: cooling
+description: TEC cooling
+function: "Off"
+Attempt to assign Onf to EnumProp cooling but the only allowed values are: ['Off', 'On']
+
+2014/03/06 17:18:15 MainThread cs_evaluate WARNING evaluating property fan, fan, "Off"
+Could not eval string: "
+EOL while scanning string literal (<string>, line 1)Traceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\cs_evaluate.py", line 28, in evalWithDict
+    return eval(string,globals()) #,varDict.copy()) #dict(numpyDict.items()+varDict.items())) #create a new dictionary so all numpy functions and everything defined in varDict is available as a global during evaluation
+  File "<string>", line 1
+    "
+    ^
+SyntaxError: EOL while scanning string literal
+
+
+2014/03/06 17:18:15 MainThread cs_evaluate WARNING evaluating property fan, fan, "Off"
+Could not eval string: "O
+EOL while scanning string literal (<string>, line 1)Traceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\cs_evaluate.py", line 28, in evalWithDict
+    return eval(string,globals()) #,varDict.copy()) #dict(numpyDict.items()+varDict.items())) #create a new dictionary so all numpy functions and everything defined in varDict is available as a global during evaluation
+  File "<string>", line 1
+    "O
+     ^
+SyntaxError: EOL while scanning string literal
+
+
+2014/03/06 17:18:16 MainThread cs_evaluate WARNING evaluating property fan, fan, "Off"
+Could not eval string: "Om
+EOL while scanning string literal (<string>, line 1)Traceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\cs_evaluate.py", line 28, in evalWithDict
+    return eval(string,globals()) #,varDict.copy()) #dict(numpyDict.items()+varDict.items())) #create a new dictionary so all numpy functions and everything defined in varDict is available as a global during evaluation
+  File "<string>", line 1
+    "Om
+      ^
+SyntaxError: EOL while scanning string literal
+
+
+2014/03/06 17:18:17 MainThread cs_evaluate WARNING evaluating property fan, fan, "Off"
+Could not eval string: "O
+EOL while scanning string literal (<string>, line 1)Traceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\cs_evaluate.py", line 28, in evalWithDict
+    return eval(string,globals()) #,varDict.copy()) #dict(numpyDict.items()+varDict.items())) #create a new dictionary so all numpy functions and everything defined in varDict is available as a global during evaluation
+  File "<string>", line 1
+    "O
+     ^
+SyntaxError: EOL while scanning string literal
+
+
+2014/03/06 17:18:17 MainThread cs_evaluate WARNING evaluating property fan, fan, "Off"
+Could not eval string: "On
+EOL while scanning string literal (<string>, line 1)Traceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\cs_evaluate.py", line 28, in evalWithDict
+    return eval(string,globals()) #,varDict.copy()) #dict(numpyDict.items()+varDict.items())) #create a new dictionary so all numpy functions and everything defined in varDict is available as a global during evaluation
+  File "<string>", line 1
+    "On
+      ^
+SyntaxError: EOL while scanning string literal
+
+
+2014/03/06 17:18:31 MainThread cs_evaluate WARNING evaluating property enable, enable camera, False
+Could not eval string: T
+name 'T' is not definedTraceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\cs_evaluate.py", line 28, in evalWithDict
+    return eval(string,globals()) #,varDict.copy()) #dict(numpyDict.items()+varDict.items())) #create a new dictionary so all numpy functions and everything defined in varDict is available as a global during evaluation
+  File "<string>", line 1, in <module>
+NameError: name 'T' is not defined
+
+
+2014/03/06 17:18:31 MainThread cs_evaluate WARNING evaluating property enable, enable camera, False
+Could not eval string: Tr
+name 'Tr' is not definedTraceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\cs_evaluate.py", line 28, in evalWithDict
+    return eval(string,globals()) #,varDict.copy()) #dict(numpyDict.items()+varDict.items())) #create a new dictionary so all numpy functions and everything defined in varDict is available as a global during evaluation
+  File "<string>", line 1, in <module>
+NameError: name 'Tr' is not defined
+
+
+2014/03/06 17:18:31 MainThread cs_evaluate WARNING evaluating property enable, enable camera, False
+Could not eval string: Tru
+name 'Tru' is not definedTraceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\cs_evaluate.py", line 28, in evalWithDict
+    return eval(string,globals()) #,varDict.copy()) #dict(numpyDict.items()+varDict.items())) #create a new dictionary so all numpy functions and everything defined in varDict is available as a global during evaluation
+  File "<string>", line 1, in <module>
+NameError: name 'Tru' is not defined
+
+
+2014/03/06 17:35:00 MainThread cs_evaluate WARNING evaluating property enable, enable HSDIO output, False
+Could not eval string: T
+name 'T' is not definedTraceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\cs_evaluate.py", line 28, in evalWithDict
+    return eval(string,globals()) #,varDict.copy()) #dict(numpyDict.items()+varDict.items())) #create a new dictionary so all numpy functions and everything defined in varDict is available as a global during evaluation
+  File "<string>", line 1, in <module>
+NameError: name 'T' is not defined
+
+
+2014/03/06 17:35:00 MainThread cs_evaluate WARNING evaluating property enable, enable HSDIO output, False
+Could not eval string: Tr
+name 'Tr' is not definedTraceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\cs_evaluate.py", line 28, in evalWithDict
+    return eval(string,globals()) #,varDict.copy()) #dict(numpyDict.items()+varDict.items())) #create a new dictionary so all numpy functions and everything defined in varDict is available as a global during evaluation
+  File "<string>", line 1, in <module>
+NameError: name 'Tr' is not defined
+
+
+2014/03/06 17:35:00 MainThread cs_evaluate WARNING evaluating property enable, enable HSDIO output, False
+Could not eval string: Tru
+name 'Tru' is not definedTraceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\cs_evaluate.py", line 28, in evalWithDict
+    return eval(string,globals()) #,varDict.copy()) #dict(numpyDict.items()+varDict.items())) #create a new dictionary so all numpy functions and everything defined in varDict is available as a global during evaluation
+  File "<string>", line 1, in <module>
+NameError: name 'Tru' is not defined
+
+
+2014/03/06 17:36:39 MainThread LabView DEBUG LabView.open() opening sock
+2014/03/06 17:36:39 MainThread LabView DEBUG LabView.open() sock opened
+2014/03/06 17:38:27 Thread-1 LabView DEBUG debug LabView.open() closing sock
+2014/03/06 17:38:27 Thread-1 LabView DEBUG LabView.open() opening sock
+2014/03/06 17:38:27 Thread-1 LabView DEBUG LabView.open() sock opened
+2014/03/06 17:38:27 Thread-1 HSDIO WARNING HSDIO script says: compressedGenerate MOT_Loading, but waveform MOT_Loading does not exist.
+2014/03/06 17:38:27 Thread-1 instrument_property WARNING In Prop.HardwareProtocol() for class LabView while trying HSDIO.toHardware.
+
+
+2014/03/06 17:38:29 Thread-1 experiments WARNING Could not save variable bias_shim as an hdf5 attribute with value: {'685': 1.65, 'PGC 1': 1.6, 'readout': 1.6, 'Exp': -5.6, 'MOT': -1.4}
+Object dtype dtype('O') has no native HDF5 equivalent
+2014/03/06 17:38:29 Thread-1 experiments WARNING Could not save variable vertical_shim as an hdf5 attribute with value: {'685': -1.55, 'PGC 1': -1.3, 'readout': -1.65, 'Exp': -1.82, 'MOT': -1.6}
+Object dtype dtype('O') has no native HDF5 equivalent
+2014/03/06 17:38:29 Thread-1 experiments WARNING Could not save variable AO_equation as an hdf5 attribute with value: <function AO_equation at 0x0000000044F92AC8>
+Object dtype dtype('O') has no native HDF5 equivalent
+2014/03/06 17:38:29 Thread-1 experiments WARNING Could not save variable spike as an hdf5 attribute with value: <function spike at 0x0000000012A7C828>
+Object dtype dtype('O') has no native HDF5 equivalent
+2014/03/06 17:38:29 Thread-1 experiments WARNING Could not save variable gradient_field as an hdf5 attribute with value: {'685': 0, 'PGC 1': 0, 'readout': 0, 'Exp': 0, 'MOT': 4.5}
+Object dtype dtype('O') has no native HDF5 equivalent
+2014/03/06 17:38:29 Thread-1 experiments WARNING Could not save variable x2_5_shim as an hdf5 attribute with value: {'685': -0.45, 'PGC 1': -0.3, 'readout': 0, 'Exp': -0.34, 'MOT': -0.4}
+Object dtype dtype('O') has no native HDF5 equivalent
+2014/03/06 17:38:29 Thread-1 experiments WARNING Could not save variable x3_6_shim as an hdf5 attribute with value: {'685': 0.45, 'PGC 1': -0.75, 'readout': -0.55, 'Exp': -0.32, 'MOT': 0.6}
+Object dtype dtype('O') has no native HDF5 equivalent
+2014/03/06 17:38:29 Thread-1 LabView WARNING LabView error.  Log:
+2014-03-06 17:39:02 The camera received 0 shots, but the expected value
+in the settings is 2.Error 992 occurred at The camera received 0 shots, but the expected value
+in the settings is 2.
+
+This error code is undefined. Undefined errors might occur for a number of reasons. For example, no one has provided a description for the code, or you might have wired a number that is not an error code to the error code input. 
+
+Additionally, undefined error codes might occur because the error relates to a third-party object, such as the operating system or ActiveX. For these third-party errors, you might be able to obtain a description of the error by searching the Web for the error code (992) or for its hexadecimal representation (0x000003E0).
+Call chain:
+handle_errors.vi Hamamatsu_C9100-13.lvclass:minimal_acquire.vi Experiment.lvclass:get_data.vi Experiment.lvclass:measurement.vi Experiment.lvclass:parseXMLstring.vi Experiment.lvclass:server.vi
+
+Error cleared. Exiting operation.
+
+
+2014/03/06 17:38:31 Thread-1 HSDIO WARNING HSDIO script says: compressedGenerate MOT_Loading, but waveform MOT_Loading does not exist.
+2014/03/06 17:38:31 Thread-1 instrument_property WARNING In Prop.HardwareProtocol() for class LabView while trying HSDIO.toHardware.
+
+
+2014/03/06 17:38:32 Thread-1 experiments ERROR Exception during experiment:
+unable to create group (Symbol table: Unable to initialize object)
+Traceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\experiments.py", line 366, in go2
+    self.create_hdf5_iteration()
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\experiments.py", line 562, in create_hdf5_iteration
+    self.iterationResults=self.hdf5.create_group('iterations/'+str(self.iteration))
+  File "C:\Users\Saffmanlab\AppData\Local\Enthought\Canopy\User\lib\site-packages\h5py\_hl\group.py", line 41, in create_group
+    gid = h5g.create(self.id, name, lcpl=lcpl)
+  File "h5g.pyx", line 145, in h5py.h5g.create (h5py\h5g.c:2378)
+ValueError: unable to create group (Symbol table: Unable to initialize object)
+
+
+2014/03/06 17:41:27 Thread-2 HSDIO WARNING HSDIO script says: compressedGenerate MOT_Loading, but waveform MOT_Loading does not exist.
+2014/03/06 17:41:27 Thread-2 instrument_property WARNING In Prop.HardwareProtocol() for class LabView while trying HSDIO.toHardware.
+
+
+2014/03/06 17:41:27 Thread-2 experiments WARNING Could not save variable AO_equation as an hdf5 attribute with value: <function AO_equation at 0x000000000A24BF28>
+Object dtype dtype('O') has no native HDF5 equivalent
+2014/03/06 17:41:27 Thread-2 experiments WARNING Could not save variable spike as an hdf5 attribute with value: <function spike at 0x000000000A24B588>
+Object dtype dtype('O') has no native HDF5 equivalent
+2014/03/06 17:41:27 Thread-2 LabView WARNING LabView error.  Log:
+2014-03-06 17:42:01 The camera received 0 shots, but the expected value
+in the settings is 2.Error 992 occurred at The camera received 0 shots, but the expected value
+in the settings is 2.
+
+This error code is undefined. Undefined errors might occur for a number of reasons. For example, no one has provided a description for the code, or you might have wired a number that is not an error code to the error code input. 
+
+Additionally, undefined error codes might occur because the error relates to a third-party object, such as the operating system or ActiveX. For these third-party errors, you might be able to obtain a description of the error by searching the Web for the error code (992) or for its hexadecimal representation (0x000003E0).
+Call chain:
+handle_errors.vi Hamamatsu_C9100-13.lvclass:minimal_acquire.vi Experiment.lvclass:get_data.vi Experiment.lvclass:measurement.vi Experiment.lvclass:parseXMLstring.vi Experiment.lvclass:server.vi
+
+Error cleared. Exiting operation.
+
+
+2014/03/06 17:41:30 Thread-2 HSDIO WARNING HSDIO script says: compressedGenerate MOT_Loading, but waveform MOT_Loading does not exist.
+2014/03/06 17:41:30 Thread-2 instrument_property WARNING In Prop.HardwareProtocol() for class LabView while trying HSDIO.toHardware.
+
+
+2014/03/06 17:41:30 Thread-2 experiments ERROR Exception during experiment:
+unable to create group (Symbol table: Unable to initialize object)
+Traceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\experiments.py", line 366, in go2
+    self.create_hdf5_iteration()
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\experiments.py", line 562, in create_hdf5_iteration
+    self.iterationResults=self.hdf5.create_group('iterations/'+str(self.iteration))
+  File "C:\Users\Saffmanlab\AppData\Local\Enthought\Canopy\User\lib\site-packages\h5py\_hl\group.py", line 41, in create_group
+    gid = h5g.create(self.id, name, lcpl=lcpl)
+  File "h5g.pyx", line 145, in h5py.h5g.create (h5py\h5g.c:2378)
+ValueError: unable to create group (Symbol table: Unable to initialize object)
+
+
+2014/03/06 17:43:46 Thread-3 experiments WARNING Could not save variable AO_equation as an hdf5 attribute with value: <function AO_equation at 0x00000000453DFF28>
+Object dtype dtype('O') has no native HDF5 equivalent
+2014/03/06 17:43:46 Thread-3 experiments WARNING Could not save variable spike as an hdf5 attribute with value: <function spike at 0x0000000047116828>
+Object dtype dtype('O') has no native HDF5 equivalent
+2014/03/06 17:43:46 Thread-3 LabView WARNING LabView error.  Log:
+2014-03-06 17:44:20 niHSDIO Initiate.vi<ERR>Driver Status:  (Hex 0xBFFA1190) The session handle is not valid.
+
+ Error -1074130544 occurred at niHSDIO Initiate.vi
+
+Possible reason(s):
+Driver Status:  (Hex 0xBFFA1190) The session handle is not valid.
+Call chain:
+handle_errors.vi HSDIO.lvclass:start.vi Experiment.lvclass:start_tasks.vi Experiment.lvclass:measurement.vi Experiment.lvclass:parseXMLstring.vi Experiment.lvclass:server.vi
+
+Error cleared. Exiting operation.
+
+2014-03-06 17:44:20 niHSDIO Abort.vi<ERR>Driver Status:  (Hex 0xBFFA1190) The session handle is not valid.
+
+ Error -1074130544 occurred at niHSDIO Abort.vi
+
+Possible reason(s):
+Driver Status:  (Hex 0xBFFA1190) The session handle is not valid.
+Call chain:
+handle_errors.vi HSDIO.lvclass:stop.vi Experiment.lvclass:stop_tasks.vi Experiment.lvclass:measurement.vi Experiment.lvclass:parseXMLstring.vi Experiment.lvclass:server.vi
+
+Error cleared. Exiting operation.
+
+
+2014/03/06 17:43:49 Thread-3 experiments ERROR Exception during experiment:
+unable to create group (Symbol table: Unable to initialize object)
+Traceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\experiments.py", line 366, in go2
+    self.create_hdf5_iteration()
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\experiments.py", line 562, in create_hdf5_iteration
+    self.iterationResults=self.hdf5.create_group('iterations/'+str(self.iteration))
+  File "C:\Users\Saffmanlab\AppData\Local\Enthought\Canopy\User\lib\site-packages\h5py\_hl\group.py", line 41, in create_group
+    gid = h5g.create(self.id, name, lcpl=lcpl)
+  File "h5g.pyx", line 145, in h5py.h5g.create (h5py\h5g.c:2378)
+ValueError: unable to create group (Symbol table: Unable to initialize object)
+
+
+2014/03/06 17:44:25 MainThread LabView DEBUG debug LabView.open() closing sock
+2014/03/06 17:45:29 MainThread cs_evaluate WARNING evaluating property time, when this transition happens, b
+Could not eval string: b
+name 'b' is not definedTraceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\cs_evaluate.py", line 28, in evalWithDict
+    return eval(string,globals()) #,varDict.copy()) #dict(numpyDict.items()+varDict.items())) #create a new dictionary so all numpy functions and everything defined in varDict is available as a global during evaluation
+  File "<string>", line 1, in <module>
+NameError: name 'b' is not defined
+
+
+2014/03/06 17:45:29 MainThread cs_evaluate WARNING evaluating property time, when this transition happens, b+.01
+Could not eval string: b+.01
+name 'b' is not definedTraceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\cs_evaluate.py", line 28, in evalWithDict
+    return eval(string,globals()) #,varDict.copy()) #dict(numpyDict.items()+varDict.items())) #create a new dictionary so all numpy functions and everything defined in varDict is available as a global during evaluation
+  File "<string>", line 1, in <module>
+NameError: name 'b' is not defined
+
+
+2014/03/06 17:45:30 MainThread instrument_property WARNING Exception in EvalProp.evaluate() in clockRate.
+description: 
+function: 20*kilo
+float division by zero
+
+2014/03/06 17:45:30 MainThread instrument_property WARNING Exception in EvalProp.evaluate() in totalAOTime.
+description: 5 ms total
+function: total_AO_time
+float division by zero
+
+2014/03/06 17:45:31 MainThread cs_evaluate WARNING evaluating property time, when this transition happens, b
+Could not eval string: b
+name 'b' is not definedTraceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\cs_evaluate.py", line 28, in evalWithDict
+    return eval(string,globals()) #,varDict.copy()) #dict(numpyDict.items()+varDict.items())) #create a new dictionary so all numpy functions and everything defined in varDict is available as a global during evaluation
+  File "<string>", line 1, in <module>
+NameError: name 'b' is not defined
+
+
+2014/03/06 17:45:31 MainThread cs_evaluate WARNING evaluating property time, when this transition happens, b+.01
+Could not eval string: b+.01
+name 'b' is not definedTraceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\cs_evaluate.py", line 28, in evalWithDict
+    return eval(string,globals()) #,varDict.copy()) #dict(numpyDict.items()+varDict.items())) #create a new dictionary so all numpy functions and everything defined in varDict is available as a global during evaluation
+  File "<string>", line 1, in <module>
+NameError: name 'b' is not defined
+
+
+2014/03/06 17:46:14 MainThread __main__ INFO starting application
+2014/03/06 17:47:00 MainThread instrument_property WARNING Exception in EvalProp.evaluate() in clockRate.
+description: 
+function: 20*kilo
+float division by zero
+
+2014/03/06 17:47:00 MainThread instrument_property WARNING Exception in EvalProp.evaluate() in totalAOTime.
+description: 5 ms total
+function: total_AO_time
+float division by zero
+
+2014/03/06 17:47:41 MainThread __main__ INFO starting application
+2014/03/06 17:50:04 Thread-1 LabView DEBUG LabView.open() opening sock
+2014/03/06 17:50:04 Thread-1 LabView DEBUG LabView.open() sock opened
+2014/03/06 17:50:04 Thread-1 HSDIO WARNING HSDIO script says: compressedGenerate MOT_Loading, but waveform MOT_Loading does not exist.
+2014/03/06 17:50:04 Thread-1 instrument_property WARNING In Prop.HardwareProtocol() for class LabView while trying HSDIO.toHardware.
+
+
+2014/03/06 17:50:04 Thread-1 experiments WARNING Could not save variable AO_equation as an hdf5 attribute with value: <function AO_equation at 0x0000000042317B38>
+Object dtype dtype('O') has no native HDF5 equivalent
+2014/03/06 17:50:04 Thread-1 experiments WARNING Could not save variable spike as an hdf5 attribute with value: <function spike at 0x0000000042317748>
+Object dtype dtype('O') has no native HDF5 equivalent
+2014/03/06 17:50:04 Thread-1 LabView WARNING LabView error.  Log:
+2014-03-06 17:50:38 niHSDIO Initiate.vi<ERR>Driver Status:  (Hex 0xBFFA1190) The session handle is not valid.
+
+ Error -1074130544 occurred at niHSDIO Initiate.vi
+
+Possible reason(s):
+Driver Status:  (Hex 0xBFFA1190) The session handle is not valid.
+Call chain:
+handle_errors.vi HSDIO.lvclass:start.vi Experiment.lvclass:start_tasks.vi Experiment.lvclass:measurement.vi Experiment.lvclass:parseXMLstring.vi Experiment.lvclass:server.vi
+
+Error cleared. Exiting operation.
+
+2014-03-06 17:50:38 niHSDIO Abort.vi<ERR>Driver Status:  (Hex 0xBFFA1190) The session handle is not valid.
+
+ Error -1074130544 occurred at niHSDIO Abort.vi
+
+Possible reason(s):
+Driver Status:  (Hex 0xBFFA1190) The session handle is not valid.
+Call chain:
+handle_errors.vi HSDIO.lvclass:stop.vi Experiment.lvclass:stop_tasks.vi Experiment.lvclass:measurement.vi Experiment.lvclass:parseXMLstring.vi Experiment.lvclass:server.vi
+
+Error cleared. Exiting operation.
+
+
+2014/03/06 17:50:06 Thread-1 HSDIO WARNING HSDIO script says: compressedGenerate MOT_Loading, but waveform MOT_Loading does not exist.
+2014/03/06 17:50:06 Thread-1 instrument_property WARNING In Prop.HardwareProtocol() for class LabView while trying HSDIO.toHardware.
+
+
+2014/03/06 17:50:07 Thread-1 experiments ERROR Exception during experiment:
+unable to create group (Symbol table: Unable to initialize object)
+Traceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\experiments.py", line 366, in go2
+    self.create_hdf5_iteration()
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\experiments.py", line 562, in create_hdf5_iteration
+    self.iterationResults=self.hdf5.create_group('iterations/'+str(self.iteration))
+  File "C:\Users\Saffmanlab\AppData\Local\Enthought\Canopy\User\lib\site-packages\h5py\_hl\group.py", line 41, in create_group
+    gid = h5g.create(self.id, name, lcpl=lcpl)
+  File "h5g.pyx", line 145, in h5py.h5g.create (h5py\h5g.c:2378)
+ValueError: unable to create group (Symbol table: Unable to initialize object)
+
+
+2014/03/06 17:51:51 Thread-2 experiments WARNING Could not save variable AO_equation as an hdf5 attribute with value: <function AO_equation at 0x0000000046C463C8>
+Object dtype dtype('O') has no native HDF5 equivalent
+2014/03/06 17:51:51 Thread-2 experiments WARNING Could not save variable spike as an hdf5 attribute with value: <function spike at 0x0000000046C464A8>
+Object dtype dtype('O') has no native HDF5 equivalent
+2014/03/06 17:51:51 Thread-2 LabView WARNING LabView error.  Log:
+2014-03-06 17:52:25 niHSDIO Initiate.vi<ERR>Driver Status:  (Hex 0xBFFA1190) The session handle is not valid.
+
+ Error -1074130544 occurred at niHSDIO Initiate.vi
+
+Possible reason(s):
+Driver Status:  (Hex 0xBFFA1190) The session handle is not valid.
+Call chain:
+handle_errors.vi HSDIO.lvclass:start.vi Experiment.lvclass:start_tasks.vi Experiment.lvclass:measurement.vi Experiment.lvclass:parseXMLstring.vi Experiment.lvclass:server.vi
+
+Error cleared. Exiting operation.
+
+2014-03-06 17:52:25 niHSDIO Abort.vi<ERR>Driver Status:  (Hex 0xBFFA1190) The session handle is not valid.
+
+ Error -1074130544 occurred at niHSDIO Abort.vi
+
+Possible reason(s):
+Driver Status:  (Hex 0xBFFA1190) The session handle is not valid.
+Call chain:
+handle_errors.vi HSDIO.lvclass:stop.vi Experiment.lvclass:stop_tasks.vi Experiment.lvclass:measurement.vi Experiment.lvclass:parseXMLstring.vi Experiment.lvclass:server.vi
+
+Error cleared. Exiting operation.
+
+
+2014/03/06 17:51:54 Thread-2 experiments ERROR Exception during experiment:
+unable to create group (Symbol table: Unable to initialize object)
+Traceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\experiments.py", line 366, in go2
+    self.create_hdf5_iteration()
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\experiments.py", line 562, in create_hdf5_iteration
+    self.iterationResults=self.hdf5.create_group('iterations/'+str(self.iteration))
+  File "C:\Users\Saffmanlab\AppData\Local\Enthought\Canopy\User\lib\site-packages\h5py\_hl\group.py", line 41, in create_group
+    gid = h5g.create(self.id, name, lcpl=lcpl)
+  File "h5g.pyx", line 145, in h5py.h5g.create (h5py\h5g.c:2378)
+ValueError: unable to create group (Symbol table: Unable to initialize object)
+
+
+2014/03/06 17:53:12 MainThread instrument_property WARNING Exception in EvalProp.evaluate() in clockRate.
+description: 
+function: 20*kilo
+float division by zero
+
+2014/03/06 17:53:12 MainThread instrument_property WARNING Exception in EvalProp.evaluate() in totalAOTime.
+description: 5 ms total
+function: total_AO_time
+float division by zero
+
+2014/03/06 17:53:52 MainThread __main__ INFO starting application
+2014/03/06 17:54:21 Thread-1 LabView DEBUG LabView.open() opening sock
+2014/03/06 17:54:21 Thread-1 LabView DEBUG LabView.open() sock opened
+2014/03/06 17:54:22 Thread-1 experiments WARNING Could not save variable AO_equation as an hdf5 attribute with value: <function AO_equation at 0x00000000427D6128>
+Object dtype dtype('O') has no native HDF5 equivalent
+2014/03/06 17:54:22 Thread-1 experiments WARNING Could not save variable spike as an hdf5 attribute with value: <function spike at 0x00000000424267B8>
+Object dtype dtype('O') has no native HDF5 equivalent
+2014/03/06 17:54:22 Thread-1 LabView WARNING LabView error.  Log:
+2014-03-06 17:54:55 niHSDIO Initiate.vi<ERR>Driver Status:  (Hex 0xBFFA1190) The session handle is not valid.
+
+ Error -1074130544 occurred at niHSDIO Initiate.vi
+
+Possible reason(s):
+Driver Status:  (Hex 0xBFFA1190) The session handle is not valid.
+Call chain:
+handle_errors.vi HSDIO.lvclass:start.vi Experiment.lvclass:start_tasks.vi Experiment.lvclass:measurement.vi Experiment.lvclass:parseXMLstring.vi Experiment.lvclass:server.vi
+
+Error cleared. Exiting operation.
+
+2014-03-06 17:54:55 niHSDIO Abort.vi<ERR>Driver Status:  (Hex 0xBFFA1190) The session handle is not valid.
+
+ Error -1074130544 occurred at niHSDIO Abort.vi
+
+Possible reason(s):
+Driver Status:  (Hex 0xBFFA1190) The session handle is not valid.
+Call chain:
+handle_errors.vi HSDIO.lvclass:stop.vi Experiment.lvclass:stop_tasks.vi Experiment.lvclass:measurement.vi Experiment.lvclass:parseXMLstring.vi Experiment.lvclass:server.vi
+
+Error cleared. Exiting operation.
+
+
+2014/03/06 17:54:24 Thread-1 experiments ERROR Exception during experiment:
+unable to create group (Symbol table: Unable to initialize object)
+Traceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\experiments.py", line 366, in go2
+    self.create_hdf5_iteration()
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\experiments.py", line 562, in create_hdf5_iteration
+    self.iterationResults=self.hdf5.create_group('iterations/'+str(self.iteration))
+  File "C:\Users\Saffmanlab\AppData\Local\Enthought\Canopy\User\lib\site-packages\h5py\_hl\group.py", line 41, in create_group
+    gid = h5g.create(self.id, name, lcpl=lcpl)
+  File "h5g.pyx", line 145, in h5py.h5g.create (h5py\h5g.c:2378)
+ValueError: unable to create group (Symbol table: Unable to initialize object)
+
+
+2014/03/06 17:56:03 MainThread instrument_property WARNING Exception in EvalProp.evaluate() in clockRate.
+description: 
+function: 20*kilo
+float division by zero
+
+2014/03/06 17:56:03 MainThread instrument_property WARNING Exception in EvalProp.evaluate() in totalAOTime.
+description: 5 ms total
+function: total_AO_time
+float division by zero
+
+2014/03/06 17:56:44 MainThread __main__ INFO starting application
+2014/03/06 18:01:18 Thread-1 LabView DEBUG LabView.open() opening sock
+2014/03/06 18:01:18 Thread-1 LabView DEBUG LabView.open() sock opened
+2014/03/06 18:01:19 Thread-1 LabView WARNING LabView error.  Log:
+2014-03-06 18:01:52 niHSDIO Initiate.vi<ERR>Driver Status:  (Hex 0xBFFA1190) The session handle is not valid.
+
+ Error -1074130544 occurred at niHSDIO Initiate.vi
+
+Possible reason(s):
+Driver Status:  (Hex 0xBFFA1190) The session handle is not valid.
+Call chain:
+handle_errors.vi HSDIO.lvclass:start.vi Experiment.lvclass:start_tasks.vi Experiment.lvclass:measurement.vi Experiment.lvclass:parseXMLstring.vi Experiment.lvclass:server.vi
+
+Error cleared. Exiting operation.
+
+2014-03-06 18:01:52 niHSDIO Abort.vi<ERR>Driver Status:  (Hex 0xBFFA1190) The session handle is not valid.
+
+ Error -1074130544 occurred at niHSDIO Abort.vi
+
+Possible reason(s):
+Driver Status:  (Hex 0xBFFA1190) The session handle is not valid.
+Call chain:
+handle_errors.vi HSDIO.lvclass:stop.vi Experiment.lvclass:stop_tasks.vi Experiment.lvclass:measurement.vi Experiment.lvclass:parseXMLstring.vi Experiment.lvclass:server.vi
+
+Error cleared. Exiting operation.
+
+
+2014/03/06 18:01:21 Thread-1 experiments ERROR Exception during experiment:
+unable to create group (Symbol table: Unable to initialize object)
+Traceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\experiments.py", line 366, in go2
+    self.create_hdf5_iteration()
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\experiments.py", line 562, in create_hdf5_iteration
+    self.iterationResults=self.hdf5.create_group('iterations/'+str(self.iteration))
+  File "C:\Users\Saffmanlab\AppData\Local\Enthought\Canopy\User\lib\site-packages\h5py\_hl\group.py", line 41, in create_group
+    gid = h5g.create(self.id, name, lcpl=lcpl)
+  File "h5g.pyx", line 145, in h5py.h5g.create (h5py\h5g.c:2378)
+ValueError: unable to create group (Symbol table: Unable to initialize object)
+
+
+2014/03/06 18:02:41 MainThread instrument_property WARNING Exception in EvalProp.evaluate() in clockRate.
+description: 
+function: 20*kilo
+float division by zero
+
+2014/03/06 18:02:41 MainThread instrument_property WARNING Exception in EvalProp.evaluate() in totalAOTime.
+description: 5 ms total
+function: total_AO_time
+float division by zero
+
+2014/03/06 18:03:21 MainThread __main__ INFO starting application
+2014/03/06 18:06:13 Thread-1 LabView DEBUG LabView.open() opening sock
+2014/03/06 18:06:14 Thread-1 LabView DEBUG LabView.open() sock opened
+2014/03/06 18:06:16 Thread-1 LabView WARNING LabView error.  Log:
+2014-03-06 18:06:49 The camera received 1 shots, but the expected value
+in the settings is 2.Error 992 occurred at The camera received 1 shots, but the expected value
+in the settings is 2.
+
+This error code is undefined. Undefined errors might occur for a number of reasons. For example, no one has provided a description for the code, or you might have wired a number that is not an error code to the error code input. 
+
+Additionally, undefined error codes might occur because the error relates to a third-party object, such as the operating system or ActiveX. For these third-party errors, you might be able to obtain a description of the error by searching the Web for the error code (992) or for its hexadecimal representation (0x000003E0).
+Call chain:
+handle_errors.vi Hamamatsu_C9100-13.lvclass:minimal_acquire.vi Experiment.lvclass:get_data.vi Experiment.lvclass:measurement.vi Experiment.lvclass:parseXMLstring.vi Experiment.lvclass:server.vi
+
+Error cleared. Exiting operation.
+
+2014-03-06 18:06:49 True:
+Acquiring a new image available.
+Reading buffer #: 0
+
+
+2014/03/06 18:06:19 Thread-1 experiments ERROR Exception during experiment:
+unable to create group (Symbol table: Unable to initialize object)
+Traceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\experiments.py", line 366, in go2
+    self.create_hdf5_iteration()
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\experiments.py", line 562, in create_hdf5_iteration
+    self.iterationResults=self.hdf5.create_group('iterations/'+str(self.iteration))
+  File "C:\Users\Saffmanlab\AppData\Local\Enthought\Canopy\User\lib\site-packages\h5py\_hl\group.py", line 41, in create_group
+    gid = h5g.create(self.id, name, lcpl=lcpl)
+  File "h5g.pyx", line 145, in h5py.h5g.create (h5py\h5g.c:2378)
+ValueError: unable to create group (Symbol table: Unable to initialize object)
+
+
+2014/03/06 18:07:39 Thread-2 experiments ERROR Exception during experiment:
+object of type 'NoneType' has no len()
+Traceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\experiments.py", line 361, in go2
+    self.update()      #send current values to hardware
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\experiments.py", line 222, in update
+    i.update() #put the settings to where they should be at this iteration
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\LabView.py", line 117, in update
+    self.results=self.sock.parsemsg(rawdata)
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\TCP.py", line 135, in parsemsg
+    l=len(msg)
+TypeError: object of type 'NoneType' has no len()
+
+
+2014/03/06 18:07:42 Thread-2 experiments ERROR Exception during experiment:
+object of type 'NoneType' has no len()
+Traceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\experiments.py", line 361, in go2
+    self.update()      #send current values to hardware
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\experiments.py", line 222, in update
+    i.update() #put the settings to where they should be at this iteration
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\LabView.py", line 117, in update
+    self.results=self.sock.parsemsg(rawdata)
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\TCP.py", line 135, in parsemsg
+    l=len(msg)
+TypeError: object of type 'NoneType' has no len()
+
+
+2014/03/06 18:09:18 MainThread instrument_property WARNING Exception in EvalProp.evaluate() in clockRate.
+description: 
+function: 20*kilo
+float division by zero
+
+2014/03/06 18:09:18 MainThread instrument_property WARNING Exception in EvalProp.evaluate() in totalAOTime.
+description: 5 ms total
+function: total_AO_time
+float division by zero
+
+2014/03/06 18:09:58 MainThread __main__ INFO starting application
+2014/03/06 18:10:44 Thread-1 LabView DEBUG LabView.open() opening sock
+2014/03/06 18:10:44 Thread-1 LabView DEBUG LabView.open() sock opened
+2014/03/06 18:10:44 Thread-1 LabView WARNING LabView error.  Log:
+2014-03-06 18:11:18 niHSDIO Initiate.vi<ERR>Driver Status:  (Hex 0xBFFA4017) There are no scripts in the device memory.
+Ensure that you have written a script prior to calling niHSDIO_Initiate.
+
+ Error -1074118633 occurred at niHSDIO Initiate.vi
+
+Possible reason(s):
+Driver Status:  (Hex 0xBFFA4017) There are no scripts in the device memory.
+Ensure that you have written a script prior to calling niHSDIO_Initiate.
+Call chain:
+handle_errors.vi HSDIO.lvclass:start.vi Experiment.lvclass:start_tasks.vi Experiment.lvclass:measurement.vi Experiment.lvclass:parseXMLstring.vi Experiment.lvclass:server.vi
+
+Error cleared. Exiting operation.
+
+
+2014/03/06 18:10:47 Thread-1 experiments ERROR Exception during experiment:
+unable to create group (Symbol table: Unable to initialize object)
+Traceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\experiments.py", line 366, in go2
+    self.create_hdf5_iteration()
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\experiments.py", line 562, in create_hdf5_iteration
+    self.iterationResults=self.hdf5.create_group('iterations/'+str(self.iteration))
+  File "C:\Users\Saffmanlab\AppData\Local\Enthought\Canopy\User\lib\site-packages\h5py\_hl\group.py", line 41, in create_group
+    gid = h5g.create(self.id, name, lcpl=lcpl)
+  File "h5g.pyx", line 145, in h5py.h5g.create (h5py\h5g.c:2378)
+ValueError: unable to create group (Symbol table: Unable to initialize object)
+
+
+2014/03/06 18:13:58 MainThread instrument_property WARNING Exception in EvalProp.evaluate() in clockRate.
+description: 
+function: 20*kilo
+float division by zero
+
+2014/03/06 18:13:58 MainThread instrument_property WARNING Exception in EvalProp.evaluate() in totalAOTime.
+description: 5 ms total
+function: total_AO_time
+float division by zero
+
+2014/03/06 18:14:38 MainThread __main__ INFO starting application
+2014/03/06 18:16:33 Thread-1 LabView DEBUG LabView.open() opening sock
+2014/03/06 18:16:33 Thread-1 LabView DEBUG LabView.open() sock opened
+2014/03/06 18:16:37 Thread-1 experiments INFO Current status is idle. Cannot continue an experiment unless status is paused.
+2014/03/06 18:16:49 MainThread analysis WARNING Exception trying to plot measurement 2, shot 1, in analysis.ShotsBrowserAnalysis.load()
+
+2014/03/06 18:16:52 MainThread analysis WARNING Exception trying to plot measurement 10, shot 0, in analysis.ShotsBrowserAnalysis.load()
+
+2014/03/06 18:16:52 MainThread analysis WARNING Exception trying to plot measurement 11, shot 0, in analysis.ShotsBrowserAnalysis.load()
+
+2014/03/06 18:16:53 MainThread analysis WARNING Exception trying to plot measurement 12, shot 0, in analysis.ShotsBrowserAnalysis.load()
+
+2014/03/06 18:16:56 MainThread analysis WARNING Exception trying to plot measurement 12, shot 0, in analysis.ShotsBrowserAnalysis.load()
+
+2014/03/06 18:16:57 MainThread analysis WARNING Exception trying to plot measurement 13, shot 0, in analysis.ShotsBrowserAnalysis.load()
+
+2014/03/06 18:16:58 MainThread analysis WARNING Exception trying to plot measurement 14, shot 0, in analysis.ShotsBrowserAnalysis.load()
+
+2014/03/06 18:16:58 MainThread analysis WARNING Exception trying to plot measurement 15, shot 0, in analysis.ShotsBrowserAnalysis.load()
+
+2014/03/06 18:16:59 MainThread analysis WARNING Exception trying to plot measurement 14, shot 0, in analysis.ShotsBrowserAnalysis.load()
+
+2014/03/06 18:16:59 MainThread analysis WARNING Exception trying to plot measurement 13, shot 0, in analysis.ShotsBrowserAnalysis.load()
+
+2014/03/06 18:16:59 MainThread analysis WARNING Exception trying to plot measurement 12, shot 0, in analysis.ShotsBrowserAnalysis.load()
+
+2014/03/06 18:16:59 MainThread analysis WARNING Exception trying to plot measurement 11, shot 0, in analysis.ShotsBrowserAnalysis.load()
+
+2014/03/06 18:16:59 MainThread analysis WARNING Exception trying to plot measurement 10, shot 0, in analysis.ShotsBrowserAnalysis.load()
+
+2014/03/06 18:21:28 MainThread instrument_property WARNING Exception in EvalProp.evaluate() in clockRate.
+description: 
+function: 20*kilo
+float division by zero
+
+2014/03/06 18:21:28 MainThread instrument_property WARNING Exception in EvalProp.evaluate() in totalAOTime.
+description: 5 ms total
+function: total_AO_time
+float division by zero
+
+2014/03/06 18:22:09 MainThread __main__ INFO starting application
+2014/03/06 18:26:01 Thread-1 LabView DEBUG LabView.open() opening sock
+2014/03/06 18:26:01 Thread-1 LabView DEBUG LabView.open() sock opened
+2014/03/06 18:26:05 Thread-1 experiments INFO Current status is idle. Cannot continue an experiment unless status is paused.
+2014/03/06 18:27:17 MainThread instrument_property WARNING Exception in EvalProp.evaluate() in clockRate.
+description: 
+function: 20*kilo
+float division by zero
+
+2014/03/06 18:27:17 MainThread instrument_property WARNING Exception in EvalProp.evaluate() in totalAOTime.
+description: 5 ms total
+function: total_AO_time
+float division by zero
+
+2014/03/06 18:27:58 MainThread __main__ INFO starting application
+2014/03/06 18:33:57 Thread-1 LabView DEBUG LabView.open() opening sock
+2014/03/06 18:33:58 Thread-1 LabView DEBUG LabView.open() sock opened
+2014/03/06 18:34:02 Thread-1 experiments INFO Current status is idle. Cannot continue an experiment unless status is paused.
+2014/03/06 18:35:06 Thread-2 experiments INFO Current status is idle. Cannot continue an experiment unless status is paused.
+2014/03/06 18:35:12 MainThread instrument_property WARNING TypeError while evaluating:
+property: cooling
+description: TEC cooling
+function: "On"
+Attempt to assign O to EnumProp cooling but the only allowed values are: ['Off', 'On']
+
+2014/03/06 18:35:12 MainThread instrument_property WARNING TypeError while evaluating:
+property: cooling
+description: TEC cooling
+function: "On"
+Attempt to assign Of to EnumProp cooling but the only allowed values are: ['Off', 'On']
+
+2014/03/06 18:35:15 MainThread instrument_property WARNING TypeError while evaluating:
+property: fan
+description: fan
+function: "On"
+Attempt to assign Ofn to EnumProp fan but the only allowed values are: ['Off', 'On']
+
+2014/03/06 18:35:15 MainThread instrument_property WARNING TypeError while evaluating:
+property: fan
+description: fan
+function: "On"
+Attempt to assign Offn to EnumProp fan but the only allowed values are: ['Off', 'On']
+
+2014/03/06 18:35:59 Thread-3 experiments INFO Current status is idle. Cannot continue an experiment unless status is paused.
+2014/03/06 18:41:05 MainThread instrument_property WARNING Exception in EvalProp.evaluate() in clockRate.
+description: 
+function: 20*kilo
+float division by zero
+
+2014/03/06 18:41:05 MainThread instrument_property WARNING Exception in EvalProp.evaluate() in totalAOTime.
+description: 5 ms total
+function: total_AO_time
+float division by zero
+
+2014/03/06 18:41:46 MainThread __main__ INFO starting application
+2014/03/06 18:42:56 Thread-1 LabView DEBUG LabView.open() opening sock
+2014/03/06 18:42:56 Thread-1 LabView DEBUG LabView.open() sock opened
+2014/03/06 18:43:00 Thread-1 experiments INFO Current status is idle. Cannot continue an experiment unless status is paused.
+2014/03/06 18:43:54 Thread-2 experiments INFO Current status is idle. Cannot continue an experiment unless status is paused.
+2014/03/06 18:52:23 MainThread instrument_property WARNING Exception in EvalProp.evaluate() in clockRate.
+description: 
+function: 20*kilo
+float division by zero
+
+2014/03/06 18:52:23 MainThread instrument_property WARNING Exception in EvalProp.evaluate() in totalAOTime.
+description: 5 ms total
+function: total_AO_time
+float division by zero
+
+2014/03/06 18:53:04 MainThread __main__ INFO starting application
+2014/03/06 18:59:41 Thread-1 LabView DEBUG LabView.open() opening sock
+2014/03/06 18:59:41 Thread-1 LabView DEBUG LabView.open() sock opened
+2014/03/06 19:00:18 Thread-1 experiments INFO Current status is idle. Cannot continue an experiment unless status is paused.
+2014/03/06 19:00:53 MainThread cs_evaluate WARNING evaluating property script, HSDIO script that says what waveforms to generate, 'script script1
+compressedGenerate MOT_Loading
+compressedGenerate PGC_1
+compressedGenerate MOT_drop
+compressedGenerate PreReadout
+compressedGenerate Readout
+compressedGenerate PGC_2
+compressedGenerate close_3D_shutter
+compressedGenerate close_HF_shutter
+compressedGenerate Optical_Pumping
+compressedGenerate uwave_wStark_site1
+compressedGenerate RydA_CzGate_trapsOff
+compressedGenerate uwave_wStark_site1_phaseshift
+compressedGenerate microwave_pi_pulse
+compressedGenerate Blowaway
+compressedGenerate Camera_delay
+compressedGenerate Readout
+compressedGenerate slow_noise_eater_ms
+idle
+end script'
+Could not eval string: 'script script1
+compressedGenerate MOT_Loading
+compressedGenerate PGC_1
+compressedGenerate MOT_drop
+compressedGenerate PreReadout
+compressedGenerate Readout
+compressedGenerate PGC_2
+compressedGenerate close_3D_shutter
+compressedGenerate close_HF_shutter
+compressedGenerate Optical_Pumping
+compressedGenerate uwave_wStark_site1
+compressedGenerate RydA_CzGate_trapsOff
+compressedGenerate uwave_wStark_site1_phaseshift
+compressedGenerate microwave_pi_pulse
+compressedGenerate Blowaway
+compressedGenerate Camera_delay
+compressedGenerate Readout
+compressedGenerate slow_noise_eater_ms
+idle
+end script'
+EOL while scanning string literal (<string>, line 1)Traceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\cs_evaluate.py", line 28, in evalWithDict
+    return eval(string,globals()) #,varDict.copy()) #dict(numpyDict.items()+varDict.items())) #create a new dictionary so all numpy functions and everything defined in varDict is available as a global during evaluation
+  File "<string>", line 1
+    'script script1
+                  ^
+SyntaxError: EOL while scanning string literal
+
+
+2014/03/06 19:00:59 MainThread cs_evaluate WARNING evaluating property script, HSDIO script that says what waveforms to generate, 'script script1compressedGenerate MOT_Loading
+compressedGenerate PGC_1
+compressedGenerate MOT_drop
+compressedGenerate PreReadout
+compressedGenerate Readout
+compressedGenerate PGC_2
+compressedGenerate close_3D_shutter
+compressedGenerate close_HF_shutter
+compressedGenerate Optical_Pumping
+compressedGenerate uwave_wStark_site1
+compressedGenerate RydA_CzGate_trapsOff
+compressedGenerate uwave_wStark_site1_phaseshift
+compressedGenerate microwave_pi_pulse
+compressedGenerate Blowaway
+compressedGenerate Camera_delay
+compressedGenerate Readout
+compressedGenerate slow_noise_eater_ms
+idle
+end script'
+Could not eval string: 'script script1compressedGenerate MOT_Loading
+compressedGenerate PGC_1
+compressedGenerate MOT_drop
+compressedGenerate PreReadout
+compressedGenerate Readout
+compressedGenerate PGC_2
+compressedGenerate close_3D_shutter
+compressedGenerate close_HF_shutter
+compressedGenerate Optical_Pumping
+compressedGenerate uwave_wStark_site1
+compressedGenerate RydA_CzGate_trapsOff
+compressedGenerate uwave_wStark_site1_phaseshift
+compressedGenerate microwave_pi_pulse
+compressedGenerate Blowaway
+compressedGenerate Camera_delay
+compressedGenerate Readout
+compressedGenerate slow_noise_eater_ms
+idle
+end script'
+EOL while scanning string literal (<string>, line 1)Traceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\cs_evaluate.py", line 28, in evalWithDict
+    return eval(string,globals()) #,varDict.copy()) #dict(numpyDict.items()+varDict.items())) #create a new dictionary so all numpy functions and everything defined in varDict is available as a global during evaluation
+  File "<string>", line 1
+    'script script1compressedGenerate MOT_Loading
+                                                ^
+SyntaxError: EOL while scanning string literal
+
+
+2014/03/06 19:01:01 MainThread cs_evaluate WARNING evaluating property script, HSDIO script that says what waveforms to generate, 'script script1\ncompressedGenerate MOT_Loading
+compressedGenerate PGC_1
+compressedGenerate MOT_drop
+compressedGenerate PreReadout
+compressedGenerate Readout
+compressedGenerate PGC_2
+compressedGenerate close_3D_shutter
+compressedGenerate close_HF_shutter
+compressedGenerate Optical_Pumping
+compressedGenerate uwave_wStark_site1
+compressedGenerate RydA_CzGate_trapsOff
+compressedGenerate uwave_wStark_site1_phaseshift
+compressedGenerate microwave_pi_pulse
+compressedGenerate Blowaway
+compressedGenerate Camera_delay
+compressedGenerate Readout
+compressedGenerate slow_noise_eater_ms
+idle
+end script'
+Could not eval string: 'script script1\ncompressedGenerate MOT_Loading
+compressedGenerate PGC_1
+compressedGenerate MOT_drop
+compressedGenerate PreReadout
+compressedGenerate Readout
+compressedGenerate PGC_2
+compressedGenerate close_3D_shutter
+compressedGenerate close_HF_shutter
+compressedGenerate Optical_Pumping
+compressedGenerate uwave_wStark_site1
+compressedGenerate RydA_CzGate_trapsOff
+compressedGenerate uwave_wStark_site1_phaseshift
+compressedGenerate microwave_pi_pulse
+compressedGenerate Blowaway
+compressedGenerate Camera_delay
+compressedGenerate Readout
+compressedGenerate slow_noise_eater_ms
+idle
+end script'
+EOL while scanning string literal (<string>, line 1)Traceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\cs_evaluate.py", line 28, in evalWithDict
+    return eval(string,globals()) #,varDict.copy()) #dict(numpyDict.items()+varDict.items())) #create a new dictionary so all numpy functions and everything defined in varDict is available as a global during evaluation
+  File "<string>", line 1
+    'script script1\ncompressedGenerate MOT_Loading
+                                                  ^
+SyntaxError: EOL while scanning string literal
+
+
+2014/03/06 19:01:03 MainThread cs_evaluate WARNING evaluating property script, HSDIO script that says what waveforms to generate, 'script script1\ncompressedGenerate MOT_LoadingcompressedGenerate PGC_1
+compressedGenerate MOT_drop
+compressedGenerate PreReadout
+compressedGenerate Readout
+compressedGenerate PGC_2
+compressedGenerate close_3D_shutter
+compressedGenerate close_HF_shutter
+compressedGenerate Optical_Pumping
+compressedGenerate uwave_wStark_site1
+compressedGenerate RydA_CzGate_trapsOff
+compressedGenerate uwave_wStark_site1_phaseshift
+compressedGenerate microwave_pi_pulse
+compressedGenerate Blowaway
+compressedGenerate Camera_delay
+compressedGenerate Readout
+compressedGenerate slow_noise_eater_ms
+idle
+end script'
+Could not eval string: 'script script1\ncompressedGenerate MOT_LoadingcompressedGenerate PGC_1
+compressedGenerate MOT_drop
+compressedGenerate PreReadout
+compressedGenerate Readout
+compressedGenerate PGC_2
+compressedGenerate close_3D_shutter
+compressedGenerate close_HF_shutter
+compressedGenerate Optical_Pumping
+compressedGenerate uwave_wStark_site1
+compressedGenerate RydA_CzGate_trapsOff
+compressedGenerate uwave_wStark_site1_phaseshift
+compressedGenerate microwave_pi_pulse
+compressedGenerate Blowaway
+compressedGenerate Camera_delay
+compressedGenerate Readout
+compressedGenerate slow_noise_eater_ms
+idle
+end script'
+EOL while scanning string literal (<string>, line 1)Traceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\cs_evaluate.py", line 28, in evalWithDict
+    return eval(string,globals()) #,varDict.copy()) #dict(numpyDict.items()+varDict.items())) #create a new dictionary so all numpy functions and everything defined in varDict is available as a global during evaluation
+  File "<string>", line 1
+    'script script1\ncompressedGenerate MOT_LoadingcompressedGenerate PGC_1
+                                                                          ^
+SyntaxError: EOL while scanning string literal
+
+
+2014/03/06 19:01:04 MainThread cs_evaluate WARNING evaluating property script, HSDIO script that says what waveforms to generate, 'script script1\ncompressedGenerate MOT_Loading\ncompressedGenerate PGC_1
+compressedGenerate MOT_drop
+compressedGenerate PreReadout
+compressedGenerate Readout
+compressedGenerate PGC_2
+compressedGenerate close_3D_shutter
+compressedGenerate close_HF_shutter
+compressedGenerate Optical_Pumping
+compressedGenerate uwave_wStark_site1
+compressedGenerate RydA_CzGate_trapsOff
+compressedGenerate uwave_wStark_site1_phaseshift
+compressedGenerate microwave_pi_pulse
+compressedGenerate Blowaway
+compressedGenerate Camera_delay
+compressedGenerate Readout
+compressedGenerate slow_noise_eater_ms
+idle
+end script'
+Could not eval string: 'script script1\ncompressedGenerate MOT_Loading\ncompressedGenerate PGC_1
+compressedGenerate MOT_drop
+compressedGenerate PreReadout
+compressedGenerate Readout
+compressedGenerate PGC_2
+compressedGenerate close_3D_shutter
+compressedGenerate close_HF_shutter
+compressedGenerate Optical_Pumping
+compressedGenerate uwave_wStark_site1
+compressedGenerate RydA_CzGate_trapsOff
+compressedGenerate uwave_wStark_site1_phaseshift
+compressedGenerate microwave_pi_pulse
+compressedGenerate Blowaway
+compressedGenerate Camera_delay
+compressedGenerate Readout
+compressedGenerate slow_noise_eater_ms
+idle
+end script'
+EOL while scanning string literal (<string>, line 1)Traceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\cs_evaluate.py", line 28, in evalWithDict
+    return eval(string,globals()) #,varDict.copy()) #dict(numpyDict.items()+varDict.items())) #create a new dictionary so all numpy functions and everything defined in varDict is available as a global during evaluation
+  File "<string>", line 1
+    'script script1\ncompressedGenerate MOT_Loading\ncompressedGenerate PGC_1
+                                                                            ^
+SyntaxError: EOL while scanning string literal
+
+
+2014/03/06 19:01:07 MainThread cs_evaluate WARNING evaluating property script, HSDIO script that says what waveforms to generate, 'script script1\ncompressedGenerate MOT_Loading\ncompressedGenerate PGC_1compressedGenerate MOT_drop
+compressedGenerate PreReadout
+compressedGenerate Readout
+compressedGenerate PGC_2
+compressedGenerate close_3D_shutter
+compressedGenerate close_HF_shutter
+compressedGenerate Optical_Pumping
+compressedGenerate uwave_wStark_site1
+compressedGenerate RydA_CzGate_trapsOff
+compressedGenerate uwave_wStark_site1_phaseshift
+compressedGenerate microwave_pi_pulse
+compressedGenerate Blowaway
+compressedGenerate Camera_delay
+compressedGenerate Readout
+compressedGenerate slow_noise_eater_ms
+idle
+end script'
+Could not eval string: 'script script1\ncompressedGenerate MOT_Loading\ncompressedGenerate PGC_1compressedGenerate MOT_drop
+compressedGenerate PreReadout
+compressedGenerate Readout
+compressedGenerate PGC_2
+compressedGenerate close_3D_shutter
+compressedGenerate close_HF_shutter
+compressedGenerate Optical_Pumping
+compressedGenerate uwave_wStark_site1
+compressedGenerate RydA_CzGate_trapsOff
+compressedGenerate uwave_wStark_site1_phaseshift
+compressedGenerate microwave_pi_pulse
+compressedGenerate Blowaway
+compressedGenerate Camera_delay
+compressedGenerate Readout
+compressedGenerate slow_noise_eater_ms
+idle
+end script'
+EOL while scanning string literal (<string>, line 1)Traceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\cs_evaluate.py", line 28, in evalWithDict
+    return eval(string,globals()) #,varDict.copy()) #dict(numpyDict.items()+varDict.items())) #create a new dictionary so all numpy functions and everything defined in varDict is available as a global during evaluation
+  File "<string>", line 1
+    'script script1\ncompressedGenerate MOT_Loading\ncompressedGenerate PGC_1compressedGenerate MOT_drop
+                                                                                                       ^
+SyntaxError: EOL while scanning string literal
+
+
+2014/03/06 19:01:08 MainThread cs_evaluate WARNING evaluating property script, HSDIO script that says what waveforms to generate, 'script script1\ncompressedGenerate MOT_Loading\ncompressedGenerate PGC_1\ncompressedGenerate MOT_drop
+compressedGenerate PreReadout
+compressedGenerate Readout
+compressedGenerate PGC_2
+compressedGenerate close_3D_shutter
+compressedGenerate close_HF_shutter
+compressedGenerate Optical_Pumping
+compressedGenerate uwave_wStark_site1
+compressedGenerate RydA_CzGate_trapsOff
+compressedGenerate uwave_wStark_site1_phaseshift
+compressedGenerate microwave_pi_pulse
+compressedGenerate Blowaway
+compressedGenerate Camera_delay
+compressedGenerate Readout
+compressedGenerate slow_noise_eater_ms
+idle
+end script'
+Could not eval string: 'script script1\ncompressedGenerate MOT_Loading\ncompressedGenerate PGC_1\ncompressedGenerate MOT_drop
+compressedGenerate PreReadout
+compressedGenerate Readout
+compressedGenerate PGC_2
+compressedGenerate close_3D_shutter
+compressedGenerate close_HF_shutter
+compressedGenerate Optical_Pumping
+compressedGenerate uwave_wStark_site1
+compressedGenerate RydA_CzGate_trapsOff
+compressedGenerate uwave_wStark_site1_phaseshift
+compressedGenerate microwave_pi_pulse
+compressedGenerate Blowaway
+compressedGenerate Camera_delay
+compressedGenerate Readout
+compressedGenerate slow_noise_eater_ms
+idle
+end script'
+EOL while scanning string literal (<string>, line 1)Traceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\cs_evaluate.py", line 28, in evalWithDict
+    return eval(string,globals()) #,varDict.copy()) #dict(numpyDict.items()+varDict.items())) #create a new dictionary so all numpy functions and everything defined in varDict is available as a global during evaluation
+  File "<string>", line 1
+    'script script1\ncompressedGenerate MOT_Loading\ncompressedGenerate PGC_1\ncompressedGenerate MOT_drop
+                                                                                                         ^
+SyntaxError: EOL while scanning string literal
+
+
+2014/03/06 19:01:10 MainThread cs_evaluate WARNING evaluating property script, HSDIO script that says what waveforms to generate, 'script script1\ncompressedGenerate MOT_Loading\ncompressedGenerate PGC_1\ncompressedGenerate MOT_dropcompressedGenerate PreReadout
+compressedGenerate Readout
+compressedGenerate PGC_2
+compressedGenerate close_3D_shutter
+compressedGenerate close_HF_shutter
+compressedGenerate Optical_Pumping
+compressedGenerate uwave_wStark_site1
+compressedGenerate RydA_CzGate_trapsOff
+compressedGenerate uwave_wStark_site1_phaseshift
+compressedGenerate microwave_pi_pulse
+compressedGenerate Blowaway
+compressedGenerate Camera_delay
+compressedGenerate Readout
+compressedGenerate slow_noise_eater_ms
+idle
+end script'
+Could not eval string: 'script script1\ncompressedGenerate MOT_Loading\ncompressedGenerate PGC_1\ncompressedGenerate MOT_dropcompressedGenerate PreReadout
+compressedGenerate Readout
+compressedGenerate PGC_2
+compressedGenerate close_3D_shutter
+compressedGenerate close_HF_shutter
+compressedGenerate Optical_Pumping
+compressedGenerate uwave_wStark_site1
+compressedGenerate RydA_CzGate_trapsOff
+compressedGenerate uwave_wStark_site1_phaseshift
+compressedGenerate microwave_pi_pulse
+compressedGenerate Blowaway
+compressedGenerate Camera_delay
+compressedGenerate Readout
+compressedGenerate slow_noise_eater_ms
+idle
+end script'
+EOL while scanning string literal (<string>, line 1)Traceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\cs_evaluate.py", line 28, in evalWithDict
+    return eval(string,globals()) #,varDict.copy()) #dict(numpyDict.items()+varDict.items())) #create a new dictionary so all numpy functions and everything defined in varDict is available as a global during evaluation
+  File "<string>", line 1
+    'script script1\ncompressedGenerate MOT_Loading\ncompressedGenerate PGC_1\ncompressedGenerate MOT_dropcompressedGenerate PreReadout
+                                                                                                                                      ^
+SyntaxError: EOL while scanning string literal
+
+
+2014/03/06 19:01:12 MainThread cs_evaluate WARNING evaluating property script, HSDIO script that says what waveforms to generate, 'script script1\ncompressedGenerate MOT_Loading\ncompressedGenerate PGC_1\ncompressedGenerate MOT_drop\ncompressedGenerate PreReadout
+compressedGenerate Readout
+compressedGenerate PGC_2
+compressedGenerate close_3D_shutter
+compressedGenerate close_HF_shutter
+compressedGenerate Optical_Pumping
+compressedGenerate uwave_wStark_site1
+compressedGenerate RydA_CzGate_trapsOff
+compressedGenerate uwave_wStark_site1_phaseshift
+compressedGenerate microwave_pi_pulse
+compressedGenerate Blowaway
+compressedGenerate Camera_delay
+compressedGenerate Readout
+compressedGenerate slow_noise_eater_ms
+idle
+end script'
+Could not eval string: 'script script1\ncompressedGenerate MOT_Loading\ncompressedGenerate PGC_1\ncompressedGenerate MOT_drop\ncompressedGenerate PreReadout
+compressedGenerate Readout
+compressedGenerate PGC_2
+compressedGenerate close_3D_shutter
+compressedGenerate close_HF_shutter
+compressedGenerate Optical_Pumping
+compressedGenerate uwave_wStark_site1
+compressedGenerate RydA_CzGate_trapsOff
+compressedGenerate uwave_wStark_site1_phaseshift
+compressedGenerate microwave_pi_pulse
+compressedGenerate Blowaway
+compressedGenerate Camera_delay
+compressedGenerate Readout
+compressedGenerate slow_noise_eater_ms
+idle
+end script'
+EOL while scanning string literal (<string>, line 1)Traceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\cs_evaluate.py", line 28, in evalWithDict
+    return eval(string,globals()) #,varDict.copy()) #dict(numpyDict.items()+varDict.items())) #create a new dictionary so all numpy functions and everything defined in varDict is available as a global during evaluation
+  File "<string>", line 1
+    'script script1\ncompressedGenerate MOT_Loading\ncompressedGenerate PGC_1\ncompressedGenerate MOT_drop\ncompressedGenerate PreReadout
+                                                                                                                                        ^
+SyntaxError: EOL while scanning string literal
+
+
+2014/03/06 19:01:14 MainThread cs_evaluate WARNING evaluating property script, HSDIO script that says what waveforms to generate, 'script script1\ncompressedGenerate MOT_Loading\ncompressedGenerate PGC_1\ncompressedGenerate MOT_drop\ncompressedGenerate PreReadoutcompressedGenerate Readout
+compressedGenerate PGC_2
+compressedGenerate close_3D_shutter
+compressedGenerate close_HF_shutter
+compressedGenerate Optical_Pumping
+compressedGenerate uwave_wStark_site1
+compressedGenerate RydA_CzGate_trapsOff
+compressedGenerate uwave_wStark_site1_phaseshift
+compressedGenerate microwave_pi_pulse
+compressedGenerate Blowaway
+compressedGenerate Camera_delay
+compressedGenerate Readout
+compressedGenerate slow_noise_eater_ms
+idle
+end script'
+Could not eval string: 'script script1\ncompressedGenerate MOT_Loading\ncompressedGenerate PGC_1\ncompressedGenerate MOT_drop\ncompressedGenerate PreReadoutcompressedGenerate Readout
+compressedGenerate PGC_2
+compressedGenerate close_3D_shutter
+compressedGenerate close_HF_shutter
+compressedGenerate Optical_Pumping
+compressedGenerate uwave_wStark_site1
+compressedGenerate RydA_CzGate_trapsOff
+compressedGenerate uwave_wStark_site1_phaseshift
+compressedGenerate microwave_pi_pulse
+compressedGenerate Blowaway
+compressedGenerate Camera_delay
+compressedGenerate Readout
+compressedGenerate slow_noise_eater_ms
+idle
+end script'
+EOL while scanning string literal (<string>, line 1)Traceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\cs_evaluate.py", line 28, in evalWithDict
+    return eval(string,globals()) #,varDict.copy()) #dict(numpyDict.items()+varDict.items())) #create a new dictionary so all numpy functions and everything defined in varDict is available as a global during evaluation
+  File "<string>", line 1
+    'script script1\ncompressedGenerate MOT_Loading\ncompressedGenerate PGC_1\ncompressedGenerate MOT_drop\ncompressedGenerate PreReadoutcompressedGenerate Readout
+                                                                                                                                                                  ^
+SyntaxError: EOL while scanning string literal
+
+
+2014/03/06 19:01:15 MainThread cs_evaluate WARNING evaluating property script, HSDIO script that says what waveforms to generate, 'script script1\ncompressedGenerate MOT_Loading\ncompressedGenerate PGC_1\ncompressedGenerate MOT_drop\ncompressedGenerate PreReadout\ncompressedGenerate Readout
+compressedGenerate PGC_2
+compressedGenerate close_3D_shutter
+compressedGenerate close_HF_shutter
+compressedGenerate Optical_Pumping
+compressedGenerate uwave_wStark_site1
+compressedGenerate RydA_CzGate_trapsOff
+compressedGenerate uwave_wStark_site1_phaseshift
+compressedGenerate microwave_pi_pulse
+compressedGenerate Blowaway
+compressedGenerate Camera_delay
+compressedGenerate Readout
+compressedGenerate slow_noise_eater_ms
+idle
+end script'
+Could not eval string: 'script script1\ncompressedGenerate MOT_Loading\ncompressedGenerate PGC_1\ncompressedGenerate MOT_drop\ncompressedGenerate PreReadout\ncompressedGenerate Readout
+compressedGenerate PGC_2
+compressedGenerate close_3D_shutter
+compressedGenerate close_HF_shutter
+compressedGenerate Optical_Pumping
+compressedGenerate uwave_wStark_site1
+compressedGenerate RydA_CzGate_trapsOff
+compressedGenerate uwave_wStark_site1_phaseshift
+compressedGenerate microwave_pi_pulse
+compressedGenerate Blowaway
+compressedGenerate Camera_delay
+compressedGenerate Readout
+compressedGenerate slow_noise_eater_ms
+idle
+end script'
+EOL while scanning string literal (<string>, line 1)Traceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\cs_evaluate.py", line 28, in evalWithDict
+    return eval(string,globals()) #,varDict.copy()) #dict(numpyDict.items()+varDict.items())) #create a new dictionary so all numpy functions and everything defined in varDict is available as a global during evaluation
+  File "<string>", line 1
+    'script script1\ncompressedGenerate MOT_Loading\ncompressedGenerate PGC_1\ncompressedGenerate MOT_drop\ncompressedGenerate PreReadout\ncompressedGenerate Readout
+                                                                                                                                                                    ^
+SyntaxError: EOL while scanning string literal
+
+
+2014/03/06 19:01:18 MainThread cs_evaluate WARNING evaluating property script, HSDIO script that says what waveforms to generate, 'script script1\ncompressedGenerate MOT_Loading\ncompressedGenerate PGC_1\ncompressedGenerate MOT_drop\ncompressedGenerate PreReadout\ncompressedGenerate ReadoutcompressedGenerate PGC_2
+compressedGenerate close_3D_shutter
+compressedGenerate close_HF_shutter
+compressedGenerate Optical_Pumping
+compressedGenerate uwave_wStark_site1
+compressedGenerate RydA_CzGate_trapsOff
+compressedGenerate uwave_wStark_site1_phaseshift
+compressedGenerate microwave_pi_pulse
+compressedGenerate Blowaway
+compressedGenerate Camera_delay
+compressedGenerate Readout
+compressedGenerate slow_noise_eater_ms
+idle
+end script'
+Could not eval string: 'script script1\ncompressedGenerate MOT_Loading\ncompressedGenerate PGC_1\ncompressedGenerate MOT_drop\ncompressedGenerate PreReadout\ncompressedGenerate ReadoutcompressedGenerate PGC_2
+compressedGenerate close_3D_shutter
+compressedGenerate close_HF_shutter
+compressedGenerate Optical_Pumping
+compressedGenerate uwave_wStark_site1
+compressedGenerate RydA_CzGate_trapsOff
+compressedGenerate uwave_wStark_site1_phaseshift
+compressedGenerate microwave_pi_pulse
+compressedGenerate Blowaway
+compressedGenerate Camera_delay
+compressedGenerate Readout
+compressedGenerate slow_noise_eater_ms
+idle
+end script'
+EOL while scanning string literal (<string>, line 1)Traceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\cs_evaluate.py", line 28, in evalWithDict
+    return eval(string,globals()) #,varDict.copy()) #dict(numpyDict.items()+varDict.items())) #create a new dictionary so all numpy functions and everything defined in varDict is available as a global during evaluation
+  File "<string>", line 1
+    'script script1\ncompressedGenerate MOT_Loading\ncompressedGenerate PGC_1\ncompressedGenerate MOT_drop\ncompressedGenerate PreReadout\ncompressedGenerate ReadoutcompressedGenerate PGC_2
+                                                                                                                                                                                            ^
+SyntaxError: EOL while scanning string literal
+
+
+2014/03/06 19:01:19 MainThread cs_evaluate WARNING evaluating property script, HSDIO script that says what waveforms to generate, 'script script1\ncompressedGenerate MOT_Loading\ncompressedGenerate PGC_1\ncompressedGenerate MOT_drop\ncompressedGenerate PreReadout\ncompressedGenerate Readout\ncompressedGenerate PGC_2
+compressedGenerate close_3D_shutter
+compressedGenerate close_HF_shutter
+compressedGenerate Optical_Pumping
+compressedGenerate uwave_wStark_site1
+compressedGenerate RydA_CzGate_trapsOff
+compressedGenerate uwave_wStark_site1_phaseshift
+compressedGenerate microwave_pi_pulse
+compressedGenerate Blowaway
+compressedGenerate Camera_delay
+compressedGenerate Readout
+compressedGenerate slow_noise_eater_ms
+idle
+end script'
+Could not eval string: 'script script1\ncompressedGenerate MOT_Loading\ncompressedGenerate PGC_1\ncompressedGenerate MOT_drop\ncompressedGenerate PreReadout\ncompressedGenerate Readout\ncompressedGenerate PGC_2
+compressedGenerate close_3D_shutter
+compressedGenerate close_HF_shutter
+compressedGenerate Optical_Pumping
+compressedGenerate uwave_wStark_site1
+compressedGenerate RydA_CzGate_trapsOff
+compressedGenerate uwave_wStark_site1_phaseshift
+compressedGenerate microwave_pi_pulse
+compressedGenerate Blowaway
+compressedGenerate Camera_delay
+compressedGenerate Readout
+compressedGenerate slow_noise_eater_ms
+idle
+end script'
+EOL while scanning string literal (<string>, line 1)Traceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\cs_evaluate.py", line 28, in evalWithDict
+    return eval(string,globals()) #,varDict.copy()) #dict(numpyDict.items()+varDict.items())) #create a new dictionary so all numpy functions and everything defined in varDict is available as a global during evaluation
+  File "<string>", line 1
+    'script script1\ncompressedGenerate MOT_Loading\ncompressedGenerate PGC_1\ncompressedGenerate MOT_drop\ncompressedGenerate PreReadout\ncompressedGenerate Readout\ncompressedGenerate PGC_2
+                                                                                                                                                                                              ^
+SyntaxError: EOL while scanning string literal
+
+
+2014/03/06 19:01:21 MainThread cs_evaluate WARNING evaluating property script, HSDIO script that says what waveforms to generate, 'script script1\ncompressedGenerate MOT_Loading\ncompressedGenerate PGC_1\ncompressedGenerate MOT_drop\ncompressedGenerate PreReadout\ncompressedGenerate Readout\ncompressedGenerate PGC_2compressedGenerate close_3D_shutter
+compressedGenerate close_HF_shutter
+compressedGenerate Optical_Pumping
+compressedGenerate uwave_wStark_site1
+compressedGenerate RydA_CzGate_trapsOff
+compressedGenerate uwave_wStark_site1_phaseshift
+compressedGenerate microwave_pi_pulse
+compressedGenerate Blowaway
+compressedGenerate Camera_delay
+compressedGenerate Readout
+compressedGenerate slow_noise_eater_ms
+idle
+end script'
+Could not eval string: 'script script1\ncompressedGenerate MOT_Loading\ncompressedGenerate PGC_1\ncompressedGenerate MOT_drop\ncompressedGenerate PreReadout\ncompressedGenerate Readout\ncompressedGenerate PGC_2compressedGenerate close_3D_shutter
+compressedGenerate close_HF_shutter
+compressedGenerate Optical_Pumping
+compressedGenerate uwave_wStark_site1
+compressedGenerate RydA_CzGate_trapsOff
+compressedGenerate uwave_wStark_site1_phaseshift
+compressedGenerate microwave_pi_pulse
+compressedGenerate Blowaway
+compressedGenerate Camera_delay
+compressedGenerate Readout
+compressedGenerate slow_noise_eater_ms
+idle
+end script'
+EOL while scanning string literal (<string>, line 1)Traceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\cs_evaluate.py", line 28, in evalWithDict
+    return eval(string,globals()) #,varDict.copy()) #dict(numpyDict.items()+varDict.items())) #create a new dictionary so all numpy functions and everything defined in varDict is available as a global during evaluation
+  File "<string>", line 1
+    'script script1\ncompressedGenerate MOT_Loading\ncompressedGenerate PGC_1\ncompressedGenerate MOT_drop\ncompressedGenerate PreReadout\ncompressedGenerate Readout\ncompressedGenerate PGC_2compressedGenerate close_3D_shutter
+                                                                                                                                                                                                                                 ^
+SyntaxError: EOL while scanning string literal
+
+
+2014/03/06 19:01:22 MainThread cs_evaluate WARNING evaluating property script, HSDIO script that says what waveforms to generate, 'script script1\ncompressedGenerate MOT_Loading\ncompressedGenerate PGC_1\ncompressedGenerate MOT_drop\ncompressedGenerate PreReadout\ncompressedGenerate Readout\ncompressedGenerate PGC_2\ncompressedGenerate close_3D_shutter
+compressedGenerate close_HF_shutter
+compressedGenerate Optical_Pumping
+compressedGenerate uwave_wStark_site1
+compressedGenerate RydA_CzGate_trapsOff
+compressedGenerate uwave_wStark_site1_phaseshift
+compressedGenerate microwave_pi_pulse
+compressedGenerate Blowaway
+compressedGenerate Camera_delay
+compressedGenerate Readout
+compressedGenerate slow_noise_eater_ms
+idle
+end script'
+Could not eval string: 'script script1\ncompressedGenerate MOT_Loading\ncompressedGenerate PGC_1\ncompressedGenerate MOT_drop\ncompressedGenerate PreReadout\ncompressedGenerate Readout\ncompressedGenerate PGC_2\ncompressedGenerate close_3D_shutter
+compressedGenerate close_HF_shutter
+compressedGenerate Optical_Pumping
+compressedGenerate uwave_wStark_site1
+compressedGenerate RydA_CzGate_trapsOff
+compressedGenerate uwave_wStark_site1_phaseshift
+compressedGenerate microwave_pi_pulse
+compressedGenerate Blowaway
+compressedGenerate Camera_delay
+compressedGenerate Readout
+compressedGenerate slow_noise_eater_ms
+idle
+end script'
+EOL while scanning string literal (<string>, line 1)Traceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\cs_evaluate.py", line 28, in evalWithDict
+    return eval(string,globals()) #,varDict.copy()) #dict(numpyDict.items()+varDict.items())) #create a new dictionary so all numpy functions and everything defined in varDict is available as a global during evaluation
+  File "<string>", line 1
+    'script script1\ncompressedGenerate MOT_Loading\ncompressedGenerate PGC_1\ncompressedGenerate MOT_drop\ncompressedGenerate PreReadout\ncompressedGenerate Readout\ncompressedGenerate PGC_2\ncompressedGenerate close_3D_shutter
+                                                                                                                                                                                                                                   ^
+SyntaxError: EOL while scanning string literal
+
+
+2014/03/06 19:01:24 MainThread cs_evaluate WARNING evaluating property script, HSDIO script that says what waveforms to generate, 'script script1\ncompressedGenerate MOT_Loading\ncompressedGenerate PGC_1\ncompressedGenerate MOT_drop\ncompressedGenerate PreReadout\ncompressedGenerate Readout\ncompressedGenerate PGC_2\ncompressedGenerate close_3D_shuttercompressedGenerate close_HF_shutter
+compressedGenerate Optical_Pumping
+compressedGenerate uwave_wStark_site1
+compressedGenerate RydA_CzGate_trapsOff
+compressedGenerate uwave_wStark_site1_phaseshift
+compressedGenerate microwave_pi_pulse
+compressedGenerate Blowaway
+compressedGenerate Camera_delay
+compressedGenerate Readout
+compressedGenerate slow_noise_eater_ms
+idle
+end script'
+Could not eval string: 'script script1\ncompressedGenerate MOT_Loading\ncompressedGenerate PGC_1\ncompressedGenerate MOT_drop\ncompressedGenerate PreReadout\ncompressedGenerate Readout\ncompressedGenerate PGC_2\ncompressedGenerate close_3D_shuttercompressedGenerate close_HF_shutter
+compressedGenerate Optical_Pumping
+compressedGenerate uwave_wStark_site1
+compressedGenerate RydA_CzGate_trapsOff
+compressedGenerate uwave_wStark_site1_phaseshift
+compressedGenerate microwave_pi_pulse
+compressedGenerate Blowaway
+compressedGenerate Camera_delay
+compressedGenerate Readout
+compressedGenerate slow_noise_eater_ms
+idle
+end script'
+EOL while scanning string literal (<string>, line 1)Traceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\cs_evaluate.py", line 28, in evalWithDict
+    return eval(string,globals()) #,varDict.copy()) #dict(numpyDict.items()+varDict.items())) #create a new dictionary so all numpy functions and everything defined in varDict is available as a global during evaluation
+  File "<string>", line 1
+    'script script1\ncompressedGenerate MOT_Loading\ncompressedGenerate PGC_1\ncompressedGenerate MOT_drop\ncompressedGenerate PreReadout\ncompressedGenerate Readout\ncompressedGenerate PGC_2\ncompressedGenerate close_3D_shuttercompressedGenerate close_HF_shutter
+                                                                                                                                                                                                                                                                      ^
+SyntaxError: EOL while scanning string literal
+
+
+2014/03/06 19:01:26 MainThread cs_evaluate WARNING evaluating property script, HSDIO script that says what waveforms to generate, 'script script1\ncompressedGenerate MOT_Loading\ncompressedGenerate PGC_1\ncompressedGenerate MOT_drop\ncompressedGenerate PreReadout\ncompressedGenerate Readout\ncompressedGenerate PGC_2\ncompressedGenerate close_3D_shutter\ncompressedGenerate close_HF_shutter
+compressedGenerate Optical_Pumping
+compressedGenerate uwave_wStark_site1
+compressedGenerate RydA_CzGate_trapsOff
+compressedGenerate uwave_wStark_site1_phaseshift
+compressedGenerate microwave_pi_pulse
+compressedGenerate Blowaway
+compressedGenerate Camera_delay
+compressedGenerate Readout
+compressedGenerate slow_noise_eater_ms
+idle
+end script'
+Could not eval string: 'script script1\ncompressedGenerate MOT_Loading\ncompressedGenerate PGC_1\ncompressedGenerate MOT_drop\ncompressedGenerate PreReadout\ncompressedGenerate Readout\ncompressedGenerate PGC_2\ncompressedGenerate close_3D_shutter\ncompressedGenerate close_HF_shutter
+compressedGenerate Optical_Pumping
+compressedGenerate uwave_wStark_site1
+compressedGenerate RydA_CzGate_trapsOff
+compressedGenerate uwave_wStark_site1_phaseshift
+compressedGenerate microwave_pi_pulse
+compressedGenerate Blowaway
+compressedGenerate Camera_delay
+compressedGenerate Readout
+compressedGenerate slow_noise_eater_ms
+idle
+end script'
+EOL while scanning string literal (<string>, line 1)Traceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\cs_evaluate.py", line 28, in evalWithDict
+    return eval(string,globals()) #,varDict.copy()) #dict(numpyDict.items()+varDict.items())) #create a new dictionary so all numpy functions and everything defined in varDict is available as a global during evaluation
+  File "<string>", line 1
+    'script script1\ncompressedGenerate MOT_Loading\ncompressedGenerate PGC_1\ncompressedGenerate MOT_drop\ncompressedGenerate PreReadout\ncompressedGenerate Readout\ncompressedGenerate PGC_2\ncompressedGenerate close_3D_shutter\ncompressedGenerate close_HF_shutter
+                                                                                                                                                                                                                                                                        ^
+SyntaxError: EOL while scanning string literal
+
+
+2014/03/06 19:01:27 MainThread cs_evaluate WARNING evaluating property script, HSDIO script that says what waveforms to generate, 'script script1\ncompressedGenerate MOT_Loading\ncompressedGenerate PGC_1\ncompressedGenerate MOT_drop\ncompressedGenerate PreReadout\ncompressedGenerate Readout\ncompressedGenerate PGC_2\ncompressedGenerate close_3D_shutter\ncompressedGenerate close_HF_shuttercompressedGenerate Optical_Pumping
+compressedGenerate uwave_wStark_site1
+compressedGenerate RydA_CzGate_trapsOff
+compressedGenerate uwave_wStark_site1_phaseshift
+compressedGenerate microwave_pi_pulse
+compressedGenerate Blowaway
+compressedGenerate Camera_delay
+compressedGenerate Readout
+compressedGenerate slow_noise_eater_ms
+idle
+end script'
+Could not eval string: 'script script1\ncompressedGenerate MOT_Loading\ncompressedGenerate PGC_1\ncompressedGenerate MOT_drop\ncompressedGenerate PreReadout\ncompressedGenerate Readout\ncompressedGenerate PGC_2\ncompressedGenerate close_3D_shutter\ncompressedGenerate close_HF_shuttercompressedGenerate Optical_Pumping
+compressedGenerate uwave_wStark_site1
+compressedGenerate RydA_CzGate_trapsOff
+compressedGenerate uwave_wStark_site1_phaseshift
+compressedGenerate microwave_pi_pulse
+compressedGenerate Blowaway
+compressedGenerate Camera_delay
+compressedGenerate Readout
+compressedGenerate slow_noise_eater_ms
+idle
+end script'
+EOL while scanning string literal (<string>, line 1)Traceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\cs_evaluate.py", line 28, in evalWithDict
+    return eval(string,globals()) #,varDict.copy()) #dict(numpyDict.items()+varDict.items())) #create a new dictionary so all numpy functions and everything defined in varDict is available as a global during evaluation
+  File "<string>", line 1
+    'script script1\ncompressedGenerate MOT_Loading\ncompressedGenerate PGC_1\ncompressedGenerate MOT_drop\ncompressedGenerate PreReadout\ncompressedGenerate Readout\ncompressedGenerate PGC_2\ncompressedGenerate close_3D_shutter\ncompressedGenerate close_HF_shuttercompressedGenerate Optical_Pumping
+                                                                                                                                                                                                                                                                                                          ^
+SyntaxError: EOL while scanning string literal
+
+
+2014/03/06 19:01:28 MainThread cs_evaluate WARNING evaluating property script, HSDIO script that says what waveforms to generate, 'script script1\ncompressedGenerate MOT_Loading\ncompressedGenerate PGC_1\ncompressedGenerate MOT_drop\ncompressedGenerate PreReadout\ncompressedGenerate Readout\ncompressedGenerate PGC_2\ncompressedGenerate close_3D_shutter\ncompressedGenerate close_HF_shutter\ncompressedGenerate Optical_Pumping
+compressedGenerate uwave_wStark_site1
+compressedGenerate RydA_CzGate_trapsOff
+compressedGenerate uwave_wStark_site1_phaseshift
+compressedGenerate microwave_pi_pulse
+compressedGenerate Blowaway
+compressedGenerate Camera_delay
+compressedGenerate Readout
+compressedGenerate slow_noise_eater_ms
+idle
+end script'
+Could not eval string: 'script script1\ncompressedGenerate MOT_Loading\ncompressedGenerate PGC_1\ncompressedGenerate MOT_drop\ncompressedGenerate PreReadout\ncompressedGenerate Readout\ncompressedGenerate PGC_2\ncompressedGenerate close_3D_shutter\ncompressedGenerate close_HF_shutter\ncompressedGenerate Optical_Pumping
+compressedGenerate uwave_wStark_site1
+compressedGenerate RydA_CzGate_trapsOff
+compressedGenerate uwave_wStark_site1_phaseshift
+compressedGenerate microwave_pi_pulse
+compressedGenerate Blowaway
+compressedGenerate Camera_delay
+compressedGenerate Readout
+compressedGenerate slow_noise_eater_ms
+idle
+end script'
+EOL while scanning string literal (<string>, line 1)Traceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\cs_evaluate.py", line 28, in evalWithDict
+    return eval(string,globals()) #,varDict.copy()) #dict(numpyDict.items()+varDict.items())) #create a new dictionary so all numpy functions and everything defined in varDict is available as a global during evaluation
+  File "<string>", line 1
+    'script script1\ncompressedGenerate MOT_Loading\ncompressedGenerate PGC_1\ncompressedGenerate MOT_drop\ncompressedGenerate PreReadout\ncompressedGenerate Readout\ncompressedGenerate PGC_2\ncompressedGenerate close_3D_shutter\ncompressedGenerate close_HF_shutter\ncompressedGenerate Optical_Pumping
+                                                                                                                                                                                                                                                                                                            ^
+SyntaxError: EOL while scanning string literal
+
+
+2014/03/06 19:01:29 MainThread cs_evaluate WARNING evaluating property script, HSDIO script that says what waveforms to generate, 'script script1\ncompressedGenerate MOT_Loading\ncompressedGenerate PGC_1\ncompressedGenerate MOT_drop\ncompressedGenerate PreReadout\ncompressedGenerate Readout\ncompressedGenerate PGC_2\ncompressedGenerate close_3D_shutter\ncompressedGenerate close_HF_shutter\ncompressedGenerate Optical_PumpingcompressedGenerate uwave_wStark_site1
+compressedGenerate RydA_CzGate_trapsOff
+compressedGenerate uwave_wStark_site1_phaseshift
+compressedGenerate microwave_pi_pulse
+compressedGenerate Blowaway
+compressedGenerate Camera_delay
+compressedGenerate Readout
+compressedGenerate slow_noise_eater_ms
+idle
+end script'
+Could not eval string: 'script script1\ncompressedGenerate MOT_Loading\ncompressedGenerate PGC_1\ncompressedGenerate MOT_drop\ncompressedGenerate PreReadout\ncompressedGenerate Readout\ncompressedGenerate PGC_2\ncompressedGenerate close_3D_shutter\ncompressedGenerate close_HF_shutter\ncompressedGenerate Optical_PumpingcompressedGenerate uwave_wStark_site1
+compressedGenerate RydA_CzGate_trapsOff
+compressedGenerate uwave_wStark_site1_phaseshift
+compressedGenerate microwave_pi_pulse
+compressedGenerate Blowaway
+compressedGenerate Camera_delay
+compressedGenerate Readout
+compressedGenerate slow_noise_eater_ms
+idle
+end script'
+EOL while scanning string literal (<string>, line 1)Traceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\cs_evaluate.py", line 28, in evalWithDict
+    return eval(string,globals()) #,varDict.copy()) #dict(numpyDict.items()+varDict.items())) #create a new dictionary so all numpy functions and everything defined in varDict is available as a global during evaluation
+  File "<string>", line 1
+    'script script1\ncompressedGenerate MOT_Loading\ncompressedGenerate PGC_1\ncompressedGenerate MOT_drop\ncompressedGenerate PreReadout\ncompressedGenerate Readout\ncompressedGenerate PGC_2\ncompressedGenerate close_3D_shutter\ncompressedGenerate close_HF_shutter\ncompressedGenerate Optical_PumpingcompressedGenerate uwave_wStark_site1
+                                                                                                                                                                                                                                                                                                                                                 ^
+SyntaxError: EOL while scanning string literal
+
+
+2014/03/06 19:01:30 MainThread cs_evaluate WARNING evaluating property script, HSDIO script that says what waveforms to generate, 'script script1\ncompressedGenerate MOT_Loading\ncompressedGenerate PGC_1\ncompressedGenerate MOT_drop\ncompressedGenerate PreReadout\ncompressedGenerate Readout\ncompressedGenerate PGC_2\ncompressedGenerate close_3D_shutter\ncompressedGenerate close_HF_shutter\ncompressedGenerate Optical_Pumping\ncompressedGenerate uwave_wStark_site1
+compressedGenerate RydA_CzGate_trapsOff
+compressedGenerate uwave_wStark_site1_phaseshift
+compressedGenerate microwave_pi_pulse
+compressedGenerate Blowaway
+compressedGenerate Camera_delay
+compressedGenerate Readout
+compressedGenerate slow_noise_eater_ms
+idle
+end script'
+Could not eval string: 'script script1\ncompressedGenerate MOT_Loading\ncompressedGenerate PGC_1\ncompressedGenerate MOT_drop\ncompressedGenerate PreReadout\ncompressedGenerate Readout\ncompressedGenerate PGC_2\ncompressedGenerate close_3D_shutter\ncompressedGenerate close_HF_shutter\ncompressedGenerate Optical_Pumping\ncompressedGenerate uwave_wStark_site1
+compressedGenerate RydA_CzGate_trapsOff
+compressedGenerate uwave_wStark_site1_phaseshift
+compressedGenerate microwave_pi_pulse
+compressedGenerate Blowaway
+compressedGenerate Camera_delay
+compressedGenerate Readout
+compressedGenerate slow_noise_eater_ms
+idle
+end script'
+EOL while scanning string literal (<string>, line 1)Traceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\cs_evaluate.py", line 28, in evalWithDict
+    return eval(string,globals()) #,varDict.copy()) #dict(numpyDict.items()+varDict.items())) #create a new dictionary so all numpy functions and everything defined in varDict is available as a global during evaluation
+  File "<string>", line 1
+    'script script1\ncompressedGenerate MOT_Loading\ncompressedGenerate PGC_1\ncompressedGenerate MOT_drop\ncompressedGenerate PreReadout\ncompressedGenerate Readout\ncompressedGenerate PGC_2\ncompressedGenerate close_3D_shutter\ncompressedGenerate close_HF_shutter\ncompressedGenerate Optical_Pumping\ncompressedGenerate uwave_wStark_site1
+                                                                                                                                                                                                                                                                                                                                                   ^
+SyntaxError: EOL while scanning string literal
+
+
+2014/03/06 19:01:32 MainThread cs_evaluate WARNING evaluating property script, HSDIO script that says what waveforms to generate, 'script script1\ncompressedGenerate MOT_Loading\ncompressedGenerate PGC_1\ncompressedGenerate MOT_drop\ncompressedGenerate PreReadout\ncompressedGenerate Readout\ncompressedGenerate PGC_2\ncompressedGenerate close_3D_shutter\ncompressedGenerate close_HF_shutter\ncompressedGenerate Optical_Pumping\ncompressedGenerate uwave_wStark_site1compressedGenerate RydA_CzGate_trapsOff
+compressedGenerate uwave_wStark_site1_phaseshift
+compressedGenerate microwave_pi_pulse
+compressedGenerate Blowaway
+compressedGenerate Camera_delay
+compressedGenerate Readout
+compressedGenerate slow_noise_eater_ms
+idle
+end script'
+Could not eval string: 'script script1\ncompressedGenerate MOT_Loading\ncompressedGenerate PGC_1\ncompressedGenerate MOT_drop\ncompressedGenerate PreReadout\ncompressedGenerate Readout\ncompressedGenerate PGC_2\ncompressedGenerate close_3D_shutter\ncompressedGenerate close_HF_shutter\ncompressedGenerate Optical_Pumping\ncompressedGenerate uwave_wStark_site1compressedGenerate RydA_CzGate_trapsOff
+compressedGenerate uwave_wStark_site1_phaseshift
+compressedGenerate microwave_pi_pulse
+compressedGenerate Blowaway
+compressedGenerate Camera_delay
+compressedGenerate Readout
+compressedGenerate slow_noise_eater_ms
+idle
+end script'
+EOL while scanning string literal (<string>, line 1)Traceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\cs_evaluate.py", line 28, in evalWithDict
+    return eval(string,globals()) #,varDict.copy()) #dict(numpyDict.items()+varDict.items())) #create a new dictionary so all numpy functions and everything defined in varDict is available as a global during evaluation
+  File "<string>", line 1
+    'script script1\ncompressedGenerate MOT_Loading\ncompressedGenerate PGC_1\ncompressedGenerate MOT_drop\ncompressedGenerate PreReadout\ncompressedGenerate Readout\ncompressedGenerate PGC_2\ncompressedGenerate close_3D_shutter\ncompressedGenerate close_HF_shutter\ncompressedGenerate Optical_Pumping\ncompressedGenerate uwave_wStark_site1compressedGenerate RydA_CzGate_trapsOff
+                                                                                                                                                                                                                                                                                                                                                                                          ^
+SyntaxError: EOL while scanning string literal
+
+
+2014/03/06 19:01:33 MainThread cs_evaluate WARNING evaluating property script, HSDIO script that says what waveforms to generate, 'script script1\ncompressedGenerate MOT_Loading\ncompressedGenerate PGC_1\ncompressedGenerate MOT_drop\ncompressedGenerate PreReadout\ncompressedGenerate Readout\ncompressedGenerate PGC_2\ncompressedGenerate close_3D_shutter\ncompressedGenerate close_HF_shutter\ncompressedGenerate Optical_Pumping\ncompressedGenerate uwave_wStark_site1\ncompressedGenerate RydA_CzGate_trapsOff
+compressedGenerate uwave_wStark_site1_phaseshift
+compressedGenerate microwave_pi_pulse
+compressedGenerate Blowaway
+compressedGenerate Camera_delay
+compressedGenerate Readout
+compressedGenerate slow_noise_eater_ms
+idle
+end script'
+Could not eval string: 'script script1\ncompressedGenerate MOT_Loading\ncompressedGenerate PGC_1\ncompressedGenerate MOT_drop\ncompressedGenerate PreReadout\ncompressedGenerate Readout\ncompressedGenerate PGC_2\ncompressedGenerate close_3D_shutter\ncompressedGenerate close_HF_shutter\ncompressedGenerate Optical_Pumping\ncompressedGenerate uwave_wStark_site1\ncompressedGenerate RydA_CzGate_trapsOff
+compressedGenerate uwave_wStark_site1_phaseshift
+compressedGenerate microwave_pi_pulse
+compressedGenerate Blowaway
+compressedGenerate Camera_delay
+compressedGenerate Readout
+compressedGenerate slow_noise_eater_ms
+idle
+end script'
+EOL while scanning string literal (<string>, line 1)Traceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\cs_evaluate.py", line 28, in evalWithDict
+    return eval(string,globals()) #,varDict.copy()) #dict(numpyDict.items()+varDict.items())) #create a new dictionary so all numpy functions and everything defined in varDict is available as a global during evaluation
+  File "<string>", line 1
+    'script script1\ncompressedGenerate MOT_Loading\ncompressedGenerate PGC_1\ncompressedGenerate MOT_drop\ncompressedGenerate PreReadout\ncompressedGenerate Readout\ncompressedGenerate PGC_2\ncompressedGenerate close_3D_shutter\ncompressedGenerate close_HF_shutter\ncompressedGenerate Optical_Pumping\ncompressedGenerate uwave_wStark_site1\ncompressedGenerate RydA_CzGate_trapsOff
+                                                                                                                                                                                                                                                                                                                                                                                            ^
+SyntaxError: EOL while scanning string literal
+
+
+2014/03/06 19:01:34 MainThread cs_evaluate WARNING evaluating property script, HSDIO script that says what waveforms to generate, 'script script1\ncompressedGenerate MOT_Loading\ncompressedGenerate PGC_1\ncompressedGenerate MOT_drop\ncompressedGenerate PreReadout\ncompressedGenerate Readout\ncompressedGenerate PGC_2\ncompressedGenerate close_3D_shutter\ncompressedGenerate close_HF_shutter\ncompressedGenerate Optical_Pumping\ncompressedGenerate uwave_wStark_site1\ncompressedGenerate RydA_CzGate_trapsOffcompressedGenerate uwave_wStark_site1_phaseshift
+compressedGenerate microwave_pi_pulse
+compressedGenerate Blowaway
+compressedGenerate Camera_delay
+compressedGenerate Readout
+compressedGenerate slow_noise_eater_ms
+idle
+end script'
+Could not eval string: 'script script1\ncompressedGenerate MOT_Loading\ncompressedGenerate PGC_1\ncompressedGenerate MOT_drop\ncompressedGenerate PreReadout\ncompressedGenerate Readout\ncompressedGenerate PGC_2\ncompressedGenerate close_3D_shutter\ncompressedGenerate close_HF_shutter\ncompressedGenerate Optical_Pumping\ncompressedGenerate uwave_wStark_site1\ncompressedGenerate RydA_CzGate_trapsOffcompressedGenerate uwave_wStark_site1_phaseshift
+compressedGenerate microwave_pi_pulse
+compressedGenerate Blowaway
+compressedGenerate Camera_delay
+compressedGenerate Readout
+compressedGenerate slow_noise_eater_ms
+idle
+end script'
+EOL while scanning string literal (<string>, line 1)Traceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\cs_evaluate.py", line 28, in evalWithDict
+    return eval(string,globals()) #,varDict.copy()) #dict(numpyDict.items()+varDict.items())) #create a new dictionary so all numpy functions and everything defined in varDict is available as a global during evaluation
+  File "<string>", line 1
+    'script script1\ncompressedGenerate MOT_Loading\ncompressedGenerate PGC_1\ncompressedGenerate MOT_drop\ncompressedGenerate PreReadout\ncompressedGenerate Readout\ncompressedGenerate PGC_2\ncompressedGenerate close_3D_shutter\ncompressedGenerate close_HF_shutter\ncompressedGenerate Optical_Pumping\ncompressedGenerate uwave_wStark_site1\ncompressedGenerate RydA_CzGate_trapsOffcompressedGenerate uwave_wStark_site1_phaseshift
+                                                                                                                                                                                                                                                                                                                                                                                                                                            ^
+SyntaxError: EOL while scanning string literal
+
+
+2014/03/06 19:01:35 MainThread cs_evaluate WARNING evaluating property script, HSDIO script that says what waveforms to generate, 'script script1\ncompressedGenerate MOT_Loading\ncompressedGenerate PGC_1\ncompressedGenerate MOT_drop\ncompressedGenerate PreReadout\ncompressedGenerate Readout\ncompressedGenerate PGC_2\ncompressedGenerate close_3D_shutter\ncompressedGenerate close_HF_shutter\ncompressedGenerate Optical_Pumping\ncompressedGenerate uwave_wStark_site1\ncompressedGenerate RydA_CzGate_trapsOff\ncompressedGenerate uwave_wStark_site1_phaseshift
+compressedGenerate microwave_pi_pulse
+compressedGenerate Blowaway
+compressedGenerate Camera_delay
+compressedGenerate Readout
+compressedGenerate slow_noise_eater_ms
+idle
+end script'
+Could not eval string: 'script script1\ncompressedGenerate MOT_Loading\ncompressedGenerate PGC_1\ncompressedGenerate MOT_drop\ncompressedGenerate PreReadout\ncompressedGenerate Readout\ncompressedGenerate PGC_2\ncompressedGenerate close_3D_shutter\ncompressedGenerate close_HF_shutter\ncompressedGenerate Optical_Pumping\ncompressedGenerate uwave_wStark_site1\ncompressedGenerate RydA_CzGate_trapsOff\ncompressedGenerate uwave_wStark_site1_phaseshift
+compressedGenerate microwave_pi_pulse
+compressedGenerate Blowaway
+compressedGenerate Camera_delay
+compressedGenerate Readout
+compressedGenerate slow_noise_eater_ms
+idle
+end script'
+EOL while scanning string literal (<string>, line 1)Traceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\cs_evaluate.py", line 28, in evalWithDict
+    return eval(string,globals()) #,varDict.copy()) #dict(numpyDict.items()+varDict.items())) #create a new dictionary so all numpy functions and everything defined in varDict is available as a global during evaluation
+  File "<string>", line 1
+    'script script1\ncompressedGenerate MOT_Loading\ncompressedGenerate PGC_1\ncompressedGenerate MOT_drop\ncompressedGenerate PreReadout\ncompressedGenerate Readout\ncompressedGenerate PGC_2\ncompressedGenerate close_3D_shutter\ncompressedGenerate close_HF_shutter\ncompressedGenerate Optical_Pumping\ncompressedGenerate uwave_wStark_site1\ncompressedGenerate RydA_CzGate_trapsOff\ncompressedGenerate uwave_wStark_site1_phaseshift
+                                                                                                                                                                                                                                                                                                                                                                                                                                              ^
+SyntaxError: EOL while scanning string literal
+
+
+2014/03/06 19:01:37 MainThread cs_evaluate WARNING evaluating property script, HSDIO script that says what waveforms to generate, 'script script1\ncompressedGenerate MOT_Loading\ncompressedGenerate PGC_1\ncompressedGenerate MOT_drop\ncompressedGenerate PreReadout\ncompressedGenerate Readout\ncompressedGenerate PGC_2\ncompressedGenerate close_3D_shutter\ncompressedGenerate close_HF_shutter\ncompressedGenerate Optical_Pumping\ncompressedGenerate uwave_wStark_site1\ncompressedGenerate RydA_CzGate_trapsOff\ncompressedGenerate uwave_wStark_site1_phaseshiftcompressedGenerate microwave_pi_pulse
+compressedGenerate Blowaway
+compressedGenerate Camera_delay
+compressedGenerate Readout
+compressedGenerate slow_noise_eater_ms
+idle
+end script'
+Could not eval string: 'script script1\ncompressedGenerate MOT_Loading\ncompressedGenerate PGC_1\ncompressedGenerate MOT_drop\ncompressedGenerate PreReadout\ncompressedGenerate Readout\ncompressedGenerate PGC_2\ncompressedGenerate close_3D_shutter\ncompressedGenerate close_HF_shutter\ncompressedGenerate Optical_Pumping\ncompressedGenerate uwave_wStark_site1\ncompressedGenerate RydA_CzGate_trapsOff\ncompressedGenerate uwave_wStark_site1_phaseshiftcompressedGenerate microwave_pi_pulse
+compressedGenerate Blowaway
+compressedGenerate Camera_delay
+compressedGenerate Readout
+compressedGenerate slow_noise_eater_ms
+idle
+end script'
+EOL while scanning string literal (<string>, line 1)Traceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\cs_evaluate.py", line 28, in evalWithDict
+    return eval(string,globals()) #,varDict.copy()) #dict(numpyDict.items()+varDict.items())) #create a new dictionary so all numpy functions and everything defined in varDict is available as a global during evaluation
+  File "<string>", line 1
+    'script script1\ncompressedGenerate MOT_Loading\ncompressedGenerate PGC_1\ncompressedGenerate MOT_drop\ncompressedGenerate PreReadout\ncompressedGenerate Readout\ncompressedGenerate PGC_2\ncompressedGenerate close_3D_shutter\ncompressedGenerate close_HF_shutter\ncompressedGenerate Optical_Pumping\ncompressedGenerate uwave_wStark_site1\ncompressedGenerate RydA_CzGate_trapsOff\ncompressedGenerate uwave_wStark_site1_phaseshiftcompressedGenerate microwave_pi_pulse
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                   ^
+SyntaxError: EOL while scanning string literal
+
+
+2014/03/06 19:01:38 MainThread cs_evaluate WARNING evaluating property script, HSDIO script that says what waveforms to generate, 'script script1\ncompressedGenerate MOT_Loading\ncompressedGenerate PGC_1\ncompressedGenerate MOT_drop\ncompressedGenerate PreReadout\ncompressedGenerate Readout\ncompressedGenerate PGC_2\ncompressedGenerate close_3D_shutter\ncompressedGenerate close_HF_shutter\ncompressedGenerate Optical_Pumping\ncompressedGenerate uwave_wStark_site1\ncompressedGenerate RydA_CzGate_trapsOff\ncompressedGenerate uwave_wStark_site1_phaseshift\ncompressedGenerate microwave_pi_pulse
+compressedGenerate Blowaway
+compressedGenerate Camera_delay
+compressedGenerate Readout
+compressedGenerate slow_noise_eater_ms
+idle
+end script'
+Could not eval string: 'script script1\ncompressedGenerate MOT_Loading\ncompressedGenerate PGC_1\ncompressedGenerate MOT_drop\ncompressedGenerate PreReadout\ncompressedGenerate Readout\ncompressedGenerate PGC_2\ncompressedGenerate close_3D_shutter\ncompressedGenerate close_HF_shutter\ncompressedGenerate Optical_Pumping\ncompressedGenerate uwave_wStark_site1\ncompressedGenerate RydA_CzGate_trapsOff\ncompressedGenerate uwave_wStark_site1_phaseshift\ncompressedGenerate microwave_pi_pulse
+compressedGenerate Blowaway
+compressedGenerate Camera_delay
+compressedGenerate Readout
+compressedGenerate slow_noise_eater_ms
+idle
+end script'
+EOL while scanning string literal (<string>, line 1)Traceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\cs_evaluate.py", line 28, in evalWithDict
+    return eval(string,globals()) #,varDict.copy()) #dict(numpyDict.items()+varDict.items())) #create a new dictionary so all numpy functions and everything defined in varDict is available as a global during evaluation
+  File "<string>", line 1
+    'script script1\ncompressedGenerate MOT_Loading\ncompressedGenerate PGC_1\ncompressedGenerate MOT_drop\ncompressedGenerate PreReadout\ncompressedGenerate Readout\ncompressedGenerate PGC_2\ncompressedGenerate close_3D_shutter\ncompressedGenerate close_HF_shutter\ncompressedGenerate Optical_Pumping\ncompressedGenerate uwave_wStark_site1\ncompressedGenerate RydA_CzGate_trapsOff\ncompressedGenerate uwave_wStark_site1_phaseshift\ncompressedGenerate microwave_pi_pulse
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                     ^
+SyntaxError: EOL while scanning string literal
+
+
+2014/03/06 19:01:39 MainThread cs_evaluate WARNING evaluating property script, HSDIO script that says what waveforms to generate, 'script script1\ncompressedGenerate MOT_Loading\ncompressedGenerate PGC_1\ncompressedGenerate MOT_drop\ncompressedGenerate PreReadout\ncompressedGenerate Readout\ncompressedGenerate PGC_2\ncompressedGenerate close_3D_shutter\ncompressedGenerate close_HF_shutter\ncompressedGenerate Optical_Pumping\ncompressedGenerate uwave_wStark_site1\ncompressedGenerate RydA_CzGate_trapsOff\ncompressedGenerate uwave_wStark_site1_phaseshift\ncompressedGenerate microwave_pi_pulsecompressedGenerate Blowaway
+compressedGenerate Camera_delay
+compressedGenerate Readout
+compressedGenerate slow_noise_eater_ms
+idle
+end script'
+Could not eval string: 'script script1\ncompressedGenerate MOT_Loading\ncompressedGenerate PGC_1\ncompressedGenerate MOT_drop\ncompressedGenerate PreReadout\ncompressedGenerate Readout\ncompressedGenerate PGC_2\ncompressedGenerate close_3D_shutter\ncompressedGenerate close_HF_shutter\ncompressedGenerate Optical_Pumping\ncompressedGenerate uwave_wStark_site1\ncompressedGenerate RydA_CzGate_trapsOff\ncompressedGenerate uwave_wStark_site1_phaseshift\ncompressedGenerate microwave_pi_pulsecompressedGenerate Blowaway
+compressedGenerate Camera_delay
+compressedGenerate Readout
+compressedGenerate slow_noise_eater_ms
+idle
+end script'
+EOL while scanning string literal (<string>, line 1)Traceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\cs_evaluate.py", line 28, in evalWithDict
+    return eval(string,globals()) #,varDict.copy()) #dict(numpyDict.items()+varDict.items())) #create a new dictionary so all numpy functions and everything defined in varDict is available as a global during evaluation
+  File "<string>", line 1
+    'script script1\ncompressedGenerate MOT_Loading\ncompressedGenerate PGC_1\ncompressedGenerate MOT_drop\ncompressedGenerate PreReadout\ncompressedGenerate Readout\ncompressedGenerate PGC_2\ncompressedGenerate close_3D_shutter\ncompressedGenerate close_HF_shutter\ncompressedGenerate Optical_Pumping\ncompressedGenerate uwave_wStark_site1\ncompressedGenerate RydA_CzGate_trapsOff\ncompressedGenerate uwave_wStark_site1_phaseshift\ncompressedGenerate microwave_pi_pulsecompressedGenerate Blowaway
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                ^
+SyntaxError: EOL while scanning string literal
+
+
+2014/03/06 19:01:40 MainThread cs_evaluate WARNING evaluating property script, HSDIO script that says what waveforms to generate, 'script script1\ncompressedGenerate MOT_Loading\ncompressedGenerate PGC_1\ncompressedGenerate MOT_drop\ncompressedGenerate PreReadout\ncompressedGenerate Readout\ncompressedGenerate PGC_2\ncompressedGenerate close_3D_shutter\ncompressedGenerate close_HF_shutter\ncompressedGenerate Optical_Pumping\ncompressedGenerate uwave_wStark_site1\ncompressedGenerate RydA_CzGate_trapsOff\ncompressedGenerate uwave_wStark_site1_phaseshift\ncompressedGenerate microwave_pi_pulse\ncompressedGenerate Blowaway
+compressedGenerate Camera_delay
+compressedGenerate Readout
+compressedGenerate slow_noise_eater_ms
+idle
+end script'
+Could not eval string: 'script script1\ncompressedGenerate MOT_Loading\ncompressedGenerate PGC_1\ncompressedGenerate MOT_drop\ncompressedGenerate PreReadout\ncompressedGenerate Readout\ncompressedGenerate PGC_2\ncompressedGenerate close_3D_shutter\ncompressedGenerate close_HF_shutter\ncompressedGenerate Optical_Pumping\ncompressedGenerate uwave_wStark_site1\ncompressedGenerate RydA_CzGate_trapsOff\ncompressedGenerate uwave_wStark_site1_phaseshift\ncompressedGenerate microwave_pi_pulse\ncompressedGenerate Blowaway
+compressedGenerate Camera_delay
+compressedGenerate Readout
+compressedGenerate slow_noise_eater_ms
+idle
+end script'
+EOL while scanning string literal (<string>, line 1)Traceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\cs_evaluate.py", line 28, in evalWithDict
+    return eval(string,globals()) #,varDict.copy()) #dict(numpyDict.items()+varDict.items())) #create a new dictionary so all numpy functions and everything defined in varDict is available as a global during evaluation
+  File "<string>", line 1
+    'script script1\ncompressedGenerate MOT_Loading\ncompressedGenerate PGC_1\ncompressedGenerate MOT_drop\ncompressedGenerate PreReadout\ncompressedGenerate Readout\ncompressedGenerate PGC_2\ncompressedGenerate close_3D_shutter\ncompressedGenerate close_HF_shutter\ncompressedGenerate Optical_Pumping\ncompressedGenerate uwave_wStark_site1\ncompressedGenerate RydA_CzGate_trapsOff\ncompressedGenerate uwave_wStark_site1_phaseshift\ncompressedGenerate microwave_pi_pulse\ncompressedGenerate Blowaway
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                  ^
+SyntaxError: EOL while scanning string literal
+
+
+2014/03/06 19:01:41 MainThread cs_evaluate WARNING evaluating property script, HSDIO script that says what waveforms to generate, 'script script1\ncompressedGenerate MOT_Loading\ncompressedGenerate PGC_1\ncompressedGenerate MOT_drop\ncompressedGenerate PreReadout\ncompressedGenerate Readout\ncompressedGenerate PGC_2\ncompressedGenerate close_3D_shutter\ncompressedGenerate close_HF_shutter\ncompressedGenerate Optical_Pumping\ncompressedGenerate uwave_wStark_site1\ncompressedGenerate RydA_CzGate_trapsOff\ncompressedGenerate uwave_wStark_site1_phaseshift\ncompressedGenerate microwave_pi_pulse\ncompressedGenerate BlowawaycompressedGenerate Camera_delay
+compressedGenerate Readout
+compressedGenerate slow_noise_eater_ms
+idle
+end script'
+Could not eval string: 'script script1\ncompressedGenerate MOT_Loading\ncompressedGenerate PGC_1\ncompressedGenerate MOT_drop\ncompressedGenerate PreReadout\ncompressedGenerate Readout\ncompressedGenerate PGC_2\ncompressedGenerate close_3D_shutter\ncompressedGenerate close_HF_shutter\ncompressedGenerate Optical_Pumping\ncompressedGenerate uwave_wStark_site1\ncompressedGenerate RydA_CzGate_trapsOff\ncompressedGenerate uwave_wStark_site1_phaseshift\ncompressedGenerate microwave_pi_pulse\ncompressedGenerate BlowawaycompressedGenerate Camera_delay
+compressedGenerate Readout
+compressedGenerate slow_noise_eater_ms
+idle
+end script'
+EOL while scanning string literal (<string>, line 1)Traceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\cs_evaluate.py", line 28, in evalWithDict
+    return eval(string,globals()) #,varDict.copy()) #dict(numpyDict.items()+varDict.items())) #create a new dictionary so all numpy functions and everything defined in varDict is available as a global during evaluation
+  File "<string>", line 1
+    'script script1\ncompressedGenerate MOT_Loading\ncompressedGenerate PGC_1\ncompressedGenerate MOT_drop\ncompressedGenerate PreReadout\ncompressedGenerate Readout\ncompressedGenerate PGC_2\ncompressedGenerate close_3D_shutter\ncompressedGenerate close_HF_shutter\ncompressedGenerate Optical_Pumping\ncompressedGenerate uwave_wStark_site1\ncompressedGenerate RydA_CzGate_trapsOff\ncompressedGenerate uwave_wStark_site1_phaseshift\ncompressedGenerate microwave_pi_pulse\ncompressedGenerate BlowawaycompressedGenerate Camera_delay
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                 ^
+SyntaxError: EOL while scanning string literal
+
+
+2014/03/06 19:01:42 MainThread cs_evaluate WARNING evaluating property script, HSDIO script that says what waveforms to generate, 'script script1\ncompressedGenerate MOT_Loading\ncompressedGenerate PGC_1\ncompressedGenerate MOT_drop\ncompressedGenerate PreReadout\ncompressedGenerate Readout\ncompressedGenerate PGC_2\ncompressedGenerate close_3D_shutter\ncompressedGenerate close_HF_shutter\ncompressedGenerate Optical_Pumping\ncompressedGenerate uwave_wStark_site1\ncompressedGenerate RydA_CzGate_trapsOff\ncompressedGenerate uwave_wStark_site1_phaseshift\ncompressedGenerate microwave_pi_pulse\ncompressedGenerate Blowaway\ncompressedGenerate Camera_delay
+compressedGenerate Readout
+compressedGenerate slow_noise_eater_ms
+idle
+end script'
+Could not eval string: 'script script1\ncompressedGenerate MOT_Loading\ncompressedGenerate PGC_1\ncompressedGenerate MOT_drop\ncompressedGenerate PreReadout\ncompressedGenerate Readout\ncompressedGenerate PGC_2\ncompressedGenerate close_3D_shutter\ncompressedGenerate close_HF_shutter\ncompressedGenerate Optical_Pumping\ncompressedGenerate uwave_wStark_site1\ncompressedGenerate RydA_CzGate_trapsOff\ncompressedGenerate uwave_wStark_site1_phaseshift\ncompressedGenerate microwave_pi_pulse\ncompressedGenerate Blowaway\ncompressedGenerate Camera_delay
+compressedGenerate Readout
+compressedGenerate slow_noise_eater_ms
+idle
+end script'
+EOL while scanning string literal (<string>, line 1)Traceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\cs_evaluate.py", line 28, in evalWithDict
+    return eval(string,globals()) #,varDict.copy()) #dict(numpyDict.items()+varDict.items())) #create a new dictionary so all numpy functions and everything defined in varDict is available as a global during evaluation
+  File "<string>", line 1
+    'script script1\ncompressedGenerate MOT_Loading\ncompressedGenerate PGC_1\ncompressedGenerate MOT_drop\ncompressedGenerate PreReadout\ncompressedGenerate Readout\ncompressedGenerate PGC_2\ncompressedGenerate close_3D_shutter\ncompressedGenerate close_HF_shutter\ncompressedGenerate Optical_Pumping\ncompressedGenerate uwave_wStark_site1\ncompressedGenerate RydA_CzGate_trapsOff\ncompressedGenerate uwave_wStark_site1_phaseshift\ncompressedGenerate microwave_pi_pulse\ncompressedGenerate Blowaway\ncompressedGenerate Camera_delay
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                   ^
+SyntaxError: EOL while scanning string literal
+
+
+2014/03/06 19:01:43 MainThread cs_evaluate WARNING evaluating property script, HSDIO script that says what waveforms to generate, 'script script1\ncompressedGenerate MOT_Loading\ncompressedGenerate PGC_1\ncompressedGenerate MOT_drop\ncompressedGenerate PreReadout\ncompressedGenerate Readout\ncompressedGenerate PGC_2\ncompressedGenerate close_3D_shutter\ncompressedGenerate close_HF_shutter\ncompressedGenerate Optical_Pumping\ncompressedGenerate uwave_wStark_site1\ncompressedGenerate RydA_CzGate_trapsOff\ncompressedGenerate uwave_wStark_site1_phaseshift\ncompressedGenerate microwave_pi_pulse\ncompressedGenerate Blowaway\ncompressedGenerate Camera_delaycompressedGenerate Readout
+compressedGenerate slow_noise_eater_ms
+idle
+end script'
+Could not eval string: 'script script1\ncompressedGenerate MOT_Loading\ncompressedGenerate PGC_1\ncompressedGenerate MOT_drop\ncompressedGenerate PreReadout\ncompressedGenerate Readout\ncompressedGenerate PGC_2\ncompressedGenerate close_3D_shutter\ncompressedGenerate close_HF_shutter\ncompressedGenerate Optical_Pumping\ncompressedGenerate uwave_wStark_site1\ncompressedGenerate RydA_CzGate_trapsOff\ncompressedGenerate uwave_wStark_site1_phaseshift\ncompressedGenerate microwave_pi_pulse\ncompressedGenerate Blowaway\ncompressedGenerate Camera_delaycompressedGenerate Readout
+compressedGenerate slow_noise_eater_ms
+idle
+end script'
+EOL while scanning string literal (<string>, line 1)Traceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\cs_evaluate.py", line 28, in evalWithDict
+    return eval(string,globals()) #,varDict.copy()) #dict(numpyDict.items()+varDict.items())) #create a new dictionary so all numpy functions and everything defined in varDict is available as a global during evaluation
+  File "<string>", line 1
+    'script script1\ncompressedGenerate MOT_Loading\ncompressedGenerate PGC_1\ncompressedGenerate MOT_drop\ncompressedGenerate PreReadout\ncompressedGenerate Readout\ncompressedGenerate PGC_2\ncompressedGenerate close_3D_shutter\ncompressedGenerate close_HF_shutter\ncompressedGenerate Optical_Pumping\ncompressedGenerate uwave_wStark_site1\ncompressedGenerate RydA_CzGate_trapsOff\ncompressedGenerate uwave_wStark_site1_phaseshift\ncompressedGenerate microwave_pi_pulse\ncompressedGenerate Blowaway\ncompressedGenerate Camera_delaycompressedGenerate Readout
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                             ^
+SyntaxError: EOL while scanning string literal
+
+
+2014/03/06 19:01:44 MainThread cs_evaluate WARNING evaluating property script, HSDIO script that says what waveforms to generate, 'script script1\ncompressedGenerate MOT_Loading\ncompressedGenerate PGC_1\ncompressedGenerate MOT_drop\ncompressedGenerate PreReadout\ncompressedGenerate Readout\ncompressedGenerate PGC_2\ncompressedGenerate close_3D_shutter\ncompressedGenerate close_HF_shutter\ncompressedGenerate Optical_Pumping\ncompressedGenerate uwave_wStark_site1\ncompressedGenerate RydA_CzGate_trapsOff\ncompressedGenerate uwave_wStark_site1_phaseshift\ncompressedGenerate microwave_pi_pulse\ncompressedGenerate Blowaway\ncompressedGenerate Camera_delay\ncompressedGenerate Readout
+compressedGenerate slow_noise_eater_ms
+idle
+end script'
+Could not eval string: 'script script1\ncompressedGenerate MOT_Loading\ncompressedGenerate PGC_1\ncompressedGenerate MOT_drop\ncompressedGenerate PreReadout\ncompressedGenerate Readout\ncompressedGenerate PGC_2\ncompressedGenerate close_3D_shutter\ncompressedGenerate close_HF_shutter\ncompressedGenerate Optical_Pumping\ncompressedGenerate uwave_wStark_site1\ncompressedGenerate RydA_CzGate_trapsOff\ncompressedGenerate uwave_wStark_site1_phaseshift\ncompressedGenerate microwave_pi_pulse\ncompressedGenerate Blowaway\ncompressedGenerate Camera_delay\ncompressedGenerate Readout
+compressedGenerate slow_noise_eater_ms
+idle
+end script'
+EOL while scanning string literal (<string>, line 1)Traceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\cs_evaluate.py", line 28, in evalWithDict
+    return eval(string,globals()) #,varDict.copy()) #dict(numpyDict.items()+varDict.items())) #create a new dictionary so all numpy functions and everything defined in varDict is available as a global during evaluation
+  File "<string>", line 1
+    'script script1\ncompressedGenerate MOT_Loading\ncompressedGenerate PGC_1\ncompressedGenerate MOT_drop\ncompressedGenerate PreReadout\ncompressedGenerate Readout\ncompressedGenerate PGC_2\ncompressedGenerate close_3D_shutter\ncompressedGenerate close_HF_shutter\ncompressedGenerate Optical_Pumping\ncompressedGenerate uwave_wStark_site1\ncompressedGenerate RydA_CzGate_trapsOff\ncompressedGenerate uwave_wStark_site1_phaseshift\ncompressedGenerate microwave_pi_pulse\ncompressedGenerate Blowaway\ncompressedGenerate Camera_delay\ncompressedGenerate Readout
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                               ^
+SyntaxError: EOL while scanning string literal
+
+
+2014/03/06 19:01:45 MainThread cs_evaluate WARNING evaluating property script, HSDIO script that says what waveforms to generate, 'script script1\ncompressedGenerate MOT_Loading\ncompressedGenerate PGC_1\ncompressedGenerate MOT_drop\ncompressedGenerate PreReadout\ncompressedGenerate Readout\ncompressedGenerate PGC_2\ncompressedGenerate close_3D_shutter\ncompressedGenerate close_HF_shutter\ncompressedGenerate Optical_Pumping\ncompressedGenerate uwave_wStark_site1\ncompressedGenerate RydA_CzGate_trapsOff\ncompressedGenerate uwave_wStark_site1_phaseshift\ncompressedGenerate microwave_pi_pulse\ncompressedGenerate Blowaway\ncompressedGenerate Camera_delay\ncompressedGenerate ReadoutcompressedGenerate slow_noise_eater_ms
+idle
+end script'
+Could not eval string: 'script script1\ncompressedGenerate MOT_Loading\ncompressedGenerate PGC_1\ncompressedGenerate MOT_drop\ncompressedGenerate PreReadout\ncompressedGenerate Readout\ncompressedGenerate PGC_2\ncompressedGenerate close_3D_shutter\ncompressedGenerate close_HF_shutter\ncompressedGenerate Optical_Pumping\ncompressedGenerate uwave_wStark_site1\ncompressedGenerate RydA_CzGate_trapsOff\ncompressedGenerate uwave_wStark_site1_phaseshift\ncompressedGenerate microwave_pi_pulse\ncompressedGenerate Blowaway\ncompressedGenerate Camera_delay\ncompressedGenerate ReadoutcompressedGenerate slow_noise_eater_ms
+idle
+end script'
+EOL while scanning string literal (<string>, line 1)Traceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\cs_evaluate.py", line 28, in evalWithDict
+    return eval(string,globals()) #,varDict.copy()) #dict(numpyDict.items()+varDict.items())) #create a new dictionary so all numpy functions and everything defined in varDict is available as a global during evaluation
+  File "<string>", line 1
+    'script script1\ncompressedGenerate MOT_Loading\ncompressedGenerate PGC_1\ncompressedGenerate MOT_drop\ncompressedGenerate PreReadout\ncompressedGenerate Readout\ncompressedGenerate PGC_2\ncompressedGenerate close_3D_shutter\ncompressedGenerate close_HF_shutter\ncompressedGenerate Optical_Pumping\ncompressedGenerate uwave_wStark_site1\ncompressedGenerate RydA_CzGate_trapsOff\ncompressedGenerate uwave_wStark_site1_phaseshift\ncompressedGenerate microwave_pi_pulse\ncompressedGenerate Blowaway\ncompressedGenerate Camera_delay\ncompressedGenerate ReadoutcompressedGenerate slow_noise_eater_ms
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                     ^
+SyntaxError: EOL while scanning string literal
+
+
+2014/03/06 19:01:46 MainThread cs_evaluate WARNING evaluating property script, HSDIO script that says what waveforms to generate, 'script script1\ncompressedGenerate MOT_Loading\ncompressedGenerate PGC_1\ncompressedGenerate MOT_drop\ncompressedGenerate PreReadout\ncompressedGenerate Readout\ncompressedGenerate PGC_2\ncompressedGenerate close_3D_shutter\ncompressedGenerate close_HF_shutter\ncompressedGenerate Optical_Pumping\ncompressedGenerate uwave_wStark_site1\ncompressedGenerate RydA_CzGate_trapsOff\ncompressedGenerate uwave_wStark_site1_phaseshift\ncompressedGenerate microwave_pi_pulse\ncompressedGenerate Blowaway\ncompressedGenerate Camera_delay\ncompressedGenerate Readout\ncompressedGenerate slow_noise_eater_ms
+idle
+end script'
+Could not eval string: 'script script1\ncompressedGenerate MOT_Loading\ncompressedGenerate PGC_1\ncompressedGenerate MOT_drop\ncompressedGenerate PreReadout\ncompressedGenerate Readout\ncompressedGenerate PGC_2\ncompressedGenerate close_3D_shutter\ncompressedGenerate close_HF_shutter\ncompressedGenerate Optical_Pumping\ncompressedGenerate uwave_wStark_site1\ncompressedGenerate RydA_CzGate_trapsOff\ncompressedGenerate uwave_wStark_site1_phaseshift\ncompressedGenerate microwave_pi_pulse\ncompressedGenerate Blowaway\ncompressedGenerate Camera_delay\ncompressedGenerate Readout\ncompressedGenerate slow_noise_eater_ms
+idle
+end script'
+EOL while scanning string literal (<string>, line 1)Traceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\cs_evaluate.py", line 28, in evalWithDict
+    return eval(string,globals()) #,varDict.copy()) #dict(numpyDict.items()+varDict.items())) #create a new dictionary so all numpy functions and everything defined in varDict is available as a global during evaluation
+  File "<string>", line 1
+    'script script1\ncompressedGenerate MOT_Loading\ncompressedGenerate PGC_1\ncompressedGenerate MOT_drop\ncompressedGenerate PreReadout\ncompressedGenerate Readout\ncompressedGenerate PGC_2\ncompressedGenerate close_3D_shutter\ncompressedGenerate close_HF_shutter\ncompressedGenerate Optical_Pumping\ncompressedGenerate uwave_wStark_site1\ncompressedGenerate RydA_CzGate_trapsOff\ncompressedGenerate uwave_wStark_site1_phaseshift\ncompressedGenerate microwave_pi_pulse\ncompressedGenerate Blowaway\ncompressedGenerate Camera_delay\ncompressedGenerate Readout\ncompressedGenerate slow_noise_eater_ms
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       ^
+SyntaxError: EOL while scanning string literal
+
+
+2014/03/06 19:01:49 MainThread cs_evaluate WARNING evaluating property script, HSDIO script that says what waveforms to generate, 'script script1\ncompressedGenerate MOT_Loading\ncompressedGenerate PGC_1\ncompressedGenerate MOT_drop\ncompressedGenerate PreReadout\ncompressedGenerate Readout\ncompressedGenerate PGC_2\ncompressedGenerate close_3D_shutter\ncompressedGenerate close_HF_shutter\ncompressedGenerate Optical_Pumping\ncompressedGenerate uwave_wStark_site1\ncompressedGenerate RydA_CzGate_trapsOff\ncompressedGenerate uwave_wStark_site1_phaseshift\ncompressedGenerate microwave_pi_pulse\ncompressedGenerate Blowaway\ncompressedGenerate Camera_delay\ncompressedGenerate Readout\ncompressedGenerate slow_noise_eater_msidle
+end script'
+Could not eval string: 'script script1\ncompressedGenerate MOT_Loading\ncompressedGenerate PGC_1\ncompressedGenerate MOT_drop\ncompressedGenerate PreReadout\ncompressedGenerate Readout\ncompressedGenerate PGC_2\ncompressedGenerate close_3D_shutter\ncompressedGenerate close_HF_shutter\ncompressedGenerate Optical_Pumping\ncompressedGenerate uwave_wStark_site1\ncompressedGenerate RydA_CzGate_trapsOff\ncompressedGenerate uwave_wStark_site1_phaseshift\ncompressedGenerate microwave_pi_pulse\ncompressedGenerate Blowaway\ncompressedGenerate Camera_delay\ncompressedGenerate Readout\ncompressedGenerate slow_noise_eater_msidle
+end script'
+EOL while scanning string literal (<string>, line 1)Traceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\cs_evaluate.py", line 28, in evalWithDict
+    return eval(string,globals()) #,varDict.copy()) #dict(numpyDict.items()+varDict.items())) #create a new dictionary so all numpy functions and everything defined in varDict is available as a global during evaluation
+  File "<string>", line 1
+    'script script1\ncompressedGenerate MOT_Loading\ncompressedGenerate PGC_1\ncompressedGenerate MOT_drop\ncompressedGenerate PreReadout\ncompressedGenerate Readout\ncompressedGenerate PGC_2\ncompressedGenerate close_3D_shutter\ncompressedGenerate close_HF_shutter\ncompressedGenerate Optical_Pumping\ncompressedGenerate uwave_wStark_site1\ncompressedGenerate RydA_CzGate_trapsOff\ncompressedGenerate uwave_wStark_site1_phaseshift\ncompressedGenerate microwave_pi_pulse\ncompressedGenerate Blowaway\ncompressedGenerate Camera_delay\ncompressedGenerate Readout\ncompressedGenerate slow_noise_eater_msidle
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                           ^
+SyntaxError: EOL while scanning string literal
+
+
+2014/03/06 19:01:50 MainThread cs_evaluate WARNING evaluating property script, HSDIO script that says what waveforms to generate, 'script script1\ncompressedGenerate MOT_Loading\ncompressedGenerate PGC_1\ncompressedGenerate MOT_drop\ncompressedGenerate PreReadout\ncompressedGenerate Readout\ncompressedGenerate PGC_2\ncompressedGenerate close_3D_shutter\ncompressedGenerate close_HF_shutter\ncompressedGenerate Optical_Pumping\ncompressedGenerate uwave_wStark_site1\ncompressedGenerate RydA_CzGate_trapsOff\ncompressedGenerate uwave_wStark_site1_phaseshift\ncompressedGenerate microwave_pi_pulse\ncompressedGenerate Blowaway\ncompressedGenerate Camera_delay\ncompressedGenerate Readout\ncompressedGenerate slow_noise_eater_ms\nidle
+end script'
+Could not eval string: 'script script1\ncompressedGenerate MOT_Loading\ncompressedGenerate PGC_1\ncompressedGenerate MOT_drop\ncompressedGenerate PreReadout\ncompressedGenerate Readout\ncompressedGenerate PGC_2\ncompressedGenerate close_3D_shutter\ncompressedGenerate close_HF_shutter\ncompressedGenerate Optical_Pumping\ncompressedGenerate uwave_wStark_site1\ncompressedGenerate RydA_CzGate_trapsOff\ncompressedGenerate uwave_wStark_site1_phaseshift\ncompressedGenerate microwave_pi_pulse\ncompressedGenerate Blowaway\ncompressedGenerate Camera_delay\ncompressedGenerate Readout\ncompressedGenerate slow_noise_eater_ms\nidle
+end script'
+EOL while scanning string literal (<string>, line 1)Traceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\cs_evaluate.py", line 28, in evalWithDict
+    return eval(string,globals()) #,varDict.copy()) #dict(numpyDict.items()+varDict.items())) #create a new dictionary so all numpy functions and everything defined in varDict is available as a global during evaluation
+  File "<string>", line 1
+    'script script1\ncompressedGenerate MOT_Loading\ncompressedGenerate PGC_1\ncompressedGenerate MOT_drop\ncompressedGenerate PreReadout\ncompressedGenerate Readout\ncompressedGenerate PGC_2\ncompressedGenerate close_3D_shutter\ncompressedGenerate close_HF_shutter\ncompressedGenerate Optical_Pumping\ncompressedGenerate uwave_wStark_site1\ncompressedGenerate RydA_CzGate_trapsOff\ncompressedGenerate uwave_wStark_site1_phaseshift\ncompressedGenerate microwave_pi_pulse\ncompressedGenerate Blowaway\ncompressedGenerate Camera_delay\ncompressedGenerate Readout\ncompressedGenerate slow_noise_eater_ms\nidle
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                             ^
+SyntaxError: EOL while scanning string literal
+
+
+2014/03/06 19:04:39 Thread-2 HSDIO WARNING HSDIO script says: compressedGenerate uwave_wStark_site1, but waveform uwave_wStark_site1 does not exist.
+2014/03/06 19:04:39 Thread-2 instrument_property WARNING In Prop.HardwareProtocol() for class LabView while trying HSDIO.toHardware.
+
+
+2014/03/06 19:04:40 Thread-2 experiments INFO Current status is idle. Cannot continue an experiment unless status is paused.
+2014/03/06 19:06:08 Thread-3 HSDIO WARNING HSDIO script says: compressedGenerate uwave_wStark_site1, but waveform uwave_wStark_site1 does not exist.
+2014/03/06 19:06:08 Thread-3 instrument_property WARNING In Prop.HardwareProtocol() for class LabView while trying HSDIO.toHardware.
+
+
+2014/03/06 19:06:09 Thread-3 experiments INFO Current status is idle. Cannot continue an experiment unless status is paused.

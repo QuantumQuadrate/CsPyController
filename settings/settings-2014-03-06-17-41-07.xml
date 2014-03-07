@@ -38,37 +38,37 @@ p0
 .</experimentDescriptionFilenameSuffix>
 <measurementTimeout>F10.0
 .</measurementTimeout>
-<measurementsPerIteration>I2
+<measurementsPerIteration>I10
 .</measurementsPerIteration>
 <willSendEmail>I01
 .</willSendEmail>
 <emailAddresses>S'mlichtman@wisc.edu'
 p0
 .</emailAddresses>
-<progress>I100
+<progress>I3
 .</progress>
-<iteration>I1
+<iteration>I0
 .</iteration>
 <measurement>I0
 .</measurement>
 <totalIterations>I1
 .</totalIterations>
-<timeStartedStr>S'2014-03-06 18:59:39'
+<timeStartedStr>S'2014-03-06 17:38:25'
 p0
 .</timeStartedStr>
-<currentTimeStr>S'2014-03-06 19:00:18'
+<currentTimeStr>S'2014-02-02 22:09:49'
 p0
 .</currentTimeStr>
-<timeElapsedStr>S'0:00:38.935000'
+<timeElapsedStr>S'0:00:07.631000'
 p0
 .</timeElapsedStr>
-<totalTimeStr>S'0:00:38.935000'
+<totalTimeStr>S'0:00:11.038155'
 p0
 .</totalTimeStr>
-<timeRemainingStr>S'0:00:00'
+<timeRemainingStr>S'0:00:03.407155'
 p0
 .</timeRemainingStr>
-<completionTimeStr>S'2014-03-06 19:00:18'
+<completionTimeStr>S'2014-02-02 22:09:52'
 p0
 .</completionTimeStr>
 <variableReportFormat>S'"a is %(a)s.\\nThe speed of light is %(c0)d\\nbut some call it %(c0)e\\nmicrowave raman time=%(microwave_raman_time)e\\n"'
@@ -77,7 +77,7 @@ p0
 <variableReportStr>S'a is 0.\nThe speed of light is 299792458\nbut some call it 2.997925e+08\nmicrowave raman time=8.000000e-02\n'
 p0
 .</variableReportStr>
-<variablesNotToSave>S'scipy,gradient_field,x2_5_shim,x3_6_shim,vertical_shim,bias_shim,AO_equation,spike'
+<variablesNotToSave>S'scipy,gradient_field,x2_5_shim,x3_6_shim,vertical_shim,bias_shim'
 p0
 .</variablesNotToSave>
 <notes>S''
@@ -118,7 +118,7 @@ p0
 <resourceName><description>S'the hardware location of the HSDIO card'
 p0
 .</description>
-<function>S"'PXI1Slot4'"
+<function>S"'PXI1Slot6'"
 p0
 .</function>
 </resourceName>
@@ -143,7 +143,1430 @@ p0
 p0
 .</function>
 </hardwareAlignmentQuantum>
-<waveforms><idle><description>S''
+<waveforms><testWaveform><description>S''
+p0
+.</description>
+<isEmpty>I00
+.</isEmpty>
+<sequence><transition><description>S''
+p0
+.</description>
+<time><description>S'when this transition happens'
+p0
+.</description>
+<function>S'0'
+p0
+.</function>
+</time>
+<state><channel0><description>S'the state of channel 0'
+p0
+.</description>
+<function>S'0'
+p0
+.</function>
+</channel0>
+<channel1><description>S'the state of channel 1'
+p0
+.</description>
+<function>S'0'
+p0
+.</function>
+</channel1>
+<channel2><description>S'the state of channel 2'
+p0
+.</description>
+<function>S'5'
+p0
+.</function>
+</channel2>
+<channel3><description>S'the state of channel 3'
+p0
+.</description>
+<function>S'5'
+p0
+.</function>
+</channel3>
+<channel4><description>S'the state of channel 4'
+p0
+.</description>
+<function>S'5'
+p0
+.</function>
+</channel4>
+<channel5><description>S'the state of channel 5'
+p0
+.</description>
+<function>S'5'
+p0
+.</function>
+</channel5>
+<channel6><description>S'the state of channel 6'
+p0
+.</description>
+<function>S'5'
+p0
+.</function>
+</channel6>
+<channel7><description>S'the state of channel 7'
+p0
+.</description>
+<function>S'5'
+p0
+.</function>
+</channel7>
+<channel8><description>S'the state of channel 8'
+p0
+.</description>
+<function>S'5'
+p0
+.</function>
+</channel8>
+<channel9><description>S'the state of channel 9'
+p0
+.</description>
+<function>S'5'
+p0
+.</function>
+</channel9>
+<channel10><description>S'the state of channel 10'
+p0
+.</description>
+<function>S'5'
+p0
+.</function>
+</channel10>
+<channel11><description>S'the state of channel 11'
+p0
+.</description>
+<function>S'5'
+p0
+.</function>
+</channel11>
+<channel12><description>S'the state of channel 12'
+p0
+.</description>
+<function>S'5'
+p0
+.</function>
+</channel12>
+<channel13><description>S'the state of channel 13'
+p0
+.</description>
+<function>S'5'
+p0
+.</function>
+</channel13>
+<channel14><description>S'the state of channel 14'
+p0
+.</description>
+<function>S'5'
+p0
+.</function>
+</channel14>
+<channel15><description>S'the state of channel 15'
+p0
+.</description>
+<function>S'5'
+p0
+.</function>
+</channel15>
+<channel16><description>S'the state of channel 16'
+p0
+.</description>
+<function>S'5'
+p0
+.</function>
+</channel16>
+<channel17><description>S'the state of channel 17'
+p0
+.</description>
+<function>S'5'
+p0
+.</function>
+</channel17>
+<channel18><description>S'the state of channel 18'
+p0
+.</description>
+<function>S'5'
+p0
+.</function>
+</channel18>
+<channel19><description>S'the state of channel 19'
+p0
+.</description>
+<function>S'5'
+p0
+.</function>
+</channel19>
+<channel20><description>S'the state of channel 20'
+p0
+.</description>
+<function>S'5'
+p0
+.</function>
+</channel20>
+<channel21><description>S'the state of channel 21'
+p0
+.</description>
+<function>S'5'
+p0
+.</function>
+</channel21>
+<channel22><description>S'the state of channel 22'
+p0
+.</description>
+<function>S'5'
+p0
+.</function>
+</channel22>
+<channel23><description>S'the state of channel 23'
+p0
+.</description>
+<function>S'5'
+p0
+.</function>
+</channel23>
+<channel24><description>S'the state of channel 24'
+p0
+.</description>
+<function>S'5'
+p0
+.</function>
+</channel24>
+<channel25><description>S'the state of channel 25'
+p0
+.</description>
+<function>S'5'
+p0
+.</function>
+</channel25>
+<channel26><description>S'the state of channel 26'
+p0
+.</description>
+<function>S'5'
+p0
+.</function>
+</channel26>
+<channel27><description>S'the state of channel 27'
+p0
+.</description>
+<function>S'5'
+p0
+.</function>
+</channel27>
+<channel28><description>S'the state of channel 28'
+p0
+.</description>
+<function>S'5'
+p0
+.</function>
+</channel28>
+<channel29><description>S'the state of channel 29'
+p0
+.</description>
+<function>S'5'
+p0
+.</function>
+</channel29>
+<channel30><description>S'the state of channel 30'
+p0
+.</description>
+<function>S'5'
+p0
+.</function>
+</channel30>
+<channel31><description>S'the state of channel 31'
+p0
+.</description>
+<function>S'5'
+p0
+.</function>
+</channel31>
+</state>
+</transition>
+<transition><description>S''
+p0
+.</description>
+<time><description>S'when this transition happens'
+p0
+.</description>
+<function>S'a'
+p0
+.</function>
+</time>
+<state><channel0><description>S'the state of channel 0'
+p0
+.</description>
+<function>S'1'
+p0
+.</function>
+</channel0>
+<channel1><description>S'the state of channel 1'
+p0
+.</description>
+<function>S'5'
+p0
+.</function>
+</channel1>
+<channel2><description>S'the state of channel 2'
+p0
+.</description>
+<function>S'5'
+p0
+.</function>
+</channel2>
+<channel3><description>S'the state of channel 3'
+p0
+.</description>
+<function>S'5'
+p0
+.</function>
+</channel3>
+<channel4><description>S'the state of channel 4'
+p0
+.</description>
+<function>S'5'
+p0
+.</function>
+</channel4>
+<channel5><description>S'the state of channel 5'
+p0
+.</description>
+<function>S'5'
+p0
+.</function>
+</channel5>
+<channel6><description>S'the state of channel 6'
+p0
+.</description>
+<function>S'5'
+p0
+.</function>
+</channel6>
+<channel7><description>S'the state of channel 7'
+p0
+.</description>
+<function>S'5'
+p0
+.</function>
+</channel7>
+<channel8><description>S'the state of channel 8'
+p0
+.</description>
+<function>S'5'
+p0
+.</function>
+</channel8>
+<channel9><description>S'the state of channel 9'
+p0
+.</description>
+<function>S'5'
+p0
+.</function>
+</channel9>
+<channel10><description>S'the state of channel 10'
+p0
+.</description>
+<function>S'5'
+p0
+.</function>
+</channel10>
+<channel11><description>S'the state of channel 11'
+p0
+.</description>
+<function>S'5'
+p0
+.</function>
+</channel11>
+<channel12><description>S'the state of channel 12'
+p0
+.</description>
+<function>S'5'
+p0
+.</function>
+</channel12>
+<channel13><description>S'the state of channel 13'
+p0
+.</description>
+<function>S'5'
+p0
+.</function>
+</channel13>
+<channel14><description>S'the state of channel 14'
+p0
+.</description>
+<function>S'5'
+p0
+.</function>
+</channel14>
+<channel15><description>S'the state of channel 15'
+p0
+.</description>
+<function>S'5'
+p0
+.</function>
+</channel15>
+<channel16><description>S'the state of channel 16'
+p0
+.</description>
+<function>S'5'
+p0
+.</function>
+</channel16>
+<channel17><description>S'the state of channel 17'
+p0
+.</description>
+<function>S'5'
+p0
+.</function>
+</channel17>
+<channel18><description>S'the state of channel 18'
+p0
+.</description>
+<function>S'5'
+p0
+.</function>
+</channel18>
+<channel19><description>S'the state of channel 19'
+p0
+.</description>
+<function>S'5'
+p0
+.</function>
+</channel19>
+<channel20><description>S'the state of channel 20'
+p0
+.</description>
+<function>S'5'
+p0
+.</function>
+</channel20>
+<channel21><description>S'the state of channel 21'
+p0
+.</description>
+<function>S'5'
+p0
+.</function>
+</channel21>
+<channel22><description>S'the state of channel 22'
+p0
+.</description>
+<function>S'5'
+p0
+.</function>
+</channel22>
+<channel23><description>S'the state of channel 23'
+p0
+.</description>
+<function>S'5'
+p0
+.</function>
+</channel23>
+<channel24><description>S'the state of channel 24'
+p0
+.</description>
+<function>S'5'
+p0
+.</function>
+</channel24>
+<channel25><description>S'the state of channel 25'
+p0
+.</description>
+<function>S'5'
+p0
+.</function>
+</channel25>
+<channel26><description>S'the state of channel 26'
+p0
+.</description>
+<function>S'5'
+p0
+.</function>
+</channel26>
+<channel27><description>S'the state of channel 27'
+p0
+.</description>
+<function>S'5'
+p0
+.</function>
+</channel27>
+<channel28><description>S'the state of channel 28'
+p0
+.</description>
+<function>S'5'
+p0
+.</function>
+</channel28>
+<channel29><description>S'the state of channel 29'
+p0
+.</description>
+<function>S'5'
+p0
+.</function>
+</channel29>
+<channel30><description>S'the state of channel 30'
+p0
+.</description>
+<function>S'5'
+p0
+.</function>
+</channel30>
+<channel31><description>S'the state of channel 31'
+p0
+.</description>
+<function>S'5'
+p0
+.</function>
+</channel31>
+</state>
+</transition>
+<transition><description>S''
+p0
+.</description>
+<time><description>S'when this transition happens'
+p0
+.</description>
+<function>S'a+.01'
+p0
+.</function>
+</time>
+<state><channel0><description>S'the state of channel 0'
+p0
+.</description>
+<function>S'0'
+p0
+.</function>
+</channel0>
+<channel1><description>S'the state of channel 1'
+p0
+.</description>
+<function>S'5'
+p0
+.</function>
+</channel1>
+<channel2><description>S'the state of channel 2'
+p0
+.</description>
+<function>S'5'
+p0
+.</function>
+</channel2>
+<channel3><description>S'the state of channel 3'
+p0
+.</description>
+<function>S'5'
+p0
+.</function>
+</channel3>
+<channel4><description>S'the state of channel 4'
+p0
+.</description>
+<function>S'5'
+p0
+.</function>
+</channel4>
+<channel5><description>S'the state of channel 5'
+p0
+.</description>
+<function>S'5'
+p0
+.</function>
+</channel5>
+<channel6><description>S'the state of channel 6'
+p0
+.</description>
+<function>S'5'
+p0
+.</function>
+</channel6>
+<channel7><description>S'the state of channel 7'
+p0
+.</description>
+<function>S'5'
+p0
+.</function>
+</channel7>
+<channel8><description>S'the state of channel 8'
+p0
+.</description>
+<function>S'5'
+p0
+.</function>
+</channel8>
+<channel9><description>S'the state of channel 9'
+p0
+.</description>
+<function>S'5'
+p0
+.</function>
+</channel9>
+<channel10><description>S'the state of channel 10'
+p0
+.</description>
+<function>S'5'
+p0
+.</function>
+</channel10>
+<channel11><description>S'the state of channel 11'
+p0
+.</description>
+<function>S'5'
+p0
+.</function>
+</channel11>
+<channel12><description>S'the state of channel 12'
+p0
+.</description>
+<function>S'5'
+p0
+.</function>
+</channel12>
+<channel13><description>S'the state of channel 13'
+p0
+.</description>
+<function>S'5'
+p0
+.</function>
+</channel13>
+<channel14><description>S'the state of channel 14'
+p0
+.</description>
+<function>S'5'
+p0
+.</function>
+</channel14>
+<channel15><description>S'the state of channel 15'
+p0
+.</description>
+<function>S'5'
+p0
+.</function>
+</channel15>
+<channel16><description>S'the state of channel 16'
+p0
+.</description>
+<function>S'5'
+p0
+.</function>
+</channel16>
+<channel17><description>S'the state of channel 17'
+p0
+.</description>
+<function>S'5'
+p0
+.</function>
+</channel17>
+<channel18><description>S'the state of channel 18'
+p0
+.</description>
+<function>S'5'
+p0
+.</function>
+</channel18>
+<channel19><description>S'the state of channel 19'
+p0
+.</description>
+<function>S'5'
+p0
+.</function>
+</channel19>
+<channel20><description>S'the state of channel 20'
+p0
+.</description>
+<function>S'5'
+p0
+.</function>
+</channel20>
+<channel21><description>S'the state of channel 21'
+p0
+.</description>
+<function>S'5'
+p0
+.</function>
+</channel21>
+<channel22><description>S'the state of channel 22'
+p0
+.</description>
+<function>S'5'
+p0
+.</function>
+</channel22>
+<channel23><description>S'the state of channel 23'
+p0
+.</description>
+<function>S'5'
+p0
+.</function>
+</channel23>
+<channel24><description>S'the state of channel 24'
+p0
+.</description>
+<function>S'5'
+p0
+.</function>
+</channel24>
+<channel25><description>S'the state of channel 25'
+p0
+.</description>
+<function>S'5'
+p0
+.</function>
+</channel25>
+<channel26><description>S'the state of channel 26'
+p0
+.</description>
+<function>S'5'
+p0
+.</function>
+</channel26>
+<channel27><description>S'the state of channel 27'
+p0
+.</description>
+<function>S'5'
+p0
+.</function>
+</channel27>
+<channel28><description>S'the state of channel 28'
+p0
+.</description>
+<function>S'5'
+p0
+.</function>
+</channel28>
+<channel29><description>S'the state of channel 29'
+p0
+.</description>
+<function>S'5'
+p0
+.</function>
+</channel29>
+<channel30><description>S'the state of channel 30'
+p0
+.</description>
+<function>S'5'
+p0
+.</function>
+</channel30>
+<channel31><description>S'the state of channel 31'
+p0
+.</description>
+<function>S'5'
+p0
+.</function>
+</channel31>
+</state>
+</transition>
+<transition><description>S''
+p0
+.</description>
+<time><description>S'when this transition happens'
+p0
+.</description>
+<function>S'b'
+p0
+.</function>
+</time>
+<state><channel0><description>S'the state of channel 0'
+p0
+.</description>
+<function>S'5'
+p0
+.</function>
+</channel0>
+<channel1><description>S'the state of channel 1'
+p0
+.</description>
+<function>S'1'
+p0
+.</function>
+</channel1>
+<channel2><description>S'the state of channel 2'
+p0
+.</description>
+<function>S'5'
+p0
+.</function>
+</channel2>
+<channel3><description>S'the state of channel 3'
+p0
+.</description>
+<function>S'5'
+p0
+.</function>
+</channel3>
+<channel4><description>S'the state of channel 4'
+p0
+.</description>
+<function>S'5'
+p0
+.</function>
+</channel4>
+<channel5><description>S'the state of channel 5'
+p0
+.</description>
+<function>S'5'
+p0
+.</function>
+</channel5>
+<channel6><description>S'the state of channel 6'
+p0
+.</description>
+<function>S'5'
+p0
+.</function>
+</channel6>
+<channel7><description>S'the state of channel 7'
+p0
+.</description>
+<function>S'5'
+p0
+.</function>
+</channel7>
+<channel8><description>S'the state of channel 8'
+p0
+.</description>
+<function>S'5'
+p0
+.</function>
+</channel8>
+<channel9><description>S'the state of channel 9'
+p0
+.</description>
+<function>S'5'
+p0
+.</function>
+</channel9>
+<channel10><description>S'the state of channel 10'
+p0
+.</description>
+<function>S'5'
+p0
+.</function>
+</channel10>
+<channel11><description>S'the state of channel 11'
+p0
+.</description>
+<function>S'5'
+p0
+.</function>
+</channel11>
+<channel12><description>S'the state of channel 12'
+p0
+.</description>
+<function>S'5'
+p0
+.</function>
+</channel12>
+<channel13><description>S'the state of channel 13'
+p0
+.</description>
+<function>S'5'
+p0
+.</function>
+</channel13>
+<channel14><description>S'the state of channel 14'
+p0
+.</description>
+<function>S'5'
+p0
+.</function>
+</channel14>
+<channel15><description>S'the state of channel 15'
+p0
+.</description>
+<function>S'5'
+p0
+.</function>
+</channel15>
+<channel16><description>S'the state of channel 16'
+p0
+.</description>
+<function>S'5'
+p0
+.</function>
+</channel16>
+<channel17><description>S'the state of channel 17'
+p0
+.</description>
+<function>S'5'
+p0
+.</function>
+</channel17>
+<channel18><description>S'the state of channel 18'
+p0
+.</description>
+<function>S'5'
+p0
+.</function>
+</channel18>
+<channel19><description>S'the state of channel 19'
+p0
+.</description>
+<function>S'5'
+p0
+.</function>
+</channel19>
+<channel20><description>S'the state of channel 20'
+p0
+.</description>
+<function>S'5'
+p0
+.</function>
+</channel20>
+<channel21><description>S'the state of channel 21'
+p0
+.</description>
+<function>S'5'
+p0
+.</function>
+</channel21>
+<channel22><description>S'the state of channel 22'
+p0
+.</description>
+<function>S'5'
+p0
+.</function>
+</channel22>
+<channel23><description>S'the state of channel 23'
+p0
+.</description>
+<function>S'5'
+p0
+.</function>
+</channel23>
+<channel24><description>S'the state of channel 24'
+p0
+.</description>
+<function>S'5'
+p0
+.</function>
+</channel24>
+<channel25><description>S'the state of channel 25'
+p0
+.</description>
+<function>S'5'
+p0
+.</function>
+</channel25>
+<channel26><description>S'the state of channel 26'
+p0
+.</description>
+<function>S'5'
+p0
+.</function>
+</channel26>
+<channel27><description>S'the state of channel 27'
+p0
+.</description>
+<function>S'5'
+p0
+.</function>
+</channel27>
+<channel28><description>S'the state of channel 28'
+p0
+.</description>
+<function>S'5'
+p0
+.</function>
+</channel28>
+<channel29><description>S'the state of channel 29'
+p0
+.</description>
+<function>S'5'
+p0
+.</function>
+</channel29>
+<channel30><description>S'the state of channel 30'
+p0
+.</description>
+<function>S'5'
+p0
+.</function>
+</channel30>
+<channel31><description>S'the state of channel 31'
+p0
+.</description>
+<function>S'5'
+p0
+.</function>
+</channel31>
+</state>
+</transition>
+<transition><description>S''
+p0
+.</description>
+<time><description>S'when this transition happens'
+p0
+.</description>
+<function>S'b+.01'
+p0
+.</function>
+</time>
+<state><channel0><description>S'the state of channel 0'
+p0
+.</description>
+<function>S'5'
+p0
+.</function>
+</channel0>
+<channel1><description>S'the state of channel 1'
+p0
+.</description>
+<function>S'0'
+p0
+.</function>
+</channel1>
+<channel2><description>S'the state of channel 2'
+p0
+.</description>
+<function>S'5'
+p0
+.</function>
+</channel2>
+<channel3><description>S'the state of channel 3'
+p0
+.</description>
+<function>S'5'
+p0
+.</function>
+</channel3>
+<channel4><description>S'the state of channel 4'
+p0
+.</description>
+<function>S'5'
+p0
+.</function>
+</channel4>
+<channel5><description>S'the state of channel 5'
+p0
+.</description>
+<function>S'5'
+p0
+.</function>
+</channel5>
+<channel6><description>S'the state of channel 6'
+p0
+.</description>
+<function>S'5'
+p0
+.</function>
+</channel6>
+<channel7><description>S'the state of channel 7'
+p0
+.</description>
+<function>S'5'
+p0
+.</function>
+</channel7>
+<channel8><description>S'the state of channel 8'
+p0
+.</description>
+<function>S'5'
+p0
+.</function>
+</channel8>
+<channel9><description>S'the state of channel 9'
+p0
+.</description>
+<function>S'5'
+p0
+.</function>
+</channel9>
+<channel10><description>S'the state of channel 10'
+p0
+.</description>
+<function>S'5'
+p0
+.</function>
+</channel10>
+<channel11><description>S'the state of channel 11'
+p0
+.</description>
+<function>S'5'
+p0
+.</function>
+</channel11>
+<channel12><description>S'the state of channel 12'
+p0
+.</description>
+<function>S'5'
+p0
+.</function>
+</channel12>
+<channel13><description>S'the state of channel 13'
+p0
+.</description>
+<function>S'5'
+p0
+.</function>
+</channel13>
+<channel14><description>S'the state of channel 14'
+p0
+.</description>
+<function>S'5'
+p0
+.</function>
+</channel14>
+<channel15><description>S'the state of channel 15'
+p0
+.</description>
+<function>S'5'
+p0
+.</function>
+</channel15>
+<channel16><description>S'the state of channel 16'
+p0
+.</description>
+<function>S'5'
+p0
+.</function>
+</channel16>
+<channel17><description>S'the state of channel 17'
+p0
+.</description>
+<function>S'5'
+p0
+.</function>
+</channel17>
+<channel18><description>S'the state of channel 18'
+p0
+.</description>
+<function>S'5'
+p0
+.</function>
+</channel18>
+<channel19><description>S'the state of channel 19'
+p0
+.</description>
+<function>S'5'
+p0
+.</function>
+</channel19>
+<channel20><description>S'the state of channel 20'
+p0
+.</description>
+<function>S'5'
+p0
+.</function>
+</channel20>
+<channel21><description>S'the state of channel 21'
+p0
+.</description>
+<function>S'5'
+p0
+.</function>
+</channel21>
+<channel22><description>S'the state of channel 22'
+p0
+.</description>
+<function>S'5'
+p0
+.</function>
+</channel22>
+<channel23><description>S'the state of channel 23'
+p0
+.</description>
+<function>S'5'
+p0
+.</function>
+</channel23>
+<channel24><description>S'the state of channel 24'
+p0
+.</description>
+<function>S'5'
+p0
+.</function>
+</channel24>
+<channel25><description>S'the state of channel 25'
+p0
+.</description>
+<function>S'5'
+p0
+.</function>
+</channel25>
+<channel26><description>S'the state of channel 26'
+p0
+.</description>
+<function>S'5'
+p0
+.</function>
+</channel26>
+<channel27><description>S'the state of channel 27'
+p0
+.</description>
+<function>S'5'
+p0
+.</function>
+</channel27>
+<channel28><description>S'the state of channel 28'
+p0
+.</description>
+<function>S'5'
+p0
+.</function>
+</channel28>
+<channel29><description>S'the state of channel 29'
+p0
+.</description>
+<function>S'5'
+p0
+.</function>
+</channel29>
+<channel30><description>S'the state of channel 30'
+p0
+.</description>
+<function>S'5'
+p0
+.</function>
+</channel30>
+<channel31><description>S'the state of channel 31'
+p0
+.</description>
+<function>S'5'
+p0
+.</function>
+</channel31>
+</state>
+</transition>
+<transition><description>S''
+p0
+.</description>
+<time><description>S'when this transition happens'
+p0
+.</description>
+<function>S'.021'
+p0
+.</function>
+</time>
+<state><channel0><description>S'the state of channel 0'
+p0
+.</description>
+<function>S'5'
+p0
+.</function>
+</channel0>
+<channel1><description>S'the state of channel 1'
+p0
+.</description>
+<function>S'5'
+p0
+.</function>
+</channel1>
+<channel2><description>S'the state of channel 2'
+p0
+.</description>
+<function>S'5'
+p0
+.</function>
+</channel2>
+<channel3><description>S'the state of channel 3'
+p0
+.</description>
+<function>S'5'
+p0
+.</function>
+</channel3>
+<channel4><description>S'the state of channel 4'
+p0
+.</description>
+<function>S'5'
+p0
+.</function>
+</channel4>
+<channel5><description>S'the state of channel 5'
+p0
+.</description>
+<function>S'5'
+p0
+.</function>
+</channel5>
+<channel6><description>S'the state of channel 6'
+p0
+.</description>
+<function>S'5'
+p0
+.</function>
+</channel6>
+<channel7><description>S'the state of channel 7'
+p0
+.</description>
+<function>S'5'
+p0
+.</function>
+</channel7>
+<channel8><description>S'the state of channel 8'
+p0
+.</description>
+<function>S'5'
+p0
+.</function>
+</channel8>
+<channel9><description>S'the state of channel 9'
+p0
+.</description>
+<function>S'5'
+p0
+.</function>
+</channel9>
+<channel10><description>S'the state of channel 10'
+p0
+.</description>
+<function>S'5'
+p0
+.</function>
+</channel10>
+<channel11><description>S'the state of channel 11'
+p0
+.</description>
+<function>S'5'
+p0
+.</function>
+</channel11>
+<channel12><description>S'the state of channel 12'
+p0
+.</description>
+<function>S'5'
+p0
+.</function>
+</channel12>
+<channel13><description>S'the state of channel 13'
+p0
+.</description>
+<function>S'5'
+p0
+.</function>
+</channel13>
+<channel14><description>S'the state of channel 14'
+p0
+.</description>
+<function>S'5'
+p0
+.</function>
+</channel14>
+<channel15><description>S'the state of channel 15'
+p0
+.</description>
+<function>S'5'
+p0
+.</function>
+</channel15>
+<channel16><description>S'the state of channel 16'
+p0
+.</description>
+<function>S'5'
+p0
+.</function>
+</channel16>
+<channel17><description>S'the state of channel 17'
+p0
+.</description>
+<function>S'5'
+p0
+.</function>
+</channel17>
+<channel18><description>S'the state of channel 18'
+p0
+.</description>
+<function>S'5'
+p0
+.</function>
+</channel18>
+<channel19><description>S'the state of channel 19'
+p0
+.</description>
+<function>S'5'
+p0
+.</function>
+</channel19>
+<channel20><description>S'the state of channel 20'
+p0
+.</description>
+<function>S'5'
+p0
+.</function>
+</channel20>
+<channel21><description>S'the state of channel 21'
+p0
+.</description>
+<function>S'5'
+p0
+.</function>
+</channel21>
+<channel22><description>S'the state of channel 22'
+p0
+.</description>
+<function>S'5'
+p0
+.</function>
+</channel22>
+<channel23><description>S'the state of channel 23'
+p0
+.</description>
+<function>S'5'
+p0
+.</function>
+</channel23>
+<channel24><description>S'the state of channel 24'
+p0
+.</description>
+<function>S'5'
+p0
+.</function>
+</channel24>
+<channel25><description>S'the state of channel 25'
+p0
+.</description>
+<function>S'5'
+p0
+.</function>
+</channel25>
+<channel26><description>S'the state of channel 26'
+p0
+.</description>
+<function>S'5'
+p0
+.</function>
+</channel26>
+<channel27><description>S'the state of channel 27'
+p0
+.</description>
+<function>S'5'
+p0
+.</function>
+</channel27>
+<channel28><description>S'the state of channel 28'
+p0
+.</description>
+<function>S'5'
+p0
+.</function>
+</channel28>
+<channel29><description>S'the state of channel 29'
+p0
+.</description>
+<function>S'5'
+p0
+.</function>
+</channel29>
+<channel30><description>S'the state of channel 30'
+p0
+.</description>
+<function>S'5'
+p0
+.</function>
+</channel30>
+<channel31><description>S'the state of channel 31'
+p0
+.</description>
+<function>S'5'
+p0
+.</function>
+</channel31>
+</state>
+</transition>
+</sequence>
+</testWaveform>
+<idle><description>S''
 p0
 .</description>
 <isEmpty>I00
@@ -1337,7 +2760,7 @@ p0
 </transition>
 </sequence>
 </cameraTrigger>
-<MOT_Loading><description>S''
+<MOT_loading><description>S''
 p0
 .</description>
 <isEmpty>I00
@@ -3231,7 +4654,7 @@ p0
 </state>
 </transition>
 </sequence>
-</MOT_Loading>
+</MOT_loading>
 <PGC_1><description>S''
 p0
 .</description>
@@ -12745,7 +14168,7 @@ p0
 <script><description>S'HSDIO script that says what waveforms to generate'
 p0
 .</description>
-<function>S"'script script1\\ncompressedGenerate MOT_Loading\\ncompressedGenerate PGC_1\\ncompressedGenerate MOT_drop\\ncompressedGenerate PreReadout\\ncompressedGenerate Readout\\ncompressedGenerate PGC_2\\ncompressedGenerate close_3D_shutter\\ncompressedGenerate close_HF_shutter\\ncompressedGenerate Optical_Pumping\\ncompressedGenerate uwave_wStark_site1\\ncompressedGenerate RydA_CzGate_trapsOff\\ncompressedGenerate uwave_wStark_site1_phaseshift\\ncompressedGenerate microwave_pi_pulse\\ncompressedGenerate Blowaway\\ncompressedGenerate Camera_delay\\ncompressedGenerate Readout\\ncompressedGenerate slow_noise_eater_ms\\nidle\\nend script'"
+<function>S"'script script1\\ncompressedGenerate MOT_Loading\\ncompressedGenerate PGC_1\\ncompressedGenerate MOT_drop\\ncompressedGenerate PreReadout\\ncompressedGenerate Readout\\ncompressedGenerate PGC_2\\ncompressedGenerate close_3D_shutter\\ncompressedGenerate close_HF_shutter\\ncompressedGenerate Optical_Pumping\\ncompressedGenerate microwave_pulse\\ncompressedGenerate Blowaway\\ncompressedGenerate Camera_delay\\ncompressedGenerate Readout\\ncompressedGenerate slow_noise_eater_ms\\nidle\\nend script'"
 p0
 .</function>
 </script>
@@ -30103,14 +31526,14 @@ p0
 <EMGain><description>S'EMCCD gain'
 p0
 .</description>
-<function>S'175'
+<function>S'0'
 p0
 .</function>
 </EMGain>
 <analogGain><description>S'analog gain'
 p0
 .</description>
-<function>S'1'
+<function>S'0'
 p0
 .</function>
 </analogGain>
@@ -30180,7 +31603,7 @@ p0
 <photoelectronScaling><description>S'photoelectron scaling'
 p0
 .</description>
-<function>S'0.007600'
+<function>S'1'
 p0
 .</function>
 </photoelectronScaling>
