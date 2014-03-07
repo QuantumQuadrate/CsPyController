@@ -121,7 +121,7 @@ class DDSchannel(Prop):
         self.profiles=ListProp('profiles',self.experiment,listProperty=[DDSprofile('profile',self.experiment,channel=self) for i in range(8)],listElementType=DDSprofile,listElementName='profile',listElementKwargs={'channel':self})
         self.properties+=['power','refClockRate','fullScaleOutputPower','RAMenable','RAMDestType','RAMDefaultFrequency',
             'RAMDefaultAmplitude','RAMDefaultPhase','profiles','profileDescriptionList']
-        self.doNotSendToHardware=['profileDescriptionList']
+        self.doNotSendToHardware+=['profileDescriptionList']
     
     def evaluate(self):
         super(DDSchannel,self).evaluate()
@@ -170,7 +170,37 @@ class DDSprofile(Prop):
         self.RAMStaticArray=ListProp('RAMStaticArray',self.experiment,listElementType=IntProp,listElementName='int')
         self.properties+=['frequency','amplitude','phase','RAMMode','ZeroCrossing','NoDwellHigh',
             'FunctionOrStatic','RAMFunction','RAMInitialValue','RAMStepValue','RAMTimeStep','RAMNumSteps','RAMStaticArray']
+        self.doNotSendToHardware+=['RAMFunction','RAMInitialValue','RAMStepValue','RAMTimeStep','RAMNumSteps','RAMStaticArray']
     
     @observe('description')
     def descriptionChanged(self,change):
         self.channel.updateProfileDescriptionList()
+    
+    #override from Prop to give special formating of RAMFunction and RAMStaticArray.  They are in doNotSendToHardware, so they will not otherwise be sent
+    def toHardware(self):
+        '''This function provides generic hardware communication XML for this package.  It is similar to toXML(self),
+        but in the end it puts out str(value) of each property, which is useful to the hardware, and does not put out any of the
+        function information that leads to those values.'''
+        output=''
+        
+        #go through list of single properties:
+        for p in self.properties: # I use a for loop instead of list comprehension so I can have more detailed error reporting.
+            if p not in self.doNotSendToHardware and :
+                #convert the string name to an actual object
+                try:
+                    o=getattr(self,p)
+                except:
+                    logger.warning('In Prop.toHardware() for class '+self.name+': item '+p+' in properties list does not exist.\n')
+                    continue
+                
+                output+=self.HardwareProtocol(o,p)
+        
+        #special formatting for RAMFunction
+        output+='<RAMFunction>{}\t{}\t{}\t{}\t{}\t</RAMFunction>'.format(self.RAMFunction.value,self.RAMInitialValue.value,self.RAMStepValue.value,self.RAMTimeStep.value,self.RAMNumSteps.value)
+        output+='<RAMStaticArray>{}</RAMStaticArray>'.format('\t'.join([i.value for i in self.RAMStaticArray]))
+        
+        try:
+            return '<{}>{}</{}>\n'.format(self.name,output,self.name)
+        except Exception as e:
+            logger.warning('While in format() in Prop.XMLProtocol() in '+self.name+'.\n'+str(e)+'\n')
+            return ''

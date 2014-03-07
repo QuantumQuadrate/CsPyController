@@ -86,7 +86,7 @@ class Prop(Atom):
                 return ''
 
     def toHardware(self):
-        '''This function provides generic hardware communiation XML for this package.  It is similar to toXML(self),
+        '''This function provides generic hardware communication XML for this package.  It is similar to toXML(self),
         but in the end it puts out str(value) of each property, which is useful to the hardware, and does not put out any of the
         function information that leads to those values.'''
         output=''
