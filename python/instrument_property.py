@@ -19,12 +19,14 @@ class Prop(Atom):
     description=Str()
     experiment=Member()
     properties=Member()
+    doNotSendToHardware=Member()
     
     def __init__(self,name,experiment,description=''):
         self.experiment=experiment #keep track of the experiment so we can get variables and such
         self.name = name #name must be compatible with being a python variable name, and also an XML tag
         self.description=description #English language description, including units and hints about possible values
         self.properties=['description']  #things that are evaluated (if they define evaluate()) and saved to xml.  This is a list of the STRING of variable names (i.e. 'enable', not just: enable)
+        self.doNotSendToHardware=[]
     
     def evaluate(self):
         #go through the properties list and evaluate
@@ -91,15 +93,15 @@ class Prop(Atom):
         
         #go through list of single properties:
         for p in self.properties: # I use a for loop instead of list comprehension so I can have more detailed error reporting.
-            
-            #convert the string name to an actual object
-            try:
-                o=getattr(self,p)
-            except:
-                logger.warning('In Prop.toHardware() for class '+self.name+': item '+p+' in properties list does not exist.\n')
-                continue
-            
-            output+=self.HardwareProtocol(o,p)
+            if p not in self.doNotSendToHardware:
+                #convert the string name to an actual object
+                try:
+                    o=getattr(self,p)
+                except:
+                    logger.warning('In Prop.toHardware() for class '+self.name+': item '+p+' in properties list does not exist.\n')
+                    continue
+                
+                output+=self.HardwareProtocol(o,p)
         
         try:
             return '<{}>{}</{}>\n'.format(self.name,output,self.name)
@@ -406,7 +408,7 @@ class ListProp(Prop):
         self.listProperty.remove(x)
     
     def add(self):
-        new=self.listElementType(self.listElementName+str(len(self.listProperty)),self.experiment,**self.listElementKwargs)
+        new=self.listElementType(self.listElementName,self.experiment,**self.listElementKwargs)
         self.listProperty.append(new)
         return new
     
@@ -414,7 +416,7 @@ class ListProp(Prop):
         return self.listProperty.index(x)
     
     def evaluate(self):
-    
+        
         #go through the listProperty and evaluate each item
         for i,o in enumerate(self.listProperty):
             if hasattr(o,'evaluate'): #check if it has an evaluate method.  If not, do nothing.
@@ -430,7 +432,7 @@ class ListProp(Prop):
         
         for i,o in enumerate(self.listProperty):
             try:
-                output+=self.XMLProtocol(o,self.listElementName+str(i)) #give the index number as the XML tag, this will only be used if the item does not have its own toXML()
+                output+=self.XMLProtocol(o,self.listElementName) #give the index number as the XML tag, this will only be used if the item does not have its own toXML()
             except PauseError:
                 raise PauseError
             except Exception as e:
@@ -443,7 +445,7 @@ class ListProp(Prop):
         output=''
         
         for i,o in enumerate(self.listProperty):
-            output+=self.HardwareProtocol(o,self.listElementName+str(i)) #give the index number as the XML tag, this will only be used if the item does not have its own toHardware()
+            output+=self.HardwareProtocol(o,self.listElementName) #give the index number as the XML tag, this will only be used if the item does not have its own toHardware()
         
         return '<{}>{}</{}>\n'.format(self.name,output,self.name)
     
@@ -454,7 +456,7 @@ class ListProp(Prop):
             #so we don't lose our list identity
             #while self.listProperty: #go until the list is empty
             #    self.listProperty.pop()
-            self.listProperty=[self.listElementType(self.listElementName+str(i),self.experiment,**self.listElementKwargs).fromXML(child) for i, child in enumerate(xmlNode)]
+            self.listProperty=[self.listElementType(self.listElementName,self.experiment,**self.listElementKwargs).fromXML(child) for i, child in enumerate(xmlNode)]
         except Exception as e:
             logger.warning('in '+self.name+' in ListProp.fromXML() for xml tag: '+xmlNode.tag+'.\n'+str(e)+'\n'+str(traceback.format_exc())+'\n')
         return self

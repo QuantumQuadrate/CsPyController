@@ -890,6 +890,11 @@ enamldef DDS_box(StackItem):
                 maximum = 999999
                 minimum = 0
                 value:=box.DIOport
+            Label:
+                text='serialClockRate'
+            FloatField:
+                value:=box.serialClockRate
+
         
         GroupBox:
             hug_height='strong'

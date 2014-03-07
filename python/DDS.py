@@ -40,13 +40,14 @@ class DDS(Instrument):
         self.deviceList=[]
         self.boxDescriptionList=[]
         self.properties+=['version','enable','boxes','deviceList','boxDescriptionList']
+        self.doNotSendToHardware+=['deviceList','boxDescriptionList']
     
     def evaluate(self):
         super(DDS,self).evaluate()
         self.updateBoxDescriptionList()
     
     def addBox(self):
-        newbox=DDSbox('box'+str(len(self.boxes)),self.experiment,description='newbox',DDS=self)
+        newbox=DDSbox('box',self.experiment,description='newbox',DDS=self)
         self.boxes.append(newbox)
         return newbox
     
@@ -77,7 +78,8 @@ class DDS(Instrument):
 class DDSbox(Prop):
     enable=Bool()
     deviceReference=Str()
-    DIOport=Int()
+    DIOport=Int(0)
+    serialClockRate=Int(1000)
     channels=Typed(ListProp)
     DDS=Member()
     
@@ -85,8 +87,8 @@ class DDSbox(Prop):
         self.DDS=DDS
         super(DDSbox,self).__init__(name,experiment,description)
         '''each box has exactly 4 channels'''
-        self.channels=ListProp('channels',experiment,listProperty=[DDSchannel('channel'+str(i),self.experiment) for i in range(4)],listElementType=DDSchannel,listElementName='channel')
-        self.properties+=['enable','deviceReference','DIOport','channels']
+        self.channels=ListProp('channels',experiment,listProperty=[DDSchannel('channel',self.experiment) for i in range(4)],listElementType=DDSchannel,listElementName='channel')
+        self.properties+=['enable','deviceReference','DIOport','serialClockRate','channels']
     
     @observe('description')
     def descriptionChanged(self,change):
@@ -116,9 +118,10 @@ class DDSchannel(Prop):
         self.RAMDefaultPhase=FloatProp('RAMDefaultPhase',self.experiment,'[rad]','0')
         '''each channel has exactly 8 profiles'''
         self.profileDescriptionList=[]
-        self.profiles=ListProp('profiles',self.experiment,listProperty=[DDSprofile('profile'+str(i),self.experiment,channel=self) for i in range(8)],listElementType=DDSprofile,listElementName='profile',listElementKwargs={'channel':self})
+        self.profiles=ListProp('profiles',self.experiment,listProperty=[DDSprofile('profile',self.experiment,channel=self) for i in range(8)],listElementType=DDSprofile,listElementName='profile',listElementKwargs={'channel':self})
         self.properties+=['power','refClockRate','fullScaleOutputPower','RAMenable','RAMDestType','RAMDefaultFrequency',
             'RAMDefaultAmplitude','RAMDefaultPhase','profiles','profileDescriptionList']
+        self.doNotSendToHardware=['profileDescriptionList']
     
     def evaluate(self):
         super(DDSchannel,self).evaluate()
