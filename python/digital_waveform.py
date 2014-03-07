@@ -143,7 +143,7 @@ class Waveform(Prop):
             stateList=numpy.array([[channel.value for channel in transition.state] for transition in self.sequence],dtype='uint8') #channel here refers to an IntProp, not to a Channel
 
             #convert to integral samples
-            timeList=(timeList*self.digitalout.clockRate.value).astype('uint64')
+            timeList=(timeList*self.digitalout.clockRate.value*self.digitalout.units.value).astype('uint64')
 
             #put the transition list in order
             order=numpy.argsort(timeList,kind='mergesort') #mergesort is slower than the default quicksort, but it is 'stable' which means items of the same value are kept in their relative order, which is desired here
@@ -261,7 +261,7 @@ class Waveform(Prop):
             ax.set_yticklabels([self.digitalout.channels[i].description+(' : ' if self.digitalout.channels[i].description else ' ')+str(i) for i in range(numChannels)])
         
             #make sure the tick labels have room
-            fig.subplots_adjust(left=.2,right=.95,bottom=.15)
+            fig.subplots_adjust(left=.2,right=.95,bottom=.2)
     
     def swapFigures(self):
         temp=self.backFigure

@@ -908,8 +908,9 @@ enamldef DDS_Page(Page): page:
     title = 'DDS'
     
     Container:
-        constraints=[vbox(hbox(getDevicesButton,initButton,loadButton,enable,isInit),stackGroup),align('v_center',getDevicesButton,initButton,loadButton,enable,isInit),getDevicesButton.width==initButton.width,getDevicesButton.width==loadButton.width]
-        
+        constraints=[vbox(hbox(enable,isInit,getDevicesButton,initButton,loadButton),stackGroup),align('v_center',getDevicesButton,initButton,loadButton,enable,isInit),getDevicesButton.width==initButton.width,getDevicesButton.width==loadButton.width]
+        EvalProp: enable:
+                    prop<<DDS.enable
         PushButton: getDevicesButton:
             text='Get DDS Device List'
             clicked::DDS.getDDSDeviceList()
@@ -920,9 +921,9 @@ enamldef DDS_Page(Page): page:
             text='Load'
             clicked::DDS.loadDDS()
 
-        LabelBox: enable:
-            text='enable'
-            checked:=DDS.enable.value
+        #LabelBox: enable:
+        #    text='enable'
+        #    checked:=DDS.enable.value
         
         LabelBox: isInit:
             text='initialized?'
@@ -1343,7 +1344,7 @@ enamldef Main(MainWindow): main:
     
     title='Saffmanlab experiment controller'
     initial_position=(0,0)
-    initial_size=(1200,1100)
+    initial_size=(1500,1100)
     #icon_source='icon://myicons/atom_loading'
     
     CsMenuBar:

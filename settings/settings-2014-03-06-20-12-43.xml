@@ -53,7 +53,7 @@ p0
 .</measurement>
 <totalIterations>I1
 .</totalIterations>
-<timeStartedStr>S'2014-03-06 20:25:36'
+<timeStartedStr>S'2014-03-06 19:51:34'
 p0
 .</timeStartedStr>
 <currentTimeStr>S'2014-03-06 19:38:45'
@@ -12745,7 +12745,7 @@ p0
 <script><description>S'HSDIO script that says what waveforms to generate'
 p0
 .</description>
-<function>S"'script script1\\ncompressedGenerate MOT_Loading\\ncompressedGenerate PGC_1\\ncompressedGenerate MOT_drop\\ncompressedGenerate PreReadout\\ncompressedGenerate Readout\\ncompressedGenerate Camera_delay\\ncompressedGenerate Readout\\nend script'"
+<function>S"'script script1\\ncompressedGenerate MOT_Loading\\ncompressedGenerate PGC_1\\ncompressedGenerate MOT_drop\\ncompressedGenerate PreReadout\\ncompressedGenerate Readout\\ncompressedGenerate PGC_2\\ncompressedGenerate close_3D_shutter\\ncompressedGenerate close_HF_shutter\\ncompressedGenerate Optical_Pumping\\ncompressedGenerate Blowaway\\ncompressedGenerate Camera_delay\\ncompressedGenerate Readout\\ncompressedGenerate slow_noise_eater_ms\\ncompressedGenerate idle\\nend script'"
 p0
 .</function>
 </script>
@@ -12759,14 +12759,14 @@ p0
 <enable><description>S'enable DDS output'
 p0
 .</description>
-<function>S'False'
+<function>S'True'
 p0
 .</function>
 </enable>
 <boxes><box0><description>S'780nm traps, repumper, 852nm 3D MOT cooling'
 p0
 .</description>
-<enable>I00
+<enable>I01
 .</enable>
 <deviceReference>S'USB0::0x3923::0x7166::01574F57::RAW\r'
 p0

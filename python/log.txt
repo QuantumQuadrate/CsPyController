@@ -24661,3 +24661,793 @@ SyntaxError: EOL while scanning string literal
 
 
 2014/03/06 19:06:09 Thread-3 experiments INFO Current status is idle. Cannot continue an experiment unless status is paused.
+2014/03/06 19:14:56 Thread-4 HSDIO WARNING HSDIO script says: compressedGenerate uwave_wStark_site1, but waveform uwave_wStark_site1 does not exist.
+2014/03/06 19:14:56 Thread-4 instrument_property WARNING In Prop.HardwareProtocol() for class LabView while trying HSDIO.toHardware.
+
+
+2014/03/06 19:16:06 Thread-4 experiments INFO Current status is idle. Cannot continue an experiment unless status is paused.
+2014/03/06 19:25:03 MainThread cs_evaluate WARNING evaluating property RAMenable, RAM enable, True
+Could not eval string: F
+name 'F' is not definedTraceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\cs_evaluate.py", line 28, in evalWithDict
+    return eval(string,globals()) #,varDict.copy()) #dict(numpyDict.items()+varDict.items())) #create a new dictionary so all numpy functions and everything defined in varDict is available as a global during evaluation
+  File "<string>", line 1, in <module>
+NameError: name 'F' is not defined
+
+
+2014/03/06 19:25:03 MainThread cs_evaluate WARNING evaluating property RAMenable, RAM enable, True
+Could not eval string: Fa
+name 'Fa' is not definedTraceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\cs_evaluate.py", line 28, in evalWithDict
+    return eval(string,globals()) #,varDict.copy()) #dict(numpyDict.items()+varDict.items())) #create a new dictionary so all numpy functions and everything defined in varDict is available as a global during evaluation
+  File "<string>", line 1, in <module>
+NameError: name 'Fa' is not defined
+
+
+2014/03/06 19:25:03 MainThread cs_evaluate WARNING evaluating property RAMenable, RAM enable, True
+Could not eval string: Fal
+name 'Fal' is not definedTraceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\cs_evaluate.py", line 28, in evalWithDict
+    return eval(string,globals()) #,varDict.copy()) #dict(numpyDict.items()+varDict.items())) #create a new dictionary so all numpy functions and everything defined in varDict is available as a global during evaluation
+  File "<string>", line 1, in <module>
+NameError: name 'Fal' is not defined
+
+
+2014/03/06 19:25:03 MainThread cs_evaluate WARNING evaluating property RAMenable, RAM enable, True
+Could not eval string: Fals
+name 'Fals' is not definedTraceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\cs_evaluate.py", line 28, in evalWithDict
+    return eval(string,globals()) #,varDict.copy()) #dict(numpyDict.items()+varDict.items())) #create a new dictionary so all numpy functions and everything defined in varDict is available as a global during evaluation
+  File "<string>", line 1, in <module>
+NameError: name 'Fals' is not defined
+
+
+2014/03/06 19:25:28 MainThread cs_evaluate WARNING evaluating property RAMDefaultAmplitude, [dBm], 0
+Could not eval string: -
+unexpected EOF while parsing (<string>, line 1)Traceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\cs_evaluate.py", line 28, in evalWithDict
+    return eval(string,globals()) #,varDict.copy()) #dict(numpyDict.items()+varDict.items())) #create a new dictionary so all numpy functions and everything defined in varDict is available as a global during evaluation
+  File "<string>", line 1
+    -
+    ^
+SyntaxError: unexpected EOF while parsing
+
+
+2014/03/06 19:26:03 MainThread cs_evaluate WARNING evaluating property power, enable RF output from this channel, False
+Could not eval string: T
+name 'T' is not definedTraceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\cs_evaluate.py", line 28, in evalWithDict
+    return eval(string,globals()) #,varDict.copy()) #dict(numpyDict.items()+varDict.items())) #create a new dictionary so all numpy functions and everything defined in varDict is available as a global during evaluation
+  File "<string>", line 1, in <module>
+NameError: name 'T' is not defined
+
+
+2014/03/06 19:26:04 MainThread cs_evaluate WARNING evaluating property power, enable RF output from this channel, False
+Could not eval string: Tr
+name 'Tr' is not definedTraceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\cs_evaluate.py", line 28, in evalWithDict
+    return eval(string,globals()) #,varDict.copy()) #dict(numpyDict.items()+varDict.items())) #create a new dictionary so all numpy functions and everything defined in varDict is available as a global during evaluation
+  File "<string>", line 1, in <module>
+NameError: name 'Tr' is not defined
+
+
+2014/03/06 19:26:04 MainThread cs_evaluate WARNING evaluating property power, enable RF output from this channel, False
+Could not eval string: Tru
+name 'Tru' is not definedTraceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\cs_evaluate.py", line 28, in evalWithDict
+    return eval(string,globals()) #,varDict.copy()) #dict(numpyDict.items()+varDict.items())) #create a new dictionary so all numpy functions and everything defined in varDict is available as a global during evaluation
+  File "<string>", line 1, in <module>
+NameError: name 'Tru' is not defined
+
+
+2014/03/06 19:27:34 MainThread cs_evaluate WARNING evaluating property RAMMode, , "Bidirectional Ramp"
+Could not eval string: "
+EOL while scanning string literal (<string>, line 1)Traceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\cs_evaluate.py", line 28, in evalWithDict
+    return eval(string,globals()) #,varDict.copy()) #dict(numpyDict.items()+varDict.items())) #create a new dictionary so all numpy functions and everything defined in varDict is available as a global during evaluation
+  File "<string>", line 1
+    "
+    ^
+SyntaxError: EOL while scanning string literal
+
+
+2014/03/06 19:27:35 MainThread cs_evaluate WARNING evaluating property RAMMode, , "Bidirectional Ramp"
+Could not eval string: "D
+EOL while scanning string literal (<string>, line 1)Traceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\cs_evaluate.py", line 28, in evalWithDict
+    return eval(string,globals()) #,varDict.copy()) #dict(numpyDict.items()+varDict.items())) #create a new dictionary so all numpy functions and everything defined in varDict is available as a global during evaluation
+  File "<string>", line 1
+    "D
+     ^
+SyntaxError: EOL while scanning string literal
+
+
+2014/03/06 19:27:35 MainThread cs_evaluate WARNING evaluating property RAMMode, , "Bidirectional Ramp"
+Could not eval string: "Di
+EOL while scanning string literal (<string>, line 1)Traceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\cs_evaluate.py", line 28, in evalWithDict
+    return eval(string,globals()) #,varDict.copy()) #dict(numpyDict.items()+varDict.items())) #create a new dictionary so all numpy functions and everything defined in varDict is available as a global during evaluation
+  File "<string>", line 1
+    "Di
+      ^
+SyntaxError: EOL while scanning string literal
+
+
+2014/03/06 19:27:35 MainThread cs_evaluate WARNING evaluating property RAMMode, , "Bidirectional Ramp"
+Could not eval string: "Dir
+EOL while scanning string literal (<string>, line 1)Traceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\cs_evaluate.py", line 28, in evalWithDict
+    return eval(string,globals()) #,varDict.copy()) #dict(numpyDict.items()+varDict.items())) #create a new dictionary so all numpy functions and everything defined in varDict is available as a global during evaluation
+  File "<string>", line 1
+    "Dir
+       ^
+SyntaxError: EOL while scanning string literal
+
+
+2014/03/06 19:27:35 MainThread cs_evaluate WARNING evaluating property RAMMode, , "Bidirectional Ramp"
+Could not eval string: "Dire
+EOL while scanning string literal (<string>, line 1)Traceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\cs_evaluate.py", line 28, in evalWithDict
+    return eval(string,globals()) #,varDict.copy()) #dict(numpyDict.items()+varDict.items())) #create a new dictionary so all numpy functions and everything defined in varDict is available as a global during evaluation
+  File "<string>", line 1
+    "Dire
+        ^
+SyntaxError: EOL while scanning string literal
+
+
+2014/03/06 19:27:35 MainThread cs_evaluate WARNING evaluating property RAMMode, , "Bidirectional Ramp"
+Could not eval string: "Direc
+EOL while scanning string literal (<string>, line 1)Traceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\cs_evaluate.py", line 28, in evalWithDict
+    return eval(string,globals()) #,varDict.copy()) #dict(numpyDict.items()+varDict.items())) #create a new dictionary so all numpy functions and everything defined in varDict is available as a global during evaluation
+  File "<string>", line 1
+    "Direc
+         ^
+SyntaxError: EOL while scanning string literal
+
+
+2014/03/06 19:27:36 MainThread cs_evaluate WARNING evaluating property RAMMode, , "Bidirectional Ramp"
+Could not eval string: "Direct
+EOL while scanning string literal (<string>, line 1)Traceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\cs_evaluate.py", line 28, in evalWithDict
+    return eval(string,globals()) #,varDict.copy()) #dict(numpyDict.items()+varDict.items())) #create a new dictionary so all numpy functions and everything defined in varDict is available as a global during evaluation
+  File "<string>", line 1
+    "Direct
+          ^
+SyntaxError: EOL while scanning string literal
+
+
+2014/03/06 19:27:36 MainThread cs_evaluate WARNING evaluating property RAMMode, , "Bidirectional Ramp"
+Could not eval string: "Direct 
+EOL while scanning string literal (<string>, line 1)Traceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\cs_evaluate.py", line 28, in evalWithDict
+    return eval(string,globals()) #,varDict.copy()) #dict(numpyDict.items()+varDict.items())) #create a new dictionary so all numpy functions and everything defined in varDict is available as a global during evaluation
+  File "<string>", line 1
+    "Direct
+           ^
+SyntaxError: EOL while scanning string literal
+
+
+2014/03/06 19:27:36 MainThread cs_evaluate WARNING evaluating property RAMMode, , "Bidirectional Ramp"
+Could not eval string: "Direct S
+EOL while scanning string literal (<string>, line 1)Traceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\cs_evaluate.py", line 28, in evalWithDict
+    return eval(string,globals()) #,varDict.copy()) #dict(numpyDict.items()+varDict.items())) #create a new dictionary so all numpy functions and everything defined in varDict is available as a global during evaluation
+  File "<string>", line 1
+    "Direct S
+            ^
+SyntaxError: EOL while scanning string literal
+
+
+2014/03/06 19:27:36 MainThread cs_evaluate WARNING evaluating property RAMMode, , "Bidirectional Ramp"
+Could not eval string: "Direct Sw
+EOL while scanning string literal (<string>, line 1)Traceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\cs_evaluate.py", line 28, in evalWithDict
+    return eval(string,globals()) #,varDict.copy()) #dict(numpyDict.items()+varDict.items())) #create a new dictionary so all numpy functions and everything defined in varDict is available as a global during evaluation
+  File "<string>", line 1
+    "Direct Sw
+             ^
+SyntaxError: EOL while scanning string literal
+
+
+2014/03/06 19:27:36 MainThread cs_evaluate WARNING evaluating property RAMMode, , "Bidirectional Ramp"
+Could not eval string: "Direct Swi
+EOL while scanning string literal (<string>, line 1)Traceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\cs_evaluate.py", line 28, in evalWithDict
+    return eval(string,globals()) #,varDict.copy()) #dict(numpyDict.items()+varDict.items())) #create a new dictionary so all numpy functions and everything defined in varDict is available as a global during evaluation
+  File "<string>", line 1
+    "Direct Swi
+              ^
+SyntaxError: EOL while scanning string literal
+
+
+2014/03/06 19:27:37 MainThread cs_evaluate WARNING evaluating property RAMMode, , "Bidirectional Ramp"
+Could not eval string: "Direct Swit
+EOL while scanning string literal (<string>, line 1)Traceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\cs_evaluate.py", line 28, in evalWithDict
+    return eval(string,globals()) #,varDict.copy()) #dict(numpyDict.items()+varDict.items())) #create a new dictionary so all numpy functions and everything defined in varDict is available as a global during evaluation
+  File "<string>", line 1
+    "Direct Swit
+               ^
+SyntaxError: EOL while scanning string literal
+
+
+2014/03/06 19:27:37 MainThread cs_evaluate WARNING evaluating property RAMMode, , "Bidirectional Ramp"
+Could not eval string: "Direct Switc
+EOL while scanning string literal (<string>, line 1)Traceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\cs_evaluate.py", line 28, in evalWithDict
+    return eval(string,globals()) #,varDict.copy()) #dict(numpyDict.items()+varDict.items())) #create a new dictionary so all numpy functions and everything defined in varDict is available as a global during evaluation
+  File "<string>", line 1
+    "Direct Switc
+                ^
+SyntaxError: EOL while scanning string literal
+
+
+2014/03/06 19:27:37 MainThread cs_evaluate WARNING evaluating property RAMMode, , "Bidirectional Ramp"
+Could not eval string: "Direct Switch
+EOL while scanning string literal (<string>, line 1)Traceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\cs_evaluate.py", line 28, in evalWithDict
+    return eval(string,globals()) #,varDict.copy()) #dict(numpyDict.items()+varDict.items())) #create a new dictionary so all numpy functions and everything defined in varDict is available as a global during evaluation
+  File "<string>", line 1
+    "Direct Switch
+                 ^
+SyntaxError: EOL while scanning string literal
+
+
+2014/03/06 19:27:37 MainThread cs_evaluate WARNING evaluating property RAMMode, , "Bidirectional Ramp"
+Could not eval string: "Direct Switch
+EOL while scanning string literal (<string>, line 1)Traceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\cs_evaluate.py", line 28, in evalWithDict
+    return eval(string,globals()) #,varDict.copy()) #dict(numpyDict.items()+varDict.items())) #create a new dictionary so all numpy functions and everything defined in varDict is available as a global during evaluation
+  File "<string>", line 1
+    "Direct Switch
+                 ^
+SyntaxError: EOL while scanning string literal
+
+
+2014/03/06 19:27:37 MainThread cs_evaluate WARNING evaluating property RAMMode, , "Bidirectional Ramp"
+Could not eval string: "Direct Switch
+EOL while scanning string literal (<string>, line 1)Traceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\cs_evaluate.py", line 28, in evalWithDict
+    return eval(string,globals()) #,varDict.copy()) #dict(numpyDict.items()+varDict.items())) #create a new dictionary so all numpy functions and everything defined in varDict is available as a global during evaluation
+  File "<string>", line 1
+    "Direct Switch
+                 ^
+SyntaxError: EOL while scanning string literal
+
+
+2014/03/06 19:29:05 MainThread cs_evaluate WARNING evaluating property amplitude, [dBm], 0
+Could not eval string: -
+unexpected EOF while parsing (<string>, line 1)Traceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\cs_evaluate.py", line 28, in evalWithDict
+    return eval(string,globals()) #,varDict.copy()) #dict(numpyDict.items()+varDict.items())) #create a new dictionary so all numpy functions and everything defined in varDict is available as a global during evaluation
+  File "<string>", line 1
+    -
+    ^
+SyntaxError: unexpected EOF while parsing
+
+
+2014/03/06 19:29:09 MainThread cs_evaluate WARNING evaluating property amplitude, [dBm], 0
+Could not eval string: -
+unexpected EOF while parsing (<string>, line 1)Traceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\cs_evaluate.py", line 28, in evalWithDict
+    return eval(string,globals()) #,varDict.copy()) #dict(numpyDict.items()+varDict.items())) #create a new dictionary so all numpy functions and everything defined in varDict is available as a global during evaluation
+  File "<string>", line 1
+    -
+    ^
+SyntaxError: unexpected EOF while parsing
+
+
+2014/03/06 19:29:13 MainThread cs_evaluate WARNING evaluating property amplitude, [dBm], 0
+Could not eval string: -
+unexpected EOF while parsing (<string>, line 1)Traceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\cs_evaluate.py", line 28, in evalWithDict
+    return eval(string,globals()) #,varDict.copy()) #dict(numpyDict.items()+varDict.items())) #create a new dictionary so all numpy functions and everything defined in varDict is available as a global during evaluation
+  File "<string>", line 1
+    -
+    ^
+SyntaxError: unexpected EOF while parsing
+
+
+2014/03/06 19:29:17 MainThread cs_evaluate WARNING evaluating property amplitude, [dBm], 0
+Could not eval string: -
+unexpected EOF while parsing (<string>, line 1)Traceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\cs_evaluate.py", line 28, in evalWithDict
+    return eval(string,globals()) #,varDict.copy()) #dict(numpyDict.items()+varDict.items())) #create a new dictionary so all numpy functions and everything defined in varDict is available as a global during evaluation
+  File "<string>", line 1
+    -
+    ^
+SyntaxError: unexpected EOF while parsing
+
+
+2014/03/06 19:29:21 MainThread cs_evaluate WARNING evaluating property amplitude, [dBm], 0
+Could not eval string: -
+unexpected EOF while parsing (<string>, line 1)Traceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\cs_evaluate.py", line 28, in evalWithDict
+    return eval(string,globals()) #,varDict.copy()) #dict(numpyDict.items()+varDict.items())) #create a new dictionary so all numpy functions and everything defined in varDict is available as a global during evaluation
+  File "<string>", line 1
+    -
+    ^
+SyntaxError: unexpected EOF while parsing
+
+
+2014/03/06 19:29:25 MainThread cs_evaluate WARNING evaluating property amplitude, [dBm], 0
+Could not eval string: -
+unexpected EOF while parsing (<string>, line 1)Traceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\cs_evaluate.py", line 28, in evalWithDict
+    return eval(string,globals()) #,varDict.copy()) #dict(numpyDict.items()+varDict.items())) #create a new dictionary so all numpy functions and everything defined in varDict is available as a global during evaluation
+  File "<string>", line 1
+    -
+    ^
+SyntaxError: unexpected EOF while parsing
+
+
+2014/03/06 19:33:55 MainThread cs_evaluate WARNING evaluating property amplitude, [dBm], 0
+Could not eval string: -
+unexpected EOF while parsing (<string>, line 1)Traceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\cs_evaluate.py", line 28, in evalWithDict
+    return eval(string,globals()) #,varDict.copy()) #dict(numpyDict.items()+varDict.items())) #create a new dictionary so all numpy functions and everything defined in varDict is available as a global during evaluation
+  File "<string>", line 1
+    -
+    ^
+SyntaxError: unexpected EOF while parsing
+
+
+2014/03/06 19:37:43 Thread-5 HSDIO WARNING HSDIO script says: compressedGenerate uwave_wStark_site1, but waveform uwave_wStark_site1 does not exist.
+2014/03/06 19:37:43 Thread-5 instrument_property WARNING In Prop.HardwareProtocol() for class LabView while trying HSDIO.toHardware.
+
+
+2014/03/06 19:37:44 Thread-5 experiments INFO Current status is idle. Cannot continue an experiment unless status is paused.
+2014/03/06 19:38:11 Thread-6 HSDIO WARNING HSDIO script says: compressedGenerate uwave_wStark_site1, but waveform uwave_wStark_site1 does not exist.
+2014/03/06 19:38:11 Thread-6 instrument_property WARNING In Prop.HardwareProtocol() for class LabView while trying HSDIO.toHardware.
+
+
+2014/03/06 19:38:46 Thread-6 experiments INFO Current status is idle. Cannot continue an experiment unless status is paused.
+2014/03/06 19:40:47 Thread-7 LabView WARNING LabView error.  Log:
+2014-03-06 19:41:21 niHSDIO Initiate.vi<ERR>Driver Status:  (Hex 0xBFFA4017) There are no scripts in the device memory.
+Ensure that you have written a script prior to calling niHSDIO_Initiate.
+
+ Error -1074118633 occurred at niHSDIO Initiate.vi
+
+Possible reason(s):
+Driver Status:  (Hex 0xBFFA4017) There are no scripts in the device memory.
+Ensure that you have written a script prior to calling niHSDIO_Initiate.
+Call chain:
+handle_errors.vi HSDIO.lvclass:start.vi Experiment.lvclass:start_tasks.vi Experiment.lvclass:measurement.vi Experiment.lvclass:parseXMLstring.vi Experiment.lvclass:server.vi
+
+Error cleared. Exiting operation.
+
+
+2014/03/06 19:40:50 Thread-7 experiments ERROR Exception during experiment:
+unable to create group (Symbol table: Unable to initialize object)
+Traceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\experiments.py", line 366, in go2
+    self.create_hdf5_iteration()
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\experiments.py", line 562, in create_hdf5_iteration
+    self.iterationResults=self.hdf5.create_group('iterations/'+str(self.iteration))
+  File "C:\Users\Saffmanlab\AppData\Local\Enthought\Canopy\User\lib\site-packages\h5py\_hl\group.py", line 41, in create_group
+    gid = h5g.create(self.id, name, lcpl=lcpl)
+  File "h5g.pyx", line 145, in h5py.h5g.create (h5py\h5g.c:2378)
+ValueError: unable to create group (Symbol table: Unable to initialize object)
+
+
+2014/03/06 19:42:23 MainThread instrument_property WARNING Exception in EvalProp.evaluate() in clockRate.
+description: 
+function: 20*kilo
+float division by zero
+
+2014/03/06 19:42:23 MainThread instrument_property WARNING Exception in EvalProp.evaluate() in totalAOTime.
+description: 5 ms total
+function: total_AO_time
+float division by zero
+
+2014/03/06 19:42:23 MainThread experiments WARNING Index=1 out of range for independent variable a. Setting a.index=0
+
+2014/03/06 19:43:03 MainThread __main__ INFO starting application
+2014/03/06 19:51:36 Thread-1 LabView DEBUG LabView.open() opening sock
+2014/03/06 19:51:36 Thread-1 LabView DEBUG LabView.open() sock opened
+2014/03/06 19:51:37 Thread-1 LabView WARNING LabView error.  Log:
+2014-03-06 19:52:11 niHSDIO Initiate.vi<ERR>Driver Status:  (Hex 0xBFFA4017) There are no scripts in the device memory.
+Ensure that you have written a script prior to calling niHSDIO_Initiate.
+
+ Error -1074118633 occurred at niHSDIO Initiate.vi
+
+Possible reason(s):
+Driver Status:  (Hex 0xBFFA4017) There are no scripts in the device memory.
+Ensure that you have written a script prior to calling niHSDIO_Initiate.
+Call chain:
+handle_errors.vi HSDIO.lvclass:start.vi Experiment.lvclass:start_tasks.vi Experiment.lvclass:measurement.vi Experiment.lvclass:parseXMLstring.vi Experiment.lvclass:server.vi
+
+Error cleared. Exiting operation.
+
+
+2014/03/06 19:51:39 Thread-1 experiments ERROR Exception during experiment:
+unable to create group (Symbol table: Unable to initialize object)
+Traceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\experiments.py", line 366, in go2
+    self.create_hdf5_iteration()
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\experiments.py", line 562, in create_hdf5_iteration
+    self.iterationResults=self.hdf5.create_group('iterations/'+str(self.iteration))
+  File "C:\Users\Saffmanlab\AppData\Local\Enthought\Canopy\User\lib\site-packages\h5py\_hl\group.py", line 41, in create_group
+    gid = h5g.create(self.id, name, lcpl=lcpl)
+  File "h5g.pyx", line 145, in h5py.h5g.create (h5py\h5g.c:2378)
+ValueError: unable to create group (Symbol table: Unable to initialize object)
+
+
+2014/03/06 19:53:59 MainThread instrument_property WARNING Exception in EvalProp.evaluate() in clockRate.
+description: 
+function: 20*kilo
+float division by zero
+
+2014/03/06 19:53:59 MainThread instrument_property WARNING Exception in EvalProp.evaluate() in totalAOTime.
+description: 5 ms total
+function: total_AO_time
+float division by zero
+
+2014/03/06 19:54:39 MainThread __main__ INFO starting application
+2014/03/06 19:55:06 Thread-1 LabView DEBUG LabView.open() opening sock
+2014/03/06 19:55:06 Thread-1 LabView DEBUG LabView.open() sock opened
+2014/03/06 19:55:17 Thread-1 TCP ERROR Error trying to receive message header: timed out
+2014/03/06 19:55:20 Thread-1 experiments ERROR Exception during experiment:
+unable to create group (Symbol table: Unable to initialize object)
+Traceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\experiments.py", line 366, in go2
+    self.create_hdf5_iteration()
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\experiments.py", line 562, in create_hdf5_iteration
+    self.iterationResults=self.hdf5.create_group('iterations/'+str(self.iteration))
+  File "C:\Users\Saffmanlab\AppData\Local\Enthought\Canopy\User\lib\site-packages\h5py\_hl\group.py", line 41, in create_group
+    gid = h5g.create(self.id, name, lcpl=lcpl)
+  File "h5g.pyx", line 145, in h5py.h5g.create (h5py\h5g.c:2378)
+ValueError: unable to create group (Symbol table: Unable to initialize object)
+
+
+2014/03/06 19:57:28 MainThread instrument_property WARNING Exception in EvalProp.evaluate() in clockRate.
+description: 
+function: 20*kilo
+float division by zero
+
+2014/03/06 19:57:28 MainThread instrument_property WARNING Exception in EvalProp.evaluate() in totalAOTime.
+description: 5 ms total
+function: total_AO_time
+float division by zero
+
+2014/03/06 19:58:08 MainThread __main__ INFO starting application
+2014/03/06 19:58:35 MainThread LabView DEBUG LabView.open() opening sock
+2014/03/06 19:58:35 MainThread LabView DEBUG LabView.open() sock opened
+2014/03/06 19:59:22 Thread-1 LabView DEBUG debug LabView.open() closing sock
+2014/03/06 19:59:22 Thread-1 LabView DEBUG LabView.open() opening sock
+2014/03/06 19:59:22 Thread-1 LabView DEBUG LabView.open() sock opened
+2014/03/06 19:59:33 Thread-1 TCP ERROR Error trying to receive message header: timed out
+2014/03/06 19:59:35 Thread-1 experiments ERROR Exception during experiment:
+unable to create group (Symbol table: Unable to initialize object)
+Traceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\experiments.py", line 366, in go2
+    self.create_hdf5_iteration()
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\experiments.py", line 562, in create_hdf5_iteration
+    self.iterationResults=self.hdf5.create_group('iterations/'+str(self.iteration))
+  File "C:\Users\Saffmanlab\AppData\Local\Enthought\Canopy\User\lib\site-packages\h5py\_hl\group.py", line 41, in create_group
+    gid = h5g.create(self.id, name, lcpl=lcpl)
+  File "h5g.pyx", line 145, in h5py.h5g.create (h5py\h5g.c:2378)
+ValueError: unable to create group (Symbol table: Unable to initialize object)
+
+
+2014/03/06 20:05:22 MainThread instrument_property WARNING Exception in EvalProp.evaluate() in clockRate.
+description: 
+function: 20*kilo
+float division by zero
+
+2014/03/06 20:05:22 MainThread instrument_property WARNING Exception in EvalProp.evaluate() in totalAOTime.
+description: 5 ms total
+function: total_AO_time
+float division by zero
+
+2014/03/06 20:06:02 MainThread __main__ INFO starting application
+2014/03/06 20:06:22 MainThread LabView DEBUG LabView.open() opening sock
+2014/03/06 20:06:22 MainThread LabView DEBUG LabView.open() sock opened
+2014/03/06 20:06:52 Thread-1 LabView DEBUG debug LabView.open() closing sock
+2014/03/06 20:06:52 Thread-1 LabView DEBUG LabView.open() opening sock
+2014/03/06 20:06:52 Thread-1 LabView DEBUG LabView.open() sock opened
+2014/03/06 20:07:03 Thread-1 TCP ERROR Error trying to receive message header: timed out
+2014/03/06 20:07:05 Thread-1 experiments ERROR Exception during experiment:
+unable to create group (Symbol table: Unable to initialize object)
+Traceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\experiments.py", line 366, in go2
+    self.create_hdf5_iteration()
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\experiments.py", line 562, in create_hdf5_iteration
+    self.iterationResults=self.hdf5.create_group('iterations/'+str(self.iteration))
+  File "C:\Users\Saffmanlab\AppData\Local\Enthought\Canopy\User\lib\site-packages\h5py\_hl\group.py", line 41, in create_group
+    gid = h5g.create(self.id, name, lcpl=lcpl)
+  File "h5g.pyx", line 145, in h5py.h5g.create (h5py\h5g.c:2378)
+ValueError: unable to create group (Symbol table: Unable to initialize object)
+
+
+2014/03/06 20:09:33 MainThread instrument_property WARNING Exception in EvalProp.evaluate() in clockRate.
+description: 
+function: 20*kilo
+float division by zero
+
+2014/03/06 20:09:33 MainThread instrument_property WARNING Exception in EvalProp.evaluate() in totalAOTime.
+description: 5 ms total
+function: total_AO_time
+float division by zero
+
+2014/03/06 20:10:13 MainThread instrument_property WARNING Exception in EvalProp.evaluate() in clockRate.
+description: 
+function: 20*kilo
+float division by zero
+
+2014/03/06 20:10:13 MainThread instrument_property WARNING Exception in EvalProp.evaluate() in totalAOTime.
+description: 5 ms total
+function: total_AO_time
+float division by zero
+
+2014/03/06 20:11:44 MainThread instrument_property WARNING Exception in EvalProp.evaluate() in clockRate.
+description: 
+function: 20*kilo
+float division by zero
+
+2014/03/06 20:11:44 MainThread instrument_property WARNING Exception in EvalProp.evaluate() in totalAOTime.
+description: 5 ms total
+function: total_AO_time
+float division by zero
+
+2014/03/06 20:12:25 MainThread __main__ INFO starting application
+2014/03/06 20:12:37 MainThread cs_evaluate WARNING evaluating property enable, enable DDS output, False
+Could not eval string: T
+name 'T' is not definedTraceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\cs_evaluate.py", line 28, in evalWithDict
+    return eval(string,globals()) #,varDict.copy()) #dict(numpyDict.items()+varDict.items())) #create a new dictionary so all numpy functions and everything defined in varDict is available as a global during evaluation
+  File "<string>", line 1, in <module>
+NameError: name 'T' is not defined
+
+
+2014/03/06 20:12:37 MainThread cs_evaluate WARNING evaluating property enable, enable DDS output, False
+Could not eval string: Tr
+name 'Tr' is not definedTraceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\cs_evaluate.py", line 28, in evalWithDict
+    return eval(string,globals()) #,varDict.copy()) #dict(numpyDict.items()+varDict.items())) #create a new dictionary so all numpy functions and everything defined in varDict is available as a global during evaluation
+  File "<string>", line 1, in <module>
+NameError: name 'Tr' is not defined
+
+
+2014/03/06 20:12:37 MainThread cs_evaluate WARNING evaluating property enable, enable DDS output, False
+Could not eval string: Tru
+name 'Tru' is not definedTraceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\cs_evaluate.py", line 28, in evalWithDict
+    return eval(string,globals()) #,varDict.copy()) #dict(numpyDict.items()+varDict.items())) #create a new dictionary so all numpy functions and everything defined in varDict is available as a global during evaluation
+  File "<string>", line 1, in <module>
+NameError: name 'Tru' is not defined
+
+
+2014/03/06 20:13:13 MainThread LabView DEBUG LabView.open() opening sock
+2014/03/06 20:13:13 MainThread LabView DEBUG LabView.open() sock opened
+2014/03/06 20:16:58 Thread-1 LabView DEBUG debug LabView.open() closing sock
+2014/03/06 20:16:58 Thread-1 LabView DEBUG LabView.open() opening sock
+2014/03/06 20:17:01 Thread-1 LabView DEBUG LabView.open() sock opened
+2014/03/06 20:17:12 Thread-1 TCP ERROR Error trying to receive message header: timed out
+2014/03/06 20:17:14 Thread-1 experiments ERROR Exception during experiment:
+unable to create group (Symbol table: Unable to initialize object)
+Traceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\experiments.py", line 366, in go2
+    self.create_hdf5_iteration()
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\experiments.py", line 562, in create_hdf5_iteration
+    self.iterationResults=self.hdf5.create_group('iterations/'+str(self.iteration))
+  File "C:\Users\Saffmanlab\AppData\Local\Enthought\Canopy\User\lib\site-packages\h5py\_hl\group.py", line 41, in create_group
+    gid = h5g.create(self.id, name, lcpl=lcpl)
+  File "h5g.pyx", line 145, in h5py.h5g.create (h5py\h5g.c:2378)
+ValueError: unable to create group (Symbol table: Unable to initialize object)
+
+
+2014/03/06 20:23:15 MainThread instrument_property WARNING Exception in EvalProp.evaluate() in clockRate.
+description: 
+function: 20*kilo
+float division by zero
+
+2014/03/06 20:23:15 MainThread instrument_property WARNING Exception in EvalProp.evaluate() in totalAOTime.
+description: 5 ms total
+function: total_AO_time
+float division by zero
+
+2014/03/06 20:23:56 MainThread __main__ INFO starting application
+2014/03/06 20:25:27 MainThread cs_evaluate WARNING evaluating property enable, enable DDS output, True
+Could not eval string: F
+name 'F' is not definedTraceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\cs_evaluate.py", line 28, in evalWithDict
+    return eval(string,globals()) #,varDict.copy()) #dict(numpyDict.items()+varDict.items())) #create a new dictionary so all numpy functions and everything defined in varDict is available as a global during evaluation
+  File "<string>", line 1, in <module>
+NameError: name 'F' is not defined
+
+
+2014/03/06 20:25:27 MainThread cs_evaluate WARNING evaluating property enable, enable DDS output, True
+Could not eval string: Fa
+name 'Fa' is not definedTraceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\cs_evaluate.py", line 28, in evalWithDict
+    return eval(string,globals()) #,varDict.copy()) #dict(numpyDict.items()+varDict.items())) #create a new dictionary so all numpy functions and everything defined in varDict is available as a global during evaluation
+  File "<string>", line 1, in <module>
+NameError: name 'Fa' is not defined
+
+
+2014/03/06 20:25:28 MainThread cs_evaluate WARNING evaluating property enable, enable DDS output, True
+Could not eval string: Fal
+name 'Fal' is not definedTraceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\cs_evaluate.py", line 28, in evalWithDict
+    return eval(string,globals()) #,varDict.copy()) #dict(numpyDict.items()+varDict.items())) #create a new dictionary so all numpy functions and everything defined in varDict is available as a global during evaluation
+  File "<string>", line 1, in <module>
+NameError: name 'Fal' is not defined
+
+
+2014/03/06 20:25:28 MainThread cs_evaluate WARNING evaluating property enable, enable DDS output, True
+Could not eval string: Fals
+name 'Fals' is not definedTraceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\cs_evaluate.py", line 28, in evalWithDict
+    return eval(string,globals()) #,varDict.copy()) #dict(numpyDict.items()+varDict.items())) #create a new dictionary so all numpy functions and everything defined in varDict is available as a global during evaluation
+  File "<string>", line 1, in <module>
+NameError: name 'Fals' is not defined
+
+
+2014/03/06 20:25:39 Thread-1 LabView DEBUG LabView.open() opening sock
+2014/03/06 20:25:39 Thread-1 LabView DEBUG LabView.open() sock opened
+2014/03/06 20:25:49 Thread-1 TCP ERROR Error trying to receive message header: timed out
+2014/03/06 20:25:52 Thread-1 experiments ERROR Exception during experiment:
+unable to create group (Symbol table: Unable to initialize object)
+Traceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\experiments.py", line 366, in go2
+    self.create_hdf5_iteration()
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\experiments.py", line 562, in create_hdf5_iteration
+    self.iterationResults=self.hdf5.create_group('iterations/'+str(self.iteration))
+  File "C:\Users\Saffmanlab\AppData\Local\Enthought\Canopy\User\lib\site-packages\h5py\_hl\group.py", line 41, in create_group
+    gid = h5g.create(self.id, name, lcpl=lcpl)
+  File "h5g.pyx", line 145, in h5py.h5g.create (h5py\h5g.c:2378)
+ValueError: unable to create group (Symbol table: Unable to initialize object)
+
+
+2014/03/06 20:28:02 MainThread instrument_property WARNING Exception in EvalProp.evaluate() in clockRate.
+description: 
+function: 20*kilo
+float division by zero
+
+2014/03/06 20:28:02 MainThread instrument_property WARNING Exception in EvalProp.evaluate() in totalAOTime.
+description: 5 ms total
+function: total_AO_time
+float division by zero
+
+2014/03/06 20:28:42 MainThread __main__ INFO starting application
+2014/03/06 20:29:36 Thread-1 LabView DEBUG LabView.open() opening sock
+2014/03/06 20:29:36 Thread-1 LabView DEBUG LabView.open() sock opened
+2014/03/06 20:29:47 Thread-1 TCP ERROR Error trying to receive message header: timed out
+2014/03/06 20:29:49 Thread-1 experiments ERROR Exception during experiment:
+unable to create group (Symbol table: Unable to initialize object)
+Traceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\experiments.py", line 366, in go2
+    self.create_hdf5_iteration()
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\experiments.py", line 562, in create_hdf5_iteration
+    self.iterationResults=self.hdf5.create_group('iterations/'+str(self.iteration))
+  File "C:\Users\Saffmanlab\AppData\Local\Enthought\Canopy\User\lib\site-packages\h5py\_hl\group.py", line 41, in create_group
+    gid = h5g.create(self.id, name, lcpl=lcpl)
+  File "h5g.pyx", line 145, in h5py.h5g.create (h5py\h5g.c:2378)
+ValueError: unable to create group (Symbol table: Unable to initialize object)
+
+
+2014/03/06 20:34:46 MainThread instrument_property WARNING Exception in EvalProp.evaluate() in clockRate.
+description: 
+function: 20*kilo
+float division by zero
+
+2014/03/06 20:34:46 MainThread instrument_property WARNING Exception in EvalProp.evaluate() in totalAOTime.
+description: 5 ms total
+function: total_AO_time
+float division by zero
+
+2014/03/06 20:35:26 MainThread __main__ INFO starting application
+2014/03/06 20:37:35 Thread-1 LabView DEBUG LabView.open() opening sock
+2014/03/06 20:37:35 Thread-1 LabView DEBUG LabView.open() sock opened
+2014/03/06 20:38:20 MainThread cs_evaluate WARNING evaluating property enable, enable DDS output, False
+Could not eval string: T
+name 'T' is not definedTraceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\cs_evaluate.py", line 28, in evalWithDict
+    return eval(string,globals()) #,varDict.copy()) #dict(numpyDict.items()+varDict.items())) #create a new dictionary so all numpy functions and everything defined in varDict is available as a global during evaluation
+  File "<string>", line 1, in <module>
+NameError: name 'T' is not defined
+
+
+2014/03/06 20:38:20 MainThread cs_evaluate WARNING evaluating property enable, enable DDS output, False
+Could not eval string: Tr
+name 'Tr' is not definedTraceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\cs_evaluate.py", line 28, in evalWithDict
+    return eval(string,globals()) #,varDict.copy()) #dict(numpyDict.items()+varDict.items())) #create a new dictionary so all numpy functions and everything defined in varDict is available as a global during evaluation
+  File "<string>", line 1, in <module>
+NameError: name 'Tr' is not defined
+
+
+2014/03/06 20:38:20 MainThread cs_evaluate WARNING evaluating property enable, enable DDS output, False
+Could not eval string: Tru
+name 'Tru' is not definedTraceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\cs_evaluate.py", line 28, in evalWithDict
+    return eval(string,globals()) #,varDict.copy()) #dict(numpyDict.items()+varDict.items())) #create a new dictionary so all numpy functions and everything defined in varDict is available as a global during evaluation
+  File "<string>", line 1, in <module>
+NameError: name 'Tru' is not defined
+
+
+2014/03/06 20:45:01 MainThread instrument_property WARNING Exception in EvalProp.evaluate() in clockRate.
+description: 
+function: 20*kilo
+float division by zero
+
+2014/03/06 20:45:01 MainThread instrument_property WARNING Exception in EvalProp.evaluate() in totalAOTime.
+description: 5 ms total
+function: total_AO_time
+float division by zero
+
+2014/03/06 20:45:42 MainThread __main__ INFO starting application
+2014/03/06 20:46:22 MainThread LabView DEBUG LabView.open() opening sock
+2014/03/06 20:46:22 MainThread LabView DEBUG LabView.open() sock opened
+2014/03/06 20:46:36 MainThread cs_evaluate WARNING evaluating property enable, enable DDS output, False
+Could not eval string: T
+name 'T' is not definedTraceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\cs_evaluate.py", line 28, in evalWithDict
+    return eval(string,globals()) #,varDict.copy()) #dict(numpyDict.items()+varDict.items())) #create a new dictionary so all numpy functions and everything defined in varDict is available as a global during evaluation
+  File "<string>", line 1, in <module>
+NameError: name 'T' is not defined
+
+
+2014/03/06 20:46:36 MainThread cs_evaluate WARNING evaluating property enable, enable DDS output, False
+Could not eval string: Tr
+name 'Tr' is not definedTraceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\cs_evaluate.py", line 28, in evalWithDict
+    return eval(string,globals()) #,varDict.copy()) #dict(numpyDict.items()+varDict.items())) #create a new dictionary so all numpy functions and everything defined in varDict is available as a global during evaluation
+  File "<string>", line 1, in <module>
+NameError: name 'Tr' is not defined
+
+
+2014/03/06 20:46:36 MainThread cs_evaluate WARNING evaluating property enable, enable DDS output, False
+Could not eval string: Tru
+name 'Tru' is not definedTraceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\cs_evaluate.py", line 28, in evalWithDict
+    return eval(string,globals()) #,varDict.copy()) #dict(numpyDict.items()+varDict.items())) #create a new dictionary so all numpy functions and everything defined in varDict is available as a global during evaluation
+  File "<string>", line 1, in <module>
+NameError: name 'Tru' is not defined
+
+
+2014/03/06 20:52:49 MainThread LabView DEBUG debug LabView.open() closing sock
+2014/03/06 20:52:49 MainThread LabView DEBUG LabView.open() opening sock
+2014/03/06 20:52:49 MainThread LabView DEBUG LabView.open() sock opened
+2014/03/06 21:13:19 MainThread instrument_property WARNING Exception in EvalProp.evaluate() in clockRate.
+description: 
+function: 20*kilo
+float division by zero
+
+2014/03/06 21:13:19 MainThread instrument_property WARNING Exception in EvalProp.evaluate() in totalAOTime.
+description: 5 ms total
+function: total_AO_time
+float division by zero
+
+2014/03/06 21:13:59 MainThread __main__ INFO starting application
+2014/03/06 21:14:06 MainThread cs_evaluate WARNING evaluating property enable, enable DDS output, False
+Could not eval string: T
+name 'T' is not definedTraceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\cs_evaluate.py", line 28, in evalWithDict
+    return eval(string,globals()) #,varDict.copy()) #dict(numpyDict.items()+varDict.items())) #create a new dictionary so all numpy functions and everything defined in varDict is available as a global during evaluation
+  File "<string>", line 1, in <module>
+NameError: name 'T' is not defined
+
+
+2014/03/06 21:14:06 MainThread cs_evaluate WARNING evaluating property enable, enable DDS output, False
+Could not eval string: Tr
+name 'Tr' is not definedTraceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\cs_evaluate.py", line 28, in evalWithDict
+    return eval(string,globals()) #,varDict.copy()) #dict(numpyDict.items()+varDict.items())) #create a new dictionary so all numpy functions and everything defined in varDict is available as a global during evaluation
+  File "<string>", line 1, in <module>
+NameError: name 'Tr' is not defined
+
+
+2014/03/06 21:14:06 MainThread cs_evaluate WARNING evaluating property enable, enable DDS output, False
+Could not eval string: Tru
+name 'Tru' is not definedTraceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\cs_evaluate.py", line 28, in evalWithDict
+    return eval(string,globals()) #,varDict.copy()) #dict(numpyDict.items()+varDict.items())) #create a new dictionary so all numpy functions and everything defined in varDict is available as a global during evaluation
+  File "<string>", line 1, in <module>
+NameError: name 'Tru' is not defined
+
+
+2014/03/06 21:14:14 MainThread LabView DEBUG LabView.open() opening sock
+2014/03/06 21:14:14 MainThread LabView DEBUG LabView.open() sock opened

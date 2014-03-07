@@ -44,7 +44,6 @@ class DDS(Instrument):
     def evaluate(self):
         super(DDS,self).evaluate()
         self.updateBoxDescriptionList()
-        
     
     def addBox(self):
         newbox=DDSbox('box'+str(len(self.boxes)),self.experiment,description='newbox',DDS=self)
@@ -72,6 +71,7 @@ class DDS(Instrument):
     def loadDDS(self):
         #send just the DDS settings, initialize if neccessary, and then set DDS settings
         result=self.communicator.send(self.toHardware())
+        self.isInitialized=True
         print result
 
 class DDSbox(Prop):
