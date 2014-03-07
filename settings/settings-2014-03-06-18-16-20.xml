@@ -38,37 +38,37 @@ p0
 .</experimentDescriptionFilenameSuffix>
 <measurementTimeout>F10.0
 .</measurementTimeout>
-<measurementsPerIteration>I2
+<measurementsPerIteration>I10
 .</measurementsPerIteration>
 <willSendEmail>I01
 .</willSendEmail>
 <emailAddresses>S'mlichtman@wisc.edu'
 p0
 .</emailAddresses>
-<progress>I100
+<progress>I3
 .</progress>
-<iteration>I1
+<iteration>I0
 .</iteration>
 <measurement>I0
 .</measurement>
 <totalIterations>I1
 .</totalIterations>
-<timeStartedStr>S'2014-03-06 18:59:39'
+<timeStartedStr>S'2014-03-06 18:01:16'
 p0
 .</timeStartedStr>
-<currentTimeStr>S'2014-03-06 19:00:18'
+<currentTimeStr>S'2014-02-02 22:09:49'
 p0
 .</currentTimeStr>
-<timeElapsedStr>S'0:00:38.935000'
+<timeElapsedStr>S'0:00:07.631000'
 p0
 .</timeElapsedStr>
-<totalTimeStr>S'0:00:38.935000'
+<totalTimeStr>S'0:00:11.038155'
 p0
 .</totalTimeStr>
-<timeRemainingStr>S'0:00:00'
+<timeRemainingStr>S'0:00:03.407155'
 p0
 .</timeRemainingStr>
-<completionTimeStr>S'2014-03-06 19:00:18'
+<completionTimeStr>S'2014-02-02 22:09:52'
 p0
 .</completionTimeStr>
 <variableReportFormat>S'"a is %(a)s.\\nThe speed of light is %(c0)d\\nbut some call it %(c0)e\\nmicrowave raman time=%(microwave_raman_time)e\\n"'
@@ -12745,7 +12745,7 @@ p0
 <script><description>S'HSDIO script that says what waveforms to generate'
 p0
 .</description>
-<function>S"'script script1\\ncompressedGenerate MOT_Loading\\ncompressedGenerate PGC_1\\ncompressedGenerate MOT_drop\\ncompressedGenerate PreReadout\\ncompressedGenerate Readout\\ncompressedGenerate PGC_2\\ncompressedGenerate close_3D_shutter\\ncompressedGenerate close_HF_shutter\\ncompressedGenerate Optical_Pumping\\ncompressedGenerate uwave_wStark_site1\\ncompressedGenerate RydA_CzGate_trapsOff\\ncompressedGenerate uwave_wStark_site1_phaseshift\\ncompressedGenerate microwave_pi_pulse\\ncompressedGenerate Blowaway\\ncompressedGenerate Camera_delay\\ncompressedGenerate Readout\\ncompressedGenerate slow_noise_eater_ms\\nidle\\nend script'"
+<function>S"'script script1\\ncompressedGenerate cameraTrigger\\nend script'"
 p0
 .</function>
 </script>
@@ -30103,14 +30103,14 @@ p0
 <EMGain><description>S'EMCCD gain'
 p0
 .</description>
-<function>S'175'
+<function>S'0'
 p0
 .</function>
 </EMGain>
 <analogGain><description>S'analog gain'
 p0
 .</description>
-<function>S'1'
+<function>S'0'
 p0
 .</function>
 </analogGain>
@@ -30180,7 +30180,7 @@ p0
 <photoelectronScaling><description>S'photoelectron scaling'
 p0
 .</description>
-<function>S'0.007600'
+<function>S'1'
 p0
 .</function>
 </photoelectronScaling>
@@ -30257,7 +30257,7 @@ p0
 <shotsPerMeasurement><description>S'shots per measurement'
 p0
 .</description>
-<function>S'2'
+<function>S'1'
 p0
 .</function>
 </shotsPerMeasurement>

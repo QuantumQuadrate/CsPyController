@@ -176,7 +176,7 @@ class HSDIO(Instrument):
                             if waitTime%self.hardwareAlignmentQuantum.value!=0: #if the wait time is not a multiple of the hardwareAlignmentQuantum
                                 waitTime=(int(waitTime/self.hardwareAlignmentQuantum.value)+1)*self.hardwareAlignmentQuantum.value #round up
                             newString+=int(waitTime/536870912)*'wait 536870912\n' #the HSDIO card cannot handle a wait value longer than this, so we repeat it as many times as necessary
-                            newString+='wait '+str(waitTime%536870912)+'\n' #add the remaining wait
+                            newString+='wait '+str(int(waitTime%536870912))+'\n' #add the remaining wait
                         if not singleSampleWaveformName in waveformsInUse:
                             #add waveform to those to be transferred to LabView
                             waveformsInUse+=[singleSampleWaveformName]
