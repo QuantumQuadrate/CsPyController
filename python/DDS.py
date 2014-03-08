@@ -185,7 +185,7 @@ class DDSprofile(Prop):
         
         #go through list of single properties:
         for p in self.properties: # I use a for loop instead of list comprehension so I can have more detailed error reporting.
-            if p not in self.doNotSendToHardware and :
+            if p not in self.doNotSendToHardware:
                 #convert the string name to an actual object
                 try:
                     o=getattr(self,p)

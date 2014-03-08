@@ -25451,3 +25451,23 @@ NameError: name 'Tru' is not defined
 
 2014/03/06 21:14:14 MainThread LabView DEBUG LabView.open() opening sock
 2014/03/06 21:14:14 MainThread LabView DEBUG LabView.open() sock opened
+2014/03/08 15:03:15 MainThread instrument_property WARNING Exception in EvalProp.evaluate() in clockRate.
+description: 
+function: 20*kilo
+float division by zero
+
+2014/03/08 15:03:15 MainThread instrument_property WARNING Exception in EvalProp.evaluate() in totalAOTime.
+description: 5 ms total
+function: total_AO_time
+float division by zero
+
+2014/03/08 15:05:48 MainThread instrument_property WARNING Exception in EvalProp.evaluate() in clockRate.
+description: 
+function: 20*kilo
+float division by zero
+
+2014/03/08 15:05:48 MainThread instrument_property WARNING Exception in EvalProp.evaluate() in totalAOTime.
+description: 5 ms total
+function: total_AO_time
+float division by zero
+
