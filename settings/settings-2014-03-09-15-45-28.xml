@@ -38,7 +38,7 @@ p0
 .</experimentDescriptionFilenameSuffix>
 <measurementTimeout>F10.0
 .</measurementTimeout>
-<measurementsPerIteration>I1000
+<measurementsPerIteration>I3
 .</measurementsPerIteration>
 <willSendEmail>I01
 .</willSendEmail>
@@ -47,13 +47,13 @@ p0
 .</emailAddresses>
 <progress>I100
 .</progress>
-<iteration>I0
+<iteration>I1
 .</iteration>
 <measurement>I0
 .</measurement>
 <totalIterations>I1
 .</totalIterations>
-<timeStartedStr>S'2014-03-09 16:27:29'
+<timeStartedStr>S'2014-03-08 19:04:01'
 p0
 .</timeStartedStr>
 <currentTimeStr>S'2014-03-08 19:04:07'
@@ -12681,16 +12681,16 @@ p0
 <enable><description>S'enable DDS output'
 p0
 .</description>
-<function>S'True'
+<function>S'False'
 p0
 .</function>
 </enable>
 <boxes><box><description>S'780nm traps, repumper, 852nm 3D MOT cooling'
 p0
 .</description>
-<enable>I01
+<enable>I00
 .</enable>
-<deviceReference>S'USB0::0x3923::0x7166::01574F57::RAW'
+<deviceReference>S'USB0::0x3923::0x7166::01574F57::RAW\r'
 p0
 .</deviceReference>
 <DIOport>I0
@@ -15866,9 +15866,9 @@ a.</profileDescriptionList>
 <box><description>S'1038 scanner, 459 scanner'
 p0
 .</description>
-<enable>I01
+<enable>I00
 .</enable>
-<deviceReference>S'USB0::0x3923::0x7166::01574FA5::RAW'
+<deviceReference>S'USB0::0x3923::0x7166::01574FA5::RAW\r'
 p0
 .</deviceReference>
 <DIOport>I0
@@ -22224,7 +22224,7 @@ p0
 .</description>
 <enable>I00
 .</enable>
-<deviceReference>S'USB0::0x3923::0x7166::01574F95::RAW'
+<deviceReference>S'USB0::0x3923::0x7166::01574F95::RAW\r'
 p0
 .</deviceReference>
 <DIOport>I0
@@ -25402,7 +25402,7 @@ p0
 .</description>
 <enable>I00
 .</enable>
-<deviceReference>S'USB0::0x3923::0x7166::0166CE36::RAW'
+<deviceReference>S'USB0::0x3923::0x7166::0166CE36::RAW\r'
 p0
 .</deviceReference>
 <DIOport>I0

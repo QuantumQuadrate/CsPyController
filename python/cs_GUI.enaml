@@ -872,7 +872,7 @@ enamldef DDS_box(StackItem):
             PushButton:
                 text='select USB device reference'
                 clicked::
-                    box.deviceReference=combo.selected_item
+                    box.deviceReference=combo.selected_item.strip()
             ComboBox: combo:
                 items<<box.DDS.deviceList
                 
@@ -913,57 +913,60 @@ enamldef DDS_Page(Page): page:
     title = 'DDS'
     
     Container:
-        constraints=[vbox(hbox(enable,isInit,getDevicesButton,initButton,loadButton),stackGroup),align('v_center',getDevicesButton,initButton,loadButton,enable,isInit),getDevicesButton.width==initButton.width,getDevicesButton.width==loadButton.width]
-        EvalProp: enable:
-                    prop<<DDS.enable
-        PushButton: getDevicesButton:
-            text='Get DDS Device List'
-            clicked::DDS.getDDSDeviceList()
-        PushButton: initButton:
-            text='Initialize and Load'
-            clicked::DDS.initializeDDS()
-        PushButton: loadButton:
-            text='Load'
-            clicked::DDS.loadDDS()
+        Container:
+            hug_width='strong'
+            hug_height='strong'
+            constraints=[vbox(hbox(enable,isInit,getDevicesButton,initButton,loadButton),stackGroup),align('v_center',getDevicesButton,initButton,loadButton,enable,isInit),enable.width==500,getDevicesButton.width==200,initButton.width==200,loadButton.width==200]
+            EvalProp: enable:
+                        prop<<DDS.enable
+            PushButton: getDevicesButton:
+                text='Get DDS Device List'
+                clicked::DDS.getDDSDeviceList()
+            PushButton: initButton:
+                text='Initialize and Load'
+                clicked::DDS.initializeDDS()
+            PushButton: loadButton:
+                text='Load'
+                clicked::DDS.loadDDS()
 
-        #LabelBox: enable:
-        #    text='enable'
-        #    checked:=DDS.enable.value
-        
-        LabelBox: isInit:
-            text='initialized?'
-            checked<<DDS.isInitialized
-            enabled=False #keep it greyed out.
-        
-        GroupBox: stackGroup:
-            title='DDS boxes'
-            constraints=[vbox(hbox(addButton,removeButton,combo),stack),stack.width==contents_width]
-            PushButton: addButton:
-                text='+'
-                constraints=[width==50,height==20]
-                clicked::
-                    DDS.addBox()
-                    dyno.refresh_items()
-                    DDS.updateBoxDescriptionList()
-                    combo.index=len(DDS.boxes)-2 #point to new box
-            PushButton: removeButton:
-                text='-'
-                constraints=[width==50,height==20]
-                clicked::
-                    i=combo.index
-                    if i>=0:
-                        DDS.boxes.pop(i)
+            #LabelBox: enable:
+            #    text='enable'
+            #    checked:=DDS.enable.value
+            
+            LabelBox: isInit:
+                text='initialized?'
+                checked<<DDS.isInitialized
+                enabled=False #keep it greyed out.
+            
+            GroupBox: stackGroup:
+                title='DDS boxes'
+                constraints=[vbox(hbox(addButton,removeButton,combo),stack),stack.width==contents_width]
+                PushButton: addButton:
+                    text='+'
+                    constraints=[width==50,height==20]
+                    clicked::
+                        DDS.addBox()
                         dyno.refresh_items()
                         DDS.updateBoxDescriptionList()
-                        combo.index=i-1
-            ComboBox: combo:
-                items<<DDS.boxDescriptionList
-            Stack: stack:
-                index<<combo.index
-                Looper: dyno:
-                    iterable<<DDS.boxes
-                    DDS_box:
-                        box=loop_item
+                        combo.index=len(DDS.boxes)-2 #point to new box
+                PushButton: removeButton:
+                    text='-'
+                    constraints=[width==50,height==20]
+                    clicked::
+                        i=combo.index
+                        if i>=0:
+                            DDS.boxes.pop(i)
+                            dyno.refresh_items()
+                            DDS.updateBoxDescriptionList()
+                            combo.index=i-1
+                ComboBox: combo:
+                    items<<DDS.boxDescriptionList
+                Stack: stack:
+                    index<<combo.index
+                    Looper: dyno:
+                        iterable<<DDS.boxes
+                        DDS_box:
+                            box=loop_item
 
 enamldef RF_gen(StackItem):
     attr item
@@ -1253,22 +1256,23 @@ enamldef Analysis(Container):
     Label:
         text<<analysis.text
     MPLCanvas:
-        constraints=[(height==1500)|'strong',(width==1500)|'strong']
+        constraints=[(height==800)|'strong',(width==800)|'strong']
         hug_width='ignore'
         figure<<analysis.figure
 
-enamldef TwoImagePage(Page): page:
+enamldef MultiImagePage(Page): page:
     title='Side By Side'
     attr experiment
     attr analysis0
+    attr analysis1
     attr analysis2
     
     Container:
-        constraints=[hbox(a1,a2)]
+        constraints=[hbox(a0,a1,a2)]
         
-        Analysis: a1:
+        Analysis: a0:
             analysis<<analysis0
-        Container: a2:
+        Container: a1:
             hug_height='ignore'
             hug_width='ignore'
             Form:
@@ -1277,27 +1281,29 @@ enamldef TwoImagePage(Page): page:
     #            Conditional:
     #                condition<<(len(analysis.ivarNames)>0)
                 Looper: looper:
-                    iterable << analysis2.ivarNames
+                    iterable << analysis1.ivarNames
                     Label:
                         text=loop_item
                     ComboBox:
-                        items=[str(i) for i in analysis2.ivarValueLists[loop_index]]
+                        items=[str(i) for i in analysis1.ivarValueLists[loop_index]]
                         index::
-                            analysis2.setIteration(loop_index, index) #send which ivar (loop_index) to update to index
+                            analysis1.setIteration(loop_index, index) #send which ivar (loop_index) to update to index
                 Label:
                     text='Measurement'
                 SpinBox:
                     minimum=0
-                    value:=analysis2.measurement
+                    value:=analysis1.measurement
                 Label:
                     text='Shot'
                 SpinBox:
                     minimum=0
-                    value:=analysis2.shot
+                    value:=analysis1.shot
             MPLCanvas:
-                constraints=[(height==700)|'strong']
+                constraints=[(height==800)|'strong',(width==800)|'strong']
                 hug_width='ignore'
-                figure<<analysis2.figure
+                figure<<analysis1.figure
+        Analysis: a2:
+            analysis<<analysis2
 
 enamldef Shot0ResultsPage(Page):
     title = 'Shot 0 Results'
@@ -1401,8 +1407,9 @@ enamldef Main(MainWindow): main:
                         analysis=main.experiment.analyses[0]
                     ShotsBrowserPage:
                         experiment=main.experiment
-                        analysis=main.experiment.analyses[2]
-                    TwoImagePage:
+                        analysis=main.experiment.analyses[1]
+                    MultiImagePage:
                         experiment=main.experiment
                         analysis0=main.experiment.analyses[0]
+                        analysis1=main.experiment.analyses[1]
                         analysis2=main.experiment.analyses[2]

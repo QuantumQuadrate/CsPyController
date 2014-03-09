@@ -247,4 +247,31 @@ class ShotsBrowserAnalysis(AnalysisWithFigure):
         ax=fig.add_subplot(111)
         ax.matshow(self.array)
         super(ShotsBrowserAnalysis,self).updateFigure() #makes a deferred_call to swap_figures()
-        
+    
+class ImageSumAnalysis(AnalysisWithFigure):
+    data=Member()
+    
+    def __init__(self,experiment):
+        super(ImageSumAnalysis,self).__init__('ImageSumAnalysis',experiment,'Sums shot0 images as they come in')
+    
+    def analyzeMeasurement(self,measurementResults,iterationResults,experimentResults):
+        if ('data/Hamamatsu/shots/0' in measurementResults):
+            try:
+                input=numpy.array(measurementResults['data/Hamamatsu/shots/0'][...])
+            except KeyError as e:
+                logger.warning('HDF5 data/Hamamatsu/shots/0 does not exist in analysis.ImagePlotAnalysis.analyzeMeasurement()\n'+str(e))
+                raise PauseError
+            #first time
+            if self.data is None:
+                print 'first'
+                self.data=numpy.zeros_like(input)
+            self.data+=input
+            self.updateFigure() #only update figure if image was loaded
+    
+    def updateFigure(self):
+        fig=self.backFigure
+        fig.clf()
+        ax=fig.add_subplot(111)
+        ax.matshow(self.data)
+        ax.set_title('shot 0 summation')
+        super(ImageSumAnalysis,self).updateFigure()
