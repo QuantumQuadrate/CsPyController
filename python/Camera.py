@@ -11,81 +11,9 @@ This file holds everything needed to model the high speed digital output from th
 from cs_errors import PauseError, setupLog
 logger=setupLog(__name__)
 
-from atom.api import Bool, Typed, Str, Int, Member
-#from enthought.chaco.api import ArrayPlotData, Plot #for chaco plot
+from atom.api import Typed, Str
 from instrument_property import Prop, BoolProp, IntProp, FloatProp, StrProp, ListProp, IntRangeProp, FloatRangeProp, EnumProp
 from cs_instruments import Instrument
-import matplotlib.pyplot as plt
-import numpy
-
-from digital_waveform import Waveform, Channels
-#import digital_waveform #my helper class for making Chaco plots of waveforms
-
-#---- camera properties ----
-class ScriptTrigger(Prop):
-    id=Typed(StrProp)
-    source=Typed(StrProp)
-    type=Typed(StrProp)
-    edge=Typed(StrProp)
-    level=Typed(StrProp)
-    
-    def __init__(self,name,experiment,description=''):
-        super(ScriptTrigger,self).__init__('trigger',experiment,description)
-        self.id=StrProp('id',experiment,'','"ScriptTrigger0"')
-        self.source=StrProp('source',experiment,'','"PFI0"')
-        self.type=StrProp('type',experiment,'','"edge"')
-        self.edge=StrProp('edge',experiment,'','"rising"')
-        self.level=StrProp('level',experiment,'','"high"')
-        self.properties+=['id','source','type','edge','level']
-
-class Waveforms(ListProp):
-    digitalout=Member()
-    refreshButton=Member()
-
-    def __init__(self,experiment,digitalout):
-        super(Waveforms,self).__init__('waveforms',experiment,description='Holds all the digitalout waveforms',listElementType=Waveform)
-        self.digitalout=digitalout
-        self.add()
-        #self.refresh()
-    
-    def getNextAvailableName(self):
-        #figure out unique name for a new waveform
-        count=int(0)
-        names=[i.name for i in self.listProperty]
-        while True:
-            name='wfm'+str(count)
-            if not name in names:
-                return name
-            count+=1
-    
-    def add(self):
-        name=self.getNextAvailableName()
-        waveform=Waveform(name,self.experiment,self.digitalout,waveforms=self)
-        self.listProperty.append(waveform)
-        return waveform
-    
-    def fromXML(self,xmlNode):
-        while self.listProperty: #go until the list is empty
-            self.listProperty.pop()
-        self.listProperty+=[Waveform(self.getNextAvailableName(),self.experiment,self.digitalout,waveforms=self).fromXML(child) for child in xmlNode]
-        self.refresh()
-        return self
-    
-    def refresh(self):
-        if hasattr(self,'refreshButton') and (self.refreshButton is not None): #prevents trying to do this before GUI is active
-            self.refreshButton.clicked()  #refresh the GUI
-
-class StartTrigger(Prop):
-    waitForStartTrigger=Typed(BoolProp)
-    source=Typed(StrProp)
-    edge=Typed(StrProp)
-    
-    def __init__(self,experiment):
-        super(StartTrigger,self).__init__('startTrigger',experiment)
-        self.waitForStartTrigger=BoolProp('waitForStartTrigger',experiment,'HSDIO wait for start trigger','False')
-        self.source=StrProp('source',experiment,'start trigger source','"PFI0"')
-        self.edge=StrProp('edge',experiment,'start trigger edge','"rising"')
-        self.properties+=['waitForStartTrigger','source','edge']
 
 #---- instrument ----
 
@@ -100,6 +28,7 @@ class Camera(Instrument):
         self.saveAsPNG=BoolProp('saveAsPNG',experiment,'save pictures as PNG','False')
         self.saveAsASCII=BoolProp('saveAsASCII',experiment,'save pictures as ASCII','False')
         self.properties+=['enable','saveAsPNG','saveAsASCII']
+        self.doNotSendToHardware+=['saveAsPNG','saveAsASCII']
 
 class HamamatsuC9100_13(Camera):
     version=Str()
@@ -165,6 +94,7 @@ class HamamatsuC9100_13(Camera):
         'subArrayLeft','subArrayTop','subArrayWidth','subArrayHeight','superPixelBinning','frameGrabberAcquisitionRegionLeft',
         'frameGrabberAcquisitionRegionTop','frameGrabberAcquisitionRegionRight','frameGrabberAcquisitionRegionBottom',
         'numImageBuffers','shotsPerMeasurement']
+        self.doNotSendToHardware+=['photoelectronScaling']
     
     def initialize(self):
         self.isInitialized=True

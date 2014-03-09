@@ -25471,3 +25471,343 @@ description: 5 ms total
 function: total_AO_time
 float division by zero
 
+2014/03/08 16:21:51 MainThread instrument_property WARNING Exception in EvalProp.evaluate() in clockRate.
+description: 
+function: 20*kilo
+float division by zero
+
+2014/03/08 16:21:51 MainThread instrument_property WARNING Exception in EvalProp.evaluate() in totalAOTime.
+description: 5 ms total
+function: total_AO_time
+float division by zero
+
+2014/03/08 16:25:17 MainThread instrument_property WARNING Exception in EvalProp.evaluate() in clockRate.
+description: 
+function: 20*kilo
+float division by zero
+
+2014/03/08 16:25:17 MainThread instrument_property WARNING Exception in EvalProp.evaluate() in totalAOTime.
+description: 5 ms total
+function: total_AO_time
+float division by zero
+
+2014/03/08 16:25:57 MainThread __main__ INFO starting application
+2014/03/08 16:27:17 MainThread instrument_property WARNING Exception in EvalProp.evaluate() in clockRate.
+description: 
+function: 20*kilo
+float division by zero
+
+2014/03/08 16:27:17 MainThread instrument_property WARNING Exception in EvalProp.evaluate() in totalAOTime.
+description: 5 ms total
+function: total_AO_time
+float division by zero
+
+2014/03/08 16:31:43 MainThread instrument_property WARNING Exception in EvalProp.evaluate() in clockRate.
+description: 
+function: 20*kilo
+float division by zero
+
+2014/03/08 16:31:43 MainThread instrument_property WARNING Exception in EvalProp.evaluate() in totalAOTime.
+description: 5 ms total
+function: total_AO_time
+float division by zero
+
+2014/03/08 16:32:23 MainThread __main__ INFO starting application
+2014/03/08 16:33:42 Thread-1 LabView DEBUG LabView.open() opening sock
+2014/03/08 16:33:42 Thread-1 LabView DEBUG LabView.open() sock opened
+2014/03/08 16:33:46 Thread-1 experiments INFO Current status is idle. Cannot continue an experiment unless status is paused.
+2014/03/08 16:55:11 MainThread instrument_property WARNING Exception in EvalProp.evaluate() in clockRate.
+description: 
+function: 20*kilo
+float division by zero
+
+2014/03/08 16:55:11 MainThread instrument_property WARNING Exception in EvalProp.evaluate() in totalAOTime.
+description: 5 ms total
+function: total_AO_time
+float division by zero
+
+2014/03/08 16:55:20 MainThread instrument_property WARNING Exception in EvalProp.evaluate() in clockRate.
+description: 
+function: 20*kilo
+float division by zero
+
+2014/03/08 16:55:20 MainThread instrument_property WARNING Exception in EvalProp.evaluate() in totalAOTime.
+description: 5 ms total
+function: total_AO_time
+float division by zero
+
+2014/03/08 16:56:00 MainThread __main__ INFO starting application
+2014/03/08 17:01:03 Thread-1 LabView DEBUG LabView.open() opening sock
+2014/03/08 17:01:03 Thread-1 LabView DEBUG LabView.open() sock opened
+2014/03/08 17:01:06 Thread-1 experiments INFO Current status is idle. Cannot continue an experiment unless status is paused.
+2014/03/08 17:02:49 MainThread instrument_property WARNING Exception in EvalProp.evaluate() in clockRate.
+description: 
+function: 20*kilo
+float division by zero
+
+2014/03/08 17:02:49 MainThread instrument_property WARNING Exception in EvalProp.evaluate() in totalAOTime.
+description: 5 ms total
+function: total_AO_time
+float division by zero
+
+2014/03/08 17:03:29 MainThread __main__ INFO starting application
+2014/03/08 17:09:18 Thread-1 LabView DEBUG LabView.open() opening sock
+2014/03/08 17:09:18 Thread-1 LabView DEBUG LabView.open() sock opened
+2014/03/08 17:09:23 Thread-1 experiments INFO Current status is idle. Cannot continue an experiment unless status is paused.
+2014/03/08 17:27:23 MainThread instrument_property WARNING Exception in EvalProp.evaluate() in clockRate.
+description: 
+function: 20*kilo
+float division by zero
+
+2014/03/08 17:27:23 MainThread instrument_property WARNING Exception in EvalProp.evaluate() in totalAOTime.
+description: 5 ms total
+function: total_AO_time
+float division by zero
+
+2014/03/08 17:28:03 MainThread __main__ INFO starting application
+2014/03/08 17:31:30 Thread-1 LabView DEBUG LabView.open() opening sock
+2014/03/08 17:31:30 Thread-1 LabView DEBUG LabView.open() sock opened
+2014/03/08 17:31:30 Thread-1 LabView WARNING LabView error.  Log:
+2014-03-08 17:32:13 niHSDIO Initiate.vi<ERR>Driver Status:  (Hex 0xBFFA401F) Specified output operation cannot be satisfied because it requires channels that are currently in use by another output operation.
+
+Status Code: -200597
+
+ Error -1074118625 occurred at niHSDIO Initiate.vi
+
+Possible reason(s):
+Driver Status:  (Hex 0xBFFA401F) Specified output operation cannot be satisfied because it requires channels that are currently in use by another output operation.
+
+Status Code: -200597
+Call chain:
+handle_errors.vi HSDIO.lvclass:start.vi Experiment.lvclass:start_tasks.vi Experiment.lvclass:measurement.vi Experiment.lvclass:parseXMLstring.vi Experiment.lvclass:server.vi
+
+Error cleared. Exiting operation.
+
+
+2014/03/08 17:31:33 Thread-1 experiments ERROR Exception during experiment:
+unable to create group (Symbol table: Unable to initialize object)
+Traceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\experiments.py", line 366, in go2
+    self.create_hdf5_iteration()
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\experiments.py", line 562, in create_hdf5_iteration
+    self.iterationResults=self.hdf5.create_group('iterations/'+str(self.iteration))
+  File "C:\Users\Saffmanlab\AppData\Local\Enthought\Canopy\User\lib\site-packages\h5py\_hl\group.py", line 41, in create_group
+    gid = h5g.create(self.id, name, lcpl=lcpl)
+  File "h5g.pyx", line 145, in h5py.h5g.create (h5py\h5g.c:2378)
+ValueError: unable to create group (Symbol table: Unable to initialize object)
+
+
+2014/03/08 17:35:06 MainThread instrument_property WARNING Exception in EvalProp.evaluate() in clockRate.
+description: 
+function: 20*kilo
+float division by zero
+
+2014/03/08 17:35:06 MainThread instrument_property WARNING Exception in EvalProp.evaluate() in totalAOTime.
+description: 5 ms total
+function: total_AO_time
+float division by zero
+
+2014/03/08 17:35:47 MainThread __main__ INFO starting application
+2014/03/08 17:36:28 Thread-1 LabView DEBUG LabView.open() opening sock
+2014/03/08 17:36:28 Thread-1 LabView DEBUG LabView.open() sock opened
+2014/03/08 17:36:29 Thread-1 LabView WARNING LabView error.  Log:
+2014-03-08 17:37:11 niHSDIO Initiate.vi<ERR>Driver Status:  (Hex 0xBFFA401F) Specified output operation cannot be satisfied because it requires channels that are currently in use by another output operation.
+
+Status Code: -200597
+
+ Error -1074118625 occurred at niHSDIO Initiate.vi
+
+Possible reason(s):
+Driver Status:  (Hex 0xBFFA401F) Specified output operation cannot be satisfied because it requires channels that are currently in use by another output operation.
+
+Status Code: -200597
+Call chain:
+handle_errors.vi HSDIO.lvclass:start.vi Experiment.lvclass:start_tasks.vi Experiment.lvclass:measurement.vi Experiment.lvclass:parseXMLstring.vi Experiment.lvclass:server.vi
+
+Error cleared. Exiting operation.
+
+
+2014/03/08 17:36:31 Thread-1 experiments ERROR Exception during experiment:
+unable to create group (Symbol table: Unable to initialize object)
+Traceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\experiments.py", line 366, in go2
+    self.create_hdf5_iteration()
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\experiments.py", line 562, in create_hdf5_iteration
+    self.iterationResults=self.hdf5.create_group('iterations/'+str(self.iteration))
+  File "C:\Users\Saffmanlab\AppData\Local\Enthought\Canopy\User\lib\site-packages\h5py\_hl\group.py", line 41, in create_group
+    gid = h5g.create(self.id, name, lcpl=lcpl)
+  File "h5g.pyx", line 145, in h5py.h5g.create (h5py\h5g.c:2378)
+ValueError: unable to create group (Symbol table: Unable to initialize object)
+
+
+2014/03/08 17:40:02 Thread-2 LabView DEBUG debug LabView.open() closing sock
+2014/03/08 17:40:02 Thread-2 experiments ERROR Exception during experiment:
+[Errno 9] Bad file descriptor
+Traceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\experiments.py", line 361, in go2
+    self.update()      #send current values to hardware
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\experiments.py", line 221, in update
+    i.initialize() #reinitialize
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\LabView.py", line 92, in initialize
+    self.open()
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\LabView.py", line 79, in open
+    self.sock.close()
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\TCP.py", line 129, in close
+    self.shutdown(socket.SHUT_RDWR)
+  File "C:\Users\Saffmanlab\AppData\Local\Enthought\Canopy\App\appdata\canopy-1.3.0.1715.win-x86_64\lib\socket.py", line 224, in meth
+    return getattr(self._sock,name)(*args)
+  File "C:\Users\Saffmanlab\AppData\Local\Enthought\Canopy\App\appdata\canopy-1.3.0.1715.win-x86_64\lib\socket.py", line 170, in _dummy
+    raise error(EBADF, 'Bad file descriptor')
+error: [Errno 9] Bad file descriptor
+
+
+2014/03/08 17:40:04 Thread-2 LabView DEBUG debug LabView.open() closing sock
+2014/03/08 17:40:04 Thread-2 experiments ERROR Exception during experiment:
+[Errno 9] Bad file descriptor
+Traceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\experiments.py", line 361, in go2
+    self.update()      #send current values to hardware
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\experiments.py", line 221, in update
+    i.initialize() #reinitialize
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\LabView.py", line 92, in initialize
+    self.open()
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\LabView.py", line 79, in open
+    self.sock.close()
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\TCP.py", line 129, in close
+    self.shutdown(socket.SHUT_RDWR)
+  File "C:\Users\Saffmanlab\AppData\Local\Enthought\Canopy\App\appdata\canopy-1.3.0.1715.win-x86_64\lib\socket.py", line 224, in meth
+    return getattr(self._sock,name)(*args)
+  File "C:\Users\Saffmanlab\AppData\Local\Enthought\Canopy\App\appdata\canopy-1.3.0.1715.win-x86_64\lib\socket.py", line 170, in _dummy
+    raise error(EBADF, 'Bad file descriptor')
+error: [Errno 9] Bad file descriptor
+
+
+2014/03/08 17:41:44 MainThread instrument_property WARNING Exception in EvalProp.evaluate() in clockRate.
+description: 
+function: 20*kilo
+float division by zero
+
+2014/03/08 17:41:44 MainThread instrument_property WARNING Exception in EvalProp.evaluate() in totalAOTime.
+description: 5 ms total
+function: total_AO_time
+float division by zero
+
+2014/03/08 17:42:25 MainThread __main__ INFO starting application
+2014/03/08 17:42:54 Thread-1 LabView DEBUG LabView.open() opening sock
+2014/03/08 17:42:54 Thread-1 LabView DEBUG LabView.open() sock opened
+2014/03/08 17:42:54 Thread-1 LabView WARNING LabView error.  Log:
+2014-03-08 17:43:37 niHSDIO Initiate.vi<ERR>Driver Status:  (Hex 0xBFFA401F) Specified output operation cannot be satisfied because it requires channels that are currently in use by another output operation.
+
+Status Code: -200597
+
+ Error -1074118625 occurred at niHSDIO Initiate.vi
+
+Possible reason(s):
+Driver Status:  (Hex 0xBFFA401F) Specified output operation cannot be satisfied because it requires channels that are currently in use by another output operation.
+
+Status Code: -200597
+Call chain:
+handle_errors.vi HSDIO.lvclass:start.vi Experiment.lvclass:start_tasks.vi Experiment.lvclass:measurement.vi Experiment.lvclass:parseXMLstring.vi Experiment.lvclass:server.vi
+
+Error cleared. Exiting operation.
+
+
+2014/03/08 17:42:57 Thread-1 experiments ERROR Exception during experiment:
+unable to create group (Symbol table: Unable to initialize object)
+Traceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\experiments.py", line 366, in go2
+    self.create_hdf5_iteration()
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\experiments.py", line 562, in create_hdf5_iteration
+    self.iterationResults=self.hdf5.create_group('iterations/'+str(self.iteration))
+  File "C:\Users\Saffmanlab\AppData\Local\Enthought\Canopy\User\lib\site-packages\h5py\_hl\group.py", line 41, in create_group
+    gid = h5g.create(self.id, name, lcpl=lcpl)
+  File "h5g.pyx", line 145, in h5py.h5g.create (h5py\h5g.c:2378)
+ValueError: unable to create group (Symbol table: Unable to initialize object)
+
+
+2014/03/08 17:46:53 MainThread instrument_property WARNING Exception in EvalProp.evaluate() in clockRate.
+description: 
+function: 20*kilo
+float division by zero
+
+2014/03/08 17:46:53 MainThread instrument_property WARNING Exception in EvalProp.evaluate() in totalAOTime.
+description: 5 ms total
+function: total_AO_time
+float division by zero
+
+2014/03/08 17:47:34 MainThread __main__ INFO starting application
+2014/03/08 17:50:38 Thread-1 LabView DEBUG LabView.open() opening sock
+2014/03/08 17:50:38 Thread-1 LabView DEBUG LabView.open() sock opened
+2014/03/08 17:50:41 Thread-1 experiments INFO Current status is idle. Cannot continue an experiment unless status is paused.
+2014/03/08 17:56:21 MainThread instrument_property WARNING Exception in EvalProp.evaluate() in clockRate.
+description: 
+function: 20*kilo
+float division by zero
+
+2014/03/08 17:56:21 MainThread instrument_property WARNING Exception in EvalProp.evaluate() in totalAOTime.
+description: 5 ms total
+function: total_AO_time
+float division by zero
+
+2014/03/08 17:57:02 MainThread __main__ INFO starting application
+2014/03/08 18:00:27 Thread-1 LabView DEBUG LabView.open() opening sock
+2014/03/08 18:00:27 Thread-1 LabView DEBUG LabView.open() sock opened
+2014/03/08 18:00:49 MainThread analysis WARNING Exception trying to plot measurement 2, shot 2, in analysis.ShotsBrowserAnalysis.load()
+
+2014/03/08 18:02:02 Thread-1 experiments INFO Current status is idle. Cannot continue an experiment unless status is paused.
+2014/03/08 18:02:43 Thread-2 TCP ERROR Error trying to receive message header: timed out
+2014/03/08 18:02:55 Thread-2 TCP ERROR Error trying to receive message header: timed out
+2014/03/08 18:03:58 MainThread cs_evaluate WARNING evaluating property clockRate, , 20*kilo
+Could not eval string: 20*kil
+name 'kil' is not definedTraceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\cs_evaluate.py", line 28, in evalWithDict
+    return eval(string,globals()) #,varDict.copy()) #dict(numpyDict.items()+varDict.items())) #create a new dictionary so all numpy functions and everything defined in varDict is available as a global during evaluation
+  File "<string>", line 1, in <module>
+NameError: name 'kil' is not defined
+
+
+2014/03/08 18:03:58 MainThread cs_evaluate WARNING evaluating property clockRate, , 20*kilo
+Could not eval string: 20*ki
+name 'ki' is not definedTraceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\cs_evaluate.py", line 28, in evalWithDict
+    return eval(string,globals()) #,varDict.copy()) #dict(numpyDict.items()+varDict.items())) #create a new dictionary so all numpy functions and everything defined in varDict is available as a global during evaluation
+  File "<string>", line 1, in <module>
+NameError: name 'ki' is not defined
+
+
+2014/03/08 18:03:58 MainThread cs_evaluate WARNING evaluating property clockRate, , 20*kilo
+Could not eval string: 20*k
+name 'k' is not definedTraceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\cs_evaluate.py", line 28, in evalWithDict
+    return eval(string,globals()) #,varDict.copy()) #dict(numpyDict.items()+varDict.items())) #create a new dictionary so all numpy functions and everything defined in varDict is available as a global during evaluation
+  File "<string>", line 1, in <module>
+NameError: name 'k' is not defined
+
+
+2014/03/08 18:03:59 MainThread cs_evaluate WARNING evaluating property clockRate, , 20*kilo
+Could not eval string: 20*
+unexpected EOF while parsing (<string>, line 1)Traceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\cs_evaluate.py", line 28, in evalWithDict
+    return eval(string,globals()) #,varDict.copy()) #dict(numpyDict.items()+varDict.items())) #create a new dictionary so all numpy functions and everything defined in varDict is available as a global during evaluation
+  File "<string>", line 1
+    20*
+      ^
+SyntaxError: unexpected EOF while parsing
+
+
+2014/03/08 18:04:05 MainThread instrument_property WARNING Exception in EvalProp.evaluate() in clockRate.
+description: 
+function: 20*kilo
+float division by zero
+
+2014/03/08 18:05:15 MainThread instrument_property WARNING Exception in EvalProp.evaluate() in clockRate.
+description: 
+function: 20*kilo
+float division by zero
+
+2014/03/08 18:05:15 MainThread instrument_property WARNING Exception in EvalProp.evaluate() in totalAOTime.
+description: 5 ms total
+function: total_AO_time
+float division by zero
+
+2014/03/08 18:05:56 MainThread __main__ INFO starting application

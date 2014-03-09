@@ -11,7 +11,7 @@ from LabView, via USB.
 from cs_errors import PauseError, setupLog
 logger=setupLog(__name__)
 
-from atom.api import Bool, Int, Str, Typed, Member, List, observe, Atom
+from atom.api import Bool, Int, Float, Str, Typed, Member, List, observe, Atom
 from enaml.application import deferred_call
 from instrument_property import Prop, BoolProp, IntProp, FloatProp, StrProp, ListProp
 from cs_instruments import Instrument
@@ -79,7 +79,7 @@ class DDSbox(Prop):
     enable=Bool()
     deviceReference=Str()
     DIOport=Int(0)
-    serialClockRate=Int(1000)
+    serialClockRate=Float(1000)
     channels=Typed(ListProp)
     DDS=Member()
     
@@ -196,7 +196,7 @@ class DDSprofile(Prop):
                 output+=self.HardwareProtocol(o,p)
         
         #special formatting for RAMFunction
-        output+='<RAMFunction>{}\t{}\t{}\t{}\t{}\t</RAMFunction>'.format(self.RAMFunction.value,self.RAMInitialValue.value,self.RAMStepValue.value,self.RAMTimeStep.value,self.RAMNumSteps.value)
+        output+='<RAMFunction>{}\t{}\t{}\t{}\t{}</RAMFunction>'.format(self.RAMFunction.value,self.RAMInitialValue.value,self.RAMStepValue.value,self.RAMTimeStep.value,self.RAMNumSteps.value)
         output+='<RAMStaticArray>{}</RAMStaticArray>'.format('\t'.join([i.value for i in self.RAMStaticArray]))
         
         try:
