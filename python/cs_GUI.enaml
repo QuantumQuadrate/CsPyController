@@ -1253,7 +1253,7 @@ enamldef Analysis(Container):
     Label:
         text<<analysis.text
     MPLCanvas:
-        constraints=[(height==700)|'strong',(width==700)|'strong']
+        constraints=[(height==1500)|'strong',(width==1500)|'strong']
         hug_width='ignore'
         figure<<analysis.figure
 

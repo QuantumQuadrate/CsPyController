@@ -25811,3 +25811,85 @@ function: total_AO_time
 float division by zero
 
 2014/03/08 18:05:56 MainThread __main__ INFO starting application
+2014/03/08 18:08:26 Thread-1 LabView DEBUG LabView.open() opening sock
+2014/03/08 18:08:47 Thread-1 TCP ERROR Error while opening socket: [Errno 10060] A connection attempt failed because the connected party did not properly respond after a period of time, or established connection failed because connected host has failed to respond
+2014/03/08 18:08:47 Thread-1 LabView WARNING Failed to open TCP socket in LabView.open()
+2014/03/08 18:08:48 Thread-1 LabView WARNING LabView instrument claims to be initialized, but is not connected in LabView.update()
+2014/03/08 18:08:50 Thread-1 LabView WARNING LabView instrument claims to be initialized, but is not connected in LabView.update()
+2014/03/08 18:08:59 Thread-2 LabView WARNING LabView instrument claims to be initialized, but is not connected in LabView.update()
+2014/03/08 18:09:01 Thread-2 LabView WARNING LabView instrument claims to be initialized, but is not connected in LabView.update()
+2014/03/08 18:09:15 Thread-3 LabView DEBUG LabView.open() opening sock
+2014/03/08 18:09:15 Thread-3 LabView DEBUG LabView.open() sock opened
+2014/03/08 18:09:18 Thread-3 experiments INFO Current status is idle. Cannot continue an experiment unless status is paused.
+2014/03/08 18:11:16 Thread-4 TCP ERROR Error trying to receive message header: timed out
+2014/03/08 18:11:28 Thread-4 TCP ERROR Error trying to receive message header: timed out
+2014/03/08 18:15:46 MainThread instrument_property WARNING Exception in EvalProp.evaluate() in clockRate.
+description: 
+function: 20*kilo
+float division by zero
+
+2014/03/08 18:15:46 MainThread instrument_property WARNING Exception in EvalProp.evaluate() in totalAOTime.
+description: 5 ms total
+function: total_AO_time
+float division by zero
+
+2014/03/08 18:16:26 MainThread __main__ INFO starting application
+2014/03/08 18:17:09 MainThread cs_evaluate WARNING evaluating property waitForStartTrigger, trigger on HSDIO start, True
+Could not eval string: F
+name 'F' is not definedTraceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\cs_evaluate.py", line 28, in evalWithDict
+    return eval(string,globals()) #,varDict.copy()) #dict(numpyDict.items()+varDict.items())) #create a new dictionary so all numpy functions and everything defined in varDict is available as a global during evaluation
+  File "<string>", line 1, in <module>
+NameError: name 'F' is not defined
+
+
+2014/03/08 18:17:09 MainThread cs_evaluate WARNING evaluating property waitForStartTrigger, trigger on HSDIO start, True
+Could not eval string: Fa
+name 'Fa' is not definedTraceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\cs_evaluate.py", line 28, in evalWithDict
+    return eval(string,globals()) #,varDict.copy()) #dict(numpyDict.items()+varDict.items())) #create a new dictionary so all numpy functions and everything defined in varDict is available as a global during evaluation
+  File "<string>", line 1, in <module>
+NameError: name 'Fa' is not defined
+
+
+2014/03/08 18:17:09 MainThread cs_evaluate WARNING evaluating property waitForStartTrigger, trigger on HSDIO start, True
+Could not eval string: Fal
+name 'Fal' is not definedTraceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\cs_evaluate.py", line 28, in evalWithDict
+    return eval(string,globals()) #,varDict.copy()) #dict(numpyDict.items()+varDict.items())) #create a new dictionary so all numpy functions and everything defined in varDict is available as a global during evaluation
+  File "<string>", line 1, in <module>
+NameError: name 'Fal' is not defined
+
+
+2014/03/08 18:17:09 MainThread cs_evaluate WARNING evaluating property waitForStartTrigger, trigger on HSDIO start, True
+Could not eval string: Fals
+name 'Fals' is not definedTraceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\cs_evaluate.py", line 28, in evalWithDict
+    return eval(string,globals()) #,varDict.copy()) #dict(numpyDict.items()+varDict.items())) #create a new dictionary so all numpy functions and everything defined in varDict is available as a global during evaluation
+  File "<string>", line 1, in <module>
+NameError: name 'Fals' is not defined
+
+
+2014/03/08 18:18:45 Thread-1 LabView DEBUG LabView.open() opening sock
+2014/03/08 18:18:45 Thread-1 LabView DEBUG LabView.open() sock opened
+2014/03/08 18:20:19 Thread-1 experiments INFO Current status is idle. Cannot continue an experiment unless status is paused.
+2014/03/08 18:36:38 Thread-2 experiments INFO Current status is idle. Cannot continue an experiment unless status is paused.
+2014/03/08 19:04:07 Thread-3 experiments INFO Current status is idle. Cannot continue an experiment unless status is paused.
+2014/03/08 19:05:49 MainThread instrument_property WARNING Exception in EvalProp.evaluate() in clockRate.
+description: 
+function: 2*kilo
+float division by zero
+
+2014/03/08 19:05:49 MainThread instrument_property WARNING Exception in EvalProp.evaluate() in totalAOTime.
+description: 5 ms total
+function: total_AO_time
+float division by zero
+
+2014/03/08 19:05:49 MainThread experiments WARNING Index=1 out of range for independent variable a. Setting a.index=0
+
+2014/03/08 19:06:29 MainThread __main__ INFO starting application
+2014/03/08 19:12:32 Thread-1 LabView DEBUG LabView.open() opening sock
+2014/03/08 19:12:32 Thread-1 LabView DEBUG LabView.open() sock opened
+2014/03/08 19:14:06 Thread-1 experiments INFO Current status is idle. Cannot continue an experiment unless status is paused.
+2014/03/08 19:15:59 Thread-2 experiments INFO Current status is idle. Cannot continue an experiment unless status is paused.
+2014/03/08 19:18:39 Thread-3 experiments INFO Current status is idle. Cannot continue an experiment unless status is paused.
