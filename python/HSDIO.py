@@ -128,6 +128,7 @@ class HSDIO(Instrument):
         self.triggers=ListProp('triggers',self.experiment,listElementType=ScriptTrigger,listElementName='trigger')
         self.startTrigger=StartTrigger(experiment)
         self.properties+=['version','enable','resourceName','clockRate','units','hardwareAlignmentQuantum','waveforms','triggers','channels','startTrigger','script']
+        self.doNotSendToHardware+=['units']
     
     def initialize(self):
         self.isInitialized=True

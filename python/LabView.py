@@ -69,6 +69,7 @@ class LabView(Instrument):
         self.timeout=FloatProp('timeout',experiment,'how long before LabView gives up and returns [s]','0.5')
         
         self.properties+=['IP','port','enabled','connected','timeout','HSDIO','DDS','piezo','RF_generators','AnalogOutput','DAQmxPulse','camera']#,'EchoBox']
+        self.doNotSendToHardware+=['IP','port','enabled','connected']
     
     def open(self):
         if self.enabled:

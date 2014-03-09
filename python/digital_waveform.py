@@ -28,7 +28,7 @@ class Channels(ListProp):
     
     def __init__(self,experiment,digitalout,description='A list of DAQmxPulse channels'):
         super(Channels,self).__init__('channels',experiment,description,
-            listProperty=[Channel('channel'+str(i),experiment,'') for i in xrange(digitalout.numChannels)],
+            listProperty=[Channel('channel',experiment,'') for i in xrange(digitalout.numChannels)],
             listElementType=Channel,listElementName='channel')
         self.digitalout=digitalout
     
@@ -41,7 +41,7 @@ class Channels(ListProp):
     def fromXML(self,xmlNode):
         while self.listProperty: #go until the list is empty
             self.listProperty.pop()
-        self.listProperty+=[Channel(str(i),self.experiment,'').fromXML(child) for i, child in enumerate(xmlNode)]
+        self.listProperty+=[Channel('channel',self.experiment,'').fromXML(child) for i, child in enumerate(xmlNode)]
         return self
 
 class State(ListProp):
@@ -50,14 +50,14 @@ class State(ListProp):
     
     def __init__(self,experiment,digitalout):
         super(State,self).__init__('state',experiment,
-            listProperty=[EnumProp('channel'+str(i),experiment,'',str(defaultState),allowedValues=self.allowedValues) for i in range(digitalout.numChannels)], #defaultState is a global at the top of the module
+            listProperty=[EnumProp('channel',experiment,'',str(defaultState),allowedValues=self.allowedValues) for i in range(digitalout.numChannels)], #defaultState is a global at the top of the module
             listElementType=EnumProp,listElementKwargs={'allowedValues':self.allowedValues})
         self.digitalout=digitalout
     
     def fromXML(self,xmlNode):
         #while self.listProperty: #go until the list is empty
         #    self.listProperty.pop()
-        self.listProperty=[EnumProp(str(i),self.experiment,'',str(defaultState),allowedValues=self.allowedValues).fromXML(child) for i, child in enumerate(xmlNode)] #defaultState is a global at the top of the module
+        self.listProperty=[EnumProp('channel',self.experiment,'',str(defaultState),allowedValues=self.allowedValues).fromXML(child) for i, child in enumerate(xmlNode)] #defaultState is a global at the top of the module
         return self
 
 class Transition(Prop):
