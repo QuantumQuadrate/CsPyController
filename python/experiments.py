@@ -20,7 +20,7 @@ from enaml.application import deferred_call
 import cs_evaluate
 from instrument_property import Prop, EvalProp, ListProp
 import LabView
-from analysis import ImagePlotAnalysis, ShotsBrowserAnalysis
+from analysis import ImagePlotAnalysis, ShotsBrowserAnalysis, ImageSumAnalysis
 from save2013style import Save2013Analysis
 
 class independentVariables(ListProp):
@@ -630,7 +630,7 @@ class AQuA(Experiment):
         #add instruments
         self.LabView=LabView.LabView(experiment=self)
         self.instruments=[self.LabView]
-        self.analyses+=[ImagePlotAnalysis('analysisShot0',self.experiment,description='just show the incoming shot 0'),Save2013Analysis(self.experiment),ShotsBrowserAnalysis(self.experiment)]
+        self.analyses+=[ImagePlotAnalysis('analysisShot0',self.experiment,description='just show the incoming shot 0'),ShotsBrowserAnalysis(self.experiment),ImageSumAnalysis(self.experiment),Save2013Analysis(self.experiment)]
         self.properties+=['LabView']
         
         self.loadDefaultSettings()

@@ -25893,3 +25893,178 @@ float division by zero
 2014/03/08 19:14:06 Thread-1 experiments INFO Current status is idle. Cannot continue an experiment unless status is paused.
 2014/03/08 19:15:59 Thread-2 experiments INFO Current status is idle. Cannot continue an experiment unless status is paused.
 2014/03/08 19:18:39 Thread-3 experiments INFO Current status is idle. Cannot continue an experiment unless status is paused.
+2014/03/09 15:43:32 MainThread instrument_property WARNING Exception in EvalProp.evaluate() in clockRate.
+description: 
+function: 2*kilo
+float division by zero
+
+2014/03/09 15:43:32 MainThread instrument_property WARNING Exception in EvalProp.evaluate() in totalAOTime.
+description: 5 ms total
+function: total_AO_time
+float division by zero
+
+2014/03/09 15:43:32 MainThread experiments WARNING Index=1 out of range for independent variable a. Setting a.index=0
+
+2014/03/09 15:44:11 MainThread __main__ INFO starting application
+2014/03/09 15:54:41 Thread-1 LabView DEBUG LabView.open() opening sock
+2014/03/09 15:54:41 Thread-1 LabView DEBUG LabView.open() sock opened
+2014/03/09 15:55:59 Thread-1 experiments INFO Current status is idle. Cannot continue an experiment unless status is paused.
+2014/03/09 16:22:45 MainThread instrument_property WARNING Exception in EvalProp.evaluate() in clockRate.
+description: 
+function: 2*kilo
+float division by zero
+
+2014/03/09 16:22:45 MainThread instrument_property WARNING Exception in EvalProp.evaluate() in totalAOTime.
+description: 5 ms total
+function: total_AO_time
+float division by zero
+
+2014/03/09 16:22:45 MainThread experiments WARNING Index=1 out of range for independent variable a. Setting a.index=0
+
+2014/03/09 16:23:25 MainThread __main__ INFO starting application
+2014/03/09 16:24:52 MainThread LabView DEBUG LabView.open() opening sock
+2014/03/09 16:24:52 MainThread LabView DEBUG LabView.open() sock opened
+2014/03/09 16:25:05 MainThread cs_evaluate WARNING evaluating property enable, enable DDS output, False
+Could not eval string: T
+name 'T' is not definedTraceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\cs_evaluate.py", line 28, in evalWithDict
+    return eval(string,globals()) #,varDict.copy()) #dict(numpyDict.items()+varDict.items())) #create a new dictionary so all numpy functions and everything defined in varDict is available as a global during evaluation
+  File "<string>", line 1, in <module>
+NameError: name 'T' is not defined
+
+
+2014/03/09 16:25:06 MainThread cs_evaluate WARNING evaluating property enable, enable DDS output, False
+Could not eval string: Tr
+name 'Tr' is not definedTraceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\cs_evaluate.py", line 28, in evalWithDict
+    return eval(string,globals()) #,varDict.copy()) #dict(numpyDict.items()+varDict.items())) #create a new dictionary so all numpy functions and everything defined in varDict is available as a global during evaluation
+  File "<string>", line 1, in <module>
+NameError: name 'Tr' is not defined
+
+
+2014/03/09 16:25:06 MainThread cs_evaluate WARNING evaluating property enable, enable DDS output, False
+Could not eval string: Tru
+name 'Tru' is not definedTraceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\cs_evaluate.py", line 28, in evalWithDict
+    return eval(string,globals()) #,varDict.copy()) #dict(numpyDict.items()+varDict.items())) #create a new dictionary so all numpy functions and everything defined in varDict is available as a global during evaluation
+  File "<string>", line 1, in <module>
+NameError: name 'Tru' is not defined
+
+
+2014/03/09 16:27:31 Thread-1 LabView DEBUG debug LabView.open() closing sock
+2014/03/09 16:27:31 Thread-1 LabView DEBUG LabView.open() opening sock
+2014/03/09 16:27:31 Thread-1 LabView DEBUG LabView.open() sock opened
+2014/03/09 16:27:33 Thread-1 analysis WARNING HDF5 text does not exist in analysis.ImagePlotAnalysis.analyzeMeasurement()
+"unable to open object (Symbol table: Can't open object)"
+2014/03/09 16:27:35 Thread-1 experiments ERROR Exception during experiment:
+unable to create group (Symbol table: Unable to initialize object)
+Traceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\experiments.py", line 366, in go2
+    self.create_hdf5_iteration()
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\experiments.py", line 562, in create_hdf5_iteration
+    self.iterationResults=self.hdf5.create_group('iterations/'+str(self.iteration))
+  File "C:\Users\Saffmanlab\AppData\Local\Enthought\Canopy\User\lib\site-packages\h5py\_hl\group.py", line 41, in create_group
+    gid = h5g.create(self.id, name, lcpl=lcpl)
+  File "h5g.pyx", line 145, in h5py.h5g.create (h5py\h5g.c:2378)
+ValueError: unable to create group (Symbol table: Unable to initialize object)
+
+
+2014/03/09 16:29:32 MainThread instrument_property WARNING Exception in EvalProp.evaluate() in clockRate.
+description: 
+function: 2*kilo
+float division by zero
+
+2014/03/09 16:29:32 MainThread instrument_property WARNING Exception in EvalProp.evaluate() in totalAOTime.
+description: 5 ms total
+function: total_AO_time
+float division by zero
+
+2014/03/09 16:30:11 MainThread __main__ INFO starting application
+2014/03/09 16:30:46 MainThread LabView DEBUG LabView.open() opening sock
+2014/03/09 16:30:46 MainThread LabView DEBUG LabView.open() sock opened
+2014/03/09 17:25:15 MainThread instrument_property WARNING Exception in EvalProp.evaluate() in clockRate.
+description: 
+function: 2*kilo
+float division by zero
+
+2014/03/09 17:25:15 MainThread instrument_property WARNING Exception in EvalProp.evaluate() in totalAOTime.
+description: 5 ms total
+function: total_AO_time
+float division by zero
+
+2014/03/09 17:25:56 MainThread __main__ INFO starting application
+2014/03/09 17:26:53 MainThread LabView DEBUG LabView.open() opening sock
+2014/03/09 17:26:53 MainThread LabView DEBUG LabView.open() sock opened
+2014/03/09 17:40:48 MainThread TCP ERROR Error sending message: [Errno 10053] An established connection was aborted by the software in your host machine
+2014/03/09 17:41:11 MainThread instrument_property WARNING Exception in EvalProp.evaluate() in clockRate.
+description: 
+function: 2*kilo
+float division by zero
+
+2014/03/09 17:41:11 MainThread instrument_property WARNING Exception in EvalProp.evaluate() in totalAOTime.
+description: 5 ms total
+function: total_AO_time
+float division by zero
+
+2014/03/09 17:54:18 MainThread instrument_property WARNING Exception in EvalProp.evaluate() in clockRate.
+description: 
+function: 2*kilo
+float division by zero
+
+2014/03/09 17:54:18 MainThread instrument_property WARNING Exception in EvalProp.evaluate() in totalAOTime.
+description: 5 ms total
+function: total_AO_time
+float division by zero
+
+2014/03/09 17:55:00 MainThread __main__ INFO starting application
+2014/03/09 17:55:14 MainThread LabView DEBUG LabView.open() opening sock
+2014/03/09 17:55:14 MainThread LabView DEBUG LabView.open() sock opened
+2014/03/09 17:58:33 MainThread instrument_property WARNING Exception in EvalProp.evaluate() in clockRate.
+description: 
+function: 2*kilo
+float division by zero
+
+2014/03/09 17:58:33 MainThread instrument_property WARNING Exception in EvalProp.evaluate() in totalAOTime.
+description: 5 ms total
+function: total_AO_time
+float division by zero
+
+2014/03/09 17:59:13 MainThread __main__ INFO starting application
+2014/03/09 18:00:35 MainThread LabView DEBUG LabView.open() opening sock
+2014/03/09 18:00:35 MainThread LabView DEBUG LabView.open() sock opened
+2014/03/09 18:02:25 Thread-1 LabView DEBUG debug LabView.open() closing sock
+2014/03/09 18:02:25 Thread-1 LabView DEBUG LabView.open() opening sock
+2014/03/09 18:02:25 Thread-1 LabView DEBUG LabView.open() sock opened
+2014/03/09 18:31:46 MainThread instrument_property WARNING Exception in EvalProp.evaluate() in clockRate.
+description: 
+function: 2*kilo
+float division by zero
+
+2014/03/09 18:31:46 MainThread instrument_property WARNING Exception in EvalProp.evaluate() in totalAOTime.
+description: 5 ms total
+function: total_AO_time
+float division by zero
+
+2014/03/09 18:37:03 MainThread instrument_property WARNING Exception in EvalProp.evaluate() in clockRate.
+description: 
+function: 2*kilo
+float division by zero
+
+2014/03/09 18:37:03 MainThread instrument_property WARNING Exception in EvalProp.evaluate() in totalAOTime.
+description: 5 ms total
+function: total_AO_time
+float division by zero
+
+2014/03/09 18:37:45 MainThread instrument_property WARNING Exception in EvalProp.evaluate() in clockRate.
+description: 
+function: 2*kilo
+float division by zero
+
+2014/03/09 18:37:45 MainThread instrument_property WARNING Exception in EvalProp.evaluate() in totalAOTime.
+description: 5 ms total
+function: total_AO_time
+float division by zero
+
+2014/03/09 18:38:25 MainThread __main__ INFO starting application
+2014/03/09 18:38:49 Thread-1 LabView DEBUG LabView.open() opening sock
+2014/03/09 18:38:49 Thread-1 LabView DEBUG LabView.open() sock opened

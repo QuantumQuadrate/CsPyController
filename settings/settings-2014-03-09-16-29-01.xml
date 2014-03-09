@@ -12690,7 +12690,7 @@ p0
 .</description>
 <enable>I01
 .</enable>
-<deviceReference>S'USB0::0x3923::0x7166::01574F57::RAW'
+<deviceReference>S'USB0::0x3923::0x7166::01574F57::RAW\r'
 p0
 .</deviceReference>
 <DIOport>I0
@@ -15868,7 +15868,7 @@ p0
 .</description>
 <enable>I01
 .</enable>
-<deviceReference>S'USB0::0x3923::0x7166::01574FA5::RAW'
+<deviceReference>S'USB0::0x3923::0x7166::01574FA5::RAW\r'
 p0
 .</deviceReference>
 <DIOport>I0
@@ -22224,7 +22224,7 @@ p0
 .</description>
 <enable>I00
 .</enable>
-<deviceReference>S'USB0::0x3923::0x7166::01574F95::RAW'
+<deviceReference>S'USB0::0x3923::0x7166::01574F95::RAW\r'
 p0
 .</deviceReference>
 <DIOport>I0
@@ -25402,7 +25402,7 @@ p0
 .</description>
 <enable>I00
 .</enable>
-<deviceReference>S'USB0::0x3923::0x7166::0166CE36::RAW'
+<deviceReference>S'USB0::0x3923::0x7166::0166CE36::RAW\r'
 p0
 .</deviceReference>
 <DIOport>I0
