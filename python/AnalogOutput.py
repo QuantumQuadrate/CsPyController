@@ -91,7 +91,7 @@ class AnalogOutput(Instrument):
                             listElementName='equation',listElementKwargs={'AO':self})
         self.exportStartTrigger=BoolProp('exportStartTrigger',self.experiment,'Should we trigger all other cards off the AO card?','True')
         self.exportStartTriggerDestination=StrProp('exportStartTriggerDestination',self.experiment,'What line to send the AO StartTrigger out to?','"/PXISlot2/PXI_Trig0"')
-        self.properties+=['version','enable','physicalChannels','minimum','maximum','clockRate','totalAOTime','units','waitForStartTrigger','triggerSource','triggerEdge','equations','exportStartTrigger','exportStartTriggerDestination']
+        self.properties+=['version','enable','physicalChannels','minimum','maximum','clockRate','totalAOTime','units','waitForStartTrigger','triggerSource','triggerEdge','exportStartTrigger','exportStartTriggerDestination','equations'] #make sure equations are evaluated last
         self.doNotSendToHardware+=['units']
         
         self.figure1=Figure()
@@ -137,10 +137,13 @@ class AnalogOutput(Instrument):
     
     def evaluate(self):
         self.enable_refresh=False
-        # first evaluate the time steps:
-        #print 'self.totalAOTime.value {}, self.clockRate.value {}'.format(self.totalAOTime.value,self.clockRate.value)
+        #explicitly evaluate totalAOTime and clockRate and units first, so that we can calculate the time steps
+        self.units.evaluate()
+        self.clockRate.evaluate()
+        self.totalAOTime.evaluate()
+        #evaluate the time steps
         self.timesteps=numpy.arange(0.0,self.totalAOTime.value,1.0/(self.clockRate.value*self.units.value))
-        #print 'self.timesteps {}'.format(self.timesteps)
+        #evaluate the rest of the properties, including equations
         super(AnalogOutput,self).evaluate()
         
         # plots will update automatically on every AOequation.evaluate()
