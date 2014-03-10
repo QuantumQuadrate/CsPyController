@@ -26198,3 +26198,56 @@ NameError: name 'Fals' is not defined
 
 2014/03/09 19:03:24 Thread-1 LabView DEBUG LabView.open() opening sock
 2014/03/09 19:03:24 Thread-1 LabView DEBUG LabView.open() sock opened
+2014/03/10 13:56:02 MainThread instrument_property WARNING Exception in EvalProp.evaluate() in clockRate.
+description: 
+function: 2*kilo
+float division by zero
+
+2014/03/10 13:56:02 MainThread instrument_property WARNING Exception in EvalProp.evaluate() in totalAOTime.
+description: 5 ms total
+function: total_AO_time
+float division by zero
+
+2014/03/10 13:56:42 MainThread __main__ INFO starting application
+2014/03/10 15:21:54 MainThread instrument_property WARNING Exception in EvalProp.evaluate() in clockRate.
+description: 
+function: 2*kilo
+float division by zero
+
+2014/03/10 15:21:54 MainThread instrument_property WARNING Exception in EvalProp.evaluate() in totalAOTime.
+description: 5 ms total
+function: total_AO_time
+float division by zero
+
+2014/03/10 15:22:16 MainThread instrument_property WARNING Exception in EvalProp.evaluate() in clockRate.
+description: 
+function: 2*kilo
+float division by zero
+
+2014/03/10 15:22:16 MainThread instrument_property WARNING Exception in EvalProp.evaluate() in totalAOTime.
+description: 5 ms total
+function: total_AO_time
+float division by zero
+
+2014/03/10 15:23:19 MainThread instrument_property WARNING Exception in EvalProp.evaluate() in clockRate.
+description: 
+function: 2*kilo
+float division by zero
+
+2014/03/10 15:23:19 MainThread instrument_property WARNING Exception in EvalProp.evaluate() in totalAOTime.
+description: 5 ms total
+function: total_AO_time
+float division by zero
+
+2014/03/10 15:24:00 MainThread __main__ INFO starting application
+2014/03/10 15:24:33 MainThread instrument_property WARNING Exception in EvalProp.evaluate() in clockRate.
+description: 
+function: 2*kilo
+float division by zero
+
+2014/03/10 15:24:33 MainThread instrument_property WARNING Exception in EvalProp.evaluate() in totalAOTime.
+description: 5 ms total
+function: total_AO_time
+float division by zero
+
+2014/03/10 15:25:14 MainThread __main__ INFO starting application

@@ -396,7 +396,7 @@ enamldef LabViewPage(Page):
         Container:
             hug_height='strong'
             Container:
-                constraints=[hbox(b1,b2),b1.width==b2.width]
+                constraints=[hbox(b1,b2,b3),b1.width==100,b2.width==100,b3.width==100]
                 PushButton: b1:
                     text='open connection'
                     clicked::
@@ -405,6 +405,10 @@ enamldef LabViewPage(Page):
                     text='close connection'
                     clicked::
                         LabView.close()
+                PushButton: b3:
+                    text='update settings'
+                    clicked::
+                        LabView.update()
             Form:
                 Label:
                     text='enable communication with LabView system?'
@@ -418,6 +422,10 @@ enamldef LabViewPage(Page):
                     text='communications port'
                 IntField:
                     value:=LabView.port
+                Label:
+                    text='cycle experiment continuously even when not taking data?'
+                CheckBox:
+                    checked:=LabView.cycleContinuously
             EvalProp:
                     prop<<LabView.EchoBox.enable
             EvalProp:

@@ -45,6 +45,7 @@ class LabView(Instrument):
     timeout=Typed(FloatProp)
     error=Bool()
     log=Str()
+    cycleContinuously=Bool(False)
 
     
     '''This is a meta instrument which encapsulates the capability of the HEXQC2 PXI system. It knows about several subsystems (HSDIO, DAQmx, Counters, Camera), and can send settings and commands to a corresponding Labview client.'''
@@ -66,9 +67,9 @@ class LabView(Instrument):
         self.sock=None
         self.connected=False
         
-        self.timeout=FloatProp('timeout',experiment,'how long before LabView gives up and returns [s]','0.5')
+        self.timeout=FloatProp('timeout',experiment,'how long before LabView gives up and returns [s]','1.0')
         
-        self.properties+=['IP','port','enabled','connected','timeout','HSDIO','DDS','piezo','RF_generators','AnalogOutput','DAQmxPulse','camera']#,'EchoBox']
+        self.properties+=['IP','port','enabled','connected','timeout','HSDIO','DDS','piezo','RF_generators','AnalogOutput','DAQmxPulse','camera','cycleContinuously']#,'EchoBox']
         self.doNotSendToHardware+=['IP','port','enabled','connected']
     
     def open(self):
