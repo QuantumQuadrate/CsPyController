@@ -26068,3 +26068,133 @@ float division by zero
 2014/03/09 18:38:25 MainThread __main__ INFO starting application
 2014/03/09 18:38:49 Thread-1 LabView DEBUG LabView.open() opening sock
 2014/03/09 18:38:49 Thread-1 LabView DEBUG LabView.open() sock opened
+2014/03/09 18:46:13 MainThread instrument_property WARNING Exception in EvalProp.evaluate() in clockRate.
+description: 
+function: 2*kilo
+float division by zero
+
+2014/03/09 18:46:13 MainThread instrument_property WARNING Exception in EvalProp.evaluate() in totalAOTime.
+description: 5 ms total
+function: total_AO_time
+float division by zero
+
+2014/03/09 18:46:54 MainThread __main__ INFO starting application
+2014/03/09 18:53:14 Thread-1 LabView DEBUG LabView.open() opening sock
+2014/03/09 18:53:14 Thread-1 LabView DEBUG LabView.open() sock opened
+2014/03/09 18:56:39 MainThread cs_evaluate WARNING evaluating property waitForStartTrigger, HSDIO wait for start trigger, False
+Could not eval string: T
+name 'T' is not definedTraceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\cs_evaluate.py", line 28, in evalWithDict
+    return eval(string,globals()) #,varDict.copy()) #dict(numpyDict.items()+varDict.items())) #create a new dictionary so all numpy functions and everything defined in varDict is available as a global during evaluation
+  File "<string>", line 1, in <module>
+NameError: name 'T' is not defined
+
+
+2014/03/09 18:56:39 MainThread cs_evaluate WARNING evaluating property waitForStartTrigger, HSDIO wait for start trigger, False
+Could not eval string: Tr
+name 'Tr' is not definedTraceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\cs_evaluate.py", line 28, in evalWithDict
+    return eval(string,globals()) #,varDict.copy()) #dict(numpyDict.items()+varDict.items())) #create a new dictionary so all numpy functions and everything defined in varDict is available as a global during evaluation
+  File "<string>", line 1, in <module>
+NameError: name 'Tr' is not defined
+
+
+2014/03/09 18:56:39 MainThread cs_evaluate WARNING evaluating property waitForStartTrigger, HSDIO wait for start trigger, False
+Could not eval string: Tru
+name 'Tru' is not definedTraceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\cs_evaluate.py", line 28, in evalWithDict
+    return eval(string,globals()) #,varDict.copy()) #dict(numpyDict.items()+varDict.items())) #create a new dictionary so all numpy functions and everything defined in varDict is available as a global during evaluation
+  File "<string>", line 1, in <module>
+NameError: name 'Tru' is not defined
+
+
+2014/03/09 18:57:34 Thread-2 TCP ERROR Error trying to receive message header: timed out
+2014/03/09 18:57:37 Thread-2 experiments ERROR Exception during experiment:
+unable to create group (Symbol table: Unable to initialize object)
+Traceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\experiments.py", line 366, in go2
+    self.create_hdf5_iteration()
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\experiments.py", line 562, in create_hdf5_iteration
+    self.iterationResults=self.hdf5.create_group('iterations/'+str(self.iteration))
+  File "C:\Users\Saffmanlab\AppData\Local\Enthought\Canopy\User\lib\site-packages\h5py\_hl\group.py", line 41, in create_group
+    gid = h5g.create(self.id, name, lcpl=lcpl)
+  File "h5g.pyx", line 145, in h5py.h5g.create (h5py\h5g.c:2378)
+ValueError: unable to create group (Symbol table: Unable to initialize object)
+
+
+2014/03/09 18:59:28 MainThread instrument_property WARNING Exception in EvalProp.evaluate() in clockRate.
+description: 
+function: 2*kilo
+float division by zero
+
+2014/03/09 18:59:28 MainThread instrument_property WARNING Exception in EvalProp.evaluate() in totalAOTime.
+description: 5 ms total
+function: total_AO_time
+float division by zero
+
+2014/03/09 19:00:09 MainThread __main__ INFO starting application
+2014/03/09 19:00:27 Thread-1 LabView DEBUG LabView.open() opening sock
+2014/03/09 19:00:27 Thread-1 LabView DEBUG LabView.open() sock opened
+2014/03/09 19:00:38 Thread-1 TCP ERROR Error trying to receive message header: timed out
+2014/03/09 19:00:40 Thread-1 experiments ERROR Exception during experiment:
+unable to create group (Symbol table: Unable to initialize object)
+Traceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\experiments.py", line 366, in go2
+    self.create_hdf5_iteration()
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\experiments.py", line 562, in create_hdf5_iteration
+    self.iterationResults=self.hdf5.create_group('iterations/'+str(self.iteration))
+  File "C:\Users\Saffmanlab\AppData\Local\Enthought\Canopy\User\lib\site-packages\h5py\_hl\group.py", line 41, in create_group
+    gid = h5g.create(self.id, name, lcpl=lcpl)
+  File "h5g.pyx", line 145, in h5py.h5g.create (h5py\h5g.c:2378)
+ValueError: unable to create group (Symbol table: Unable to initialize object)
+
+
+2014/03/09 19:02:23 MainThread instrument_property WARNING Exception in EvalProp.evaluate() in clockRate.
+description: 
+function: 2*kilo
+float division by zero
+
+2014/03/09 19:02:23 MainThread instrument_property WARNING Exception in EvalProp.evaluate() in totalAOTime.
+description: 5 ms total
+function: total_AO_time
+float division by zero
+
+2014/03/09 19:03:04 MainThread __main__ INFO starting application
+2014/03/09 19:03:10 MainThread cs_evaluate WARNING evaluating property waitForStartTrigger, HSDIO wait for start trigger, True
+Could not eval string: F
+name 'F' is not definedTraceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\cs_evaluate.py", line 28, in evalWithDict
+    return eval(string,globals()) #,varDict.copy()) #dict(numpyDict.items()+varDict.items())) #create a new dictionary so all numpy functions and everything defined in varDict is available as a global during evaluation
+  File "<string>", line 1, in <module>
+NameError: name 'F' is not defined
+
+
+2014/03/09 19:03:10 MainThread cs_evaluate WARNING evaluating property waitForStartTrigger, HSDIO wait for start trigger, True
+Could not eval string: Fa
+name 'Fa' is not definedTraceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\cs_evaluate.py", line 28, in evalWithDict
+    return eval(string,globals()) #,varDict.copy()) #dict(numpyDict.items()+varDict.items())) #create a new dictionary so all numpy functions and everything defined in varDict is available as a global during evaluation
+  File "<string>", line 1, in <module>
+NameError: name 'Fa' is not defined
+
+
+2014/03/09 19:03:10 MainThread cs_evaluate WARNING evaluating property waitForStartTrigger, HSDIO wait for start trigger, True
+Could not eval string: Fal
+name 'Fal' is not definedTraceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\cs_evaluate.py", line 28, in evalWithDict
+    return eval(string,globals()) #,varDict.copy()) #dict(numpyDict.items()+varDict.items())) #create a new dictionary so all numpy functions and everything defined in varDict is available as a global during evaluation
+  File "<string>", line 1, in <module>
+NameError: name 'Fal' is not defined
+
+
+2014/03/09 19:03:10 MainThread cs_evaluate WARNING evaluating property waitForStartTrigger, HSDIO wait for start trigger, True
+Could not eval string: Fals
+name 'Fals' is not definedTraceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\cs_evaluate.py", line 28, in evalWithDict
+    return eval(string,globals()) #,varDict.copy()) #dict(numpyDict.items()+varDict.items())) #create a new dictionary so all numpy functions and everything defined in varDict is available as a global during evaluation
+  File "<string>", line 1, in <module>
+NameError: name 'Fals' is not defined
+
+
+2014/03/09 19:03:24 Thread-1 LabView DEBUG LabView.open() opening sock
+2014/03/09 19:03:24 Thread-1 LabView DEBUG LabView.open() sock opened
