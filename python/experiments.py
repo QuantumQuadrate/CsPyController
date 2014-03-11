@@ -4,6 +4,8 @@ This file contains the model to describe and experiment, and the machinery of ho
 author=Martin Lichtman
 '''
 
+from __future__ import division
+
 from cs_errors import PauseError, setupLog
 logger=setupLog(__name__)
 
@@ -604,6 +606,9 @@ class Experiment(Prop):
                 break
             else:
                 logger.warning('bad return value {} in experiment.postMeasurement() for analysis {}: {}'.format(a,i.name,i.description))
+        if not self.saveData:
+            #we are not saving data so remove the measurement from the hdf5
+            delete=True
         if delete:
             del self.measurementResults #remove the bad data
         if good:
@@ -623,7 +628,7 @@ class AQuA(Experiment):
     '''A subclass of Experiment which knows about all our particular hardware'''
     
     LabView=Member()
-
+    
     def __init__(self):
         super(AQuA,self).__init__()
         

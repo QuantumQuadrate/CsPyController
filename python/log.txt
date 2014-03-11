@@ -26423,3 +26423,13 @@ ValueError: unable to create group (Symbol table: Unable to initialize object)
 2014/03/11 00:37:59 MainThread __main__ INFO starting application
 2014/03/11 00:39:02 Thread-1 LabView DEBUG LabView.open() opening sock
 2014/03/11 00:39:02 Thread-1 LabView DEBUG LabView.open() sock opened
+2014/03/11 00:39:42 Thread-1 experiments INFO Current status is idle. Cannot continue an experiment unless status is paused.
+2014/03/11 00:40:44 MainThread experiments WARNING Index=1 out of range for independent variable a. Setting a.index=0
+
+2014/03/11 00:41:23 MainThread __main__ INFO starting application
+2014/03/11 00:42:04 Thread-1 LabView DEBUG LabView.open() opening sock
+2014/03/11 00:42:04 Thread-1 LabView DEBUG LabView.open() sock opened
+2014/03/11 09:08:30 Thread-1 TCP ERROR Error trying to receive message header: [Errno 10053] An established connection was aborted by the software in your host machine
+2014/03/11 09:08:33 Thread-1 TCP ERROR Error sending message: [Errno 10053] An established connection was aborted by the software in your host machine
+2014/03/11 11:02:37 MainThread analysis WARNING Exception trying to plot measurement 100, shot 2, in analysis.ShotsBrowserAnalysis.load()
+

@@ -73,11 +73,11 @@ TODO:
     make it so that only relevant channels are shown in waveform (can we do this is hardware too?)
     finish noise eater waveform
     use start trigger on HSDIO
-    do not save data needs to really not save data to hdf5 in memory also, it is too much data
-
+    
 Note: changed waveform PGC_1 slightly regarding t1 delay, should be as intended now
     
 Done:
+    do not save data needs to really not save data to hdf5 in memory also, it is too much data
     use setupLOG on all modules
     send only waveforms actually used.
     waveform upload error (MSB LSB order is reversed)

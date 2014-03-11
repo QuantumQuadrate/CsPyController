@@ -227,6 +227,7 @@ class ShotsBrowserAnalysis(AnalysisWithFigure):
             s=str(self.shot)
             if 'iterations' in self.experimentResults:
                 for i in self.experimentResults['iterations'].itervalues():
+                    #find the first iteration that matches all the selected ivar indices
                     if numpy.all(i.attrs['ivarIndex']==self.selection):
                         try:
                             self.array=i['measurements/{}/data/Hamamatsu/shots/{}'.format(m,s)].value
