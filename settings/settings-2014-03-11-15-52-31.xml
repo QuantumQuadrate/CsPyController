@@ -12645,7 +12645,7 @@ p0
 <waitForStartTrigger><description>S'HSDIO wait for start trigger'
 p0
 .</description>
-<function>S'True'
+<function>S'False'
 p0
 .</function>
 </waitForStartTrigger>

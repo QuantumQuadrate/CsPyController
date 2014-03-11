@@ -26448,3 +26448,36 @@ ValueError: unable to create group (Symbol table: Unable to initialize object)
 
 2014/03/11 12:33:33 MainThread experiments WARNING Index=1 out of range for independent variable a. Setting a.index=0
 
+2014/03/11 16:09:08 MainThread instrument_property WARNING TypeError while evaluating:
+property: waitForStartTrigger
+description: HSDIO wait for start trigger
+function: False
+The 'value' member on the 'BoolProp' object must be of type 'bool'. Got object of type 'numpy.ndarray' instead.
+
+2014/03/11 16:09:09 MainThread cs_evaluate WARNING evaluating property waitForStartTrigger, HSDIO wait for start trigger, False
+Could not eval string: T
+name 'T' is not definedTraceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\cs_evaluate.py", line 28, in evalWithDict
+    return eval(string,globals()) #,varDict.copy()) #dict(numpyDict.items()+varDict.items())) #create a new dictionary so all numpy functions and everything defined in varDict is available as a global during evaluation
+  File "<string>", line 1, in <module>
+NameError: name 'T' is not defined
+
+
+2014/03/11 16:09:09 MainThread cs_evaluate WARNING evaluating property waitForStartTrigger, HSDIO wait for start trigger, False
+Could not eval string: Tr
+name 'Tr' is not definedTraceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\cs_evaluate.py", line 28, in evalWithDict
+    return eval(string,globals()) #,varDict.copy()) #dict(numpyDict.items()+varDict.items())) #create a new dictionary so all numpy functions and everything defined in varDict is available as a global during evaluation
+  File "<string>", line 1, in <module>
+NameError: name 'Tr' is not defined
+
+
+2014/03/11 16:09:09 MainThread cs_evaluate WARNING evaluating property waitForStartTrigger, HSDIO wait for start trigger, False
+Could not eval string: Tru
+name 'Tru' is not definedTraceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\cs_evaluate.py", line 28, in evalWithDict
+    return eval(string,globals()) #,varDict.copy()) #dict(numpyDict.items()+varDict.items())) #create a new dictionary so all numpy functions and everything defined in varDict is available as a global during evaluation
+  File "<string>", line 1, in <module>
+NameError: name 'Tru' is not defined
+
+

@@ -8,12 +8,13 @@ alpha=7.2973525698e-3
 kB_SI=1.3806488e-23 #J/K
 
 #erstwhile independent variables
-raman_frequency=9172.6
-microwave_frequency=0.0
-microwave_raman_time=0.08
+raman_frequency=9172.62
+microwave_phase=0.0
+parity_phase=0
+Ramsey_gap=0
 
 #dependent variables
-MOT_loading_time = 300
+MOT_loading_time = 400
 MOT_frequency = 108
 MOT_power = 0
 
@@ -36,12 +37,12 @@ MOT_to_PGC_B_field_delay = .6
 trap_780_delay_for_PGC_1 = 4
 
 MOT_drop_time = 100
-Readout_time = 25
-Readout_frequency = 95
-Readout_power = -8
+Readout_time = 20
+Readout_frequency = 102
+Readout_power = -10
 Readout_hyperfine_frequency = 278.5
 Readout_hyperfine_power = 0
-Pre_Readout_Time = 150
+Pre_Readout_Time = 50
 
 PGC_2_time = 50
 PGC_2_frequency = 91
@@ -64,40 +65,41 @@ delay_before_excitation_pulse = .00005
 delay_before_blowaway = .5
 raman_459_pulse = 0
 
-microwave_pi_pulse_site_2_roi42 = 0.078
-microwave_pi_pulse_site_1_roi43 = 0.0751
-microwave_2pi_pulse_BB1 = 0.0389*4
-microwave_pi_pulse_BB1 = 0.0389*2
+microwave_pi_pulse = 0.142
+microwave_pi_by_2_pulse_for_comp_pulses = microwave_pi_pulse/2
+microwave_pulse_3 = 0.0389*4
+microwave_pulse_2 = 0.0389*2
 
-rydberg_A_459_time_control = 0
+rydberg_A_459_time_control = .002
 rydberg_B_459_time_control = 0
-rydberg_A_1038_time_control = 0
-rydberg_A_459_time_site2_target = 0
+rydberg_A_1038_time_control = .0061
+rydberg_A_459_time_site2_target = .002
 rydberg_B_459_time_site2_target = 0
-rydberg_A_1038_time_site2_target = 0
+rydberg_A_1038_time_site2_target = .0061
 rydberg_B_1038_time_control = 0
 
 trap_modulation_time = 0
 blow_away_time = 1
+microwave_Raman_time=0.11
 
-scanner_1_frequency_1_459 = 149.93891
-scanner_2_frequency_1_459 = 153.945
-scanner_1_frequency_1_1038 = 145
-scanner_2_frequency_1_1038 = 154
-scanner_delay__extra_time_459 = .001
-scanner_delay__extra_time_1038 = .001
-scanner_1_frequency_2_459 = scanner_1_frequency_1_459 - .16 + 0.114
-scanner_2_frequency_2_459 = scanner_2_frequency_1_459 - 2.19
-scanner_AOM_1_freq_2_1038 = scanner_1_frequency_1_1038 + .5
-scanner_AOM_2_freq_2_1038 = scanner_2_frequency_1_1038 + 3.5
+scanner_1_frequency_1_459 = 156.7489
+scanner_2_frequency_1_459 = 152.443970
+scanner_1_frequency_1_1038 = 151
+scanner_2_frequency_1_1038 = 149
+scanner_delay__extra_time_459 = .0005
+scanner_delay__extra_time_1038 = .0005
+scanner_1_frequency_2_459 = scanner_1_frequency_1_459 - .184 + 0.4315
+scanner_2_frequency_2_459 = scanner_2_frequency_1_459 + 2.13 + .484
+scanner_AOM_1_freq_2_1038 = scanner_1_frequency_1_1038 - .75
+scanner_AOM_2_freq_2_1038 = scanner_2_frequency_1_1038 - 3.75
 
-RydA_switch_AOM_freqency_1__site_43 = 144.164+.007+0
-RydA_switch_AOM_freqency_2__site_42 = 144.649+.065-.063
+RydA_switch_AOM_freqency_1__site_43 = 134.29-.175
+RydA_switch_AOM_freqency_2__site_42 = 133.973-.228
 RydB_switch_AOM_freqency_1 = 143
 RydB_switch_AOM_freqency_2 = 143
 
 site_1_RydA_frequency_offset = (scanner_1_frequency_1_459-scanner_2_frequency_1_459)+(scanner_1_frequency_1_1038-scanner_2_frequency_1_1038)+2*RydA_switch_AOM_freqency_1__site_43
-site_1_calculator_based_on_previous_value = .5*(274.853 - scanner_1_frequency_1_459 + scanner_2_frequency_1_459 - scanner_1_frequency_1_1038 + scanner_2_frequency_1_1038)
+site_1_calculator_based_on_previous_value = .5*(274.631 - scanner_1_frequency_1_459 + scanner_2_frequency_1_459 - scanner_1_frequency_1_1038 + scanner_2_frequency_1_1038)
 site_2_calculator_based_on_site_1 = .5*(site_1_RydA_frequency_offset - scanner_1_frequency_2_459 + scanner_2_frequency_2_459 - scanner_AOM_1_freq_2_1038 + scanner_AOM_2_freq_2_1038)
 site_2_RydA_frequency_offset = (scanner_1_frequency_2_459 - scanner_2_frequency_2_459) + (scanner_AOM_1_freq_2_1038 - scanner_AOM_2_freq_2_1038) + 2*RydA_switch_AOM_freqency_2__site_42
 
@@ -108,12 +110,12 @@ raman_waveform_total_time = delay_before_excitation_pulse + 2*scanner_delay__ext
 microwave_waveform_total_time = delay_before_excitation_pulse + microwave_raman_time + 2*scanner_delay__extra_time_459
 
 trap_release_time = 0
-Rydberg_A_waveform_total_time = 4*scanner_delay__extra_time_459 + 2*rydberg_A_1038_time_control + delay_before_excitation_pulse + rydberg_A_1038_time_site2_target
+Rydberg_A_waveform_total_time = rydberg_A_1038_time_control + 2*scanner_delay__extra_time_459 + delay_before_excitation_pulse
 Rydberg_B_waveform_total_time = 0
-microwave_pi_site_2_total_time = delay_before_excitation_pulse + 2*scanner_delay__extra_time_459 + microwave_pi_pulse_site_2_roi42
-microwave_pi_site_1_total_time = delay_before_excitation_pulse + 2*scanner_delay__extra_time_459 + microwave_pi_pulse_site_1_roi43
-microwave_2_pi_total_time = delay_before_excitation_pulse + microwave_2pi_pulse_BB1
-microwave_pi_total_time = delay_before_excitation_pulse + microwave_pi_pulse_BB1
+microwave_pi_site_2_total_time = delay_before_excitation_pulse + microwave_pi_pulse + 2*scanner_delay__extra_time_459
+microwave_pi_by_2_total_time_with_comp_pulses = delay_before_excitation_pulse + 2*scanner_delay__extra_time_459 + microwave_pi_by_2_pulse_for_comp_pulses
+microwave_2_pi_total_time = microwave_pulse_3
+microwave_pi_total_time = microwave_pulse_2
 
 raman_X_pi_by_2_time = 0
 raman_X_3pi_by_2_time = 0
@@ -130,7 +132,7 @@ max_of_raman_or_ramsey = max(max_of_raman_pulses,ramsey_total_time)
 max_of_raman_or_randomized_benchmark = max(max_of_raman_or_ramsey,random_benchmark_total_time)
 max_of_rydberg_pulses = max(Rydberg_B_waveform_total_time,Rydberg_A_waveform_total_time)
 
-bias_field_on_time = optical_pumping_time + depumping_894_time + PGC_to_bias_B_field_delay + single_site_459_OP_time + trap_release_time + blow_away_time + microwave_waveform_total_time + 2*microwave_pi_total_time + microwave_2_pi_total_time
+bias_field_on_time = optical_pumping_time + depumping_894_time + PGC_to_bias_B_field_delay + single_site_459_OP_time + trap_release_time + blow_away_time + 2*microwave_pi_by_2_total_time_with_comp_pulses + ramsey_gap
 delay_between_camera_shots = 45
 DDS_profile_delay = .00005
 
@@ -173,7 +175,7 @@ horizontal_waist_459 = 3e-6
 vertical_waist_459 = 3e-6
 
 scanner_transmission_459 = .132
-total_raman_power_at_fiber = 350e-6
+total_raman_power_at_fiber = 166e-6
 raman_detuning = 20e9 #Hz
 horizontal_waist_1038 = 3.2e-6
 vertical_waist_1038 = 4.3e-6
@@ -219,13 +221,12 @@ Raman_459_intermediate = 1/(Raman_459_detuning-Raman_459_7p1_2_Delta_f3)+(5/3)/(
 Raman_459_Rabi_Omega_over_2pi = 93.3*Raman_459_intermediate*Raman_459_power_at_atoms/Raman_459_waist_at_atoms**2 #MHz
 Raman_459_gamma_p = 1/150 #GHz
 Raman_459_omega_q = 9.192 #GHz
-#Raman_459_Pse_in_pi_pulse = Raman_459_gamma_p/4*(1/abs(Raman_459_intermediate))*(2/(Raman_459_detuning-Raman_459_7p1_2_Delta_f3)**2+1/(Raman_459_detuning-Raman_459_7p1_2_Delta_f3+Raman_459_omega_q)**2+1/(Raman_459_detuning-Raman_459_7p1_2_Delta_f3-Raman_459_omega_q)**2+(10/3)/(Raman_459_detuning-Raman_459_7p1_2_Delta_f4)**2+(5/3)/(Raman_459_detuning-Raman_459_7p1_2_Delta_f4+Raman_459_omega_q)**2+(5/3)/(Raman_459_detuning-Raman_459_7p1_2_Delta_f4-Raman_459_omega_q)**2)
+Raman_459_Pse_in_pi_pulse = Raman_459_gamma_p/4*(1/abs(Raman_459_intermediate))*(2/(Raman_459_detuning-Raman_459_7p1_2_Delta_f3)**2+1/(Raman_459_detuning-Raman_459_7p1_2_Delta_f3+Raman_459_omega_q)**2+1/(Raman_459_detuning-Raman_459_7p1_2_Delta_f3-Raman_459_omega_q)**2+(10/3)/(Raman_459_detuning-Raman_459_7p1_2_Delta_f4)**2+(5/3)/(Raman_459_detuning-Raman_459_7p1_2_Delta_f4+Raman_459_omega_q)**2+(5/3)/(Raman_459_detuning-Raman_459_7p1_2_Delta_f4-Raman_459_omega_q)**2)
 Raman_459_differential_stark_shift = Raman_459_Rabi_Omega_over_2pi*(Raman_459_detuning/32)*((5/3)/(Raman_459_detuning-Raman_459_7p1_2_Delta_f4+Raman_459_omega_q)+1/(Raman_459_detuning-Raman_459_7p1_2_Delta_f3+Raman_459_omega_q)-(5/3)/(Raman_459_detuning-Raman_459_7p1_2_Delta_f4-Raman_459_omega_q)-1/(Raman_459_detuning-Raman_459_7p1_2_Delta_f3-Raman_459_omega_q)) #MHz
 Rydberg_459_A_power_at_atoms = Rydberg_A_459_power_at_fiber*scanner_transmission_459*(1e3) #mW
 Rydberg_1038_power_at_atoms = Rydberg_1038_power_at_fiber*scanner_transmission_1038*(1e3) #mW
 Rydberg_459_beam_waist = sqrt(horizontal_waist_459*vertical_waist_459)*(1e6)
 Rydberg_1038_beam_waist = sqrt(horizontal_waist_1038*vertical_waist_1038)*(1e6)
-Rydberg_level = Rydberg_level
 Rydberg_detuning_3p = -212.3*(2*pi) #MHz
 Rydberg_detuning_4p = 165.1*(2*pi) #MHz
 Rydberg_detuning = Rydberg_detuning*1e-9+.165 #GHz
@@ -243,9 +244,9 @@ MOT=0; PGC_1=1; readout=2; _685=3; Exp=4
 
 gradient_field=[ 4.5, 0,    0,    0,    0]
 x2_5_shim     =[-0.4,-0.3,  0,   -0.45,-0.34]
-x3_6_shim     =[ 0.6,-0.75,-0.55, 0.45,-0.32]
-vertical_shim =[-1.6,-1.3, -1.65,-1.55,-1.82]
-bias_shim     =[-1.4, 1.6,  1.6,  1.65,-5.6]
+x3_6_shim     =[ 0.6,-0.75,-0.4,  0.45,-0.32]
+vertical_shim =[-1.6,-1.3, -1.7, -1.55,-1.82]
+bias_shim     =[-1.4, 1.6,  1.4,  1.65,-5.6]
 
 AO_widths=[MOT_loading_time,
             MOT_to_PGC_B_field_delay+PGC_1_time,
