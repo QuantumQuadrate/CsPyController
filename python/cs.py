@@ -51,9 +51,9 @@ def guiThread(exp):
     app = QtApplication()
     main=Main(experiment=exp)
     main.show()
-    main.maximize()
-    main.send_to_front()
     main.activate_window()
+    main.send_to_front()
+    main.maximize()
     logger.info("starting application")
     app.start()
 

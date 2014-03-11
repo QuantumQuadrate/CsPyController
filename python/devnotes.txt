@@ -62,7 +62,6 @@ TODO:
     is it possible to do echoBox measurement by measurement? (send with "measure" command, instead of as instrument setup?)
     send only changed commands on new iteration
     make red validation boxes work well enough to be used
-    side-by-side picture graphs?  With zoom? (use chaco?)
     make shotsBrowser update each measurement if selected index is same as current iteration and measurement
     selectable colors on digital waveform plot
     make sure HSDIO script is always written AFTER waveforms
@@ -77,6 +76,7 @@ TODO:
 Note: changed waveform PGC_1 slightly regarding t1 delay, should be as intended now
     
 Done:
+    side-by-side picture graphs
     do not save data needs to really not save data to hdf5 in memory also, it is too much data
     use setupLOG on all modules
     send only waveforms actually used.

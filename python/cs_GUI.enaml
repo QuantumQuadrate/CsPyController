@@ -1281,22 +1281,21 @@ enamldef MultiImagePage(Page): page:
     attr analysis2
     
     Container:
-        constraints=[vbox(l1,hbox(mpl1,a1,mpl2)),align('top',mpl1,mpl2,mpl3)]
+        constraints=[vbox(l1,hbox(mpl0,a1,mpl2)),align('top',mpl0,mpl1,mpl2)]
         
-        Label:
+        Label: l1:
             text<<analysis0.text
-        MPLCanvas: mpl1:
+        MPLCanvas: mpl0:
             constraints=[(height==500)|'strong',(width==500)|'strong']
             hug_width='ignore'
             figure<<analysis0.figure
         Container: a1:
             hug_height='ignore'
             hug_width='ignore'
-            Container:
-                constraints<<[hbox(*looper.items,f2,f3)]
+            GroupBox:
                 hug_height='strong'
                 hug_width='strong'
-                Looper: looper:
+                Looper:
                     iterable << analysis1.ivarNames
                     Form:
                         Label:
@@ -1305,14 +1304,14 @@ enamldef MultiImagePage(Page): page:
                             items=[str(i) for i in analysis1.ivarValueLists[loop_index]]
                             index::
                                 analysis1.setIteration(loop_index, index) #send which ivar (loop_index) to update to index
-                Form: f2:
+                Form:
                     Label:
                         text='Measurement'
                     SpinBox:
                         minimum=0
                         maximum=9999999 #a big number
                         value:=analysis1.measurement
-                Form: f3:
+                Form:
                     Label:
                         text='Shot'
                     SpinBox:
