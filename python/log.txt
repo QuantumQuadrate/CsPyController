@@ -26252,3 +26252,174 @@ float division by zero
 
 2014/03/10 15:25:14 MainThread __main__ INFO starting application
 2014/03/10 16:00:56 MainThread __main__ INFO starting application
+2014/03/10 22:08:34 MainThread __main__ INFO starting application
+2014/03/10 22:59:31 MainThread LabView DEBUG LabView.open() opening sock
+2014/03/10 22:59:31 MainThread LabView DEBUG LabView.open() sock opened
+2014/03/10 22:59:37 MainThread LabView WARNING LabView instrument should be initialized already, but is not, in LabView.update()
+2014/03/10 23:04:06 MainThread __main__ INFO starting application
+2014/03/10 23:04:40 MainThread LabView DEBUG LabView.open() opening sock
+2014/03/10 23:04:40 MainThread LabView DEBUG LabView.open() sock opened
+2014/03/10 23:04:41 MainThread LabView DEBUG debug LabView.open() closing sock
+2014/03/10 23:04:41 MainThread LabView DEBUG LabView.open() opening sock
+2014/03/10 23:04:41 MainThread LabView DEBUG LabView.open() sock opened
+2014/03/10 23:05:51 Thread-1 experiments INFO Current status is idle. Cannot continue an experiment unless status is paused.
+2014/03/10 23:08:04 MainThread experiments WARNING Index=1 out of range for independent variable a. Setting a.index=0
+
+2014/03/10 23:09:03 MainThread TCP ERROR Error trying to receive message header: timed out
+2014/03/10 23:10:53 MainThread __main__ INFO starting application
+2014/03/10 23:11:45 Thread-1 LabView DEBUG LabView.open() opening sock
+2014/03/10 23:11:45 Thread-1 LabView DEBUG LabView.open() sock opened
+2014/03/10 23:11:55 Thread-1 TCP ERROR Error trying to receive message header: timed out
+2014/03/10 23:12:07 Thread-1 TCP ERROR Error trying to receive message header: timed out
+2014/03/10 23:14:43 MainThread __main__ INFO starting application
+2014/03/10 23:16:07 Thread-1 LabView DEBUG LabView.open() opening sock
+2014/03/10 23:16:07 Thread-1 LabView DEBUG LabView.open() sock opened
+2014/03/10 23:16:17 Thread-1 TCP ERROR Error trying to receive message header: timed out
+2014/03/10 23:16:29 Thread-1 TCP ERROR Error trying to receive message header: timed out
+2014/03/10 23:18:11 MainThread __main__ INFO starting application
+2014/03/10 23:23:06 MainThread cs_evaluate WARNING evaluating property clockRate, , 2*kilo
+Could not eval string: 2*
+unexpected EOF while parsing (<string>, line 1)Traceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\cs_evaluate.py", line 28, in evalWithDict
+    return eval(string,globals()) #,varDict.copy()) #dict(numpyDict.items()+varDict.items())) #create a new dictionary so all numpy functions and everything defined in varDict is available as a global during evaluation
+  File "<string>", line 1
+    2*
+     ^
+SyntaxError: unexpected EOF while parsing
+
+
+2014/03/10 23:23:06 MainThread cs_evaluate WARNING evaluating property clockRate, , 2*kilo
+Could not eval string: 2*k
+name 'k' is not definedTraceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\cs_evaluate.py", line 28, in evalWithDict
+    return eval(string,globals()) #,varDict.copy()) #dict(numpyDict.items()+varDict.items())) #create a new dictionary so all numpy functions and everything defined in varDict is available as a global during evaluation
+  File "<string>", line 1, in <module>
+NameError: name 'k' is not defined
+
+
+2014/03/10 23:23:06 MainThread cs_evaluate WARNING evaluating property clockRate, , 2*kilo
+Could not eval string: 2*ki
+name 'ki' is not definedTraceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\cs_evaluate.py", line 28, in evalWithDict
+    return eval(string,globals()) #,varDict.copy()) #dict(numpyDict.items()+varDict.items())) #create a new dictionary so all numpy functions and everything defined in varDict is available as a global during evaluation
+  File "<string>", line 1, in <module>
+NameError: name 'ki' is not defined
+
+
+2014/03/10 23:23:06 MainThread cs_evaluate WARNING evaluating property clockRate, , 2*kilo
+Could not eval string: 2*kil
+name 'kil' is not definedTraceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\cs_evaluate.py", line 28, in evalWithDict
+    return eval(string,globals()) #,varDict.copy()) #dict(numpyDict.items()+varDict.items())) #create a new dictionary so all numpy functions and everything defined in varDict is available as a global during evaluation
+  File "<string>", line 1, in <module>
+NameError: name 'kil' is not defined
+
+
+2014/03/10 23:24:30 Thread-1 LabView DEBUG LabView.open() opening sock
+2014/03/10 23:24:30 Thread-1 LabView DEBUG LabView.open() sock opened
+2014/03/10 23:24:50 Thread-1 TCP ERROR Error trying to receive message header: timed out
+2014/03/10 23:25:03 Thread-1 experiments ERROR Exception during experiment:
+object of type 'NoneType' has no len()
+Traceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\experiments.py", line 361, in go2
+    self.update()      #send current values to hardware
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\experiments.py", line 222, in update
+    i.update() #put the settings to where they should be at this iteration
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\LabView.py", line 119, in update
+    self.results=self.sock.parsemsg(rawdata)
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\TCP.py", line 135, in parsemsg
+    l=len(msg)
+TypeError: object of type 'NoneType' has no len()
+
+
+2014/03/10 23:39:23 MainThread __main__ INFO starting application
+2014/03/10 23:39:59 Thread-1 LabView DEBUG LabView.open() opening sock
+2014/03/10 23:39:59 Thread-1 LabView DEBUG LabView.open() sock opened
+2014/03/10 23:40:00 Thread-1 LabView WARNING LabView error.  Log:
+2014-03-10 23:40:11 DAQmx Start Task.vi:7220004<append>
+<B>Device Specified: </B>PXISlot2
+
+<B>Channel Name: </B>PXI1Slot2/ao0
+
+<B>Task Name: </B>_unnamedTask<3AA>Error -88717 occurred at DAQmx Start Task.vi:7220004
+
+Possible reason(s):
+
+No device by the given name was found.
+
+Device Specified: PXISlot2
+
+Channel Name: PXI1Slot2/ao0
+
+Task Name: _unnamedTask<3AA>
+Call chain:
+handle_errors.vi Analog_Output.lvclass:start.vi Experiment.lvclass:start_tasks.vi Experiment.lvclass:measurement.vi Experiment.lvclass:parseXMLstring.vi Experiment.lvclass:server.vi
+
+Error cleared. Exiting operation.
+
+
+2014/03/10 23:40:03 Thread-1 experiments ERROR Exception during experiment:
+unable to create group (Symbol table: Unable to initialize object)
+Traceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\experiments.py", line 366, in go2
+    self.create_hdf5_iteration()
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\experiments.py", line 562, in create_hdf5_iteration
+    self.iterationResults=self.hdf5.create_group('iterations/'+str(self.iteration))
+  File "C:\Users\Saffmanlab\AppData\Local\Enthought\Canopy\User\lib\site-packages\h5py\_hl\group.py", line 41, in create_group
+    gid = h5g.create(self.id, name, lcpl=lcpl)
+  File "h5g.pyx", line 145, in h5py.h5g.create (h5py\h5g.c:2378)
+ValueError: unable to create group (Symbol table: Unable to initialize object)
+
+
+2014/03/10 23:42:39 MainThread __main__ INFO starting application
+2014/03/10 23:43:11 Thread-1 LabView DEBUG LabView.open() opening sock
+2014/03/10 23:43:11 Thread-1 LabView DEBUG LabView.open() sock opened
+2014/03/10 23:43:22 Thread-1 TCP ERROR Error trying to receive message header: timed out
+2014/03/10 23:43:24 Thread-1 experiments ERROR Exception during experiment:
+unable to create group (Symbol table: Unable to initialize object)
+Traceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\experiments.py", line 366, in go2
+    self.create_hdf5_iteration()
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\experiments.py", line 562, in create_hdf5_iteration
+    self.iterationResults=self.hdf5.create_group('iterations/'+str(self.iteration))
+  File "C:\Users\Saffmanlab\AppData\Local\Enthought\Canopy\User\lib\site-packages\h5py\_hl\group.py", line 41, in create_group
+    gid = h5g.create(self.id, name, lcpl=lcpl)
+  File "h5g.pyx", line 145, in h5py.h5g.create (h5py\h5g.c:2378)
+ValueError: unable to create group (Symbol table: Unable to initialize object)
+
+
+2014/03/10 23:50:25 MainThread __main__ INFO starting application
+2014/03/10 23:53:16 Thread-1 LabView DEBUG LabView.open() opening sock
+2014/03/10 23:53:16 Thread-1 LabView DEBUG LabView.open() sock opened
+2014/03/10 23:53:27 Thread-1 TCP ERROR Error trying to receive message header: timed out
+2014/03/10 23:53:29 Thread-1 experiments ERROR Exception during experiment:
+unable to create group (Symbol table: Unable to initialize object)
+Traceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\experiments.py", line 366, in go2
+    self.create_hdf5_iteration()
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\experiments.py", line 562, in create_hdf5_iteration
+    self.iterationResults=self.hdf5.create_group('iterations/'+str(self.iteration))
+  File "C:\Users\Saffmanlab\AppData\Local\Enthought\Canopy\User\lib\site-packages\h5py\_hl\group.py", line 41, in create_group
+    gid = h5g.create(self.id, name, lcpl=lcpl)
+  File "h5g.pyx", line 145, in h5py.h5g.create (h5py\h5g.c:2378)
+ValueError: unable to create group (Symbol table: Unable to initialize object)
+
+
+2014/03/11 00:16:13 MainThread __main__ INFO starting application
+2014/03/11 00:21:30 MainThread __main__ INFO starting application
+2014/03/11 00:23:43 MainThread __main__ INFO starting application
+2014/03/11 00:25:52 MainThread __main__ INFO starting application
+2014/03/11 00:26:27 Thread-1 LabView DEBUG LabView.open() opening sock
+2014/03/11 00:26:27 Thread-1 LabView DEBUG LabView.open() sock opened
+2014/03/11 00:27:06 Thread-1 experiments INFO Current status is idle. Cannot continue an experiment unless status is paused.
+2014/03/11 00:34:20 MainThread experiments WARNING Index=1 out of range for independent variable a. Setting a.index=0
+
+2014/03/11 00:34:59 MainThread __main__ INFO starting application
+2014/03/11 00:35:20 Thread-1 LabView DEBUG LabView.open() opening sock
+2014/03/11 00:35:20 Thread-1 LabView DEBUG LabView.open() sock opened
+2014/03/11 00:36:01 Thread-1 experiments INFO Current status is idle. Cannot continue an experiment unless status is paused.
+2014/03/11 00:37:18 MainThread experiments WARNING Index=1 out of range for independent variable a. Setting a.index=0
+
+2014/03/11 00:37:59 MainThread __main__ INFO starting application
+2014/03/11 00:39:02 Thread-1 LabView DEBUG LabView.open() opening sock
+2014/03/11 00:39:02 Thread-1 LabView DEBUG LabView.open() sock opened

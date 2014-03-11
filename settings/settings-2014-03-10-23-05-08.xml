@@ -21,7 +21,7 @@ p0
 .</pauseAfterMeasurement>
 <pauseAfterError>I01
 .</pauseAfterError>
-<saveData>I01
+<saveData>I00
 .</saveData>
 <save2013styleFiles>I00
 .</save2013styleFiles>
@@ -45,30 +45,30 @@ p0
 <emailAddresses>S'mlichtman@wisc.edu'
 p0
 .</emailAddresses>
-<progress>I100
+<progress>I0
 .</progress>
-<iteration>I1
+<iteration>I0
 .</iteration>
-<measurement>I0
+<measurement>I217
 .</measurement>
 <totalIterations>I1
 .</totalIterations>
-<timeStartedStr>S'2014-03-11 00:35:18'
+<timeStartedStr>S'2014-03-09 18:53:12'
 p0
 .</timeStartedStr>
-<currentTimeStr>S'2014-03-11 00:36:01'
+<currentTimeStr>S'2014-03-09 18:56:27'
 p0
 .</currentTimeStr>
-<timeElapsedStr>S'0:00:42.896000'
+<timeElapsedStr>S'0:03:15.245000'
 p0
 .</timeElapsedStr>
-<totalTimeStr>S'0:00:42.896000'
+<totalTimeStr>S'1 day, 6:51:36.476715'
 p0
 .</totalTimeStr>
-<timeRemainingStr>S'0:00:00'
+<timeRemainingStr>S'1 day, 6:48:21.231715'
 p0
 .</timeRemainingStr>
-<completionTimeStr>S'2014-03-11 00:36:01'
+<completionTimeStr>S'2014-03-11 01:44:48'
 p0
 .</completionTimeStr>
 <variableReportFormat>S'"a is %(a)s.\\nThe speed of light is %(c0)d\\nbut some call it %(c0)e\\nmicrowave raman time=%(microwave_raman_time)e\\n"'
@@ -29226,12 +29226,12 @@ p0
 <version>S'2014.02.27'
 p0
 .</version>
-<enable>I01
+<enable>I00
 .</enable>
 <physicalChannels><description>S''
 p0
 .</description>
-<function>S'"PXI1Slot2/ao0:5"'
+<function>S'"PXI1Slot2/ao0:7"'
 p0
 .</function>
 </physicalChannels>
@@ -29252,7 +29252,7 @@ p0
 <clockRate><description>S''
 p0
 .</description>
-<function>S'20*kilo'
+<function>S'2*kilo'
 p0
 .</function>
 </clockRate>
@@ -29301,7 +29301,7 @@ p0
 <exportStartTriggerDestination><description>S'What line to send the AO StartTrigger out to?'
 p0
 .</description>
-<function>S'"/PXI1Slot2/PXI_Trig0"'
+<function>S'"/PXISlot2/PXI_Trig0"'
 p0
 .</function>
 </exportStartTriggerDestination>

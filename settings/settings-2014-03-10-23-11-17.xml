@@ -17,7 +17,7 @@ p0
 .</dependentVariablesStr>
 <pauseAfterIteration>I00
 .</pauseAfterIteration>
-<pauseAfterMeasurement>I01
+<pauseAfterMeasurement>I00
 .</pauseAfterMeasurement>
 <pauseAfterError>I01
 .</pauseAfterError>
@@ -38,7 +38,7 @@ p0
 .</experimentDescriptionFilenameSuffix>
 <measurementTimeout>F10.0
 .</measurementTimeout>
-<measurementsPerIteration>I100000
+<measurementsPerIteration>I20
 .</measurementsPerIteration>
 <willSendEmail>I01
 .</willSendEmail>
@@ -29226,12 +29226,12 @@ p0
 <version>S'2014.02.27'
 p0
 .</version>
-<enable>I00
+<enable>I01
 .</enable>
 <physicalChannels><description>S''
 p0
 .</description>
-<function>S'"PXI1Slot2/ao0:7"'
+<function>S'"PXI1Slot2/ao0:5"'
 p0
 .</function>
 </physicalChannels>
@@ -29291,6 +29291,20 @@ p0
 p0
 .</function>
 </triggerEdge>
+<exportStartTrigger><description>S'Should we trigger all other cards off the AO card?'
+p0
+.</description>
+<function>S'True'
+p0
+.</function>
+</exportStartTrigger>
+<exportStartTriggerDestination><description>S'What line to send the AO StartTrigger out to?'
+p0
+.</description>
+<function>S'"/PXISlot2/PXI_Trig0"'
+p0
+.</function>
+</exportStartTriggerDestination>
 <equations><equation><description>S'gradient field'
 p0
 .</description>
@@ -29334,20 +29348,6 @@ p0
 .</function>
 </equation>
 </equations>
-<exportStartTrigger><description>S'Should we trigger all other cards off the AO card?'
-p0
-.</description>
-<function>S'True'
-p0
-.</function>
-</exportStartTrigger>
-<exportStartTriggerDestination><description>S'What line to send the AO StartTrigger out to?'
-p0
-.</description>
-<function>S'"/PXISlot2/PXI_Trig0"'
-p0
-.</function>
-</exportStartTriggerDestination>
 </AnalogOutput>
 <DAQmxPulse><description>S''
 p0

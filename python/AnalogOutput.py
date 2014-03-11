@@ -48,6 +48,13 @@ class AOEquation(EvalProp):
             logger.warning('In AOEquation.evaluate(), TraitError while evaluating: '+self.name+'\ndescription: '+self.description+'\nfunction: '+self.function+'\n'+str(e))
             #raise PauseError
         self.AO.update_plot()
+    def toHardware(self):
+        try:
+            valueStr=' '.join(map(str,self.value.tolist()))
+        except Exception as e:
+            logger.warning('Exception in ' '.join(map(str,self.value.tolist())) in AnalogOutput.AOEquation.toHardware() in '+self.name+' .\n'+str(e))
+            raise PauseError
+        return '<{}>{}</{}>\n'.format(self.name,valueStr,self.name)
 
 class AnalogOutput(Instrument):
     enable=Bool()

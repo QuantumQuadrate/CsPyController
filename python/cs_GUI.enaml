@@ -396,19 +396,24 @@ enamldef LabViewPage(Page):
         Container:
             hug_height='strong'
             Container:
-                constraints=[hbox(b1,b2,b3),b1.width==100,b2.width==100,b3.width==100]
+                constraints=[hbox(b1,b2,b3,b4),b1.width==100,b2.width==100,b3.width==100,b4.width==100]
                 PushButton: b1:
                     text='open connection'
                     clicked::
                         LabView.open()
                 PushButton: b2:
-                    text='close connection'
+                    text='initialize'
                     clicked::
-                        LabView.close()
+                        LabView.initialize()
                 PushButton: b3:
                     text='update settings'
                     clicked::
                         LabView.update()
+                PushButton: b4:
+                    text='close connection'
+                    clicked::
+                        LabView.close()
+
             Form:
                 Label:
                     text='enable communication with LabView system?'
