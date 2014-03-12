@@ -68,14 +68,14 @@ class Prop(Atom):
                 continue
             
             if hasattr(o,'toHDF5'):
+            #use toHDF5() of the object if available
                 try:
                     o.toHDF5(my_node)
                 except:
                     logger.warning('While trying '+p+'.toHDF5() in Prop.toHDF5() in '+self.name+'.\n'+str(e)+'\n')
                     raise PauseError
-                
-                        #else just pickle it
             else:
+            #else just pickle it
                 try:
                     my_node[p]=pickle.dumps(o)
                 except Exception as e:
