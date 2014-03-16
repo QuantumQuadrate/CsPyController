@@ -9,7 +9,7 @@ logger=setupLog(__name__)
 from atom.api import Atom, Str, Bool, Int, Float, List, Member, Value, observe
 from enaml.validator import Validator
 
-import pickle, traceback, time
+import pickle, traceback
 import cs_evaluate
 
 class Prop(Atom):
@@ -45,7 +45,101 @@ class Prop(Atom):
                 except Exception as e:
                     logger.warning('Evaluating '+p+' in '+self.name+'.properties.\n'+str(e)+str(traceback.format_exc())+'\n')
                     raise PauseError
+    
+    def toHDF5(self,hdf_parent_node):
+        '''This function provides generic behavior to save a Prop as an HDF5 group.  The choice of group has been made because a Prop in
+        general can have subproperties, and using a dataset would limit this behavior.
+        We go through the properties list.  If an item has its own toHDF5 method, that will be used.
+        Else, it will be pickled using python's human readable pickling format. And saved to the HDF5 as a string.
+        We assume that settings files will only ever be accessed as read-only and so variable length strings are not bothered with.
+        The node name is self.name, because nodes must have unique names, and so node types are not used.'''
+        
+        #create the group that represents this Prop
+        my_node=hdf_parent_node.create_group(self.name)
+        
+        #go through the list of properties:
+        for p in self.properties:
+            
+            #convert the string name to an actual object
+            try:
+                o=getattr(self,p)
+            except:
+                logger.warning('In Prop.toXML() for class '+self.name+': item '+p+' in properties list does not exist.\n')
+                continue
+            
+            if hasattr(o,'toHDF5'):
+            #use toHDF5() of the object if available
+                try:
+                    o.toHDF5(my_node)
+                except Exception as e:
+                    logger.warning('While trying '+p+'.toHDF5() in Prop.toHDF5() in '+self.name+'.\n'+str(e)+'\n')
+                    raise PauseError
+            else:
+            #else just pickle it
+                try:
+                    my_node[p]=pickle.dumps(o)
+                except Exception as e:
+                    logger.warning('While picking '+p+' in Prop.toHDF5() in '+self.name+'.\n'+str(e)+'\n')
+                    raise PauseError
 
+    def fromHDF5(self,hdf):
+        '''This function provides generic XML loading behavior for this package.
+        First, version tags are checked.
+        If an object has its own fromXML method, that will be used.  Else, it will be assumed that the XML is a pickle string, and
+        it will be loaded using python's human-readable pickling format.
+        self is the object corresponding to the top level tag in xmlNode, and its children are what will be loaded here.'''
+        
+        version=None
+        
+        #no need for exceptions, hdf node is guaranteed to have a name
+        self.name=hdf.name
+        
+        #check version
+        if 'version' in hdf.attrs:
+            if hasattr(self,'version'):
+                if hdf.attrs['version']!=self.version:
+                    logger.warning('Current '+self.name+' version is '+self.version+', you are loading from version: '+hdf.attrs['version'])
+            else:
+                logger.warning('Code object '+self.name+' has no version, but HDF5 node has version: '+version)
+        elif hasattr(self,'version'):
+            logger.warning('Code object '+self.name+' has version '+self.version+' but HSDF5 node has no version tag.')
+        
+        for i in hdf:
+            #check to see if this is one of the properties we care to load
+            if i not in self.properties:
+                logger.warning('Prop.fromHDF5(): HDF5 has item: '+i+', but this is not in the '+self.name+'.properties list.  It will not be loaded.\n')
+            else:                
+                #load in all other tags into variables
+                try:
+                    #identify the variable to be loaded
+                    var=getattr(self,i)
+                    exists=True
+                except:
+                    logger.warning('in '+self.name+' in Prop.fromHDF5().  Will attempt to load '+i+' which was not previously defined in '+self.name+'.\n')
+                    exists=False
+                if exists:
+                    if hasattr(var,'fromHDF5'):
+                        #set it using its own method
+                        #this will preserve the instance identity
+                        var.fromHDF5(hdf[i])
+                    else:
+                        #assume it is a pickle, and overwrite the existing variable
+                        #this will overwrite the instance identity
+                        try:
+                            setattr(self,i,pickle.loads(hdf[i].value))
+                        except Exception as e:
+                            logger.warning('in '+self.name+' in Prop.fromHDF5() while unpickling existing variable '+i+' in '+self.name+'\n'+str(e)+'\n')
+                else:
+                    #variable was not pre-existing
+                    #assume it is a pickle, and write a new variable
+                    #this will create a new instance identity
+                    try:
+                        setattr(self,i,pickle.loads(hdf[i].value))
+                    except Exception as e:
+                        logger.warning('in '+self.name+' prop.fromHDF5() while unpickling new variable '+i+' in '+self.name+'\n'+str(e)+'\n')
+        
+        return self
+    
     def toXML(self):
         '''This function provides generic XML saving behavior for this package.
         It goes through the properties list. If an item has its own toXML method, that will be used.
@@ -106,7 +200,7 @@ class Prop(Atom):
         try:
             return '<{}>{}</{}>\n'.format(self.name,output,self.name)
         except Exception as e:
-            logger.warning('While in format() in Prop.XMLProtocol() in '+self.name+'.\n'+str(e)+'\n')
+            logger.warning('While in format() in Prop.toHardware() in '+self.name+'.\n'+str(e)+'\n')
             return ''
     
     def HardwareProtocol(self,o,name):

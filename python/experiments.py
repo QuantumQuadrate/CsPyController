@@ -9,7 +9,7 @@ from __future__ import division
 from cs_errors import PauseError, setupLog
 logger=setupLog(__name__)
 
-import threading, time, datetime, traceback, xml.etree.ElementTree, pickle, os, numpy, h5py
+import threading, time, datetime, traceback, xml.etree.ElementTree, pickle, os, numpy, h5py, shutil
 
 #set numpy print options to limit to 2 digits
 numpy.set_printoptions(formatter=dict(float=lambda t: "%.2e" % t))
@@ -500,12 +500,22 @@ class Experiment(Prop):
         threading.Thread(target=self.save,args=(path)).start()
     
     def save(self,path):
-        '''This function saves all the settings.
-        The experiment variables settings get put one layer deeper, under <variables> to keep things tidy.
-        Do not put the instruments into properties, to prevent recursion problems (because the instruments all refer to experiment).'''
+        '''This function saves all the settings.'''
+        
+        #HDF5
+        #create file
+        f=h5py.File('settings.hdf5','w')
+        #recursively add all properties
+        self.toHDF5(f)
+        f.flush()
+        f.close()
+        #copy to default location
+        shutil.copy('settings.hdf5',path+'.hdf5')
+        
+        #XML
         x=self.toXML()
         #write to the chosen file
-        f=open(path,'w')
+        f=open(path+'.xml','w')
         f.write(x)
         f.close()
         #write to the default file

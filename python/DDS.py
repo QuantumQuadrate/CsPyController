@@ -202,5 +202,5 @@ class DDSprofile(Prop):
         try:
             return '<{}>{}</{}>\n'.format(self.name,output,self.name)
         except Exception as e:
-            logger.warning('While in format() in Prop.XMLProtocol() in '+self.name+'.\n'+str(e)+'\n')
+            logger.warning('While in format() in DDSProfile.toHardware() in '+self.name+'.\n'+str(e)+'\n')
             return ''

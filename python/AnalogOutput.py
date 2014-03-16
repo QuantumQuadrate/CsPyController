@@ -92,7 +92,7 @@ class AnalogOutput(Instrument):
         self.totalAOTime=FloatProp('totalAOTime',self.experiment,'','5.0')
         self.units=FloatProp('units',self.experiment,'equations entered in ms','.001')
         self.waitForStartTrigger=BoolProp('waitForStartTrigger',self.experiment,'','True')
-        self.triggerSource=StrProp('triggerSource',self.experiment,'','"/PXI1Slot6/PFI0"')
+        self.triggerSource=StrProp('triggerSource',self.experiment,'','"/PXI1Slot2/PFI0"')
         self.triggerEdge=StrProp('triggerEdge',self.experiment,'','"Rising"')
         self.equations=ListProp('equations',self.experiment,listElementType=AOEquation,
                             listElementName='equation',listElementKwargs={'AO':self})

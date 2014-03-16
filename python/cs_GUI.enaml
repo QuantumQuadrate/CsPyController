@@ -24,7 +24,7 @@ from enaml.core.api import Looper, Conditional
 from enable_canvas import EnableCanvas
 #from traitsui.api import View #requires "set ETS_TOOLKIT=qt4" on windows command line
 from atom.api import Bool, Typed, observe, Callable
-from os.path import abspath #for file dialogs
+import os #for file dialogs
 from sys import maxint
 import threading, datetime, time
 #from enthought.chaco.chaco_plot_editor import ChacoPlotItem
@@ -104,7 +104,7 @@ enamldef CsMenuBar(MenuBar): menuBar:
                     parent=menuBar,
                     title='Choose file to load',
                     mode='open_file',
-                    path=abspath(r'C:\Users\Saffmanlab\Documents\CsController2\settings'),
+                    path=os.path.join('..','settings'), #os.path.abspath(r'C:\Users\Saffmanlab\Documents\CsController2\settings'),
                     callback=get_load_file_callback(experiment),
                     ).open()
         Action:
@@ -114,7 +114,7 @@ enamldef CsMenuBar(MenuBar): menuBar:
                     parent=menuBar,
                     title='Save As?',
                     mode='save_file',
-                    path=abspath(r'C:\Users\Saffmanlab\Documents\CsController2\settings\settings-'+datetime.datetime.now().strftime('%Y-%m-%d-%H-%M-%S')+'.xml'),
+                    path=os.path.join('..','settings','settings-'+datetime.datetime.now().strftime('%Y-%m-%d-%H-%M-%S')), #os.path.abspath(r'C:\Users\Saffmanlab\Documents\CsController2\settings\settings-'+datetime.datetime.now().strftime('%Y-%m-%d-%H-%M-%S')),
                     callback=get_save_file_callback(experiment),
                     ).open()
         Action:
