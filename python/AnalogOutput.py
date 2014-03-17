@@ -16,6 +16,7 @@ logger=setupLog(__name__)
 from atom.api import Bool, Typed, Member
 from enaml.application import deferred_call
 from matplotlib.figure import Figure
+from matplotlib.ticker import NullFormatter
 from instrument_property import BoolProp, FloatProp, StrProp, ListProp, EvalProp
 import cs_evaluate
 from cs_instruments import Instrument
@@ -125,10 +126,16 @@ class AnalogOutput(Instrument):
         for i in range(n):
             ax=fig.add_subplot(n,1,i+1)
             ax.plot(self.timesteps,self.equations[i].value)
-            ax.set_ylabel(self.equations[i].description)
-        if fig.axes:  #TODO: this should equal something
-            ax.set_xlabel('time') #label only the last (bottom) plot
-    
+            ax.set_ylabel(self.equations[i].description,rotation=45)
+            if i<(n-1):
+                #remove tick labels all all except last plot
+                ax.xaxis.set_major_formatter(NullFormatter())
+            else:
+                #label only the last (bottom) plot
+                ax.set_xlabel('time')
+                #make sure the tick labels have room
+        fig.subplots_adjust(left=.2,right=.95)
+        
     def swapFigures(self):
         temp=self.backFigure
         self.backFigure=self.figure

@@ -53,25 +53,25 @@ p0
 .</measurement>
 <totalIterations>I1
 .</totalIterations>
-<timeStartedStr>S'2014-03-16 20:48:06'
+<timeStartedStr>S'2014-03-11 00:35:18'
 p0
 .</timeStartedStr>
-<currentTimeStr>S'2014-03-16 20:48:33'
+<currentTimeStr>S'2014-03-11 00:36:01'
 p0
 .</currentTimeStr>
-<timeElapsedStr>S'0:00:27.752000'
+<timeElapsedStr>S'0:00:42.896000'
 p0
 .</timeElapsedStr>
-<totalTimeStr>S'0:00:27.752000'
+<totalTimeStr>S'0:00:42.896000'
 p0
 .</totalTimeStr>
 <timeRemainingStr>S'0:00:00'
 p0
 .</timeRemainingStr>
-<completionTimeStr>S'2014-03-16 20:48:33'
+<completionTimeStr>S'2014-03-11 00:36:01'
 p0
 .</completionTimeStr>
-<variableReportFormat>S"'''a is %(a)s.\nThe speed of light is %(c0)d\nbut some call it %(c0)e\nmicrowave raman time=%(microwave_Raman_time)e\n'''"
+<variableReportFormat>S'"a is %(a)s.\\nThe speed of light is %(c0)d\\nbut some call it %(c0)e\\nmicrowave raman time=%(microwave_Raman_time)e\\n"'
 p0
 .</variableReportFormat>
 <variableReportStr>S'a is 0.\nThe speed of light is 299792458\nbut some call it 2.997925e+08\nmicrowave raman time=1.100000e-01\n'
@@ -12645,7 +12645,7 @@ p0
 <waitForStartTrigger><description>S'HSDIO wait for start trigger'
 p0
 .</description>
-<function>S'False'
+<function>S'True'
 p0
 .</function>
 </waitForStartTrigger>
@@ -29340,7 +29340,7 @@ p0
 p0
 .</function>
 </equation>
-<equation><description>S'empty'
+<equation><description>S'empty, but number of channels must be even'
 p0
 .</description>
 <function>S'0*t'
@@ -30201,7 +30201,7 @@ p0
 .</function>
 </shotsPerMeasurement>
 </camera>
-<cycleContinuously>I00
+<cycleContinuously>I01
 .</cycleContinuously>
 </LabView>
 </experiment>
