@@ -67,6 +67,7 @@ class Prop(Atom):
                 logger.warning('In Prop.toXML() for class '+self.name+': item '+p+' in properties list does not exist.\n')
                 continue
             
+            
             if hasattr(o,'toHDF5'):
             #use toHDF5() of the object if available
                 try:
@@ -75,13 +76,18 @@ class Prop(Atom):
                     logger.warning('While trying '+p+'.toHDF5() in Prop.toHDF5() in '+self.name+'.\n'+str(e)+'\n')
                     raise PauseError
             else:
-            #else just pickle it
+                #try to save it directly as a dataset.  If that fails, save its pickle
                 try:
-                    my_node[p]=pickle.dumps(o)
-                except Exception as e:
-                    logger.warning('While picking '+p+' in Prop.toHDF5() in '+self.name+'.\n'+str(e)+'\n')
-                    raise PauseError
-
+                    #if it of a known well-behaved type, just go ahead and save to HDF5 dataset
+                    my_node[p]=o
+                except:
+                    #else just pickle it
+                    try:
+                        my_node[p]=pickle.dumps(o)
+                    except Exception as e:
+                        logger.warning('While picking '+p+' in Prop.toHDF5() in '+self.name+'.\n'+str(e)+'\n')
+                        raise PauseError
+    
     def fromHDF5(self,hdf):
         '''This function provides generic XML loading behavior for this package.
         First, version tags are checked.
@@ -367,6 +373,9 @@ class EvalProp(Prop,Validator):
             logger.warning('Exception in str(self.value) in EvalProp.toHardware() in '+self.name+' .\n'+str(e))
             raise PauseError
         return '<{}>{}</{}>\n'.format(self.name,valueStr,self.name)
+    
+    def toHSF5(self,hdf):
+        
 
 class StrProp(EvalProp):
     value=Str()
@@ -375,6 +384,9 @@ class StrProp(EvalProp):
 class IntProp(EvalProp):
     value=Int()
     placeholder='integer'
+    
+    def toHDF5(self,hdf):
+        
 
 class RangeProp(EvalProp):
     '''This can't be instantiated directly.  Use IntRangeProp or FloatRangeProp.'''

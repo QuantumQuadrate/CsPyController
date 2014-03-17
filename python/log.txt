@@ -267,3 +267,6 @@ TypeError: unbound method set_axis() must be called with NullFormatter instance 
 
 2014/03/16 20:56:59 MainThread analysis WARNING Exception trying to plot measurement 20, shot 0, in analysis.ShotsBrowserAnalysis.load()
 
+2014/03/17 08:43:44 MainThread experiments WARNING Index=1 out of range for independent variable a. Setting a.index=0
+
+2014/03/17 08:44:25 MainThread __main__ INFO starting application

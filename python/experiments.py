@@ -499,16 +499,20 @@ class Experiment(Prop):
         #TODO:  This doesn't work because if there are 61 characters in path, it thinks I am passing 61 arguments.
         threading.Thread(target=self.save,args=(path)).start()
     
+    def autosave(self):
+        #create file
+        f=h5py.File('settings.hdf5','w')
+        #recursively add all properties
+        x=f.create_group('settings')
+        self.toHDF5(x)
+        f.flush()
+        f.close()
+
     def save(self,path):
         '''This function saves all the settings.'''
         
         #HDF5
-        #create file
-        f=h5py.File('settings.hdf5','w')
-        #recursively add all properties
-        self.toHDF5(f)
-        f.flush()
-        f.close()
+        self.autosave()
         #copy to default location
         shutil.copy('settings.hdf5',path+'.hdf5')
         
@@ -549,13 +553,21 @@ class Experiment(Prop):
                 #create the directory
                 #use os.makedirs instead of os.mkdir to create the intermediate dailyPath directory if it does not exist
                 os.makedirs(self.path)
-        
+            
             #save to a real file
             self.hdf5=h5py.File(os.path.join(self.path,'results.hdf5'),'a')
         
         else:
             #hold results only in memory
             self.hdf5=h5py.File('results.hdf5','a',driver='core',backing_store=False)
+        
+        #add settings
+        x=self.hdf5.create_group('settings')
+        self.toHDF5(x)
+        
+        #local autosave
+        self.autosave()
+        
         
         #store independent variable data for experiment
         self.hdf5.attrs['start_time']=self.date2str(time.time())
