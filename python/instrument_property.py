@@ -49,10 +49,11 @@ class Prop(Atom):
     def toHDF5(self,hdf_parent_node):
         '''This function provides generic behavior to save a Prop as an HDF5 group.  The choice of group has been made because a Prop in
         general can have subproperties, and using a dataset would limit this behavior.
-        We go through the properties list.  If an item has its own toHDF5 method, that will be used.
-        Else, it will be pickled using python's human readable pickling format. And saved to the HDF5 as a string.
+        We go through the properties list.  If an item has its own toHDF5() method, that will be used.
+        If not, then we will try to save it as a dataset. This will only work if it is a type that h5py recognizes.
+        Else, it will be pickled using python's human readable pickling format. And saved to the HDF5 as a string dataset.
         We assume that settings files will only ever be accessed as read-only and so variable length strings are not bothered with.
-        The node name is self.name, because nodes must have unique names, and so node types are not used.'''
+        The node name is self.name, because nodes must have unique names (and so node type cannot be used as the name).'''
         
         #create the group that represents this Prop
         my_node=hdf_parent_node.create_group(self.name)
@@ -67,7 +68,7 @@ class Prop(Atom):
                 logger.warning('In Prop.toXML() for class '+self.name+': item '+p+' in properties list does not exist.\n')
                 continue
             
-            
+            #try to save it in various ways
             if hasattr(o,'toHDF5'):
             #use toHDF5() of the object if available
                 try:
@@ -76,7 +77,7 @@ class Prop(Atom):
                     logger.warning('While trying '+p+'.toHDF5() in Prop.toHDF5() in '+self.name+'.\n'+str(e)+'\n')
                     raise PauseError
             else:
-                #try to save it directly as a dataset.  If that fails, save its pickle
+            #try to save it directly as a dataset.  If that fails, save its pickle
                 try:
                     #if it of a known well-behaved type, just go ahead and save to HDF5 dataset
                     my_node[p]=o
@@ -89,11 +90,12 @@ class Prop(Atom):
                         raise PauseError
     
     def fromHDF5(self,hdf):
-        '''This function provides generic XML loading behavior for this package.
+        '''This function provides generic HDF5 loading behavior for this package.
         First, version tags are checked.
-        If an object has its own fromXML method, that will be used.  Else, it will be assumed that the XML is a pickle string, and
-        it will be loaded using python's human-readable pickling format.
-        self is the object corresponding to the top level tag in xmlNode, and its children are what will be loaded here.'''
+        If an object exists and has its own fromHDF5 method, that will be used.  Else, we will attempt to load it as a python pickle.
+        If this fails we load it as whatever type the HDF5 dataset is stored as.  (The later is preferable to the python pickle, but we must try the pickle first,
+        to distinguish between pickles and raw strings.
+        self is the object corresponding to the top level tag in the parameter hdf, and its children are what will be loaded here.'''
         
         version=None
         
@@ -106,10 +108,11 @@ class Prop(Atom):
                 if hdf['version'].value!=self.version:
                     logger.warning('Current '+self.name+' version is '+self.version+', you are loading from version: '+hdf['version'].value)
             else:
-                logger.warning('Code object '+self.name+' has no version, but HDF5 node has version: '+version)
+                logger.warning('Code object '+self.name+' has no version, but HDF5 node has version: '+hdf['version'].value)
         elif hasattr(self,'version'):
             logger.warning('Code object '+self.name+' has version '+self.version+' but HSDF5 node has no version tag.')
         
+        #go through all names in hdf node (group) and try to load them
         for i in hdf:
             #check to see if this is one of the properties we care to load
             if i not in self.properties:
@@ -123,40 +126,30 @@ class Prop(Atom):
                 except:
                     logger.warning('in '+self.name+' in Prop.fromHDF5().  Will attempt to load '+i+' which was not previously defined in '+self.name+'.\n')
                     exists=False
-                if exists:
-                    if hasattr(var,'fromHDF5'):
-                        #set it using its own method
-                        #this will preserve the instance identity
-                        var.fromHDF5(hdf[i])
-                    else:
-                        #check to see if it is stored as a dataset
-                        if isInstance(h5py._hl.dataset.DataSet):
-                            try:
-                                #try to unpickle it
-                                x=pickle.loads(hdf[i].value)
-                            except:
-                                #if unpickling failed, just use the stored value
-                                try:
-                                    x=hdf[i].value
-                                except:
-                                    logger.warning('Exception trying to load value for HDF5 node {} in {}.fromHDF5()'.format(i,self.name))
-                            try:
-                                setattr(self,i,x)
-                            except Exception as e:
-                                logger.warning('in '+self.name+' in Prop.fromHDF5() while unpickling existing variable '+i+' in '+self.name+'\n'+str(e)+'\n')
-                        elif isInstance(h5py._hl.group.Group):
-                            logger.warning('Cannot load HDF5 Group '+i+' without an fromHDF5() method in '+self.name)
-                        else:
-                            logger.warning('Cannot load HDF5 node {} which is of type {} in {}.fromHDF5()'.format(i,type(i),self.name))
+                if exists and hasattr(var,'fromHDF5'):
+                    #set it using its own method
+                    #this will preserve the instance identity
+                    var.fromHDF5(hdf[i])
                 else:
-                    #variable was not pre-existing
-                    #assume it is a pickle, and write a new variable
-                    #this will create a new instance identity
-                    try:
-                        setattr(self,i,pickle.loads(hdf[i].value))
-                    except Exception as e:
-                        logger.warning('in '+self.name+' prop.fromHDF5() while unpickling new variable '+i+' in '+self.name+'\n'+str(e)+'\n')
-        
+                    #check to see if it is stored as a dataset
+                    if isInstance(h5py._hl.dataset.DataSet):
+                        try:
+                            #try to unpickle it
+                            x=pickle.loads(hdf[i].value)
+                        except:
+                            #if unpickling failed, just use the stored value
+                            try:
+                                x=hdf[i].value
+                            except:
+                                logger.warning('Exception trying to load value for HDF5 node {} in {}.fromHDF5()'.format(i,self.name))
+                        try:
+                            setattr(self,i,x)
+                        except Exception as e:
+                            logger.warning('in '+self.name+' in Prop.fromHDF5() while unpickling '+i+' in '+self.name+'\n'+str(e)+'\n')
+                    elif isInstance(h5py._hl.group.Group):
+                        logger.warning('Cannot load HDF5 Group '+i+' without an fromHDF5() method in '+self.name)
+                    else:
+                        logger.warning('Cannot load HDF5 node {} which is of type {} in {}.fromHDF5()'.format(i,type(i),self.name))        
         return self
     
     def toXML(self):
