@@ -97,14 +97,14 @@ class Prop(Atom):
         
         version=None
         
-        #no need for exceptions, hdf node is guaranteed to have a name
+        #hdf node is guaranteed to have a name
         self.name=hdf.name
         
         #check version
-        if 'version' in hdf.attrs:
+        if 'version' in hdf:
             if hasattr(self,'version'):
-                if hdf.attrs['version']!=self.version:
-                    logger.warning('Current '+self.name+' version is '+self.version+', you are loading from version: '+hdf.attrs['version'])
+                if hdf['version'].value!=self.version:
+                    logger.warning('Current '+self.name+' version is '+self.version+', you are loading from version: '+hdf['version'].value)
             else:
                 logger.warning('Code object '+self.name+' has no version, but HDF5 node has version: '+version)
         elif hasattr(self,'version'):
@@ -114,7 +114,7 @@ class Prop(Atom):
             #check to see if this is one of the properties we care to load
             if i not in self.properties:
                 logger.warning('Prop.fromHDF5(): HDF5 has item: '+i+', but this is not in the '+self.name+'.properties list.  It will not be loaded.\n')
-            else:                
+            else:
                 #load in all other tags into variables
                 try:
                     #identify the variable to be loaded
@@ -129,12 +129,25 @@ class Prop(Atom):
                         #this will preserve the instance identity
                         var.fromHDF5(hdf[i])
                     else:
-                        #assume it is a pickle, and overwrite the existing variable
-                        #this will overwrite the instance identity
-                        try:
-                            setattr(self,i,pickle.loads(hdf[i].value))
-                        except Exception as e:
-                            logger.warning('in '+self.name+' in Prop.fromHDF5() while unpickling existing variable '+i+' in '+self.name+'\n'+str(e)+'\n')
+                        #check to see if it is stored as a dataset
+                        if isInstance(h5py._hl.dataset.DataSet):
+                            try:
+                                #try to unpickle it
+                                x=pickle.loads(hdf[i].value)
+                            except:
+                                #if unpickling failed, just use the stored value
+                                try:
+                                    x=hdf[i].value
+                                except:
+                                    logger.warning('Exception trying to load value for HDF5 node {} in {}.fromHDF5()'.format(i,self.name))
+                            try:
+                                setattr(self,i,x)
+                            except Exception as e:
+                                logger.warning('in '+self.name+' in Prop.fromHDF5() while unpickling existing variable '+i+' in '+self.name+'\n'+str(e)+'\n')
+                        elif isInstance(h5py._hl.group.Group):
+                            logger.warning('Cannot load HDF5 Group '+i+' without an fromHDF5() method in '+self.name)
+                        else:
+                            logger.warning('Cannot load HDF5 node {} which is of type {} in {}.fromHDF5()'.format(i,type(i),self.name))
                 else:
                     #variable was not pre-existing
                     #assume it is a pickle, and write a new variable
@@ -374,8 +387,6 @@ class EvalProp(Prop,Validator):
             raise PauseError
         return '<{}>{}</{}>\n'.format(self.name,valueStr,self.name)
     
-    def toHSF5(self,hdf):
-        
 
 class StrProp(EvalProp):
     value=Str()
