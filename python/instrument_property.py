@@ -395,9 +395,6 @@ class StrProp(EvalProp):
 class IntProp(EvalProp):
     value=Int()
     placeholder='integer'
-    
-    def toHDF5(self,hdf):
-        
 
 class RangeProp(EvalProp):
     '''This can't be instantiated directly.  Use IntRangeProp or FloatRangeProp.'''
