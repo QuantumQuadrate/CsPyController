@@ -77,17 +77,21 @@ class Prop(Atom):
                     logger.warning('While trying '+p+'.toHDF5() in Prop.toHDF5() in '+self.name+'.\n'+str(e)+'\n')
                     raise PauseError
             else:
-            #try to save it directly as a dataset.  If that fails, save its pickle
+            #try to save it as an attribute, then as a dataset.  If that fails, save its pickle
                 try:
-                    #if it of a known well-behaved type, just go ahead and save to HDF5 dataset
-                    my_node[p]=o
+                    #if it of a known well-behaved type, just go ahead and save to HDF5 attribute
+                    my_node.attrs[p]=o
                 except:
-                    #else just pickle it
+                    #if it is an array, it can't be saved as an attribute, but it can (and should) be saved as a dataset
                     try:
-                        my_node[p]=pickle.dumps(o)
-                    except Exception as e:
-                        logger.warning('While picking '+p+' in Prop.toHDF5() in '+self.name+'.\n'+str(e)+'\n')
-                        raise PauseError
+                        my_node[p]=0
+                    except:
+                        #else just pickle it
+                        try:
+                            my_node[p]=pickle.dumps(o)
+                        except Exception as e:
+                            logger.warning('While picking '+p+' in Prop.toHDF5() in '+self.name+'.\n'+str(e)+'\n')
+                            raise PauseError
         return my_node
     
     def fromHDF5(self,hdf):
@@ -535,11 +539,15 @@ class ListProp(Prop):
                     raise PauseError
     
     def toHDF5(self,hdf):
-        #create the normal hdf group, then use it here (don't worry, 'listProperty' is not in self.properties)
-        my_node=super(ListProp,self).toHDF5(hdf)
+        #we do not save any of the normal properties for a listProp.  it confuses things and that is not what they are for
+        ##create the normal hdf group, then use it here (don't worry, 'listProperty' is not in self.properties)
+        #my_node=super(ListProp,self).toHDF5(hdf)
+        my_node=hdf.create_group(self.name)
         
-        #create a group called listProperty
-        list_node=my_node.create_group('listProperty')
+        #don't do this anymore:
+        ##create a group called listProperty
+        #list_node=my_node.create_group('listProperty')
+        list_node=my_node
         
         #go through the listProperty and toHDF5 each item
         for i,o in enumerate(self.listProperty):
@@ -562,17 +570,21 @@ class ListProp(Prop):
                     logger.warning('While trying toHDF5() on list item {} in ListProp.toHDF5() in {}.\n{}\n'.format(name,self.name,str(e)))
                     raise PauseError
             else:
-            #try to save it directly as a dataset.  If that fails, save its pickle
+            #try to save it as an attribute, then as a dataset.  If that fails, save its pickle
                 try:
-                    #if it of a known well-behaved type, just go ahead and save to HDF5 dataset
-                    list_node[name]=o
+                    #if it of a known well-behaved type, just go ahead and save to HDF5 attrs (more efficient than dataset)
+                    list_node.attrs[name]=o
                 except:
-                    #else just pickle it
+                    #if it is an array, saving to attrs will fail, but we can (and should) save it as a dataset
                     try:
-                        list_node[name]=pickle.dumps(o)
-                    except Exception as e:
-                        logger.warning('While picking list item {} in Prop.toHDF5() in {}.\n{}\n'.format(i,self.name,str(e)))
-                        raise PauseError
+                        list_node[name]=o
+                    except:
+                        #else just pickle it
+                        try:
+                            list_node[name]=pickle.dumps(o)
+                        except Exception as e:
+                            logger.warning('While picking list item {} in ListProp.toHDF5() in {}.\n{}\n'.format(i,self.name,str(e)))
+                            raise PauseError
         return my_node
     
     def fromHDF5(self,hdf):

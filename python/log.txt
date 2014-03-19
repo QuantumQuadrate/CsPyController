@@ -330,3 +330,89 @@ unable to create group (Symbol table: Unable to initialize object)
 2014/03/18 19:17:56 MainThread experiments WARNING Index=1 out of range for independent variable a. Setting a.index=0
 
 2014/03/18 19:18:37 MainThread __main__ INFO starting application
+2014/03/19 16:54:49 MainThread instrument_property WARNING Exception in EvalProp.evaluate() in totalAOTime.
+description: 
+function: 5.0
+local variable 'ax' referenced before assignment
+
+2014/03/19 16:54:49 MainThread instrument_property WARNING Exception in EvalProp.evaluate() in units.
+description: equations entered in ms
+function: .001
+local variable 'ax' referenced before assignment
+
+2014/03/19 16:54:49 MainThread instrument_property WARNING Exception in EvalProp.evaluate() in clockRate.
+description: 
+function: 20*kilo
+local variable 'ax' referenced before assignment
+
+2014/03/19 16:54:49 MainThread instrument_property WARNING Exception in EvalProp.evaluate() in totalAOTime.
+description: 5 ms total
+function: total_AO_time
+local variable 'ax' referenced before assignment
+
+2014/03/19 16:54:49 MainThread instrument_property WARNING in equations in ListProp.fromXML() for xml tag: equations.
+local variable 'ax' referenced before assignment
+Traceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\instrument_property.py", line 632, in fromXML
+    self.listProperty=[self.listElementType(self.listElementName+str(i),self.experiment,**self.listElementKwargs).fromXML(child) for i,child in enumerate(xmlNode)]
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\AnalogOutput.py", line 33, in __init__
+    super(AOEquation,self).__init__(name,experiment,function='0*t')
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\instrument_property.py", line 322, in __init__
+    super(EvalProp,self).__init__(name,experiment,description)
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\instrument_property.py", line 27, in __init__
+    self.description=description #English language description, including units and hints about possible values
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\AnalogOutput.py", line 38, in _observe_description
+    self.AO.update_plot()
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\AnalogOutput.py", line 155, in update_plot
+    self.drawMPL()
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\AnalogOutput.py", line 140, in drawMPL
+    ylim=ax.get_ylim()
+UnboundLocalError: local variable 'ax' referenced before assignment
+
+
+2014/03/19 16:54:49 MainThread experiments WARNING Index=1 out of range for independent variable a. Setting a.index=0
+
+2014/03/19 16:54:50 MainThread instrument_property WARNING Evaluating AnalogOutput in LabView.properties.
+local variable 'ax' referenced before assignmentTraceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\instrument_property.py", line 42, in evaluate
+    o.evaluate() #evaluate it
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\AnalogOutput.py", line 175, in evaluate
+    self.update_plot()
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\AnalogOutput.py", line 155, in update_plot
+    self.drawMPL()
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\AnalogOutput.py", line 140, in drawMPL
+    ylim=ax.get_ylim()
+UnboundLocalError: local variable 'ax' referenced before assignment
+
+
+2014/03/19 16:54:50 MainThread experiments WARNING PauseError
+2014/03/19 16:55:33 MainThread experiments WARNING Index=1 out of range for independent variable a. Setting a.index=0
+
+2014/03/19 16:56:13 MainThread __main__ INFO starting application
+2014/03/19 16:57:30 MainThread instrument_property WARNING While trying independentVariables.toHDF5() in Prop.toHDF5() in experiment.
+global name 'my_node' is not defined
+
+2014/03/19 17:02:17 MainThread experiments WARNING Index=1 out of range for independent variable a. Setting a.index=0
+
+2014/03/19 17:02:58 MainThread __main__ INFO starting application
+2014/03/19 17:03:56 MainThread instrument_property WARNING While trying toHDF5() on list item channel in ListProp.toHDF5() in state.
+unable to create group (Symbol table: Unable to initialize object)
+
+2014/03/19 17:03:56 MainThread instrument_property WARNING While trying state.toHDF5() in Prop.toHDF5() in transition.
+
+
+2014/03/19 17:03:56 MainThread instrument_property WARNING While trying sequence.toHDF5() in Prop.toHDF5() in idle.
+
+
+2014/03/19 17:03:56 MainThread instrument_property WARNING While trying waveforms.toHDF5() in Prop.toHDF5() in HSDIO.
+
+
+2014/03/19 17:03:56 MainThread instrument_property WARNING While trying HSDIO.toHDF5() in Prop.toHDF5() in LabView.
+
+
+2014/03/19 17:03:56 MainThread instrument_property WARNING While trying LabView.toHDF5() in Prop.toHDF5() in experiment.
+
+
+2014/03/19 17:05:36 MainThread experiments WARNING Index=1 out of range for independent variable a. Setting a.index=0
+
+2014/03/19 17:06:16 MainThread __main__ INFO starting application

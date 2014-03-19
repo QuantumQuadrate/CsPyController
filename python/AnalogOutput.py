@@ -124,9 +124,10 @@ class AnalogOutput(Instrument):
         #redraw the graph
         n=len(self.equations)
         for i in range(n):
+        #for each equation
             ax=fig.add_subplot(n,1,i+1)
             ax.plot(self.timesteps,self.equations[i].value)
-            ax.set_ylabel(self.equations[i].description,rotation=45)
+            ax.set_ylabel(self.equations[i].description)
             if i<(n-1):
                 #remove tick labels all all except last plot
                 ax.xaxis.set_major_formatter(NullFormatter())
@@ -134,6 +135,14 @@ class AnalogOutput(Instrument):
                 #label only the last (bottom) plot
                 ax.set_xlabel('time')
                 #make sure the tick labels have room
+        
+            #make the ylim a little wider than default (otherwise constant levels are sometimes on top of the plot frame)
+            ylim=ax.get_ylim()
+            yrange=abs(ylim[1]-ylim[0])
+            newylim=(ylim[0]-yrange*.05,ylim[1]+yrange*.05)
+            ax.set_ylim(newylim)
+            
+        #make room for the equation labels
         fig.subplots_adjust(left=.2,right=.95)
         
     def swapFigures(self):

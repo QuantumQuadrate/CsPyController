@@ -73,7 +73,8 @@ TODO:
     finish noise eater waveform
     use start trigger on HSDIO
     you erased the waveform names.  Fix that.
-    
+    make sure you don't get same measurement twice (do this on LabView side, mark a measurement as uploaded, or just erase return vals after use)
+    a lot of the things that I have done using lists of Prop in ListProp would be better done using a separate numpy array for each property of the Prop (or one array of compound dtype)
 Note: changed waveform PGC_1 slightly regarding t1 delay, should be as intended now
     
 Done:
