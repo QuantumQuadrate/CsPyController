@@ -28,7 +28,7 @@ class Channels(ListProp):
     
     def __init__(self,experiment,digitalout,description='A list of DAQmxPulse channels'):
         super(Channels,self).__init__('channels',experiment,description,
-            listProperty=[Channel('channel',experiment,'') for i in xrange(digitalout.numChannels)],
+            listProperty=[Channel('channel'+str(i),experiment,'') for i in xrange(digitalout.numChannels)],
             listElementType=Channel,listElementName='channel')
         self.digitalout=digitalout
     
@@ -38,11 +38,11 @@ class Channels(ListProp):
         xState='X'*len(activeChannels)
         return ('<InitialState>'+xState+'</InitialState>\n<IdleState>'+xState+'</IdleState>\n<ActiveChannels>'+','.join(activeChannels)+'</ActiveChannels>\n')
     
-    def fromXML(self,xmlNode):
-        while self.listProperty: #go until the list is empty
-            self.listProperty.pop()
-        self.listProperty+=[Channel('channel',self.experiment,'').fromXML(child) for i, child in enumerate(xmlNode)]
-        return self
+    #def fromXML(self,xmlNode):
+    #    #while self.listProperty: #go until the list is empty
+    #    #    self.listProperty.pop()
+    #    self.listProperty=[Channel('channel'+str(i),self.experiment,'').fromXML(child) for i, child in enumerate(xmlNode)]
+    #    return self
 
 class State(ListProp):
     digitalout=Member()
@@ -50,23 +50,23 @@ class State(ListProp):
     
     def __init__(self,experiment,digitalout):
         super(State,self).__init__('state',experiment,
-            listProperty=[EnumProp('channel',experiment,'',str(defaultState),allowedValues=self.allowedValues) for i in range(digitalout.numChannels)], #defaultState is a global at the top of the module
-            listElementType=EnumProp,listElementKwargs={'allowedValues':self.allowedValues})
+            listProperty=[EnumProp('channel'+str(i),experiment,function=str(defaultState),allowedValues=self.allowedValues) for i in range(digitalout.numChannels)], #defaultState is a global at the top of the module
+            listElementType=EnumProp,listElementName='channel',listElementKwargs={'function':str(defaultState),'allowedValues':self.allowedValues})
         self.digitalout=digitalout
     
-    def fromXML(self,xmlNode):
+    #def fromXML(self,xmlNode):
         #while self.listProperty: #go until the list is empty
         #    self.listProperty.pop()
-        self.listProperty=[EnumProp('channel',self.experiment,'',str(defaultState),allowedValues=self.allowedValues).fromXML(child) for i, child in enumerate(xmlNode)] #defaultState is a global at the top of the module
-        return self
+        #self.listProperty=[EnumProp('channel'+str(i),self.experiment,function=str(defaultState),allowedValues=self.allowedValues).fromXML(child) for i, child in enumerate(xmlNode)] #defaultState is a global at the top of the module
+        #return self
 
 class Transition(Prop):
     time=Typed(FloatProp) #when does this transition happen
     digitalout=Member()
     state=Member()
     
-    def __init__(self,experiment,digitalout,description=''):
-        super(Transition,self).__init__('transition',experiment,description)
+    def __init__(self,name,experiment,digitalout=None,description=''):
+        super(Transition,self).__init__(name,experiment,description)
         self.digitalout=digitalout
         self.time=FloatProp('time',self.experiment,'when this transition happens','0')
         self.state=State(self.experiment,self.digitalout)
@@ -76,14 +76,14 @@ class Sequence(ListProp):
     digitalout=Member()
     
     def __init__(self,experiment,digitalout):
-        super(Sequence,self).__init__('sequence',experiment,listElementType=Transition)
+        super(Sequence,self).__init__('sequence',experiment,listElementType=Transition,listElementName='transition',listElementKwargs={'digitalout':digitalout})
         self.digitalout=digitalout
         
-    def fromXML(self,xmlNode):
-        while self.listProperty: #go until the list is empty
-            self.listProperty.pop()
-        self.listProperty+=[Transition(self.experiment,self.digitalout).fromXML(child) for child in xmlNode]
-        return self
+    #def fromXML(self,xmlNode):
+    #    #while self.listProperty: #go until the list is empty
+    #    #    self.listProperty.pop()
+    #    self.listProperty=[Transition(self.experiment,self.digitalout).fromXML(child) for child in xmlNode]
+    #    return self
 
 class Waveform(Prop):
     
@@ -123,8 +123,8 @@ class Waveform(Prop):
         return self
     
     def addTransition(self):
-        newTransition=Transition(self.experiment,self.digitalout)
-        self.sequence.append(newTransition)
+        #newTransition=Transition(self.experiment,self.digitalout)
+        newTransition=self.sequence.add()
         self.updateFigure()
         return newTransition
     

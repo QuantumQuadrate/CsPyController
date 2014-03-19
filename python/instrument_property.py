@@ -88,6 +88,7 @@ class Prop(Atom):
                     except Exception as e:
                         logger.warning('While picking '+p+' in Prop.toHDF5() in '+self.name+'.\n'+str(e)+'\n')
                         raise PauseError
+        return my_node
     
     def fromHDF5(self,hdf):
         '''This function provides generic HDF5 loading behavior for this package.
@@ -515,7 +516,7 @@ class ListProp(Prop):
         self.listProperty.remove(x)
     
     def add(self):
-        new=self.listElementType(self.listElementName,self.experiment,**self.listElementKwargs)
+        new=self.listElementType(self.listElementName+str(len(self.listProperty)),self.experiment,**self.listElementKwargs)
         self.listProperty.append(new)
         return new
     
@@ -533,13 +534,70 @@ class ListProp(Prop):
                     logger.warning('Evaluating list item '+str(i)+' '+o.name+' in ListProp.evaluate() in '+self.name+'.\n'+str(e))
                     raise PauseError
     
+    def toHDF5(self,hdf):
+        #create the normal hdf group, then use it here (don't worry, 'listProperty' is not in self.properties)
+        my_node=super(ListProp,self).toHDF5(hdf)
+        
+        #create a group called listProperty
+        list_node=my_node.create_group('listProperty')
+        
+        #go through the listProperty and toHDF5 each item
+        for i,o in enumerate(self.listProperty):
+            
+            #if hasattr(o,'name'):
+            #    name=o.name
+            #else:
+            name=self.listElementName+str(i)
+            
+            #try to save it in various ways
+            if hasattr(o,'toHDF5'):
+            #use toHDF5() of the object if available
+                try:
+                    o.name=name
+                    o.toHDF5(list_node)
+                except PauseError:
+                    #just pass it along
+                    raise PauseError
+                except Exception as e:
+                    logger.warning('While trying toHDF5() on list item {} in ListProp.toHDF5() in {}.\n{}\n'.format(name,self.name,str(e)))
+                    raise PauseError
+            else:
+            #try to save it directly as a dataset.  If that fails, save its pickle
+                try:
+                    #if it of a known well-behaved type, just go ahead and save to HDF5 dataset
+                    list_node[name]=o
+                except:
+                    #else just pickle it
+                    try:
+                        list_node[name]=pickle.dumps(o)
+                    except Exception as e:
+                        logger.warning('While picking list item {} in Prop.toHDF5() in {}.\n{}\n'.format(i,self.name,str(e)))
+                        raise PauseError
+        return my_node
+    
+    def fromHDF5(self,hdf):
+        #load the normal stuff
+        super(ListProperty,self).fromHDF5(hdf)
+        
+        #load the listProperty
+        if 'listProperty' in hdf:
+            try:
+                self.listProperty=[self.listElementType(child.name,self.experiment,**self.listElementKwargs).fromHDF5(child) for i,child in enumerate(hdf['listProperty'])]
+            except Exception as e:
+                logger.warning('in '+self.name+' in ListProp.fromHDF5() for hdf node: '+hdf.name+'.\n'+str(e)+'\n'+str(traceback.format_exc())+'\n')
+                raise PauseError
+        else:
+            logger.warning('HDF group for ListProp {} did not contain a node listProperty in {}'.format(self.name))
+            raise PauseError
+        return self
+    
     def toXML(self):
         #go through the listProperty and toXML each item
         output=''
         
         for i,o in enumerate(self.listProperty):
             try:
-                output+=self.XMLProtocol(o,self.listElementName) #give the index number as the XML tag, this will only be used if the item does not have its own toXML()
+                output+=self.XMLProtocol(o,self.listElementName+str(i)) #give the index number as the XML tag, this will only be used if the item does not have its own toXML()
             except PauseError:
                 raise PauseError
             except Exception as e:
@@ -552,7 +610,7 @@ class ListProp(Prop):
         output=''
         
         for i,o in enumerate(self.listProperty):
-            output+=self.HardwareProtocol(o,self.listElementName) #give the index number as the XML tag, this will only be used if the item does not have its own toHardware()
+            output+=self.HardwareProtocol(o,self.listElementName+str(i)) #give the index number as the XML tag, this will only be used if the item does not have its own toHardware()
         
         return '<{}>{}</{}>\n'.format(self.name,output,self.name)
     
@@ -563,7 +621,8 @@ class ListProp(Prop):
             #so we don't lose our list identity
             #while self.listProperty: #go until the list is empty
             #    self.listProperty.pop()
-            self.listProperty=[self.listElementType(self.listElementName,self.experiment,**self.listElementKwargs).fromXML(child) for i, child in enumerate(xmlNode)]
+            #TODO replace self.listElementName+str(i) with child.tag once conversion has been made
+            self.listProperty=[self.listElementType(self.listElementName+str(i),self.experiment,**self.listElementKwargs).fromXML(child) for i,child in enumerate(xmlNode)]
         except Exception as e:
             logger.warning('in '+self.name+' in ListProp.fromXML() for xml tag: '+xmlNode.tag+'.\n'+str(e)+'\n'+str(traceback.format_exc())+'\n')
         return self

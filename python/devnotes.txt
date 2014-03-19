@@ -72,6 +72,7 @@ TODO:
     make it so that only relevant channels are shown in waveform (can we do this is hardware too?)
     finish noise eater waveform
     use start trigger on HSDIO
+    you erased the waveform names.  Fix that.
     
 Note: changed waveform PGC_1 slightly regarding t1 delay, should be as intended now
     
