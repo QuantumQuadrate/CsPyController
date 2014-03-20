@@ -600,9 +600,6 @@
 			<Item Name="Close connection if open.vi" Type="VI" URL="../PI_piezo/GCS_LabVIEW_digital/Low Level/Communication.llb/Close connection if open.vi"/>
 			<Item Name="Analog FGlobal.vi" Type="VI" URL="../PI_piezo/GCS_LabVIEW_digital/Low Level/Analog control.llb/Analog FGlobal.vi"/>
 			<Item Name="Hamamatsu_serial.vi" Type="VI" URL="../Hamamatsu_serial.vi"/>
-			<Item Name="niHSDIO_64.dll" Type="Document" URL="niHSDIO_64.dll">
-				<Property Name="NI.PreserveRelativePath" Type="Bool">true</Property>
-			</Item>
 			<Item Name="DDS_profile.ctl" Type="VI" URL="../../DDS drivers v3/DDS_profile.ctl"/>
 			<Item Name="DDS_Close_Multiple_Boxes.vi" Type="VI" URL="../../DDS drivers v3/DDS_Close_Multiple_Boxes.vi"/>
 			<Item Name="DDS Close.vi" Type="VI" URL="../../DDS drivers v3/DDS Close.vi"/>
@@ -623,6 +620,9 @@
 			<Item Name="E816_Configuration_Setup.vi" Type="VI" URL="../PI_piezo/GCS_LabVIEW_digital/E816_Configuration_Setup.vi"/>
 			<Item Name="continue.vi" Type="VI" URL="../Experiment/continue.vi"/>
 			<Item Name="Variable_Settings.ctl" Type="VI" URL="../ExperimentVariables/Variable_Settings.ctl"/>
+			<Item Name="niHSDIO_64.dll" Type="Document" URL="niHSDIO_64.dll">
+				<Property Name="NI.PreserveRelativePath" Type="Bool">true</Property>
+			</Item>
 			<Item Name="XDNodeRunTimeDep.lvlib" Type="Library" URL="/&lt;vilib&gt;/Platform/TimedLoop/XDataNode/XDNodeRunTimeDep.lvlib"/>
 		</Item>
 		<Item Name="Build Specifications" Type="Build">

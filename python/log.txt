@@ -416,3 +416,6 @@ unable to create group (Symbol table: Unable to initialize object)
 2014/03/19 17:05:36 MainThread experiments WARNING Index=1 out of range for independent variable a. Setting a.index=0
 
 2014/03/19 17:06:16 MainThread __main__ INFO starting application
+2014/03/20 10:57:47 MainThread experiments WARNING Index=1 out of range for independent variable a. Setting a.index=0
+
+2014/03/20 10:58:27 MainThread __main__ INFO starting application
