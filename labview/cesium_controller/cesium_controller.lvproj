@@ -28,26 +28,24 @@
 		</Item>
 		<Item Name="Experiment.lvclass" Type="LVClass" URL="../Experiment/Experiment.lvclass"/>
 		<Item Name="ExperimentVariables.lvclass" Type="LVClass" URL="../ExperimentVariables/ExperimentVariables.lvclass"/>
-		<Item Name="HSDIO.lvclass" Type="LVClass" URL="../HSDIO/HSDIO.lvclass"/>
-		<Item Name="DAQmx_pulse_out.lvclass" Type="LVClass" URL="../DAQmx_pulse_out/DAQmx_pulse_out.lvclass"/>
-		<Item Name="DDS.lvclass" Type="LVClass" URL="../DDS/DDS.lvclass"/>
+		<Item Name="Analog_Input.lvclass" Type="LVClass" URL="../Analog_Input/Analog_Input.lvclass"/>
+		<Item Name="Analog_Output.lvclass" Type="LVClass" URL="../Analog_output/Analog_Output.lvclass"/>
 		<Item Name="Camera.lvclass" Type="LVClass" URL="../Camera/Camera.lvclass"/>
 		<Item Name="Hamamatsu_C9100-13.lvclass" Type="LVClass" URL="../Camera/Hamamatsu_C9100-13/Hamamatsu_C9100-13.lvclass"/>
 		<Item Name="Counter.lvclass" Type="LVClass" URL="../Counter/Counter.lvclass"/>
-		<Item Name="Analog_Output.lvclass" Type="LVClass" URL="../Analog_output/Analog_Output.lvclass"/>
-		<Item Name="Analog_Input.lvclass" Type="LVClass" URL="../Analog_Input/Analog_Input.lvclass"/>
-		<Item Name="PicoMotor.lvclass" Type="LVClass" URL="../PicoMotor/PicoMotor.lvclass"/>
-		<Item Name="TCP_IP.lvclass" Type="LVClass" URL="../TCP_IP/TCP_IP.lvclass"/>
+		<Item Name="DAQmx_pulse_out.lvclass" Type="LVClass" URL="../DAQmx_pulse_out/DAQmx_pulse_out.lvclass"/>
+		<Item Name="DDS.lvclass" Type="LVClass" URL="../DDS/DDS.lvclass"/>
+		<Item Name="HSDIO.lvclass" Type="LVClass" URL="../HSDIO/HSDIO.lvclass"/>
 		<Item Name="GPIB.lvclass" Type="LVClass" URL="../GPIB/GPIB.lvclass"/>
 		<Item Name="HP83712B_RF_Generator.lvclass" Type="LVClass" URL="../GPIB/HP83712B_RF_Generator/HP83712B_RF_Generator.lvclass"/>
 		<Item Name="HP83623A_RF_Generator.lvclass" Type="LVClass" URL="../GPIB/HP83623A_RF_Generator/HP83623A_RF_Generator.lvclass"/>
 		<Item Name="HP8662A_RF_Generator.lvclass" Type="LVClass" URL="../GPIB/HP8662A_RF_Generator/HP8662A_RF_Generator.lvclass"/>
-		<Item Name="TTL_input.lvclass" Type="LVClass" URL="../TTL_input/TTL_input.lvclass"/>
 		<Item Name="PI_Piezo.lvclass" Type="LVClass" URL="../PI_piezo/PI_Piezo.lvclass"/>
+		<Item Name="PicoMotor.lvclass" Type="LVClass" URL="../PicoMotor/PicoMotor.lvclass"/>
+		<Item Name="TCP_IP.lvclass" Type="LVClass" URL="../TCP_IP/TCP_IP.lvclass"/>
+		<Item Name="TTL_input.lvclass" Type="LVClass" URL="../TTL_input/TTL_input.lvclass"/>
 		<Item Name="append_to_log.vi" Type="VI" URL="../append_to_log.vi"/>
 		<Item Name="handle_errors.vi" Type="VI" URL="../handle_errors.vi"/>
-		<Item Name="states.ctl" Type="VI" URL="../Experiment/states.ctl"/>
-		<Item Name="Globals.vi" Type="VI" URL="../Experiment/Globals.vi"/>
 		<Item Name="Dependencies" Type="Dependencies">
 			<Item Name="instr.lib" Type="Folder">
 				<Item Name="niHSDIO_ctl Trigger DigEdge - Edge Values (Ring).ctl" Type="VI" URL="/&lt;instrlib&gt;/niHSDIO/niHSDIO.llb/niHSDIO_ctl Trigger DigEdge - Edge Values (Ring).ctl"/>
@@ -135,10 +133,8 @@
 				<Item Name="DAQmx Timing (Sample Clock).vi" Type="VI" URL="/&lt;vilib&gt;/DAQmx/configure/timing.llb/DAQmx Timing (Sample Clock).vi"/>
 				<Item Name="DAQmx Timing.vi" Type="VI" URL="/&lt;vilib&gt;/DAQmx/configure/timing.llb/DAQmx Timing.vi"/>
 				<Item Name="DialogType.ctl" Type="VI" URL="/&lt;vilib&gt;/Utility/error.llb/DialogType.ctl"/>
-				<Item Name="DTbl Empty Digital.vi" Type="VI" URL="/&lt;vilib&gt;/Waveform/DTblOps.llb/DTbl Empty Digital.vi"/>
 				<Item Name="Error Cluster From Error Code.vi" Type="VI" URL="/&lt;vilib&gt;/Utility/error.llb/Error Cluster From Error Code.vi"/>
 				<Item Name="Image Type" Type="VI" URL="/&lt;vilib&gt;/vision/Image Controls.llb/Image Type"/>
-				<Item Name="IMAQ ArrayToImage" Type="VI" URL="/&lt;vilib&gt;/vision/Basics.llb/IMAQ ArrayToImage"/>
 				<Item Name="IMAQ Attribute.vi" Type="VI" URL="/&lt;vilib&gt;/vision/driver/imaqhl.llb/IMAQ Attribute.vi"/>
 				<Item Name="IMAQ Create" Type="VI" URL="/&lt;vilib&gt;/vision/Basics.llb/IMAQ Create"/>
 				<Item Name="IMAQ Extract Buffer Old Style.vi" Type="VI" URL="/&lt;vilib&gt;/vision/driver/DLLCalls.llb/IMAQ Extract Buffer Old Style.vi"/>
@@ -463,7 +459,6 @@
 			</Item>
 			<Item Name="AD9910 Register Info.vi" Type="VI" URL="../../DDS drivers v3/AD9910 Register Info.vi"/>
 			<Item Name="AD9910 registers.ctl" Type="VI" URL="../../DDS drivers v3/AD9910 registers.ctl"/>
-			<Item Name="array_sort_and_remove_redundancy.vi" Type="VI" URL="../array_sort_and_remove_redundancy.vi"/>
 			<Item Name="DDS Channel to CS Pin.vi" Type="VI" URL="../../DDS drivers v3/DDS Channel to CS Pin.vi"/>
 			<Item Name="DDS Channel to IO Update Pin.vi" Type="VI" URL="../../DDS drivers v3/DDS Channel to IO Update Pin.vi"/>
 			<Item Name="DDS Channel to Master Reset Pin.vi" Type="VI" URL="../../DDS drivers v3/DDS Channel to Master Reset Pin.vi"/>
@@ -489,11 +484,7 @@
 			<Item Name="imaq.dll" Type="Document" URL="imaq.dll">
 				<Property Name="NI.PreserveRelativePath" Type="Bool">true</Property>
 			</Item>
-			<Item Name="last_array_row.vi" Type="VI" URL="../last_array_row.vi"/>
 			<Item Name="ni845x.dll" Type="Document" URL="ni845x.dll">
-				<Property Name="NI.PreserveRelativePath" Type="Bool">true</Property>
-			</Item>
-			<Item Name="nivision.dll" Type="Document" URL="nivision.dll">
 				<Property Name="NI.PreserveRelativePath" Type="Bool">true</Property>
 			</Item>
 			<Item Name="nivissvc.dll" Type="Document" URL="nivissvc.dll">
@@ -508,7 +499,6 @@
 			<Item Name="counter_graph_refnums.ctl" Type="VI" URL="../Counter/counter_graph_refnums.ctl"/>
 			<Item Name="lvanlys.dll" Type="Document" URL="/&lt;resource&gt;/lvanlys.dll"/>
 			<Item Name="gap_table_to_uncompressed_waveform.vi" Type="VI" URL="../gap_table_to_uncompressed_waveform.vi"/>
-			<Item Name="DDS_Settings_Cluster.ctl" Type="VI" URL="../DDS/DDS_Settings_Cluster.ctl"/>
 			<Item Name="Array_of_DDS_Boxes.ctl" Type="VI" URL="../../DDS drivers v3/Array_of_DDS_Boxes.ctl"/>
 			<Item Name="DDS_box_cluster.ctl" Type="VI" URL="../../DDS drivers v3/DDS_box_cluster.ctl"/>
 			<Item Name="DDS_box_device_reference.ctl" Type="VI" URL="../../DDS drivers v3/DDS_box_device_reference.ctl"/>
@@ -599,7 +589,7 @@
 			<Item Name="GetPosition.vi" Type="VI" URL="../PicoMotor/NewFocus8742/Command VIs/GetPosition.vi"/>
 			<Item Name="Close connection if open.vi" Type="VI" URL="../PI_piezo/GCS_LabVIEW_digital/Low Level/Communication.llb/Close connection if open.vi"/>
 			<Item Name="Analog FGlobal.vi" Type="VI" URL="../PI_piezo/GCS_LabVIEW_digital/Low Level/Analog control.llb/Analog FGlobal.vi"/>
-			<Item Name="Hamamatsu_serial.vi" Type="VI" URL="../Hamamatsu_serial.vi"/>
+			<Item Name="Hamamatsu_serial.vi" Type="VI" URL="../Camera/Hamamatsu_C9100-13/Hamamatsu_serial.vi"/>
 			<Item Name="DDS_profile.ctl" Type="VI" URL="../../DDS drivers v3/DDS_profile.ctl"/>
 			<Item Name="DDS_Close_Multiple_Boxes.vi" Type="VI" URL="../../DDS drivers v3/DDS_Close_Multiple_Boxes.vi"/>
 			<Item Name="DDS Close.vi" Type="VI" URL="../../DDS drivers v3/DDS Close.vi"/>
