@@ -26,7 +26,6 @@
 			<Item Name="temp_monitor.vi" Type="VI" URL="../Arroyo/temp_monitor.vi"/>
 		</Item>
 		<Item Name="Experiment.lvclass" Type="LVClass" URL="../Experiment/Experiment.lvclass"/>
-		<Item Name="ExperimentVariables.lvclass" Type="LVClass" URL="../ExperimentVariables/ExperimentVariables.lvclass"/>
 		<Item Name="Analog_Input.lvclass" Type="LVClass" URL="../Analog_Input/Analog_Input.lvclass"/>
 		<Item Name="Analog_Output.lvclass" Type="LVClass" URL="../Analog_output/Analog_Output.lvclass"/>
 		<Item Name="Camera.lvclass" Type="LVClass" URL="../Camera/Camera.lvclass"/>
@@ -606,7 +605,6 @@
 			<Item Name="PI Open Interface of one system.vi" Type="VI" URL="../PI_piezo/GCS_LabVIEW_digital/Low Level/Communication.llb/PI Open Interface of one system.vi"/>
 			<Item Name="E816_Configuration_Setup.vi" Type="VI" URL="../PI_piezo/GCS_LabVIEW_digital/E816_Configuration_Setup.vi"/>
 			<Item Name="continue.vi" Type="VI" URL="../Experiment/continue.vi"/>
-			<Item Name="Variable_Settings.ctl" Type="VI" URL="../ExperimentVariables/Variable_Settings.ctl"/>
 			<Item Name="niHSDIO_64.dll" Type="Document" URL="niHSDIO_64.dll">
 				<Property Name="NI.PreserveRelativePath" Type="Bool">true</Property>
 			</Item>
