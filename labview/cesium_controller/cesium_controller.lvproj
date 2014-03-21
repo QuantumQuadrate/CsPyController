@@ -16,7 +16,6 @@
 		<Item Name="Andor" Type="Folder">
 			<Item Name="Andor_settings.ctl" Type="VI" URL="../Camera/Andor/Andor_settings.ctl"/>
 			<Item Name="move_andor_files.vi" Type="VI" URL="../Camera/Andor/move_andor_files.vi"/>
-			<Item Name="Andor_to_xml.vi" Type="VI" URL="../config_file_io/Andor_to_xml.vi"/>
 			<Item Name="Andor_load_xml.vi" Type="VI" URL="../config_file_io/Andor_load_xml.vi"/>
 		</Item>
 		<Item Name="config" Type="Folder">
@@ -44,6 +43,7 @@
 		<Item Name="PicoMotor.lvclass" Type="LVClass" URL="../PicoMotor/PicoMotor.lvclass"/>
 		<Item Name="TCP_IP.lvclass" Type="LVClass" URL="../TCP_IP/TCP_IP.lvclass"/>
 		<Item Name="TTL_input.lvclass" Type="LVClass" URL="../TTL_input/TTL_input.lvclass"/>
+		<Item Name="Globals.vi" Type="VI" URL="../Globals.vi"/>
 		<Item Name="append_to_log.vi" Type="VI" URL="../append_to_log.vi"/>
 		<Item Name="handle_errors.vi" Type="VI" URL="../handle_errors.vi"/>
 		<Item Name="Dependencies" Type="Dependencies">
@@ -192,8 +192,6 @@
 				<Item Name="DWDT Uncompress Digital.vi" Type="VI" URL="/&lt;vilib&gt;/Waveform/DWDTOps.llb/DWDT Uncompress Digital.vi"/>
 				<Item Name="DAQmx Start Trigger (Digital Edge).vi" Type="VI" URL="/&lt;vilib&gt;/DAQmx/configure/trigger.llb/DAQmx Start Trigger (Digital Edge).vi"/>
 				<Item Name="DAQmx Trigger.vi" Type="VI" URL="/&lt;vilib&gt;/DAQmx/configure/trigger.llb/DAQmx Trigger.vi"/>
-				<Item Name="DWDT Digital Size.vi" Type="VI" URL="/&lt;vilib&gt;/Waveform/DWDTOps.llb/DWDT Digital Size.vi"/>
-				<Item Name="Digital Size.vi" Type="VI" URL="/&lt;vilib&gt;/Waveform/DWDT.llb/Digital Size.vi"/>
 				<Item Name="DAQmx Write (Digital Wfm 1Chan NSamp).vi" Type="VI" URL="/&lt;vilib&gt;/DAQmx/write.llb/DAQmx Write (Digital Wfm 1Chan NSamp).vi"/>
 				<Item Name="DAQmx Write (Analog 1D Wfm NChan NSamp).vi" Type="VI" URL="/&lt;vilib&gt;/DAQmx/write.llb/DAQmx Write (Analog 1D Wfm NChan NSamp).vi"/>
 				<Item Name="DAQmx Write.vi" Type="VI" URL="/&lt;vilib&gt;/DAQmx/write.llb/DAQmx Write.vi"/>
@@ -498,7 +496,6 @@
 			<Item Name="Read Write Script 3.vi" Type="VI" URL="../../DDS drivers v3/Read Write Script 3.vi"/>
 			<Item Name="counter_graph_refnums.ctl" Type="VI" URL="../Counter/counter_graph_refnums.ctl"/>
 			<Item Name="lvanlys.dll" Type="Document" URL="/&lt;resource&gt;/lvanlys.dll"/>
-			<Item Name="gap_table_to_uncompressed_waveform.vi" Type="VI" URL="../gap_table_to_uncompressed_waveform.vi"/>
 			<Item Name="Array_of_DDS_Boxes.ctl" Type="VI" URL="../../DDS drivers v3/Array_of_DDS_Boxes.ctl"/>
 			<Item Name="DDS_box_cluster.ctl" Type="VI" URL="../../DDS drivers v3/DDS_box_cluster.ctl"/>
 			<Item Name="DDS_box_device_reference.ctl" Type="VI" URL="../../DDS drivers v3/DDS_box_device_reference.ctl"/>
@@ -631,7 +628,7 @@
 				<Property Name="Bld_localDestDirType" Type="Str">relativeToCommon</Property>
 				<Property Name="Bld_modifyLibraryFile" Type="Bool">true</Property>
 				<Property Name="Bld_previewCacheID" Type="Str">{574B9F9D-241F-4A68-8892-A5E401941744}</Property>
-				<Property Name="Bld_version.build" Type="Int">9</Property>
+				<Property Name="Bld_version.build" Type="Int">10</Property>
 				<Property Name="Bld_version.major" Type="Int">1</Property>
 				<Property Name="Destination[0].destName" Type="Str">cs_server.exe</Property>
 				<Property Name="Destination[0].path" Type="Path">../cs_server.exe</Property>
