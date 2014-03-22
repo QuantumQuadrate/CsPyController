@@ -13,3 +13,433 @@
 2014/03/12 18:55:16 MainThread __main__ INFO starting application
 2014/03/12 18:55:27 MainThread experiments WARNING No default settings.xml found.
 2014/03/12 18:55:29 MainThread __main__ INFO starting application
+2014/03/16 18:26:37 MainThread experiments WARNING Index=1 out of range for independent variable a. Setting a.index=0
+
+2014/03/16 18:27:18 MainThread __main__ INFO starting application
+2014/03/16 18:38:50 MainThread cs_evaluate WARNING evaluating property script, HSDIO script that says what waveforms to generate, script script1\ncompressedGenerate MOT_Loading\ncompressedGenerate PGC_1\ncompressedGenerate MOT_drop\ncompressedGenerate PreReadout\ncompressedGenerate Readout\ncompressedGenerate Camera_delay\ncompressedGenerate Readout\nend script'
+Could not eval string: script script1\ncompressedGenerate MOT_Loading\ncompressedGenerate PGC_1\ncompressedGenerate MOT_drop\ncompressedGenerate PreReadout\ncompressedGenerate Readout\ncompressedGenerate Camera_delay\ncompressedGenerate Readout\nend script'
+invalid syntax (<string>, line 1)Traceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\cs_evaluate.py", line 28, in evalWithDict
+    return eval(string,globals()) #,varDict.copy()) #dict(numpyDict.items()+varDict.items())) #create a new dictionary so all numpy functions and everything defined in varDict is available as a global during evaluation
+  File "<string>", line 1
+    script script1\ncompressedGenerate MOT_Loading\ncompressedGenerate PGC_1\ncompressedGenerate MOT_drop\ncompressedGenerate PreReadout\ncompressedGenerate Readout\ncompressedGenerate Camera_delay\ncompressedGenerate Readout\nend script'
+                 ^
+SyntaxError: invalid syntax
+
+
+2014/03/16 18:38:51 MainThread cs_evaluate WARNING evaluating property script, HSDIO script that says what waveforms to generate, '''script script1\ncompressedGenerate MOT_Loading\ncompressedGenerate PGC_1\ncompressedGenerate MOT_drop\ncompressedGenerate PreReadout\ncompressedGenerate Readout\ncompressedGenerate Camera_delay\ncompressedGenerate Readout\nend script'
+Could not eval string: '''script script1\ncompressedGenerate MOT_Loading\ncompressedGenerate PGC_1\ncompressedGenerate MOT_drop\ncompressedGenerate PreReadout\ncompressedGenerate Readout\ncompressedGenerate Camera_delay\ncompressedGenerate Readout\nend script'
+EOF while scanning triple-quoted string literal (<string>, line 1)Traceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\cs_evaluate.py", line 28, in evalWithDict
+    return eval(string,globals()) #,varDict.copy()) #dict(numpyDict.items()+varDict.items())) #create a new dictionary so all numpy functions and everything defined in varDict is available as a global during evaluation
+  File "<string>", line 1
+    '''script script1\ncompressedGenerate MOT_Loading\ncompressedGenerate PGC_1\ncompressedGenerate MOT_drop\ncompressedGenerate PreReadout\ncompressedGenerate Readout\ncompressedGenerate Camera_delay\ncompressedGenerate Readout\nend script'
+                                                                                                                                                                                                                                                ^
+SyntaxError: EOF while scanning triple-quoted string literal
+
+
+2014/03/16 18:38:53 MainThread cs_evaluate WARNING evaluating property script, HSDIO script that says what waveforms to generate, '''script script1\ncompressedGenerate MOT_Loading\ncompressedGenerate PGC_1\ncompressedGenerate MOT_drop\ncompressedGenerate PreReadout\ncompressedGenerate Readout\ncompressedGenerate Camera_delay\ncompressedGenerate Readout\nend script
+Could not eval string: '''script script1\ncompressedGenerate MOT_Loading\ncompressedGenerate PGC_1\ncompressedGenerate MOT_drop\ncompressedGenerate PreReadout\ncompressedGenerate Readout\ncompressedGenerate Camera_delay\ncompressedGenerate Readout\nend script
+EOF while scanning triple-quoted string literal (<string>, line 1)Traceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\cs_evaluate.py", line 28, in evalWithDict
+    return eval(string,globals()) #,varDict.copy()) #dict(numpyDict.items()+varDict.items())) #create a new dictionary so all numpy functions and everything defined in varDict is available as a global during evaluation
+  File "<string>", line 1
+    '''script script1\ncompressedGenerate MOT_Loading\ncompressedGenerate PGC_1\ncompressedGenerate MOT_drop\ncompressedGenerate PreReadout\ncompressedGenerate Readout\ncompressedGenerate Camera_delay\ncompressedGenerate Readout\nend script
+                                                                                                                                                                                                                                               ^
+SyntaxError: EOF while scanning triple-quoted string literal
+
+
+2014/03/16 18:40:56 MainThread LabView DEBUG LabView.open() opening sock
+2014/03/16 18:40:56 MainThread LabView DEBUG LabView.open() sock opened
+2014/03/16 18:40:59 MainThread LabView DEBUG debug LabView.open() closing sock
+2014/03/16 18:40:59 MainThread LabView DEBUG LabView.open() opening sock
+2014/03/16 18:40:59 MainThread LabView DEBUG LabView.open() sock opened
+2014/03/16 18:47:15 MainThread cs_evaluate WARNING evaluating property enable, enable HSDIO output, True
+Could not eval string: F
+name 'F' is not definedTraceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\cs_evaluate.py", line 28, in evalWithDict
+    return eval(string,globals()) #,varDict.copy()) #dict(numpyDict.items()+varDict.items())) #create a new dictionary so all numpy functions and everything defined in varDict is available as a global during evaluation
+  File "<string>", line 1, in <module>
+NameError: name 'F' is not defined
+
+
+2014/03/16 18:47:15 MainThread cs_evaluate WARNING evaluating property enable, enable HSDIO output, True
+Could not eval string: Fa
+name 'Fa' is not definedTraceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\cs_evaluate.py", line 28, in evalWithDict
+    return eval(string,globals()) #,varDict.copy()) #dict(numpyDict.items()+varDict.items())) #create a new dictionary so all numpy functions and everything defined in varDict is available as a global during evaluation
+  File "<string>", line 1, in <module>
+NameError: name 'Fa' is not defined
+
+
+2014/03/16 18:47:15 MainThread cs_evaluate WARNING evaluating property enable, enable HSDIO output, True
+Could not eval string: Fal
+name 'Fal' is not definedTraceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\cs_evaluate.py", line 28, in evalWithDict
+    return eval(string,globals()) #,varDict.copy()) #dict(numpyDict.items()+varDict.items())) #create a new dictionary so all numpy functions and everything defined in varDict is available as a global during evaluation
+  File "<string>", line 1, in <module>
+NameError: name 'Fal' is not defined
+
+
+2014/03/16 18:47:15 MainThread cs_evaluate WARNING evaluating property enable, enable HSDIO output, True
+Could not eval string: Fals
+name 'Fals' is not definedTraceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\cs_evaluate.py", line 28, in evalWithDict
+    return eval(string,globals()) #,varDict.copy()) #dict(numpyDict.items()+varDict.items())) #create a new dictionary so all numpy functions and everything defined in varDict is available as a global during evaluation
+  File "<string>", line 1, in <module>
+NameError: name 'Fals' is not defined
+
+
+2014/03/16 18:47:22 MainThread cs_evaluate WARNING evaluating property enable, enable HSDIO output, False
+Could not eval string: T
+name 'T' is not definedTraceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\cs_evaluate.py", line 28, in evalWithDict
+    return eval(string,globals()) #,varDict.copy()) #dict(numpyDict.items()+varDict.items())) #create a new dictionary so all numpy functions and everything defined in varDict is available as a global during evaluation
+  File "<string>", line 1, in <module>
+NameError: name 'T' is not defined
+
+
+2014/03/16 18:47:22 MainThread cs_evaluate WARNING evaluating property enable, enable HSDIO output, False
+Could not eval string: Tr
+name 'Tr' is not definedTraceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\cs_evaluate.py", line 28, in evalWithDict
+    return eval(string,globals()) #,varDict.copy()) #dict(numpyDict.items()+varDict.items())) #create a new dictionary so all numpy functions and everything defined in varDict is available as a global during evaluation
+  File "<string>", line 1, in <module>
+NameError: name 'Tr' is not defined
+
+
+2014/03/16 18:47:22 MainThread cs_evaluate WARNING evaluating property enable, enable HSDIO output, False
+Could not eval string: Tru
+name 'Tru' is not definedTraceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\cs_evaluate.py", line 28, in evalWithDict
+    return eval(string,globals()) #,varDict.copy()) #dict(numpyDict.items()+varDict.items())) #create a new dictionary so all numpy functions and everything defined in varDict is available as a global during evaluation
+  File "<string>", line 1, in <module>
+NameError: name 'Tru' is not defined
+
+
+2014/03/16 18:47:25 MainThread cs_evaluate WARNING evaluating property waitForStartTrigger, HSDIO wait for start trigger, True
+Could not eval string: F
+name 'F' is not definedTraceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\cs_evaluate.py", line 28, in evalWithDict
+    return eval(string,globals()) #,varDict.copy()) #dict(numpyDict.items()+varDict.items())) #create a new dictionary so all numpy functions and everything defined in varDict is available as a global during evaluation
+  File "<string>", line 1, in <module>
+NameError: name 'F' is not defined
+
+
+2014/03/16 18:47:25 MainThread cs_evaluate WARNING evaluating property waitForStartTrigger, HSDIO wait for start trigger, True
+Could not eval string: Fa
+name 'Fa' is not definedTraceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\cs_evaluate.py", line 28, in evalWithDict
+    return eval(string,globals()) #,varDict.copy()) #dict(numpyDict.items()+varDict.items())) #create a new dictionary so all numpy functions and everything defined in varDict is available as a global during evaluation
+  File "<string>", line 1, in <module>
+NameError: name 'Fa' is not defined
+
+
+2014/03/16 18:47:25 MainThread cs_evaluate WARNING evaluating property waitForStartTrigger, HSDIO wait for start trigger, True
+Could not eval string: Fal
+name 'Fal' is not definedTraceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\cs_evaluate.py", line 28, in evalWithDict
+    return eval(string,globals()) #,varDict.copy()) #dict(numpyDict.items()+varDict.items())) #create a new dictionary so all numpy functions and everything defined in varDict is available as a global during evaluation
+  File "<string>", line 1, in <module>
+NameError: name 'Fal' is not defined
+
+
+2014/03/16 18:47:26 MainThread cs_evaluate WARNING evaluating property waitForStartTrigger, HSDIO wait for start trigger, True
+Could not eval string: Fals
+name 'Fals' is not definedTraceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\cs_evaluate.py", line 28, in evalWithDict
+    return eval(string,globals()) #,varDict.copy()) #dict(numpyDict.items()+varDict.items())) #create a new dictionary so all numpy functions and everything defined in varDict is available as a global during evaluation
+  File "<string>", line 1, in <module>
+NameError: name 'Fals' is not defined
+
+
+2014/03/16 18:50:14 MainThread experiments WARNING Index=1 out of range for independent variable a. Setting a.index=0
+
+2014/03/16 18:50:54 MainThread __main__ INFO starting application
+2014/03/16 19:14:03 MainThread LabView DEBUG LabView.open() opening sock
+2014/03/16 19:14:03 MainThread LabView DEBUG LabView.open() sock opened
+2014/03/16 19:14:09 MainThread LabView WARNING LabView instrument should be initialized already, but is not, in LabView.update()
+2014/03/16 19:14:57 MainThread experiments WARNING Index=1 out of range for independent variable a. Setting a.index=0
+
+2014/03/16 19:15:38 MainThread __main__ INFO starting application
+2014/03/16 19:16:26 MainThread LabView DEBUG LabView.open() opening sock
+2014/03/16 19:16:26 MainThread LabView DEBUG LabView.open() sock opened
+2014/03/16 19:17:29 Thread-1 experiments INFO Current status is idle. Cannot continue an experiment unless status is paused.
+2014/03/16 19:28:00 MainThread analysis WARNING Exception trying to plot measurement 0, shot 2, in analysis.ShotsBrowserAnalysis.load()
+
+2014/03/16 19:28:10 MainThread analysis WARNING Exception trying to plot measurement 20, shot 0, in analysis.ShotsBrowserAnalysis.load()
+
+2014/03/16 19:28:10 MainThread analysis WARNING Exception trying to plot measurement 21, shot 0, in analysis.ShotsBrowserAnalysis.load()
+
+2014/03/16 19:28:11 MainThread analysis WARNING Exception trying to plot measurement 20, shot 0, in analysis.ShotsBrowserAnalysis.load()
+
+2014/03/16 19:30:46 MainThread analysis WARNING Exception trying to plot measurement 0, shot 2, in analysis.ShotsBrowserAnalysis.load()
+
+2014/03/16 20:15:15 MainThread experiments WARNING Index=1 out of range for independent variable a. Setting a.index=0
+
+2014/03/16 20:15:17 MainThread instrument_property WARNING Evaluating AnalogOutput in LabView.properties.
+unbound method set_axis() must be called with NullFormatter instance as first argument (got XAxis instance instead)Traceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\instrument_property.py", line 42, in evaluate
+    o.evaluate() #evaluate it
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\AnalogOutput.py", line 163, in evaluate
+    self.update_plot()
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\AnalogOutput.py", line 143, in update_plot
+    self.drawMPL()
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\AnalogOutput.py", line 132, in drawMPL
+    ax.xaxis.set_major_formatter(NullFormatter)
+  File "C:\Users\Saffmanlab\AppData\Local\Enthought\Canopy\User\lib\site-packages\matplotlib\axis.py", line 1441, in set_major_formatter
+    formatter.set_axis(self)
+TypeError: unbound method set_axis() must be called with NullFormatter instance as first argument (got XAxis instance instead)
+
+
+2014/03/16 20:15:17 MainThread experiments WARNING PauseError
+2014/03/16 20:15:55 MainThread __main__ INFO starting application
+2014/03/16 20:18:18 MainThread experiments WARNING Index=1 out of range for independent variable a. Setting a.index=0
+
+2014/03/16 20:18:19 MainThread instrument_property WARNING Evaluating AnalogOutput in LabView.properties.
+unbound method set_axis() must be called with NullFormatter instance as first argument (got XAxis instance instead)Traceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\instrument_property.py", line 42, in evaluate
+    o.evaluate() #evaluate it
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\AnalogOutput.py", line 164, in evaluate
+    self.update_plot()
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\AnalogOutput.py", line 144, in update_plot
+    self.drawMPL()
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\AnalogOutput.py", line 132, in drawMPL
+    ax.xaxis.set_major_formatter(NullFormatter)
+  File "C:\Users\Saffmanlab\AppData\Local\Enthought\Canopy\User\lib\site-packages\matplotlib\axis.py", line 1441, in set_major_formatter
+    formatter.set_axis(self)
+TypeError: unbound method set_axis() must be called with NullFormatter instance as first argument (got XAxis instance instead)
+
+
+2014/03/16 20:18:19 MainThread experiments WARNING PauseError
+2014/03/16 20:18:54 MainThread experiments WARNING Index=1 out of range for independent variable a. Setting a.index=0
+
+2014/03/16 20:19:34 MainThread __main__ INFO starting application
+2014/03/16 20:40:36 MainThread LabView WARNING LabView instrument should be initialized already, but is not, in LabView.update()
+2014/03/16 20:40:47 MainThread LabView DEBUG LabView.open() opening sock
+2014/03/16 20:40:47 MainThread LabView DEBUG LabView.open() sock opened
+2014/03/16 20:40:51 MainThread LabView WARNING LabView instrument should be initialized already, but is not, in LabView.update()
+2014/03/16 20:41:04 MainThread LabView DEBUG debug LabView.open() closing sock
+2014/03/16 20:41:04 MainThread LabView DEBUG LabView.open() opening sock
+2014/03/16 20:41:04 MainThread LabView DEBUG LabView.open() sock opened
+2014/03/16 20:45:12 Thread-1 experiments INFO Current status is idle. Cannot continue an experiment unless status is paused.
+2014/03/16 20:45:17 MainThread analysis WARNING Exception trying to plot measurement 0, shot 1, in analysis.ShotsBrowserAnalysis.load()
+
+2014/03/16 20:45:21 MainThread analysis WARNING Exception trying to plot measurement 1, shot 0, in analysis.ShotsBrowserAnalysis.load()
+
+2014/03/16 20:45:45 Thread-2 experiments INFO Current status is idle. Cannot continue an experiment unless status is paused.
+2014/03/16 20:45:57 MainThread analysis WARNING Exception trying to plot measurement 0, shot 1, in analysis.ShotsBrowserAnalysis.load()
+
+2014/03/16 20:46:00 MainThread analysis WARNING Exception trying to plot measurement 2, shot 0, in analysis.ShotsBrowserAnalysis.load()
+
+2014/03/16 20:46:13 MainThread analysis WARNING Exception trying to plot measurement 0, shot 1, in analysis.ShotsBrowserAnalysis.load()
+
+2014/03/16 20:46:50 Thread-3 experiments INFO Current status is idle. Cannot continue an experiment unless status is paused.
+2014/03/16 20:46:54 MainThread analysis WARNING Exception trying to plot measurement 0, shot 1, in analysis.ShotsBrowserAnalysis.load()
+
+2014/03/16 20:47:00 MainThread analysis WARNING Exception trying to plot measurement 3, shot 0, in analysis.ShotsBrowserAnalysis.load()
+
+2014/03/16 20:47:23 MainThread analysis WARNING Exception trying to plot measurement 0, shot 1, in analysis.ShotsBrowserAnalysis.load()
+
+2014/03/16 20:47:47 Thread-4 experiments INFO Current status is idle. Cannot continue an experiment unless status is paused.
+2014/03/16 20:48:33 Thread-5 experiments INFO Current status is idle. Cannot continue an experiment unless status is paused.
+2014/03/16 20:48:45 MainThread analysis WARNING Exception trying to plot measurement 0, shot 1, in analysis.ShotsBrowserAnalysis.load()
+
+2014/03/16 20:48:53 MainThread analysis WARNING Exception trying to plot measurement 20, shot 0, in analysis.ShotsBrowserAnalysis.load()
+
+2014/03/16 20:51:36 MainThread experiments WARNING Index=1 out of range for independent variable a. Setting a.index=0
+
+2014/03/16 20:53:35 MainThread experiments WARNING Index=1 out of range for independent variable a. Setting a.index=0
+
+2014/03/16 20:54:05 MainThread experiments WARNING Index=1 out of range for independent variable a. Setting a.index=0
+
+2014/03/16 20:54:46 MainThread __main__ INFO starting application
+2014/03/16 20:55:18 MainThread LabView DEBUG LabView.open() opening sock
+2014/03/16 20:55:18 MainThread LabView DEBUG LabView.open() sock opened
+2014/03/16 20:55:49 MainThread analysis WARNING Exception trying to plot measurement 0, shot 1, in analysis.ShotsBrowserAnalysis.load()
+
+2014/03/16 20:55:59 Thread-1 experiments INFO Current status is idle. Cannot continue an experiment unless status is paused.
+2014/03/16 20:56:09 MainThread analysis WARNING Exception trying to plot measurement 0, shot 1, in analysis.ShotsBrowserAnalysis.load()
+
+2014/03/16 20:56:12 MainThread analysis WARNING Exception trying to plot measurement 0, shot 1, in analysis.ShotsBrowserAnalysis.load()
+
+2014/03/16 20:56:51 MainThread analysis WARNING Exception trying to plot measurement 12, shot 2, in analysis.ShotsBrowserAnalysis.load()
+
+2014/03/16 20:56:59 MainThread analysis WARNING Exception trying to plot measurement 20, shot 0, in analysis.ShotsBrowserAnalysis.load()
+
+2014/03/17 08:43:44 MainThread experiments WARNING Index=1 out of range for independent variable a. Setting a.index=0
+
+2014/03/17 08:44:25 MainThread __main__ INFO starting application
+2014/03/18 18:44:02 MainThread experiments WARNING Index=1 out of range for independent variable a. Setting a.index=0
+
+2014/03/18 18:44:43 MainThread __main__ INFO starting application
+2014/03/18 18:45:08 MainThread instrument_property WARNING While trying toHDF5() on list item channel in ListProp.toHDF5() in state.
+unable to create group (Symbol table: Unable to initialize object)
+
+2014/03/18 18:45:08 MainThread instrument_property WARNING While trying state.toHDF5() in Prop.toHDF5() in transition.
+
+
+2014/03/18 18:45:08 MainThread instrument_property WARNING While trying toHDF5() on list item transition in ListProp.toHDF5() in sequence.
+
+
+2014/03/18 18:45:08 MainThread instrument_property WARNING While trying sequence.toHDF5() in Prop.toHDF5() in idle.
+
+
+2014/03/18 18:45:08 MainThread instrument_property WARNING While trying toHDF5() on list item idle in ListProp.toHDF5() in waveforms.
+
+
+2014/03/18 18:45:08 MainThread instrument_property WARNING While trying waveforms.toHDF5() in Prop.toHDF5() in HSDIO.
+
+
+2014/03/18 18:45:08 MainThread instrument_property WARNING While trying HSDIO.toHDF5() in Prop.toHDF5() in LabView.
+
+
+2014/03/18 18:45:08 MainThread instrument_property WARNING While trying LabView.toHDF5() in Prop.toHDF5() in experiment.
+
+
+2014/03/18 18:53:27 MainThread experiments WARNING Index=1 out of range for independent variable a. Setting a.index=0
+
+2014/03/18 18:54:08 MainThread __main__ INFO starting application
+2014/03/18 18:56:40 MainThread instrument_property WARNING While trying toHDF5() on list item channel1 in ListProp.toHDF5() in state.
+unable to create group (Symbol table: Unable to initialize object)
+
+2014/03/18 18:56:40 MainThread instrument_property WARNING While trying state.toHDF5() in Prop.toHDF5() in transition.
+
+
+2014/03/18 18:56:40 MainThread instrument_property WARNING While trying toHDF5() on list item transition0 in ListProp.toHDF5() in sequence.
+
+
+2014/03/18 18:56:40 MainThread instrument_property WARNING While trying sequence.toHDF5() in Prop.toHDF5() in idle.
+
+
+2014/03/18 18:56:40 MainThread instrument_property WARNING While trying toHDF5() on list item element0 in ListProp.toHDF5() in waveforms.
+
+
+2014/03/18 18:56:40 MainThread instrument_property WARNING While trying waveforms.toHDF5() in Prop.toHDF5() in HSDIO.
+
+
+2014/03/18 18:56:40 MainThread instrument_property WARNING While trying HSDIO.toHDF5() in Prop.toHDF5() in LabView.
+
+
+2014/03/18 18:56:40 MainThread instrument_property WARNING While trying LabView.toHDF5() in Prop.toHDF5() in experiment.
+
+
+2014/03/18 18:58:50 MainThread experiments WARNING Index=1 out of range for independent variable a. Setting a.index=0
+
+2014/03/18 18:59:30 MainThread __main__ INFO starting application
+2014/03/18 19:17:56 MainThread experiments WARNING Index=1 out of range for independent variable a. Setting a.index=0
+
+2014/03/18 19:18:37 MainThread __main__ INFO starting application
+2014/03/19 16:54:49 MainThread instrument_property WARNING Exception in EvalProp.evaluate() in totalAOTime.
+description: 
+function: 5.0
+local variable 'ax' referenced before assignment
+
+2014/03/19 16:54:49 MainThread instrument_property WARNING Exception in EvalProp.evaluate() in units.
+description: equations entered in ms
+function: .001
+local variable 'ax' referenced before assignment
+
+2014/03/19 16:54:49 MainThread instrument_property WARNING Exception in EvalProp.evaluate() in clockRate.
+description: 
+function: 20*kilo
+local variable 'ax' referenced before assignment
+
+2014/03/19 16:54:49 MainThread instrument_property WARNING Exception in EvalProp.evaluate() in totalAOTime.
+description: 5 ms total
+function: total_AO_time
+local variable 'ax' referenced before assignment
+
+2014/03/19 16:54:49 MainThread instrument_property WARNING in equations in ListProp.fromXML() for xml tag: equations.
+local variable 'ax' referenced before assignment
+Traceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\instrument_property.py", line 632, in fromXML
+    self.listProperty=[self.listElementType(self.listElementName+str(i),self.experiment,**self.listElementKwargs).fromXML(child) for i,child in enumerate(xmlNode)]
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\AnalogOutput.py", line 33, in __init__
+    super(AOEquation,self).__init__(name,experiment,function='0*t')
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\instrument_property.py", line 322, in __init__
+    super(EvalProp,self).__init__(name,experiment,description)
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\instrument_property.py", line 27, in __init__
+    self.description=description #English language description, including units and hints about possible values
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\AnalogOutput.py", line 38, in _observe_description
+    self.AO.update_plot()
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\AnalogOutput.py", line 155, in update_plot
+    self.drawMPL()
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\AnalogOutput.py", line 140, in drawMPL
+    ylim=ax.get_ylim()
+UnboundLocalError: local variable 'ax' referenced before assignment
+
+
+2014/03/19 16:54:49 MainThread experiments WARNING Index=1 out of range for independent variable a. Setting a.index=0
+
+2014/03/19 16:54:50 MainThread instrument_property WARNING Evaluating AnalogOutput in LabView.properties.
+local variable 'ax' referenced before assignmentTraceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\instrument_property.py", line 42, in evaluate
+    o.evaluate() #evaluate it
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\AnalogOutput.py", line 175, in evaluate
+    self.update_plot()
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\AnalogOutput.py", line 155, in update_plot
+    self.drawMPL()
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\AnalogOutput.py", line 140, in drawMPL
+    ylim=ax.get_ylim()
+UnboundLocalError: local variable 'ax' referenced before assignment
+
+
+2014/03/19 16:54:50 MainThread experiments WARNING PauseError
+2014/03/19 16:55:33 MainThread experiments WARNING Index=1 out of range for independent variable a. Setting a.index=0
+
+2014/03/19 16:56:13 MainThread __main__ INFO starting application
+2014/03/19 16:57:30 MainThread instrument_property WARNING While trying independentVariables.toHDF5() in Prop.toHDF5() in experiment.
+global name 'my_node' is not defined
+
+2014/03/19 17:02:17 MainThread experiments WARNING Index=1 out of range for independent variable a. Setting a.index=0
+
+2014/03/19 17:02:58 MainThread __main__ INFO starting application
+2014/03/19 17:03:56 MainThread instrument_property WARNING While trying toHDF5() on list item channel in ListProp.toHDF5() in state.
+unable to create group (Symbol table: Unable to initialize object)
+
+2014/03/19 17:03:56 MainThread instrument_property WARNING While trying state.toHDF5() in Prop.toHDF5() in transition.
+
+
+2014/03/19 17:03:56 MainThread instrument_property WARNING While trying sequence.toHDF5() in Prop.toHDF5() in idle.
+
+
+2014/03/19 17:03:56 MainThread instrument_property WARNING While trying waveforms.toHDF5() in Prop.toHDF5() in HSDIO.
+
+
+2014/03/19 17:03:56 MainThread instrument_property WARNING While trying HSDIO.toHDF5() in Prop.toHDF5() in LabView.
+
+
+2014/03/19 17:03:56 MainThread instrument_property WARNING While trying LabView.toHDF5() in Prop.toHDF5() in experiment.
+
+
+2014/03/19 17:05:36 MainThread experiments WARNING Index=1 out of range for independent variable a. Setting a.index=0
+
+2014/03/19 17:06:16 MainThread __main__ INFO starting application
+2014/03/20 10:57:47 MainThread experiments WARNING Index=1 out of range for independent variable a. Setting a.index=0
+
+2014/03/20 10:58:27 MainThread __main__ INFO starting application
+2014/03/21 10:34:08 MainThread experiments WARNING Index=1 out of range for independent variable a. Setting a.index=0
+
+2014/03/21 10:34:48 MainThread __main__ INFO starting application
+2014/03/21 12:40:52 MainThread experiments WARNING Index=1 out of range for independent variable a. Setting a.index=0
+
+2014/03/21 12:41:31 MainThread __main__ INFO starting application
+2014/03/21 20:13:23 MainThread experiments WARNING Index=1 out of range for independent variable independentVariable0. Setting independentVariable0.index=0
+
+2014/03/21 20:13:23 MainThread cs_evaluate WARNING evaluating variables report
+Could not eval string: '''a is %(a)s.
+The speed of light is %(c0)d
+but some call it %(c0)e
+microwave raman time=%(microwave_Raman_time)e
+'''%locals()
+'a'Traceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\cs_evaluate.py", line 28, in evalWithDict
+    return eval(string,globals()) #,varDict.copy()) #dict(numpyDict.items()+varDict.items())) #create a new dictionary so all numpy functions and everything defined in varDict is available as a global during evaluation
+  File "<string>", line 5, in <module>
+KeyError: 'a'
+
+
+2014/03/21 20:17:37 MainThread experiments WARNING Index=1 out of range for independent variable a. Setting a.index=0
+
+2014/03/21 20:18:17 MainThread __main__ INFO starting application

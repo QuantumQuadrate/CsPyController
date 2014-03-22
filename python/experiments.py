@@ -499,16 +499,21 @@ class Experiment(Prop):
         #TODO:  This doesn't work because if there are 61 characters in path, it thinks I am passing 61 arguments.
         threading.Thread(target=self.save,args=(path)).start()
     
+    def autosave(self):
+        #create file
+        f=h5py.File('settings.hdf5','w')
+        #recursively add all properties
+        x=f.create_group('settings')
+        self.toHDF5(x)
+        f.flush()
+        return f
+        #you will need to do autosave().close() wherever this is called
+
     def save(self,path):
         '''This function saves all the settings.'''
         
         #HDF5
-        #create file
-        f=h5py.File('settings.hdf5','w')
-        #recursively add all properties
-        self.toHDF5(f)
-        f.flush()
-        f.close()
+        self.autosave().close()
         #copy to default location
         shutil.copy('settings.hdf5',path+'.hdf5')
         
@@ -527,7 +532,10 @@ class Experiment(Prop):
         '''Create a new HDF5 file to store results.  This is done at the beginning of
         every experiment.'''
         
-        #if a prior HDF5 file is open, then close it
+        #start by saving settings
+        autosave_file=self.autosave()
+        
+        #if a prior HDF5 results file is open, then close it
         if hasattr(self,'hdf5') and (self.hdf5 is not None):
             try:
                 self.hdf5.flush()
@@ -549,13 +557,22 @@ class Experiment(Prop):
                 #create the directory
                 #use os.makedirs instead of os.mkdir to create the intermediate dailyPath directory if it does not exist
                 os.makedirs(self.path)
-        
+            
             #save to a real file
             self.hdf5=h5py.File(os.path.join(self.path,'results.hdf5'),'a')
         
         else:
             #hold results only in memory
             self.hdf5=h5py.File('results.hdf5','a',driver='core',backing_store=False)
+        
+        #add settings
+        try:
+            autosave_file['settings'].copy(autosave_file['settings'],self.hdf5)
+        except:
+            logger.warning('Problem trying to copy autosave settings to HDF5 results file.')
+            raise PauseError
+        finally:
+            autosave_file.close()
         
         #store independent variable data for experiment
         self.hdf5.attrs['start_time']=self.date2str(time.time())
@@ -578,14 +595,16 @@ class Experiment(Prop):
         self.iterationResults.attrs['ivarValues']=[i.currentValue for i in self.independentVariables]
         self.iterationResults.attrs['ivarIndex']=self.ivarIndex
         self.iterationResults.attrs['variableReportStr']=self.variableReportStr
+        
+        #store the indepenedent and dependent variable space
         v=self.iterationResults.create_group('v')
         ignoreList=self.variablesNotToSave.split(',')
         for key,value in self.vars.iteritems():
             if key not in ignoreList:
                 try:
-                    v.attrs[key]=value
+                    v[key]=value
                 except Exception as e:
-                    logger.warning('Could not save variable '+key+' as an hdf5 attribute with value: '+str(value)+'\n'+str(e))
+                    logger.warning('Could not save variable '+key+' as an hdf5 dataset with value: '+str(value)+'\n'+str(e))
     
     def preExperiment(self):
         #run analysis

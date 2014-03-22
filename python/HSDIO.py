@@ -43,7 +43,7 @@ class Waveforms(ListProp):
     refreshButton=Member()
 
     def __init__(self,experiment,digitalout):
-        super(Waveforms,self).__init__('waveforms',experiment,description='Holds all the digitalout waveforms',listElementType=Waveform)
+        super(Waveforms,self).__init__('waveforms',experiment,description='Holds all the digitalout waveforms',listElementType=Waveform,listElementName='waveform')
         self.digitalout=digitalout
         self.add()
         #self.refresh()
@@ -65,9 +65,9 @@ class Waveforms(ListProp):
         return waveform
     
     def fromXML(self,xmlNode):
-        while self.listProperty: #go until the list is empty
-            self.listProperty.pop()
-        self.listProperty+=[Waveform(self.getNextAvailableName(),self.experiment,self.digitalout,waveforms=self).fromXML(child) for child in xmlNode]
+        #while self.listProperty: #go until the list is empty
+        #    self.listProperty.pop()
+        self.listProperty=[Waveform(self.listElementName+str(i),self.experiment,self.digitalout,waveforms=self).fromXML(child) for i,child in enumerate(xmlNode)]
         self.refresh()
         return self
     
