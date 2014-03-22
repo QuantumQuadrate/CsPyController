@@ -422,3 +422,24 @@ unable to create group (Symbol table: Unable to initialize object)
 2014/03/21 10:34:08 MainThread experiments WARNING Index=1 out of range for independent variable a. Setting a.index=0
 
 2014/03/21 10:34:48 MainThread __main__ INFO starting application
+2014/03/21 12:40:52 MainThread experiments WARNING Index=1 out of range for independent variable a. Setting a.index=0
+
+2014/03/21 12:41:31 MainThread __main__ INFO starting application
+2014/03/21 20:13:23 MainThread experiments WARNING Index=1 out of range for independent variable independentVariable0. Setting independentVariable0.index=0
+
+2014/03/21 20:13:23 MainThread cs_evaluate WARNING evaluating variables report
+Could not eval string: '''a is %(a)s.
+The speed of light is %(c0)d
+but some call it %(c0)e
+microwave raman time=%(microwave_Raman_time)e
+'''%locals()
+'a'Traceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\cs_evaluate.py", line 28, in evalWithDict
+    return eval(string,globals()) #,varDict.copy()) #dict(numpyDict.items()+varDict.items())) #create a new dictionary so all numpy functions and everything defined in varDict is available as a global during evaluation
+  File "<string>", line 5, in <module>
+KeyError: 'a'
+
+
+2014/03/21 20:17:37 MainThread experiments WARNING Index=1 out of range for independent variable a. Setting a.index=0
+
+2014/03/21 20:18:17 MainThread __main__ INFO starting application

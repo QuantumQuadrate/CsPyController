@@ -80,21 +80,15 @@ class Prop(Atom):
             #try to save it as an attribute, then as a dataset.  If that fails, save its pickle
                 try:
                     #if it of a known well-behaved type, just go ahead and save to HDF5 attribute
-                    #TODO:uncomment
-                    pass
-                    #my_node.attrs[p]=o
+                    my_node.attrs[p]=o
                 except:
                     #if it is an array, it can't be saved as an attribute, but it can (and should) be saved as a dataset
                     try:
-                        #TODO:uncomment
-                        pass
-                        #my_node[p]=0
+                        my_node[p]=0
                     except:
                         #else just pickle it
                         try:
-                            #TODO:uncomment
-                            pass
-                            #my_node[p]=pickle.dumps(o)
+                            my_node[p]=pickle.dumps(o)
                         except Exception as e:
                             logger.warning('While picking '+p+' in Prop.toHDF5() in '+self.name+'.\n'+str(e)+'\n')
                             raise PauseError
@@ -579,21 +573,15 @@ class ListProp(Prop):
             #try to save it as an attribute, then as a dataset.  If that fails, save its pickle
                 try:
                     #if it of a known well-behaved type, just go ahead and save to HDF5 attrs (more efficient than dataset)
-                    #TODO:uncomment
-                    pass
-                    #list_node.attrs[name]=o
+                    list_node.attrs[name]=o
                 except:
                     #if it is an array, saving to attrs will fail, but we can (and should) save it as a dataset
                     try:
-                        #TODO:uncomment
-                        pass
-                        #list_node[name]=o
+                        list_node[name]=o
                     except:
                         #else just pickle it
                         try:
-                            #TODO:uncomment
-                            pass
-                            #list_node[name]=pickle.dumps(o)
+                            list_node[name]=pickle.dumps(o)
                         except Exception as e:
                             logger.warning('While picking list item {} in ListProp.toHDF5() in {}.\n{}\n'.format(i,self.name,str(e)))
                             raise PauseError

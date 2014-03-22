@@ -3,11 +3,7 @@ CsController2 notes:
 current question:
 
 TODO:
-    compressedGenerate
-    tick all channels on waveform y-axis, label x-axis as "samples" and limit to integer ticks?
-    save settings to HDF5
     make it so that the TCP connection is labeled as uninitialized on an error
-    remove git_repos_old on hexagon
     replace other indexed Stacks with IndexedStack
     It would be nice to make the variable reporting format able to handle line breaks somehow.  Maybe parse each line separately.
     Add optimization
@@ -18,8 +14,6 @@ TODO:
     get red box validation display working completely (right now only works from GUI, but not from backend)
     make analog output graph update on add new equation or delete equation
     send AO equations in compressed form
-    fix float divide by zero error on AnalogOutput initial evaluate
-    implement "hardware" flag on Prop to control what gets sent to hardware and what doesn't (default to True)
     improve handling of TCP disconnect/reconnect
     implement settimeout instead of setblocking for TCP communication with timeout equal to experiment timeout or shorter
     clean out unnecessary files in LabView section
@@ -56,7 +50,6 @@ TODO:
             error_log.txt
                 saved error log
     optimizer
-    autosave XML on experiment run
     just one big timeout for whole thing, plus a LabView setup timeout
     python menu Halt should send kill signal to LabView
     is it possible to do echoBox measurement by measurement? (send with "measure" command, instead of as instrument setup?)
@@ -73,11 +66,18 @@ TODO:
     finish noise eater waveform
     use start trigger on HSDIO
     you erased the waveform names.  Fix that.
-    make sure you don't get same measurement twice (do this on LabView side, mark a measurement as uploaded, or just erase return vals after use)
     a lot of the things that I have done using lists of Prop in ListProp would be better done using a separate numpy array for each property of the Prop (or one array of compound dtype)
-Note: changed waveform PGC_1 slightly regarding t1 delay, should be as intended now
     
 Done:
+    fix float divide by zero error on AnalogOutput initial evaluate
+    tick all channels on waveform y-axis, label x-axis as "samples" and limit to integer ticks?
+    remove git_repos_old on hexagon
+    autosave HDF5 on experiment run
+    save settings to HDF5
+    compressedGenerate
+    implement "hardware" flag on Prop to control what gets sent to hardware and what doesn't (default to True) (implemented as doNotSendToHardware list)
+    Note: changed waveform PGC_1 slightly regarding t1 delay, should be as intended now
+    make sure you don't get same measurement twice (do this on LabView side, mark a measurement as uploaded, or just erase return vals after use)
     side-by-side picture graphs
     do not save data needs to really not save data to hdf5 in memory also, it is too much data
     use setupLOG on all modules
