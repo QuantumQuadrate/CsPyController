@@ -100,7 +100,7 @@ class AnalogOutput(Instrument):
         self.exportStartTrigger=BoolProp('exportStartTrigger',self.experiment,'Should we trigger all other cards off the AO card?','True')
         self.exportStartTriggerDestination=StrProp('exportStartTriggerDestination',self.experiment,'What line to send the AO StartTrigger out to?','"/PXISlot2/PXI_Trig0"')
         self.properties+=['version','enable','physicalChannels','minimum','maximum','clockRate','totalAOTime','units','waitForStartTrigger','triggerSource','triggerEdge','exportStartTrigger','exportStartTriggerDestination','equations'] #make sure equations are evaluated last
-        self.doNotSendToHardware+=['units']
+        self.doNotSendToHardware+=['units','totalAOTime']
         
         self.figure1=Figure()
         self.figure2=Figure()

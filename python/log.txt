@@ -443,3 +443,796 @@ KeyError: 'a'
 2014/03/21 20:17:37 MainThread experiments WARNING Index=1 out of range for independent variable a. Setting a.index=0
 
 2014/03/21 20:18:17 MainThread __main__ INFO starting application
+2014/03/22 16:04:53 MainThread experiments WARNING Index=1 out of range for independent variable independentVariable0. Setting independentVariable0.index=0
+
+2014/03/22 16:04:53 MainThread cs_evaluate WARNING evaluating variables report
+Could not eval string: '''a is %(a)s.
+The speed of light is %(c0)d
+but some call it %(c0)e
+microwave raman time=%(microwave_Raman_time)e
+'''%locals()
+'a'Traceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\cs_evaluate.py", line 28, in evalWithDict
+    return eval(string,globals()) #,varDict.copy()) #dict(numpyDict.items()+varDict.items())) #create a new dictionary so all numpy functions and everything defined in varDict is available as a global during evaluation
+  File "<string>", line 5, in <module>
+KeyError: 'a'
+
+
+2014/03/22 18:41:10 MainThread experiments WARNING Index=1 out of range for independent variable a. Setting a.index=0
+
+2014/03/22 18:41:51 MainThread __main__ INFO starting application
+2014/03/22 18:43:26 Thread-1 LabView DEBUG LabView.open() opening sock
+2014/03/22 18:43:26 Thread-1 LabView DEBUG LabView.open() sock opened
+2014/03/22 18:43:26 Thread-1 HSDIO WARNING HSDIO script says:   compressedGenerate MOT_Loading, but waveform MOT_Loading does not exist.
+2014/03/22 18:43:26 Thread-1 instrument_property WARNING In Prop.HardwareProtocol() for class LabView while trying HSDIO.toHardware.
+
+
+2014/03/22 18:43:28 Thread-1 LabView WARNING LabView error.  Log:
+2014-03-22 18:43:48 Warning:  The measurement ended due to the master timeout, before all output tasks were complete.  Consider increasing the timeout.Error 0 occurred at Warning:  The measurement ended due to the master timeout, before all output tasks were complete.  Consider increasing the timeout.
+
+Possible reason(s):
+
+LabVIEW:  Error connecting to GPIB driver or device.
+=========================
+NI-488:  Error connecting to driver or device.
+=========================
+NI-845x:  The operation completed successfully.
+=========================
+VISA:  (Hex 0x0) Operation completed successfully.
+Call chain:
+handle_errors.vi Experiment.lvclass:check_timeout.vi Experiment.lvclass:isDone.vi Experiment.lvclass:measurement.vi Experiment.lvclass:parseXMLstring.vi Experiment.lvclass:server.vi
+
+Error cleared. Exiting operation.
+
+
+2014/03/22 18:43:30 Thread-1 HSDIO WARNING HSDIO script says:   compressedGenerate MOT_Loading, but waveform MOT_Loading does not exist.
+2014/03/22 18:43:30 Thread-1 instrument_property WARNING In Prop.HardwareProtocol() for class LabView while trying HSDIO.toHardware.
+
+
+2014/03/22 18:43:32 Thread-1 experiments ERROR Exception during experiment:
+unable to create group (Symbol table: Unable to initialize object)
+Traceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\experiments.py", line 368, in go2
+    self.create_hdf5_iteration()
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\experiments.py", line 591, in create_hdf5_iteration
+    self.iterationResults=self.hdf5.create_group('iterations/'+str(self.iteration))
+  File "C:\Users\Saffmanlab\AppData\Local\Enthought\Canopy\User\lib\site-packages\h5py\_hl\group.py", line 41, in create_group
+    gid = h5g.create(self.id, name, lcpl=lcpl)
+  File "h5g.pyx", line 145, in h5py.h5g.create (h5py\h5g.c:2378)
+ValueError: unable to create group (Symbol table: Unable to initialize object)
+
+
+2014/03/22 18:46:36 MainThread experiments WARNING Index=1 out of range for independent variable a. Setting a.index=0
+
+2014/03/22 18:47:16 MainThread __main__ INFO starting application
+2014/03/22 19:00:57 Thread-1 LabView DEBUG LabView.open() opening sock
+2014/03/22 19:00:57 Thread-1 LabView DEBUG LabView.open() sock opened
+2014/03/22 19:00:57 Thread-1 HSDIO WARNING HSDIO script says:   compressedGenerate MOT_Loading, but waveform MOT_Loading does not exist.
+2014/03/22 19:00:57 Thread-1 instrument_property WARNING In Prop.HardwareProtocol() for class LabView while trying HSDIO.toHardware.
+
+
+2014/03/22 19:00:58 Thread-1 LabView WARNING LabView error.  Log:
+2014-03-22 19:01:19 Warning:  The measurement ended due to the master timeout, before all output tasks were complete.  Consider increasing the timeout.Error 0 occurred at Warning:  The measurement ended due to the master timeout, before all output tasks were complete.  Consider increasing the timeout.
+
+Possible reason(s):
+
+LabVIEW:  Error connecting to GPIB driver or device.
+=========================
+NI-488:  Error connecting to driver or device.
+=========================
+NI-845x:  The operation completed successfully.
+=========================
+VISA:  (Hex 0x0) Operation completed successfully.
+Call chain:
+handle_errors.vi Experiment.lvclass:check_timeout.vi Experiment.lvclass:isDone.vi Experiment.lvclass:measurement.vi Experiment.lvclass:parseXMLstring.vi Experiment.lvclass:server.vi
+
+Error cleared. Exiting operation.
+
+
+2014/03/22 19:01:00 Thread-1 HSDIO WARNING HSDIO script says:   compressedGenerate MOT_Loading, but waveform MOT_Loading does not exist.
+2014/03/22 19:01:00 Thread-1 instrument_property WARNING In Prop.HardwareProtocol() for class LabView while trying HSDIO.toHardware.
+
+
+2014/03/22 19:01:01 Thread-1 experiments ERROR Exception during experiment:
+unable to create group (Symbol table: Unable to initialize object)
+Traceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\experiments.py", line 368, in go2
+    self.create_hdf5_iteration()
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\experiments.py", line 591, in create_hdf5_iteration
+    self.iterationResults=self.hdf5.create_group('iterations/'+str(self.iteration))
+  File "C:\Users\Saffmanlab\AppData\Local\Enthought\Canopy\User\lib\site-packages\h5py\_hl\group.py", line 41, in create_group
+    gid = h5g.create(self.id, name, lcpl=lcpl)
+  File "h5g.pyx", line 145, in h5py.h5g.create (h5py\h5g.c:2378)
+ValueError: unable to create group (Symbol table: Unable to initialize object)
+
+
+2014/03/22 19:03:35 MainThread experiments WARNING Index=1 out of range for independent variable a. Setting a.index=0
+
+2014/03/22 19:04:15 MainThread __main__ INFO starting application
+2014/03/22 19:15:00 Thread-1 LabView DEBUG LabView.open() opening sock
+2014/03/22 19:15:00 Thread-1 LabView DEBUG LabView.open() sock opened
+2014/03/22 19:15:00 Thread-1 HSDIO WARNING HSDIO script says:   compressedGenerate MOT_Loading, but waveform MOT_Loading does not exist.
+2014/03/22 19:15:00 Thread-1 instrument_property WARNING In Prop.HardwareProtocol() for class LabView while trying HSDIO.toHardware.
+
+
+2014/03/22 19:15:01 Thread-1 LabView WARNING LabView error.  Log:
+2014-03-22 19:15:21 Warning:  The measurement ended due to the master timeout, before all output tasks were complete.  Consider increasing the timeout.Error 0 occurred at Warning:  The measurement ended due to the master timeout, before all output tasks were complete.  Consider increasing the timeout.
+
+Possible reason(s):
+
+LabVIEW:  Error connecting to GPIB driver or device.
+=========================
+NI-488:  Error connecting to driver or device.
+=========================
+NI-845x:  The operation completed successfully.
+=========================
+VISA:  (Hex 0x0) Operation completed successfully.
+Call chain:
+handle_errors.vi Experiment.lvclass:check_timeout.vi Experiment.lvclass:isDone.vi Experiment.lvclass:measurement.vi Experiment.lvclass:parseXMLstring.vi Experiment.lvclass:server.vi
+
+Error cleared. Exiting operation.
+
+
+2014/03/22 19:15:03 Thread-1 HSDIO WARNING HSDIO script says:   compressedGenerate MOT_Loading, but waveform MOT_Loading does not exist.
+2014/03/22 19:15:03 Thread-1 instrument_property WARNING In Prop.HardwareProtocol() for class LabView while trying HSDIO.toHardware.
+
+
+2014/03/22 19:15:04 Thread-1 experiments ERROR Exception during experiment:
+unable to create group (Symbol table: Unable to initialize object)
+Traceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\experiments.py", line 368, in go2
+    self.create_hdf5_iteration()
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\experiments.py", line 591, in create_hdf5_iteration
+    self.iterationResults=self.hdf5.create_group('iterations/'+str(self.iteration))
+  File "C:\Users\Saffmanlab\AppData\Local\Enthought\Canopy\User\lib\site-packages\h5py\_hl\group.py", line 41, in create_group
+    gid = h5g.create(self.id, name, lcpl=lcpl)
+  File "h5g.pyx", line 145, in h5py.h5g.create (h5py\h5g.c:2378)
+ValueError: unable to create group (Symbol table: Unable to initialize object)
+
+
+2014/03/22 19:15:44 MainThread experiments WARNING Index=1 out of range for independent variable a. Setting a.index=0
+
+2014/03/22 19:16:25 MainThread __main__ INFO starting application
+2014/03/22 19:16:38 Thread-1 LabView DEBUG LabView.open() opening sock
+2014/03/22 19:16:38 Thread-1 LabView DEBUG LabView.open() sock opened
+2014/03/22 19:16:38 Thread-1 HSDIO WARNING HSDIO script says:   compressedGenerate MOT_Loading, but waveform MOT_Loading does not exist.
+2014/03/22 19:16:38 Thread-1 instrument_property WARNING In Prop.HardwareProtocol() for class LabView while trying HSDIO.toHardware.
+
+
+2014/03/22 19:16:39 Thread-1 LabView WARNING LabView error.  Log:
+2014-03-22 19:16:59 Warning:  The measurement ended due to the master timeout, before all output tasks were complete.  Consider increasing the timeout.Error 0 occurred at Warning:  The measurement ended due to the master timeout, before all output tasks were complete.  Consider increasing the timeout.
+
+Possible reason(s):
+
+LabVIEW:  Error connecting to GPIB driver or device.
+=========================
+NI-488:  Error connecting to driver or device.
+=========================
+NI-845x:  The operation completed successfully.
+=========================
+VISA:  (Hex 0x0) Operation completed successfully.
+Call chain:
+handle_errors.vi Experiment.lvclass:check_timeout.vi Experiment.lvclass:isDone.vi Experiment.lvclass:measurement.vi Experiment.lvclass:parseXMLstring.vi Experiment.lvclass:server.vi
+
+Error cleared. Exiting operation.
+
+
+2014/03/22 19:16:41 Thread-1 HSDIO WARNING HSDIO script says:   compressedGenerate MOT_Loading, but waveform MOT_Loading does not exist.
+2014/03/22 19:16:41 Thread-1 instrument_property WARNING In Prop.HardwareProtocol() for class LabView while trying HSDIO.toHardware.
+
+
+2014/03/22 19:16:42 Thread-1 experiments ERROR Exception during experiment:
+unable to create group (Symbol table: Unable to initialize object)
+Traceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\experiments.py", line 368, in go2
+    self.create_hdf5_iteration()
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\experiments.py", line 591, in create_hdf5_iteration
+    self.iterationResults=self.hdf5.create_group('iterations/'+str(self.iteration))
+  File "C:\Users\Saffmanlab\AppData\Local\Enthought\Canopy\User\lib\site-packages\h5py\_hl\group.py", line 41, in create_group
+    gid = h5g.create(self.id, name, lcpl=lcpl)
+  File "h5g.pyx", line 145, in h5py.h5g.create (h5py\h5g.c:2378)
+ValueError: unable to create group (Symbol table: Unable to initialize object)
+
+
+2014/03/22 19:25:52 MainThread experiments WARNING Index=1 out of range for independent variable a. Setting a.index=0
+
+2014/03/22 19:26:32 MainThread __main__ INFO starting application
+2014/03/22 19:47:37 Thread-1 LabView DEBUG LabView.open() opening sock
+2014/03/22 19:47:37 Thread-1 LabView DEBUG LabView.open() sock opened
+2014/03/22 19:47:37 Thread-1 HSDIO WARNING HSDIO script says:   compressedGenerate MOT_Loading, but waveform MOT_Loading does not exist.
+2014/03/22 19:47:37 Thread-1 instrument_property WARNING In Prop.HardwareProtocol() for class LabView while trying HSDIO.toHardware.
+
+
+2014/03/22 19:47:40 Thread-1 LabView WARNING LabView error.  Log:
+2014-03-22 19:48:00 Warning:  The measurement ended due to the master timeout, before all output tasks were complete.  Consider increasing the timeout.Error 0 occurred at Warning:  The measurement ended due to the master timeout, before all output tasks were complete.  Consider increasing the timeout.
+
+Possible reason(s):
+
+LabVIEW:  Error connecting to GPIB driver or device.
+=========================
+NI-488:  Error connecting to driver or device.
+=========================
+NI-845x:  The operation completed successfully.
+=========================
+VISA:  (Hex 0x0) Operation completed successfully.
+Call chain:
+handle_errors.vi Experiment.lvclass:check_timeout.vi Experiment.lvclass:isDone.vi Experiment.lvclass:measurement.vi Experiment.lvclass:parseXMLstring.vi Experiment.lvclass:server.vi
+
+Error cleared. Exiting operation.
+
+2014-03-22 19:48:00 DAQmx Stop Task.vi:3590004Warning 200010 occurred at DAQmx Stop Task.vi:3590004
+
+Possible reason(s):
+
+Finite acquisition or generation has been stopped before the requested number of samples were acquired or generated.
+Call chain:
+handle_errors.vi Analog_Output.lvclass:stop.vi Experiment.lvclass:stop_tasks.vi Experiment.lvclass:measurement.vi Experiment.lvclass:parseXMLstring.vi Experiment.lvclass:server.vi
+
+Error cleared. Exiting operation.
+
+
+2014/03/22 19:47:42 Thread-1 HSDIO WARNING HSDIO script says:   compressedGenerate MOT_Loading, but waveform MOT_Loading does not exist.
+2014/03/22 19:47:42 Thread-1 instrument_property WARNING In Prop.HardwareProtocol() for class LabView while trying HSDIO.toHardware.
+
+
+2014/03/22 19:47:43 Thread-1 experiments ERROR Exception during experiment:
+unable to create group (Symbol table: Unable to initialize object)
+Traceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\experiments.py", line 368, in go2
+    self.create_hdf5_iteration()
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\experiments.py", line 591, in create_hdf5_iteration
+    self.iterationResults=self.hdf5.create_group('iterations/'+str(self.iteration))
+  File "C:\Users\Saffmanlab\AppData\Local\Enthought\Canopy\User\lib\site-packages\h5py\_hl\group.py", line 41, in create_group
+    gid = h5g.create(self.id, name, lcpl=lcpl)
+  File "h5g.pyx", line 145, in h5py.h5g.create (h5py\h5g.c:2378)
+ValueError: unable to create group (Symbol table: Unable to initialize object)
+
+
+2014/03/22 19:49:01 MainThread experiments WARNING Index=1 out of range for independent variable a. Setting a.index=0
+
+2014/03/22 19:49:42 MainThread __main__ INFO starting application
+2014/03/22 19:51:44 Thread-1 LabView DEBUG LabView.open() opening sock
+2014/03/22 19:51:44 Thread-1 LabView DEBUG LabView.open() sock opened
+2014/03/22 19:51:44 Thread-1 HSDIO WARNING HSDIO script says:   compressedGenerate MOT_Loading, but waveform MOT_Loading does not exist.
+2014/03/22 19:51:44 Thread-1 instrument_property WARNING In Prop.HardwareProtocol() for class LabView while trying HSDIO.toHardware.
+
+
+2014/03/22 19:51:46 Thread-1 LabView WARNING LabView error.  Log:
+2014-03-22 19:52:06 Warning:  The measurement ended due to the master timeout, before all output tasks were complete.  Consider increasing the timeout.Error 0 occurred at Warning:  The measurement ended due to the master timeout, before all output tasks were complete.  Consider increasing the timeout.
+
+Possible reason(s):
+
+LabVIEW:  Error connecting to GPIB driver or device.
+=========================
+NI-488:  Error connecting to driver or device.
+=========================
+NI-845x:  The operation completed successfully.
+=========================
+VISA:  (Hex 0x0) Operation completed successfully.
+Call chain:
+handle_errors.vi Experiment.lvclass:check_timeout.vi Experiment.lvclass:isDone.vi Experiment.lvclass:measurement.vi Experiment.lvclass:parseXMLstring.vi Experiment.lvclass:server.vi
+
+Error cleared. Exiting operation.
+
+2014-03-22 19:52:06 DAQmx Stop Task.vi:3590004Warning 200010 occurred at DAQmx Stop Task.vi:3590004
+
+Possible reason(s):
+
+Finite acquisition or generation has been stopped before the requested number of samples were acquired or generated.
+Call chain:
+handle_errors.vi Analog_Output.lvclass:stop.vi Experiment.lvclass:stop_tasks.vi Experiment.lvclass:measurement.vi Experiment.lvclass:parseXMLstring.vi Experiment.lvclass:server.vi
+
+Error cleared. Exiting operation.
+
+
+2014/03/22 19:51:48 Thread-1 HSDIO WARNING HSDIO script says:   compressedGenerate MOT_Loading, but waveform MOT_Loading does not exist.
+2014/03/22 19:51:48 Thread-1 instrument_property WARNING In Prop.HardwareProtocol() for class LabView while trying HSDIO.toHardware.
+
+
+2014/03/22 19:51:50 Thread-1 experiments ERROR Exception during experiment:
+unable to create group (Symbol table: Unable to initialize object)
+Traceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\experiments.py", line 368, in go2
+    self.create_hdf5_iteration()
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\experiments.py", line 591, in create_hdf5_iteration
+    self.iterationResults=self.hdf5.create_group('iterations/'+str(self.iteration))
+  File "C:\Users\Saffmanlab\AppData\Local\Enthought\Canopy\User\lib\site-packages\h5py\_hl\group.py", line 41, in create_group
+    gid = h5g.create(self.id, name, lcpl=lcpl)
+  File "h5g.pyx", line 145, in h5py.h5g.create (h5py\h5g.c:2378)
+ValueError: unable to create group (Symbol table: Unable to initialize object)
+
+
+2014/03/23 14:24:22 MainThread experiments WARNING Index=1 out of range for independent variable a. Setting a.index=0
+
+2014/03/23 14:25:03 MainThread __main__ INFO starting application
+2014/03/23 14:26:41 Thread-1 LabView DEBUG LabView.open() opening sock
+2014/03/23 14:26:41 Thread-1 LabView DEBUG LabView.open() sock opened
+2014/03/23 14:26:41 Thread-1 HSDIO WARNING HSDIO script says:   compressedGenerate MOT_Loading, but waveform MOT_Loading does not exist.
+2014/03/23 14:26:41 Thread-1 instrument_property WARNING In Prop.HardwareProtocol() for class LabView while trying HSDIO.toHardware.
+
+
+2014/03/23 14:26:44 Thread-1 LabView WARNING LabView error.  Log:
+2014-03-23 14:27:07 Warning:  The measurement ended due to the master timeout, before all output tasks were complete.  Consider increasing the timeout.Error 0 occurred at Warning:  The measurement ended due to the master timeout, before all output tasks were complete.  Consider increasing the timeout.
+
+Possible reason(s):
+
+LabVIEW:  Error connecting to GPIB driver or device.
+=========================
+NI-488:  Error connecting to driver or device.
+=========================
+NI-845x:  The operation completed successfully.
+=========================
+VISA:  (Hex 0x0) Operation completed successfully.
+Call chain:
+handle_errors.vi Experiment.lvclass:check_timeout.vi Experiment.lvclass:isDone.vi Experiment.lvclass:measurement.vi Experiment.lvclass:parseXMLstring.vi Experiment.lvclass:server.vi
+
+Error cleared. Exiting operation.
+
+2014-03-23 14:27:07 DAQmx Stop Task.vi:3590005Warning 200010 occurred at DAQmx Stop Task.vi:3590005
+
+Possible reason(s):
+
+Finite acquisition or generation has been stopped before the requested number of samples were acquired or generated.
+Call chain:
+handle_errors.vi Analog_Output.lvclass:stop.vi Experiment.lvclass:stop_tasks.vi Experiment.lvclass:measurement.vi Experiment.lvclass:parseXMLstring.vi Experiment.lvclass:server.vi
+
+Error cleared. Exiting operation.
+
+
+2014/03/23 14:26:46 Thread-1 HSDIO WARNING HSDIO script says:   compressedGenerate MOT_Loading, but waveform MOT_Loading does not exist.
+2014/03/23 14:26:46 Thread-1 instrument_property WARNING In Prop.HardwareProtocol() for class LabView while trying HSDIO.toHardware.
+
+
+2014/03/23 14:26:48 Thread-1 experiments ERROR Exception during experiment:
+unable to create group (Symbol table: Unable to initialize object)
+Traceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\experiments.py", line 368, in go2
+    self.create_hdf5_iteration()
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\experiments.py", line 591, in create_hdf5_iteration
+    self.iterationResults=self.hdf5.create_group('iterations/'+str(self.iteration))
+  File "C:\Users\Saffmanlab\AppData\Local\Enthought\Canopy\User\lib\site-packages\h5py\_hl\group.py", line 41, in create_group
+    gid = h5g.create(self.id, name, lcpl=lcpl)
+  File "h5g.pyx", line 145, in h5py.h5g.create (h5py\h5g.c:2378)
+ValueError: unable to create group (Symbol table: Unable to initialize object)
+
+
+2014/03/23 14:32:19 MainThread experiments WARNING Index=1 out of range for independent variable a. Setting a.index=0
+
+2014/03/23 14:32:59 MainThread __main__ INFO starting application
+2014/03/23 14:35:14 Thread-1 LabView DEBUG LabView.open() opening sock
+2014/03/23 14:35:14 Thread-1 LabView DEBUG LabView.open() sock opened
+2014/03/23 14:35:16 Thread-1 LabView WARNING LabView error.  Log:
+2014-03-23 14:35:39 Warning:  The measurement ended due to the master timeout, before all output tasks were complete.  Consider increasing the timeout.Error 0 occurred at Warning:  The measurement ended due to the master timeout, before all output tasks were complete.  Consider increasing the timeout.
+
+Possible reason(s):
+
+LabVIEW:  Error connecting to GPIB driver or device.
+=========================
+NI-488:  Error connecting to driver or device.
+=========================
+NI-845x:  The operation completed successfully.
+=========================
+VISA:  (Hex 0x0) Operation completed successfully.
+Call chain:
+handle_errors.vi Experiment.lvclass:check_timeout.vi Experiment.lvclass:isDone.vi Experiment.lvclass:measurement.vi Experiment.lvclass:parseXMLstring.vi Experiment.lvclass:server.vi
+
+Error cleared. Exiting operation.
+
+2014-03-23 14:35:39 DAQmx Stop Task.vi:3590005Warning 200010 occurred at DAQmx Stop Task.vi:3590005
+
+Possible reason(s):
+
+Finite acquisition or generation has been stopped before the requested number of samples were acquired or generated.
+Call chain:
+handle_errors.vi Analog_Output.lvclass:stop.vi Experiment.lvclass:stop_tasks.vi Experiment.lvclass:measurement.vi Experiment.lvclass:parseXMLstring.vi Experiment.lvclass:server.vi
+
+Error cleared. Exiting operation.
+
+
+2014/03/23 14:35:20 Thread-1 experiments ERROR Exception during experiment:
+unable to create group (Symbol table: Unable to initialize object)
+Traceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\experiments.py", line 368, in go2
+    self.create_hdf5_iteration()
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\experiments.py", line 591, in create_hdf5_iteration
+    self.iterationResults=self.hdf5.create_group('iterations/'+str(self.iteration))
+  File "C:\Users\Saffmanlab\AppData\Local\Enthought\Canopy\User\lib\site-packages\h5py\_hl\group.py", line 41, in create_group
+    gid = h5g.create(self.id, name, lcpl=lcpl)
+  File "h5g.pyx", line 145, in h5py.h5g.create (h5py\h5g.c:2378)
+ValueError: unable to create group (Symbol table: Unable to initialize object)
+
+
+2014/03/23 14:50:13 MainThread experiments WARNING Index=1 out of range for independent variable a. Setting a.index=0
+
+2014/03/23 14:50:54 MainThread __main__ INFO starting application
+2014/03/23 14:55:54 Thread-1 LabView DEBUG LabView.open() opening sock
+2014/03/23 14:55:54 Thread-1 LabView DEBUG LabView.open() sock opened
+2014/03/23 14:55:56 Thread-1 LabView WARNING LabView error.  Log:
+2014-03-23 14:56:19 Warning:  The measurement ended due to the master timeout, before all output tasks were complete.  Consider increasing the timeout.Error 0 occurred at Warning:  The measurement ended due to the master timeout, before all output tasks were complete.  Consider increasing the timeout.
+
+Possible reason(s):
+
+LabVIEW:  Error connecting to GPIB driver or device.
+=========================
+NI-488:  Error connecting to driver or device.
+=========================
+NI-845x:  The operation completed successfully.
+=========================
+VISA:  (Hex 0x0) Operation completed successfully.
+Call chain:
+handle_errors.vi Experiment.lvclass:check_timeout.vi Experiment.lvclass:isDone.vi Experiment.lvclass:measurement.vi Experiment.lvclass:parseXMLstring.vi Experiment.lvclass:server.vi
+
+Error cleared. Exiting operation.
+
+2014-03-23 14:56:19 DAQmx Stop Task.vi:3590005Warning 200010 occurred at DAQmx Stop Task.vi:3590005
+
+Possible reason(s):
+
+Finite acquisition or generation has been stopped before the requested number of samples were acquired or generated.
+Call chain:
+handle_errors.vi Analog_Output.lvclass:stop.vi Experiment.lvclass:stop_tasks.vi Experiment.lvclass:measurement.vi Experiment.lvclass:parseXMLstring.vi Experiment.lvclass:server.vi
+
+Error cleared. Exiting operation.
+
+
+2014/03/23 14:56:00 Thread-1 experiments ERROR Exception during experiment:
+unable to create group (Symbol table: Unable to initialize object)
+Traceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\experiments.py", line 368, in go2
+    self.create_hdf5_iteration()
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\experiments.py", line 591, in create_hdf5_iteration
+    self.iterationResults=self.hdf5.create_group('iterations/'+str(self.iteration))
+  File "C:\Users\Saffmanlab\AppData\Local\Enthought\Canopy\User\lib\site-packages\h5py\_hl\group.py", line 41, in create_group
+    gid = h5g.create(self.id, name, lcpl=lcpl)
+  File "h5g.pyx", line 145, in h5py.h5g.create (h5py\h5g.c:2378)
+ValueError: unable to create group (Symbol table: Unable to initialize object)
+
+
+2014/03/23 14:59:01 MainThread LabView DEBUG debug LabView.open() closing sock
+2014/03/23 14:59:01 MainThread LabView DEBUG LabView.open() opening sock
+2014/03/23 14:59:01 MainThread LabView DEBUG LabView.open() sock opened
+2014/03/23 14:59:05 Thread-2 experiments INFO Current status is paused after error. Cannot reset experiment unless status is idle.  Try halting first.
+2014/03/23 14:59:08 Thread-2 experiments ERROR Exception during experiment:
+unable to create group (Symbol table: Unable to initialize object)
+Traceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\experiments.py", line 368, in go2
+    self.create_hdf5_iteration()
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\experiments.py", line 591, in create_hdf5_iteration
+    self.iterationResults=self.hdf5.create_group('iterations/'+str(self.iteration))
+  File "C:\Users\Saffmanlab\AppData\Local\Enthought\Canopy\User\lib\site-packages\h5py\_hl\group.py", line 41, in create_group
+    gid = h5g.create(self.id, name, lcpl=lcpl)
+  File "h5g.pyx", line 145, in h5py.h5g.create (h5py\h5g.c:2378)
+ValueError: unable to create group (Symbol table: Unable to initialize object)
+
+
+2014/03/23 14:59:50 MainThread experiments WARNING Index=1 out of range for independent variable a. Setting a.index=0
+
+2014/03/23 15:00:31 MainThread __main__ INFO starting application
+2014/03/23 15:02:03 MainThread experiments WARNING Index=1 out of range for independent variable a. Setting a.index=0
+
+2014/03/23 15:02:44 MainThread __main__ INFO starting application
+2014/03/23 15:04:56 Thread-1 LabView DEBUG LabView.open() opening sock
+2014/03/23 15:04:56 Thread-1 LabView DEBUG LabView.open() sock opened
+2014/03/23 15:04:58 Thread-1 LabView WARNING LabView error.  Log:
+2014-03-23 15:05:21 Warning:  The measurement ended due to the master timeout, before all output tasks were complete.  Consider increasing the timeout.Error 0 occurred at Warning:  The measurement ended due to the master timeout, before all output tasks were complete.  Consider increasing the timeout.
+
+Possible reason(s):
+
+LabVIEW:  Error connecting to GPIB driver or device.
+=========================
+NI-488:  Error connecting to driver or device.
+=========================
+NI-845x:  The operation completed successfully.
+=========================
+VISA:  (Hex 0x0) Operation completed successfully.
+Call chain:
+handle_errors.vi Experiment.lvclass:check_timeout.vi Experiment.lvclass:isDone.vi Experiment.lvclass:measurement.vi Experiment.lvclass:parseXMLstring.vi Experiment.lvclass:server.vi
+
+Error cleared. Exiting operation.
+
+2014-03-23 15:05:21 DAQmx Stop Task.vi:3590005Warning 200010 occurred at DAQmx Stop Task.vi:3590005
+
+Possible reason(s):
+
+Finite acquisition or generation has been stopped before the requested number of samples were acquired or generated.
+Call chain:
+handle_errors.vi Analog_Output.lvclass:stop.vi Experiment.lvclass:stop_tasks.vi Experiment.lvclass:measurement.vi Experiment.lvclass:parseXMLstring.vi Experiment.lvclass:server.vi
+
+Error cleared. Exiting operation.
+
+
+2014/03/23 15:05:02 Thread-1 experiments ERROR Exception during experiment:
+unable to create group (Symbol table: Unable to initialize object)
+Traceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\experiments.py", line 368, in go2
+    self.create_hdf5_iteration()
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\experiments.py", line 591, in create_hdf5_iteration
+    self.iterationResults=self.hdf5.create_group('iterations/'+str(self.iteration))
+  File "C:\Users\Saffmanlab\AppData\Local\Enthought\Canopy\User\lib\site-packages\h5py\_hl\group.py", line 41, in create_group
+    gid = h5g.create(self.id, name, lcpl=lcpl)
+  File "h5g.pyx", line 145, in h5py.h5g.create (h5py\h5g.c:2378)
+ValueError: unable to create group (Symbol table: Unable to initialize object)
+
+
+2014/03/23 15:11:16 MainThread experiments WARNING Index=1 out of range for independent variable a. Setting a.index=0
+
+2014/03/23 15:11:57 MainThread __main__ INFO starting application
+2014/03/23 15:13:39 Thread-1 LabView DEBUG LabView.open() opening sock
+2014/03/23 15:13:39 Thread-1 LabView DEBUG LabView.open() sock opened
+2014/03/23 15:13:53 MainThread analysis WARNING Exception trying to plot measurement 0, shot 1, in analysis.ShotsBrowserAnalysis.load()
+
+2014/03/23 15:14:03 Thread-1 experiments INFO Current status is idle. Cannot continue an experiment unless status is paused.
+2014/03/23 15:21:00 MainThread experiments WARNING Index=1 out of range for independent variable a. Setting a.index=0
+
+2014/03/23 15:21:41 MainThread __main__ INFO starting application
+2014/03/23 15:22:08 Thread-1 experiments DEBUG Autosaving
+2014/03/23 15:22:50 Thread-1 experiments DEBUG Done autosaving
+2014/03/23 15:22:50 Thread-1 experiments DEBUG Copying autosave data to current HDF5
+2014/03/23 15:22:50 Thread-1 experiments DEBUG Autosave closed
+2014/03/23 15:22:50 Thread-1 experiments DEBUG Finished create_data_files()
+2014/03/23 15:22:52 Thread-1 LabView DEBUG LabView.open() opening sock
+2014/03/23 15:22:52 Thread-1 LabView DEBUG LabView.open() sock opened
+2014/03/23 15:41:52 MainThread experiments WARNING Index=1 out of range for independent variable a. Setting a.index=0
+
+2014/03/23 15:42:33 MainThread __main__ INFO starting application
+2014/03/23 15:46:14 MainThread experiments WARNING Index=1 out of range for independent variable a. Setting a.index=0
+
+2014/03/23 15:46:55 MainThread __main__ INFO starting application
+2014/03/23 15:48:54 Thread-1 experiments DEBUG Autosaving
+2014/03/23 15:48:54 Thread-1 experiments DEBUG Done autosaving
+2014/03/23 15:48:54 Thread-1 experiments DEBUG Copying autosave data to current HDF5
+2014/03/23 15:48:54 Thread-1 experiments DEBUG Autosave closed
+2014/03/23 15:48:54 Thread-1 experiments DEBUG Finished create_data_files()
+2014/03/23 15:48:56 Thread-1 LabView DEBUG LabView.open() opening sock
+2014/03/23 15:48:56 Thread-1 LabView DEBUG LabView.open() sock opened
+2014/03/23 15:49:17 MainThread analysis WARNING Exception trying to plot measurement 0, shot 1, in analysis.ShotsBrowserAnalysis.load()
+
+2014/03/23 15:49:21 Thread-1 experiments INFO Current status is idle. Cannot continue an experiment unless status is paused.
+2014/03/23 15:49:30 MainThread analysis WARNING Exception trying to plot measurement 11, shot 2, in analysis.ShotsBrowserAnalysis.load()
+
+2014/03/23 15:49:35 MainThread analysis WARNING Exception trying to plot measurement 20, shot 1, in analysis.ShotsBrowserAnalysis.load()
+
+2014/03/23 15:49:37 MainThread analysis WARNING Exception trying to plot measurement 20, shot 0, in analysis.ShotsBrowserAnalysis.load()
+
+2014/03/23 15:49:56 MainThread analysis WARNING Exception trying to plot measurement 0, shot 1, in analysis.ShotsBrowserAnalysis.load()
+
+2014/03/23 15:50:36 Thread-2 experiments DEBUG Autosaving
+2014/03/23 15:50:36 Thread-2 experiments DEBUG Done autosaving
+2014/03/23 15:50:36 Thread-2 experiments DEBUG Copying autosave data to current HDF5
+2014/03/23 15:50:36 Thread-2 experiments DEBUG Autosave closed
+2014/03/23 15:50:36 Thread-2 experiments DEBUG Finished create_data_files()
+2014/03/23 15:50:48 MainThread analysis WARNING Exception trying to plot measurement 0, shot 1, in analysis.ShotsBrowserAnalysis.load()
+
+2014/03/23 15:50:59 MainThread analysis WARNING Exception trying to plot measurement 0, shot 1, in analysis.ShotsBrowserAnalysis.load()
+
+2014/03/23 15:51:04 Thread-2 experiments INFO Current status is idle. Cannot continue an experiment unless status is paused.
+2014/03/23 15:51:09 Thread-3 experiments DEBUG Autosaving
+2014/03/23 15:51:09 Thread-3 experiments DEBUG Done autosaving
+2014/03/23 15:51:09 Thread-3 experiments DEBUG Copying autosave data to current HDF5
+2014/03/23 15:51:09 Thread-3 experiments DEBUG Autosave closed
+2014/03/23 15:51:09 Thread-3 experiments DEBUG Finished create_data_files()
+2014/03/23 15:51:37 Thread-3 experiments INFO Current status is idle. Cannot continue an experiment unless status is paused.
+2014/03/23 16:37:22 MainThread experiments WARNING Index=1 out of range for independent variable a. Setting a.index=0
+
+2014/03/23 16:38:02 MainThread __main__ INFO starting application
+2014/03/23 16:43:43 Thread-1 experiments DEBUG Autosaving
+2014/03/23 16:43:43 Thread-1 experiments DEBUG Done autosaving
+2014/03/23 16:43:43 Thread-1 experiments DEBUG Copying autosave data to current HDF5
+2014/03/23 16:43:43 Thread-1 experiments DEBUG Autosave closed
+2014/03/23 16:43:43 Thread-1 experiments DEBUG Finished create_data_files()
+2014/03/23 16:43:46 Thread-1 LabView DEBUG LabView.open() opening sock
+2014/03/23 16:43:46 Thread-1 LabView DEBUG LabView.open() sock opened
+2014/03/23 16:44:09 Thread-1 experiments INFO Current status is idle. Cannot continue an experiment unless status is paused.
+2014/03/23 16:45:05 MainThread analysis WARNING Exception trying to plot measurement 0, shot 1, in analysis.ShotsBrowserAnalysis.load()
+
+2014/03/23 16:45:43 Thread-2 experiments DEBUG Autosaving
+2014/03/23 16:45:43 Thread-2 experiments DEBUG Done autosaving
+2014/03/23 16:45:43 Thread-2 experiments DEBUG Copying autosave data to current HDF5
+2014/03/23 16:45:43 Thread-2 experiments DEBUG Autosave closed
+2014/03/23 16:45:43 Thread-2 experiments DEBUG Finished create_data_files()
+2014/03/23 16:45:49 Thread-2 experiments INFO Current status is idle. Cannot continue an experiment unless status is paused.
+2014/03/23 16:45:52 MainThread analysis WARNING Exception trying to plot measurement 1, shot 0, in analysis.ShotsBrowserAnalysis.load()
+
+2014/03/23 16:45:58 MainThread analysis WARNING Exception trying to plot measurement 0, shot 1, in analysis.ShotsBrowserAnalysis.load()
+
+2014/03/23 16:46:00 MainThread analysis WARNING Exception trying to plot measurement 1, shot 0, in analysis.ShotsBrowserAnalysis.load()
+
+2014/03/23 16:57:01 Thread-3 experiments DEBUG Autosaving
+2014/03/23 16:57:01 Thread-3 experiments DEBUG Done autosaving
+2014/03/23 16:57:01 Thread-3 experiments DEBUG Copying autosave data to current HDF5
+2014/03/23 16:57:01 Thread-3 experiments DEBUG Autosave closed
+2014/03/23 16:57:01 Thread-3 experiments DEBUG Finished create_data_files()
+2014/03/23 16:57:06 Thread-3 experiments INFO Current status is idle. Cannot continue an experiment unless status is paused.
+2014/03/23 16:57:37 Thread-4 experiments DEBUG Autosaving
+2014/03/23 16:57:37 Thread-4 experiments DEBUG Done autosaving
+2014/03/23 16:57:37 Thread-4 experiments DEBUG Copying autosave data to current HDF5
+2014/03/23 16:57:37 Thread-4 experiments DEBUG Autosave closed
+2014/03/23 16:57:37 Thread-4 experiments DEBUG Finished create_data_files()
+2014/03/23 16:57:42 Thread-4 experiments INFO Current status is idle. Cannot continue an experiment unless status is paused.
+2014/03/23 16:58:00 Thread-5 experiments DEBUG Autosaving
+2014/03/23 16:58:00 Thread-5 experiments DEBUG Done autosaving
+2014/03/23 16:58:00 Thread-5 experiments DEBUG Copying autosave data to current HDF5
+2014/03/23 16:58:00 Thread-5 experiments DEBUG Autosave closed
+2014/03/23 16:58:00 Thread-5 experiments DEBUG Finished create_data_files()
+2014/03/23 16:58:05 Thread-5 experiments INFO Current status is idle. Cannot continue an experiment unless status is paused.
+2014/03/23 16:58:15 Thread-6 experiments DEBUG Autosaving
+2014/03/23 16:58:15 Thread-6 experiments DEBUG Done autosaving
+2014/03/23 16:58:15 Thread-6 experiments DEBUG Copying autosave data to current HDF5
+2014/03/23 16:58:15 Thread-6 experiments DEBUG Autosave closed
+2014/03/23 16:58:15 Thread-6 experiments DEBUG Finished create_data_files()
+2014/03/23 16:59:56 Thread-6 experiments INFO Current status is idle. Cannot continue an experiment unless status is paused.
+2014/03/23 17:00:39 Thread-7 experiments DEBUG Autosaving
+2014/03/23 17:00:39 Thread-7 experiments DEBUG Done autosaving
+2014/03/23 17:00:39 Thread-7 experiments DEBUG Copying autosave data to current HDF5
+2014/03/23 17:00:39 Thread-7 experiments DEBUG Autosave closed
+2014/03/23 17:00:39 Thread-7 experiments DEBUG Finished create_data_files()
+2014/03/23 17:02:24 Thread-7 experiments INFO Current status is idle. Cannot continue an experiment unless status is paused.
+2014/03/23 17:07:05 Thread-8 experiments DEBUG Autosaving
+2014/03/23 17:07:05 Thread-8 experiments DEBUG Done autosaving
+2014/03/23 17:07:05 Thread-8 experiments DEBUG Copying autosave data to current HDF5
+2014/03/23 17:07:05 Thread-8 experiments DEBUG Autosave closed
+2014/03/23 17:07:05 Thread-8 experiments DEBUG Finished create_data_files()
+2014/03/23 17:07:23 MainThread analysis WARNING Exception trying to plot measurement 11, shot 0, in analysis.ShotsBrowserAnalysis.load()
+
+2014/03/23 17:07:23 MainThread analysis WARNING Exception trying to plot measurement 12, shot 0, in analysis.ShotsBrowserAnalysis.load()
+
+2014/03/23 17:09:10 Thread-8 experiments INFO Current status is idle. Cannot continue an experiment unless status is paused.
+2014/03/23 17:13:45 Thread-9 experiments DEBUG Autosaving
+2014/03/23 17:13:45 Thread-9 experiments DEBUG Done autosaving
+2014/03/23 17:13:45 Thread-9 experiments DEBUG Copying autosave data to current HDF5
+2014/03/23 17:13:45 Thread-9 experiments DEBUG Autosave closed
+2014/03/23 17:13:45 Thread-9 experiments DEBUG Finished create_data_files()
+2014/03/23 17:14:05 Thread-9 experiments INFO Current status is idle. Cannot continue an experiment unless status is paused.
+2014/03/23 17:14:43 MainThread experiments WARNING Index=1 out of range for independent variable a. Setting a.index=0
+
+2014/03/23 17:15:24 MainThread __main__ INFO starting application
+2014/03/23 17:16:26 Thread-1 experiments DEBUG Autosaving
+2014/03/23 17:16:26 Thread-1 experiments DEBUG Done autosaving
+2014/03/23 17:16:26 Thread-1 experiments DEBUG Copying autosave data to current HDF5
+2014/03/23 17:16:26 Thread-1 experiments DEBUG Autosave closed
+2014/03/23 17:16:26 Thread-1 experiments DEBUG Finished create_data_files()
+2014/03/23 17:16:29 Thread-1 LabView DEBUG LabView.open() opening sock
+2014/03/23 17:16:29 Thread-1 LabView DEBUG LabView.open() sock opened
+2014/03/23 17:17:15 MainThread analysis WARNING Exception trying to plot measurement 0, shot 1, in analysis.ShotsBrowserAnalysis.load()
+
+2014/03/23 17:17:23 Thread-1 experiments INFO Current status is idle. Cannot continue an experiment unless status is paused.
+2014/03/23 17:17:29 Thread-2 experiments DEBUG Autosaving
+2014/03/23 17:17:29 Thread-2 experiments DEBUG Done autosaving
+2014/03/23 17:17:29 Thread-2 experiments DEBUG Copying autosave data to current HDF5
+2014/03/23 17:17:29 Thread-2 experiments DEBUG Autosave closed
+2014/03/23 17:17:29 Thread-2 experiments DEBUG Finished create_data_files()
+2014/03/23 17:17:49 MainThread analysis WARNING Exception trying to plot measurement 0, shot 1, in analysis.ShotsBrowserAnalysis.load()
+
+2014/03/23 17:17:54 MainThread analysis WARNING Exception trying to plot measurement 0, shot 1, in analysis.ShotsBrowserAnalysis.load()
+
+2014/03/23 17:18:01 Thread-2 experiments INFO Current status is idle. Cannot continue an experiment unless status is paused.
+2014/03/23 17:21:22 MainThread __main__ INFO starting application
+2014/03/23 17:21:35 Thread-1 experiments DEBUG Autosaving
+2014/03/23 17:21:35 Thread-1 experiments DEBUG Done autosaving
+2014/03/23 17:21:35 Thread-1 experiments DEBUG Copying autosave data to current HDF5
+2014/03/23 17:21:35 Thread-1 experiments DEBUG Autosave closed
+2014/03/23 17:21:35 Thread-1 experiments DEBUG Finished create_data_files()
+2014/03/23 17:21:38 Thread-1 LabView DEBUG LabView.open() opening sock
+2014/03/23 17:21:38 Thread-1 LabView DEBUG LabView.open() sock opened
+2014/03/23 17:31:27 Thread-1 experiments INFO Current status is idle. Cannot continue an experiment unless status is paused.
+2014/03/23 18:20:34 Thread-2 experiments DEBUG Autosaving
+2014/03/23 18:20:34 Thread-2 experiments DEBUG Done autosaving
+2014/03/23 18:20:34 Thread-2 experiments DEBUG Copying autosave data to current HDF5
+2014/03/23 18:20:34 Thread-2 experiments DEBUG Autosave closed
+2014/03/23 18:20:34 Thread-2 experiments DEBUG Finished create_data_files()
+2014/03/23 18:26:54 MainThread __main__ INFO starting application
+2014/03/23 18:32:08 Thread-1 experiments DEBUG Autosaving
+2014/03/23 18:32:08 Thread-1 experiments DEBUG Done autosaving
+2014/03/23 18:32:08 Thread-1 experiments DEBUG Copying autosave data to current HDF5
+2014/03/23 18:32:08 Thread-1 experiments DEBUG Autosave closed
+2014/03/23 18:32:08 Thread-1 experiments DEBUG Finished create_data_files()
+2014/03/23 18:32:11 Thread-1 LabView DEBUG LabView.open() opening sock
+2014/03/23 18:32:11 Thread-1 LabView DEBUG LabView.open() sock opened
+2014/03/23 18:32:59 Thread-1 experiments ERROR Exception during experiment:
+"can't open attribute (Attribute: Can't open object)"
+Traceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\experiments.py", line 373, in go2
+    self.measure()     #tell all instruments to do the experiment sequence and acquire data
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\experiments.py", line 452, in measure
+    self.postMeasurement()
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\experiments.py", line 631, in postMeasurement
+    a=i.postMeasurement(self.measurementResults,self.iterationResults,self.hdf5)
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\analysis.py", line 63, in postMeasurement
+    return self.analyzeMeasurement(measurementResults,iterationResults,experimentResults)
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\save2013style.py", line 66, in analyzeMeasurement
+    self.savePNG(value.value,os.path.join(iterationPath,'Iteration'+str(iterationResults.attrs['iteration'])+'Measurement'+str(measurementResults.attrs['measurement'])+'Shot'+str(key)+'.png'))
+  File "C:\Users\Saffmanlab\AppData\Local\Enthought\Canopy\User\lib\site-packages\h5py\_hl\attrs.py", line 48, in __getitem__
+    attr = h5a.open(self._id, self._e(name))
+  File "h5a.pyx", line 74, in h5py.h5a.open (h5py\h5a.c:2018)
+KeyError: "can't open attribute (Attribute: Can't open object)"
+
+
+2014/03/23 18:33:16 MainThread cs_evaluate WARNING evaluating property saveAsPNG, save pictures as PNG, False
+Could not eval string: T
+name 'T' is not definedTraceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\cs_evaluate.py", line 28, in evalWithDict
+    return eval(string,globals()) #,varDict.copy()) #dict(numpyDict.items()+varDict.items())) #create a new dictionary so all numpy functions and everything defined in varDict is available as a global during evaluation
+  File "<string>", line 1, in <module>
+NameError: name 'T' is not defined
+
+
+2014/03/23 18:33:16 MainThread cs_evaluate WARNING evaluating property saveAsPNG, save pictures as PNG, False
+Could not eval string: Tr
+name 'Tr' is not definedTraceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\cs_evaluate.py", line 28, in evalWithDict
+    return eval(string,globals()) #,varDict.copy()) #dict(numpyDict.items()+varDict.items())) #create a new dictionary so all numpy functions and everything defined in varDict is available as a global during evaluation
+  File "<string>", line 1, in <module>
+NameError: name 'Tr' is not defined
+
+
+2014/03/23 18:33:16 MainThread cs_evaluate WARNING evaluating property saveAsPNG, save pictures as PNG, False
+Could not eval string: Tru
+name 'Tru' is not definedTraceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\cs_evaluate.py", line 28, in evalWithDict
+    return eval(string,globals()) #,varDict.copy()) #dict(numpyDict.items()+varDict.items())) #create a new dictionary so all numpy functions and everything defined in varDict is available as a global during evaluation
+  File "<string>", line 1, in <module>
+NameError: name 'Tru' is not defined
+
+
+2014/03/23 18:33:26 Thread-2 experiments INFO Current status is paused after error. Cannot reset experiment unless status is idle.  Try halting first.
+2014/03/23 18:33:32 Thread-2 experiments ERROR Exception during experiment:
+unable to create group (Symbol table: Unable to initialize object)
+Traceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\experiments.py", line 373, in go2
+    self.measure()     #tell all instruments to do the experiment sequence and acquire data
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\experiments.py", line 443, in measure
+    self.measurementResults=self.hdf5.create_group('iterations/'+str(self.iteration)+'/measurements/'+str(self.measurement))
+  File "C:\Users\Saffmanlab\AppData\Local\Enthought\Canopy\User\lib\site-packages\h5py\_hl\group.py", line 41, in create_group
+    gid = h5g.create(self.id, name, lcpl=lcpl)
+  File "h5g.pyx", line 145, in h5py.h5g.create (h5py\h5g.c:2378)
+ValueError: unable to create group (Symbol table: Unable to initialize object)
+
+
+2014/03/23 18:33:37 Thread-3 experiments INFO Current status is paused after error. Cannot reset experiment unless status is idle.  Try halting first.
+2014/03/23 18:33:44 Thread-3 experiments ERROR Exception during experiment:
+unable to create group (Symbol table: Unable to initialize object)
+Traceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\experiments.py", line 373, in go2
+    self.measure()     #tell all instruments to do the experiment sequence and acquire data
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\experiments.py", line 443, in measure
+    self.measurementResults=self.hdf5.create_group('iterations/'+str(self.iteration)+'/measurements/'+str(self.measurement))
+  File "C:\Users\Saffmanlab\AppData\Local\Enthought\Canopy\User\lib\site-packages\h5py\_hl\group.py", line 41, in create_group
+    gid = h5g.create(self.id, name, lcpl=lcpl)
+  File "h5g.pyx", line 145, in h5py.h5g.create (h5py\h5g.c:2378)
+ValueError: unable to create group (Symbol table: Unable to initialize object)
+
+
+2014/03/23 18:33:52 Thread-4 experiments DEBUG Autosaving
+2014/03/23 18:33:52 Thread-4 experiments DEBUG Done autosaving
+2014/03/23 18:33:52 Thread-4 experiments DEBUG Copying autosave data to current HDF5
+2014/03/23 18:33:52 Thread-4 experiments DEBUG Autosave closed
+2014/03/23 18:33:52 Thread-4 experiments DEBUG Finished create_data_files()
+2014/03/23 18:39:01 MainThread __main__ INFO starting application
+2014/03/23 18:39:47 MainThread cs_evaluate WARNING evaluating property saveAsPNG, save pictures as PNG, False
+Could not eval string: T
+name 'T' is not definedTraceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\cs_evaluate.py", line 28, in evalWithDict
+    return eval(string,globals()) #,varDict.copy()) #dict(numpyDict.items()+varDict.items())) #create a new dictionary so all numpy functions and everything defined in varDict is available as a global during evaluation
+  File "<string>", line 1, in <module>
+NameError: name 'T' is not defined
+
+
+2014/03/23 18:39:47 MainThread cs_evaluate WARNING evaluating property saveAsPNG, save pictures as PNG, False
+Could not eval string: Tr
+name 'Tr' is not definedTraceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\cs_evaluate.py", line 28, in evalWithDict
+    return eval(string,globals()) #,varDict.copy()) #dict(numpyDict.items()+varDict.items())) #create a new dictionary so all numpy functions and everything defined in varDict is available as a global during evaluation
+  File "<string>", line 1, in <module>
+NameError: name 'Tr' is not defined
+
+
+2014/03/23 18:39:47 MainThread cs_evaluate WARNING evaluating property saveAsPNG, save pictures as PNG, False
+Could not eval string: Tru
+name 'Tru' is not definedTraceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\cs_evaluate.py", line 28, in evalWithDict
+    return eval(string,globals()) #,varDict.copy()) #dict(numpyDict.items()+varDict.items())) #create a new dictionary so all numpy functions and everything defined in varDict is available as a global during evaluation
+  File "<string>", line 1, in <module>
+NameError: name 'Tru' is not defined
+
+
+2014/03/23 18:46:19 MainThread __main__ INFO starting application

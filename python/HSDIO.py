@@ -45,7 +45,8 @@ class Waveforms(ListProp):
     def __init__(self,experiment,digitalout):
         super(Waveforms,self).__init__('waveforms',experiment,description='Holds all the digitalout waveforms',listElementType=Waveform,listElementName='waveform')
         self.digitalout=digitalout
-        self.add()
+        #TODO: remove for faster loading:
+        #self.add()
         #self.refresh()
     
     def getNextAvailableName(self):
@@ -67,7 +68,7 @@ class Waveforms(ListProp):
     def fromXML(self,xmlNode):
         #while self.listProperty: #go until the list is empty
         #    self.listProperty.pop()
-        self.listProperty=[Waveform(self.listElementName+str(i),self.experiment,self.digitalout,waveforms=self).fromXML(child) for i,child in enumerate(xmlNode)]
+        self.listProperty=[Waveform(child.tag,self.experiment,self.digitalout,waveforms=self).fromXML(child) for i,child in enumerate(xmlNode)]
         self.refresh()
         return self
     
@@ -75,10 +76,6 @@ class Waveforms(ListProp):
         if hasattr(self,'refreshButton') and (self.refreshButton is not None): #prevents trying to do this before GUI is active
             self.refreshButton.clicked()  #refresh the GUI
     
-    def toHardware(self):
-        '''This returns an empty string, because this is handled in HSDIO.toHardware()'''
-        return ''
-
 class StartTrigger(Prop):
     waitForStartTrigger=Typed(BoolProp)
     source=Typed(StrProp)
@@ -90,12 +87,6 @@ class StartTrigger(Prop):
         self.source=StrProp('source',experiment,'start trigger source','"PFI0"')
         self.edge=StrProp('edge',experiment,'start trigger edge','"rising"')
         self.properties+=['waitForStartTrigger','source','edge']
-
-class Script(StrProp):
-
-    def toHardware(self):
-        '''This returns an empty string, because the script is handled in HSDIO.toHardware()'''
-        return ''
 
 #---- HSDIO instrument ----
 
@@ -118,7 +109,7 @@ class HSDIO(Instrument):
         self.version='2014.01.22'
         self.numChannels=32
         self.enable=BoolProp('enable',experiment,'enable HSDIO output','False')
-        self.script=Script('script',experiment,'HSDIO script that says what waveforms to generate',"'script script1\\n  generate waveform1\\n  idle\\nend script'")
+        self.script=StrProp('script',experiment,'HSDIO script that says what waveforms to generate',"'script script1\\n  wait 1\\nend script'")
         self.resourceName=StrProp('resourceName',experiment,'the hardware location of the HSDIO card',"'Dev1'")
         self.clockRate=FloatProp('clockRate',experiment,'samples/channel/sec','1000')
         self.units=FloatProp('units',experiment,'multiplier for HSDIO timing values (milli=.001)','1')
@@ -128,7 +119,7 @@ class HSDIO(Instrument):
         self.triggers=ListProp('triggers',self.experiment,listElementType=ScriptTrigger,listElementName='trigger')
         self.startTrigger=StartTrigger(experiment)
         self.properties+=['version','enable','resourceName','clockRate','units','hardwareAlignmentQuantum','waveforms','triggers','channels','startTrigger','script']
-        self.doNotSendToHardware+=['units']
+        self.doNotSendToHardware+=['units','script','waveforms'] #script and waveforms are handled specially in HSDIO.toHardware()
     
     def initialize(self):
         self.isInitialized=True

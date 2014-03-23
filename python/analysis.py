@@ -47,7 +47,7 @@ class Analysis(Prop):
         '''This is called before an experiment.
         The parameter experimentResults is a reference to the HDF5 file for this experiment.
         Subclass this to update the analysis appropriately.'''
-        return
+        pass
     
     def postMeasurement(self,measurementResults,iterationResults,experimentResults):
         '''results is a tuple of (measurementResult,iterationResult,experimentResult) references to HDF5 nodes for this measurement'''
@@ -58,7 +58,6 @@ class Analysis(Prop):
                 threading.Thread(target=self.measurementProcessLoop).start()
             elif not self.dropMeasurementIfSlow: #if a queue is already going, add to it, unless we can't tolerate being behind
                 self.measurementQueue.append((measurementResults,iterationResults,experimentResults))
-            return
         else:
             return self.analyzeMeasurement(measurementResults,iterationResults,experimentResults)
     
@@ -81,9 +80,8 @@ class Analysis(Prop):
                 threading.Thread(target=self.iterationProcessLoop).start()
             elif not self.dropIterationIfSlow: #if a queue is already going, add to it, unless we can't tolerate being behind
                 self.iterationQueue.append((iterationResults,experimentResults))
-            return
         else:
-            return self.analyzeIteration(iterationResults,experimentResults)
+            self.analyzeIteration(iterationResults,experimentResults)
     
     def iterationProcessLoop(self):
         while len(self.iterationQueue)>0:
@@ -94,7 +92,7 @@ class Analysis(Prop):
         '''This is called after each iteration.
         The parameter results is a tuple of (iterationResult,experimentResult) references to HDF5 nodes for this measurement.
         Subclass this to update the analysis appropriately.'''
-        return
+        pass
     
     def postExperiment(self,experimentResults):
         #no queueing, must do post experiment processing at this time
@@ -104,7 +102,7 @@ class Analysis(Prop):
         '''This is called at the end of the experiment.
         The parameter experimentResults is a reference to the HDF5 file for the experiment.
         Subclass this to update the analysis appropriately.'''
-        return
+        pass
 
 class AnalysisWithFigure(Analysis):
     
@@ -254,6 +252,10 @@ class ImageSumAnalysis(AnalysisWithFigure):
     
     def __init__(self,experiment):
         super(ImageSumAnalysis,self).__init__('ImageSumAnalysis',experiment,'Sums shot0 images as they come in')
+    
+    def setupExperiment(self,experimentResults):
+        #clear old data
+        self.data=None
     
     def analyzeMeasurement(self,measurementResults,iterationResults,experimentResults):
         if ('data/Hamamatsu/shots/0' in measurementResults):

@@ -532,9 +532,14 @@ class Experiment(Prop):
         '''Create a new HDF5 file to store results.  This is done at the beginning of
         every experiment.'''
         
-        #start by saving settings
-        autosave_file=self.autosave()
+        logger.debug('Autosaving')
         
+        #start by saving settings
+        #TODO: uncomment
+        #autosave_file=self.autosave()
+
+        logger.debug('Done autosaving')        
+                        
         #if a prior HDF5 results file is open, then close it
         if hasattr(self,'hdf5') and (self.hdf5 is not None):
             try:
@@ -565,14 +570,19 @@ class Experiment(Prop):
             #hold results only in memory
             self.hdf5=h5py.File('results.hdf5','a',driver='core',backing_store=False)
         
+        logger.debug('Copying autosave data to current HDF5')
+        
         #add settings
-        try:
-            autosave_file['settings'].copy(autosave_file['settings'],self.hdf5)
-        except:
-            logger.warning('Problem trying to copy autosave settings to HDF5 results file.')
-            raise PauseError
-        finally:
-            autosave_file.close()
+        #TODO: uncomment
+        #try:
+        #    autosave_file['settings'].copy(autosave_file['settings'],self.hdf5)
+        #except:
+        #    logger.warning('Problem trying to copy autosave settings to HDF5 results file.')
+        #    raise PauseError
+        #finally:
+        #    autosave_file.close()
+        
+        logger.debug('Autosave closed')
         
         #store independent variable data for experiment
         self.hdf5.attrs['start_time']=self.date2str(time.time())
@@ -585,6 +595,8 @@ class Experiment(Prop):
         
         #store notes.  They will be stored again at the end of the experiment.
         self.hdf5.attrs['notes']=self.notes
+        
+        logger.debug('Finished create_data_files()')
     
     def create_hdf5_iteration(self):
         #write the iteration settings to the hdf5 file
