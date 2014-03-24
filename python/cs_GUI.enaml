@@ -267,7 +267,7 @@ enamldef ExperimentPage(Page):
                 text:=experiment.emailAddresses
             
             Label: text='Progress'
-            Label: text<<str(experiment.progress)
+            Label: text<<str(experiment.progress)+'%'
             
             Label: text='Iteration'
             Label: text<<str(experiment.iteration)+' of '+str(experiment.totalIterations-1)

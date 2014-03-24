@@ -68,6 +68,13 @@ TODO:
     you erased the waveform names.  Fix that.
     a lot of the things that I have done using lists of Prop in ListProp would be better done using a separate numpy array for each property of the Prop (or one array of compound dtype)
     
+    DAQmx pulse
+    slow_noise_eater waveform
+    check analysis
+    HSDIO start trigger
+    copy to network
+    
+    
 Done:
     fix float divide by zero error on AnalogOutput initial evaluate
     tick all channels on waveform y-axis, label x-axis as "samples" and limit to integer ticks?

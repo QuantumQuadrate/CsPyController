@@ -4,7 +4,7 @@ from cs_errors import PauseError, setupLog
 logger=setupLog(__name__)
 
 from analysis import Analysis
-import os
+import os, numpy
 import png, itertools #for PyPNG support
 from atom.api import Bool, Member, Str
 
@@ -33,22 +33,22 @@ class Save2013Analysis(Analysis):
             #processed data just holds ivar names - save at beginning (or end in analysis?)
             #Row 1: tab separated ivar names
             #Row 2 onwards: supposed to be 2D array of variable values, but was never actually functional.  don't include
-            with open('Processed Data.txt', 'w') as f:
+            with open(os.path.join(self.experiment.path,'Processed Data.txt'),'w') as f:
                 f.write('\t'.join(experimentResults.attrs['ivarNames'])+'\n')
             
             #save All Signal.txt
             #Lists number of steps for each ivar.  "Formulas" was never operational.
             #a Iterations:	1	b Iterations:	1	l0 Iterations:	11	Formulas:	0
-            with open('All Signal.txt', 'w') as f:
-                f.write('\t'.join(['{} Iterations:\t{}'.format(name,steps) for name,steps in zip(experimentResults.ivarNames,experimentResults.ivarSteps)]))
+            with open(os.path.join(self.experiment.path,'All Signal.txt'),'w') as f:
+                f.write('\t'.join(['{} Iterations:\t{}'.format(name,steps) for name,steps in zip(experimentResults.attrs['ivarNames'],experimentResults.attrs['ivarSteps'])]))
             
             #begin Data Order Log.txt
             #Data Order Log.txt
             #        one line with ivar indices
             #        (a,b,l0): 	0,0,0	0,0,1	0,0,2	0,0,3	0,0,4	0,0,5	0,0,6	0,0,7	0,0,8	0,0,9	0,0,10
             #write the variable names now, and update with indices after each iteration
-            with open('Data Order Log.txt','w') as f:
-                f.write('('+','.join([experimentResults.attrs['ivarNames']])+'): ')
+            with open(os.path.join(self.experiment.path,'Data Order Log.txt'),'w') as f:
+                f.write('('+','.join(experimentResults.attrs['ivarNames'])+'): ')
     
     def analyzeMeasurement(self,measurementResults,iterationResults,experimentResults):
         if self.experiment.saveData and self.experiment.save2013styleFiles:
@@ -71,7 +71,7 @@ class Save2013Analysis(Analysis):
             #Data Order Log.txt
             #one line with ivar indices
             #(a,b,l0): 	0,0,0	0,0,1	0,0,2	0,0,3	0,0,4	0,0,5	0,0,6	0,0,7	0,0,8	0,0,9	0,0,10
-            with open('Data Order Log.txt','a') as f:
+            with open(os.path.join(self.experiment.path,'Data Order Log.txt'),'a') as f:
                 f.write('\t'+','.join(map(str,iterationResults.attrs['ivarIndex'])))
     
     def analyzeExperiment(self,experimentResults):
@@ -79,16 +79,16 @@ class Save2013Analysis(Analysis):
         
             #sum images
             sumlist=[]
-            if 'iterations' in f:
+            if 'iterations' in experimentResults:
                 for i in experimentResults['iterations'].itervalues():
                     if 'measurements' in i:
                         for m in i['measurements'].itervalues():
                             if 'data/Hamamatsu/shots' in m:
                                 for s in m['data/Hamamatsu/shots'].itervalues():
                                     sumlist.append(s.value)
-            sumarray=array(sumlist)
-            average_of_images=mean(sumarray,axis=0)
-            self.savePNG(average_of_images,os.path.join('images','average_of_all_images_in_experiment.png'))
+            sumarray=numpy.array(sumlist)
+            average_of_images=numpy.mean(sumarray,axis=0)
+            self.savePNG(average_of_images,os.path.join(self.experiment.path,'images','average_of_all_images_in_experiment.png'))
             
             #error log
             pass

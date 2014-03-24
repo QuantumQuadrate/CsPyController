@@ -26,7 +26,7 @@ class Prop(Atom):
         self.name = name #name must be compatible with being a python variable name, and also an XML tag
         self.description=description #English language description, including units and hints about possible values
         self.properties=['description']  #things that are evaluated (if they define evaluate()) and saved to xml.  This is a list of the STRING of variable names (i.e. 'enable', not just: enable)
-        self.doNotSendToHardware=[]
+        self.doNotSendToHardware=['description']
     
     def evaluate(self):
         #go through the properties list and evaluate
@@ -46,7 +46,7 @@ class Prop(Atom):
                     logger.warning('Evaluating '+p+' in '+self.name+'.properties.\n'+str(e)+str(traceback.format_exc())+'\n')
                     raise PauseError
     
-    def toHDF5(self,hdf_parent_node):
+    def toHDF5(self,hdf_parent_node,name=None):
         '''This function provides generic behavior to save a Prop as an HDF5 group.  The choice of group has been made because a Prop in
         general can have subproperties, and using a dataset would limit this behavior.
         We go through the properties list.  If an item has its own toHDF5() method, that will be used.
@@ -55,8 +55,12 @@ class Prop(Atom):
         We assume that settings files will only ever be accessed as read-only and so variable length strings are not bothered with.
         The node name is self.name, because nodes must have unique names (and so node type cannot be used as the name).'''
         
+        if name is None:
+            #if no name suggestion is given (usually used for ListProps) then use self.name
+            name=self.name
+        
         #create the group that represents this Prop
-        my_node=hdf_parent_node.create_group(self.name)
+        my_node=hdf_parent_node.create_group(name)
         
         #go through the list of properties:
         for p in self.properties:
@@ -65,7 +69,7 @@ class Prop(Atom):
             try:
                 o=getattr(self,p)
             except:
-                logger.warning('In Prop.toXML() for class '+self.name+': item '+p+' in properties list does not exist.\n')
+                logger.warning('In Prop.toXML() for class '+name+': item '+p+' in properties list does not exist.\n')
                 continue
             
             #try to save it in various ways
@@ -74,7 +78,7 @@ class Prop(Atom):
                 try:
                     o.toHDF5(my_node)
                 except Exception as e:
-                    logger.warning('While trying '+p+'.toHDF5() in Prop.toHDF5() in '+self.name+'.\n'+str(e)+'\n')
+                    logger.warning('While trying '+p+'.toHDF5() in Prop.toHDF5() in '+name+'.\n'+str(e)+'\n')
                     raise PauseError
             else:
             #try to save it as an attribute, then as a dataset.  If that fails, save its pickle
@@ -90,7 +94,7 @@ class Prop(Atom):
                         try:
                             my_node[p]=pickle.dumps(o)
                         except Exception as e:
-                            logger.warning('While picking '+p+' in Prop.toHDF5() in '+self.name+'.\n'+str(e)+'\n')
+                            logger.warning('While picking '+p+' in Prop.toHDF5() in '+name+'.\n'+str(e)+'\n')
                             raise PauseError
         return my_node
     
@@ -555,14 +559,13 @@ class ListProp(Prop):
             #if hasattr(o,'name'):
             #    name=o.name
             #else:
-            name=self.listElementName+str(i)
+            name=self.listElementName+str(i) #TODO: don't force this
             
             #try to save it in various ways
             if hasattr(o,'toHDF5'):
             #use toHDF5() of the object if available
                 try:
-                    o.name=name
-                    o.toHDF5(list_node)
+                    o.toHDF5(list_node,name=name)
                 except PauseError:
                     #just pass it along
                     raise PauseError
@@ -634,7 +637,7 @@ class ListProp(Prop):
             #while self.listProperty: #go until the list is empty
             #    self.listProperty.pop()
             #TODO replace self.listElementName+str(i) with child.tag once conversion has been made
-            self.listProperty=[self.listElementType(self.listElementName+str(i),self.experiment,**self.listElementKwargs).fromXML(child) for i,child in enumerate(xmlNode)]
+            self.listProperty=[self.listElementType(child.tag,self.experiment,**self.listElementKwargs).fromXML(child) for i,child in enumerate(xmlNode)]
         except Exception as e:
             logger.warning('in '+self.name+' in ListProp.fromXML() for xml tag: '+xmlNode.tag+'.\n'+str(e)+'\n'+str(traceback.format_exc())+'\n')
         return self

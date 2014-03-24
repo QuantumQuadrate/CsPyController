@@ -115,7 +115,7 @@ class Waveform(Prop):
         self.figure2=Figure(figsize=(5,5))
         self.backFigure=self.figure2
         self.figure=self.figure1
-        self.updateFigure()
+        #self.updateFigure() #TODO: don't update on init, no data yet, update on evaluate
     
     def fromXML(self,xmlNode):
         super(Waveform,self).fromXML(xmlNode)
@@ -244,7 +244,7 @@ class Waveform(Prop):
                         ax.axhspan(i+.1,i+.9, relativeTimeList[j],relativeTimeList[j]+relativeDuration[j], color='red',alpha=0.5)
                     #do nothing on zero
             
-            tickList=self.timeList.copy()
+            #tickList=self.timeList.copy()
             #tickList=numpy.array([timeList[0],timeList[-1]],dtype=float) #TODO: fix tick labeler so we don't have to do this
             tickList=numpy.insert(timeList,-1,timeList[-1]+1) #add one sample to the end
             #ax.xaxis.set_major_locator( FixedLocator(tickList) )
