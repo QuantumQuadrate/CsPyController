@@ -26,6 +26,11 @@ TODO:
             All Signal.txt
                 Lists number of steps for each ivar.  "Formulas" was never operational.
                 a Iterations:	1	b Iterations:	1	l0 Iterations:	11	Formulas:	0
+            variables.txt
+                Description	Name (a,a0...a9)	min	max	# steps
+                raman frequency 	a	9172.618868	9172.618868	1
+                microwave frequency	b	9192.632496	9192.632496	1
+                459 Raman Pulse	l0	0.000000	0.030000	11
         postMeasurement:
             Camera Data Iteration0 (signal).txt
                 First row:Camera Data	01/29/2014	03:23 PM	Shots per Measurement:	2	Regions per Measurement:	49
@@ -39,11 +44,7 @@ TODO:
             Data Order Log.txt
                 one line with ivar indices
                 (a,b,l0): 	0,0,0	0,0,1	0,0,2	0,0,3	0,0,4	0,0,5	0,0,6	0,0,7	0,0,8	0,0,9	0,0,10
-        variables.txt
-            Description	Name (a,a0...a9)	min	max	# steps
-            raman frequency 	a	9172.618868	9172.618868	1
-            microwave frequency	b	9192.632496	9192.632496	1
-            459 Raman Pulse	l0	0.000000	0.030000	11
+
         postExperiment:
             .\images\average_of_all_images_in_experiment.png
                 average of images.
@@ -74,7 +75,6 @@ TODO:
     HSDIO start trigger
     copy to network
     
-    
 Done:
     fix float divide by zero error on AnalogOutput initial evaluate
     tick all channels on waveform y-axis, label x-axis as "samples" and limit to integer ticks?
@@ -92,7 +92,7 @@ Done:
     waveform upload error (MSB LSB order is reversed)
     threading made optional (default off) in analysis, so they can be run in a guaranteed order
     filters-implement as return values from analyses
-    2013 style files: Processed Data.txt, All Signal.txt, average_of_all_images_in_experiment.png, Data Order Log.txt
+    2013 style files: Processed Data.txt, All Signal.txt, average_of_all_images_in_experiment.png, Data Order Log.txt, variables.txt
     return error and log from LabView initialization
     Make hexagon not read-only so I can push git to there
     Add instruments to backend and detail to front panel

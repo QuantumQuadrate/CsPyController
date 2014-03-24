@@ -1372,6 +1372,71 @@ enamldef ShotsBrowserPage(Page):
             hug_width='ignore'
             figure<<analysis.figure
 
+enamldef MyIntField(Field):
+    attr value
+    text << str(value)
+    text :: self.value = int(text)
+
+enamldef MyFloatField(Field):
+    attr value
+    text << str(value)
+    text :: self.value = float(text)
+
+enamldef SquareROI(Container):
+    attr item
+    attr num
+    hug_height='strong'
+    hug_width='strong'
+    constraints=[hbox(l0,f0,f1,f2,f3,f4)]
+    Label: l0:
+        text=str(num)
+    MyIntField: f0:
+        placeholder='left'
+        value:=item[0]
+    MyIntField: f1:
+        placeholder='top'
+        value:=item[1]
+    MyIntField: f2:
+        placeholder='right'
+        value:=item[2]
+    MyIntField: f3:
+        placeholder='bottom'
+        value:=item[3]
+    MyFloatField: f4:
+        placeholder='threshold'
+        value:=item[4]
+
+enamldef ROIPage(Page):
+    attr experiment
+    attr analysis
+    
+    title='ROI Management'
+    
+    Container:
+        hug_height='ignore'
+        hug_width='ignore'
+        constraints=[hbox(vbox(hbox(spin0,addButton,removeButton),dynoCont),canvas),removeButton.top==canvas.top]
+        SpinBox: spin0:
+            minimum=0
+            maximum<<len(analysis.ROIs)
+        PushButton: addButton:
+            text='+'
+            clicked::
+                newrow=numpy.zeros((1,5),dtype=numpy.uint16)
+                analysis.ROIs=numpy.insert(analysis.ROIs,spin0.value,newrow,axis=0)
+        PushButton: removeButton:
+            text='-'
+            clicked::
+                analysis.ROIs=numpy.delete(analysis.ROIs,spin0.value,axis=0)
+        Container: dynoCont:
+            constraints << [vbox(*dyno.objects)]
+            Include: dyno:
+                objects<<[SquareROI(item=x,num=i) for i,x in enumerate(analysis.ROIs)]
+        MPLCanvas: canvas:
+            constraints=[(height==1000)|'strong',(width==1000)|'strong']
+            hug_width='ignore'
+            figure<<analysis.figure
+
 enamldef Main(MainWindow): main:
     attr experiment
     
@@ -1426,12 +1491,15 @@ enamldef Main(MainWindow): main:
                     PI_PiezoPage:
                         piezo=main.experiment.LabView.piezo
                     Shot0ResultsPage:
-                        analysis=main.experiment.analyses[0]
+                        analysis=main.experiment.shot0Analysis
                     ShotsBrowserPage:
                         experiment=main.experiment
-                        analysis=main.experiment.analyses[1]
+                        analysis=main.experiment.shotBrowserAnalysis
                     MultiImagePage:
                         experiment=main.experiment
-                        analysis0=main.experiment.analyses[0]
-                        analysis1=main.experiment.analyses[1]
-                        analysis2=main.experiment.analyses[2]
+                        analysis0=main.experiment.shot0Analysis
+                        analysis1=main.experiment.shotBrowserAnalysis
+                        analysis2=main.experiment.imageSumAnalysis
+                    ROIPage:
+                        experiment=main.experiment
+                        analysis=main.experiment.squareROIAnalysis

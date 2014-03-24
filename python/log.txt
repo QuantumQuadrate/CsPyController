@@ -1467,3 +1467,24 @@ IOError: [Errno 2] No such file or directory: 'images\\average_of_all_images_in_
 2014/03/23 19:33:52 Thread-2 experiments DEBUG Autosave closed
 2014/03/23 19:33:52 Thread-2 experiments DEBUG Finished create_data_files()
 2014/03/23 19:49:47 Thread-2 experiments INFO Current status is idle. Cannot continue an experiment unless status is paused.
+2014/03/24 14:53:53 MainThread __main__ INFO starting application
+2014/03/24 15:27:21 MainThread __main__ INFO starting application
+2014/03/24 15:30:19 MainThread __main__ INFO starting application
+2014/03/24 15:34:19 MainThread __main__ INFO starting application
+2014/03/24 15:35:32 MainThread __main__ INFO starting application
+2014/03/24 17:17:28 MainThread __main__ INFO starting application
+2014/03/24 17:20:43 MainThread __main__ INFO starting application
+2014/03/24 17:23:39 MainThread __main__ INFO starting application
+2014/03/24 17:24:48 MainThread __main__ INFO starting application
+2014/03/24 17:27:38 MainThread __main__ INFO starting application
+2014/03/24 17:29:41 MainThread __main__ INFO starting application
+2014/03/24 17:37:47 MainThread __main__ INFO starting application
+2014/03/24 17:42:19 MainThread __main__ INFO starting application
+2014/03/24 17:43:33 MainThread __main__ INFO starting application
+2014/03/24 17:45:09 MainThread __main__ INFO starting application
+2014/03/24 17:47:57 MainThread __main__ INFO starting application
+2014/03/24 17:58:34 MainThread __main__ INFO starting application
+2014/03/24 18:00:38 MainThread __main__ INFO starting application
+2014/03/24 18:02:48 MainThread __main__ INFO starting application
+2014/03/24 18:04:59 MainThread __main__ INFO starting application
+2014/03/24 18:08:31 MainThread __main__ INFO starting application

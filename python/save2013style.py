@@ -36,11 +36,21 @@ class Save2013Analysis(Analysis):
             with open(os.path.join(self.experiment.path,'Processed Data.txt'),'w') as f:
                 f.write('\t'.join(experimentResults.attrs['ivarNames'])+'\n')
             
-            #save All Signal.txt
+            #save "All Signal.txt"
             #Lists number of steps for each ivar.  "Formulas" was never operational.
             #a Iterations:	1	b Iterations:	1	l0 Iterations:	11	Formulas:	0
             with open(os.path.join(self.experiment.path,'All Signal.txt'),'w') as f:
                 f.write('\t'.join(['{} Iterations:\t{}'.format(name,steps) for name,steps in zip(experimentResults.attrs['ivarNames'],experimentResults.attrs['ivarSteps'])]))
+            
+            #save variables.txt
+            #Description	Name (a,a0...a9)	min	max	# steps
+            #raman frequency 	a	9172.618868	9172.618868	1
+            #microwave frequency	b	9192.632496	9192.632496	1
+            #459 Raman Pulse	l0	0.000000	0.030000	11
+            with open(os.path.join(self.experiment.path,'variables.txt'),'w') as f:
+                f.write('Description	Name (a,a0...a9)	min	max	# steps\n')
+                f.write('\n'.join(['{}\t{}\t{}\t{}'.format(i.description,i.name,numpy.amin(i.valueList),numpy.amax(i.valueList),i.steps) for i in self.experiment.indepenedentVariables]))
+                f.write('\n')
             
             #begin Data Order Log.txt
             #Data Order Log.txt

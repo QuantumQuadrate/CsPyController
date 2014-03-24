@@ -15,15 +15,13 @@ import threading, time, datetime, traceback, xml.etree.ElementTree, pickle, os, 
 numpy.set_printoptions(formatter=dict(float=lambda t: "%.2e" % t))
 
 # Use Atom traits to automate Enaml updating
-from atom.api import Bool, Int, Float, Str, Typed, Member, List
+from atom.api import Bool, Int, Float, Str, Member
 from enaml.application import deferred_call
 
 # Bring in other files in this package
-import cs_evaluate
+import cs_evaluate, analysis, save2013style
 from instrument_property import Prop, EvalProp, ListProp
 import LabView
-from analysis import ImagePlotAnalysis, ShotsBrowserAnalysis, ImageSumAnalysis
-from save2013style import Save2013Analysis
 
 class independentVariables(ListProp):
     dyno=Member()
@@ -56,7 +54,7 @@ class independentVariable(EvalProp):
     
     def __init__(self,name,experiment,description='',function=''):
         super(independentVariable,self).__init__(name,experiment,description,function)
-        self.valueList=[]
+        self.valueList=numpy.array([]).flatten()
         self.currentValue=None
     
     #override from EvalProp()
@@ -299,7 +297,7 @@ class Experiment(Prop):
                 setattr(self,key,value)
             except Exception as e:
                 logger.warning('Exception applying {} with value {} in experiments.applyToSelf.\n{}'.format(key,value,e))
-                raise pauseError
+                raise PauseError
     
     def resetAndGo1(self):
         thread = threading.Thread(target=self.resetAndGo2)
@@ -460,7 +458,7 @@ class Experiment(Prop):
         try:
             self.load('settings.xml')
         except IOError as e:
-            logger.warning('No default settings.xml found.')
+            logger.warning('No default settings.xml found.\n'+str(e))
     
     def load(self,path):
         #load xml from a file
@@ -669,6 +667,12 @@ class AQuA(Experiment):
     '''A subclass of Experiment which knows about all our particular hardware'''
     
     LabView=Member()
+    shot0Analysis=Member()
+    shotBrowserAnalysis=Member()
+    imageSumAnalysis=Member()
+    squareROIAnalysis=Member()
+    save2013Analysis=Member()
+    
     
     def __init__(self):
         super(AQuA,self).__init__()
@@ -676,7 +680,15 @@ class AQuA(Experiment):
         #add instruments
         self.LabView=LabView.LabView(experiment=self)
         self.instruments=[self.LabView]
-        self.analyses+=[ImagePlotAnalysis('analysisShot0',self.experiment,description='just show the incoming shot 0'),ShotsBrowserAnalysis(self.experiment),ImageSumAnalysis(self.experiment),Save2013Analysis(self.experiment)]
+        
+        #analyses
+        self.shot0Analysis=analysis.ImagePlotAnalysis('analysisShot0',self.experiment,description='just show the incoming shot 0')
+        self.shotBrowserAnalysis=analysis.ShotsBrowserAnalysis(self.experiment)
+        self.imageSumAnalysis=analysis.ImageSumAnalysis(self.experiment)
+        self.squareROIAnalysis=analysis.SquareROIAnalysis(self.experiment)
+        self.save2013Analysis=save2013style.Save2013Analysis(self.experiment)
+        self.analyses+=[self.shot0Analysis,self.shotBrowserAnalysis,self.imageSumAnalysis,self.squareROIAnalysis,self.save2013Analysis]
+        
         self.properties+=['LabView']
         
         self.loadDefaultSettings()

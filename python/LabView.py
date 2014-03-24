@@ -144,7 +144,7 @@ class LabView(Instrument):
                 
                 #unpack the image in 2 byte chunks
                 #print "len(value)={}".format(len(value))
-                array=numpy.array(struct.unpack('!'+str(int(len(value)/2))+'H',value))
+                array=numpy.array(struct.unpack('!'+str(int(len(value)/2))+'H',value),dtype=numpy.uint16)
                 
                 #the dictionary is unpacked alphabetically, so if width and height were
                 #transmitted they should be loaded already

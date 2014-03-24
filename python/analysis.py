@@ -1,7 +1,7 @@
 from cs_errors import PauseError, setupLog
 logger=setupLog(__name__)
 
-from atom.api import Bool, Typed, Str, Member, List, Int, observe
+from atom.api import Bool, Typed, Str, Member, List, Int, observe, Atom
 from instrument_property import Prop
 
 #MPL plotting
@@ -265,10 +265,11 @@ class ImageSumAnalysis(AnalysisWithFigure):
                 logger.warning('HDF5 data/Hamamatsu/shots/0 does not exist in analysis.ImagePlotAnalysis.analyzeMeasurement()\n'+str(e))
                 raise PauseError
             #first time
-            if self.data is None:
-                print 'first'
+            if (measurementResults.attrs['measurement']==0) or (self.data is None):
                 self.data=numpy.zeros_like(input)
+                iterationResults['shot0sum']=self.data
             self.data+=input
+            iterationResults['shot0sum'][...]=self.data #overwrite old data
             self.updateFigure() #only update figure if image was loaded
     
     def updateFigure(self):
@@ -278,3 +279,30 @@ class ImageSumAnalysis(AnalysisWithFigure):
         ax.matshow(self.data)
         ax.set_title('shot 0 summation')
         super(ImageSumAnalysis,self).updateFigure()
+
+class SquareROIAnalysis(AnalysisWithFigure):
+    ROIs=Member() #a numpy array holding an ROI in each row
+    left,top,right,bottom,threshold=(0,1,2,3,4) #column ordering of ROI boundaries in each ROI in ROIs
+    
+    def __init__(self,experiment):
+        super(SquareROIAnalysis,self).__init__('SquareROIAnalysis',experiment,'Does analysis on square regions of interest')
+        self.ROIs=numpy.zeros((0,5),numpy.uint16) #initialize with a blank array
+    
+    def sum(self,shot,roi):
+        return numpy.sum(shot[roi[self.top]:roi[self.bottom],roi[self.left]:roi[self.right]])
+
+    sums=numpy.vectorize(sum,excluded=['shot'])
+    
+    def analyzeMeasurement(self,measurementResults,iterationResults,experimentResults):
+        #here we want to live update a digital plot of atom loading as it happens
+        #for each image
+        for name,shot in measurementResults['data/Hamamatsu/shots'].items():
+                sumArray=self.sums(shot,self.ROIs)
+                measurementResults['data/Hamamatsu/shots/'+name].attrs['squareROIsums']=sumArray
+        #data will be stored in hdf5 so that save2013style can then append to Camera Data Iteration0 (signal).txt        
+    
+    def updateFigure(self):
+        fig=self.backFigure
+        fig.clf()
+        ax=fig.add_subplot(111)
+        #make the digital plot here
