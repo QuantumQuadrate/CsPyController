@@ -1466,3 +1466,4 @@ IOError: [Errno 2] No such file or directory: 'images\\average_of_all_images_in_
 2014/03/23 19:33:52 Thread-2 experiments DEBUG Copying autosave data to current HDF5
 2014/03/23 19:33:52 Thread-2 experiments DEBUG Autosave closed
 2014/03/23 19:33:52 Thread-2 experiments DEBUG Finished create_data_files()
+2014/03/23 19:49:47 Thread-2 experiments INFO Current status is idle. Cannot continue an experiment unless status is paused.
