@@ -33,13 +33,13 @@ class Save2013Analysis(Analysis):
             #processed data just holds ivar names - save at beginning (or end in analysis?)
             #Row 1: tab separated ivar names
             #Row 2 onwards: supposed to be 2D array of variable values, but was never actually functional.  don't include
-            with open('Processed Data.txt', 'w') as f:
+            with open(os.path.join(self.experiment.path,'Processed Data.txt'),'w') as f:
                 f.write('\t'.join(experimentResults.attrs['ivarNames'])+'\n')
             
             #save All Signal.txt
             #Lists number of steps for each ivar.  "Formulas" was never operational.
             #a Iterations:	1	b Iterations:	1	l0 Iterations:	11	Formulas:	0
-            with open('All Signal.txt', 'w') as f:
+            with open(os.path.join(self.experiment.path,'All Signal.txt'),'w') as f:
                 f.write('\t'.join(['{} Iterations:\t{}'.format(name,steps) for name,steps in zip(experimentResults.attrs['ivarNames'],experimentResults.attrs['ivarSteps'])]))
             
             #begin Data Order Log.txt
@@ -47,7 +47,7 @@ class Save2013Analysis(Analysis):
             #        one line with ivar indices
             #        (a,b,l0): 	0,0,0	0,0,1	0,0,2	0,0,3	0,0,4	0,0,5	0,0,6	0,0,7	0,0,8	0,0,9	0,0,10
             #write the variable names now, and update with indices after each iteration
-            with open('Data Order Log.txt','w') as f:
+            with open(os.path.join(self.experiment.path,'Data Order Log.txt'),'w') as f:
                 f.write('('+','.join(experimentResults.attrs['ivarNames'])+'): ')
     
     def analyzeMeasurement(self,measurementResults,iterationResults,experimentResults):
@@ -71,7 +71,7 @@ class Save2013Analysis(Analysis):
             #Data Order Log.txt
             #one line with ivar indices
             #(a,b,l0): 	0,0,0	0,0,1	0,0,2	0,0,3	0,0,4	0,0,5	0,0,6	0,0,7	0,0,8	0,0,9	0,0,10
-            with open('Data Order Log.txt','a') as f:
+            with open(os.path.join(self.experiment.path,'Data Order Log.txt'),'a') as f:
                 f.write('\t'+','.join(map(str,iterationResults.attrs['ivarIndex'])))
     
     def analyzeExperiment(self,experimentResults):
