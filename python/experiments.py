@@ -441,8 +441,8 @@ class Experiment(Prop):
         
         #set up the results container
         self.measurementResults=self.hdf5.create_group('iterations/'+str(self.iteration)+'/measurements/'+str(self.measurement))
-        self.measurementResults['start_time']=start_time
-        self.measurementResults['measurement']=self.measurement
+        self.measurementResults.attrs['start_time']=start_time
+        self.measurementResults.attrs['measurement']=self.measurement
         self.measurementResults.create_group('data') #for storing data
         for i in self.instruments:
             #pass the hdf5 group to each instrument so they can write results to it

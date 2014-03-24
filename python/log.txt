@@ -1236,3 +1236,233 @@ NameError: name 'Tru' is not defined
 
 
 2014/03/23 18:46:19 MainThread __main__ INFO starting application
+2014/03/23 18:47:31 Thread-1 experiments DEBUG Autosaving
+2014/03/23 18:47:31 Thread-1 experiments DEBUG Done autosaving
+2014/03/23 18:47:31 Thread-1 experiments DEBUG Copying autosave data to current HDF5
+2014/03/23 18:47:31 Thread-1 experiments DEBUG Autosave closed
+2014/03/23 18:47:31 Thread-1 experiments DEBUG Finished create_data_files()
+2014/03/23 18:47:33 Thread-1 LabView DEBUG LabView.open() opening sock
+2014/03/23 18:47:33 Thread-1 LabView DEBUG LabView.open() sock opened
+2014/03/23 18:47:37 Thread-1 experiments ERROR Exception during experiment:
+global name 'camera' is not defined
+Traceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\experiments.py", line 373, in go2
+    self.measure()     #tell all instruments to do the experiment sequence and acquire data
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\experiments.py", line 450, in measure
+    i.writeResults(self.measurementResults['data'])
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\LabView.py", line 157, in writeResults
+    if hasattr(self,camera) and self.camera.savePNG:
+NameError: global name 'camera' is not defined
+
+
+2014/03/23 18:47:41 Thread-1 experiments ERROR Exception during experiment:
+unable to create group (Symbol table: Unable to initialize object)
+Traceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\experiments.py", line 368, in go2
+    self.create_hdf5_iteration()
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\experiments.py", line 603, in create_hdf5_iteration
+    self.iterationResults=self.hdf5.create_group('iterations/'+str(self.iteration))
+  File "C:\Users\Saffmanlab\AppData\Local\Enthought\Canopy\User\lib\site-packages\h5py\_hl\group.py", line 41, in create_group
+    gid = h5g.create(self.id, name, lcpl=lcpl)
+  File "h5g.pyx", line 145, in h5py.h5g.create (h5py\h5g.c:2378)
+ValueError: unable to create group (Symbol table: Unable to initialize object)
+
+
+2014/03/23 18:49:21 MainThread __main__ INFO starting application
+2014/03/23 18:51:01 Thread-1 experiments DEBUG Autosaving
+2014/03/23 18:51:01 Thread-1 experiments DEBUG Done autosaving
+2014/03/23 18:51:01 Thread-1 experiments DEBUG Copying autosave data to current HDF5
+2014/03/23 18:51:01 Thread-1 experiments DEBUG Autosave closed
+2014/03/23 18:51:01 Thread-1 experiments DEBUG Finished create_data_files()
+2014/03/23 18:51:04 Thread-1 LabView DEBUG LabView.open() opening sock
+2014/03/23 18:51:04 Thread-1 LabView DEBUG LabView.open() sock opened
+2014/03/23 18:51:07 Thread-1 experiments ERROR Exception during experiment:
+'HamamatsuC9100_13' object has no attribute 'savePNG'
+Traceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\experiments.py", line 373, in go2
+    self.measure()     #tell all instruments to do the experiment sequence and acquire data
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\experiments.py", line 450, in measure
+    i.writeResults(self.measurementResults['data'])
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\LabView.py", line 157, in writeResults
+    if hasattr(self,'camera') and self.camera.savePNG:
+AttributeError: 'HamamatsuC9100_13' object has no attribute 'savePNG'
+
+
+2014/03/23 18:51:12 Thread-1 experiments ERROR Exception during experiment:
+unable to create group (Symbol table: Unable to initialize object)
+Traceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\experiments.py", line 368, in go2
+    self.create_hdf5_iteration()
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\experiments.py", line 603, in create_hdf5_iteration
+    self.iterationResults=self.hdf5.create_group('iterations/'+str(self.iteration))
+  File "C:\Users\Saffmanlab\AppData\Local\Enthought\Canopy\User\lib\site-packages\h5py\_hl\group.py", line 41, in create_group
+    gid = h5g.create(self.id, name, lcpl=lcpl)
+  File "h5g.pyx", line 145, in h5py.h5g.create (h5py\h5g.c:2378)
+ValueError: unable to create group (Symbol table: Unable to initialize object)
+
+
+2014/03/23 18:53:13 MainThread __main__ INFO starting application
+2014/03/23 18:53:21 Thread-1 experiments DEBUG Autosaving
+2014/03/23 18:53:21 Thread-1 experiments DEBUG Done autosaving
+2014/03/23 18:53:21 Thread-1 experiments DEBUG Copying autosave data to current HDF5
+2014/03/23 18:53:21 Thread-1 experiments DEBUG Autosave closed
+2014/03/23 18:53:21 Thread-1 experiments DEBUG Finished create_data_files()
+2014/03/23 18:53:23 Thread-1 LabView DEBUG LabView.open() opening sock
+2014/03/23 18:53:23 Thread-1 LabView DEBUG LabView.open() sock opened
+2014/03/23 18:53:27 Thread-1 LabView WARNING problem saving PNG in LabView.writeResults()
+'LabView' object has no attribute 'saveAsPNG'
+2014/03/23 18:53:31 Thread-1 experiments ERROR Exception during experiment:
+unable to create group (Symbol table: Unable to initialize object)
+Traceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\experiments.py", line 368, in go2
+    self.create_hdf5_iteration()
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\experiments.py", line 603, in create_hdf5_iteration
+    self.iterationResults=self.hdf5.create_group('iterations/'+str(self.iteration))
+  File "C:\Users\Saffmanlab\AppData\Local\Enthought\Canopy\User\lib\site-packages\h5py\_hl\group.py", line 41, in create_group
+    gid = h5g.create(self.id, name, lcpl=lcpl)
+  File "h5g.pyx", line 145, in h5py.h5g.create (h5py\h5g.c:2378)
+ValueError: unable to create group (Symbol table: Unable to initialize object)
+
+
+2014/03/23 18:59:49 MainThread __main__ INFO starting application
+2014/03/23 19:01:03 Thread-1 experiments DEBUG Autosaving
+2014/03/23 19:01:03 Thread-1 experiments DEBUG Done autosaving
+2014/03/23 19:01:03 Thread-1 experiments DEBUG Copying autosave data to current HDF5
+2014/03/23 19:01:03 Thread-1 experiments DEBUG Autosave closed
+2014/03/23 19:01:03 Thread-1 experiments DEBUG Finished create_data_files()
+2014/03/23 19:01:05 Thread-1 LabView DEBUG LabView.open() opening sock
+2014/03/23 19:01:05 Thread-1 LabView DEBUG LabView.open() sock opened
+2014/03/23 19:01:09 Thread-1 experiments ERROR Exception during experiment:
+"can't open attribute (Attribute: Can't open object)"
+Traceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\experiments.py", line 373, in go2
+    self.measure()     #tell all instruments to do the experiment sequence and acquire data
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\experiments.py", line 452, in measure
+    self.postMeasurement()
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\experiments.py", line 631, in postMeasurement
+    a=i.postMeasurement(self.measurementResults,self.iterationResults,self.hdf5)
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\analysis.py", line 62, in postMeasurement
+    return self.analyzeMeasurement(measurementResults,iterationResults,experimentResults)
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\save2013style.py", line 66, in analyzeMeasurement
+    self.savePNG(value.value,os.path.join(iterationPath,'Iteration'+str(iterationResults.attrs['iteration'])+'Measurement'+str(measurementResults.attrs['measurement'])+'Shot'+str(key)+'.png'))
+  File "C:\Users\Saffmanlab\AppData\Local\Enthought\Canopy\User\lib\site-packages\h5py\_hl\attrs.py", line 48, in __getitem__
+    attr = h5a.open(self._id, self._e(name))
+  File "h5a.pyx", line 74, in h5py.h5a.open (h5py\h5a.c:2018)
+KeyError: "can't open attribute (Attribute: Can't open object)"
+
+
+2014/03/23 19:01:13 Thread-1 experiments ERROR Exception during experiment:
+unable to create group (Symbol table: Unable to initialize object)
+Traceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\experiments.py", line 368, in go2
+    self.create_hdf5_iteration()
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\experiments.py", line 603, in create_hdf5_iteration
+    self.iterationResults=self.hdf5.create_group('iterations/'+str(self.iteration))
+  File "C:\Users\Saffmanlab\AppData\Local\Enthought\Canopy\User\lib\site-packages\h5py\_hl\group.py", line 41, in create_group
+    gid = h5g.create(self.id, name, lcpl=lcpl)
+  File "h5g.pyx", line 145, in h5py.h5g.create (h5py\h5g.c:2378)
+ValueError: unable to create group (Symbol table: Unable to initialize object)
+
+
+2014/03/23 19:04:53 MainThread __main__ INFO starting application
+2014/03/23 19:04:57 Thread-1 experiments DEBUG Autosaving
+2014/03/23 19:04:57 Thread-1 experiments DEBUG Done autosaving
+2014/03/23 19:04:57 Thread-1 experiments DEBUG Copying autosave data to current HDF5
+2014/03/23 19:04:57 Thread-1 experiments DEBUG Autosave closed
+2014/03/23 19:04:57 Thread-1 experiments DEBUG Finished create_data_files()
+2014/03/23 19:05:00 Thread-1 LabView DEBUG LabView.open() opening sock
+2014/03/23 19:05:00 Thread-1 LabView DEBUG LabView.open() sock opened
+2014/03/23 19:05:12 MainThread analysis WARNING Exception trying to plot measurement 5, shot 1, in analysis.ShotsBrowserAnalysis.load()
+
+2014/03/23 19:05:12 MainThread analysis WARNING Exception trying to plot measurement 6, shot 1, in analysis.ShotsBrowserAnalysis.load()
+
+2014/03/23 19:05:14 MainThread analysis WARNING Exception trying to plot measurement 6, shot 2, in analysis.ShotsBrowserAnalysis.load()
+
+2014/03/23 19:05:15 MainThread analysis WARNING Exception trying to plot measurement 5, shot 2, in analysis.ShotsBrowserAnalysis.load()
+
+2014/03/23 19:05:16 MainThread analysis WARNING Exception trying to plot measurement 4, shot 2, in analysis.ShotsBrowserAnalysis.load()
+
+2014/03/23 19:05:25 MainThread analysis WARNING Exception trying to plot measurement 12, shot 0, in analysis.ShotsBrowserAnalysis.load()
+
+2014/03/23 19:20:51 Thread-1 experiments ERROR Exception during experiment:
+global name 'f' is not defined
+Traceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\experiments.py", line 393, in go2
+    self.postExperiment()
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\experiments.py", line 666, in postExperiment
+    i.postExperiment(self.hdf5)
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\analysis.py", line 99, in postExperiment
+    self.analyzeExperiment(experimentResults)
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\save2013style.py", line 82, in analyzeExperiment
+    if 'iterations' in f:
+NameError: global name 'f' is not defined
+
+
+2014/03/23 19:20:51 Thread-1 experiments WARNING Index=1 out of range for independent variable a. Setting a.index=0
+
+2014/03/23 19:23:47 MainThread __main__ INFO starting application
+2014/03/23 19:24:12 Thread-1 experiments DEBUG Autosaving
+2014/03/23 19:24:12 Thread-1 experiments DEBUG Done autosaving
+2014/03/23 19:24:12 Thread-1 experiments DEBUG Copying autosave data to current HDF5
+2014/03/23 19:24:12 Thread-1 experiments DEBUG Autosave closed
+2014/03/23 19:24:12 Thread-1 experiments DEBUG Finished create_data_files()
+2014/03/23 19:24:14 Thread-1 LabView DEBUG LabView.open() opening sock
+2014/03/23 19:24:14 Thread-1 LabView DEBUG LabView.open() sock opened
+2014/03/23 19:24:19 Thread-1 experiments ERROR Exception during experiment:
+global name 'array' is not defined
+Traceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\experiments.py", line 393, in go2
+    self.postExperiment()
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\experiments.py", line 666, in postExperiment
+    i.postExperiment(self.hdf5)
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\analysis.py", line 99, in postExperiment
+    self.analyzeExperiment(experimentResults)
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\save2013style.py", line 89, in analyzeExperiment
+    sumarray=array(sumlist)
+NameError: global name 'array' is not defined
+
+
+2014/03/23 19:24:19 Thread-1 experiments WARNING Index=1 out of range for independent variable a. Setting a.index=0
+
+2014/03/23 19:26:31 MainThread __main__ INFO starting application
+2014/03/23 19:26:54 Thread-1 experiments DEBUG Autosaving
+2014/03/23 19:26:54 Thread-1 experiments DEBUG Done autosaving
+2014/03/23 19:26:54 Thread-1 experiments DEBUG Copying autosave data to current HDF5
+2014/03/23 19:26:54 Thread-1 experiments DEBUG Autosave closed
+2014/03/23 19:26:54 Thread-1 experiments DEBUG Finished create_data_files()
+2014/03/23 19:26:56 Thread-1 LabView DEBUG LabView.open() opening sock
+2014/03/23 19:26:56 Thread-1 LabView DEBUG LabView.open() sock opened
+2014/03/23 19:27:01 Thread-1 experiments ERROR Exception during experiment:
+[Errno 2] No such file or directory: 'images\\average_of_all_images_in_experiment.png'
+Traceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\experiments.py", line 393, in go2
+    self.postExperiment()
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\experiments.py", line 666, in postExperiment
+    i.postExperiment(self.hdf5)
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\analysis.py", line 99, in postExperiment
+    self.analyzeExperiment(experimentResults)
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\save2013style.py", line 91, in analyzeExperiment
+    self.savePNG(average_of_images,os.path.join('images','average_of_all_images_in_experiment.png'))
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\save2013style.py", line 108, in savePNG
+    png.from_array(array,'L;16',info={'bitdepth':16}).save(filename)
+  File "C:\Users\Saffmanlab\AppData\Local\Enthought\Canopy\User\lib\site-packages\png.py", line 1301, in save
+    file = open(file, 'wb')
+IOError: [Errno 2] No such file or directory: 'images\\average_of_all_images_in_experiment.png'
+
+
+2014/03/23 19:27:01 Thread-1 experiments WARNING Index=1 out of range for independent variable a. Setting a.index=0
+
+2014/03/23 19:30:33 MainThread __main__ INFO starting application
+2014/03/23 19:30:46 Thread-1 experiments DEBUG Autosaving
+2014/03/23 19:30:46 Thread-1 experiments DEBUG Done autosaving
+2014/03/23 19:30:46 Thread-1 experiments DEBUG Copying autosave data to current HDF5
+2014/03/23 19:30:46 Thread-1 experiments DEBUG Autosave closed
+2014/03/23 19:30:46 Thread-1 experiments DEBUG Finished create_data_files()
+2014/03/23 19:30:49 Thread-1 LabView DEBUG LabView.open() opening sock
+2014/03/23 19:30:49 Thread-1 LabView DEBUG LabView.open() sock opened
+2014/03/23 19:30:53 Thread-1 experiments INFO Current status is idle. Cannot continue an experiment unless status is paused.
+2014/03/23 19:33:52 Thread-2 experiments DEBUG Autosaving
+2014/03/23 19:33:52 Thread-2 experiments DEBUG Done autosaving
+2014/03/23 19:33:52 Thread-2 experiments DEBUG Copying autosave data to current HDF5
+2014/03/23 19:33:52 Thread-2 experiments DEBUG Autosave closed
+2014/03/23 19:33:52 Thread-2 experiments DEBUG Finished create_data_files()

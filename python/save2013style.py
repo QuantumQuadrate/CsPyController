@@ -4,7 +4,7 @@ from cs_errors import PauseError, setupLog
 logger=setupLog(__name__)
 
 from analysis import Analysis
-import os
+import os, numpy
 import png, itertools #for PyPNG support
 from atom.api import Bool, Member, Str
 
@@ -79,16 +79,16 @@ class Save2013Analysis(Analysis):
         
             #sum images
             sumlist=[]
-            if 'iterations' in f:
+            if 'iterations' in experimentResults:
                 for i in experimentResults['iterations'].itervalues():
                     if 'measurements' in i:
                         for m in i['measurements'].itervalues():
                             if 'data/Hamamatsu/shots' in m:
                                 for s in m['data/Hamamatsu/shots'].itervalues():
                                     sumlist.append(s.value)
-            sumarray=array(sumlist)
-            average_of_images=mean(sumarray,axis=0)
-            self.savePNG(average_of_images,os.path.join('images','average_of_all_images_in_experiment.png'))
+            sumarray=numpy.array(sumlist)
+            average_of_images=numpy.mean(sumarray,axis=0)
+            self.savePNG(average_of_images,os.path.join(self.experiment.path,'images','average_of_all_images_in_experiment.png'))
             
             #error log
             pass

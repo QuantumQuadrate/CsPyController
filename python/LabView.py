@@ -153,13 +153,13 @@ class LabView(Instrument):
                 except Exception as e:
                     print 'unable to resize image, check for Hamamatsu row/column data:'+str(e)
                     raise PauseError
-                if self.experiment.saveData and self.experiment.save2013styleFiles:
-                    if hasattr(self,camera) and self.camera.savePNG:
-                            try:
-                                self.savePNG(array,os.path.join(self.experiment.measurementPath,'shot'+key.split('/')[-1]+'.png'))
-                            except Exception as e:
-                                logger.warning('problem saving PNG in LabView.writeResults()\n'+str(e))
-                                raise PauseError
+                #if self.experiment.saveData and self.experiment.save2013styleFiles:
+                #    if hasattr(self,'camera') and self.camera.saveAsPNG:
+                #            try:
+                #                self.savePNG(array,os.path.join(self.experiment.measurementPath,'shot'+key.split('/')[-1]+'.png'))
+                #            except Exception as e:
+                #                logger.warning('problem saving PNG in LabView.writeResults()\n'+str(e))
+                #                raise PauseError
                 try:
                     hdf5[key]=array
                 except Exception as e:
