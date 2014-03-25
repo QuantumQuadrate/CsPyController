@@ -231,7 +231,7 @@ class ShotsBrowserAnalysis(AnalysisWithFigure):
                             self.array=i['measurements/{}/data/Hamamatsu/shots/{}'.format(m,s)].value
                             self.updateFigure()
                         except Exception as e:
-                            logger.warning('Exception trying to plot measurement {}, shot {}, in analysis.ShotsBrowserAnalysis.load()\n'.format(m,s))
+                            logger.warning('Exception trying to plot measurement {}, shot {}, in analysis.ShotsBrowserAnalysis.load()\n{}\n'.format(m,s,e))
                             self.blankFigure()
                         break
     
@@ -283,26 +283,34 @@ class ImageSumAnalysis(AnalysisWithFigure):
 class SquareROIAnalysis(AnalysisWithFigure):
     ROIs=Member() #a numpy array holding an ROI in each row
     left,top,right,bottom,threshold=(0,1,2,3,4) #column ordering of ROI boundaries in each ROI in ROIs
+    loadingArray=numpy.zeros((0,0,0),dtype=numpy.bool_) #blank array that will hold digital representation of atom loading
     
     def __init__(self,experiment):
         super(SquareROIAnalysis,self).__init__('SquareROIAnalysis',experiment,'Does analysis on square regions of interest')
         self.ROIs=numpy.zeros((0,5),numpy.uint16) #initialize with a blank array
     
-    def sum(self,shot,roi):
+    def sum(self,roi,shot):
         return numpy.sum(shot[roi[self.top]:roi[self.bottom],roi[self.left]:roi[self.right]])
-
+    
     sums=numpy.vectorize(sum,excluded=['shot'])
     
     def analyzeMeasurement(self,measurementResults,iterationResults,experimentResults):
         #here we want to live update a digital plot of atom loading as it happens
         #for each image
-        for name,shot in measurementResults['data/Hamamatsu/shots'].items():
-                sumArray=self.sums(shot,self.ROIs)
+        numShots=len(measurementResults['data/Hamamatsu/shots'])
+        loadingArray=numpy.zeros((numShots,self.experiment.ROIrows,self.experiment.ROIcolumns),dtype=numpy.bool_)
+        for i,(name,shot) in enumerate(measurementResults['data/Hamamatsu/shots'].items()):
+                sumArray=self.sums(self.ROIs,shot)
                 measurementResults['data/Hamamatsu/shots/'+name].attrs['squareROIsums']=sumArray
+                #compare each roi to threshold
+                loadingArray[i]=numpy.reshape((sumArray>=self.ROIs[:,4]),numpy.shape(loadingArray[i]))
         #data will be stored in hdf5 so that save2013style can then append to Camera Data Iteration0 (signal).txt        
     
     def updateFigure(self):
         fig=self.backFigure
         fig.clf()
-        ax=fig.add_subplot(111)
-        #make the digital plot here
+        n=len(self.loadingArray)
+        for i in range(n):
+            ax=fig.add_subplot(n,1,i+1)
+            #make the digital plot here
+            ax.matshow(self.loadingArray[i])

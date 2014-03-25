@@ -93,6 +93,8 @@ class independentVariable(EvalProp):
 class Experiment(Prop):
 
     version='2014.01.30'
+    ROIrows=7
+    ROIcolumns=7
 
     #experiment control Traits
     status=Str('idle')
@@ -100,6 +102,7 @@ class Experiment(Prop):
     pauseAfterMeasurement=Bool(False)
     pauseAfterError=Bool(False)
     saveData=Bool()
+    saveSettings=Bool()
     save2013styleFiles=Bool()
     localDataPath=Str()
     networkDataPath=Str()
@@ -171,7 +174,7 @@ class Experiment(Prop):
         self.variableReportStr=''
         self.analyses=[]
         self.properties+=['version','independentVariables','dependentVariablesStr',
-        'pauseAfterIteration','pauseAfterMeasurement','pauseAfterError','saveData',
+        'pauseAfterIteration','pauseAfterMeasurement','pauseAfterError','saveData','saveSettings',
         'save2013styleFiles','localDataPath','networkDataPath',
         'copyDataToNetwork','experimentDescriptionFilenameSuffix','measurementTimeout','measurementsPerIteration','willSendEmail',
         'emailAddresses','progress','iteration','measurement','totalIterations','timeStartedStr','currentTimeStr','timeElapsedStr','totalTimeStr',
@@ -461,6 +464,7 @@ class Experiment(Prop):
             logger.warning('No default settings.xml found.\n'+str(e))
     
     def load(self,path):
+        logger.debug('starting file load')
         #load xml from a file
         xmlNode=xml.etree.ElementTree.parse(path).getroot()
         
@@ -491,6 +495,7 @@ class Experiment(Prop):
             self.fromXML(xmlNode)
         except Exception as e:
             logger.warning('Exception while loading experiment variables XML\n'+str(e)+'\n'+str(traceback.format_exc()))
+        logger.debug('ended file load')
     
     def saveThread(self,path):
         '''Starts the saving in a separate thread, in case it takes a while.'''
@@ -530,14 +535,6 @@ class Experiment(Prop):
         '''Create a new HDF5 file to store results.  This is done at the beginning of
         every experiment.'''
         
-        logger.debug('Autosaving')
-        
-        #start by saving settings
-        #TODO: uncomment
-        #autosave_file=self.autosave()
-
-        logger.debug('Done autosaving')        
-                        
         #if a prior HDF5 results file is open, then close it
         if hasattr(self,'hdf5') and (self.hdf5 is not None):
             try:
@@ -568,19 +565,23 @@ class Experiment(Prop):
             #hold results only in memory
             self.hdf5=h5py.File('results.hdf5','a',driver='core',backing_store=False)
         
-        logger.debug('Copying autosave data to current HDF5')
-        
         #add settings
-        #TODO: uncomment
-        #try:
-        #    autosave_file['settings'].copy(autosave_file['settings'],self.hdf5)
-        #except:
-        #    logger.warning('Problem trying to copy autosave settings to HDF5 results file.')
-        #    raise PauseError
-        #finally:
-        #    autosave_file.close()
+        if self.saveSettings:
         
-        logger.debug('Autosave closed')
+            #start by saving settings
+            logger.debug('Autosaving')
+            autosave_file=self.autosave()
+            logger.debug('Done autosaving')
+            
+            try:
+                logger.debug('Copying autosave data to current HDF5')
+                autosave_file['settings'].copy(autosave_file['settings'],self.hdf5)
+            except:
+                logger.warning('Problem trying to copy autosave settings to HDF5 results file.')
+                raise PauseError
+            finally:
+                autosave_file.close()
+                logger.debug('Autosave closed')
         
         #store independent variable data for experiment
         self.hdf5.attrs['start_time']=self.date2str(time.time())
@@ -695,7 +696,9 @@ class AQuA(Experiment):
         
         #update variables
         try:
+            logger.debug('starting evaluateAll')
             self.evaluateAll()
+            logger.debug('ended evaluateAll')
         except PauseError:
             logger.warning('PauseError')
             

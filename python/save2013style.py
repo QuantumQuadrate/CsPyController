@@ -4,7 +4,7 @@ from cs_errors import PauseError, setupLog
 logger=setupLog(__name__)
 
 from analysis import Analysis
-import os, numpy
+import os, numpy, time
 import png, itertools #for PyPNG support
 from atom.api import Bool, Member, Str
 
@@ -83,6 +83,13 @@ class Save2013Analysis(Analysis):
             #(a,b,l0): 	0,0,0	0,0,1	0,0,2	0,0,3	0,0,4	0,0,5	0,0,6	0,0,7	0,0,8	0,0,9	0,0,10
             with open(os.path.join(self.experiment.path,'Data Order Log.txt'),'a') as f:
                 f.write('\t'+','.join(map(str,iterationResults.attrs['ivarIndex'])))
+            
+            #Camera Data Iteration0 (signal).txt
+            with open(os.path.join(self.experiment.path,'Camera Data Iteration'+iterationResults['iteration']+' (signal).txt'),'a') as f:
+                f.write('Camera Data\t'+time.strftime('%m/%d/%Y\t%I:%M %p')+'\tShots per Measurement:\t'+self.experiment.camera.shotsPerMeasurement+'\tRegions per Measurement:\t'+str(int(self.experiment.ROIrows*self.experiment.ROIcolumns))+'\n')
+                for measurement in iterationResults['measurements'].itervalues():
+                    for shot in measurement['data/Hamamatsu/shots'].itervalues():
+                        f.write('\t'.join(map(str,shot.attrs['sumArray'].tolist()))+'n')
     
     def analyzeExperiment(self,experimentResults):
         if self.experiment.saveData and self.experiment.save2013styleFiles:

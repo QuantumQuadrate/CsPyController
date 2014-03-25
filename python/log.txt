@@ -1488,3 +1488,18 @@ IOError: [Errno 2] No such file or directory: 'images\\average_of_all_images_in_
 2014/03/24 18:02:48 MainThread __main__ INFO starting application
 2014/03/24 18:04:59 MainThread __main__ INFO starting application
 2014/03/24 18:08:31 MainThread __main__ INFO starting application
+2014/03/25 07:28:53 MainThread __main__ INFO starting application
+2014/03/25 08:10:17 MainThread experiments DEBUG starting file load
+2014/03/25 08:10:19 MainThread experiments DEBUG ended file load
+2014/03/25 08:10:59 MainThread experiments DEBUG starting file load
+2014/03/25 08:11:01 MainThread experiments DEBUG ended file load
+2014/03/25 08:11:01 MainThread experiments DEBUG starting evaluateAll
+2014/03/25 08:11:03 MainThread experiments DEBUG ended evaluateAll
+2014/03/25 08:11:40 MainThread experiments DEBUG starting evaluateAll
+2014/03/25 08:11:40 MainThread experiments DEBUG ended evaluateAll
+2014/03/25 08:11:43 MainThread __main__ INFO starting application
+2014/03/25 08:13:08 MainThread experiments DEBUG starting file load
+2014/03/25 08:13:10 MainThread experiments DEBUG ended file load
+2014/03/25 08:13:10 MainThread experiments DEBUG starting evaluateAll
+2014/03/25 08:13:12 MainThread experiments DEBUG ended evaluateAll
+2014/03/25 08:13:51 MainThread __main__ INFO starting application

@@ -242,6 +242,10 @@ enamldef ExperimentPage(Page):
                 text:=experiment.localDataPath
                 placeholder='local data path'
             
+            Label: text='Save Settings?'
+            CheckBox:
+                checked:=experiment.saveSettings
+            
             Label: text='Save 2013 style files?'
             CheckBox:
                 checked:=experiment.save2013styleFiles
