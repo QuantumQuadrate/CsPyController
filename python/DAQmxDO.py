@@ -1,9 +1,9 @@
-'''DAQmxPulse.py
+'''DAQmxDO.py
 Part of the AQuA Cesium Controller software package
 
 author=Martin Lichtman
 created=2013-10-19
-modified>=2013-10-19
+modified>=2014-03-25
 
 This file holds everything to model a National Instruments DAQmx pulse output.  It communicated to LabView via the higher up LabView class.
 '''
@@ -38,7 +38,7 @@ class StartTrigger(Prop):
 
 #---- DAQmxPulse instrument ----
 
-class DAQmxPulse(Instrument):
+class DAQmxDO(Instrument):
     enable=Typed(BoolProp)
     script=Typed(StrProp)
     resourceName=Typed(StrProp)
@@ -53,8 +53,8 @@ class DAQmxPulse(Instrument):
     numChannels=Member()
 
     def __init__(self,experiment):
-        super(DAQmxPulse,self).__init__('DAQmxPulse',experiment)
-        self.version='2014.01.13'
+        super(DAQmxPulse,self).__init__('DAQmxDO',experiment)
+        self.version='2014.03.25'
         self.numChannels=32
         self.enable=BoolProp('enable',experiment,'enable output','False')
         self.resourceName=StrProp('resourceName',experiment,'the hardware location of the card',"'Dev1'")
