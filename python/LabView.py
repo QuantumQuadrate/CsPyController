@@ -12,7 +12,7 @@ modified>=2013-10-08
 from cs_errors import PauseError, setupLog
 logger=setupLog(__name__)
 
-import TCP, HSDIO, piezo, DDS, RF_generators, AnalogOutput, DAQmxPulse, Camera, EchoBox
+import TCP, HSDIO, piezo, DDS, RF_generators, AnalogOutput, DAQmxDO, Camera, EchoBox
 from atom.api import Bool, Int, Str, Member, Typed
 from instrument_property import FloatProp
 from cs_instruments import Instrument
@@ -37,7 +37,7 @@ class LabView(Instrument):
     piezo=Member()
     RF_generators=Member()
     AnalogOutput=Member()
-    DAQmxPulse=Member()
+    DAQmxDO=Member()
     EchoBox=Member()
     results=Member()
     sock=Member()
@@ -56,20 +56,20 @@ class LabView(Instrument):
         self.piezo=piezo.Piezo(experiment)
         self.RF_generators=RF_generators.RF_generators(experiment)
         self.AnalogOutput=AnalogOutput.AnalogOutput(experiment)
-        self.DAQmxPulse=DAQmxPulse.DAQmxPulse(experiment)
+        self.DAQmxDO=DAQmxDO.DAQmxDO(experiment)
         self.camera=Camera.HamamatsuC9100_13(experiment)
         self.EchoBox=EchoBox.EchoBox(experiment)
         self.results={}
         #self.Counter=Counter.Counter(experiment)
         
-        self.instruments=[self.HSDIO,self.DDS,self.piezo,self.RF_generators,self.AnalogOutput,self.DAQmxPulse,self.camera,self.EchoBox] #,self.Counter]
+        self.instruments=[self.HSDIO,self.DDS,self.piezo,self.RF_generators,self.AnalogOutput,self.DAQmxDO,self.camera,self.EchoBox] #,self.Counter]
         
         self.sock=None
         self.connected=False
         
         self.timeout=FloatProp('timeout',experiment,'how long before LabView gives up and returns [s]','1.0')
         
-        self.properties+=['IP','port','enabled','connected','timeout','HSDIO','DDS','piezo','RF_generators','AnalogOutput','DAQmxPulse','camera','cycleContinuously']#,'EchoBox']
+        self.properties+=['IP','port','enabled','connected','timeout','HSDIO','DDS','piezo','RF_generators','AnalogOutput','DAQmxDO','camera','cycleContinuously']#,'EchoBox']
         self.doNotSendToHardware+=['IP','port','enabled','connected']
     
     def open(self):

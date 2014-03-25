@@ -8,35 +8,31 @@ modified>=2014-03-25
 This file holds everything to model a National Instruments DAQmx pulse output.  It communicated to LabView via the higher up LabView class.
 '''
 
-from cs_errors import PauseError, setupLog
+from cs_errors import setupLog #,PauseError
 logger=setupLog(__name__)
 
 from cs_instruments import Instrument
 
-from atom.api import Bool, Typed, Member
+from atom.api import Typed, Member
 #from enthought.chaco.api import ArrayPlotData, Plot #for chaco plot
-from instrument_property import Prop, BoolProp, IntProp, FloatProp, StrProp, ListProp
-import matplotlib.pyplot as plt
-import numpy
+from instrument_property import Prop, BoolProp, IntProp, FloatProp, StrProp, ListProp, EnumProp
 from digital_waveform import Waveform, Channels
 
-#---- DAQmx properties ----
-
+#---- DAQmxDO properties ----
 
 class StartTrigger(Prop):
     waitForStartTrigger=Typed(BoolProp)
     source=Typed(StrProp)
-    edge=Typed(StrProp)
+    edge=Typed(EnumProp)
     
     def __init__(self,experiment):
         super(StartTrigger,self).__init__('startTrigger',experiment)
         self.waitForStartTrigger=BoolProp('waitForStartTrigger',experiment,'wait for start trigger','False')
         self.source=StrProp('source',experiment,'start trigger source','"PFI0"')
-        self.edge=StrProp('edge',experiment,'start trigger edge','"rising"')
+        self.edge=EnumProp('edge',experiment,'start trigger edge','"rising"',["rising","falling"])
         self.properties+=['waitForStartTrigger','source','edge']
-        
 
-#---- DAQmxPulse instrument ----
+#---- DAQmxDO instrument ----
 
 class DAQmxDO(Instrument):
     enable=Typed(BoolProp)
@@ -53,7 +49,7 @@ class DAQmxDO(Instrument):
     numChannels=Member()
 
     def __init__(self,experiment):
-        super(DAQmxPulse,self).__init__('DAQmxDO',experiment)
+        super(DAQmxDO,self).__init__('DAQmxDO',experiment)
         self.version='2014.03.25'
         self.numChannels=32
         self.enable=BoolProp('enable',experiment,'enable output','False')
@@ -64,7 +60,12 @@ class DAQmxDO(Instrument):
         self.channels=Channels(experiment,self)
         self.startTrigger=StartTrigger(experiment)
         self.properties+=['version','enable','resourceName','clockRate','units','waveform','channels','startTrigger']
+        self.doNotSendToHardware+=['units','waveform'] #waveform is handled specially in toHardware()
         
     def initialize(self):
         self.isInitialized=True
+        
+    def toHardware(self):
+        #all we need to output for the waveform is a 1D array of U8
+        return super(DAQmxDO,self).toHardware()
         

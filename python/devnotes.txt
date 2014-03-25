@@ -1,12 +1,10 @@
-CsController2 notes:
+CsPyController notes:
 
 current question:
 
 TODO:
     make it so that the TCP connection is labeled as uninitialized on an error
     replace other indexed Stacks with IndexedStack
-    It would be nice to make the variable reporting format able to handle line breaks somehow.  Maybe parse each line separately.
-    Add optimization
     Add + Page to waveform notebooks, which is not closeable, and on showing, acts to open a new waveform.
     horizontal scroll bar doesn't appear when too many transitions are added to waveform
     make it so that RangeProp high and low could be re-assigned to None dynamically if desired (without raising error, unless value is outside that range)
@@ -19,37 +17,6 @@ TODO:
     clean out unnecessary files in LabView section
     use http://olgabot.github.io/prettyplotlib/ ?
     change LabView demo data to be a more flexible "echo" from python, would be useful for running analysis tests, implement in python test server as well
-    add useless 2013 style files
-        pre-experiment:
-            autosave_settings.xml
-                This is the settings file.  We could save this as normal, but should also add all settings to HDF5 as a prelude to HDF5 settings storage.
-            All Signal.txt
-                Lists number of steps for each ivar.  "Formulas" was never operational.
-                a Iterations:	1	b Iterations:	1	l0 Iterations:	11	Formulas:	0
-            variables.txt
-                Description	Name (a,a0...a9)	min	max	# steps
-                raman frequency 	a	9172.618868	9172.618868	1
-                microwave frequency	b	9192.632496	9192.632496	1
-                459 Raman Pulse	l0	0.000000	0.030000	11
-        postMeasurement:
-            Camera Data Iteration0 (signal).txt
-                First row:Camera Data	01/29/2014	03:23 PM	Shots per Measurement:	2	Regions per Measurement:	49
-                New row for each measurement.  49 columns contain roi sums.  Tab separated.  No leading or trailing tabs.
-            Counter 0 Data Iteration0.txt
-                First row:Counter Data	01/29/2014	03:23 PM
-                2 new rows for each measurement.
-                    Measurement #0\tTotal: %d\n
-                    tab delimited list of counter values (for each counter clock bin)
-        PostIteration:
-            Data Order Log.txt
-                one line with ivar indices
-                (a,b,l0): 	0,0,0	0,0,1	0,0,2	0,0,3	0,0,4	0,0,5	0,0,6	0,0,7	0,0,8	0,0,9	0,0,10
-
-        postExperiment:
-            .\images\average_of_all_images_in_experiment.png
-                average of images.
-            error_log.txt
-                saved error log
     optimizer
     just one big timeout for whole thing, plus a LabView setup timeout
     python menu Halt should send kill signal to LabView
@@ -64,18 +31,16 @@ TODO:
     add 2nd HSDIO card, and combine them so it looks like 1 card with 64 channels
     horizontal scroll bar must show up when too many waveform transitions are added (it used to, did this stop when we changed the container constraints?)
     make it so that only relevant channels are shown in waveform (can we do this is hardware too?)
-    finish noise eater waveform
     use start trigger on HSDIO
-    you erased the waveform names.  Fix that.
     a lot of the things that I have done using lists of Prop in ListProp would be better done using a separate numpy array for each property of the Prop (or one array of compound dtype)
-    
-    DAQmx pulse
     slow_noise_eater waveform
     check analysis
     HSDIO start trigger
     copy to network
     
 Done:
+    It would be nice to make the variable reporting format able to handle line breaks somehow.  (Solved using triple quotes ''' ''')
+    you erased the waveform names.  Fix that.
     fix float divide by zero error on AnalogOutput initial evaluate
     tick all channels on waveform y-axis, label x-axis as "samples" and limit to integer ticks?
     remove git_repos_old on hexagon
@@ -92,7 +57,7 @@ Done:
     waveform upload error (MSB LSB order is reversed)
     threading made optional (default off) in analysis, so they can be run in a guaranteed order
     filters-implement as return values from analyses
-    2013 style files: Processed Data.txt, All Signal.txt, average_of_all_images_in_experiment.png, Data Order Log.txt, variables.txt
+    2013 style files: Processed Data.txt, All Signal.txt, average_of_all_images_in_experiment.png, Data Order Log.txt, variables.txt, Camera Data Iteration0.txt
     return error and log from LabView initialization
     Make hexagon not read-only so I can push git to there
     Add instruments to backend and detail to front panel
@@ -124,4 +89,34 @@ Done:
 Scratch notes:
     updating ivar function on GUI recalculates that one ivar but nothing else.  Hitting the evaluate button does experiment.evaluateAll()
     Enaml group at: https://groups.google.com/forum/#!forum/enaml
-    
+    2013 style files:
+        pre-experiment:
+            autosave_settings.xml
+                This is the settings file.  We could save this as normal, but should also add all settings to HDF5 as a prelude to HDF5 settings storage.
+            All Signal.txt
+                Lists number of steps for each ivar.  "Formulas" was never operational.
+                a Iterations:	1	b Iterations:	1	l0 Iterations:	11	Formulas:	0
+            variables.txt
+                Description	Name (a,a0...a9)	min	max	# steps
+                raman frequency 	a	9172.618868	9172.618868	1
+                microwave frequency	b	9192.632496	9192.632496	1
+                459 Raman Pulse	l0	0.000000	0.030000	11
+        postMeasurement:
+            Camera Data Iteration0 (signal).txt
+                First row:Camera Data	01/29/2014	03:23 PM	Shots per Measurement:	2	Regions per Measurement:	49
+                New row for each measurement.  49 columns contain roi sums.  Tab separated.  No leading or trailing tabs.
+            Counter 0 Data Iteration0.txt
+                First row:Counter Data	01/29/2014	03:23 PM
+                2 new rows for each measurement.
+                    Measurement #0\tTotal: %d\n
+                    tab delimited list of counter values (for each counter clock bin)
+        PostIteration:
+            Data Order Log.txt
+                one line with ivar indices
+                (a,b,l0): 	0,0,0	0,0,1	0,0,2	0,0,3	0,0,4	0,0,5	0,0,6	0,0,7	0,0,8	0,0,9	0,0,10
+
+        postExperiment:
+            .\images\average_of_all_images_in_experiment.png
+                average of images.
+            error_log.txt
+                saved error log

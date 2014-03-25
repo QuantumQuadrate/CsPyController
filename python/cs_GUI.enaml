@@ -1481,7 +1481,7 @@ enamldef Main(MainWindow): main:
                     WaveformsPage:
                         HSDIO=main.experiment.LabView.HSDIO
                     DAQmxDigitalOutPage:
-                        DAQmx=main.experiment.LabView.DAQmxPulse
+                        DAQmx=main.experiment.LabView.DAQmxDO
                     DDS_Page:
                         DDS=main.experiment.LabView.DDS
                     RFGenPage:

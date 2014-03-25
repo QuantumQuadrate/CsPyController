@@ -11,12 +11,10 @@ This file holds everything needed to model the high speed digital output from th
 from cs_errors import PauseError, setupLog
 logger=setupLog(__name__)
 
-from atom.api import Bool, Typed, Str, Int, Member
+from atom.api import Typed, Str, Int, Member
 #from enthought.chaco.api import ArrayPlotData, Plot #for chaco plot
 from instrument_property import Prop, BoolProp, IntProp, FloatProp, StrProp, ListProp
 from cs_instruments import Instrument
-import matplotlib.pyplot as plt
-import numpy, logging
 
 from digital_waveform import Waveform, Channels
 #import digital_waveform #my helper class for making Chaco plots of waveforms

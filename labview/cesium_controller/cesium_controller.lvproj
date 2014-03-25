@@ -31,7 +31,7 @@
 		<Item Name="Camera.lvclass" Type="LVClass" URL="../Camera/Camera.lvclass"/>
 		<Item Name="Hamamatsu_C9100-13.lvclass" Type="LVClass" URL="../Camera/Hamamatsu_C9100-13/Hamamatsu_C9100-13.lvclass"/>
 		<Item Name="Counter.lvclass" Type="LVClass" URL="../Counter/Counter.lvclass"/>
-		<Item Name="DAQmx_pulse_out.lvclass" Type="LVClass" URL="../DAQmx_pulse_out/DAQmx_pulse_out.lvclass"/>
+		<Item Name="DAQmx_DO.lvclass" Type="LVClass" URL="../DAQmx_DO/DAQmx_DO.lvclass"/>
 		<Item Name="DDS.lvclass" Type="LVClass" URL="../DDS/DDS.lvclass"/>
 		<Item Name="HSDIO.lvclass" Type="LVClass" URL="../HSDIO/HSDIO.lvclass"/>
 		<Item Name="GPIB.lvclass" Type="LVClass" URL="../GPIB/GPIB.lvclass"/>
@@ -625,7 +625,7 @@
 				<Property Name="Bld_localDestDirType" Type="Str">relativeToCommon</Property>
 				<Property Name="Bld_modifyLibraryFile" Type="Bool">true</Property>
 				<Property Name="Bld_previewCacheID" Type="Str">{574B9F9D-241F-4A68-8892-A5E401941744}</Property>
-				<Property Name="Bld_version.build" Type="Int">10</Property>
+				<Property Name="Bld_version.build" Type="Int">11</Property>
 				<Property Name="Bld_version.major" Type="Int">1</Property>
 				<Property Name="Destination[0].destName" Type="Str">cs_server.exe</Property>
 				<Property Name="Destination[0].path" Type="Path">../cs_server.exe</Property>

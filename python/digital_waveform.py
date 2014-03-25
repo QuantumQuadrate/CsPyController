@@ -2,16 +2,15 @@
 
 from __future__ import division
 
-from cs_errors import PauseError, setupLog
+from cs_errors import setupLog #, PauseError
 logger=setupLog(__name__)
 
 import numpy
 
-from atom.api import Atom, Range, Member, Bool, Typed, List
+from atom.api import Member, Typed
 from enaml.application import deferred_call
-from instrument_property import Prop, BoolProp, IntProp, FloatProp, StrProp, ListProp, EnumProp
+from instrument_property import Prop, BoolProp, FloatProp, ListProp, EnumProp
 from matplotlib.figure import Figure
-from matplotlib.ticker import NullLocator, FixedLocator
 
 defaultState=5
 

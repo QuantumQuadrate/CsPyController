@@ -9,7 +9,7 @@ logger=setupLog(__name__)
 from atom.api import Atom, Str, Bool, Int, Float, List, Member, Value, observe
 from enaml.validator import Validator
 
-import pickle, traceback
+import pickle, traceback, h5py
 import cs_evaluate
 
 class Prop(Atom):
@@ -106,8 +106,6 @@ class Prop(Atom):
         to distinguish between pickles and raw strings.
         self is the object corresponding to the top level tag in the parameter hdf, and its children are what will be loaded here.'''
         
-        version=None
-        
         #hdf node is guaranteed to have a name
         self.name=hdf.name
         
@@ -141,7 +139,7 @@ class Prop(Atom):
                     var.fromHDF5(hdf[i])
                 else:
                     #check to see if it is stored as a dataset
-                    if isInstance(h5py._hl.dataset.DataSet):
+                    if isinstance(h5py._hl.dataset.DataSet):
                         try:
                             #try to unpickle it
                             x=pickle.loads(hdf[i].value)
@@ -592,7 +590,7 @@ class ListProp(Prop):
     
     def fromHDF5(self,hdf):
         #load the normal stuff
-        super(ListProperty,self).fromHDF5(hdf)
+        super(ListProp,self).fromHDF5(hdf)
         
         #load the listProperty
         if 'listProperty' in hdf:

@@ -1508,3 +1508,105 @@ IOError: [Errno 2] No such file or directory: 'images\\average_of_all_images_in_
 2014/03/25 09:03:04 MainThread experiments DEBUG starting evaluateAll
 2014/03/25 09:03:06 MainThread experiments DEBUG ended evaluateAll
 2014/03/25 09:03:45 MainThread __main__ INFO starting application
+2014/03/25 13:41:48 MainThread experiments DEBUG starting file load
+2014/03/25 13:41:50 MainThread instrument_property WARNING Prop.fromXML(): XML has tag: DAQmxPulse, but this is not in the LabView.properties list.  It will not be loaded.
+
+2014/03/25 13:41:50 MainThread experiments DEBUG ended file load
+2014/03/25 13:41:50 MainThread experiments DEBUG starting evaluateAll
+2014/03/25 13:41:51 MainThread experiments DEBUG ended evaluateAll
+2014/03/25 13:42:30 MainThread __main__ INFO starting application
+2014/03/25 13:48:05 MainThread cs_evaluate WARNING evaluating property time, when this transition happens, x
+Could not eval string: x
+name 'x' is not definedTraceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\cs_evaluate.py", line 28, in evalWithDict
+    return eval(string,globals()) #,varDict.copy()) #dict(numpyDict.items()+varDict.items())) #create a new dictionary so all numpy functions and everything defined in varDict is available as a global during evaluation
+  File "<string>", line 1, in <module>
+NameError: name 'x' is not defined
+
+
+2014/03/25 13:48:05 MainThread cs_evaluate WARNING evaluating property time, when this transition happens, x
+Could not eval string: x
+name 'x' is not definedTraceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\cs_evaluate.py", line 28, in evalWithDict
+    return eval(string,globals()) #,varDict.copy()) #dict(numpyDict.items()+varDict.items())) #create a new dictionary so all numpy functions and everything defined in varDict is available as a global during evaluation
+  File "<string>", line 1, in <module>
+NameError: name 'x' is not defined
+
+
+2014/03/25 13:48:09 MainThread cs_evaluate WARNING evaluating property time, when this transition happens, y
+Could not eval string: y
+name 'y' is not definedTraceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\cs_evaluate.py", line 28, in evalWithDict
+    return eval(string,globals()) #,varDict.copy()) #dict(numpyDict.items()+varDict.items())) #create a new dictionary so all numpy functions and everything defined in varDict is available as a global during evaluation
+  File "<string>", line 1, in <module>
+NameError: name 'y' is not defined
+
+
+2014/03/25 13:48:09 MainThread cs_evaluate WARNING evaluating property time, when this transition happens, y
+Could not eval string: y
+name 'y' is not definedTraceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\cs_evaluate.py", line 28, in evalWithDict
+    return eval(string,globals()) #,varDict.copy()) #dict(numpyDict.items()+varDict.items())) #create a new dictionary so all numpy functions and everything defined in varDict is available as a global during evaluation
+  File "<string>", line 1, in <module>
+NameError: name 'y' is not defined
+
+
+2014/03/25 13:48:16 MainThread cs_evaluate WARNING evaluating property time, when this transition happens, werwe
+Could not eval string: werwe
+name 'werwe' is not definedTraceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\cs_evaluate.py", line 28, in evalWithDict
+    return eval(string,globals()) #,varDict.copy()) #dict(numpyDict.items()+varDict.items())) #create a new dictionary so all numpy functions and everything defined in varDict is available as a global during evaluation
+  File "<string>", line 1, in <module>
+NameError: name 'werwe' is not defined
+
+
+2014/03/25 13:48:16 MainThread cs_evaluate WARNING evaluating property time, when this transition happens, werwe
+Could not eval string: werwe
+name 'werwe' is not definedTraceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\cs_evaluate.py", line 28, in evalWithDict
+    return eval(string,globals()) #,varDict.copy()) #dict(numpyDict.items()+varDict.items())) #create a new dictionary so all numpy functions and everything defined in varDict is available as a global during evaluation
+  File "<string>", line 1, in <module>
+NameError: name 'werwe' is not defined
+
+
+2014/03/25 13:48:29 MainThread cs_evaluate WARNING evaluating property time, when this transition happens, sin(
+Could not eval string: sin(
+unexpected EOF while parsing (<string>, line 1)Traceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\cs_evaluate.py", line 28, in evalWithDict
+    return eval(string,globals()) #,varDict.copy()) #dict(numpyDict.items()+varDict.items())) #create a new dictionary so all numpy functions and everything defined in varDict is available as a global during evaluation
+  File "<string>", line 1
+    sin(
+       ^
+SyntaxError: unexpected EOF while parsing
+
+
+2014/03/25 13:48:29 MainThread cs_evaluate WARNING evaluating property time, when this transition happens, sin(
+Could not eval string: sin(
+unexpected EOF while parsing (<string>, line 1)Traceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\cs_evaluate.py", line 28, in evalWithDict
+    return eval(string,globals()) #,varDict.copy()) #dict(numpyDict.items()+varDict.items())) #create a new dictionary so all numpy functions and everything defined in varDict is available as a global during evaluation
+  File "<string>", line 1
+    sin(
+       ^
+SyntaxError: unexpected EOF while parsing
+
+
+2014/03/25 13:48:49 MainThread instrument_property WARNING TypeError while evaluating:
+property: time
+description: when this transition happens
+function: "asdf"
+The 'value' member on the 'FloatProp' object must be of type 'float'. Got object of type 'str' instead.
+
+2014/03/25 13:48:49 MainThread instrument_property WARNING TypeError while evaluating:
+property: time
+description: when this transition happens
+function: "asdf"
+The 'value' member on the 'FloatProp' object must be of type 'float'. Got object of type 'str' instead.
+
+2014/03/25 13:52:39 MainThread experiments DEBUG starting file load
+2014/03/25 13:52:40 MainThread instrument_property WARNING Prop.fromXML(): XML has tag: DAQmxPulse, but this is not in the LabView.properties list.  It will not be loaded.
+
+2014/03/25 13:52:40 MainThread experiments DEBUG ended file load
+2014/03/25 13:52:40 MainThread experiments DEBUG starting evaluateAll
+2014/03/25 13:52:42 MainThread experiments DEBUG ended evaluateAll
+2014/03/25 13:53:20 MainThread __main__ INFO starting application
