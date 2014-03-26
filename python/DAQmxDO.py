@@ -16,7 +16,7 @@ from cs_instruments import Instrument
 from atom.api import Typed, Member
 #from enthought.chaco.api import ArrayPlotData, Plot #for chaco plot
 from instrument_property import Prop, BoolProp, IntProp, FloatProp, StrProp, ListProp, EnumProp
-from digital_waveform import Waveform, NumpyChannels
+from digital_waveform import Waveform, NumpyChannels, NumpyWaveform
 import numpy
 
 #---- DAQmxDO properties ----
@@ -49,7 +49,7 @@ class DAQmxDO(Instrument):
     startTrigger=Typed(StartTrigger)
     version=Member()
     numChannels=Member()
-
+    
     def __init__(self,experiment):
         super(DAQmxDO,self).__init__('DAQmxDO',experiment)
         self.version='2014.03.25'
@@ -58,12 +58,13 @@ class DAQmxDO(Instrument):
         self.resourceName=StrProp('resourceName',experiment,'the hardware location of the card',"'Dev1'")
         self.clockRate=FloatProp('clockRate',experiment,'samples/channel/sec','1000')
         self.units=FloatProp('units',experiment,'multiplier for timing values (milli=.001)','1')
-        self.waveform=Waveform('waveform',experiment,self)
-        #self.channels=Channels(experiment,self)
+        #self.waveform=Waveform('waveform',experiment,self)
         self.channels=NumpyChannels(experiment)
+        self.waveform=NumpyWaveform('waveform',experiment,self,self.channels)
+        #self.channels=Channels(experiment,self)
         self.startTrigger=StartTrigger(experiment)
         self.properties+=['version','enable','resourceName','clockRate','units','waveform','channels','startTrigger']
-        self.doNotSendToHardware+=['units','waveform','channels'] #waveform is handled specially in toHardware() and channels needs to be setup differently
+        self.doNotSendToHardware+=['units','channels'] #waveform is handled specially in toHardware() and channels is used here but not sent to PXI
         
     def initialize(self):
         self.isInitialized=True

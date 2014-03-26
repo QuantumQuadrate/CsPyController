@@ -7,7 +7,7 @@ logger=setupLog(__name__)
 
 from atom.api import Member, Typed
 from enaml.application import deferred_call
-from instrument_property import Prop, BoolProp, FloatProp, ListProp, EnumProp, Numpy1DProp
+from instrument_property import Prop, BoolProp, FloatProp, ListProp, EnumProp, Numpy1DProp, Numpy2DProp
 from matplotlib.figure import Figure
 import numpy, h5py
 
@@ -20,13 +20,6 @@ class Channel(Prop):
         super(Channel,self).__init__(name,experiment,description)
         self.active=BoolProp('active',experiment,'','True')
         self.properties+=['active']
-
-class NumpyChannels(Numpy1DProp):
-    #this doesn't need to be sent to hardware.  It's used to calculate the waveform that will be sent
-    def __init__(self,name,experiment,description=''):
-        self.dtype=[('description',object),('function',object),('value',bool)]
-        self.hdf_dtype=[('description',h5py.special_dtype(vlen=str)),('function',h5py.special_dtype(vlen=str)),('value',bool)]
-        super(NumpyChannels,self).__init__('channels',experiment,description)
 
 class Channels(ListProp):
     digitalout=Member()
@@ -89,7 +82,6 @@ class Sequence(ListProp):
     #    #    self.listProperty.pop()
     #    self.listProperty=[Transition(self.experiment,self.digitalout).fromXML(child) for child in xmlNode]
     #    return self
-
 class Waveform(Prop):
     
     #MPL plot
@@ -133,7 +125,7 @@ class Waveform(Prop):
         self.updateFigure()
         return newTransition
     
-    def format(self):
+    def fmt(self): #format is a python built-in so I did not want to use that as a function name
         '''Create timeList, a 1D array of transition times, and stateList a 2D array of output values.'''
         if len(self.sequence)==0:
             self.isEmpty=True
@@ -275,7 +267,7 @@ class Waveform(Prop):
     
     def updateFigure(self):
         '''This function redraws the broken bar chart display of the waveform sequences.'''
-        self.format() #update processed sequence
+        self.fmt() #update processed sequence
     
         #Make the matplotlib plot
         self.drawMPL(self.stateList,self.timeList,self.duration)
@@ -294,7 +286,241 @@ class Waveform(Prop):
         self.updateFigure()
     
     def toHardware(self):
-            self.format()
+            self.fmt()
+            return ('<waveform>'+
+                '<name>'+self.name+'</name>'+
+                '<transitions>'+' '.join([str(time) for time in self.timeList])+'</transitions>'+
+                '<states>'+'\n'.join([' '.join([str(sample) for sample in state]) for state in self.stateList])+'</states>\n'+
+                '</waveform>\n')
+
+class NumpyChannels(Numpy1DProp):
+    #this doesn't need to be sent to hardware.  It's used to calculate the waveform that will be sent
+    def __init__(self,experiment,description=''):
+        super(NumpyChannels,self).__init__('channels',experiment,description,dtype=[('description',object),('function',object),('value',bool)],hdf_dtype=[('description',h5py.special_dtype(vlen=str)),('function',h5py.special_dtype(vlen=str)),('value',bool)])
+
+class NumpyTransitions(Numpy1DProp):
+    def __init__(self,experiment,description=''):
+        super(NumpyChannels,self).__init__('transitions',experiment,description,dtype=[('description',object),('function',object),('value',numpy.float64)],hdf_dtype=[('description',h5py.special_dtype(vlen=str)),('function',h5py.special_dtype(vlen=str)),('value',numpy.float64)])
+
+class NumpySequence(Numpy2DProp):
+    def __init__(self,experiment,description=''):
+        #don't bother with descriptions for each cell
+        super(NumpyChannels,self).__init__('sequence',experiment,description,dtype=[('function',object),('value',numpy.uint8)],hdf_dtype=[('function',h5py.special_dtype(vlen=str)),('value',numpy.uint8)])
+
+class NumpyWaveform(Prop):
+    
+    #MPL plot
+    figure=Typed(Figure)
+    backFigure=Typed(Figure)
+    figure1=Typed(Figure)
+    figure2=Typed(Figure)
+    
+    waveforms=Member() #the parent
+    channelList=Member() #holds the channel number for each column of sequence (not all channels need be present, they will be filled in as zeros)
+    transitions=Member()
+    sequence=Member()
+    isEmpty=Member()
+    ax=Member()
+    timeList=Member()
+    stateList=Member()
+    duration=Member()
+    
+    def __init__(self,name,experiment,digitalout,channels,description='',waveforms=None):
+        super(Waveform,self).__init__(name,experiment,description)
+        
+        self.channels=channels
+        self.waveforms=waveforms
+        self.channelList=numpy.zeros(0,dtype=numpy.uint8)
+        self.transitions=NumpyTransitions(self.experiment)
+        self.sequence=NumpySequence(self.experiment)
+        self.isEmpty=True
+        self.properties+=['isEmpty','transitions','sequence']
+        
+        self.figure1=Figure(figsize=(5,5))
+        self.figure2=Figure(figsize=(5,5))
+        self.backFigure=self.figure2
+        self.figure=self.figure1
+    
+    def fromXML(self,xmlNode):
+        super(Waveform,self).fromXML(xmlNode)
+        self.updateFigure()
+        return self
+    
+    def addTransition(self,index):
+        self.transitions.add(index)
+        self.sequence.addRow(index)
+        self.evaluate()
+    
+    def addChannel(self,index):
+        numpy.insert(self.channelList,index,0,axis=0)
+        self.sequence.addColumn(index)
+        self.evaluate()
+    
+    def fmt(self): #format is a python built-in so I did not want to use that as a function name
+        '''Create timeList, a 1D array of transition times, and stateList a 2D array of output values.'''
+        if len(self.transitions.array)==0:
+            self.isEmpty=True
+            self.timeList=numpy.zeros(0,dtype='uint64')
+            self.stateList=numpy.zeros((0,len(self.channels.array)),dtype='uint8')
+            self.duration=numpy.zeros(0,dtype='uint64')
+        else:
+            self.isEmpty=False
+            
+            #create arrays
+            timeList=self.transitions.array['value']
+            stateList=self.sequence.array['value']
+            
+            #convert to integral samples
+            timeList=(timeList*self.digitalout.clockRate.value*self.digitalout.units.value).astype('uint64')
+            
+            #put the transition list in order
+            order=numpy.argsort(timeList,kind='mergesort') #mergesort is slower than the default quicksort, but it is 'stable' which means items of the same value are kept in their relative order, which is desired here
+            timeList=timeList[order]
+            stateList=stateList[order]
+            
+            #if the waveform doesn't start with time 0, add it, and add defaultStates's to the beginning of statelist
+            #LabView will modify the waveform in unpredictable ways if it doesn't start with time 0
+            if timeList[0]>0:
+                print 'inserting timelist 0'
+                timeList=numpy.insert(timeList,0,0,axis=0)
+                stateList=numpy.insert(stateList,0,defaultState,axis=0)
+            
+            #resolve 5's
+            #set 5's in the first transition to 0
+            #for each channel
+            for i in range(stateList.shape[1]):
+                if stateList[0,i]==5:
+                    stateList[0,i]=0
+            #set other 5's to the prior state
+            #for each time after 1st
+            for i in range(1,len(timeList)):
+                #for each channel
+                for j in range(stateList.shape[1]):
+                    if stateList[i,j]==5:
+                        stateList[i,j]=stateList[i-1,j]
+            
+            #remove redundant times
+            #TODO:  If it becomes possible to send 5's to hardware, we will want to remove this section
+            i=1 #start at 1 so we can compare to i-1=0
+            while i<len(timeList):  #check list length each loop cycle, because it may get shorter
+                if timeList[i-1]==timeList[i]:
+                    timeList=numpy.delete(timeList,i-1,0) #remove the prior transition, because only the later one will stick anyway
+                    stateList=numpy.delete(stateList,i-1,0)
+                else:
+                    i+=1 #if we deleted an item, the list position is advanced implicitly through the deletion of a prior element, and so we don't need to do this
+            
+            #add in zeros to all the channels that are not specified
+            fullStateList=numpy.zeros((len(timeList),len(self.channels.array)),dtype=numpy.uint8)
+            for i in range(len(self.channelList)):
+                #go through each column of stateList, and put it in the right slot, according to channelList
+                fullStateList[:,self.channelList[i]]=stateList[:,i]
+            
+            # find the duration of each segment
+            self.duration=timeList[1:]-timeList[:-1]
+            self.duration=numpy.append(self.duration,1) #add in a 1 sample duration at end for last transition
+            
+            #update the exposed variables
+            self.timeList=timeList
+            self.stateList=fullStateList
+    
+    def colorMap(val):
+        '''The color map for plotting digitalout sequence bar charts.  Red indicates an invalid value.'''
+        if val==5:
+            return 'grey'
+        elif val==0:
+            return 'white'
+        elif val==1:
+            return 'black'
+        else:
+            return 'red'
+    
+    #create a version of the colorMap function that can be passed arrays
+    vColorMap=numpy.vectorize(colorMap) 
+    
+    def drawMPL(self,stateList,timeList,duration):
+        #draw on the inactive figure
+        fig=self.backFigure
+        
+        #clear figure
+        fig.clf()
+        
+        if not self.isEmpty:
+        
+            #get plot info
+            numTransitions,numChannels=numpy.shape(stateList)
+            
+            #create axis
+            ax=fig.add_subplot(111)
+            ax.set_ylim(0,numChannels)
+            ax.set_xlabel('samples')
+            
+            #create dummy lines for legend
+            ax.plot((),(),linewidth=5,alpha=0.5,color='white',label='off 0')
+            ax.plot((),(),linewidth=5,alpha=0.5,color='black',label='on 1')
+            ax.plot((),(),linewidth=5,alpha=0.5,color='grey',label='unresolved 5')
+            ax.plot((),(),linewidth=5,alpha=0.5,color='red',label='invalid')
+            ax.legend(loc='upper center',bbox_to_anchor=(0.5, 1.1), fancybox=True, ncol=4)
+            
+            #make horizontal grid lines
+            ax.grid(True)
+            
+            #create a timeList on the scale 0 to 1
+            relativeTimeList=timeList/(timeList[-1]+1)
+            relativeDuration=duration/(timeList[-1]+1)
+
+            #Make a broken horizontal bar plot, i.e. one with gaps
+            
+            for i in xrange(numChannels):
+                for j in xrange(numTransitions):
+                    if stateList[j,i]==1:
+                        ax.axhspan(i+.1,i+.9, relativeTimeList[j],relativeTimeList[j]+relativeDuration[j], color='black',alpha=0.5)
+                    elif stateList[j,i]==5:
+                        ax.axhspan(i+.1,i+.9, relativeTimeList[j],relativeTimeList[j]+relativeDuration[j], color='grey',alpha=0.5)
+                    elif stateList[j,i]>0:
+                        ax.axhspan(i+.1,i+.9, relativeTimeList[j],relativeTimeList[j]+relativeDuration[j], color='red',alpha=0.5)
+                    #do nothing on zero
+            
+            tickList=numpy.insert(timeList,-1,timeList[-1]+1) #add one sample to the end
+            ax.set_xticks(tickList)
+            ax.set_xlim(timeList[0],timeList[-1]+1)
+        
+            #make vertical tick labels on the bottom
+            for label in ax.xaxis.get_ticklabels():
+                label.set_rotation(90)
+            
+            ax.set_yticks(numpy.arange(numChannels)+0.5)
+            ax.set_yticklabels([self.digitalout.channels[i].description+(' : ' if self.digitalout.channels[i].description else ' ')+str(i) for i in range(numChannels)])
+        
+            #make sure the tick labels have room
+            fig.subplots_adjust(left=.2,right=.95,bottom=.2)
+    
+    def swapFigures(self):
+        temp=self.backFigure
+        self.backFigure=self.figure
+        self.figure=temp
+    
+    def updateFigure(self):
+        '''This function redraws the broken bar chart display of the waveform sequences.'''
+        self.fmt() #update processed sequence
+    
+        #Make the matplotlib plot
+        self.drawMPL(self.stateList,self.timeList,self.duration)
+        
+        try:
+            deferred_call(self.swapFigures)
+        except RuntimeError: #application not started yet
+            self.swapFigures()
+    
+    def remove(self):
+        if self.waveforms is not None:
+            self.waveforms.remove(self) #remove ourselves from the master list, becoming subject to garbage collection
+    
+    def evaluate(self):
+        super(Waveform,self).evaluate()
+        self.updateFigure()
+    
+    def toHardware(self):
+            self.fmt()
             return ('<waveform>'+
                 '<name>'+self.name+'</name>'+
                 '<transitions>'+' '.join([str(time) for time in self.timeList])+'</transitions>'+
