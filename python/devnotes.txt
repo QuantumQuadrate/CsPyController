@@ -25,7 +25,6 @@ TODO:
     make red validation boxes work well enough to be used
     make shotsBrowser update each measurement if selected index is same as current iteration and measurement
     selectable colors on digital waveform plot
-    make sure HSDIO script is always written AFTER waveforms
     clear HSDIO waveform memory between iterations?
     make dependent variables a fixed-width (courier) font
     add 2nd HSDIO card, and combine them so it looks like 1 card with 64 channels
@@ -39,6 +38,7 @@ TODO:
     copy to network
     
 Done:
+    make sure HSDIO script is always written AFTER waveforms
     It would be nice to make the variable reporting format able to handle line breaks somehow.  (Solved using triple quotes ''' ''')
     you erased the waveform names.  Fix that.
     fix float divide by zero error on AnalogOutput initial evaluate

@@ -9,7 +9,7 @@ logger=setupLog(__name__)
 from atom.api import Atom, Str, Bool, Int, Float, List, Member, Value, observe
 from enaml.validator import Validator
 
-import pickle, traceback, h5py
+import pickle, traceback, h5py, numpy
 import cs_evaluate
 
 class Prop(Atom):
@@ -639,3 +639,25 @@ class ListProp(Prop):
         except Exception as e:
             logger.warning('in '+self.name+' in ListProp.fromXML() for xml tag: '+xmlNode.tag+'.\n'+str(e)+'\n'+str(traceback.format_exc())+'\n')
         return self
+
+class Numpy1DProp(Prop):
+    array=Member()
+    dtype=Member()
+    hdf_dtype=Member()
+    
+    def __init__(self,name,experiment,description=''):
+        super(Numpy1DProp,self).__init__(name,experiment,description)
+        self.array=numpy.zeros(0,dtype=self.dtype)
+    
+    def add(self,index):
+        self.array=numpy.insert(self.array,index,numpy.zeros(1,dtype=self.dtype),axis=0)
+    
+    def remove(self,index):
+        self.array=numpy.delete(self.array,index,axis=0)
+
+    def toHDF5(self,hdf):
+        x=hdf.create_dataset(self.name,len(self.array),dtype=self.hdf_dtype)
+        x[:]=self.array
+        
+    def fromHDF5(self,hdf):
+        self.array=hdf.value

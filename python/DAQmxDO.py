@@ -16,7 +16,8 @@ from cs_instruments import Instrument
 from atom.api import Typed, Member
 #from enthought.chaco.api import ArrayPlotData, Plot #for chaco plot
 from instrument_property import Prop, BoolProp, IntProp, FloatProp, StrProp, ListProp, EnumProp
-from digital_waveform import Waveform, Channels
+from digital_waveform import Waveform, NumpyChannels
+import numpy
 
 #---- DAQmxDO properties ----
 
@@ -42,7 +43,8 @@ class DAQmxDO(Instrument):
     units=Typed(FloatProp)
     hardwareAlignmentQuantum=Typed(IntProp)
     waveform=Typed(Waveform)
-    channels=Typed(Channels)
+    #channels=Typed(Channels)
+    channels=Member()
     triggers=Typed(ListProp)
     startTrigger=Typed(StartTrigger)
     version=Member()
@@ -57,15 +59,36 @@ class DAQmxDO(Instrument):
         self.clockRate=FloatProp('clockRate',experiment,'samples/channel/sec','1000')
         self.units=FloatProp('units',experiment,'multiplier for timing values (milli=.001)','1')
         self.waveform=Waveform('waveform',experiment,self)
-        self.channels=Channels(experiment,self)
+        #self.channels=Channels(experiment,self)
+        self.channels=NumpyChannels(experiment)
         self.startTrigger=StartTrigger(experiment)
         self.properties+=['version','enable','resourceName','clockRate','units','waveform','channels','startTrigger']
-        self.doNotSendToHardware+=['units','waveform'] #waveform is handled specially in toHardware()
+        self.doNotSendToHardware+=['units','waveform','channels'] #waveform is handled specially in toHardware() and channels needs to be setup differently
         
     def initialize(self):
         self.isInitialized=True
         
     def toHardware(self):
-        #all we need to output for the waveform is a 1D array of U8
+        #create a zeros array of size (numTransitions,len(channels.array))
+        output=numpy.zeros((self.waveform.array['states'].shape[1],len(self.channels.array)),dtype=bool)
+        #for each line in the waveform
+        for i in self.waveform.array:
+            #if the channel is active
+            if self.channels.array[i['channel']]['value']:
+                #add it to the output array
+                x=i['states']
+                if x[0]==5:
+                    x[0]=0
+                for i,n in enumerate(x[1:]):
+                    if n==5:
+                        if i==0:
+                            x[i]=0
+                        else:
+                            x[i]=x[i-1]
+                
+            #else leave it as zeros
+            
+    
+        #make sure to include the usual properties
         return super(DAQmxDO,self).toHardware()
         

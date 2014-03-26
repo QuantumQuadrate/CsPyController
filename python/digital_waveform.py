@@ -5,12 +5,11 @@ from __future__ import division
 from cs_errors import setupLog #, PauseError
 logger=setupLog(__name__)
 
-import numpy
-
 from atom.api import Member, Typed
 from enaml.application import deferred_call
-from instrument_property import Prop, BoolProp, FloatProp, ListProp, EnumProp
+from instrument_property import Prop, BoolProp, FloatProp, ListProp, EnumProp, Numpy1DProp
 from matplotlib.figure import Figure
+import numpy, h5py
 
 defaultState=5
 
@@ -21,6 +20,13 @@ class Channel(Prop):
         super(Channel,self).__init__(name,experiment,description)
         self.active=BoolProp('active',experiment,'','True')
         self.properties+=['active']
+
+class NumpyChannels(Numpy1DProp):
+    #this doesn't need to be sent to hardware.  It's used to calculate the waveform that will be sent
+    def __init__(self,name,experiment,description=''):
+        self.dtype=[('description',object),('function',object),('value',bool)]
+        self.hdf_dtype=[('description',h5py.special_dtype(vlen=str)),('function',h5py.special_dtype(vlen=str)),('value',bool)]
+        super(NumpyChannels,self).__init__('channels',experiment,description)
 
 class Channels(ListProp):
     digitalout=Member()
@@ -281,7 +287,7 @@ class Waveform(Prop):
     
     def remove(self):
         if self.waveforms is not None:
-            index=self.waveforms.remove(self) #remove ourselves from the master list, becoming subject to garbage collection
+            self.waveforms.remove(self) #remove ourselves from the master list, becoming subject to garbage collection
     
     def evaluate(self):
         super(Waveform,self).evaluate()

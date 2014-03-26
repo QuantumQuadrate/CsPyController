@@ -1610,3 +1610,17 @@ The 'value' member on the 'FloatProp' object must be of type 'float'. Got object
 2014/03/25 13:52:40 MainThread experiments DEBUG starting evaluateAll
 2014/03/25 13:52:42 MainThread experiments DEBUG ended evaluateAll
 2014/03/25 13:53:20 MainThread __main__ INFO starting application
+2014/03/25 15:55:32 MainThread experiments DEBUG starting file load
+2014/03/25 15:55:34 MainThread instrument_property WARNING Prop.fromXML(): XML has tag: DAQmxPulse, but this is not in the LabView.properties list.  It will not be loaded.
+
+2014/03/25 15:55:34 MainThread experiments DEBUG ended file load
+2014/03/25 15:55:34 MainThread experiments DEBUG starting evaluateAll
+2014/03/25 15:55:36 MainThread experiments DEBUG ended evaluateAll
+2014/03/25 15:56:14 MainThread __main__ INFO starting application
+2014/03/25 18:17:16 MainThread experiments DEBUG starting file load
+2014/03/25 18:17:17 MainThread instrument_property WARNING Prop.fromXML(): XML has tag: DAQmxPulse, but this is not in the LabView.properties list.  It will not be loaded.
+
+2014/03/25 18:17:17 MainThread experiments DEBUG ended file load
+2014/03/25 18:17:17 MainThread experiments DEBUG starting evaluateAll
+2014/03/25 18:17:19 MainThread experiments DEBUG ended evaluateAll
+2014/03/25 18:17:57 MainThread __main__ INFO starting application

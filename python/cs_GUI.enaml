@@ -734,16 +734,14 @@ enamldef WaveformsPage(Page):
                 objects=[WaveformPage(waveform=i) for i in HSDIO.waveforms]
 
 enamldef DAQmxDigitalOutPage(Page):
-    title = 'DAQmx Pulses'    
+    title = 'DAQmx DO'    
     attr DAQmx
     
     Container:
         Container:
-                constraints=[vbox(p10,hbox(vbox(p1,p9,p4,p5,p6),p8)),align('left',p1,p9,p4,p5,p6)]
+                constraints=[vbox(hbox(p1,p9,p4,p5,p6),p10),align('left',p1,p10)]
                 hug_height='strong'
                 hug_width='strong'
-                Waveform: p10:
-                    waveform<<DAQmx.waveform
                 EvalProp: p1:
                     prop<<DAQmx.enable
                 StartTrigger: p9:
@@ -754,8 +752,8 @@ enamldef DAQmxDigitalOutPage(Page):
                     prop<<DAQmx.clockRate
                 EvalProp: p6:
                     prop<<DAQmx.units
-                DOchannels: p8:
-                    channels<<DAQmx.channels
+                Waveform: p10:
+                    waveform<<DAQmx.waveform
 
 enamldef DDS_profile(StackItem):
     attr profile

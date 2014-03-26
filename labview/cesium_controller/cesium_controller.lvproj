@@ -45,6 +45,7 @@
 		<Item Name="Globals.vi" Type="VI" URL="../Globals.vi"/>
 		<Item Name="append_to_log.vi" Type="VI" URL="../append_to_log.vi"/>
 		<Item Name="handle_errors.vi" Type="VI" URL="../handle_errors.vi"/>
+		<Item Name="load_waveform_xml.vi" Type="VI" URL="../HSDIO/load_waveform_xml.vi"/>
 		<Item Name="Dependencies" Type="Dependencies">
 			<Item Name="instr.lib" Type="Folder">
 				<Item Name="niHSDIO_ctl Trigger DigEdge - Edge Values (Ring).ctl" Type="VI" URL="/&lt;instrlib&gt;/niHSDIO/niHSDIO.llb/niHSDIO_ctl Trigger DigEdge - Edge Values (Ring).ctl"/>
