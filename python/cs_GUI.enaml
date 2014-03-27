@@ -20,8 +20,10 @@ from enaml.core.declarative import d_
 from enaml.core.include import Include
 from enaml.stdlib.fields import FloatField, IntField
 from enaml.core.api import Looper, Conditional
+from enaml.validator import Validator
+from atom.api import Member
 #from enaml.core.trait_types import EnamlEvent
-from enable_canvas import EnableCanvas
+#from enable_canvas import EnableCanvas
 #from traitsui.api import View #requires "set ETS_TOOLKIT=qt4" on windows command line
 from atom.api import Bool, Typed, observe, Callable
 import os #for file dialogs
@@ -31,7 +33,6 @@ import threading, datetime, time
 import numpy
 from experiments import independentVariable
 from instrument_property import ListProp
-#from instrument_property import EvalProp as instrumentEvalProp
 
 def get_load_file_callback(experiment):
     def load_file_callback(dlg):
@@ -44,6 +45,20 @@ def get_save_file_callback(experiment):
         if dlg.result == 'accepted':
             experiment.save(dlg.path)
     return save_file_callback
+
+class BoolValidator(Validator):
+    experiment=Member()
+
+    def __init__(self,experiment):
+        super(BoolValidator,self).__init__()
+        self.experiment=experiment
+
+    def validate(self, text):
+        try:
+            value = self.experiment.eval_bool(text)
+        except:
+            return False
+        return True
 
 #TODO make these Fields have validation and able to process statements
 enamldef MyIntField(Field):
@@ -717,7 +732,11 @@ enamldef Waveform(RemoveEventContainer): thisWaveformContainer:
 enamldef NumpyDOchannel(Container):
     attr channel
     attr index
+    attr digitalout #the DAQmxDO or HSDIO
+    attr experiment
+
     hug_height='strong'
+    hug_width='strong'
     padding=0
     constraints=[label.width==25,description.width==3*activeF.width,activeF.width==2*activeL.width,hbox(label,description,activeF,activeL,),align('v_center',label,description,activeF,activeL)]
     Label: label:
@@ -728,6 +747,11 @@ enamldef NumpyDOchannel(Container):
     Field: activeF:
         text:=channel['function']
         placeholder='active?'
+        validator<<BoolValidator(experiment)
+        text::
+            channel['value']=experiment.eval_bool(text)
+            activeL.text=str(channel['value']) #must be updated manually because the channel['value'] identity does not change
+            digitalout.evaluate()
     Label: activeL:
         text<<str(channel['value'])
 
@@ -736,28 +760,25 @@ enamldef NumpyDOchannels(GroupBox):
     title='channels (#, description, active?)'
     hug_height='strong'
     hug_width='strong'
-
-    SpinBox: spin0:
-        minimum=0
-        maximum<<len(channels.array)
-    PushButton: addButton:
-        text='+'
-        clicked::
-            channels.array=numpy.insert(channels.array,spin0.value,0,axis=0)
-    PushButton: removeButton:
-        text='-'
-        clicked::
-            channels.array=numpy.delete(channels.array,spin0.value,axis=0)
-    Looper: looper:
-        iterable << channels.array
-        NumpyDOchannel:
-            channel=loop_item
-            index=loop_index
-###
-#       Container: dynoCont:
-#            constraints << [vbox(*dyno.objects)]
-#            Include: dyno:
-#                objects<<[SquareROI(item=x,num=i) for i,x in enumerate(analysis.ROIs)]
+    #constraints=[align('left',controls,dynoCont)]
+    Container: controls:
+        hug_height='strong'
+        hug_width='strong'
+        constraints=[hbox(spin0,addButton,removeButton)]
+        SpinBox: spin0:
+            minimum=0
+            maximum<<len(channels.array)
+        PushButton: addButton:
+            text='+'
+            clicked::
+                channels.array=numpy.insert(channels.array,spin0.value,numpy.array(('new','True',True),dtype=channels.dtype),axis=0)
+        PushButton: removeButton:
+            text='-'
+            clicked::
+                channels.array=numpy.delete(channels.array,spin0.value,axis=0)
+    Container: dynoCont:
+        Include: dyno:
+            objects<<[NumpyDOchannel(channel=x,index=i,digitalout=channels.digitalout,experiment=channels.experiment) for i,x in enumerate(channels.array)]
 
 enamldef NumpyWaveform(RemoveEventContainer): thisWaveformContainer:
     attr waveform
@@ -771,13 +792,6 @@ enamldef NumpyWaveform(RemoveEventContainer): thisWaveformContainer:
         dyno.objects.remove(itemToRemove)
         transitions.constraints=[hbox(*dyno.objects)] if len(dyno.objects)>0 else []
         waveform.evaluate()
-    #Container:
-    #uncomment me!
-    #constraints=[vbox(canvas,details)]
-    # PushButton: updateCanvas:
-        # text='update graph'
-        # clicked::
-            # waveform.updateFigure()
     
     #the following 7 lines are used for the matplotlib digital waveform plot 
     MPLCanvas: canvas:
@@ -785,14 +799,6 @@ enamldef NumpyWaveform(RemoveEventContainer): thisWaveformContainer:
         #hug_width='ignore'
         figure << waveform.figure
         #refresh<<waveform.refresh
-    
-    #the following 6 lines would be used for the Chaco digital waveform plot
-    #constraints=[vbox(canvas,details)]
-    #EnableCanvas: canvas:
-    #    # TODO: make this expand and shrink nicely while filling the width
-    #    hug_width='ignore'
-    #    constraints=[height==500]
-    #    component<<waveform.component
     
     Container: details:
         #constraints=[nameAndChannelNums.top==contents_top,transitions.top==contents_top,addButton.top==contents_top,nameAndChannelNums.left==contents_left,

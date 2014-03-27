@@ -1670,3 +1670,1056 @@ TypeError: super(type, obj): obj must be an instance or subtype of type
 2014/03/26 19:21:57 MainThread experiments DEBUG starting evaluateAll
 2014/03/26 19:22:01 MainThread experiments DEBUG ended evaluateAll
 2014/03/26 19:23:55 MainThread __main__ INFO starting application
+2014/03/26 20:46:26 MainThread experiments DEBUG starting file load
+2014/03/26 20:46:28 MainThread instrument_property WARNING Prop.fromXML(): XML has tag: DAQmxPulse, but this is not in the LabView.properties list.  It will not be loaded.
+
+2014/03/26 20:46:28 MainThread experiments DEBUG ended file load
+2014/03/26 20:46:28 MainThread experiments DEBUG starting evaluateAll
+2014/03/26 20:46:29 MainThread experiments DEBUG ended evaluateAll
+2014/03/26 20:47:07 MainThread __main__ INFO starting application
+2014/03/26 21:03:36 MainThread experiments DEBUG starting file load
+2014/03/26 21:03:37 MainThread instrument_property WARNING Prop.fromXML(): XML has tag: DAQmxPulse, but this is not in the LabView.properties list.  It will not be loaded.
+
+2014/03/26 21:03:37 MainThread experiments DEBUG ended file load
+2014/03/26 21:03:37 MainThread experiments DEBUG starting evaluateAll
+2014/03/26 21:03:39 MainThread experiments DEBUG ended evaluateAll
+2014/03/26 21:04:18 MainThread __main__ INFO starting application
+2014/03/26 21:11:48 MainThread experiments DEBUG starting file load
+2014/03/26 21:11:50 MainThread instrument_property WARNING Prop.fromXML(): XML has tag: DAQmxPulse, but this is not in the LabView.properties list.  It will not be loaded.
+
+2014/03/26 21:11:50 MainThread experiments DEBUG ended file load
+2014/03/26 21:11:50 MainThread experiments DEBUG starting evaluateAll
+2014/03/26 21:11:52 MainThread experiments DEBUG ended evaluateAll
+2014/03/26 21:12:31 MainThread __main__ INFO starting application
+2014/03/26 21:18:00 MainThread experiments DEBUG starting file load
+2014/03/26 21:18:02 MainThread instrument_property WARNING Prop.fromXML(): XML has tag: DAQmxPulse, but this is not in the LabView.properties list.  It will not be loaded.
+
+2014/03/26 21:18:02 MainThread experiments DEBUG ended file load
+2014/03/26 21:18:02 MainThread experiments DEBUG starting evaluateAll
+2014/03/26 21:18:03 MainThread experiments DEBUG ended evaluateAll
+2014/03/26 21:18:42 MainThread __main__ INFO starting application
+2014/03/26 21:29:07 MainThread experiments DEBUG starting file load
+2014/03/26 21:29:09 MainThread instrument_property WARNING Prop.fromXML(): XML has tag: DAQmxPulse, but this is not in the LabView.properties list.  It will not be loaded.
+
+2014/03/26 21:29:09 MainThread experiments DEBUG ended file load
+2014/03/26 21:29:09 MainThread experiments DEBUG starting evaluateAll
+2014/03/26 21:29:10 MainThread experiments DEBUG ended evaluateAll
+2014/03/26 21:29:49 MainThread __main__ INFO starting application
+2014/03/26 22:07:31 MainThread experiments DEBUG starting file load
+2014/03/26 22:07:33 MainThread instrument_property WARNING Prop.fromXML(): XML has tag: DAQmxPulse, but this is not in the LabView.properties list.  It will not be loaded.
+
+2014/03/26 22:07:33 MainThread experiments DEBUG ended file load
+2014/03/26 22:07:33 MainThread experiments DEBUG starting evaluateAll
+2014/03/26 22:07:35 MainThread instrument_property WARNING Evaluating waveform in DAQmxDO.properties.
+'NoneType' object has no attribute 'channels'Traceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\instrument_property.py", line 42, in evaluate
+    o.evaluate() #evaluate it
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\digital_waveform.py", line 522, in evaluate
+    self.updateFigure()
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\digital_waveform.py", line 506, in updateFigure
+    self.fmt() #update processed sequence
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\digital_waveform.py", line 366, in fmt
+    self.stateList=numpy.zeros((0,len(self.digitalout.channels.array)),dtype='uint8')
+AttributeError: 'NoneType' object has no attribute 'channels'
+
+
+2014/03/26 22:07:35 MainThread experiments WARNING PauseError
+2014/03/26 22:08:12 MainThread __main__ INFO starting application
+2014/03/26 22:09:12 MainThread experiments DEBUG starting file load
+2014/03/26 22:09:14 MainThread instrument_property WARNING Prop.fromXML(): XML has tag: DAQmxPulse, but this is not in the LabView.properties list.  It will not be loaded.
+
+2014/03/26 22:09:14 MainThread experiments DEBUG ended file load
+2014/03/26 22:09:14 MainThread experiments DEBUG starting evaluateAll
+2014/03/26 22:09:15 MainThread experiments DEBUG ended evaluateAll
+2014/03/26 22:09:54 MainThread __main__ INFO starting application
+2014/03/26 22:48:58 MainThread experiments DEBUG starting file load
+2014/03/26 22:49:00 MainThread instrument_property WARNING Prop.fromXML(): XML has tag: DAQmxPulse, but this is not in the LabView.properties list.  It will not be loaded.
+
+2014/03/26 22:49:00 MainThread experiments DEBUG ended file load
+2014/03/26 22:49:00 MainThread experiments DEBUG starting evaluateAll
+2014/03/26 22:49:01 MainThread experiments DEBUG ended evaluateAll
+2014/03/26 22:50:27 MainThread experiments DEBUG starting file load
+2014/03/26 22:50:29 MainThread instrument_property WARNING Prop.fromXML(): XML has tag: DAQmxPulse, but this is not in the LabView.properties list.  It will not be loaded.
+
+2014/03/26 22:50:29 MainThread experiments DEBUG ended file load
+2014/03/26 22:50:29 MainThread experiments DEBUG starting evaluateAll
+2014/03/26 22:50:31 MainThread experiments DEBUG ended evaluateAll
+2014/03/26 22:51:00 MainThread experiments DEBUG starting file load
+2014/03/26 22:51:02 MainThread instrument_property WARNING Prop.fromXML(): XML has tag: DAQmxPulse, but this is not in the LabView.properties list.  It will not be loaded.
+
+2014/03/26 22:51:02 MainThread experiments DEBUG ended file load
+2014/03/26 22:51:02 MainThread experiments DEBUG starting evaluateAll
+2014/03/26 22:51:04 MainThread experiments DEBUG ended evaluateAll
+2014/03/26 22:51:26 MainThread experiments DEBUG starting file load
+2014/03/26 22:51:28 MainThread instrument_property WARNING Prop.fromXML(): XML has tag: DAQmxPulse, but this is not in the LabView.properties list.  It will not be loaded.
+
+2014/03/26 22:51:28 MainThread experiments DEBUG ended file load
+2014/03/26 22:51:28 MainThread experiments DEBUG starting evaluateAll
+2014/03/26 22:51:30 MainThread experiments DEBUG ended evaluateAll
+2014/03/26 22:52:08 MainThread __main__ INFO starting application
+2014/03/26 22:55:21 MainThread experiments DEBUG starting file load
+2014/03/26 22:55:23 MainThread instrument_property WARNING Prop.fromXML(): XML has tag: DAQmxPulse, but this is not in the LabView.properties list.  It will not be loaded.
+
+2014/03/26 22:55:23 MainThread experiments DEBUG ended file load
+2014/03/26 22:55:23 MainThread experiments DEBUG starting evaluateAll
+2014/03/26 22:55:25 MainThread experiments DEBUG ended evaluateAll
+2014/03/26 22:56:03 MainThread __main__ INFO starting application
+2014/03/26 22:57:28 MainThread cs_evaluate WARNING Could not eval string: F
+name 'F' is not definedTraceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\cs_evaluate.py", line 28, in evalWithDict
+    return eval(string,globals()) #,varDict.copy()) #dict(numpyDict.items()+varDict.items())) #create a new dictionary so all numpy functions and everything defined in varDict is available as a global during evaluation
+  File "<string>", line 1, in <module>
+NameError: name 'F' is not defined
+
+
+2014/03/26 22:57:28 MainThread cs_evaluate WARNING Could not eval string: Fa
+name 'Fa' is not definedTraceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\cs_evaluate.py", line 28, in evalWithDict
+    return eval(string,globals()) #,varDict.copy()) #dict(numpyDict.items()+varDict.items())) #create a new dictionary so all numpy functions and everything defined in varDict is available as a global during evaluation
+  File "<string>", line 1, in <module>
+NameError: name 'Fa' is not defined
+
+
+2014/03/26 22:57:29 MainThread cs_evaluate WARNING Could not eval string: Fal
+name 'Fal' is not definedTraceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\cs_evaluate.py", line 28, in evalWithDict
+    return eval(string,globals()) #,varDict.copy()) #dict(numpyDict.items()+varDict.items())) #create a new dictionary so all numpy functions and everything defined in varDict is available as a global during evaluation
+  File "<string>", line 1, in <module>
+NameError: name 'Fal' is not defined
+
+
+2014/03/26 22:57:29 MainThread cs_evaluate WARNING Could not eval string: Fals
+name 'Fals' is not definedTraceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\cs_evaluate.py", line 28, in evalWithDict
+    return eval(string,globals()) #,varDict.copy()) #dict(numpyDict.items()+varDict.items())) #create a new dictionary so all numpy functions and everything defined in varDict is available as a global during evaluation
+  File "<string>", line 1, in <module>
+NameError: name 'Fals' is not defined
+
+
+2014/03/26 22:57:36 MainThread cs_evaluate WARNING Could not eval string: g
+name 'g' is not definedTraceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\cs_evaluate.py", line 28, in evalWithDict
+    return eval(string,globals()) #,varDict.copy()) #dict(numpyDict.items()+varDict.items())) #create a new dictionary so all numpy functions and everything defined in varDict is available as a global during evaluation
+  File "<string>", line 1, in <module>
+NameError: name 'g' is not defined
+
+
+2014/03/26 22:57:36 MainThread cs_evaluate WARNING Could not eval string: gj
+name 'gj' is not definedTraceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\cs_evaluate.py", line 28, in evalWithDict
+    return eval(string,globals()) #,varDict.copy()) #dict(numpyDict.items()+varDict.items())) #create a new dictionary so all numpy functions and everything defined in varDict is available as a global during evaluation
+  File "<string>", line 1, in <module>
+NameError: name 'gj' is not defined
+
+
+2014/03/26 22:57:36 MainThread cs_evaluate WARNING Could not eval string: gjl
+name 'gjl' is not definedTraceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\cs_evaluate.py", line 28, in evalWithDict
+    return eval(string,globals()) #,varDict.copy()) #dict(numpyDict.items()+varDict.items())) #create a new dictionary so all numpy functions and everything defined in varDict is available as a global during evaluation
+  File "<string>", line 1, in <module>
+NameError: name 'gjl' is not defined
+
+
+2014/03/26 22:57:40 MainThread cs_evaluate WARNING Could not eval string: gj
+name 'gj' is not definedTraceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\cs_evaluate.py", line 28, in evalWithDict
+    return eval(string,globals()) #,varDict.copy()) #dict(numpyDict.items()+varDict.items())) #create a new dictionary so all numpy functions and everything defined in varDict is available as a global during evaluation
+  File "<string>", line 1, in <module>
+NameError: name 'gj' is not defined
+
+
+2014/03/26 22:57:40 MainThread cs_evaluate WARNING Could not eval string: g
+name 'g' is not definedTraceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\cs_evaluate.py", line 28, in evalWithDict
+    return eval(string,globals()) #,varDict.copy()) #dict(numpyDict.items()+varDict.items())) #create a new dictionary so all numpy functions and everything defined in varDict is available as a global during evaluation
+  File "<string>", line 1, in <module>
+NameError: name 'g' is not defined
+
+
+2014/03/26 22:57:46 MainThread cs_evaluate WARNING Could not eval string: '
+EOL while scanning string literal (<string>, line 1)Traceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\cs_evaluate.py", line 28, in evalWithDict
+    return eval(string,globals()) #,varDict.copy()) #dict(numpyDict.items()+varDict.items())) #create a new dictionary so all numpy functions and everything defined in varDict is available as a global during evaluation
+  File "<string>", line 1
+    '
+    ^
+SyntaxError: EOL while scanning string literal
+
+
+2014/03/26 22:57:46 MainThread cs_evaluate WARNING Could not eval string: 't
+EOL while scanning string literal (<string>, line 1)Traceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\cs_evaluate.py", line 28, in evalWithDict
+    return eval(string,globals()) #,varDict.copy()) #dict(numpyDict.items()+varDict.items())) #create a new dictionary so all numpy functions and everything defined in varDict is available as a global during evaluation
+  File "<string>", line 1
+    't
+     ^
+SyntaxError: EOL while scanning string literal
+
+
+2014/03/26 22:57:47 MainThread cs_evaluate WARNING Could not eval string: 'th
+EOL while scanning string literal (<string>, line 1)Traceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\cs_evaluate.py", line 28, in evalWithDict
+    return eval(string,globals()) #,varDict.copy()) #dict(numpyDict.items()+varDict.items())) #create a new dictionary so all numpy functions and everything defined in varDict is available as a global during evaluation
+  File "<string>", line 1
+    'th
+      ^
+SyntaxError: EOL while scanning string literal
+
+
+2014/03/26 22:57:47 MainThread cs_evaluate WARNING Could not eval string: 'thr
+EOL while scanning string literal (<string>, line 1)Traceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\cs_evaluate.py", line 28, in evalWithDict
+    return eval(string,globals()) #,varDict.copy()) #dict(numpyDict.items()+varDict.items())) #create a new dictionary so all numpy functions and everything defined in varDict is available as a global during evaluation
+  File "<string>", line 1
+    'thr
+       ^
+SyntaxError: EOL while scanning string literal
+
+
+2014/03/26 22:57:47 MainThread cs_evaluate WARNING Could not eval string: 'thre
+EOL while scanning string literal (<string>, line 1)Traceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\cs_evaluate.py", line 28, in evalWithDict
+    return eval(string,globals()) #,varDict.copy()) #dict(numpyDict.items()+varDict.items())) #create a new dictionary so all numpy functions and everything defined in varDict is available as a global during evaluation
+  File "<string>", line 1
+    'thre
+        ^
+SyntaxError: EOL while scanning string literal
+
+
+2014/03/26 22:57:47 MainThread cs_evaluate WARNING Could not eval string: 'three
+EOL while scanning string literal (<string>, line 1)Traceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\cs_evaluate.py", line 28, in evalWithDict
+    return eval(string,globals()) #,varDict.copy()) #dict(numpyDict.items()+varDict.items())) #create a new dictionary so all numpy functions and everything defined in varDict is available as a global during evaluation
+  File "<string>", line 1
+    'three
+         ^
+SyntaxError: EOL while scanning string literal
+
+
+2014/03/26 22:57:51 MainThread cs_evaluate WARNING Could not eval string: 'three
+EOL while scanning string literal (<string>, line 1)Traceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\cs_evaluate.py", line 28, in evalWithDict
+    return eval(string,globals()) #,varDict.copy()) #dict(numpyDict.items()+varDict.items())) #create a new dictionary so all numpy functions and everything defined in varDict is available as a global during evaluation
+  File "<string>", line 1
+    'three
+         ^
+SyntaxError: EOL while scanning string literal
+
+
+2014/03/26 22:57:51 MainThread cs_evaluate WARNING Could not eval string: 'thre
+EOL while scanning string literal (<string>, line 1)Traceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\cs_evaluate.py", line 28, in evalWithDict
+    return eval(string,globals()) #,varDict.copy()) #dict(numpyDict.items()+varDict.items())) #create a new dictionary so all numpy functions and everything defined in varDict is available as a global during evaluation
+  File "<string>", line 1
+    'thre
+        ^
+SyntaxError: EOL while scanning string literal
+
+
+2014/03/26 22:57:51 MainThread cs_evaluate WARNING Could not eval string: 'thr
+EOL while scanning string literal (<string>, line 1)Traceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\cs_evaluate.py", line 28, in evalWithDict
+    return eval(string,globals()) #,varDict.copy()) #dict(numpyDict.items()+varDict.items())) #create a new dictionary so all numpy functions and everything defined in varDict is available as a global during evaluation
+  File "<string>", line 1
+    'thr
+       ^
+SyntaxError: EOL while scanning string literal
+
+
+2014/03/26 22:57:51 MainThread cs_evaluate WARNING Could not eval string: 'th
+EOL while scanning string literal (<string>, line 1)Traceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\cs_evaluate.py", line 28, in evalWithDict
+    return eval(string,globals()) #,varDict.copy()) #dict(numpyDict.items()+varDict.items())) #create a new dictionary so all numpy functions and everything defined in varDict is available as a global during evaluation
+  File "<string>", line 1
+    'th
+      ^
+SyntaxError: EOL while scanning string literal
+
+
+2014/03/26 22:57:51 MainThread cs_evaluate WARNING Could not eval string: 't
+EOL while scanning string literal (<string>, line 1)Traceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\cs_evaluate.py", line 28, in evalWithDict
+    return eval(string,globals()) #,varDict.copy()) #dict(numpyDict.items()+varDict.items())) #create a new dictionary so all numpy functions and everything defined in varDict is available as a global during evaluation
+  File "<string>", line 1
+    't
+     ^
+SyntaxError: EOL while scanning string literal
+
+
+2014/03/26 22:57:51 MainThread cs_evaluate WARNING Could not eval string: '
+EOL while scanning string literal (<string>, line 1)Traceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\cs_evaluate.py", line 28, in evalWithDict
+    return eval(string,globals()) #,varDict.copy()) #dict(numpyDict.items()+varDict.items())) #create a new dictionary so all numpy functions and everything defined in varDict is available as a global during evaluation
+  File "<string>", line 1
+    '
+    ^
+SyntaxError: EOL while scanning string literal
+
+
+2014/03/26 22:57:57 MainThread cs_evaluate WARNING Could not eval string: T
+name 'T' is not definedTraceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\cs_evaluate.py", line 28, in evalWithDict
+    return eval(string,globals()) #,varDict.copy()) #dict(numpyDict.items()+varDict.items())) #create a new dictionary so all numpy functions and everything defined in varDict is available as a global during evaluation
+  File "<string>", line 1, in <module>
+NameError: name 'T' is not defined
+
+
+2014/03/26 22:57:57 MainThread cs_evaluate WARNING Could not eval string: Tr
+name 'Tr' is not definedTraceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\cs_evaluate.py", line 28, in evalWithDict
+    return eval(string,globals()) #,varDict.copy()) #dict(numpyDict.items()+varDict.items())) #create a new dictionary so all numpy functions and everything defined in varDict is available as a global during evaluation
+  File "<string>", line 1, in <module>
+NameError: name 'Tr' is not defined
+
+
+2014/03/26 22:57:57 MainThread cs_evaluate WARNING Could not eval string: Tru
+name 'Tru' is not definedTraceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\cs_evaluate.py", line 28, in evalWithDict
+    return eval(string,globals()) #,varDict.copy()) #dict(numpyDict.items()+varDict.items())) #create a new dictionary so all numpy functions and everything defined in varDict is available as a global during evaluation
+  File "<string>", line 1, in <module>
+NameError: name 'Tru' is not defined
+
+
+2014/03/26 22:57:59 MainThread cs_evaluate WARNING Could not eval string: Tru
+name 'Tru' is not definedTraceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\cs_evaluate.py", line 28, in evalWithDict
+    return eval(string,globals()) #,varDict.copy()) #dict(numpyDict.items()+varDict.items())) #create a new dictionary so all numpy functions and everything defined in varDict is available as a global during evaluation
+  File "<string>", line 1, in <module>
+NameError: name 'Tru' is not defined
+
+
+2014/03/26 22:57:59 MainThread cs_evaluate WARNING Could not eval string: Tr
+name 'Tr' is not definedTraceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\cs_evaluate.py", line 28, in evalWithDict
+    return eval(string,globals()) #,varDict.copy()) #dict(numpyDict.items()+varDict.items())) #create a new dictionary so all numpy functions and everything defined in varDict is available as a global during evaluation
+  File "<string>", line 1, in <module>
+NameError: name 'Tr' is not defined
+
+
+2014/03/26 22:58:00 MainThread cs_evaluate WARNING Could not eval string: T
+name 'T' is not definedTraceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\cs_evaluate.py", line 28, in evalWithDict
+    return eval(string,globals()) #,varDict.copy()) #dict(numpyDict.items()+varDict.items())) #create a new dictionary so all numpy functions and everything defined in varDict is available as a global during evaluation
+  File "<string>", line 1, in <module>
+NameError: name 'T' is not defined
+
+
+2014/03/26 22:58:00 MainThread cs_evaluate WARNING Could not eval string: F
+name 'F' is not definedTraceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\cs_evaluate.py", line 28, in evalWithDict
+    return eval(string,globals()) #,varDict.copy()) #dict(numpyDict.items()+varDict.items())) #create a new dictionary so all numpy functions and everything defined in varDict is available as a global during evaluation
+  File "<string>", line 1, in <module>
+NameError: name 'F' is not defined
+
+
+2014/03/26 22:58:00 MainThread cs_evaluate WARNING Could not eval string: Fa
+name 'Fa' is not definedTraceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\cs_evaluate.py", line 28, in evalWithDict
+    return eval(string,globals()) #,varDict.copy()) #dict(numpyDict.items()+varDict.items())) #create a new dictionary so all numpy functions and everything defined in varDict is available as a global during evaluation
+  File "<string>", line 1, in <module>
+NameError: name 'Fa' is not defined
+
+
+2014/03/26 22:58:00 MainThread cs_evaluate WARNING Could not eval string: Fal
+name 'Fal' is not definedTraceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\cs_evaluate.py", line 28, in evalWithDict
+    return eval(string,globals()) #,varDict.copy()) #dict(numpyDict.items()+varDict.items())) #create a new dictionary so all numpy functions and everything defined in varDict is available as a global during evaluation
+  File "<string>", line 1, in <module>
+NameError: name 'Fal' is not defined
+
+
+2014/03/26 22:58:00 MainThread cs_evaluate WARNING Could not eval string: Fals
+name 'Fals' is not definedTraceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\cs_evaluate.py", line 28, in evalWithDict
+    return eval(string,globals()) #,varDict.copy()) #dict(numpyDict.items()+varDict.items())) #create a new dictionary so all numpy functions and everything defined in varDict is available as a global during evaluation
+  File "<string>", line 1, in <module>
+NameError: name 'Fals' is not defined
+
+
+2014/03/26 23:04:06 MainThread experiments DEBUG starting file load
+2014/03/26 23:04:07 MainThread instrument_property WARNING Prop.fromXML(): XML has tag: DAQmxPulse, but this is not in the LabView.properties list.  It will not be loaded.
+
+2014/03/26 23:04:07 MainThread experiments DEBUG ended file load
+2014/03/26 23:04:07 MainThread experiments DEBUG starting evaluateAll
+2014/03/26 23:04:09 MainThread experiments DEBUG ended evaluateAll
+2014/03/26 23:04:48 MainThread __main__ INFO starting application
+2014/03/26 23:05:57 MainThread cs_evaluate WARNING Could not eval string: F
+name 'F' is not defined
+Traceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\cs_evaluate.py", line 28, in evalWithDict
+    return eval(string,globals()) #,varDict.copy()) #dict(numpyDict.items()+varDict.items())) #create a new dictionary so all numpy functions and everything defined in varDict is available as a global during evaluation
+  File "<string>", line 1, in <module>
+NameError: name 'F' is not defined
+
+
+2014/03/26 23:05:57 MainThread cs_evaluate WARNING Could not eval string: Fa
+name 'Fa' is not defined
+Traceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\cs_evaluate.py", line 28, in evalWithDict
+    return eval(string,globals()) #,varDict.copy()) #dict(numpyDict.items()+varDict.items())) #create a new dictionary so all numpy functions and everything defined in varDict is available as a global during evaluation
+  File "<string>", line 1, in <module>
+NameError: name 'Fa' is not defined
+
+
+2014/03/26 23:06:00 MainThread cs_evaluate WARNING Could not eval string: Fal
+name 'Fal' is not defined
+Traceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\cs_evaluate.py", line 28, in evalWithDict
+    return eval(string,globals()) #,varDict.copy()) #dict(numpyDict.items()+varDict.items())) #create a new dictionary so all numpy functions and everything defined in varDict is available as a global during evaluation
+  File "<string>", line 1, in <module>
+NameError: name 'Fal' is not defined
+
+
+2014/03/26 23:06:00 MainThread cs_evaluate WARNING Could not eval string: Fals
+name 'Fals' is not defined
+Traceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\cs_evaluate.py", line 28, in evalWithDict
+    return eval(string,globals()) #,varDict.copy()) #dict(numpyDict.items()+varDict.items())) #create a new dictionary so all numpy functions and everything defined in varDict is available as a global during evaluation
+  File "<string>", line 1, in <module>
+NameError: name 'Fals' is not defined
+
+
+2014/03/26 23:11:41 MainThread experiments DEBUG starting file load
+2014/03/26 23:11:43 MainThread instrument_property WARNING Prop.fromXML(): XML has tag: DAQmxPulse, but this is not in the LabView.properties list.  It will not be loaded.
+
+2014/03/26 23:11:43 MainThread experiments DEBUG ended file load
+2014/03/26 23:11:43 MainThread experiments DEBUG starting evaluateAll
+2014/03/26 23:11:45 MainThread experiments DEBUG ended evaluateAll
+2014/03/26 23:12:24 MainThread __main__ INFO starting application
+2014/03/26 23:13:25 MainThread experiments DEBUG starting file load
+2014/03/26 23:13:27 MainThread instrument_property WARNING Prop.fromXML(): XML has tag: DAQmxPulse, but this is not in the LabView.properties list.  It will not be loaded.
+
+2014/03/26 23:13:27 MainThread experiments DEBUG ended file load
+2014/03/26 23:13:27 MainThread experiments DEBUG starting evaluateAll
+2014/03/26 23:13:29 MainThread experiments DEBUG ended evaluateAll
+2014/03/26 23:13:46 MainThread experiments DEBUG starting file load
+2014/03/26 23:13:47 MainThread instrument_property WARNING Prop.fromXML(): XML has tag: DAQmxPulse, but this is not in the LabView.properties list.  It will not be loaded.
+
+2014/03/26 23:13:47 MainThread experiments DEBUG ended file load
+2014/03/26 23:13:47 MainThread experiments DEBUG starting evaluateAll
+2014/03/26 23:13:49 MainThread experiments DEBUG ended evaluateAll
+2014/03/26 23:14:27 MainThread __main__ INFO starting application
+2014/03/26 23:15:05 MainThread cs_evaluate WARNING Could not eval string: F
+name 'F' is not defined
+Traceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\cs_evaluate.py", line 28, in evalWithDict
+    return eval(string,globals()) #,varDict.copy()) #dict(numpyDict.items()+varDict.items())) #create a new dictionary so all numpy functions and everything defined in varDict is available as a global during evaluation
+  File "<string>", line 1, in <module>
+NameError: name 'F' is not defined
+
+
+2014/03/26 23:15:09 MainThread cs_evaluate WARNING Could not eval string: Fa
+name 'Fa' is not defined
+Traceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\cs_evaluate.py", line 28, in evalWithDict
+    return eval(string,globals()) #,varDict.copy()) #dict(numpyDict.items()+varDict.items())) #create a new dictionary so all numpy functions and everything defined in varDict is available as a global during evaluation
+  File "<string>", line 1, in <module>
+NameError: name 'Fa' is not defined
+
+
+2014/03/26 23:15:09 MainThread cs_evaluate WARNING Could not eval string: Fal
+name 'Fal' is not defined
+Traceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\cs_evaluate.py", line 28, in evalWithDict
+    return eval(string,globals()) #,varDict.copy()) #dict(numpyDict.items()+varDict.items())) #create a new dictionary so all numpy functions and everything defined in varDict is available as a global during evaluation
+  File "<string>", line 1, in <module>
+NameError: name 'Fal' is not defined
+
+
+2014/03/26 23:15:09 MainThread cs_evaluate WARNING Could not eval string: Fals
+name 'Fals' is not defined
+Traceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\cs_evaluate.py", line 28, in evalWithDict
+    return eval(string,globals()) #,varDict.copy()) #dict(numpyDict.items()+varDict.items())) #create a new dictionary so all numpy functions and everything defined in varDict is available as a global during evaluation
+  File "<string>", line 1, in <module>
+NameError: name 'Fals' is not defined
+
+
+2014/03/26 23:15:14 MainThread cs_evaluate WARNING Could not eval string: T
+name 'T' is not defined
+Traceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\cs_evaluate.py", line 28, in evalWithDict
+    return eval(string,globals()) #,varDict.copy()) #dict(numpyDict.items()+varDict.items())) #create a new dictionary so all numpy functions and everything defined in varDict is available as a global during evaluation
+  File "<string>", line 1, in <module>
+NameError: name 'T' is not defined
+
+
+2014/03/26 23:15:14 MainThread cs_evaluate WARNING Could not eval string: Tr
+name 'Tr' is not defined
+Traceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\cs_evaluate.py", line 28, in evalWithDict
+    return eval(string,globals()) #,varDict.copy()) #dict(numpyDict.items()+varDict.items())) #create a new dictionary so all numpy functions and everything defined in varDict is available as a global during evaluation
+  File "<string>", line 1, in <module>
+NameError: name 'Tr' is not defined
+
+
+2014/03/26 23:15:14 MainThread cs_evaluate WARNING Could not eval string: Tru
+name 'Tru' is not defined
+Traceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\cs_evaluate.py", line 28, in evalWithDict
+    return eval(string,globals()) #,varDict.copy()) #dict(numpyDict.items()+varDict.items())) #create a new dictionary so all numpy functions and everything defined in varDict is available as a global during evaluation
+  File "<string>", line 1, in <module>
+NameError: name 'Tru' is not defined
+
+
+2014/03/26 23:20:47 MainThread experiments DEBUG starting file load
+2014/03/26 23:20:49 MainThread instrument_property WARNING Prop.fromXML(): XML has tag: DAQmxPulse, but this is not in the LabView.properties list.  It will not be loaded.
+
+2014/03/26 23:20:49 MainThread experiments DEBUG ended file load
+2014/03/26 23:20:49 MainThread experiments DEBUG starting evaluateAll
+2014/03/26 23:20:50 MainThread experiments DEBUG ended evaluateAll
+2014/03/26 23:21:28 MainThread __main__ INFO starting application
+2014/03/26 23:22:27 MainThread cs_evaluate WARNING Could not eval string: as
+unexpected EOF while parsing (<string>, line 1)
+Traceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\cs_evaluate.py", line 28, in evalWithDict
+    return eval(string,globals()) #,varDict.copy()) #dict(numpyDict.items()+varDict.items())) #create a new dictionary so all numpy functions and everything defined in varDict is available as a global during evaluation
+  File "<string>", line 1
+    as
+     ^
+SyntaxError: unexpected EOF while parsing
+
+
+2014/03/26 23:22:52 MainThread cs_evaluate WARNING Could not eval string: T
+name 'T' is not defined
+Traceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\cs_evaluate.py", line 28, in evalWithDict
+    return eval(string,globals()) #,varDict.copy()) #dict(numpyDict.items()+varDict.items())) #create a new dictionary so all numpy functions and everything defined in varDict is available as a global during evaluation
+  File "<string>", line 1, in <module>
+NameError: name 'T' is not defined
+
+
+2014/03/26 23:22:52 MainThread cs_evaluate WARNING Could not eval string: Tr
+name 'Tr' is not defined
+Traceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\cs_evaluate.py", line 28, in evalWithDict
+    return eval(string,globals()) #,varDict.copy()) #dict(numpyDict.items()+varDict.items())) #create a new dictionary so all numpy functions and everything defined in varDict is available as a global during evaluation
+  File "<string>", line 1, in <module>
+NameError: name 'Tr' is not defined
+
+
+2014/03/26 23:22:54 MainThread cs_evaluate WARNING Could not eval string: Tru
+name 'Tru' is not defined
+Traceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\cs_evaluate.py", line 28, in evalWithDict
+    return eval(string,globals()) #,varDict.copy()) #dict(numpyDict.items()+varDict.items())) #create a new dictionary so all numpy functions and everything defined in varDict is available as a global during evaluation
+  File "<string>", line 1, in <module>
+NameError: name 'Tru' is not defined
+
+
+2014/03/26 23:23:47 MainThread experiments DEBUG starting file load
+2014/03/26 23:23:48 MainThread instrument_property WARNING Prop.fromXML(): XML has tag: DAQmxPulse, but this is not in the LabView.properties list.  It will not be loaded.
+
+2014/03/26 23:23:48 MainThread experiments DEBUG ended file load
+2014/03/26 23:23:48 MainThread experiments DEBUG starting evaluateAll
+2014/03/26 23:23:50 MainThread experiments DEBUG ended evaluateAll
+2014/03/26 23:24:28 MainThread __main__ INFO starting application
+2014/03/26 23:32:14 MainThread cs_evaluate WARNING Could not eval string: F
+name 'F' is not defined
+Traceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\cs_evaluate.py", line 28, in evalWithDict
+    return eval(string,globals()) #,varDict.copy()) #dict(numpyDict.items()+varDict.items())) #create a new dictionary so all numpy functions and everything defined in varDict is available as a global during evaluation
+  File "<string>", line 1, in <module>
+NameError: name 'F' is not defined
+
+
+2014/03/26 23:32:16 MainThread cs_evaluate WARNING Could not eval string: Fa
+name 'Fa' is not defined
+Traceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\cs_evaluate.py", line 28, in evalWithDict
+    return eval(string,globals()) #,varDict.copy()) #dict(numpyDict.items()+varDict.items())) #create a new dictionary so all numpy functions and everything defined in varDict is available as a global during evaluation
+  File "<string>", line 1, in <module>
+NameError: name 'Fa' is not defined
+
+
+2014/03/26 23:32:17 MainThread cs_evaluate WARNING Could not eval string: Fal
+name 'Fal' is not defined
+Traceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\cs_evaluate.py", line 28, in evalWithDict
+    return eval(string,globals()) #,varDict.copy()) #dict(numpyDict.items()+varDict.items())) #create a new dictionary so all numpy functions and everything defined in varDict is available as a global during evaluation
+  File "<string>", line 1, in <module>
+NameError: name 'Fal' is not defined
+
+
+2014/03/26 23:32:17 MainThread cs_evaluate WARNING Could not eval string: Fals
+name 'Fals' is not defined
+Traceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\cs_evaluate.py", line 28, in evalWithDict
+    return eval(string,globals()) #,varDict.copy()) #dict(numpyDict.items()+varDict.items())) #create a new dictionary so all numpy functions and everything defined in varDict is available as a global during evaluation
+  File "<string>", line 1, in <module>
+NameError: name 'Fals' is not defined
+
+
+2014/03/26 23:34:08 MainThread cs_evaluate WARNING Could not eval string: F
+name 'F' is not defined
+Traceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\cs_evaluate.py", line 28, in evalWithDict
+    return eval(string,globals()) #,varDict.copy()) #dict(numpyDict.items()+varDict.items())) #create a new dictionary so all numpy functions and everything defined in varDict is available as a global during evaluation
+  File "<string>", line 1, in <module>
+NameError: name 'F' is not defined
+
+
+2014/03/26 23:34:09 MainThread cs_evaluate WARNING Could not eval string: Fa
+name 'Fa' is not defined
+Traceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\cs_evaluate.py", line 28, in evalWithDict
+    return eval(string,globals()) #,varDict.copy()) #dict(numpyDict.items()+varDict.items())) #create a new dictionary so all numpy functions and everything defined in varDict is available as a global during evaluation
+  File "<string>", line 1, in <module>
+NameError: name 'Fa' is not defined
+
+
+2014/03/26 23:34:09 MainThread cs_evaluate WARNING Could not eval string: Fal
+name 'Fal' is not defined
+Traceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\cs_evaluate.py", line 28, in evalWithDict
+    return eval(string,globals()) #,varDict.copy()) #dict(numpyDict.items()+varDict.items())) #create a new dictionary so all numpy functions and everything defined in varDict is available as a global during evaluation
+  File "<string>", line 1, in <module>
+NameError: name 'Fal' is not defined
+
+
+2014/03/26 23:34:09 MainThread cs_evaluate WARNING Could not eval string: Fals
+name 'Fals' is not defined
+Traceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\cs_evaluate.py", line 28, in evalWithDict
+    return eval(string,globals()) #,varDict.copy()) #dict(numpyDict.items()+varDict.items())) #create a new dictionary so all numpy functions and everything defined in varDict is available as a global during evaluation
+  File "<string>", line 1, in <module>
+NameError: name 'Fals' is not defined
+
+
+2014/03/26 23:34:12 MainThread cs_evaluate WARNING Could not eval string: F
+name 'F' is not defined
+Traceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\cs_evaluate.py", line 28, in evalWithDict
+    return eval(string,globals()) #,varDict.copy()) #dict(numpyDict.items()+varDict.items())) #create a new dictionary so all numpy functions and everything defined in varDict is available as a global during evaluation
+  File "<string>", line 1, in <module>
+NameError: name 'F' is not defined
+
+
+2014/03/26 23:34:13 MainThread cs_evaluate WARNING Could not eval string: Fa
+name 'Fa' is not defined
+Traceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\cs_evaluate.py", line 28, in evalWithDict
+    return eval(string,globals()) #,varDict.copy()) #dict(numpyDict.items()+varDict.items())) #create a new dictionary so all numpy functions and everything defined in varDict is available as a global during evaluation
+  File "<string>", line 1, in <module>
+NameError: name 'Fa' is not defined
+
+
+2014/03/26 23:34:13 MainThread cs_evaluate WARNING Could not eval string: Fal
+name 'Fal' is not defined
+Traceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\cs_evaluate.py", line 28, in evalWithDict
+    return eval(string,globals()) #,varDict.copy()) #dict(numpyDict.items()+varDict.items())) #create a new dictionary so all numpy functions and everything defined in varDict is available as a global during evaluation
+  File "<string>", line 1, in <module>
+NameError: name 'Fal' is not defined
+
+
+2014/03/26 23:34:13 MainThread cs_evaluate WARNING Could not eval string: Fals
+name 'Fals' is not defined
+Traceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\cs_evaluate.py", line 28, in evalWithDict
+    return eval(string,globals()) #,varDict.copy()) #dict(numpyDict.items()+varDict.items())) #create a new dictionary so all numpy functions and everything defined in varDict is available as a global during evaluation
+  File "<string>", line 1, in <module>
+NameError: name 'Fals' is not defined
+
+
+2014/03/26 23:39:27 MainThread cs_evaluate WARNING Could not eval string: as
+unexpected EOF while parsing (<string>, line 1)
+Traceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\cs_evaluate.py", line 28, in evalWithDict
+    return eval(string,globals()) #,varDict.copy()) #dict(numpyDict.items()+varDict.items())) #create a new dictionary so all numpy functions and everything defined in varDict is available as a global during evaluation
+  File "<string>", line 1
+    as
+     ^
+SyntaxError: unexpected EOF while parsing
+
+
+2014/03/26 23:39:27 MainThread cs_evaluate WARNING Could not eval string: asd
+name 'asd' is not defined
+Traceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\cs_evaluate.py", line 28, in evalWithDict
+    return eval(string,globals()) #,varDict.copy()) #dict(numpyDict.items()+varDict.items())) #create a new dictionary so all numpy functions and everything defined in varDict is available as a global during evaluation
+  File "<string>", line 1, in <module>
+NameError: name 'asd' is not defined
+
+
+2014/03/26 23:39:29 MainThread cs_evaluate WARNING Could not eval string: asd
+name 'asd' is not defined
+Traceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\cs_evaluate.py", line 28, in evalWithDict
+    return eval(string,globals()) #,varDict.copy()) #dict(numpyDict.items()+varDict.items())) #create a new dictionary so all numpy functions and everything defined in varDict is available as a global during evaluation
+  File "<string>", line 1, in <module>
+NameError: name 'asd' is not defined
+
+
+2014/03/26 23:39:29 MainThread cs_evaluate WARNING Could not eval string: asd
+name 'asd' is not defined
+Traceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\cs_evaluate.py", line 28, in evalWithDict
+    return eval(string,globals()) #,varDict.copy()) #dict(numpyDict.items()+varDict.items())) #create a new dictionary so all numpy functions and everything defined in varDict is available as a global during evaluation
+  File "<string>", line 1, in <module>
+NameError: name 'asd' is not defined
+
+
+2014/03/26 23:39:32 MainThread cs_evaluate WARNING Could not eval string: asd
+name 'asd' is not defined
+Traceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\cs_evaluate.py", line 28, in evalWithDict
+    return eval(string,globals()) #,varDict.copy()) #dict(numpyDict.items()+varDict.items())) #create a new dictionary so all numpy functions and everything defined in varDict is available as a global during evaluation
+  File "<string>", line 1, in <module>
+NameError: name 'asd' is not defined
+
+
+2014/03/26 23:39:32 MainThread cs_evaluate WARNING Could not eval string: asd
+name 'asd' is not defined
+Traceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\cs_evaluate.py", line 28, in evalWithDict
+    return eval(string,globals()) #,varDict.copy()) #dict(numpyDict.items()+varDict.items())) #create a new dictionary so all numpy functions and everything defined in varDict is available as a global during evaluation
+  File "<string>", line 1, in <module>
+NameError: name 'asd' is not defined
+
+
+2014/03/26 23:39:39 MainThread cs_evaluate WARNING Could not eval string: s
+name 's' is not defined
+Traceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\cs_evaluate.py", line 28, in evalWithDict
+    return eval(string,globals()) #,varDict.copy()) #dict(numpyDict.items()+varDict.items())) #create a new dictionary so all numpy functions and everything defined in varDict is available as a global during evaluation
+  File "<string>", line 1, in <module>
+NameError: name 's' is not defined
+
+
+2014/03/26 23:39:40 MainThread cs_evaluate WARNING Could not eval string: si
+name 'si' is not defined
+Traceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\cs_evaluate.py", line 28, in evalWithDict
+    return eval(string,globals()) #,varDict.copy()) #dict(numpyDict.items()+varDict.items())) #create a new dictionary so all numpy functions and everything defined in varDict is available as a global during evaluation
+  File "<string>", line 1, in <module>
+NameError: name 'si' is not defined
+
+
+2014/03/26 23:39:40 MainThread cs_evaluate WARNING Could not eval string: sii
+name 'sii' is not defined
+Traceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\cs_evaluate.py", line 28, in evalWithDict
+    return eval(string,globals()) #,varDict.copy()) #dict(numpyDict.items()+varDict.items())) #create a new dictionary so all numpy functions and everything defined in varDict is available as a global during evaluation
+  File "<string>", line 1, in <module>
+NameError: name 'sii' is not defined
+
+
+2014/03/26 23:39:40 MainThread cs_evaluate WARNING Could not eval string: siin
+name 'siin' is not defined
+Traceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\cs_evaluate.py", line 28, in evalWithDict
+    return eval(string,globals()) #,varDict.copy()) #dict(numpyDict.items()+varDict.items())) #create a new dictionary so all numpy functions and everything defined in varDict is available as a global during evaluation
+  File "<string>", line 1, in <module>
+NameError: name 'siin' is not defined
+
+
+2014/03/26 23:39:41 MainThread cs_evaluate WARNING Could not eval string: siin(
+unexpected EOF while parsing (<string>, line 1)
+Traceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\cs_evaluate.py", line 28, in evalWithDict
+    return eval(string,globals()) #,varDict.copy()) #dict(numpyDict.items()+varDict.items())) #create a new dictionary so all numpy functions and everything defined in varDict is available as a global during evaluation
+  File "<string>", line 1
+    siin(
+        ^
+SyntaxError: unexpected EOF while parsing
+
+
+2014/03/26 23:39:41 MainThread cs_evaluate WARNING Could not eval string: siin(x
+unexpected EOF while parsing (<string>, line 1)
+Traceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\cs_evaluate.py", line 28, in evalWithDict
+    return eval(string,globals()) #,varDict.copy()) #dict(numpyDict.items()+varDict.items())) #create a new dictionary so all numpy functions and everything defined in varDict is available as a global during evaluation
+  File "<string>", line 1
+    siin(x
+         ^
+SyntaxError: unexpected EOF while parsing
+
+
+2014/03/26 23:39:42 MainThread cs_evaluate WARNING Could not eval string: siin(x/
+unexpected EOF while parsing (<string>, line 1)
+Traceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\cs_evaluate.py", line 28, in evalWithDict
+    return eval(string,globals()) #,varDict.copy()) #dict(numpyDict.items()+varDict.items())) #create a new dictionary so all numpy functions and everything defined in varDict is available as a global during evaluation
+  File "<string>", line 1
+    siin(x/
+          ^
+SyntaxError: unexpected EOF while parsing
+
+
+2014/03/26 23:39:42 MainThread cs_evaluate WARNING Could not eval string: siin(x/9
+unexpected EOF while parsing (<string>, line 1)
+Traceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\cs_evaluate.py", line 28, in evalWithDict
+    return eval(string,globals()) #,varDict.copy()) #dict(numpyDict.items()+varDict.items())) #create a new dictionary so all numpy functions and everything defined in varDict is available as a global during evaluation
+  File "<string>", line 1
+    siin(x/9
+           ^
+SyntaxError: unexpected EOF while parsing
+
+
+2014/03/26 23:39:43 MainThread cs_evaluate WARNING Could not eval string: siin(x/9\
+unexpected character after line continuation character (<string>, line 1)
+Traceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\cs_evaluate.py", line 28, in evalWithDict
+    return eval(string,globals()) #,varDict.copy()) #dict(numpyDict.items()+varDict.items())) #create a new dictionary so all numpy functions and everything defined in varDict is available as a global during evaluation
+  File "<string>", line 1
+    siin(x/9\
+            ^
+SyntaxError: unexpected character after line continuation character
+
+
+2014/03/26 23:39:43 MainThread cs_evaluate WARNING Could not eval string: siin(x/9\\
+unexpected character after line continuation character (<string>, line 1)
+Traceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\cs_evaluate.py", line 28, in evalWithDict
+    return eval(string,globals()) #,varDict.copy()) #dict(numpyDict.items()+varDict.items())) #create a new dictionary so all numpy functions and everything defined in varDict is available as a global during evaluation
+  File "<string>", line 1
+    siin(x/9\\
+             ^
+SyntaxError: unexpected character after line continuation character
+
+
+2014/03/26 23:39:43 MainThread cs_evaluate WARNING Could not eval string: siin(x/9\
+unexpected character after line continuation character (<string>, line 1)
+Traceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\cs_evaluate.py", line 28, in evalWithDict
+    return eval(string,globals()) #,varDict.copy()) #dict(numpyDict.items()+varDict.items())) #create a new dictionary so all numpy functions and everything defined in varDict is available as a global during evaluation
+  File "<string>", line 1
+    siin(x/9\
+            ^
+SyntaxError: unexpected character after line continuation character
+
+
+2014/03/26 23:39:43 MainThread cs_evaluate WARNING Could not eval string: siin(x/9
+unexpected EOF while parsing (<string>, line 1)
+Traceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\cs_evaluate.py", line 28, in evalWithDict
+    return eval(string,globals()) #,varDict.copy()) #dict(numpyDict.items()+varDict.items())) #create a new dictionary so all numpy functions and everything defined in varDict is available as a global during evaluation
+  File "<string>", line 1
+    siin(x/9
+           ^
+SyntaxError: unexpected EOF while parsing
+
+
+2014/03/26 23:39:44 MainThread cs_evaluate WARNING Could not eval string: siin(x/
+unexpected EOF while parsing (<string>, line 1)
+Traceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\cs_evaluate.py", line 28, in evalWithDict
+    return eval(string,globals()) #,varDict.copy()) #dict(numpyDict.items()+varDict.items())) #create a new dictionary so all numpy functions and everything defined in varDict is available as a global during evaluation
+  File "<string>", line 1
+    siin(x/
+          ^
+SyntaxError: unexpected EOF while parsing
+
+
+2014/03/26 23:39:44 MainThread cs_evaluate WARNING Could not eval string: siin(x
+unexpected EOF while parsing (<string>, line 1)
+Traceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\cs_evaluate.py", line 28, in evalWithDict
+    return eval(string,globals()) #,varDict.copy()) #dict(numpyDict.items()+varDict.items())) #create a new dictionary so all numpy functions and everything defined in varDict is available as a global during evaluation
+  File "<string>", line 1
+    siin(x
+         ^
+SyntaxError: unexpected EOF while parsing
+
+
+2014/03/26 23:39:44 MainThread cs_evaluate WARNING Could not eval string: siin(x)
+name 'siin' is not defined
+Traceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\cs_evaluate.py", line 28, in evalWithDict
+    return eval(string,globals()) #,varDict.copy()) #dict(numpyDict.items()+varDict.items())) #create a new dictionary so all numpy functions and everything defined in varDict is available as a global during evaluation
+  File "<string>", line 1, in <module>
+NameError: name 'siin' is not defined
+
+
+2014/03/26 23:40:13 MainThread cs_evaluate WARNING Could not eval string: siin(x)
+name 'siin' is not defined
+Traceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\cs_evaluate.py", line 28, in evalWithDict
+    return eval(string,globals()) #,varDict.copy()) #dict(numpyDict.items()+varDict.items())) #create a new dictionary so all numpy functions and everything defined in varDict is available as a global during evaluation
+  File "<string>", line 1, in <module>
+NameError: name 'siin' is not defined
+
+
+2014/03/26 23:40:13 MainThread cs_evaluate WARNING Could not eval string: siin(x)
+name 'siin' is not defined
+Traceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\cs_evaluate.py", line 28, in evalWithDict
+    return eval(string,globals()) #,varDict.copy()) #dict(numpyDict.items()+varDict.items())) #create a new dictionary so all numpy functions and everything defined in varDict is available as a global during evaluation
+  File "<string>", line 1, in <module>
+NameError: name 'siin' is not defined
+
+
+2014/03/26 23:40:41 MainThread cs_evaluate WARNING Could not eval string: siin(x)
+name 'siin' is not defined
+Traceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\cs_evaluate.py", line 28, in evalWithDict
+    return eval(string,globals()) #,varDict.copy()) #dict(numpyDict.items()+varDict.items())) #create a new dictionary so all numpy functions and everything defined in varDict is available as a global during evaluation
+  File "<string>", line 1, in <module>
+NameError: name 'siin' is not defined
+
+
+2014/03/26 23:40:41 MainThread cs_evaluate WARNING Could not eval string: siin(x)
+name 'siin' is not defined
+Traceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\cs_evaluate.py", line 28, in evalWithDict
+    return eval(string,globals()) #,varDict.copy()) #dict(numpyDict.items()+varDict.items())) #create a new dictionary so all numpy functions and everything defined in varDict is available as a global during evaluation
+  File "<string>", line 1, in <module>
+NameError: name 'siin' is not defined
+
+
+2014/03/26 23:40:42 MainThread cs_evaluate WARNING Could not eval string: siin(x)
+name 'siin' is not defined
+Traceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\cs_evaluate.py", line 28, in evalWithDict
+    return eval(string,globals()) #,varDict.copy()) #dict(numpyDict.items()+varDict.items())) #create a new dictionary so all numpy functions and everything defined in varDict is available as a global during evaluation
+  File "<string>", line 1, in <module>
+NameError: name 'siin' is not defined
+
+
+2014/03/26 23:40:42 MainThread cs_evaluate WARNING Could not eval string: siin(x)
+name 'siin' is not defined
+Traceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\cs_evaluate.py", line 28, in evalWithDict
+    return eval(string,globals()) #,varDict.copy()) #dict(numpyDict.items()+varDict.items())) #create a new dictionary so all numpy functions and everything defined in varDict is available as a global during evaluation
+  File "<string>", line 1, in <module>
+NameError: name 'siin' is not defined
+
+
+2014/03/26 23:40:50 MainThread experiments DEBUG starting file load
+2014/03/26 23:40:52 MainThread instrument_property WARNING Prop.fromXML(): XML has tag: DAQmxPulse, but this is not in the LabView.properties list.  It will not be loaded.
+
+2014/03/26 23:40:52 MainThread experiments DEBUG ended file load
+2014/03/26 23:40:52 MainThread experiments DEBUG starting evaluateAll
+2014/03/26 23:40:54 MainThread experiments DEBUG ended evaluateAll
+2014/03/26 23:41:32 MainThread __main__ INFO starting application
+2014/03/26 23:42:51 MainThread experiments DEBUG starting file load
+2014/03/26 23:42:53 MainThread instrument_property WARNING Prop.fromXML(): XML has tag: DAQmxPulse, but this is not in the LabView.properties list.  It will not be loaded.
+
+2014/03/26 23:42:53 MainThread experiments DEBUG ended file load
+2014/03/26 23:42:53 MainThread experiments DEBUG starting evaluateAll
+2014/03/26 23:42:54 MainThread experiments DEBUG ended evaluateAll
+2014/03/26 23:43:33 MainThread __main__ INFO starting application
+2014/03/26 23:44:06 MainThread cs_evaluate WARNING Could not eval string: F
+name 'F' is not defined
+Traceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\cs_evaluate.py", line 28, in evalWithDict
+    return eval(string,globals()) #,varDict.copy()) #dict(numpyDict.items()+varDict.items())) #create a new dictionary so all numpy functions and everything defined in varDict is available as a global during evaluation
+  File "<string>", line 1, in <module>
+NameError: name 'F' is not defined
+
+
+2014/03/26 23:44:07 MainThread cs_evaluate WARNING Could not eval string: Fa
+name 'Fa' is not defined
+Traceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\cs_evaluate.py", line 28, in evalWithDict
+    return eval(string,globals()) #,varDict.copy()) #dict(numpyDict.items()+varDict.items())) #create a new dictionary so all numpy functions and everything defined in varDict is available as a global during evaluation
+  File "<string>", line 1, in <module>
+NameError: name 'Fa' is not defined
+
+
+2014/03/26 23:44:08 MainThread cs_evaluate WARNING Could not eval string: Fal
+name 'Fal' is not defined
+Traceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\cs_evaluate.py", line 28, in evalWithDict
+    return eval(string,globals()) #,varDict.copy()) #dict(numpyDict.items()+varDict.items())) #create a new dictionary so all numpy functions and everything defined in varDict is available as a global during evaluation
+  File "<string>", line 1, in <module>
+NameError: name 'Fal' is not defined
+
+
+2014/03/26 23:44:08 MainThread cs_evaluate WARNING Could not eval string: Fals
+name 'Fals' is not defined
+Traceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\cs_evaluate.py", line 28, in evalWithDict
+    return eval(string,globals()) #,varDict.copy()) #dict(numpyDict.items()+varDict.items())) #create a new dictionary so all numpy functions and everything defined in varDict is available as a global during evaluation
+  File "<string>", line 1, in <module>
+NameError: name 'Fals' is not defined
+
+
+2014/03/26 23:47:21 MainThread experiments DEBUG starting file load
+2014/03/26 23:47:23 MainThread instrument_property WARNING Prop.fromXML(): XML has tag: DAQmxPulse, but this is not in the LabView.properties list.  It will not be loaded.
+
+2014/03/26 23:47:23 MainThread experiments DEBUG ended file load
+2014/03/26 23:47:23 MainThread experiments DEBUG starting evaluateAll
+2014/03/26 23:47:25 MainThread experiments DEBUG ended evaluateAll
+2014/03/26 23:48:02 MainThread __main__ INFO starting application
+2014/03/26 23:51:07 MainThread cs_evaluate WARNING Could not eval string: F
+name 'F' is not defined
+Traceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\cs_evaluate.py", line 28, in evalWithDict
+    return eval(string,globals()) #,varDict.copy()) #dict(numpyDict.items()+varDict.items())) #create a new dictionary so all numpy functions and everything defined in varDict is available as a global during evaluation
+  File "<string>", line 1, in <module>
+NameError: name 'F' is not defined
+
+
+2014/03/26 23:51:07 MainThread cs_evaluate WARNING Could not eval string: Fa
+name 'Fa' is not defined
+Traceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\cs_evaluate.py", line 28, in evalWithDict
+    return eval(string,globals()) #,varDict.copy()) #dict(numpyDict.items()+varDict.items())) #create a new dictionary so all numpy functions and everything defined in varDict is available as a global during evaluation
+  File "<string>", line 1, in <module>
+NameError: name 'Fa' is not defined
+
+
+2014/03/26 23:51:07 MainThread cs_evaluate WARNING Could not eval string: Fal
+name 'Fal' is not defined
+Traceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\cs_evaluate.py", line 28, in evalWithDict
+    return eval(string,globals()) #,varDict.copy()) #dict(numpyDict.items()+varDict.items())) #create a new dictionary so all numpy functions and everything defined in varDict is available as a global during evaluation
+  File "<string>", line 1, in <module>
+NameError: name 'Fal' is not defined
+
+
+2014/03/26 23:51:07 MainThread cs_evaluate WARNING Could not eval string: Fals
+name 'Fals' is not defined
+Traceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\cs_evaluate.py", line 28, in evalWithDict
+    return eval(string,globals()) #,varDict.copy()) #dict(numpyDict.items()+varDict.items())) #create a new dictionary so all numpy functions and everything defined in varDict is available as a global during evaluation
+  File "<string>", line 1, in <module>
+NameError: name 'Fals' is not defined
+
+
+2014/03/26 23:51:47 MainThread experiments DEBUG starting file load
+2014/03/26 23:51:49 MainThread instrument_property WARNING Prop.fromXML(): XML has tag: DAQmxPulse, but this is not in the LabView.properties list.  It will not be loaded.
+
+2014/03/26 23:51:49 MainThread experiments DEBUG ended file load
+2014/03/26 23:51:49 MainThread experiments DEBUG starting evaluateAll
+2014/03/26 23:51:50 MainThread experiments DEBUG ended evaluateAll
+2014/03/26 23:52:28 MainThread __main__ INFO starting application
+2014/03/26 23:52:45 MainThread cs_evaluate WARNING Could not eval string: F
+name 'F' is not defined
+Traceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\cs_evaluate.py", line 28, in evalWithDict
+    return eval(string,globals()) #,varDict.copy()) #dict(numpyDict.items()+varDict.items())) #create a new dictionary so all numpy functions and everything defined in varDict is available as a global during evaluation
+  File "<string>", line 1, in <module>
+NameError: name 'F' is not defined
+
+
+2014/03/26 23:52:45 MainThread cs_evaluate WARNING Could not eval string: Fa
+name 'Fa' is not defined
+Traceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\cs_evaluate.py", line 28, in evalWithDict
+    return eval(string,globals()) #,varDict.copy()) #dict(numpyDict.items()+varDict.items())) #create a new dictionary so all numpy functions and everything defined in varDict is available as a global during evaluation
+  File "<string>", line 1, in <module>
+NameError: name 'Fa' is not defined
+
+
+2014/03/26 23:52:46 MainThread cs_evaluate WARNING Could not eval string: Fal
+name 'Fal' is not defined
+Traceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\cs_evaluate.py", line 28, in evalWithDict
+    return eval(string,globals()) #,varDict.copy()) #dict(numpyDict.items()+varDict.items())) #create a new dictionary so all numpy functions and everything defined in varDict is available as a global during evaluation
+  File "<string>", line 1, in <module>
+NameError: name 'Fal' is not defined
+
+
+2014/03/26 23:52:46 MainThread cs_evaluate WARNING Could not eval string: Fals
+name 'Fals' is not defined
+Traceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\cs_evaluate.py", line 28, in evalWithDict
+    return eval(string,globals()) #,varDict.copy()) #dict(numpyDict.items()+varDict.items())) #create a new dictionary so all numpy functions and everything defined in varDict is available as a global during evaluation
+  File "<string>", line 1, in <module>
+NameError: name 'Fals' is not defined
+
+

@@ -249,6 +249,12 @@ class Experiment(Prop):
         for i in self.instruments:
             i.evaluate() #each instrument will calculate its properties
     
+    def eval_general(self,string):
+        return cs_evaluate.evalWithDict(string,self.vars)
+    
+    def eval_bool(self,string):
+        return bool(self.eval_general(string))
+    
     def stop(self):
         '''Stops output as soon as possible.  This is not run during the course of a normal experiment.'''
         [i.__setattr__('isDone',True) for i in self.instruments]

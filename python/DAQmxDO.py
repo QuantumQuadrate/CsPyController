@@ -17,7 +17,6 @@ from atom.api import Typed, Member
 #from enthought.chaco.api import ArrayPlotData, Plot #for chaco plot
 from instrument_property import Prop, BoolProp, IntProp, FloatProp, StrProp, ListProp, EnumProp
 from digital_waveform import Waveform, NumpyChannels, NumpyWaveform
-import numpy
 
 #---- DAQmxDO properties ----
 
@@ -59,37 +58,13 @@ class DAQmxDO(Instrument):
         self.clockRate=FloatProp('clockRate',experiment,'samples/channel/sec','1000')
         self.units=FloatProp('units',experiment,'multiplier for timing values (milli=.001)','1')
         #self.waveform=Waveform('waveform',experiment,self)
-        self.channels=NumpyChannels(experiment)
-        self.waveform=NumpyWaveform('waveform',experiment,self,self.channels)
+        self.channels=NumpyChannels(experiment,self)
+        self.waveform=NumpyWaveform('waveform',experiment,self)
         #self.channels=Channels(experiment,self)
         self.startTrigger=StartTrigger(experiment)
-        self.properties+=['version','enable','resourceName','clockRate','units','waveform','channels','startTrigger']
+        self.properties+=['version','enable','resourceName','clockRate','units','channels','waveform','startTrigger']
         self.doNotSendToHardware+=['units','channels'] #waveform is handled specially in toHardware() and channels is used here but not sent to PXI
         
     def initialize(self):
         self.isInitialized=True
-        
-    def toHardware(self):
-        #create a zeros array of size (numTransitions,len(channels.array))
-        output=numpy.zeros((self.waveform.array['states'].shape[1],len(self.channels.array)),dtype=bool)
-        #for each line in the waveform
-        for i in self.waveform.array:
-            #if the channel is active
-            if self.channels.array[i['channel']]['value']:
-                #add it to the output array
-                x=i['states']
-                if x[0]==5:
-                    x[0]=0
-                for i,n in enumerate(x[1:]):
-                    if n==5:
-                        if i==0:
-                            x[i]=0
-                        else:
-                            x[i]=x[i-1]
-                
-            #else leave it as zeros
-            
-    
-        #make sure to include the usual properties
-        return super(DAQmxDO,self).toHardware()
         

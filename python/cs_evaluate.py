@@ -6,7 +6,7 @@
 
 from __future__ import division #always do float division
 
-from cs_errors import PauseError, setupLog
+from cs_errors import setupLog, PauseError
 logger=setupLog(__name__)
 
 import traceback
@@ -27,8 +27,9 @@ def evalWithDict(string,varDict={},errStr=''):
         try:
             return eval(string,globals()) #,varDict.copy()) #dict(numpyDict.items()+varDict.items())) #create a new dictionary so all numpy functions and everything defined in varDict is available as a global during evaluation
         except Exception as e:
-            logger.warning(errStr+'Could not eval string: '+string+'\n'+str(e)+str(traceback.format_exc())+'\n')
-            return None
+            logger.warning(errStr+'Could not eval string: '+string+'\n'+str(e)+'\n'+str(traceback.format_exc())+'\n')
+            #return None
+            raise PauseError
     return None
 
 def execWithDict(string,varDict={}):
@@ -41,3 +42,4 @@ def execWithDict(string,varDict={}):
             #varDict gets updated implicitly
         except Exception as e:
             logger.warning('\nCould not exec string: '+string+'\n'+str(e)+str(traceback.format_exc())+'\n')
+            raise PauseError

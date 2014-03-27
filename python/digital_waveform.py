@@ -294,9 +294,11 @@ class Waveform(Prop):
                 '</waveform>\n')
 
 class NumpyChannels(Numpy1DProp):
-    #this doesn't need to be sent to hardware.  It's used to calculate the waveform that will be sent
-    def __init__(self,experiment,description=''):
+    digitalout=Member()
+    
+    def __init__(self,experiment,digitalout,description=''):
         super(NumpyChannels,self).__init__('channels',experiment,description,dtype=[('description',object),('function',object),('value',bool)],hdf_dtype=[('description',h5py.special_dtype(vlen=str)),('function',h5py.special_dtype(vlen=str)),('value',bool)])
+        self.digitalout=digitalout
 
 class NumpyTransitions(Numpy1DProp):
     def __init__(self,experiment,description=''):
@@ -315,8 +317,8 @@ class NumpyWaveform(Prop):
     figure1=Typed(Figure)
     figure2=Typed(Figure)
     
-    channels=Member()
     waveforms=Member() #the parent
+    digitalout=Member() #the DAQmxDO or HSDIO
     channelList=Member() #holds the channel number for each column of sequence (not all channels need be present, they will be filled in as zeros)
     transitions=Member()
     sequence=Member()
@@ -326,10 +328,10 @@ class NumpyWaveform(Prop):
     stateList=Member()
     duration=Member()
     
-    def __init__(self,name,experiment,digitalout,channels,description='',waveforms=None):
+    def __init__(self,name,experiment,digitalout,description='',waveforms=None):
         super(NumpyWaveform,self).__init__(name,experiment,description)
         
-        self.channels=channels
+        self.digitalout=digitalout
         self.waveforms=waveforms
         self.channelList=numpy.zeros(0,dtype=numpy.uint8)
         self.transitions=NumpyTransitions(self.experiment)
@@ -362,7 +364,7 @@ class NumpyWaveform(Prop):
         if len(self.transitions.array)==0:
             self.isEmpty=True
             self.timeList=numpy.zeros(0,dtype='uint64')
-            self.stateList=numpy.zeros((0,len(self.channels.array)),dtype='uint8')
+            self.stateList=numpy.zeros((0,len(self.digitalout.channels.array)),dtype='uint8')
             self.duration=numpy.zeros(0,dtype='uint64')
         else:
             self.isEmpty=False
@@ -411,10 +413,12 @@ class NumpyWaveform(Prop):
                     i+=1 #if we deleted an item, the list position is advanced implicitly through the deletion of a prior element, and so we don't need to do this
             
             #add in zeros to all the channels that are not specified
-            fullStateList=numpy.zeros((len(timeList),len(self.channels.array)),dtype=numpy.uint8)
+            fullStateList=numpy.zeros((len(timeList),len(self.digitalout.channels.array)),dtype=numpy.uint8)
+            #go through each column of stateList, and put it in the right slot, according to channelList
             for i in range(len(self.channelList)):
-                #go through each column of stateList, and put it in the right slot, according to channelList
-                fullStateList[:,self.channelList[i]]=stateList[:,i]
+                #but only if that channel is active
+                if self.digitalout.channels.array[self.channelList[i]]['value']:
+                    fullStateList[:,self.channelList[i]]=stateList[:,i]
             
             # find the duration of each segment
             self.duration=timeList[1:]-timeList[:-1]
@@ -490,7 +494,7 @@ class NumpyWaveform(Prop):
                 label.set_rotation(90)
             
             ax.set_yticks(numpy.arange(numChannels)+0.5)
-            ax.set_yticklabels([self.digitalout.channels[i].description+(' : ' if self.digitalout.channels[i].description else ' ')+str(i) for i in range(numChannels)])
+            ax.set_yticklabels([self.digitalout.channels[i]['description']+(' : ' if self.digitalout.channels[i]['description'] else ' ')+str(i) for i in range(numChannels)])
         
             #make sure the tick labels have room
             fig.subplots_adjust(left=.2,right=.95,bottom=.2)
