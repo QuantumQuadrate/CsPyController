@@ -314,3 +314,10 @@ class SquareROIAnalysis(AnalysisWithFigure):
             ax=fig.add_subplot(n,1,i+1)
             #make the digital plot here
             ax.matshow(self.loadingArray[i])
+
+class OptimizerAnalysis(AnalysisWithFigure):
+    costfunction=Str('')
+    
+    def __init__(self,experiment):
+        super(OptimizerAnalysis,self).__init__('OptimizerAnalysis',experiment,'updates independent variables to minimize cost function')
+        

@@ -512,6 +512,7 @@ class Experiment(Prop):
         threading.Thread(target=self.save,args=(path)).start()
     
     def autosave(self):
+        logger.debug('Saving default HDF5...')
         #create file
         f=h5py.File('settings.hdf5','w')
         #recursively add all properties
@@ -524,21 +525,28 @@ class Experiment(Prop):
     def save(self,path):
         '''This function saves all the settings.'''
         
+        logger.debug('Saving...')        
+        
         #HDF5
         self.autosave().close()
         #copy to default location
+        logger.debug('Copying HDF5 to save path...')
         shutil.copy('settings.hdf5',path+'.hdf5')
         
         #XML
+        logger.debug('Creating XML...')
         x=self.toXML()
         #write to the chosen file
+        logger.debug('Writing XML to save path...')
         f=open(path+'.xml','w')
         f.write(x)
         f.close()
+        logger.debug('Writing default XML...')
         #write to the default file
         f=open('settings.xml','w')
         f.write(x)
         f.close()
+        logger.debug('... Save Complete.')
     
     def create_data_files(self):
         '''Create a new HDF5 file to store results.  This is done at the beginning of
@@ -682,6 +690,7 @@ class AQuA(Experiment):
     imageSumAnalysis=Member()
     squareROIAnalysis=Member()
     save2013Analysis=Member()
+    optimizer=Member(())
     
     
     def __init__(self):
@@ -697,11 +706,17 @@ class AQuA(Experiment):
         self.imageSumAnalysis=analysis.ImageSumAnalysis(self.experiment)
         self.squareROIAnalysis=analysis.SquareROIAnalysis(self.experiment)
         self.save2013Analysis=save2013style.Save2013Analysis(self.experiment)
+        self.optimizer=analysis.OptimizerAnalysis(self.experiment)
         self.analyses+=[self.shot0Analysis,self.shotBrowserAnalysis,self.imageSumAnalysis,self.squareROIAnalysis,self.save2013Analysis]
         
-        self.properties+=['LabView']
         
-        self.loadDefaultSettings()
+        self.properties+=['LabView']
+        try:
+            self.loadDefaultSettings()
+        except PauseError:
+            logger.warning('PauseError')
+        except Exception as e:
+            logger.warning('While trying Experiment.loadDefaultSettings in AQuA.__init__().\n'+str(e)+'\n'+str(traceback.format_exc())+'\n')
         
         #update variables
         try:
@@ -710,4 +725,6 @@ class AQuA(Experiment):
             logger.debug('ended evaluateAll')
         except PauseError:
             logger.warning('PauseError')
+        except Exception as e:
+            logger.warning('While trying Experiment.evaluateAll() on in AQuA.__init().\n'+str(e)+'\n'+str(traceback.format_exc())+'\n')
             

@@ -3,6 +3,7 @@ CsPyController notes:
 current question:
 
 TODO:
+    loading of only part of settings
     make it so that the TCP connection is labeled as uninitialized on an error
     replace other indexed Stacks with IndexedStack
     Add + Page to waveform notebooks, which is not closeable, and on showing, acts to open a new waveform.

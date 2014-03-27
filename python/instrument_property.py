@@ -78,7 +78,7 @@ class Prop(Atom):
                 try:
                     o.toHDF5(my_node)
                 except Exception as e:
-                    logger.warning('While trying '+p+'.toHDF5() in Prop.toHDF5() in '+name+'.\n'+str(e)+'\n')
+                    logger.warning('While trying '+p+'.toHDF5() in Prop.toHDF5() in '+name+'.\n'+str(e)+'\n'+str(traceback.format_exc())+'\n')
                     raise PauseError
             else:
             #try to save it as an attribute, then as a dataset.  If that fails, save its pickle
@@ -153,7 +153,7 @@ class Prop(Atom):
                             setattr(self,i,x)
                         except Exception as e:
                             logger.warning('in '+self.name+' in Prop.fromHDF5() while unpickling '+i+' in '+self.name+'\n'+str(e)+'\n')
-                    elif isInstance(h5py._hl.group.Group):
+                    elif isinstance(h5py._hl.group.Group):
                         logger.warning('Cannot load HDF5 Group '+i+' without an fromHDF5() method in '+self.name)
                     else:
                         logger.warning('Cannot load HDF5 node {} which is of type {} in {}.fromHDF5()'.format(i,type(i),self.name))        
@@ -659,8 +659,16 @@ class Numpy1DProp(Prop):
         self.array=numpy.delete(self.array,index,axis=0)
 
     def toHDF5(self,hdf):
-        x=hdf.create_dataset(self.name,len(self.array),dtype=self.hdf_dtype)
-        x[:]=self.array
+        print 'Numpy1DProp.toHDF5: self.array=',self.array
+        try:
+            x=hdf.create_dataset(self.name,len(self.array),dtype=self.hdf_dtype)
+        except Exception as e:
+            logger.warning('While trying to create dataset in Numpy1DProp.toHDF5() in '+self.name+'.\n'+str(e)+'\n'+str(traceback.format_exc())+'\n')
+            raise PauseError
+        try:
+            x[:]=self.array
+        except:
+            print 'fail 3'
         
     def fromHDF5(self,hdf):
         self.array=hdf.value

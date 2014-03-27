@@ -49,7 +49,7 @@ class Save2013Analysis(Analysis):
             #459 Raman Pulse	l0	0.000000	0.030000	11
             with open(os.path.join(self.experiment.path,'variables.txt'),'w') as f:
                 f.write('Description	Name (a,a0...a9)	min	max	# steps\n')
-                f.write('\n'.join(['{}\t{}\t{}\t{}'.format(i.description,i.name,numpy.amin(i.valueList),numpy.amax(i.valueList),i.steps) for i in self.experiment.indepenedentVariables]))
+                f.write('\n'.join(['{}\t{}\t{}\t{}'.format(i.description,i.name,numpy.amin(i.valueList),numpy.amax(i.valueList),i.steps) for i in self.experiment.independentVariables]))
                 f.write('\n')
             
             #begin Data Order Log.txt

@@ -3292,3 +3292,451 @@ description: multiplier for timing values (milli=.001)
 function: 1
 
 
+2014/03/27 12:48:06 MainThread experiments DEBUG starting file load
+2014/03/27 12:48:08 MainThread instrument_property WARNING Prop.fromXML(): XML has tag: DAQmxPulse, but this is not in the LabView.properties list.  It will not be loaded.
+
+2014/03/27 12:48:08 MainThread experiments DEBUG ended file load
+2014/03/27 12:48:08 MainThread experiments DEBUG starting evaluateAll
+2014/03/27 12:48:10 MainThread experiments DEBUG ended evaluateAll
+2014/03/27 12:48:48 MainThread __main__ INFO starting application
+2014/03/27 12:49:55 MainThread cs_evaluate WARNING evaluating property units, multiplier for timing values (milli=.001), 1
+Could not eval string: .
+unexpected EOF while parsing (<string>, line 1)
+Traceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\cs_evaluate.py", line 28, in evalWithDict
+    return eval(string,globals()) #,varDict.copy()) #dict(numpyDict.items()+varDict.items())) #create a new dictionary so all numpy functions and everything defined in varDict is available as a global during evaluation
+  File "<string>", line 1
+    .
+    ^
+SyntaxError: unexpected EOF while parsing
+
+
+2014/03/27 12:49:55 MainThread instrument_property WARNING Exception in EvalProp.evaluate() in units.
+description: multiplier for timing values (milli=.001)
+function: 1
+
+
+2014/03/27 12:52:31 MainThread instrument_property WARNING While trying channels.toHDF5() in Prop.toHDF5() in DAQmxDO.
+'int' object is not iterable
+
+2014/03/27 12:52:31 MainThread instrument_property WARNING While trying DAQmxDO.toHDF5() in Prop.toHDF5() in LabView.
+
+
+2014/03/27 12:52:31 MainThread instrument_property WARNING While trying LabView.toHDF5() in Prop.toHDF5() in experiment.
+
+
+2014/03/27 14:35:00 MainThread experiments DEBUG starting file load
+2014/03/27 14:35:02 MainThread instrument_property WARNING Prop.fromXML(): XML has tag: DAQmxPulse, but this is not in the LabView.properties list.  It will not be loaded.
+
+2014/03/27 14:35:02 MainThread experiments DEBUG ended file load
+2014/03/27 14:35:02 MainThread experiments DEBUG starting evaluateAll
+2014/03/27 14:35:03 MainThread experiments DEBUG ended evaluateAll
+2014/03/27 14:35:41 MainThread __main__ INFO starting application
+2014/03/27 14:37:27 MainThread experiments DEBUG starting file load
+2014/03/27 14:37:29 MainThread instrument_property WARNING Prop.fromXML(): XML has tag: DAQmxPulse, but this is not in the LabView.properties list.  It will not be loaded.
+
+2014/03/27 14:37:29 MainThread experiments DEBUG ended file load
+2014/03/27 14:37:29 MainThread experiments DEBUG starting evaluateAll
+2014/03/27 14:37:31 MainThread experiments DEBUG ended evaluateAll
+2014/03/27 14:38:09 MainThread __main__ INFO starting application
+2014/03/27 14:47:25 MainThread experiments DEBUG starting file load
+2014/03/27 14:58:07 MainThread experiments DEBUG starting file load
+2014/03/27 14:58:08 MainThread instrument_property WARNING Prop.fromXML(): XML has tag: DAQmxPulse, but this is not in the LabView.properties list.  It will not be loaded.
+
+2014/03/27 14:58:08 MainThread experiments DEBUG ended file load
+2014/03/27 14:58:08 MainThread experiments DEBUG starting evaluateAll
+2014/03/27 14:58:10 MainThread experiments DEBUG ended evaluateAll
+2014/03/27 14:58:49 MainThread __main__ INFO starting application
+2014/03/27 15:01:33 MainThread cs_evaluate WARNING evaluating property units, multiplier for timing values (milli=.001), 1
+Could not eval string: m
+name 'm' is not defined
+Traceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\cs_evaluate.py", line 28, in evalWithDict
+    return eval(string,globals()) #,varDict.copy()) #dict(numpyDict.items()+varDict.items())) #create a new dictionary so all numpy functions and everything defined in varDict is available as a global during evaluation
+  File "<string>", line 1, in <module>
+NameError: name 'm' is not defined
+
+
+2014/03/27 15:01:33 MainThread instrument_property WARNING Exception in EvalProp.evaluate() in units.
+description: multiplier for timing values (milli=.001)
+function: 1
+
+
+2014/03/27 15:01:33 MainThread cs_evaluate WARNING evaluating property units, multiplier for timing values (milli=.001), 1
+Could not eval string: mi
+name 'mi' is not defined
+Traceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\cs_evaluate.py", line 28, in evalWithDict
+    return eval(string,globals()) #,varDict.copy()) #dict(numpyDict.items()+varDict.items())) #create a new dictionary so all numpy functions and everything defined in varDict is available as a global during evaluation
+  File "<string>", line 1, in <module>
+NameError: name 'mi' is not defined
+
+
+2014/03/27 15:01:33 MainThread instrument_property WARNING Exception in EvalProp.evaluate() in units.
+description: multiplier for timing values (milli=.001)
+function: 1
+
+
+2014/03/27 15:01:33 MainThread cs_evaluate WARNING evaluating property units, multiplier for timing values (milli=.001), 1
+Could not eval string: mil
+name 'mil' is not defined
+Traceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\cs_evaluate.py", line 28, in evalWithDict
+    return eval(string,globals()) #,varDict.copy()) #dict(numpyDict.items()+varDict.items())) #create a new dictionary so all numpy functions and everything defined in varDict is available as a global during evaluation
+  File "<string>", line 1, in <module>
+NameError: name 'mil' is not defined
+
+
+2014/03/27 15:01:33 MainThread instrument_property WARNING Exception in EvalProp.evaluate() in units.
+description: multiplier for timing values (milli=.001)
+function: 1
+
+
+2014/03/27 15:01:34 MainThread cs_evaluate WARNING evaluating property units, multiplier for timing values (milli=.001), 1
+Could not eval string: mill
+name 'mill' is not defined
+Traceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\cs_evaluate.py", line 28, in evalWithDict
+    return eval(string,globals()) #,varDict.copy()) #dict(numpyDict.items()+varDict.items())) #create a new dictionary so all numpy functions and everything defined in varDict is available as a global during evaluation
+  File "<string>", line 1, in <module>
+NameError: name 'mill' is not defined
+
+
+2014/03/27 15:01:34 MainThread instrument_property WARNING Exception in EvalProp.evaluate() in units.
+description: multiplier for timing values (milli=.001)
+function: 1
+
+
+2014/03/27 15:01:48 MainThread experiments DEBUG Saving...
+2014/03/27 15:01:48 MainThread experiments DEBUG Saving default HDF5...
+2014/03/27 15:01:49 MainThread instrument_property WARNING While trying to create dataset in Numpy1DProp.toHDF5() in channels.
+'int' object is not iterable
+Traceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\instrument_property.py", line 664, in toHDF5
+    x=hdf.create_dataset(self.name,len(self.array),dtype=self.hdf_dtype)
+  File "C:\Users\Saffmanlab\AppData\Local\Enthought\Canopy\User\lib\site-packages\h5py\_hl\group.py", line 94, in create_dataset
+    dsid = dataset.make_new_dset(self, shape, dtype, data, **kwds)
+  File "C:\Users\Saffmanlab\AppData\Local\Enthought\Canopy\User\lib\site-packages\h5py\_hl\dataset.py", line 60, in make_new_dset
+    shape = tuple(shape)
+TypeError: 'int' object is not iterable
+
+
+2014/03/27 15:01:49 MainThread instrument_property WARNING While trying channels.toHDF5() in Prop.toHDF5() in DAQmxDO.
+
+Traceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\instrument_property.py", line 79, in toHDF5
+    o.toHDF5(my_node)
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\instrument_property.py", line 667, in toHDF5
+    raise PauseError
+PauseError
+
+
+2014/03/27 15:01:49 MainThread instrument_property WARNING While trying DAQmxDO.toHDF5() in Prop.toHDF5() in LabView.
+
+Traceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\instrument_property.py", line 79, in toHDF5
+    o.toHDF5(my_node)
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\instrument_property.py", line 82, in toHDF5
+    raise PauseError
+PauseError
+
+
+2014/03/27 15:01:49 MainThread instrument_property WARNING While trying LabView.toHDF5() in Prop.toHDF5() in experiment.
+
+Traceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\instrument_property.py", line 79, in toHDF5
+    o.toHDF5(my_node)
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\instrument_property.py", line 82, in toHDF5
+    raise PauseError
+PauseError
+
+
+2014/03/27 15:21:37 MainThread cs_evaluate WARNING evaluating property clockRate, samples/channel/sec, 20*mega
+Could not eval string: as
+unexpected EOF while parsing (<string>, line 1)
+Traceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\cs_evaluate.py", line 28, in evalWithDict
+    return eval(string,globals()) #,varDict.copy()) #dict(numpyDict.items()+varDict.items())) #create a new dictionary so all numpy functions and everything defined in varDict is available as a global during evaluation
+  File "<string>", line 1
+    as
+     ^
+SyntaxError: unexpected EOF while parsing
+
+
+2014/03/27 15:21:37 MainThread instrument_property WARNING Exception in EvalProp.evaluate() in clockRate.
+description: samples/channel/sec
+function: 20*mega
+
+
+2014/03/27 15:21:37 MainThread cs_evaluate WARNING evaluating property clockRate, samples/channel/sec, 20*mega
+Could not eval string: asd
+name 'asd' is not defined
+Traceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\cs_evaluate.py", line 28, in evalWithDict
+    return eval(string,globals()) #,varDict.copy()) #dict(numpyDict.items()+varDict.items())) #create a new dictionary so all numpy functions and everything defined in varDict is available as a global during evaluation
+  File "<string>", line 1, in <module>
+NameError: name 'asd' is not defined
+
+
+2014/03/27 15:21:37 MainThread instrument_property WARNING Exception in EvalProp.evaluate() in clockRate.
+description: samples/channel/sec
+function: 20*mega
+
+
+2014/03/27 15:21:37 MainThread cs_evaluate WARNING evaluating property clockRate, samples/channel/sec, 20*mega
+Could not eval string: asdf
+name 'asdf' is not defined
+Traceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\cs_evaluate.py", line 28, in evalWithDict
+    return eval(string,globals()) #,varDict.copy()) #dict(numpyDict.items()+varDict.items())) #create a new dictionary so all numpy functions and everything defined in varDict is available as a global during evaluation
+  File "<string>", line 1, in <module>
+NameError: name 'asdf' is not defined
+
+
+2014/03/27 15:21:37 MainThread instrument_property WARNING Exception in EvalProp.evaluate() in clockRate.
+description: samples/channel/sec
+function: 20*mega
+
+
+2014/03/27 15:21:45 MainThread cs_evaluate WARNING evaluating property clockRate, samples/channel/sec, 20*mega
+Could not eval string: asd
+name 'asd' is not defined
+Traceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\cs_evaluate.py", line 28, in evalWithDict
+    return eval(string,globals()) #,varDict.copy()) #dict(numpyDict.items()+varDict.items())) #create a new dictionary so all numpy functions and everything defined in varDict is available as a global during evaluation
+  File "<string>", line 1, in <module>
+NameError: name 'asd' is not defined
+
+
+2014/03/27 15:21:45 MainThread instrument_property WARNING Exception in EvalProp.evaluate() in clockRate.
+description: samples/channel/sec
+function: 20*mega
+
+
+2014/03/27 15:21:45 MainThread cs_evaluate WARNING evaluating property clockRate, samples/channel/sec, 20*mega
+Could not eval string: as
+unexpected EOF while parsing (<string>, line 1)
+Traceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\cs_evaluate.py", line 28, in evalWithDict
+    return eval(string,globals()) #,varDict.copy()) #dict(numpyDict.items()+varDict.items())) #create a new dictionary so all numpy functions and everything defined in varDict is available as a global during evaluation
+  File "<string>", line 1
+    as
+     ^
+SyntaxError: unexpected EOF while parsing
+
+
+2014/03/27 15:21:45 MainThread instrument_property WARNING Exception in EvalProp.evaluate() in clockRate.
+description: samples/channel/sec
+function: 20*mega
+
+
+2014/03/27 15:21:46 MainThread cs_evaluate WARNING evaluating property clockRate, samples/channel/sec, 20*mega
+Could not eval string: 20*
+unexpected EOF while parsing (<string>, line 1)
+Traceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\cs_evaluate.py", line 28, in evalWithDict
+    return eval(string,globals()) #,varDict.copy()) #dict(numpyDict.items()+varDict.items())) #create a new dictionary so all numpy functions and everything defined in varDict is available as a global during evaluation
+  File "<string>", line 1
+    20*
+      ^
+SyntaxError: unexpected EOF while parsing
+
+
+2014/03/27 15:21:46 MainThread instrument_property WARNING Exception in EvalProp.evaluate() in clockRate.
+description: samples/channel/sec
+function: 20*mega
+
+
+2014/03/27 15:21:47 MainThread cs_evaluate WARNING evaluating property clockRate, samples/channel/sec, 20*mega
+Could not eval string: 20*m
+name 'm' is not defined
+Traceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\cs_evaluate.py", line 28, in evalWithDict
+    return eval(string,globals()) #,varDict.copy()) #dict(numpyDict.items()+varDict.items())) #create a new dictionary so all numpy functions and everything defined in varDict is available as a global during evaluation
+  File "<string>", line 1, in <module>
+NameError: name 'm' is not defined
+
+
+2014/03/27 15:21:47 MainThread instrument_property WARNING Exception in EvalProp.evaluate() in clockRate.
+description: samples/channel/sec
+function: 20*mega
+
+
+2014/03/27 15:21:47 MainThread cs_evaluate WARNING evaluating property clockRate, samples/channel/sec, 20*mega
+Could not eval string: 20*me
+name 'me' is not defined
+Traceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\cs_evaluate.py", line 28, in evalWithDict
+    return eval(string,globals()) #,varDict.copy()) #dict(numpyDict.items()+varDict.items())) #create a new dictionary so all numpy functions and everything defined in varDict is available as a global during evaluation
+  File "<string>", line 1, in <module>
+NameError: name 'me' is not defined
+
+
+2014/03/27 15:21:47 MainThread instrument_property WARNING Exception in EvalProp.evaluate() in clockRate.
+description: samples/channel/sec
+function: 20*mega
+
+
+2014/03/27 15:21:47 MainThread cs_evaluate WARNING evaluating property clockRate, samples/channel/sec, 20*mega
+Could not eval string: 20*meg
+name 'meg' is not defined
+Traceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\cs_evaluate.py", line 28, in evalWithDict
+    return eval(string,globals()) #,varDict.copy()) #dict(numpyDict.items()+varDict.items())) #create a new dictionary so all numpy functions and everything defined in varDict is available as a global during evaluation
+  File "<string>", line 1, in <module>
+NameError: name 'meg' is not defined
+
+
+2014/03/27 15:21:47 MainThread instrument_property WARNING Exception in EvalProp.evaluate() in clockRate.
+description: samples/channel/sec
+function: 20*mega
+
+
+2014/03/27 15:21:48 MainThread cs_evaluate WARNING evaluating property clockRate, samples/channel/sec, 20*mega
+Could not eval string: 20*meg
+name 'meg' is not defined
+Traceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\cs_evaluate.py", line 28, in evalWithDict
+    return eval(string,globals()) #,varDict.copy()) #dict(numpyDict.items()+varDict.items())) #create a new dictionary so all numpy functions and everything defined in varDict is available as a global during evaluation
+  File "<string>", line 1, in <module>
+NameError: name 'meg' is not defined
+
+
+2014/03/27 15:21:48 MainThread instrument_property WARNING Exception in EvalProp.evaluate() in clockRate.
+description: samples/channel/sec
+function: 20*mega
+
+
+2014/03/27 15:21:48 MainThread cs_evaluate WARNING evaluating property clockRate, samples/channel/sec, 20*mega
+Could not eval string: 20*me
+name 'me' is not defined
+Traceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\cs_evaluate.py", line 28, in evalWithDict
+    return eval(string,globals()) #,varDict.copy()) #dict(numpyDict.items()+varDict.items())) #create a new dictionary so all numpy functions and everything defined in varDict is available as a global during evaluation
+  File "<string>", line 1, in <module>
+NameError: name 'me' is not defined
+
+
+2014/03/27 15:21:48 MainThread instrument_property WARNING Exception in EvalProp.evaluate() in clockRate.
+description: samples/channel/sec
+function: 20*mega
+
+
+2014/03/27 15:21:48 MainThread cs_evaluate WARNING evaluating property clockRate, samples/channel/sec, 20*mega
+Could not eval string: 20*m
+name 'm' is not defined
+Traceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\cs_evaluate.py", line 28, in evalWithDict
+    return eval(string,globals()) #,varDict.copy()) #dict(numpyDict.items()+varDict.items())) #create a new dictionary so all numpy functions and everything defined in varDict is available as a global during evaluation
+  File "<string>", line 1, in <module>
+NameError: name 'm' is not defined
+
+
+2014/03/27 15:21:48 MainThread instrument_property WARNING Exception in EvalProp.evaluate() in clockRate.
+description: samples/channel/sec
+function: 20*mega
+
+
+2014/03/27 15:21:50 MainThread cs_evaluate WARNING evaluating property clockRate, samples/channel/sec, 20*mega
+Could not eval string: 20*me
+name 'me' is not defined
+Traceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\cs_evaluate.py", line 28, in evalWithDict
+    return eval(string,globals()) #,varDict.copy()) #dict(numpyDict.items()+varDict.items())) #create a new dictionary so all numpy functions and everything defined in varDict is available as a global during evaluation
+  File "<string>", line 1, in <module>
+NameError: name 'me' is not defined
+
+
+2014/03/27 15:21:50 MainThread instrument_property WARNING Exception in EvalProp.evaluate() in clockRate.
+description: samples/channel/sec
+function: 20*mega
+
+
+2014/03/27 15:21:50 MainThread cs_evaluate WARNING evaluating property clockRate, samples/channel/sec, 20*mega
+Could not eval string: 20*meg
+name 'meg' is not defined
+Traceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\cs_evaluate.py", line 28, in evalWithDict
+    return eval(string,globals()) #,varDict.copy()) #dict(numpyDict.items()+varDict.items())) #create a new dictionary so all numpy functions and everything defined in varDict is available as a global during evaluation
+  File "<string>", line 1, in <module>
+NameError: name 'meg' is not defined
+
+
+2014/03/27 15:21:50 MainThread instrument_property WARNING Exception in EvalProp.evaluate() in clockRate.
+description: samples/channel/sec
+function: 20*mega
+
+
+2014/03/27 15:30:56 MainThread instrument_property WARNING TypeError while evaluating:
+property: channel
+description: 
+function: 5
+Attempt to assign 3 to EnumProp channel but the only allowed values are: [0, 1, 5]
+
+2014/03/27 15:33:37 MainThread cs_evaluate WARNING evaluating property channel, , 5
+Could not eval string: -
+unexpected EOF while parsing (<string>, line 1)
+Traceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\cs_evaluate.py", line 28, in evalWithDict
+    return eval(string,globals()) #,varDict.copy()) #dict(numpyDict.items()+varDict.items())) #create a new dictionary so all numpy functions and everything defined in varDict is available as a global during evaluation
+  File "<string>", line 1
+    -
+    ^
+SyntaxError: unexpected EOF while parsing
+
+
+2014/03/27 15:33:37 MainThread instrument_property WARNING Exception in EvalProp.evaluate() in channel.
+description: 
+function: 5
+
+
+2014/03/27 15:33:57 MainThread cs_evaluate WARNING evaluating property channel, , 5
+Could not eval string: -
+unexpected EOF while parsing (<string>, line 1)
+Traceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\cs_evaluate.py", line 28, in evalWithDict
+    return eval(string,globals()) #,varDict.copy()) #dict(numpyDict.items()+varDict.items())) #create a new dictionary so all numpy functions and everything defined in varDict is available as a global during evaluation
+  File "<string>", line 1
+    -
+    ^
+SyntaxError: unexpected EOF while parsing
+
+
+2014/03/27 15:33:57 MainThread instrument_property WARNING Exception in EvalProp.evaluate() in channel.
+description: 
+function: 5
+
+
+2014/03/27 15:33:57 MainThread cs_evaluate WARNING evaluating property channel, , 5
+Could not eval string: -
+unexpected EOF while parsing (<string>, line 1)
+Traceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\cs_evaluate.py", line 28, in evalWithDict
+    return eval(string,globals()) #,varDict.copy()) #dict(numpyDict.items()+varDict.items())) #create a new dictionary so all numpy functions and everything defined in varDict is available as a global during evaluation
+  File "<string>", line 1
+    -
+    ^
+SyntaxError: unexpected EOF while parsing
+
+
+2014/03/27 15:33:57 MainThread instrument_property WARNING Exception in EvalProp.evaluate() in channel.
+description: 
+function: 5
+
+
+2014/03/27 15:54:47 MainThread experiments DEBUG starting file load
+2014/03/27 15:55:46 MainThread experiments DEBUG starting file load
+2014/03/27 15:55:48 MainThread instrument_property WARNING Prop.fromXML(): XML has tag: DAQmxPulse, but this is not in the LabView.properties list.  It will not be loaded.
+
+2014/03/27 15:55:48 MainThread experiments DEBUG ended file load
+2014/03/27 15:55:48 MainThread experiments DEBUG starting evaluateAll
+2014/03/27 15:55:50 MainThread experiments DEBUG ended evaluateAll
+2014/03/27 15:56:28 MainThread __main__ INFO starting application
+2014/03/27 15:56:42 Thread-1 experiments DEBUG Finished create_data_files()
+2014/03/27 15:57:54 MainThread experiments DEBUG starting file load
+2014/03/27 15:57:56 MainThread instrument_property WARNING Prop.fromXML(): XML has tag: DAQmxPulse, but this is not in the LabView.properties list.  It will not be loaded.
+
+2014/03/27 15:57:56 MainThread experiments DEBUG ended file load
+2014/03/27 15:57:56 MainThread experiments DEBUG starting evaluateAll
+2014/03/27 15:57:57 MainThread experiments DEBUG ended evaluateAll
+2014/03/27 15:58:36 MainThread __main__ INFO starting application

@@ -23,7 +23,7 @@ p0
 .</pauseAfterError>
 <saveData>I01
 .</saveData>
-<save2013styleFiles>I00
+<save2013styleFiles>I01
 .</save2013styleFiles>
 <localDataPath>S'D:\\data'
 p0
@@ -31,44 +31,44 @@ p0
 <networkDataPath>S'Z:\\Public\\AQuA data\\2013 data'
 p0
 .</networkDataPath>
-<copyDataToNetwork>I00
+<copyDataToNetwork>I01
 .</copyDataToNetwork>
 <experimentDescriptionFilenameSuffix>S'test'
 p0
 .</experimentDescriptionFilenameSuffix>
 <measurementTimeout>F10.0
 .</measurementTimeout>
-<measurementsPerIteration>I20
+<measurementsPerIteration>I500
 .</measurementsPerIteration>
 <willSendEmail>I01
 .</willSendEmail>
 <emailAddresses>S'mlichtman@wisc.edu'
 p0
 .</emailAddresses>
-<progress>I100
+<progress>I2
 .</progress>
-<iteration>I1
+<iteration>I0
 .</iteration>
-<measurement>I0
+<measurement>I24
 .</measurement>
 <totalIterations>I1
 .</totalIterations>
-<timeStartedStr>S'2014-03-16 20:48:06'
+<timeStartedStr>S'2014-03-23 17:17:29'
 p0
 .</timeStartedStr>
-<currentTimeStr>S'2014-03-16 20:48:33'
+<currentTimeStr>S'2014-03-23 17:18:01'
 p0
 .</currentTimeStr>
-<timeElapsedStr>S'0:00:27.752000'
+<timeElapsedStr>S'0:00:32.218000'
 p0
 .</timeElapsedStr>
-<totalTimeStr>S'0:00:27.752000'
+<totalTimeStr>S'0:12:39.264994'
 p0
 .</totalTimeStr>
-<timeRemainingStr>S'0:00:00'
+<timeRemainingStr>S'0:12:07.046994'
 p0
 .</timeRemainingStr>
-<completionTimeStr>S'2014-03-16 20:48:33'
+<completionTimeStr>S'2014-03-23 17:30:08'
 p0
 .</completionTimeStr>
 <variableReportFormat>S"'''a is %(a)s.\nThe speed of light is %(c0)d\nbut some call it %(c0)e\nmicrowave raman time=%(microwave_Raman_time)e\n'''"
@@ -12667,7 +12667,7 @@ p0
 <script><description>S'HSDIO script that says what waveforms to generate'
 p0
 .</description>
-<function>S"'''script script1\n  compressedGenerate MOT_Loading\n  compressedGenerate PGC_1\n  compressedGenerate MOT_drop\n  compressedGenerate PreReadout\n  compressedGenerate Readout\n  compressedGenerate Camera_delay\n  compressedGenerate Readout\nend script'''"
+<function>S"'''script script1\n  compressedGenerate MOT_Loading\n  compressedGenerate PGC_1\n  compressedGenerate MOT_drop\n  compressedGenerate PreReadout\n  compressedGenerate Readout\n  compressedGenerate Camera_delay\n  compressedGenerate Readout\n  compressedGenerate idle\nend script'''"
 p0
 .</function>
 </script>
@@ -30018,7 +30018,7 @@ p0
 <saveAsPNG><description>S'save pictures as PNG'
 p0
 .</description>
-<function>S'False'
+<function>S'True'
 p0
 .</function>
 </saveAsPNG>
@@ -30201,7 +30201,7 @@ p0
 .</function>
 </shotsPerMeasurement>
 </camera>
-<cycleContinuously>I00
+<cycleContinuously>I01
 .</cycleContinuously>
 </LabView>
 </experiment>

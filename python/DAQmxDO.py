@@ -16,7 +16,7 @@ from cs_instruments import Instrument
 from atom.api import Typed, Member
 #from enthought.chaco.api import ArrayPlotData, Plot #for chaco plot
 from instrument_property import Prop, BoolProp, IntProp, FloatProp, StrProp, ListProp, EnumProp
-from digital_waveform import Waveform, NumpyChannels, NumpyWaveform
+from digital_waveform import NumpyChannels, NumpyWaveform
 
 #---- DAQmxDO properties ----
 
