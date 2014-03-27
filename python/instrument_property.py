@@ -649,7 +649,7 @@ class Numpy1DProp(Prop):
         super(Numpy1DProp,self).__init__(name,experiment,description)
         self.dtype=dtype
         self.hdf_dtype=hdf_dtype
-        self.array=numpy.zeros(0,dtype=self.dtype)
+        self.array=numpy.zeros(0,dtype=dtype)
         self.properties+=['array']
     
     def add(self,index):
@@ -670,10 +670,13 @@ class Numpy2DProp(Prop):
     dtype=Member()
     hdf_dtype=Member()
     
-    def __init__(self,name,experiment,description=''):
+    def __init__(self,name,experiment,description='',dtype=float,hdf_dtype=float):
         super(Numpy2DProp,self).__init__(name,experiment,description)
-        self.array=numpy.zeros((0,0),dtype=self.dtype)
-    
+        self.dtype=dtype
+        self.hdf_dtype=hdf_dtype
+        self.array=numpy.zeros((0,0),dtype=dtype)
+        self.properties+=['array']
+        
     def addRow(self,index):
         self.array=numpy.insert(self.array,index,numpy.zeros(self.array.shape[1],dtype=self.dtype),axis=0)
     

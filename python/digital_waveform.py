@@ -300,12 +300,12 @@ class NumpyChannels(Numpy1DProp):
 
 class NumpyTransitions(Numpy1DProp):
     def __init__(self,experiment,description=''):
-        super(NumpyChannels,self).__init__('transitions',experiment,description,dtype=[('description',object),('function',object),('value',numpy.float64)],hdf_dtype=[('description',h5py.special_dtype(vlen=str)),('function',h5py.special_dtype(vlen=str)),('value',numpy.float64)])
+        super(NumpyTransitions,self).__init__('transitions',experiment,description,dtype=[('description',object),('function',object),('value',numpy.float64)],hdf_dtype=[('description',h5py.special_dtype(vlen=str)),('function',h5py.special_dtype(vlen=str)),('value',numpy.float64)])
 
 class NumpySequence(Numpy2DProp):
     def __init__(self,experiment,description=''):
         #don't bother with descriptions for each cell
-        super(NumpyChannels,self).__init__('sequence',experiment,description,dtype=[('function',object),('value',numpy.uint8)],hdf_dtype=[('function',h5py.special_dtype(vlen=str)),('value',numpy.uint8)])
+        super(NumpySequence,self).__init__('sequence',experiment,description,dtype=[('function',object),('value',numpy.uint8)],hdf_dtype=[('function',h5py.special_dtype(vlen=str)),('value',numpy.uint8)])
 
 class NumpyWaveform(Prop):
     
@@ -315,6 +315,7 @@ class NumpyWaveform(Prop):
     figure1=Typed(Figure)
     figure2=Typed(Figure)
     
+    channels=Member()
     waveforms=Member() #the parent
     channelList=Member() #holds the channel number for each column of sequence (not all channels need be present, they will be filled in as zeros)
     transitions=Member()
@@ -326,7 +327,7 @@ class NumpyWaveform(Prop):
     duration=Member()
     
     def __init__(self,name,experiment,digitalout,channels,description='',waveforms=None):
-        super(Waveform,self).__init__(name,experiment,description)
+        super(NumpyWaveform,self).__init__(name,experiment,description)
         
         self.channels=channels
         self.waveforms=waveforms
@@ -342,7 +343,7 @@ class NumpyWaveform(Prop):
         self.figure=self.figure1
     
     def fromXML(self,xmlNode):
-        super(Waveform,self).fromXML(xmlNode)
+        super(NumpyWaveform,self).fromXML(xmlNode)
         self.updateFigure()
         return self
     
@@ -516,7 +517,7 @@ class NumpyWaveform(Prop):
             self.waveforms.remove(self) #remove ourselves from the master list, becoming subject to garbage collection
     
     def evaluate(self):
-        super(Waveform,self).evaluate()
+        super(NumpyWaveform,self).evaluate()
         self.updateFigure()
     
     def toHardware(self):

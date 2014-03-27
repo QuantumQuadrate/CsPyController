@@ -42,7 +42,7 @@ class DAQmxDO(Instrument):
     clockRate=Typed(FloatProp)
     units=Typed(FloatProp)
     hardwareAlignmentQuantum=Typed(IntProp)
-    waveform=Typed(Waveform)
+    waveform=Member()
     #channels=Typed(Channels)
     channels=Member()
     triggers=Typed(ListProp)

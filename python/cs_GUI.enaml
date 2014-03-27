@@ -45,6 +45,22 @@ def get_save_file_callback(experiment):
             experiment.save(dlg.path)
     return save_file_callback
 
+#TODO make these Fields have validation and able to process statements
+enamldef MyIntField(Field):
+    attr value
+    text << str(value)
+    text :: self.value = int(text)
+
+enamldef MyFloatField(Field):
+    attr value
+    text << str(value)
+    text :: self.value = float(text)
+
+enamldef MyBoolField(Field):
+    attr value
+    text << str(value)
+    text :: self.value = bool(text)
+
 enamldef IndexedStack(GroupBox): indexedStack:
     attr iterable=Typed(ListProp)
     attr viewType #=Class(StackItem)  #do we really have to declare what type? I suppose this was so that we would be okay with creating an instance
@@ -707,24 +723,41 @@ enamldef NumpyDOchannel(Container):
     Label: label:
         text=str(index)
     Field: description:
-        text:=channel.description
+        text:=channel['description']
         placeholder='description'
     Field: activeF:
-        text:=channel.active.function
+        text:=channel['function']
         placeholder='active?'
     Label: activeL:
-        text<<str(channel.active.value)
+        text<<str(channel['value'])
 
 enamldef NumpyDOchannels(GroupBox):
     attr channels
-    flat=True
     title='channels (#, description, active?)'
-    
+    hug_height='strong'
+    hug_width='strong'
+
+    SpinBox: spin0:
+        minimum=0
+        maximum<<len(channels.array)
+    PushButton: addButton:
+        text='+'
+        clicked::
+            channels.array=numpy.insert(channels.array,spin0.value,0,axis=0)
+    PushButton: removeButton:
+        text='-'
+        clicked::
+            channels.array=numpy.delete(channels.array,spin0.value,axis=0)
     Looper: looper:
-        iterable << channels
-        DOchannel:
+        iterable << channels.array
+        NumpyDOchannel:
             channel=loop_item
             index=loop_index
+###
+#       Container: dynoCont:
+#            constraints << [vbox(*dyno.objects)]
+#            Include: dyno:
+#                objects<<[SquareROI(item=x,num=i) for i,x in enumerate(analysis.ROIs)]
 
 enamldef NumpyWaveform(RemoveEventContainer): thisWaveformContainer:
     attr waveform
@@ -843,7 +876,7 @@ enamldef DAQmxDigitalOutPage(Page):
     
     Container:
         Container:
-                constraints=[vbox(hbox(vbox(p0,p1,p2,p3,p4),p5),p6)]
+                constraints=[vbox(hbox(vbox(p0,p1,p2,p3,p4),p5))]#,p6)]
                 hug_height='strong'
                 hug_width='strong'
                 EvalProp: p0:
@@ -856,10 +889,10 @@ enamldef DAQmxDigitalOutPage(Page):
                     prop<<DAQmx.units
                 StartTrigger: p4:
                     trigger<<DAQmx.startTrigger
-                Channels: p5:
+                NumpyDOchannels: p5:
                     channels<<DAQmx.channels
-                Waveform: p6:
-                    waveform<<DAQmx.waveform
+                #NumpyWaveform: p6:
+                #    waveform<<DAQmx.waveform
 
 enamldef DDS_profile(StackItem):
     attr profile
@@ -1480,16 +1513,6 @@ enamldef ShotsBrowserPage(Page):
             hug_width='ignore'
             figure<<analysis.figure
 
-enamldef MyIntField(Field):
-    attr value
-    text << str(value)
-    text :: self.value = int(text)
-
-enamldef MyFloatField(Field):
-    attr value
-    text << str(value)
-    text :: self.value = float(text)
-
 enamldef SquareROI(Container):
     attr item
     attr num
@@ -1537,7 +1560,7 @@ enamldef ROIPage(Page):
             clicked::
                 analysis.ROIs=numpy.delete(analysis.ROIs,spin0.value,axis=0)
         Container: dynoCont:
-            constraints << [vbox(*dyno.objects)]
+            #constraints << [vbox(*dyno.objects)]
             Include: dyno:
                 objects<<[SquareROI(item=x,num=i) for i,x in enumerate(analysis.ROIs)]
         MPLCanvas: canvas:
