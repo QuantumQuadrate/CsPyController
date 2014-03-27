@@ -30,7 +30,7 @@ import os #for file dialogs
 from sys import maxint
 import threading, datetime, time
 #from enthought.chaco.chaco_plot_editor import ChacoPlotItem
-import numpy
+import numpy, itertools
 from experiments import independentVariable
 from instrument_property import ListProp
 
@@ -859,28 +859,46 @@ enamldef NumpyState(Container):
             constraints = [width == 50,height==20]
             text<<str(state['value'])
 
+enamldef ChannelCombo(ComboBox):
+    attr channels
+    attr channelList
+    attr position
+
+    items<<[str(i)+' '+x for i,x in enumerate(channels.array['description'])]
+    index<<int(channelList[position])
+    index::
+        channelList[position]=numpy.uint8(index)
+
+enamldef TransitionsLabel(Container):
+    padding=0
+    Label:
+        constraints = [height == 20]
+        text='description'
+    Label:
+        constraints = [height == 20]
+        text='time'
+
 enamldef NumpyWaveform(Container):
     attr waveform
     
     hug_height='strong'
     hug_width='ignore'
-    constraints=[canvas.left==details.left,vertical(canvas,details)]
+    #constraints=[canvas.left==details.left,vertical(canvas,details)]
     
     #the following 7 lines are used for the matplotlib digital waveform plot 
     MPLCanvas: canvas:
         constraints=[(height==500)|'strong',(width==1500)|'strong']
-        #hug_width='ignore'
         figure << waveform.figure
-        #refresh<<waveform.refresh
     
     Container: details:
-        #constraints=[nameAndChannelNums.top==contents_top,transitions.top==contents_top,addButton.top==contents_top,nameAndChannelNums.left==contents_left,
-        #    nameAndChannelNums.right==transitions.left,transitions.right==addButton.left]
-        constraints=[vbox(timeControls,channelControls,hbox(nameAndChannelNums,transitions))]
+        constraints=[vbox(hbox(nameField,timeControls,channelControls),transitions)]
         hug_height='strong'
         hug_width='strong'
 
-        #time controls
+        Field: nameField:
+            constraints = [width == 150, height == 20]
+            text:=waveform.name
+
         Container: timeControls:
                 hug_height='strong'
                 hug_width='strong'
@@ -899,12 +917,11 @@ enamldef NumpyWaveform(Container):
                     clicked::
                         waveform.removeTransition(spin0.value)
 
-        #channel controls
         Container: channelControls:
                 hug_height='strong'
                 hug_width='strong'
                 constraints=[hbox(l1,spin1,addButton1,removeButton1)]
-                Label:
+                Label: l1:
                     text='channels'
                 SpinBox: spin1:
                     minimum=0
@@ -918,29 +935,17 @@ enamldef NumpyWaveform(Container):
                     clicked::
                         waveform.removeChannel(spin1.value)
 
-        Container: nameAndChannelNums:
-            padding=0
-            Field:
-                constraints = [width == 150, height == 20]
-                text:=waveform.name
-            Label:
-                constraints = [height == 20]
-                text='description'                
-            Label:
-                constraints = [height == 20]
-                text='time'
-            Looper:
-                iterable<<range(len(waveform.digitalout.channels.array))
-                Label:
-                    constraints=[height==20]
-                    text<<str(loop_index)+': '+waveform.digitalout.channels.array[loop_index]['description']
-        Container: transitions:
-            padding=0
-            constraints<<[grid([dyno.objects[i:i+n] for i in range(0, len(dyno.objects), len(waveform.digitalout.channels.array))],row_align='top')] if len(dyno.objects)>0 else []
-            #constraints<<[hbox(*dyno.objects)] if len(dyno.objects)>0 else []
-            Include: dyno:
-                objects<<[NumpyTransition(transition=t,experiment=waveform.experiment,digitalout=waveform.digitalout) for t in waveform.transitions.array]+[NumpyState(state=s,experiment=waveform.experiment,digitalout=waveform.digitalout) for s in waveform.sequence.array.T]
-                #objects<<[Transition(transition=i,waveform=waveform,waveformContainer=thisWaveformContainer) for i in waveform.sequence]
+#         Container: nameAndChannelNums:
+#             Container:
+#                 padding=0
+#                 constraints<<[vbox(*channelDyno.objects)] if len(channelDyno.objects)>0 else []
+#                 Include: channelDyno:
+#                     objects<<[ChannelCombo(channels=waveform.digitalout.channels,channelList=waveform.channelList,position=i) for i in waveform.channelList]
+
+        GroupBox: transitions:
+            constraints<<[grid(*[statesDyno.objects[i:(i+len(waveform.transitions.array)+1)] for i in range(0, len(statesDyno.objects), len(waveform.transitions.array)+1)],row_align='v_center')] if len(statesDyno.objects)>0 else []
+            Include: statesDyno:
+                objects<<[TransitionsLabel()]+[NumpyTransition(transition=t,experiment=waveform.experiment,digitalout=waveform.digitalout) for t in waveform.transitions.array]+(list(itertools.chain(*map(list,zip(*([[ChannelCombo(channels=waveform.digitalout.channels,channelList=waveform.channelList,position=i) for i in waveform.channelList]]+[[NumpyState(state=s,experiment=waveform.experiment,digitalout=waveform.digitalout) for s in waveform.sequence.array.flat][i:i+len(waveform.channelList)] for i in range(0,waveform.sequence.array.size,len(waveform.channelList))]))))) if (len(waveform.channelList)>0) else [])
 
 enamldef WaveformPage(Page):
     attr waveform
@@ -983,7 +988,7 @@ enamldef DAQmxDigitalOutPage(Page):
     
     Container:
         Container:
-                constraints=[vbox(hbox(vbox(p0,p1,p2,p3,p4),p5),p6)]
+                constraints=[vbox(p6,hbox(vbox(p0,p1,p2,p3,p4),p5))]
                 hug_height='strong'
                 hug_width='strong'
                 EvalProp: p0:

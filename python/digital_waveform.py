@@ -307,11 +307,20 @@ class NumpyTransitions(Numpy1DProp):
     def __init__(self,experiment,description=''):
         super(NumpyTransitions,self).__init__('transitions',experiment,description,dtype=[('description',object),('function',object),('value',numpy.float64)],hdf_dtype=[('description',h5py.special_dtype(vlen=str)),('function',h5py.special_dtype(vlen=str)),('value',numpy.float64)])
 
+    def add(self,index):
+        self.array=numpy.insert(self.array,index,numpy.array(('new','0',0),dtype=self.dtype),axis=0)
+
 class NumpySequence(Numpy2DProp):
     def __init__(self,experiment,description=''):
         #don't bother with descriptions for each cell
         super(NumpySequence,self).__init__('sequence',experiment,description,dtype=[('function',object),('value',numpy.uint8)],hdf_dtype=[('function',h5py.special_dtype(vlen=str)),('value',numpy.uint8)])
 
+    def addRow(self,index):
+        self.array=numpy.insert(self.array,index,numpy.array(('5',5),dtype=self.dtype),axis=0)
+    
+    def addColumn(self,index):
+        self.array=numpy.insert(self.array,index,numpy.array(('5',5),dtype=self.dtype),axis=1)
+        
 class NumpyWaveform(Prop):
     
     #MPL plot
@@ -363,7 +372,7 @@ class NumpyWaveform(Prop):
         self.evaluate()
     
     def addChannel(self,index):
-        self.channelList=numpy.insert(self.channelList,index,0,axis=0)
+        self.channelList=numpy.insert(self.channelList,index,index,axis=0) #insert the index number as the value at that position
         self.sequence.addColumn(index)
         self.evaluate()
     
@@ -507,7 +516,7 @@ class NumpyWaveform(Prop):
                 label.set_rotation(90)
             
             ax.set_yticks(numpy.arange(numChannels)+0.5)
-            ax.set_yticklabels([self.digitalout.channels[i]['description']+(' : ' if self.digitalout.channels[i]['description'] else ' ')+str(i) for i in range(numChannels)])
+            ax.set_yticklabels([x+(' : ' if x else ' ')+str(i) for i,x in enumerate(self.digitalout.channels.array['description'])])
         
             #make sure the tick labels have room
             fig.subplots_adjust(left=.2,right=.95,bottom=.2)

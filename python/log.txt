@@ -2813,3 +2813,482 @@ NameError: name 'Fals' is not defined
 2014/03/27 01:37:41 MainThread experiments DEBUG ended file load
 2014/03/27 01:37:41 MainThread experiments DEBUG starting evaluateAll
 2014/03/27 01:37:42 MainThread experiments DEBUG ended evaluateAll
+2014/03/27 01:39:27 MainThread experiments DEBUG starting file load
+2014/03/27 01:39:29 MainThread instrument_property WARNING Prop.fromXML(): XML has tag: DAQmxPulse, but this is not in the LabView.properties list.  It will not be loaded.
+
+2014/03/27 01:39:29 MainThread experiments DEBUG ended file load
+2014/03/27 01:39:29 MainThread experiments DEBUG starting evaluateAll
+2014/03/27 01:39:31 MainThread experiments DEBUG ended evaluateAll
+2014/03/27 01:40:09 MainThread __main__ INFO starting application
+2014/03/27 01:42:11 MainThread experiments DEBUG starting file load
+2014/03/27 01:42:13 MainThread instrument_property WARNING Prop.fromXML(): XML has tag: DAQmxPulse, but this is not in the LabView.properties list.  It will not be loaded.
+
+2014/03/27 01:42:13 MainThread experiments DEBUG ended file load
+2014/03/27 01:42:13 MainThread experiments DEBUG starting evaluateAll
+2014/03/27 01:42:15 MainThread experiments DEBUG ended evaluateAll
+2014/03/27 01:42:53 MainThread __main__ INFO starting application
+2014/03/27 01:52:18 MainThread experiments DEBUG starting file load
+2014/03/27 01:52:20 MainThread instrument_property WARNING Prop.fromXML(): XML has tag: DAQmxPulse, but this is not in the LabView.properties list.  It will not be loaded.
+
+2014/03/27 01:52:20 MainThread experiments DEBUG ended file load
+2014/03/27 01:52:20 MainThread experiments DEBUG starting evaluateAll
+2014/03/27 01:52:22 MainThread experiments DEBUG ended evaluateAll
+2014/03/27 01:53:00 MainThread __main__ INFO starting application
+2014/03/27 01:57:40 MainThread experiments DEBUG starting file load
+2014/03/27 01:57:42 MainThread instrument_property WARNING Prop.fromXML(): XML has tag: DAQmxPulse, but this is not in the LabView.properties list.  It will not be loaded.
+
+2014/03/27 01:57:42 MainThread experiments DEBUG ended file load
+2014/03/27 01:57:42 MainThread experiments DEBUG starting evaluateAll
+2014/03/27 01:57:43 MainThread experiments DEBUG ended evaluateAll
+2014/03/27 01:58:22 MainThread __main__ INFO starting application
+2014/03/27 02:02:55 MainThread experiments DEBUG starting file load
+2014/03/27 02:02:57 MainThread instrument_property WARNING Prop.fromXML(): XML has tag: DAQmxPulse, but this is not in the LabView.properties list.  It will not be loaded.
+
+2014/03/27 02:02:57 MainThread experiments DEBUG ended file load
+2014/03/27 02:02:57 MainThread experiments DEBUG starting evaluateAll
+2014/03/27 02:02:59 MainThread experiments DEBUG ended evaluateAll
+2014/03/27 02:03:37 MainThread __main__ INFO starting application
+2014/03/27 02:20:11 MainThread experiments DEBUG starting file load
+2014/03/27 02:20:13 MainThread instrument_property WARNING Prop.fromXML(): XML has tag: DAQmxPulse, but this is not in the LabView.properties list.  It will not be loaded.
+
+2014/03/27 02:20:13 MainThread experiments DEBUG ended file load
+2014/03/27 02:20:13 MainThread experiments DEBUG starting evaluateAll
+2014/03/27 02:20:14 MainThread experiments DEBUG ended evaluateAll
+2014/03/27 02:20:53 MainThread __main__ INFO starting application
+2014/03/27 02:22:14 MainThread experiments DEBUG starting file load
+2014/03/27 02:22:16 MainThread instrument_property WARNING Prop.fromXML(): XML has tag: DAQmxPulse, but this is not in the LabView.properties list.  It will not be loaded.
+
+2014/03/27 02:22:16 MainThread experiments DEBUG ended file load
+2014/03/27 02:22:16 MainThread experiments DEBUG starting evaluateAll
+2014/03/27 02:22:18 MainThread experiments DEBUG ended evaluateAll
+2014/03/27 02:22:56 MainThread __main__ INFO starting application
+2014/03/27 02:44:27 MainThread experiments DEBUG starting file load
+2014/03/27 02:44:29 MainThread instrument_property WARNING Prop.fromXML(): XML has tag: DAQmxPulse, but this is not in the LabView.properties list.  It will not be loaded.
+
+2014/03/27 02:44:29 MainThread experiments DEBUG ended file load
+2014/03/27 02:44:29 MainThread experiments DEBUG starting evaluateAll
+2014/03/27 02:44:30 MainThread experiments DEBUG ended evaluateAll
+2014/03/27 02:46:14 MainThread experiments DEBUG starting file load
+2014/03/27 02:46:16 MainThread instrument_property WARNING Prop.fromXML(): XML has tag: DAQmxPulse, but this is not in the LabView.properties list.  It will not be loaded.
+
+2014/03/27 02:46:16 MainThread experiments DEBUG ended file load
+2014/03/27 02:46:16 MainThread experiments DEBUG starting evaluateAll
+2014/03/27 02:46:17 MainThread experiments DEBUG ended evaluateAll
+2014/03/27 02:46:30 MainThread experiments DEBUG starting file load
+2014/03/27 02:46:32 MainThread instrument_property WARNING Prop.fromXML(): XML has tag: DAQmxPulse, but this is not in the LabView.properties list.  It will not be loaded.
+
+2014/03/27 02:46:32 MainThread experiments DEBUG ended file load
+2014/03/27 02:46:32 MainThread experiments DEBUG starting evaluateAll
+2014/03/27 02:46:34 MainThread experiments DEBUG ended evaluateAll
+2014/03/27 02:47:18 MainThread experiments DEBUG starting file load
+2014/03/27 02:47:20 MainThread instrument_property WARNING Prop.fromXML(): XML has tag: DAQmxPulse, but this is not in the LabView.properties list.  It will not be loaded.
+
+2014/03/27 02:47:20 MainThread experiments DEBUG ended file load
+2014/03/27 02:47:20 MainThread experiments DEBUG starting evaluateAll
+2014/03/27 02:47:22 MainThread experiments DEBUG ended evaluateAll
+2014/03/27 02:47:38 MainThread experiments DEBUG starting file load
+2014/03/27 02:47:40 MainThread instrument_property WARNING Prop.fromXML(): XML has tag: DAQmxPulse, but this is not in the LabView.properties list.  It will not be loaded.
+
+2014/03/27 02:47:40 MainThread experiments DEBUG ended file load
+2014/03/27 02:47:40 MainThread experiments DEBUG starting evaluateAll
+2014/03/27 02:47:42 MainThread experiments DEBUG ended evaluateAll
+2014/03/27 02:48:19 MainThread __main__ INFO starting application
+2014/03/27 02:49:35 MainThread experiments DEBUG starting file load
+2014/03/27 02:49:37 MainThread instrument_property WARNING Prop.fromXML(): XML has tag: DAQmxPulse, but this is not in the LabView.properties list.  It will not be loaded.
+
+2014/03/27 02:49:37 MainThread experiments DEBUG ended file load
+2014/03/27 02:49:37 MainThread experiments DEBUG starting evaluateAll
+2014/03/27 02:49:39 MainThread experiments DEBUG ended evaluateAll
+2014/03/27 02:50:17 MainThread __main__ INFO starting application
+2014/03/27 03:03:04 MainThread experiments DEBUG starting file load
+2014/03/27 03:03:06 MainThread instrument_property WARNING Prop.fromXML(): XML has tag: DAQmxPulse, but this is not in the LabView.properties list.  It will not be loaded.
+
+2014/03/27 03:03:06 MainThread experiments DEBUG ended file load
+2014/03/27 03:03:06 MainThread experiments DEBUG starting evaluateAll
+2014/03/27 03:03:08 MainThread experiments DEBUG ended evaluateAll
+2014/03/27 03:03:46 MainThread __main__ INFO starting application
+2014/03/27 03:09:18 MainThread experiments DEBUG starting file load
+2014/03/27 03:09:20 MainThread instrument_property WARNING Prop.fromXML(): XML has tag: DAQmxPulse, but this is not in the LabView.properties list.  It will not be loaded.
+
+2014/03/27 03:09:20 MainThread experiments DEBUG ended file load
+2014/03/27 03:09:20 MainThread experiments DEBUG starting evaluateAll
+2014/03/27 03:09:22 MainThread experiments DEBUG ended evaluateAll
+2014/03/27 03:09:59 MainThread __main__ INFO starting application
+2014/03/27 03:28:44 MainThread experiments DEBUG starting file load
+2014/03/27 03:28:45 MainThread instrument_property WARNING Prop.fromXML(): XML has tag: DAQmxPulse, but this is not in the LabView.properties list.  It will not be loaded.
+
+2014/03/27 03:28:45 MainThread experiments DEBUG ended file load
+2014/03/27 03:28:45 MainThread experiments DEBUG starting evaluateAll
+2014/03/27 03:28:47 MainThread experiments DEBUG ended evaluateAll
+2014/03/27 03:29:25 MainThread __main__ INFO starting application
+2014/03/27 03:33:00 MainThread experiments DEBUG starting file load
+2014/03/27 03:33:02 MainThread instrument_property WARNING Prop.fromXML(): XML has tag: DAQmxPulse, but this is not in the LabView.properties list.  It will not be loaded.
+
+2014/03/27 03:33:02 MainThread experiments DEBUG ended file load
+2014/03/27 03:33:02 MainThread experiments DEBUG starting evaluateAll
+2014/03/27 03:33:04 MainThread experiments DEBUG ended evaluateAll
+2014/03/27 03:33:41 MainThread __main__ INFO starting application
+2014/03/27 03:38:31 MainThread experiments DEBUG starting file load
+2014/03/27 03:38:33 MainThread instrument_property WARNING Prop.fromXML(): XML has tag: DAQmxPulse, but this is not in the LabView.properties list.  It will not be loaded.
+
+2014/03/27 03:38:33 MainThread experiments DEBUG ended file load
+2014/03/27 03:38:33 MainThread experiments DEBUG starting evaluateAll
+2014/03/27 03:38:34 MainThread experiments DEBUG ended evaluateAll
+2014/03/27 03:39:12 MainThread __main__ INFO starting application
+2014/03/27 03:41:30 MainThread cs_evaluate WARNING Could not eval string: .
+unexpected EOF while parsing (<string>, line 1)
+Traceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\cs_evaluate.py", line 28, in evalWithDict
+    return eval(string,globals()) #,varDict.copy()) #dict(numpyDict.items()+varDict.items())) #create a new dictionary so all numpy functions and everything defined in varDict is available as a global during evaluation
+  File "<string>", line 1
+    .
+    ^
+SyntaxError: unexpected EOF while parsing
+
+
+2014/03/27 03:41:52 MainThread cs_evaluate WARNING Could not eval string: as
+unexpected EOF while parsing (<string>, line 1)
+Traceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\cs_evaluate.py", line 28, in evalWithDict
+    return eval(string,globals()) #,varDict.copy()) #dict(numpyDict.items()+varDict.items())) #create a new dictionary so all numpy functions and everything defined in varDict is available as a global during evaluation
+  File "<string>", line 1
+    as
+     ^
+SyntaxError: unexpected EOF while parsing
+
+
+2014/03/27 03:41:52 MainThread cs_evaluate WARNING Could not eval string: asd
+name 'asd' is not defined
+Traceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\cs_evaluate.py", line 28, in evalWithDict
+    return eval(string,globals()) #,varDict.copy()) #dict(numpyDict.items()+varDict.items())) #create a new dictionary so all numpy functions and everything defined in varDict is available as a global during evaluation
+  File "<string>", line 1, in <module>
+NameError: name 'asd' is not defined
+
+
+2014/03/27 03:41:52 MainThread cs_evaluate WARNING Could not eval string: asdf
+name 'asdf' is not defined
+Traceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\cs_evaluate.py", line 28, in evalWithDict
+    return eval(string,globals()) #,varDict.copy()) #dict(numpyDict.items()+varDict.items())) #create a new dictionary so all numpy functions and everything defined in varDict is available as a global during evaluation
+  File "<string>", line 1, in <module>
+NameError: name 'asdf' is not defined
+
+
+2014/03/27 03:41:55 MainThread cs_evaluate WARNING Could not eval string: asdf
+name 'asdf' is not defined
+Traceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\cs_evaluate.py", line 28, in evalWithDict
+    return eval(string,globals()) #,varDict.copy()) #dict(numpyDict.items()+varDict.items())) #create a new dictionary so all numpy functions and everything defined in varDict is available as a global during evaluation
+  File "<string>", line 1, in <module>
+NameError: name 'asdf' is not defined
+
+
+2014/03/27 03:41:55 MainThread cs_evaluate WARNING Could not eval string: asdf
+name 'asdf' is not defined
+Traceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\cs_evaluate.py", line 28, in evalWithDict
+    return eval(string,globals()) #,varDict.copy()) #dict(numpyDict.items()+varDict.items())) #create a new dictionary so all numpy functions and everything defined in varDict is available as a global during evaluation
+  File "<string>", line 1, in <module>
+NameError: name 'asdf' is not defined
+
+
+2014/03/27 03:41:56 MainThread cs_evaluate WARNING Could not eval string: as
+unexpected EOF while parsing (<string>, line 1)
+Traceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\cs_evaluate.py", line 28, in evalWithDict
+    return eval(string,globals()) #,varDict.copy()) #dict(numpyDict.items()+varDict.items())) #create a new dictionary so all numpy functions and everything defined in varDict is available as a global during evaluation
+  File "<string>", line 1
+    as
+     ^
+SyntaxError: unexpected EOF while parsing
+
+
+2014/03/27 03:41:56 MainThread cs_evaluate WARNING Could not eval string: asd
+name 'asd' is not defined
+Traceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\cs_evaluate.py", line 28, in evalWithDict
+    return eval(string,globals()) #,varDict.copy()) #dict(numpyDict.items()+varDict.items())) #create a new dictionary so all numpy functions and everything defined in varDict is available as a global during evaluation
+  File "<string>", line 1, in <module>
+NameError: name 'asd' is not defined
+
+
+2014/03/27 03:41:58 MainThread cs_evaluate WARNING Could not eval string: .
+unexpected EOF while parsing (<string>, line 1)
+Traceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\cs_evaluate.py", line 28, in evalWithDict
+    return eval(string,globals()) #,varDict.copy()) #dict(numpyDict.items()+varDict.items())) #create a new dictionary so all numpy functions and everything defined in varDict is available as a global during evaluation
+  File "<string>", line 1
+    .
+    ^
+SyntaxError: unexpected EOF while parsing
+
+
+2014/03/27 03:41:59 MainThread cs_evaluate WARNING Could not eval string: .f
+invalid syntax (<string>, line 1)
+Traceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\cs_evaluate.py", line 28, in evalWithDict
+    return eval(string,globals()) #,varDict.copy()) #dict(numpyDict.items()+varDict.items())) #create a new dictionary so all numpy functions and everything defined in varDict is available as a global during evaluation
+  File "<string>", line 1
+    .f
+    ^
+SyntaxError: invalid syntax
+
+
+2014/03/27 03:42:01 MainThread cs_evaluate WARNING Could not eval string: .
+unexpected EOF while parsing (<string>, line 1)
+Traceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\cs_evaluate.py", line 28, in evalWithDict
+    return eval(string,globals()) #,varDict.copy()) #dict(numpyDict.items()+varDict.items())) #create a new dictionary so all numpy functions and everything defined in varDict is available as a global during evaluation
+  File "<string>", line 1
+    .
+    ^
+SyntaxError: unexpected EOF while parsing
+
+
+2014/03/27 03:44:00 MainThread experiments DEBUG starting file load
+2014/03/27 03:44:02 MainThread instrument_property WARNING Prop.fromXML(): XML has tag: DAQmxPulse, but this is not in the LabView.properties list.  It will not be loaded.
+
+2014/03/27 03:44:02 MainThread experiments DEBUG ended file load
+2014/03/27 03:44:02 MainThread experiments DEBUG starting evaluateAll
+2014/03/27 03:44:04 MainThread experiments DEBUG ended evaluateAll
+2014/03/27 03:44:42 MainThread __main__ INFO starting application
+2014/03/27 03:45:23 MainThread cs_evaluate WARNING Could not eval string: .
+unexpected EOF while parsing (<string>, line 1)
+Traceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\cs_evaluate.py", line 28, in evalWithDict
+    return eval(string,globals()) #,varDict.copy()) #dict(numpyDict.items()+varDict.items())) #create a new dictionary so all numpy functions and everything defined in varDict is available as a global during evaluation
+  File "<string>", line 1
+    .
+    ^
+SyntaxError: unexpected EOF while parsing
+
+
+2014/03/27 03:45:33 MainThread cs_evaluate WARNING Could not eval string: .
+unexpected EOF while parsing (<string>, line 1)
+Traceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\cs_evaluate.py", line 28, in evalWithDict
+    return eval(string,globals()) #,varDict.copy()) #dict(numpyDict.items()+varDict.items())) #create a new dictionary so all numpy functions and everything defined in varDict is available as a global during evaluation
+  File "<string>", line 1
+    .
+    ^
+SyntaxError: unexpected EOF while parsing
+
+
+2014/03/27 03:45:46 MainThread cs_evaluate WARNING Could not eval string: .
+unexpected EOF while parsing (<string>, line 1)
+Traceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\cs_evaluate.py", line 28, in evalWithDict
+    return eval(string,globals()) #,varDict.copy()) #dict(numpyDict.items()+varDict.items())) #create a new dictionary so all numpy functions and everything defined in varDict is available as a global during evaluation
+  File "<string>", line 1
+    .
+    ^
+SyntaxError: unexpected EOF while parsing
+
+
+2014/03/27 03:48:15 MainThread cs_evaluate WARNING Could not eval string: F
+name 'F' is not defined
+Traceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\cs_evaluate.py", line 28, in evalWithDict
+    return eval(string,globals()) #,varDict.copy()) #dict(numpyDict.items()+varDict.items())) #create a new dictionary so all numpy functions and everything defined in varDict is available as a global during evaluation
+  File "<string>", line 1, in <module>
+NameError: name 'F' is not defined
+
+
+2014/03/27 03:48:15 MainThread cs_evaluate WARNING Could not eval string: Fa
+name 'Fa' is not defined
+Traceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\cs_evaluate.py", line 28, in evalWithDict
+    return eval(string,globals()) #,varDict.copy()) #dict(numpyDict.items()+varDict.items())) #create a new dictionary so all numpy functions and everything defined in varDict is available as a global during evaluation
+  File "<string>", line 1, in <module>
+NameError: name 'Fa' is not defined
+
+
+2014/03/27 03:48:15 MainThread cs_evaluate WARNING Could not eval string: Fal
+name 'Fal' is not defined
+Traceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\cs_evaluate.py", line 28, in evalWithDict
+    return eval(string,globals()) #,varDict.copy()) #dict(numpyDict.items()+varDict.items())) #create a new dictionary so all numpy functions and everything defined in varDict is available as a global during evaluation
+  File "<string>", line 1, in <module>
+NameError: name 'Fal' is not defined
+
+
+2014/03/27 03:48:15 MainThread cs_evaluate WARNING Could not eval string: Fals
+name 'Fals' is not defined
+Traceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\cs_evaluate.py", line 28, in evalWithDict
+    return eval(string,globals()) #,varDict.copy()) #dict(numpyDict.items()+varDict.items())) #create a new dictionary so all numpy functions and everything defined in varDict is available as a global during evaluation
+  File "<string>", line 1, in <module>
+NameError: name 'Fals' is not defined
+
+
+2014/03/27 03:48:23 MainThread cs_evaluate WARNING Could not eval string: T
+name 'T' is not defined
+Traceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\cs_evaluate.py", line 28, in evalWithDict
+    return eval(string,globals()) #,varDict.copy()) #dict(numpyDict.items()+varDict.items())) #create a new dictionary so all numpy functions and everything defined in varDict is available as a global during evaluation
+  File "<string>", line 1, in <module>
+NameError: name 'T' is not defined
+
+
+2014/03/27 03:48:23 MainThread cs_evaluate WARNING Could not eval string: Tr
+name 'Tr' is not defined
+Traceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\cs_evaluate.py", line 28, in evalWithDict
+    return eval(string,globals()) #,varDict.copy()) #dict(numpyDict.items()+varDict.items())) #create a new dictionary so all numpy functions and everything defined in varDict is available as a global during evaluation
+  File "<string>", line 1, in <module>
+NameError: name 'Tr' is not defined
+
+
+2014/03/27 03:48:24 MainThread cs_evaluate WARNING Could not eval string: Tru
+name 'Tru' is not defined
+Traceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\cs_evaluate.py", line 28, in evalWithDict
+    return eval(string,globals()) #,varDict.copy()) #dict(numpyDict.items()+varDict.items())) #create a new dictionary so all numpy functions and everything defined in varDict is available as a global during evaluation
+  File "<string>", line 1, in <module>
+NameError: name 'Tru' is not defined
+
+
+2014/03/27 05:01:40 MainThread experiments DEBUG starting file load
+2014/03/27 05:01:42 MainThread instrument_property WARNING Prop.fromXML(): XML has tag: DAQmxPulse, but this is not in the LabView.properties list.  It will not be loaded.
+
+2014/03/27 05:01:42 MainThread experiments DEBUG ended file load
+2014/03/27 05:01:42 MainThread experiments DEBUG starting evaluateAll
+2014/03/27 05:01:43 MainThread experiments DEBUG ended evaluateAll
+2014/03/27 05:03:12 MainThread experiments DEBUG starting file load
+2014/03/27 05:03:14 MainThread instrument_property WARNING Prop.fromXML(): XML has tag: DAQmxPulse, but this is not in the LabView.properties list.  It will not be loaded.
+
+2014/03/27 05:03:14 MainThread experiments DEBUG ended file load
+2014/03/27 05:03:14 MainThread experiments DEBUG starting evaluateAll
+2014/03/27 05:03:15 MainThread experiments DEBUG ended evaluateAll
+2014/03/27 05:03:53 MainThread __main__ INFO starting application
+2014/03/27 05:05:49 MainThread cs_evaluate WARNING Could not eval string: F
+name 'F' is not defined
+Traceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\cs_evaluate.py", line 28, in evalWithDict
+    return eval(string,globals()) #,varDict.copy()) #dict(numpyDict.items()+varDict.items())) #create a new dictionary so all numpy functions and everything defined in varDict is available as a global during evaluation
+  File "<string>", line 1, in <module>
+NameError: name 'F' is not defined
+
+
+2014/03/27 05:05:49 MainThread cs_evaluate WARNING Could not eval string: Fa
+name 'Fa' is not defined
+Traceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\cs_evaluate.py", line 28, in evalWithDict
+    return eval(string,globals()) #,varDict.copy()) #dict(numpyDict.items()+varDict.items())) #create a new dictionary so all numpy functions and everything defined in varDict is available as a global during evaluation
+  File "<string>", line 1, in <module>
+NameError: name 'Fa' is not defined
+
+
+2014/03/27 05:05:49 MainThread cs_evaluate WARNING Could not eval string: Fal
+name 'Fal' is not defined
+Traceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\cs_evaluate.py", line 28, in evalWithDict
+    return eval(string,globals()) #,varDict.copy()) #dict(numpyDict.items()+varDict.items())) #create a new dictionary so all numpy functions and everything defined in varDict is available as a global during evaluation
+  File "<string>", line 1, in <module>
+NameError: name 'Fal' is not defined
+
+
+2014/03/27 05:05:49 MainThread cs_evaluate WARNING Could not eval string: Fals
+name 'Fals' is not defined
+Traceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\cs_evaluate.py", line 28, in evalWithDict
+    return eval(string,globals()) #,varDict.copy()) #dict(numpyDict.items()+varDict.items())) #create a new dictionary so all numpy functions and everything defined in varDict is available as a global during evaluation
+  File "<string>", line 1, in <module>
+NameError: name 'Fals' is not defined
+
+
+2014/03/27 05:05:54 MainThread cs_evaluate WARNING Could not eval string: T
+name 'T' is not defined
+Traceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\cs_evaluate.py", line 28, in evalWithDict
+    return eval(string,globals()) #,varDict.copy()) #dict(numpyDict.items()+varDict.items())) #create a new dictionary so all numpy functions and everything defined in varDict is available as a global during evaluation
+  File "<string>", line 1, in <module>
+NameError: name 'T' is not defined
+
+
+2014/03/27 05:05:54 MainThread cs_evaluate WARNING Could not eval string: Tr
+name 'Tr' is not defined
+Traceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\cs_evaluate.py", line 28, in evalWithDict
+    return eval(string,globals()) #,varDict.copy()) #dict(numpyDict.items()+varDict.items())) #create a new dictionary so all numpy functions and everything defined in varDict is available as a global during evaluation
+  File "<string>", line 1, in <module>
+NameError: name 'Tr' is not defined
+
+
+2014/03/27 05:05:54 MainThread cs_evaluate WARNING Could not eval string: Tru
+name 'Tru' is not defined
+Traceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\cs_evaluate.py", line 28, in evalWithDict
+    return eval(string,globals()) #,varDict.copy()) #dict(numpyDict.items()+varDict.items())) #create a new dictionary so all numpy functions and everything defined in varDict is available as a global during evaluation
+  File "<string>", line 1, in <module>
+NameError: name 'Tru' is not defined
+
+
+2014/03/27 05:07:31 MainThread cs_evaluate WARNING evaluating property units, multiplier for timing values (milli=.001), 1
+Could not eval string: .
+unexpected EOF while parsing (<string>, line 1)
+Traceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\cs_evaluate.py", line 28, in evalWithDict
+    return eval(string,globals()) #,varDict.copy()) #dict(numpyDict.items()+varDict.items())) #create a new dictionary so all numpy functions and everything defined in varDict is available as a global during evaluation
+  File "<string>", line 1
+    .
+    ^
+SyntaxError: unexpected EOF while parsing
+
+
+2014/03/27 05:07:31 MainThread instrument_property WARNING Exception in EvalProp.evaluate() in units.
+description: multiplier for timing values (milli=.001)
+function: 1
+
+
+2014/03/27 05:10:16 MainThread experiments DEBUG starting file load
+2014/03/27 05:10:18 MainThread instrument_property WARNING Prop.fromXML(): XML has tag: DAQmxPulse, but this is not in the LabView.properties list.  It will not be loaded.
+
+2014/03/27 05:10:18 MainThread experiments DEBUG ended file load
+2014/03/27 05:10:18 MainThread experiments DEBUG starting evaluateAll
+2014/03/27 05:10:19 MainThread experiments DEBUG ended evaluateAll
+2014/03/27 05:11:00 MainThread experiments DEBUG starting file load
+2014/03/27 05:11:02 MainThread instrument_property WARNING Prop.fromXML(): XML has tag: DAQmxPulse, but this is not in the LabView.properties list.  It will not be loaded.
+
+2014/03/27 05:11:02 MainThread experiments DEBUG ended file load
+2014/03/27 05:11:02 MainThread experiments DEBUG starting evaluateAll
+2014/03/27 05:11:04 MainThread experiments DEBUG ended evaluateAll
+2014/03/27 05:11:42 MainThread __main__ INFO starting application
+2014/03/27 05:13:39 MainThread experiments DEBUG starting file load
+2014/03/27 05:13:40 MainThread instrument_property WARNING Prop.fromXML(): XML has tag: DAQmxPulse, but this is not in the LabView.properties list.  It will not be loaded.
+
+2014/03/27 05:13:40 MainThread experiments DEBUG ended file load
+2014/03/27 05:13:40 MainThread experiments DEBUG starting evaluateAll
+2014/03/27 05:13:42 MainThread experiments DEBUG ended evaluateAll
+2014/03/27 05:14:08 MainThread experiments DEBUG starting file load
+2014/03/27 05:14:10 MainThread instrument_property WARNING Prop.fromXML(): XML has tag: DAQmxPulse, but this is not in the LabView.properties list.  It will not be loaded.
+
+2014/03/27 05:14:10 MainThread experiments DEBUG ended file load
+2014/03/27 05:14:10 MainThread experiments DEBUG starting evaluateAll
+2014/03/27 05:14:11 MainThread experiments DEBUG ended evaluateAll
+2014/03/27 05:14:50 MainThread __main__ INFO starting application
+2014/03/27 05:17:02 MainThread experiments DEBUG starting file load
+2014/03/27 05:17:04 MainThread instrument_property WARNING Prop.fromXML(): XML has tag: DAQmxPulse, but this is not in the LabView.properties list.  It will not be loaded.
+
+2014/03/27 05:17:04 MainThread experiments DEBUG ended file load
+2014/03/27 05:17:04 MainThread experiments DEBUG starting evaluateAll
+2014/03/27 05:17:06 MainThread experiments DEBUG ended evaluateAll
+2014/03/27 05:17:44 MainThread __main__ INFO starting application
+2014/03/27 05:19:11 MainThread cs_evaluate WARNING evaluating property units, multiplier for timing values (milli=.001), 1
+Could not eval string: .
+unexpected EOF while parsing (<string>, line 1)
+Traceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\cs_evaluate.py", line 28, in evalWithDict
+    return eval(string,globals()) #,varDict.copy()) #dict(numpyDict.items()+varDict.items())) #create a new dictionary so all numpy functions and everything defined in varDict is available as a global during evaluation
+  File "<string>", line 1
+    .
+    ^
+SyntaxError: unexpected EOF while parsing
+
+
+2014/03/27 05:19:11 MainThread instrument_property WARNING Exception in EvalProp.evaluate() in units.
+description: multiplier for timing values (milli=.001)
+function: 1
+
+
