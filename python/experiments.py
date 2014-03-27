@@ -255,6 +255,9 @@ class Experiment(Prop):
     def eval_bool(self,string):
         return bool(self.eval_general(string))
     
+    def eval_float(self,string):
+        return float(self.eval_general(string))
+    
     def stop(self):
         '''Stops output as soon as possible.  This is not run during the course of a normal experiment.'''
         [i.__setattr__('isDone',True) for i in self.instruments]

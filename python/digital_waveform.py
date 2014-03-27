@@ -300,6 +300,9 @@ class NumpyChannels(Numpy1DProp):
         super(NumpyChannels,self).__init__('channels',experiment,description,dtype=[('description',object),('function',object),('value',bool)],hdf_dtype=[('description',h5py.special_dtype(vlen=str)),('function',h5py.special_dtype(vlen=str)),('value',bool)])
         self.digitalout=digitalout
 
+    def add(self,index):
+        self.array=numpy.insert(self.array,index,numpy.array(('new','True',True),dtype=self.dtype),axis=0)
+
 class NumpyTransitions(Numpy1DProp):
     def __init__(self,experiment,description=''):
         super(NumpyTransitions,self).__init__('transitions',experiment,description,dtype=[('description',object),('function',object),('value',numpy.float64)],hdf_dtype=[('description',h5py.special_dtype(vlen=str)),('function',h5py.special_dtype(vlen=str)),('value',numpy.float64)])
@@ -354,9 +357,19 @@ class NumpyWaveform(Prop):
         self.sequence.addRow(index)
         self.evaluate()
     
+    def removeTransition(self,index):
+        self.transitions.remove(index)
+        self.sequence.removeRow(index)
+        self.evaluate()
+    
     def addChannel(self,index):
-        numpy.insert(self.channelList,index,0,axis=0)
+        self.channelList=numpy.insert(self.channelList,index,0,axis=0)
         self.sequence.addColumn(index)
+        self.evaluate()
+    
+    def removeChannel(self,index):
+        self.channelList=numpy.delete(self.channelList,index,axis=0)
+        self.sequence.removeColumn(index)
         self.evaluate()
     
     def fmt(self): #format is a python built-in so I did not want to use that as a function name

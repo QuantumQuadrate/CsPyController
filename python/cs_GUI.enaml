@@ -46,18 +46,53 @@ def get_save_file_callback(experiment):
             experiment.save(dlg.path)
     return save_file_callback
 
-class BoolValidator(Validator):
+class MyBoolValidator(Validator):
     experiment=Member()
 
     def __init__(self,experiment):
-        super(BoolValidator,self).__init__()
+        super(MyBoolValidator,self).__init__()
         self.experiment=experiment
 
-    def validate(self, text):
+    def validate(self,text):
         try:
             value = self.experiment.eval_bool(text)
         except:
             return False
+        return True
+
+class MyFloatValidator(Validator):
+    experiment=Member()
+
+    def __init__(self,experiment):
+        super(MyFloatValidator,self).__init__()
+        self.experiment=experiment
+
+    def validate(self,text):
+        try:
+            value = self.experiment.eval_float(text)
+        except:
+            return False
+        return True
+
+class MyEnumValidator(Validator):
+    experiment=Member()
+    allowedValues=Member()
+
+    def __init__(self,experiment,allowedValues):
+        super(MyEnumValidator,self).__init__()
+        self.experiment=experiment
+        self.allowedValues=allowedValues
+
+    def validate(self,text):
+        try:
+            value = self.experiment.eval_general(text)
+        #check for parsing errors
+        except:
+            return False
+        #check if the value is one of the ones allowed by this particular Enum
+        if value not in self.allowedValues:
+            return False
+        #if we've gotten this far, all tests have passed
         return True
 
 #TODO make these Fields have validation and able to process statements
@@ -747,7 +782,7 @@ enamldef NumpyDOchannel(Container):
     Field: activeF:
         text:=channel['function']
         placeholder='active?'
-        validator<<BoolValidator(experiment)
+        validator<<MyBoolValidator(experiment)
         text::
             channel['value']=experiment.eval_bool(text)
             activeL.text=str(channel['value']) #must be updated manually because the channel['value'] identity does not change
@@ -760,7 +795,7 @@ enamldef NumpyDOchannels(GroupBox):
     title='channels (#, description, active?)'
     hug_height='strong'
     hug_width='strong'
-    #constraints=[align('left',controls,dynoCont)]
+    #constraints=[controls.left==dynoCont.left]
     Container: controls:
         hug_height='strong'
         hug_width='strong'
@@ -771,27 +806,65 @@ enamldef NumpyDOchannels(GroupBox):
         PushButton: addButton:
             text='+'
             clicked::
-                channels.array=numpy.insert(channels.array,spin0.value,numpy.array(('new','True',True),dtype=channels.dtype),axis=0)
+                channels.add(spin0.value)
         PushButton: removeButton:
             text='-'
             clicked::
-                channels.array=numpy.delete(channels.array,spin0.value,axis=0)
+                channels.remove(spin0.value)
     Container: dynoCont:
         Include: dyno:
             objects<<[NumpyDOchannel(channel=x,index=i,digitalout=channels.digitalout,experiment=channels.experiment) for i,x in enumerate(channels.array)]
 
-enamldef NumpyWaveform(RemoveEventContainer): thisWaveformContainer:
+enamldef NumpyTransition(Container):
+    attr transition
+    attr experiment
+    attr digitalout
+
+    Field:
+        constraints = [height==20]
+        placeholder = 'description'
+        text:=transition['description']
+    Form:
+        padding=0
+        Field:
+            constraints = [width == 100,height==20]
+            placeholder='time'
+            text:=transition['function']
+            validator<<MyFloatValidator(experiment)
+            text::
+                transition['value']=experiment.eval_float(text)
+                valueLabel.text=str(transition['value']) #must be updated manually because transition['value'] identity does not change
+                digitalout.evaluate()
+        Label: valueLabel:
+            constraints = [width == 50,height==20]
+            text<<str(transition['value'])
+
+enamldef NumpyState(Container):
+    attr state
+    attr experiment
+    attr digitalout
+
+    Form:
+        padding=0
+        Field:
+            constraints = [width == 100,height==20]
+            placeholder='state: 0,1,5'
+            text:=state['function']
+            validator<<MyEnumValidator(experiment,[0,1,5])
+            text::
+                state['value']=experiment.eval_general(text)
+                valueLabel.text=str(state['value']) #must be updated manually because state['value'] identity does not change
+                digitalout.evaluate()
+        Label: valueLabel:
+            constraints = [width == 50,height==20]
+            text<<str(state['value'])
+
+enamldef NumpyWaveform(Container):
     attr waveform
-    attr itemToRemove
+    
     hug_height='strong'
     hug_width='ignore'
-    
     constraints=[canvas.left==details.left,vertical(canvas,details)]
-    
-    remove::
-        dyno.objects.remove(itemToRemove)
-        transitions.constraints=[hbox(*dyno.objects)] if len(dyno.objects)>0 else []
-        waveform.evaluate()
     
     #the following 7 lines are used for the matplotlib digital waveform plot 
     MPLCanvas: canvas:
@@ -803,43 +876,71 @@ enamldef NumpyWaveform(RemoveEventContainer): thisWaveformContainer:
     Container: details:
         #constraints=[nameAndChannelNums.top==contents_top,transitions.top==contents_top,addButton.top==contents_top,nameAndChannelNums.left==contents_left,
         #    nameAndChannelNums.right==transitions.left,transitions.right==addButton.left]
-        constraints=[hbox(nameAndChannelNums,transitions,addButton),addButton.top==transitions.top]
+        constraints=[vbox(timeControls,channelControls,hbox(nameAndChannelNums,transitions))]
         hug_height='strong'
         hug_width='strong'
+
+        #time controls
+        Container: timeControls:
+                hug_height='strong'
+                hug_width='strong'
+                constraints=[hbox(l0,spin0,addButton0,removeButton0)]
+                Label: l0:
+                    text='times'
+                SpinBox: spin0:
+                    minimum=0
+                    maximum<<len(waveform.transitions.array)
+                PushButton: addButton0:
+                    text='+'
+                    clicked::
+                        waveform.addTransition(spin0.value)
+                PushButton: removeButton0:
+                    text='-'
+                    clicked::
+                        waveform.removeTransition(spin0.value)
+
+        #channel controls
+        Container: channelControls:
+                hug_height='strong'
+                hug_width='strong'
+                constraints=[hbox(l1,spin1,addButton1,removeButton1)]
+                Label:
+                    text='channels'
+                SpinBox: spin1:
+                    minimum=0
+                    maximum<<len(waveform.channelList)
+                PushButton: addButton1:
+                    text='+'
+                    clicked::
+                        waveform.addChannel(spin1.value)
+                PushButton: removeButton1:
+                    text='-'
+                    clicked::
+                        waveform.removeChannel(spin1.value)
+
         Container: nameAndChannelNums:
-            #constraints=[vbox(f1,l1,loop1)]
             padding=0
-            Field: f1:
+            Field:
                 constraints = [width == 150, height == 20]
                 text:=waveform.name
             Label:
                 constraints = [height == 20]
                 text='description'                
-            Label: l1:
+            Label:
                 constraints = [height == 20]
                 text='time'
-            Looper: loop1:
-                iterable<<range(waveform.digitalout.numChannels)
+            Looper:
+                iterable<<range(len(waveform.digitalout.channels.array))
                 Label:
                     constraints=[height==20]
-                    text<<str(loop_index)+': '+waveform.experiment.LabView.HSDIO.channels[loop_index].description
+                    text<<str(loop_index)+': '+waveform.digitalout.channels.array[loop_index]['description']
         Container: transitions:
             padding=0
-            #constraints=gen_constraints(dyno.objects)
-            #constraints=[grid(dyno.objects,row_align='top')]
-            constraints=[hbox(*dyno.objects)] if len(dyno.objects)>0 else []
+            constraints<<[grid([dyno.objects[i:i+n] for i in range(0, len(dyno.objects), len(waveform.digitalout.channels.array))],row_align='top')] if len(dyno.objects)>0 else []
+            #constraints<<[hbox(*dyno.objects)] if len(dyno.objects)>0 else []
             Include: dyno:
-                objects=[Transition(transition=i,waveform=waveform,waveformContainer=thisWaveformContainer) for i in waveform.sequence]
-        PushButton: addButton:
-            #add a transition to this waveform
-            constraints = [width == 50, height == 20]
-            text='+'
-            clicked::
-                dyno.objects.append(Transition(transition=waveform.addTransition(),waveform=waveform,waveformContainer=thisWaveformContainer))
-                transitions.constraints=[hbox(*dyno.objects)] if len(dyno.objects)>0 else []
-                #transitions.constraints=[grid(dyno.objects,row_align='top')]
-                #transitions.constraints=gen_constraints(dyno.objects)
-                waveform.evaluate()
+                objects<<[NumpyTransition(transition=t,experiment=waveform.experiment,digitalout=waveform.digitalout) for t in waveform.transitions.array]+[NumpyState(state=s,experiment=waveform.experiment,digitalout=waveform.digitalout) for s in waveform.sequence.array.T]
+                #objects<<[Transition(transition=i,waveform=waveform,waveformContainer=thisWaveformContainer) for i in waveform.sequence]
 
 enamldef WaveformPage(Page):
     attr waveform
@@ -882,7 +983,7 @@ enamldef DAQmxDigitalOutPage(Page):
     
     Container:
         Container:
-                constraints=[vbox(hbox(vbox(p0,p1,p2,p3,p4),p5))]#,p6)]
+                constraints=[vbox(hbox(vbox(p0,p1,p2,p3,p4),p5),p6)]
                 hug_height='strong'
                 hug_width='strong'
                 EvalProp: p0:
@@ -897,8 +998,8 @@ enamldef DAQmxDigitalOutPage(Page):
                     trigger<<DAQmx.startTrigger
                 NumpyDOchannels: p5:
                     channels<<DAQmx.channels
-                #NumpyWaveform: p6:
-                #    waveform<<DAQmx.waveform
+                NumpyWaveform: p6:
+                    waveform<<DAQmx.waveform
 
 enamldef DDS_profile(StackItem):
     attr profile

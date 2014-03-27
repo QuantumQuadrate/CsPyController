@@ -2723,3 +2723,93 @@ Traceback (most recent call last):
 NameError: name 'Fals' is not defined
 
 
+2014/03/27 00:24:31 MainThread experiments DEBUG starting file load
+2014/03/27 00:24:33 MainThread instrument_property WARNING Prop.fromXML(): XML has tag: DAQmxPulse, but this is not in the LabView.properties list.  It will not be loaded.
+
+2014/03/27 00:24:33 MainThread experiments DEBUG ended file load
+2014/03/27 00:24:33 MainThread experiments DEBUG starting evaluateAll
+2014/03/27 00:24:34 MainThread experiments DEBUG ended evaluateAll
+2014/03/27 00:25:13 MainThread __main__ INFO starting application
+2014/03/27 00:25:55 MainThread experiments DEBUG starting file load
+2014/03/27 00:25:57 MainThread instrument_property WARNING Prop.fromXML(): XML has tag: DAQmxPulse, but this is not in the LabView.properties list.  It will not be loaded.
+
+2014/03/27 00:25:57 MainThread experiments DEBUG ended file load
+2014/03/27 00:25:57 MainThread experiments DEBUG starting evaluateAll
+2014/03/27 00:25:59 MainThread experiments DEBUG ended evaluateAll
+2014/03/27 00:26:37 MainThread __main__ INFO starting application
+2014/03/27 00:30:53 MainThread experiments DEBUG starting file load
+2014/03/27 00:30:54 MainThread instrument_property WARNING Prop.fromXML(): XML has tag: DAQmxPulse, but this is not in the LabView.properties list.  It will not be loaded.
+
+2014/03/27 00:30:54 MainThread experiments DEBUG ended file load
+2014/03/27 00:30:54 MainThread experiments DEBUG starting evaluateAll
+2014/03/27 00:30:56 MainThread experiments DEBUG ended evaluateAll
+2014/03/27 00:31:35 MainThread __main__ INFO starting application
+2014/03/27 00:31:43 MainThread cs_evaluate WARNING Could not eval string: F
+name 'F' is not defined
+Traceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\cs_evaluate.py", line 28, in evalWithDict
+    return eval(string,globals()) #,varDict.copy()) #dict(numpyDict.items()+varDict.items())) #create a new dictionary so all numpy functions and everything defined in varDict is available as a global during evaluation
+  File "<string>", line 1, in <module>
+NameError: name 'F' is not defined
+
+
+2014/03/27 00:31:43 MainThread cs_evaluate WARNING Could not eval string: Fa
+name 'Fa' is not defined
+Traceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\cs_evaluate.py", line 28, in evalWithDict
+    return eval(string,globals()) #,varDict.copy()) #dict(numpyDict.items()+varDict.items())) #create a new dictionary so all numpy functions and everything defined in varDict is available as a global during evaluation
+  File "<string>", line 1, in <module>
+NameError: name 'Fa' is not defined
+
+
+2014/03/27 00:31:43 MainThread cs_evaluate WARNING Could not eval string: Fal
+name 'Fal' is not defined
+Traceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\cs_evaluate.py", line 28, in evalWithDict
+    return eval(string,globals()) #,varDict.copy()) #dict(numpyDict.items()+varDict.items())) #create a new dictionary so all numpy functions and everything defined in varDict is available as a global during evaluation
+  File "<string>", line 1, in <module>
+NameError: name 'Fal' is not defined
+
+
+2014/03/27 00:31:44 MainThread cs_evaluate WARNING Could not eval string: Fals
+name 'Fals' is not defined
+Traceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\cs_evaluate.py", line 28, in evalWithDict
+    return eval(string,globals()) #,varDict.copy()) #dict(numpyDict.items()+varDict.items())) #create a new dictionary so all numpy functions and everything defined in varDict is available as a global during evaluation
+  File "<string>", line 1, in <module>
+NameError: name 'Fals' is not defined
+
+
+2014/03/27 01:25:02 MainThread experiments DEBUG starting file load
+2014/03/27 01:25:03 MainThread instrument_property WARNING Prop.fromXML(): XML has tag: DAQmxPulse, but this is not in the LabView.properties list.  It will not be loaded.
+
+2014/03/27 01:25:03 MainThread experiments DEBUG ended file load
+2014/03/27 01:25:03 MainThread experiments DEBUG starting evaluateAll
+2014/03/27 01:25:05 MainThread experiments DEBUG ended evaluateAll
+2014/03/27 01:25:42 MainThread experiments DEBUG starting file load
+2014/03/27 01:25:44 MainThread instrument_property WARNING Prop.fromXML(): XML has tag: DAQmxPulse, but this is not in the LabView.properties list.  It will not be loaded.
+
+2014/03/27 01:25:44 MainThread experiments DEBUG ended file load
+2014/03/27 01:25:44 MainThread experiments DEBUG starting evaluateAll
+2014/03/27 01:25:45 MainThread experiments DEBUG ended evaluateAll
+2014/03/27 01:26:24 MainThread __main__ INFO starting application
+2014/03/27 01:27:08 MainThread experiments DEBUG starting file load
+2014/03/27 01:27:10 MainThread instrument_property WARNING Prop.fromXML(): XML has tag: DAQmxPulse, but this is not in the LabView.properties list.  It will not be loaded.
+
+2014/03/27 01:27:10 MainThread experiments DEBUG ended file load
+2014/03/27 01:27:10 MainThread experiments DEBUG starting evaluateAll
+2014/03/27 01:27:11 MainThread experiments DEBUG ended evaluateAll
+2014/03/27 01:27:49 MainThread __main__ INFO starting application
+2014/03/27 01:33:09 MainThread experiments DEBUG starting file load
+2014/03/27 01:33:11 MainThread instrument_property WARNING Prop.fromXML(): XML has tag: DAQmxPulse, but this is not in the LabView.properties list.  It will not be loaded.
+
+2014/03/27 01:33:11 MainThread experiments DEBUG ended file load
+2014/03/27 01:33:11 MainThread experiments DEBUG starting evaluateAll
+2014/03/27 01:33:13 MainThread experiments DEBUG ended evaluateAll
+2014/03/27 01:33:50 MainThread __main__ INFO starting application
+2014/03/27 01:37:39 MainThread experiments DEBUG starting file load
+2014/03/27 01:37:41 MainThread instrument_property WARNING Prop.fromXML(): XML has tag: DAQmxPulse, but this is not in the LabView.properties list.  It will not be loaded.
+
+2014/03/27 01:37:41 MainThread experiments DEBUG ended file load
+2014/03/27 01:37:41 MainThread experiments DEBUG starting evaluateAll
+2014/03/27 01:37:42 MainThread experiments DEBUG ended evaluateAll
