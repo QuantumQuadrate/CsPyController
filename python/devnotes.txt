@@ -37,6 +37,7 @@ TODO:
     check analysis
     HSDIO start trigger
     copy to network
+    DAQmxDO grid generation is obtuse (simplify it)
     
 Done:
     make sure HSDIO script is always written AFTER waveforms
