@@ -3813,3 +3813,150 @@ function: 5
 2014/03/28 18:35:45 MainThread experiments DEBUG starting evaluateAll
 2014/03/28 18:35:47 MainThread experiments DEBUG ended evaluateAll
 2014/03/28 18:36:29 MainThread __main__ INFO starting application
+2014/03/31 14:23:21 MainThread experiments DEBUG starting file load
+2014/03/31 14:23:22 MainThread instrument_property WARNING Prop.fromXML(): XML has tag: DAQmxPulse, but this is not in the LabView.properties list.  It will not be loaded.
+
+2014/03/31 14:23:22 MainThread experiments DEBUG ended file load
+2014/03/31 14:23:22 MainThread experiments DEBUG starting evaluateAll
+2014/03/31 14:23:24 MainThread experiments DEBUG ended evaluateAll
+2014/03/31 14:24:07 MainThread __main__ INFO starting application
+2014/03/31 14:41:50 MainThread experiments DEBUG Saving...
+2014/03/31 14:41:50 MainThread experiments DEBUG Saving default HDF5...
+2014/03/31 14:41:51 MainThread instrument_property WARNING While trying to create dataset in Numpy1DProp.toHDF5() in channels.
+'int' object is not iterable
+Traceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\instrument_property.py", line 664, in toHDF5
+    x=hdf.create_dataset(self.name,len(self.array),dtype=self.hdf_dtype)
+  File "C:\Users\Saffmanlab\AppData\Local\Enthought\Canopy\User\lib\site-packages\h5py\_hl\group.py", line 94, in create_dataset
+    dsid = dataset.make_new_dset(self, shape, dtype, data, **kwds)
+  File "C:\Users\Saffmanlab\AppData\Local\Enthought\Canopy\User\lib\site-packages\h5py\_hl\dataset.py", line 60, in make_new_dset
+    shape = tuple(shape)
+TypeError: 'int' object is not iterable
+
+
+2014/03/31 14:41:51 MainThread instrument_property WARNING While trying channels.toHDF5() in Prop.toHDF5() in DAQmxDO.
+
+Traceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\instrument_property.py", line 79, in toHDF5
+    o.toHDF5(my_node)
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\instrument_property.py", line 667, in toHDF5
+    raise PauseError
+PauseError
+
+
+2014/03/31 14:41:51 MainThread instrument_property WARNING While trying DAQmxDO.toHDF5() in Prop.toHDF5() in LabView.
+
+Traceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\instrument_property.py", line 79, in toHDF5
+    o.toHDF5(my_node)
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\instrument_property.py", line 82, in toHDF5
+    raise PauseError
+PauseError
+
+
+2014/03/31 14:41:51 MainThread instrument_property WARNING While trying LabView.toHDF5() in Prop.toHDF5() in experiment.
+
+Traceback (most recent call last):
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\instrument_property.py", line 79, in toHDF5
+    o.toHDF5(my_node)
+  File "C:\Users\Saffmanlab\Documents\git\CsPyController\python\instrument_property.py", line 82, in toHDF5
+    raise PauseError
+PauseError
+
+
+2014/03/31 14:52:13 MainThread experiments DEBUG starting file load
+2014/03/31 14:52:15 MainThread instrument_property WARNING Prop.fromXML(): XML has tag: DAQmxPulse, but this is not in the LabView.properties list.  It will not be loaded.
+
+2014/03/31 14:52:15 MainThread experiments DEBUG ended file load
+2014/03/31 14:52:15 MainThread experiments DEBUG starting evaluateAll
+2014/03/31 14:52:17 MainThread experiments DEBUG ended evaluateAll
+2014/03/31 14:53:00 MainThread __main__ INFO starting application
+2014/03/31 14:55:39 MainThread experiments DEBUG starting file load
+2014/03/31 14:55:40 MainThread instrument_property WARNING Prop.fromXML(): XML has tag: DAQmxPulse, but this is not in the LabView.properties list.  It will not be loaded.
+
+2014/03/31 14:55:40 MainThread experiments DEBUG ended file load
+2014/03/31 14:55:40 MainThread experiments DEBUG starting evaluateAll
+2014/03/31 14:55:42 MainThread experiments DEBUG ended evaluateAll
+2014/03/31 14:56:25 MainThread __main__ INFO starting application
+2014/03/31 15:00:12 MainThread experiments DEBUG starting file load
+2014/03/31 15:00:14 MainThread instrument_property WARNING Prop.fromXML(): XML has tag: DAQmxPulse, but this is not in the LabView.properties list.  It will not be loaded.
+
+2014/03/31 15:00:14 MainThread experiments DEBUG ended file load
+2014/03/31 15:00:14 MainThread experiments DEBUG starting evaluateAll
+2014/03/31 15:00:15 MainThread experiments DEBUG ended evaluateAll
+2014/03/31 15:00:58 MainThread __main__ INFO starting application
+2014/03/31 15:08:17 MainThread experiments DEBUG starting file load
+2014/03/31 15:08:19 MainThread instrument_property WARNING Prop.fromXML(): XML has tag: DAQmxPulse, but this is not in the LabView.properties list.  It will not be loaded.
+
+2014/03/31 15:08:19 MainThread experiments DEBUG ended file load
+2014/03/31 15:08:19 MainThread experiments DEBUG starting evaluateAll
+2014/03/31 15:08:20 MainThread experiments DEBUG ended evaluateAll
+2014/03/31 15:08:48 MainThread experiments DEBUG starting file load
+2014/03/31 15:08:50 MainThread instrument_property WARNING Prop.fromXML(): XML has tag: DAQmxPulse, but this is not in the LabView.properties list.  It will not be loaded.
+
+2014/03/31 15:08:50 MainThread experiments DEBUG ended file load
+2014/03/31 15:08:50 MainThread experiments DEBUG starting evaluateAll
+2014/03/31 15:08:52 MainThread experiments DEBUG ended evaluateAll
+2014/03/31 15:09:34 MainThread __main__ INFO starting application
+2014/03/31 15:20:39 MainThread experiments DEBUG starting file load
+2014/03/31 15:20:41 MainThread instrument_property WARNING Prop.fromXML(): XML has tag: DAQmxPulse, but this is not in the LabView.properties list.  It will not be loaded.
+
+2014/03/31 15:20:41 MainThread experiments DEBUG ended file load
+2014/03/31 15:20:41 MainThread experiments DEBUG starting evaluateAll
+2014/03/31 15:20:43 MainThread experiments DEBUG ended evaluateAll
+2014/03/31 15:21:25 MainThread __main__ INFO starting application
+2014/03/31 15:22:50 MainThread experiments DEBUG starting file load
+2014/03/31 15:22:52 MainThread instrument_property WARNING Prop.fromXML(): XML has tag: DAQmxPulse, but this is not in the LabView.properties list.  It will not be loaded.
+
+2014/03/31 15:22:52 MainThread experiments DEBUG ended file load
+2014/03/31 15:22:52 MainThread experiments DEBUG starting evaluateAll
+2014/03/31 15:22:53 MainThread experiments DEBUG ended evaluateAll
+2014/03/31 15:23:36 MainThread __main__ INFO starting application
+2014/03/31 15:24:02 MainThread experiments DEBUG starting file load
+2014/03/31 15:24:04 MainThread instrument_property WARNING Prop.fromXML(): XML has tag: DAQmxPulse, but this is not in the LabView.properties list.  It will not be loaded.
+
+2014/03/31 15:24:04 MainThread experiments DEBUG ended file load
+2014/03/31 15:24:04 MainThread experiments DEBUG starting evaluateAll
+2014/03/31 15:24:06 MainThread experiments DEBUG ended evaluateAll
+2014/03/31 15:24:48 MainThread __main__ INFO starting application
+2014/03/31 15:25:21 MainThread experiments DEBUG starting file load
+2014/03/31 15:25:23 MainThread instrument_property WARNING Prop.fromXML(): XML has tag: DAQmxPulse, but this is not in the LabView.properties list.  It will not be loaded.
+
+2014/03/31 15:25:23 MainThread experiments DEBUG ended file load
+2014/03/31 15:25:23 MainThread experiments DEBUG starting evaluateAll
+2014/03/31 15:25:24 MainThread experiments DEBUG ended evaluateAll
+2014/03/31 15:26:06 MainThread __main__ INFO starting application
+2014/03/31 17:09:14 MainThread experiments DEBUG starting file load
+2014/03/31 17:09:15 MainThread instrument_property WARNING Prop.fromXML(): XML has tag: DAQmxPulse, but this is not in the LabView.properties list.  It will not be loaded.
+
+2014/03/31 17:09:15 MainThread experiments DEBUG ended file load
+2014/03/31 17:09:15 MainThread experiments DEBUG starting evaluateAll
+2014/03/31 17:09:17 MainThread experiments DEBUG ended evaluateAll
+2014/03/31 17:10:00 MainThread __main__ INFO starting application
+2014/03/31 17:12:27 MainThread experiments DEBUG starting file load
+2014/03/31 17:12:28 MainThread instrument_property WARNING Prop.fromXML(): XML has tag: DAQmxPulse, but this is not in the LabView.properties list.  It will not be loaded.
+
+2014/03/31 17:12:28 MainThread experiments DEBUG ended file load
+2014/03/31 17:12:28 MainThread experiments DEBUG starting evaluateAll
+2014/03/31 17:12:30 MainThread experiments DEBUG ended evaluateAll
+2014/03/31 17:13:13 MainThread __main__ INFO starting application
+2014/03/31 17:17:08 MainThread experiments DEBUG starting file load
+2014/03/31 17:17:09 MainThread instrument_property WARNING Prop.fromXML(): XML has tag: DAQmxPulse, but this is not in the LabView.properties list.  It will not be loaded.
+
+2014/03/31 17:17:09 MainThread experiments DEBUG ended file load
+2014/03/31 17:17:09 MainThread experiments DEBUG starting evaluateAll
+2014/03/31 17:17:11 MainThread experiments DEBUG ended evaluateAll
+2014/03/31 17:17:27 MainThread experiments DEBUG starting file load
+2014/03/31 17:17:28 MainThread instrument_property WARNING Prop.fromXML(): XML has tag: DAQmxPulse, but this is not in the LabView.properties list.  It will not be loaded.
+
+2014/03/31 17:17:28 MainThread experiments DEBUG ended file load
+2014/03/31 17:17:28 MainThread experiments DEBUG starting evaluateAll
+2014/03/31 17:17:30 MainThread experiments DEBUG ended evaluateAll
+2014/03/31 17:18:13 MainThread __main__ INFO starting application
+2014/03/31 17:19:31 MainThread experiments DEBUG starting file load
+2014/03/31 17:19:33 MainThread instrument_property WARNING Prop.fromXML(): XML has tag: DAQmxPulse, but this is not in the LabView.properties list.  It will not be loaded.
+
+2014/03/31 17:19:33 MainThread experiments DEBUG ended file load
+2014/03/31 17:19:33 MainThread experiments DEBUG starting evaluateAll
+2014/03/31 17:19:35 MainThread experiments DEBUG ended evaluateAll
+2014/03/31 17:20:17 MainThread __main__ INFO starting application
