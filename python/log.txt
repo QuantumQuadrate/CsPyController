@@ -3960,3 +3960,865 @@ PauseError
 2014/03/31 17:19:33 MainThread experiments DEBUG starting evaluateAll
 2014/03/31 17:19:35 MainThread experiments DEBUG ended evaluateAll
 2014/03/31 17:20:17 MainThread __main__ INFO starting application
+2014/04/02 13:26:40 MainThread experiments DEBUG starting file load
+2014/04/02 13:26:44 MainThread instrument_property WARNING Prop.fromXML(): XML has tag: DAQmxPulse, but this is not in the LabView.properties list.  It will not be loaded.
+
+2014/04/02 13:26:44 MainThread experiments DEBUG ended file load
+2014/04/02 13:26:44 MainThread experiments DEBUG starting evaluateAll
+2014/04/02 13:26:47 MainThread experiments DEBUG ended evaluateAll
+2014/04/02 13:27:57 MainThread __main__ INFO starting application
+2014/04/02 13:45:31 MainThread cs_evaluate WARNING Could not eval string: '
+EOL while scanning string literal (<string>, line 1)
+Traceback (most recent call last):
+  File "/Users/lichtman/Documents/UW-Madison/git/CsPyController/python/cs_evaluate.py", line 28, in evalWithDict
+    return eval(string,globals()) #,varDict.copy()) #dict(numpyDict.items()+varDict.items())) #create a new dictionary so all numpy functions and everything defined in varDict is available as a global during evaluation
+  File "<string>", line 1
+    '
+    ^
+SyntaxError: EOL while scanning string literal
+
+
+2014/04/02 13:45:31 MainThread cs_evaluate WARNING Could not eval string: '
+EOL while scanning string literal (<string>, line 1)
+Traceback (most recent call last):
+  File "/Users/lichtman/Documents/UW-Madison/git/CsPyController/python/cs_evaluate.py", line 28, in evalWithDict
+    return eval(string,globals()) #,varDict.copy()) #dict(numpyDict.items()+varDict.items())) #create a new dictionary so all numpy functions and everything defined in varDict is available as a global during evaluation
+  File "<string>", line 1
+    '
+    ^
+SyntaxError: EOL while scanning string literal
+
+
+2014/04/02 13:45:34 MainThread cs_evaluate WARNING Could not eval string: '
+EOL while scanning string literal (<string>, line 1)
+Traceback (most recent call last):
+  File "/Users/lichtman/Documents/UW-Madison/git/CsPyController/python/cs_evaluate.py", line 28, in evalWithDict
+    return eval(string,globals()) #,varDict.copy()) #dict(numpyDict.items()+varDict.items())) #create a new dictionary so all numpy functions and everything defined in varDict is available as a global during evaluation
+  File "<string>", line 1
+    '
+    ^
+SyntaxError: EOL while scanning string literal
+
+
+2014/04/02 13:45:34 MainThread cs_evaluate WARNING Could not eval string: '
+EOL while scanning string literal (<string>, line 1)
+Traceback (most recent call last):
+  File "/Users/lichtman/Documents/UW-Madison/git/CsPyController/python/cs_evaluate.py", line 28, in evalWithDict
+    return eval(string,globals()) #,varDict.copy()) #dict(numpyDict.items()+varDict.items())) #create a new dictionary so all numpy functions and everything defined in varDict is available as a global during evaluation
+  File "<string>", line 1
+    '
+    ^
+SyntaxError: EOL while scanning string literal
+
+
+2014/04/02 13:46:06 MainThread cs_evaluate WARNING Could not eval string: '
+EOL while scanning string literal (<string>, line 1)
+Traceback (most recent call last):
+  File "/Users/lichtman/Documents/UW-Madison/git/CsPyController/python/cs_evaluate.py", line 28, in evalWithDict
+    return eval(string,globals()) #,varDict.copy()) #dict(numpyDict.items()+varDict.items())) #create a new dictionary so all numpy functions and everything defined in varDict is available as a global during evaluation
+  File "<string>", line 1
+    '
+    ^
+SyntaxError: EOL while scanning string literal
+
+
+2014/04/02 13:46:06 MainThread cs_evaluate WARNING Could not eval string: '
+EOL while scanning string literal (<string>, line 1)
+Traceback (most recent call last):
+  File "/Users/lichtman/Documents/UW-Madison/git/CsPyController/python/cs_evaluate.py", line 28, in evalWithDict
+    return eval(string,globals()) #,varDict.copy()) #dict(numpyDict.items()+varDict.items())) #create a new dictionary so all numpy functions and everything defined in varDict is available as a global during evaluation
+  File "<string>", line 1
+    '
+    ^
+SyntaxError: EOL while scanning string literal
+
+
+2014/04/02 13:46:23 MainThread cs_evaluate WARNING Could not eval string: '
+EOL while scanning string literal (<string>, line 1)
+Traceback (most recent call last):
+  File "/Users/lichtman/Documents/UW-Madison/git/CsPyController/python/cs_evaluate.py", line 28, in evalWithDict
+    return eval(string,globals()) #,varDict.copy()) #dict(numpyDict.items()+varDict.items())) #create a new dictionary so all numpy functions and everything defined in varDict is available as a global during evaluation
+  File "<string>", line 1
+    '
+    ^
+SyntaxError: EOL while scanning string literal
+
+
+2014/04/02 13:46:23 MainThread cs_evaluate WARNING Could not eval string: '
+EOL while scanning string literal (<string>, line 1)
+Traceback (most recent call last):
+  File "/Users/lichtman/Documents/UW-Madison/git/CsPyController/python/cs_evaluate.py", line 28, in evalWithDict
+    return eval(string,globals()) #,varDict.copy()) #dict(numpyDict.items()+varDict.items())) #create a new dictionary so all numpy functions and everything defined in varDict is available as a global during evaluation
+  File "<string>", line 1
+    '
+    ^
+SyntaxError: EOL while scanning string literal
+
+
+2014/04/02 13:46:24 MainThread cs_evaluate WARNING Could not eval string: '
+EOL while scanning string literal (<string>, line 1)
+Traceback (most recent call last):
+  File "/Users/lichtman/Documents/UW-Madison/git/CsPyController/python/cs_evaluate.py", line 28, in evalWithDict
+    return eval(string,globals()) #,varDict.copy()) #dict(numpyDict.items()+varDict.items())) #create a new dictionary so all numpy functions and everything defined in varDict is available as a global during evaluation
+  File "<string>", line 1
+    '
+    ^
+SyntaxError: EOL while scanning string literal
+
+
+2014/04/02 13:46:24 MainThread cs_evaluate WARNING Could not eval string: '
+EOL while scanning string literal (<string>, line 1)
+Traceback (most recent call last):
+  File "/Users/lichtman/Documents/UW-Madison/git/CsPyController/python/cs_evaluate.py", line 28, in evalWithDict
+    return eval(string,globals()) #,varDict.copy()) #dict(numpyDict.items()+varDict.items())) #create a new dictionary so all numpy functions and everything defined in varDict is available as a global during evaluation
+  File "<string>", line 1
+    '
+    ^
+SyntaxError: EOL while scanning string literal
+
+
+2014/04/02 13:46:40 MainThread cs_evaluate WARNING Could not eval string: '
+EOL while scanning string literal (<string>, line 1)
+Traceback (most recent call last):
+  File "/Users/lichtman/Documents/UW-Madison/git/CsPyController/python/cs_evaluate.py", line 28, in evalWithDict
+    return eval(string,globals()) #,varDict.copy()) #dict(numpyDict.items()+varDict.items())) #create a new dictionary so all numpy functions and everything defined in varDict is available as a global during evaluation
+  File "<string>", line 1
+    '
+    ^
+SyntaxError: EOL while scanning string literal
+
+
+2014/04/02 13:46:40 MainThread cs_evaluate WARNING Could not eval string: '
+EOL while scanning string literal (<string>, line 1)
+Traceback (most recent call last):
+  File "/Users/lichtman/Documents/UW-Madison/git/CsPyController/python/cs_evaluate.py", line 28, in evalWithDict
+    return eval(string,globals()) #,varDict.copy()) #dict(numpyDict.items()+varDict.items())) #create a new dictionary so all numpy functions and everything defined in varDict is available as a global during evaluation
+  File "<string>", line 1
+    '
+    ^
+SyntaxError: EOL while scanning string literal
+
+
+2014/04/02 13:46:40 MainThread cs_evaluate WARNING Could not eval string: '0
+EOL while scanning string literal (<string>, line 1)
+Traceback (most recent call last):
+  File "/Users/lichtman/Documents/UW-Madison/git/CsPyController/python/cs_evaluate.py", line 28, in evalWithDict
+    return eval(string,globals()) #,varDict.copy()) #dict(numpyDict.items()+varDict.items())) #create a new dictionary so all numpy functions and everything defined in varDict is available as a global during evaluation
+  File "<string>", line 1
+    '0
+     ^
+SyntaxError: EOL while scanning string literal
+
+
+2014/04/02 13:46:40 MainThread cs_evaluate WARNING Could not eval string: '0
+EOL while scanning string literal (<string>, line 1)
+Traceback (most recent call last):
+  File "/Users/lichtman/Documents/UW-Madison/git/CsPyController/python/cs_evaluate.py", line 28, in evalWithDict
+    return eval(string,globals()) #,varDict.copy()) #dict(numpyDict.items()+varDict.items())) #create a new dictionary so all numpy functions and everything defined in varDict is available as a global during evaluation
+  File "<string>", line 1
+    '0
+     ^
+SyntaxError: EOL while scanning string literal
+
+
+2014/04/02 13:46:40 MainThread cs_evaluate WARNING Could not eval string: '0
+EOL while scanning string literal (<string>, line 1)
+Traceback (most recent call last):
+  File "/Users/lichtman/Documents/UW-Madison/git/CsPyController/python/cs_evaluate.py", line 28, in evalWithDict
+    return eval(string,globals()) #,varDict.copy()) #dict(numpyDict.items()+varDict.items())) #create a new dictionary so all numpy functions and everything defined in varDict is available as a global during evaluation
+  File "<string>", line 1
+    '0
+     ^
+SyntaxError: EOL while scanning string literal
+
+
+2014/04/02 13:46:40 MainThread cs_evaluate WARNING Could not eval string: '0
+EOL while scanning string literal (<string>, line 1)
+Traceback (most recent call last):
+  File "/Users/lichtman/Documents/UW-Madison/git/CsPyController/python/cs_evaluate.py", line 28, in evalWithDict
+    return eval(string,globals()) #,varDict.copy()) #dict(numpyDict.items()+varDict.items())) #create a new dictionary so all numpy functions and everything defined in varDict is available as a global during evaluation
+  File "<string>", line 1
+    '0
+     ^
+SyntaxError: EOL while scanning string literal
+
+
+2014/04/02 14:30:36 MainThread experiments DEBUG starting file load
+2014/04/02 14:30:40 MainThread instrument_property WARNING Prop.fromXML(): XML has tag: DAQmxPulse, but this is not in the LabView.properties list.  It will not be loaded.
+
+2014/04/02 14:30:40 MainThread experiments DEBUG ended file load
+2014/04/02 14:30:40 MainThread experiments DEBUG starting evaluateAll
+2014/04/02 14:30:44 MainThread experiments DEBUG ended evaluateAll
+2014/04/02 14:31:50 MainThread __main__ INFO starting application
+2014/04/02 14:32:24 MainThread cs_evaluate WARNING Could not eval string: '
+EOL while scanning string literal (<string>, line 1)
+Traceback (most recent call last):
+  File "/Users/lichtman/Documents/UW-Madison/git/CsPyController/python/cs_evaluate.py", line 28, in evalWithDict
+    return eval(string,globals()) #,varDict.copy()) #dict(numpyDict.items()+varDict.items())) #create a new dictionary so all numpy functions and everything defined in varDict is available as a global during evaluation
+  File "<string>", line 1
+    '
+    ^
+SyntaxError: EOL while scanning string literal
+
+
+2014/04/02 14:32:24 MainThread cs_evaluate WARNING Could not eval string: '
+EOL while scanning string literal (<string>, line 1)
+Traceback (most recent call last):
+  File "/Users/lichtman/Documents/UW-Madison/git/CsPyController/python/cs_evaluate.py", line 28, in evalWithDict
+    return eval(string,globals()) #,varDict.copy()) #dict(numpyDict.items()+varDict.items())) #create a new dictionary so all numpy functions and everything defined in varDict is available as a global during evaluation
+  File "<string>", line 1
+    '
+    ^
+SyntaxError: EOL while scanning string literal
+
+
+2014/04/02 14:32:40 MainThread cs_evaluate WARNING Could not eval string: '
+EOL while scanning string literal (<string>, line 1)
+Traceback (most recent call last):
+  File "/Users/lichtman/Documents/UW-Madison/git/CsPyController/python/cs_evaluate.py", line 28, in evalWithDict
+    return eval(string,globals()) #,varDict.copy()) #dict(numpyDict.items()+varDict.items())) #create a new dictionary so all numpy functions and everything defined in varDict is available as a global during evaluation
+  File "<string>", line 1
+    '
+    ^
+SyntaxError: EOL while scanning string literal
+
+
+2014/04/02 14:32:40 MainThread cs_evaluate WARNING Could not eval string: '
+EOL while scanning string literal (<string>, line 1)
+Traceback (most recent call last):
+  File "/Users/lichtman/Documents/UW-Madison/git/CsPyController/python/cs_evaluate.py", line 28, in evalWithDict
+    return eval(string,globals()) #,varDict.copy()) #dict(numpyDict.items()+varDict.items())) #create a new dictionary so all numpy functions and everything defined in varDict is available as a global during evaluation
+  File "<string>", line 1
+    '
+    ^
+SyntaxError: EOL while scanning string literal
+
+
+2014/04/02 14:32:42 MainThread cs_evaluate WARNING Could not eval string: '
+EOL while scanning string literal (<string>, line 1)
+Traceback (most recent call last):
+  File "/Users/lichtman/Documents/UW-Madison/git/CsPyController/python/cs_evaluate.py", line 28, in evalWithDict
+    return eval(string,globals()) #,varDict.copy()) #dict(numpyDict.items()+varDict.items())) #create a new dictionary so all numpy functions and everything defined in varDict is available as a global during evaluation
+  File "<string>", line 1
+    '
+    ^
+SyntaxError: EOL while scanning string literal
+
+
+2014/04/02 14:32:42 MainThread cs_evaluate WARNING Could not eval string: '
+EOL while scanning string literal (<string>, line 1)
+Traceback (most recent call last):
+  File "/Users/lichtman/Documents/UW-Madison/git/CsPyController/python/cs_evaluate.py", line 28, in evalWithDict
+    return eval(string,globals()) #,varDict.copy()) #dict(numpyDict.items()+varDict.items())) #create a new dictionary so all numpy functions and everything defined in varDict is available as a global during evaluation
+  File "<string>", line 1
+    '
+    ^
+SyntaxError: EOL while scanning string literal
+
+
+2014/04/02 14:32:42 MainThread cs_evaluate WARNING Could not eval string: '.
+EOL while scanning string literal (<string>, line 1)
+Traceback (most recent call last):
+  File "/Users/lichtman/Documents/UW-Madison/git/CsPyController/python/cs_evaluate.py", line 28, in evalWithDict
+    return eval(string,globals()) #,varDict.copy()) #dict(numpyDict.items()+varDict.items())) #create a new dictionary so all numpy functions and everything defined in varDict is available as a global during evaluation
+  File "<string>", line 1
+    '.
+     ^
+SyntaxError: EOL while scanning string literal
+
+
+2014/04/02 14:32:42 MainThread cs_evaluate WARNING Could not eval string: '.
+EOL while scanning string literal (<string>, line 1)
+Traceback (most recent call last):
+  File "/Users/lichtman/Documents/UW-Madison/git/CsPyController/python/cs_evaluate.py", line 28, in evalWithDict
+    return eval(string,globals()) #,varDict.copy()) #dict(numpyDict.items()+varDict.items())) #create a new dictionary so all numpy functions and everything defined in varDict is available as a global during evaluation
+  File "<string>", line 1
+    '.
+     ^
+SyntaxError: EOL while scanning string literal
+
+
+2014/04/02 14:33:40 MainThread experiments DEBUG starting file load
+2014/04/02 14:33:44 MainThread instrument_property WARNING Prop.fromXML(): XML has tag: DAQmxPulse, but this is not in the LabView.properties list.  It will not be loaded.
+
+2014/04/02 14:33:44 MainThread experiments DEBUG ended file load
+2014/04/02 14:33:44 MainThread experiments DEBUG starting evaluateAll
+2014/04/02 14:33:48 MainThread experiments DEBUG ended evaluateAll
+2014/04/02 14:35:01 MainThread __main__ INFO starting application
+2014/04/02 14:42:40 MainThread cs_evaluate WARNING Could not eval string: '
+EOL while scanning string literal (<string>, line 1)
+Traceback (most recent call last):
+  File "/Users/lichtman/Documents/UW-Madison/git/CsPyController/python/cs_evaluate.py", line 28, in evalWithDict
+    return eval(string,globals()) #,varDict.copy()) #dict(numpyDict.items()+varDict.items())) #create a new dictionary so all numpy functions and everything defined in varDict is available as a global during evaluation
+  File "<string>", line 1
+    '
+    ^
+SyntaxError: EOL while scanning string literal
+
+
+2014/04/02 14:42:40 MainThread cs_evaluate WARNING Could not eval string: '
+EOL while scanning string literal (<string>, line 1)
+Traceback (most recent call last):
+  File "/Users/lichtman/Documents/UW-Madison/git/CsPyController/python/cs_evaluate.py", line 28, in evalWithDict
+    return eval(string,globals()) #,varDict.copy()) #dict(numpyDict.items()+varDict.items())) #create a new dictionary so all numpy functions and everything defined in varDict is available as a global during evaluation
+  File "<string>", line 1
+    '
+    ^
+SyntaxError: EOL while scanning string literal
+
+
+2014/04/02 14:42:42 MainThread cs_evaluate WARNING Could not eval string: '
+EOL while scanning string literal (<string>, line 1)
+Traceback (most recent call last):
+  File "/Users/lichtman/Documents/UW-Madison/git/CsPyController/python/cs_evaluate.py", line 28, in evalWithDict
+    return eval(string,globals()) #,varDict.copy()) #dict(numpyDict.items()+varDict.items())) #create a new dictionary so all numpy functions and everything defined in varDict is available as a global during evaluation
+  File "<string>", line 1
+    '
+    ^
+SyntaxError: EOL while scanning string literal
+
+
+2014/04/02 14:42:42 MainThread cs_evaluate WARNING Could not eval string: '
+EOL while scanning string literal (<string>, line 1)
+Traceback (most recent call last):
+  File "/Users/lichtman/Documents/UW-Madison/git/CsPyController/python/cs_evaluate.py", line 28, in evalWithDict
+    return eval(string,globals()) #,varDict.copy()) #dict(numpyDict.items()+varDict.items())) #create a new dictionary so all numpy functions and everything defined in varDict is available as a global during evaluation
+  File "<string>", line 1
+    '
+    ^
+SyntaxError: EOL while scanning string literal
+
+
+2014/04/02 14:42:50 MainThread cs_evaluate WARNING Could not eval string: '
+EOL while scanning string literal (<string>, line 1)
+Traceback (most recent call last):
+  File "/Users/lichtman/Documents/UW-Madison/git/CsPyController/python/cs_evaluate.py", line 28, in evalWithDict
+    return eval(string,globals()) #,varDict.copy()) #dict(numpyDict.items()+varDict.items())) #create a new dictionary so all numpy functions and everything defined in varDict is available as a global during evaluation
+  File "<string>", line 1
+    '
+    ^
+SyntaxError: EOL while scanning string literal
+
+
+2014/04/02 14:42:50 MainThread cs_evaluate WARNING Could not eval string: '
+EOL while scanning string literal (<string>, line 1)
+Traceback (most recent call last):
+  File "/Users/lichtman/Documents/UW-Madison/git/CsPyController/python/cs_evaluate.py", line 28, in evalWithDict
+    return eval(string,globals()) #,varDict.copy()) #dict(numpyDict.items()+varDict.items())) #create a new dictionary so all numpy functions and everything defined in varDict is available as a global during evaluation
+  File "<string>", line 1
+    '
+    ^
+SyntaxError: EOL while scanning string literal
+
+
+2014/04/02 14:43:14 MainThread cs_evaluate WARNING Could not eval string: '
+EOL while scanning string literal (<string>, line 1)
+Traceback (most recent call last):
+  File "/Users/lichtman/Documents/UW-Madison/git/CsPyController/python/cs_evaluate.py", line 28, in evalWithDict
+    return eval(string,globals()) #,varDict.copy()) #dict(numpyDict.items()+varDict.items())) #create a new dictionary so all numpy functions and everything defined in varDict is available as a global during evaluation
+  File "<string>", line 1
+    '
+    ^
+SyntaxError: EOL while scanning string literal
+
+
+2014/04/02 14:43:14 MainThread cs_evaluate WARNING Could not eval string: '
+EOL while scanning string literal (<string>, line 1)
+Traceback (most recent call last):
+  File "/Users/lichtman/Documents/UW-Madison/git/CsPyController/python/cs_evaluate.py", line 28, in evalWithDict
+    return eval(string,globals()) #,varDict.copy()) #dict(numpyDict.items()+varDict.items())) #create a new dictionary so all numpy functions and everything defined in varDict is available as a global during evaluation
+  File "<string>", line 1
+    '
+    ^
+SyntaxError: EOL while scanning string literal
+
+
+2014/04/02 14:43:18 MainThread cs_evaluate WARNING Could not eval string: '
+EOL while scanning string literal (<string>, line 1)
+Traceback (most recent call last):
+  File "/Users/lichtman/Documents/UW-Madison/git/CsPyController/python/cs_evaluate.py", line 28, in evalWithDict
+    return eval(string,globals()) #,varDict.copy()) #dict(numpyDict.items()+varDict.items())) #create a new dictionary so all numpy functions and everything defined in varDict is available as a global during evaluation
+  File "<string>", line 1
+    '
+    ^
+SyntaxError: EOL while scanning string literal
+
+
+2014/04/02 14:43:18 MainThread cs_evaluate WARNING Could not eval string: '
+EOL while scanning string literal (<string>, line 1)
+Traceback (most recent call last):
+  File "/Users/lichtman/Documents/UW-Madison/git/CsPyController/python/cs_evaluate.py", line 28, in evalWithDict
+    return eval(string,globals()) #,varDict.copy()) #dict(numpyDict.items()+varDict.items())) #create a new dictionary so all numpy functions and everything defined in varDict is available as a global during evaluation
+  File "<string>", line 1
+    '
+    ^
+SyntaxError: EOL while scanning string literal
+
+
+2014/04/02 14:43:21 MainThread cs_evaluate WARNING Could not eval string: '
+EOL while scanning string literal (<string>, line 1)
+Traceback (most recent call last):
+  File "/Users/lichtman/Documents/UW-Madison/git/CsPyController/python/cs_evaluate.py", line 28, in evalWithDict
+    return eval(string,globals()) #,varDict.copy()) #dict(numpyDict.items()+varDict.items())) #create a new dictionary so all numpy functions and everything defined in varDict is available as a global during evaluation
+  File "<string>", line 1
+    '
+    ^
+SyntaxError: EOL while scanning string literal
+
+
+2014/04/02 14:43:21 MainThread cs_evaluate WARNING Could not eval string: '
+EOL while scanning string literal (<string>, line 1)
+Traceback (most recent call last):
+  File "/Users/lichtman/Documents/UW-Madison/git/CsPyController/python/cs_evaluate.py", line 28, in evalWithDict
+    return eval(string,globals()) #,varDict.copy()) #dict(numpyDict.items()+varDict.items())) #create a new dictionary so all numpy functions and everything defined in varDict is available as a global during evaluation
+  File "<string>", line 1
+    '
+    ^
+SyntaxError: EOL while scanning string literal
+
+
+2014/04/02 15:12:50 MainThread experiments DEBUG starting file load
+2014/04/02 15:12:55 MainThread instrument_property WARNING Prop.fromXML(): XML has tag: DAQmxPulse, but this is not in the LabView.properties list.  It will not be loaded.
+
+2014/04/02 15:12:55 MainThread experiments DEBUG ended file load
+2014/04/02 15:12:55 MainThread experiments DEBUG starting evaluateAll
+2014/04/02 15:12:58 MainThread experiments DEBUG ended evaluateAll
+2014/04/02 15:14:06 MainThread __main__ INFO starting application
+2014/04/02 15:15:45 MainThread cs_evaluate WARNING Could not eval string: N
+name 'N' is not defined
+Traceback (most recent call last):
+  File "/Users/lichtman/Documents/UW-Madison/git/CsPyController/python/cs_evaluate.py", line 28, in evalWithDict
+    return eval(string,globals()) #,varDict.copy()) #dict(numpyDict.items()+varDict.items())) #create a new dictionary so all numpy functions and everything defined in varDict is available as a global during evaluation
+  File "<string>", line 1, in <module>
+NameError: name 'N' is not defined
+
+
+2014/04/02 15:15:45 MainThread cs_evaluate WARNING Could not eval string: N
+name 'N' is not defined
+Traceback (most recent call last):
+  File "/Users/lichtman/Documents/UW-Madison/git/CsPyController/python/cs_evaluate.py", line 28, in evalWithDict
+    return eval(string,globals()) #,varDict.copy()) #dict(numpyDict.items()+varDict.items())) #create a new dictionary so all numpy functions and everything defined in varDict is available as a global during evaluation
+  File "<string>", line 1, in <module>
+NameError: name 'N' is not defined
+
+
+2014/04/02 15:15:45 MainThread cs_evaluate WARNING Could not eval string: No
+name 'No' is not defined
+Traceback (most recent call last):
+  File "/Users/lichtman/Documents/UW-Madison/git/CsPyController/python/cs_evaluate.py", line 28, in evalWithDict
+    return eval(string,globals()) #,varDict.copy()) #dict(numpyDict.items()+varDict.items())) #create a new dictionary so all numpy functions and everything defined in varDict is available as a global during evaluation
+  File "<string>", line 1, in <module>
+NameError: name 'No' is not defined
+
+
+2014/04/02 15:15:45 MainThread cs_evaluate WARNING Could not eval string: No
+name 'No' is not defined
+Traceback (most recent call last):
+  File "/Users/lichtman/Documents/UW-Madison/git/CsPyController/python/cs_evaluate.py", line 28, in evalWithDict
+    return eval(string,globals()) #,varDict.copy()) #dict(numpyDict.items()+varDict.items())) #create a new dictionary so all numpy functions and everything defined in varDict is available as a global during evaluation
+  File "<string>", line 1, in <module>
+NameError: name 'No' is not defined
+
+
+2014/04/02 15:15:45 MainThread cs_evaluate WARNING Could not eval string: Non
+name 'Non' is not defined
+Traceback (most recent call last):
+  File "/Users/lichtman/Documents/UW-Madison/git/CsPyController/python/cs_evaluate.py", line 28, in evalWithDict
+    return eval(string,globals()) #,varDict.copy()) #dict(numpyDict.items()+varDict.items())) #create a new dictionary so all numpy functions and everything defined in varDict is available as a global during evaluation
+  File "<string>", line 1, in <module>
+NameError: name 'Non' is not defined
+
+
+2014/04/02 15:15:45 MainThread cs_evaluate WARNING Could not eval string: Non
+name 'Non' is not defined
+Traceback (most recent call last):
+  File "/Users/lichtman/Documents/UW-Madison/git/CsPyController/python/cs_evaluate.py", line 28, in evalWithDict
+    return eval(string,globals()) #,varDict.copy()) #dict(numpyDict.items()+varDict.items())) #create a new dictionary so all numpy functions and everything defined in varDict is available as a global during evaluation
+  File "<string>", line 1, in <module>
+NameError: name 'Non' is not defined
+
+
+2014/04/02 15:15:49 MainThread cs_evaluate WARNING Could not eval string: Non
+name 'Non' is not defined
+Traceback (most recent call last):
+  File "/Users/lichtman/Documents/UW-Madison/git/CsPyController/python/cs_evaluate.py", line 28, in evalWithDict
+    return eval(string,globals()) #,varDict.copy()) #dict(numpyDict.items()+varDict.items())) #create a new dictionary so all numpy functions and everything defined in varDict is available as a global during evaluation
+  File "<string>", line 1, in <module>
+NameError: name 'Non' is not defined
+
+
+2014/04/02 15:15:49 MainThread cs_evaluate WARNING Could not eval string: Non
+name 'Non' is not defined
+Traceback (most recent call last):
+  File "/Users/lichtman/Documents/UW-Madison/git/CsPyController/python/cs_evaluate.py", line 28, in evalWithDict
+    return eval(string,globals()) #,varDict.copy()) #dict(numpyDict.items()+varDict.items())) #create a new dictionary so all numpy functions and everything defined in varDict is available as a global during evaluation
+  File "<string>", line 1, in <module>
+NameError: name 'Non' is not defined
+
+
+2014/04/02 15:15:49 MainThread cs_evaluate WARNING Could not eval string: No
+name 'No' is not defined
+Traceback (most recent call last):
+  File "/Users/lichtman/Documents/UW-Madison/git/CsPyController/python/cs_evaluate.py", line 28, in evalWithDict
+    return eval(string,globals()) #,varDict.copy()) #dict(numpyDict.items()+varDict.items())) #create a new dictionary so all numpy functions and everything defined in varDict is available as a global during evaluation
+  File "<string>", line 1, in <module>
+NameError: name 'No' is not defined
+
+
+2014/04/02 15:15:49 MainThread cs_evaluate WARNING Could not eval string: No
+name 'No' is not defined
+Traceback (most recent call last):
+  File "/Users/lichtman/Documents/UW-Madison/git/CsPyController/python/cs_evaluate.py", line 28, in evalWithDict
+    return eval(string,globals()) #,varDict.copy()) #dict(numpyDict.items()+varDict.items())) #create a new dictionary so all numpy functions and everything defined in varDict is available as a global during evaluation
+  File "<string>", line 1, in <module>
+NameError: name 'No' is not defined
+
+
+2014/04/02 15:15:50 MainThread cs_evaluate WARNING Could not eval string: N
+name 'N' is not defined
+Traceback (most recent call last):
+  File "/Users/lichtman/Documents/UW-Madison/git/CsPyController/python/cs_evaluate.py", line 28, in evalWithDict
+    return eval(string,globals()) #,varDict.copy()) #dict(numpyDict.items()+varDict.items())) #create a new dictionary so all numpy functions and everything defined in varDict is available as a global during evaluation
+  File "<string>", line 1, in <module>
+NameError: name 'N' is not defined
+
+
+2014/04/02 15:15:50 MainThread cs_evaluate WARNING Could not eval string: N
+name 'N' is not defined
+Traceback (most recent call last):
+  File "/Users/lichtman/Documents/UW-Madison/git/CsPyController/python/cs_evaluate.py", line 28, in evalWithDict
+    return eval(string,globals()) #,varDict.copy()) #dict(numpyDict.items()+varDict.items())) #create a new dictionary so all numpy functions and everything defined in varDict is available as a global during evaluation
+  File "<string>", line 1, in <module>
+NameError: name 'N' is not defined
+
+
+2014/04/02 15:15:50 MainThread cs_evaluate WARNING Could not eval string: '
+EOL while scanning string literal (<string>, line 1)
+Traceback (most recent call last):
+  File "/Users/lichtman/Documents/UW-Madison/git/CsPyController/python/cs_evaluate.py", line 28, in evalWithDict
+    return eval(string,globals()) #,varDict.copy()) #dict(numpyDict.items()+varDict.items())) #create a new dictionary so all numpy functions and everything defined in varDict is available as a global during evaluation
+  File "<string>", line 1
+    '
+    ^
+SyntaxError: EOL while scanning string literal
+
+
+2014/04/02 15:15:50 MainThread cs_evaluate WARNING Could not eval string: '
+EOL while scanning string literal (<string>, line 1)
+Traceback (most recent call last):
+  File "/Users/lichtman/Documents/UW-Madison/git/CsPyController/python/cs_evaluate.py", line 28, in evalWithDict
+    return eval(string,globals()) #,varDict.copy()) #dict(numpyDict.items()+varDict.items())) #create a new dictionary so all numpy functions and everything defined in varDict is available as a global during evaluation
+  File "<string>", line 1
+    '
+    ^
+SyntaxError: EOL while scanning string literal
+
+
+2014/04/02 15:15:53 MainThread cs_evaluate WARNING Could not eval string: '
+EOL while scanning string literal (<string>, line 1)
+Traceback (most recent call last):
+  File "/Users/lichtman/Documents/UW-Madison/git/CsPyController/python/cs_evaluate.py", line 28, in evalWithDict
+    return eval(string,globals()) #,varDict.copy()) #dict(numpyDict.items()+varDict.items())) #create a new dictionary so all numpy functions and everything defined in varDict is available as a global during evaluation
+  File "<string>", line 1
+    '
+    ^
+SyntaxError: EOL while scanning string literal
+
+
+2014/04/02 15:15:53 MainThread cs_evaluate WARNING Could not eval string: '
+EOL while scanning string literal (<string>, line 1)
+Traceback (most recent call last):
+  File "/Users/lichtman/Documents/UW-Madison/git/CsPyController/python/cs_evaluate.py", line 28, in evalWithDict
+    return eval(string,globals()) #,varDict.copy()) #dict(numpyDict.items()+varDict.items())) #create a new dictionary so all numpy functions and everything defined in varDict is available as a global during evaluation
+  File "<string>", line 1
+    '
+    ^
+SyntaxError: EOL while scanning string literal
+
+
+2014/04/02 15:16:01 MainThread cs_evaluate WARNING Could not eval string: N
+name 'N' is not defined
+Traceback (most recent call last):
+  File "/Users/lichtman/Documents/UW-Madison/git/CsPyController/python/cs_evaluate.py", line 28, in evalWithDict
+    return eval(string,globals()) #,varDict.copy()) #dict(numpyDict.items()+varDict.items())) #create a new dictionary so all numpy functions and everything defined in varDict is available as a global during evaluation
+  File "<string>", line 1, in <module>
+NameError: name 'N' is not defined
+
+
+2014/04/02 15:16:01 MainThread cs_evaluate WARNING Could not eval string: N
+name 'N' is not defined
+Traceback (most recent call last):
+  File "/Users/lichtman/Documents/UW-Madison/git/CsPyController/python/cs_evaluate.py", line 28, in evalWithDict
+    return eval(string,globals()) #,varDict.copy()) #dict(numpyDict.items()+varDict.items())) #create a new dictionary so all numpy functions and everything defined in varDict is available as a global during evaluation
+  File "<string>", line 1, in <module>
+NameError: name 'N' is not defined
+
+
+2014/04/02 15:16:01 MainThread cs_evaluate WARNING Could not eval string: No
+name 'No' is not defined
+Traceback (most recent call last):
+  File "/Users/lichtman/Documents/UW-Madison/git/CsPyController/python/cs_evaluate.py", line 28, in evalWithDict
+    return eval(string,globals()) #,varDict.copy()) #dict(numpyDict.items()+varDict.items())) #create a new dictionary so all numpy functions and everything defined in varDict is available as a global during evaluation
+  File "<string>", line 1, in <module>
+NameError: name 'No' is not defined
+
+
+2014/04/02 15:16:01 MainThread cs_evaluate WARNING Could not eval string: No
+name 'No' is not defined
+Traceback (most recent call last):
+  File "/Users/lichtman/Documents/UW-Madison/git/CsPyController/python/cs_evaluate.py", line 28, in evalWithDict
+    return eval(string,globals()) #,varDict.copy()) #dict(numpyDict.items()+varDict.items())) #create a new dictionary so all numpy functions and everything defined in varDict is available as a global during evaluation
+  File "<string>", line 1, in <module>
+NameError: name 'No' is not defined
+
+
+2014/04/02 15:16:01 MainThread cs_evaluate WARNING Could not eval string: Non
+name 'Non' is not defined
+Traceback (most recent call last):
+  File "/Users/lichtman/Documents/UW-Madison/git/CsPyController/python/cs_evaluate.py", line 28, in evalWithDict
+    return eval(string,globals()) #,varDict.copy()) #dict(numpyDict.items()+varDict.items())) #create a new dictionary so all numpy functions and everything defined in varDict is available as a global during evaluation
+  File "<string>", line 1, in <module>
+NameError: name 'Non' is not defined
+
+
+2014/04/02 15:16:01 MainThread cs_evaluate WARNING Could not eval string: Non
+name 'Non' is not defined
+Traceback (most recent call last):
+  File "/Users/lichtman/Documents/UW-Madison/git/CsPyController/python/cs_evaluate.py", line 28, in evalWithDict
+    return eval(string,globals()) #,varDict.copy()) #dict(numpyDict.items()+varDict.items())) #create a new dictionary so all numpy functions and everything defined in varDict is available as a global during evaluation
+  File "<string>", line 1, in <module>
+NameError: name 'Non' is not defined
+
+
+2014/04/02 15:16:02 MainThread cs_evaluate WARNING Could not eval string: Non
+name 'Non' is not defined
+Traceback (most recent call last):
+  File "/Users/lichtman/Documents/UW-Madison/git/CsPyController/python/cs_evaluate.py", line 28, in evalWithDict
+    return eval(string,globals()) #,varDict.copy()) #dict(numpyDict.items()+varDict.items())) #create a new dictionary so all numpy functions and everything defined in varDict is available as a global during evaluation
+  File "<string>", line 1, in <module>
+NameError: name 'Non' is not defined
+
+
+2014/04/02 15:16:02 MainThread cs_evaluate WARNING Could not eval string: Non
+name 'Non' is not defined
+Traceback (most recent call last):
+  File "/Users/lichtman/Documents/UW-Madison/git/CsPyController/python/cs_evaluate.py", line 28, in evalWithDict
+    return eval(string,globals()) #,varDict.copy()) #dict(numpyDict.items()+varDict.items())) #create a new dictionary so all numpy functions and everything defined in varDict is available as a global during evaluation
+  File "<string>", line 1, in <module>
+NameError: name 'Non' is not defined
+
+
+2014/04/02 15:16:02 MainThread cs_evaluate WARNING Could not eval string: No
+name 'No' is not defined
+Traceback (most recent call last):
+  File "/Users/lichtman/Documents/UW-Madison/git/CsPyController/python/cs_evaluate.py", line 28, in evalWithDict
+    return eval(string,globals()) #,varDict.copy()) #dict(numpyDict.items()+varDict.items())) #create a new dictionary so all numpy functions and everything defined in varDict is available as a global during evaluation
+  File "<string>", line 1, in <module>
+NameError: name 'No' is not defined
+
+
+2014/04/02 15:16:02 MainThread cs_evaluate WARNING Could not eval string: No
+name 'No' is not defined
+Traceback (most recent call last):
+  File "/Users/lichtman/Documents/UW-Madison/git/CsPyController/python/cs_evaluate.py", line 28, in evalWithDict
+    return eval(string,globals()) #,varDict.copy()) #dict(numpyDict.items()+varDict.items())) #create a new dictionary so all numpy functions and everything defined in varDict is available as a global during evaluation
+  File "<string>", line 1, in <module>
+NameError: name 'No' is not defined
+
+
+2014/04/02 15:16:03 MainThread cs_evaluate WARNING Could not eval string: N
+name 'N' is not defined
+Traceback (most recent call last):
+  File "/Users/lichtman/Documents/UW-Madison/git/CsPyController/python/cs_evaluate.py", line 28, in evalWithDict
+    return eval(string,globals()) #,varDict.copy()) #dict(numpyDict.items()+varDict.items())) #create a new dictionary so all numpy functions and everything defined in varDict is available as a global during evaluation
+  File "<string>", line 1, in <module>
+NameError: name 'N' is not defined
+
+
+2014/04/02 15:16:03 MainThread cs_evaluate WARNING Could not eval string: N
+name 'N' is not defined
+Traceback (most recent call last):
+  File "/Users/lichtman/Documents/UW-Madison/git/CsPyController/python/cs_evaluate.py", line 28, in evalWithDict
+    return eval(string,globals()) #,varDict.copy()) #dict(numpyDict.items()+varDict.items())) #create a new dictionary so all numpy functions and everything defined in varDict is available as a global during evaluation
+  File "<string>", line 1, in <module>
+NameError: name 'N' is not defined
+
+
+2014/04/02 15:45:09 MainThread cs_evaluate WARNING Could not eval string: '
+EOL while scanning string literal (<string>, line 1)
+Traceback (most recent call last):
+  File "/Users/lichtman/Documents/UW-Madison/git/CsPyController/python/cs_evaluate.py", line 28, in evalWithDict
+    return eval(string,globals()) #,varDict.copy()) #dict(numpyDict.items()+varDict.items())) #create a new dictionary so all numpy functions and everything defined in varDict is available as a global during evaluation
+  File "<string>", line 1
+    '
+    ^
+SyntaxError: EOL while scanning string literal
+
+
+2014/04/02 15:45:09 MainThread cs_evaluate WARNING Could not eval string: '
+EOL while scanning string literal (<string>, line 1)
+Traceback (most recent call last):
+  File "/Users/lichtman/Documents/UW-Madison/git/CsPyController/python/cs_evaluate.py", line 28, in evalWithDict
+    return eval(string,globals()) #,varDict.copy()) #dict(numpyDict.items()+varDict.items())) #create a new dictionary so all numpy functions and everything defined in varDict is available as a global during evaluation
+  File "<string>", line 1
+    '
+    ^
+SyntaxError: EOL while scanning string literal
+
+
+2014/04/02 15:45:10 MainThread cs_evaluate WARNING Could not eval string: '
+EOL while scanning string literal (<string>, line 1)
+Traceback (most recent call last):
+  File "/Users/lichtman/Documents/UW-Madison/git/CsPyController/python/cs_evaluate.py", line 28, in evalWithDict
+    return eval(string,globals()) #,varDict.copy()) #dict(numpyDict.items()+varDict.items())) #create a new dictionary so all numpy functions and everything defined in varDict is available as a global during evaluation
+  File "<string>", line 1
+    '
+    ^
+SyntaxError: EOL while scanning string literal
+
+
+2014/04/02 15:45:10 MainThread cs_evaluate WARNING Could not eval string: '
+EOL while scanning string literal (<string>, line 1)
+Traceback (most recent call last):
+  File "/Users/lichtman/Documents/UW-Madison/git/CsPyController/python/cs_evaluate.py", line 28, in evalWithDict
+    return eval(string,globals()) #,varDict.copy()) #dict(numpyDict.items()+varDict.items())) #create a new dictionary so all numpy functions and everything defined in varDict is available as a global during evaluation
+  File "<string>", line 1
+    '
+    ^
+SyntaxError: EOL while scanning string literal
+
+
+2014/04/02 15:52:22 MainThread experiments DEBUG starting file load
+2014/04/02 15:52:26 MainThread instrument_property WARNING Prop.fromXML(): XML has tag: DAQmxPulse, but this is not in the LabView.properties list.  It will not be loaded.
+
+2014/04/02 15:52:26 MainThread experiments DEBUG ended file load
+2014/04/02 15:52:26 MainThread experiments DEBUG starting evaluateAll
+2014/04/02 15:52:31 MainThread experiments DEBUG ended evaluateAll
+2014/04/02 15:53:43 MainThread __main__ INFO starting application
+2014/04/02 15:57:54 MainThread experiments DEBUG starting file load
+2014/04/02 15:57:58 MainThread instrument_property WARNING Prop.fromXML(): XML has tag: DAQmxPulse, but this is not in the LabView.properties list.  It will not be loaded.
+
+2014/04/02 15:57:58 MainThread experiments DEBUG ended file load
+2014/04/02 15:57:58 MainThread experiments DEBUG starting evaluateAll
+2014/04/02 15:58:02 MainThread experiments DEBUG ended evaluateAll
+2014/04/02 15:59:07 MainThread __main__ INFO starting application
+2014/04/02 16:03:22 MainThread cs_evaluate WARNING evaluating property units, multiplier for timing values (milli=.001), 1
+Could not eval string: m
+name 'm' is not defined
+Traceback (most recent call last):
+  File "/Users/lichtman/Documents/UW-Madison/git/CsPyController/python/cs_evaluate.py", line 28, in evalWithDict
+    return eval(string,globals()) #,varDict.copy()) #dict(numpyDict.items()+varDict.items())) #create a new dictionary so all numpy functions and everything defined in varDict is available as a global during evaluation
+  File "<string>", line 1, in <module>
+NameError: name 'm' is not defined
+
+
+2014/04/02 16:03:22 MainThread instrument_property WARNING Exception in EvalProp.evaluate() in units.
+description: multiplier for timing values (milli=.001)
+function: 1
+
+
+2014/04/02 16:03:22 MainThread cs_evaluate WARNING evaluating property units, multiplier for timing values (milli=.001), 1
+Could not eval string: m
+name 'm' is not defined
+Traceback (most recent call last):
+  File "/Users/lichtman/Documents/UW-Madison/git/CsPyController/python/cs_evaluate.py", line 28, in evalWithDict
+    return eval(string,globals()) #,varDict.copy()) #dict(numpyDict.items()+varDict.items())) #create a new dictionary so all numpy functions and everything defined in varDict is available as a global during evaluation
+  File "<string>", line 1, in <module>
+NameError: name 'm' is not defined
+
+
+2014/04/02 16:03:22 MainThread instrument_property WARNING Exception in EvalProp.evaluate() in units.
+description: multiplier for timing values (milli=.001)
+function: 1
+
+
+2014/04/02 16:03:23 MainThread cs_evaluate WARNING evaluating property units, multiplier for timing values (milli=.001), 1
+Could not eval string: mi
+name 'mi' is not defined
+Traceback (most recent call last):
+  File "/Users/lichtman/Documents/UW-Madison/git/CsPyController/python/cs_evaluate.py", line 28, in evalWithDict
+    return eval(string,globals()) #,varDict.copy()) #dict(numpyDict.items()+varDict.items())) #create a new dictionary so all numpy functions and everything defined in varDict is available as a global during evaluation
+  File "<string>", line 1, in <module>
+NameError: name 'mi' is not defined
+
+
+2014/04/02 16:03:23 MainThread instrument_property WARNING Exception in EvalProp.evaluate() in units.
+description: multiplier for timing values (milli=.001)
+function: 1
+
+
+2014/04/02 16:03:23 MainThread cs_evaluate WARNING evaluating property units, multiplier for timing values (milli=.001), 1
+Could not eval string: mi
+name 'mi' is not defined
+Traceback (most recent call last):
+  File "/Users/lichtman/Documents/UW-Madison/git/CsPyController/python/cs_evaluate.py", line 28, in evalWithDict
+    return eval(string,globals()) #,varDict.copy()) #dict(numpyDict.items()+varDict.items())) #create a new dictionary so all numpy functions and everything defined in varDict is available as a global during evaluation
+  File "<string>", line 1, in <module>
+NameError: name 'mi' is not defined
+
+
+2014/04/02 16:03:23 MainThread instrument_property WARNING Exception in EvalProp.evaluate() in units.
+description: multiplier for timing values (milli=.001)
+function: 1
+
+
+2014/04/02 16:03:23 MainThread cs_evaluate WARNING evaluating property units, multiplier for timing values (milli=.001), 1
+Could not eval string: mil
+name 'mil' is not defined
+Traceback (most recent call last):
+  File "/Users/lichtman/Documents/UW-Madison/git/CsPyController/python/cs_evaluate.py", line 28, in evalWithDict
+    return eval(string,globals()) #,varDict.copy()) #dict(numpyDict.items()+varDict.items())) #create a new dictionary so all numpy functions and everything defined in varDict is available as a global during evaluation
+  File "<string>", line 1, in <module>
+NameError: name 'mil' is not defined
+
+
+2014/04/02 16:03:23 MainThread instrument_property WARNING Exception in EvalProp.evaluate() in units.
+description: multiplier for timing values (milli=.001)
+function: 1
+
+
+2014/04/02 16:03:23 MainThread cs_evaluate WARNING evaluating property units, multiplier for timing values (milli=.001), 1
+Could not eval string: mil
+name 'mil' is not defined
+Traceback (most recent call last):
+  File "/Users/lichtman/Documents/UW-Madison/git/CsPyController/python/cs_evaluate.py", line 28, in evalWithDict
+    return eval(string,globals()) #,varDict.copy()) #dict(numpyDict.items()+varDict.items())) #create a new dictionary so all numpy functions and everything defined in varDict is available as a global during evaluation
+  File "<string>", line 1, in <module>
+NameError: name 'mil' is not defined
+
+
+2014/04/02 16:03:23 MainThread instrument_property WARNING Exception in EvalProp.evaluate() in units.
+description: multiplier for timing values (milli=.001)
+function: 1
+
+
+2014/04/02 16:03:23 MainThread cs_evaluate WARNING evaluating property units, multiplier for timing values (milli=.001), 1
+Could not eval string: mill
+name 'mill' is not defined
+Traceback (most recent call last):
+  File "/Users/lichtman/Documents/UW-Madison/git/CsPyController/python/cs_evaluate.py", line 28, in evalWithDict
+    return eval(string,globals()) #,varDict.copy()) #dict(numpyDict.items()+varDict.items())) #create a new dictionary so all numpy functions and everything defined in varDict is available as a global during evaluation
+  File "<string>", line 1, in <module>
+NameError: name 'mill' is not defined
+
+
+2014/04/02 16:03:23 MainThread instrument_property WARNING Exception in EvalProp.evaluate() in units.
+description: multiplier for timing values (milli=.001)
+function: 1
+
+
+2014/04/02 16:03:23 MainThread cs_evaluate WARNING evaluating property units, multiplier for timing values (milli=.001), 1
+Could not eval string: mill
+name 'mill' is not defined
+Traceback (most recent call last):
+  File "/Users/lichtman/Documents/UW-Madison/git/CsPyController/python/cs_evaluate.py", line 28, in evalWithDict
+    return eval(string,globals()) #,varDict.copy()) #dict(numpyDict.items()+varDict.items())) #create a new dictionary so all numpy functions and everything defined in varDict is available as a global during evaluation
+  File "<string>", line 1, in <module>
+NameError: name 'mill' is not defined
+
+
+2014/04/02 16:03:23 MainThread instrument_property WARNING Exception in EvalProp.evaluate() in units.
+description: multiplier for timing values (milli=.001)
+function: 1
+
+

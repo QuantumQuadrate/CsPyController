@@ -305,22 +305,12 @@ class NumpyChannels(Numpy1DProp):
 
 class NumpyTransitions(Numpy1DProp):
     def __init__(self,experiment,description=''):
-        super(NumpyTransitions,self).__init__('transitions',experiment,description,dtype=[('description',object),('function',object),('value',numpy.float64)],hdf_dtype=[('description',h5py.special_dtype(vlen=str)),('function',h5py.special_dtype(vlen=str)),('value',numpy.float64)])
-
-    def add(self,index):
-        self.array=numpy.insert(self.array,index,numpy.array(('new','0',0),dtype=self.dtype),axis=0)
+        super(NumpyTransitions,self).__init__('transitions',experiment,description,dtype=[('description',object),('function',object),('value',numpy.float64)],hdf_dtype=[('description',h5py.special_dtype(vlen=str)),('function',h5py.special_dtype(vlen=str)),('value',numpy.float64)],zero=('new','0',0))
 
 class NumpySequence(Numpy2DProp):
     def __init__(self,experiment,description=''):
-        #don't bother with descriptions for each cell
-        super(NumpySequence,self).__init__('sequence',experiment,description,dtype=[('function',object),('value',numpy.uint8)],hdf_dtype=[('function',h5py.special_dtype(vlen=str)),('value',numpy.uint8)])
+        super(NumpySequence,self).__init__('sequence',experiment,description,dtype=[('function',object),('value',numpy.uint8)],hdf_dtype=[('function',h5py.special_dtype(vlen=str)),('value',numpy.uint8)],zero=('',5))
 
-    def addRow(self,index):
-        self.array=numpy.insert(self.array,index,numpy.array(('5',5),dtype=self.dtype),axis=0)
-    
-    def addColumn(self,index):
-        self.array=numpy.insert(self.array,index,numpy.array(('5',5),dtype=self.dtype),axis=1)
-        
 class NumpyWaveform(Prop):
     
     #MPL plot

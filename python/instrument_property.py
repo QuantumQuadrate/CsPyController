@@ -644,16 +644,22 @@ class Numpy1DProp(Prop):
     array=Member()
     dtype=Member()
     hdf_dtype=Member()
+    zero=Member()
     
-    def __init__(self,name,experiment,description='',dtype=float,hdf_dtype=float):
+    def __init__(self,name,experiment,description='',dtype=float,hdf_dtype=float,zero=None):
         super(Numpy1DProp,self).__init__(name,experiment,description)
         self.dtype=dtype
         self.hdf_dtype=hdf_dtype
+        self.zero=zero
+        #create zero length array
         self.array=numpy.zeros(0,dtype=dtype)
         self.properties+=['array']
     
     def add(self,index):
-        self.array=numpy.insert(self.array,index,numpy.zeros(1,dtype=self.dtype),axis=0)
+        zero=numpy.zeros(1,dtype=self.dtype)
+        if self.zero is not None:
+            zero.fill(self.zero)
+        self.array=numpy.insert(self.array,index,zero,axis=0)            
     
     def remove(self,index):
         self.array=numpy.delete(self.array,index,axis=0)
@@ -668,7 +674,8 @@ class Numpy1DProp(Prop):
         try:
             x[:]=self.array
         except:
-            print 'fail 3'
+            logger.warning('Failed x[:]=self.array in Numpy1DProp.toHDF5() in '+self.name+'.\n'+str(e)+'\n'+str(traceback.format_exc())+'\n')
+            raise PauseError
         
     def fromHDF5(self,hdf):
         self.array=hdf.value
@@ -677,19 +684,28 @@ class Numpy2DProp(Prop):
     array=Member()
     dtype=Member()
     hdf_dtype=Member()
+    zero=Member()
     
-    def __init__(self,name,experiment,description='',dtype=float,hdf_dtype=float):
+    def __init__(self,name,experiment,description='',dtype=float,hdf_dtype=float,zero=None):
         super(Numpy2DProp,self).__init__(name,experiment,description)
         self.dtype=dtype
         self.hdf_dtype=hdf_dtype
+        self.zero=zero
+        #create zero by zero size array
         self.array=numpy.zeros((0,0),dtype=dtype)
         self.properties+=['array']
         
     def addRow(self,index):
-        self.array=numpy.insert(self.array,index,numpy.zeros(self.array.shape[1],dtype=self.dtype),axis=0)
+        zero=numpy.zeros(self.array.shape[1],dtype=self.dtype)
+        if self.zero is not None:
+            zero.fill(self.zero)
+        self.array=numpy.insert(self.array,index,zero,axis=0)
     
     def addColumn(self,index):
-        self.array=numpy.insert(self.array,index,numpy.zeros(self.array.shape[0],dtype=self.dtype),axis=1)
+        zero=numpy.zeros(self.array.shape[0],dtype=self.dtype)
+        if self.zero is not None:
+            zero.fill(self.zero)
+        self.array=numpy.insert(self.array,index,zero,axis=1)
     
     def removeRow(self,index):
         self.array=numpy.delete(self.array,index,axis=0)

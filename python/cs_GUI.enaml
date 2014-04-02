@@ -850,16 +850,21 @@ enamldef NumpyState(Form):
 
     Field:
         constraints = [width == 100,height==20]
-        placeholder='state: 0,1,5'
+        placeholder='state: None,0,1'
         text:=state['function']
-        validator<<MyEnumValidator(experiment,[0,1,5])
+        validator<<MyEnumValidator(experiment,[None,0,1])
         text::
-            state['value']=experiment.eval_general(text)
-            valueLabel.text=str(state['value']) #must be updated manually because state['value'] identity does not change
+            temp=experiment.eval_general(text)
+            if temp is None:
+                state['value']=5
+                valueLabel.text=''
+            else:
+                state['value']=temp
+                valueLabel.text=str(state['value']) #must be updated manually because state['value'] identity does not change
             digitalout.evaluate()
     Label: valueLabel:
         constraints = [width == 50,height==20]
-        text<<str(state['value'])
+        #text<<str(state['value'])
 
 enamldef ChannelCombo(ComboBox):
     attr channels
@@ -869,7 +874,8 @@ enamldef ChannelCombo(ComboBox):
     items<<[str(i)+' '+x for i,x in enumerate(channels.array['description'])]
     index<<int(channelList[position])
     index::
-        channelList[position]=numpy.uint8(index)
+        print position, index, numpy.uint8(index)
+        channelList[position]=numpy.uint8(index)            
 
 enamldef TransitionsLabel(Container):
     padding=0
@@ -913,15 +919,6 @@ enamldef TransitionTime(Form):
     Label: valueLabel:
         constraints = [width == 50,height==20]
         text<<str(transition['value'])
-
-def gen_grid(W,T,S):
-    #objects<<[TransitionsLabel()]+[NumpyTransition(transition=t,experiment=waveform.experiment,digitalout=waveform.digitalout) for t in waveform.transitions.array]+(list(itertools.chain(*map(list,zip(*([[ChannelCombo(channels=waveform.digitalout.channels,channelList=waveform.channelList,position=i) for i in waveform.channelList]]+[[NumpyState(state=s,experiment=waveform.experiment,digitalout=waveform.digitalout) for s in waveform.sequence.array.flat][i:i+len(waveform.channelList)] for i in range(0,waveform.sequence.array.size,len(waveform.channelList))]))))) if (len(waveform.channelList)>0) else [])
-    grid=( [Label(text='description')]+
-           [TransitionDescription(t) for t in T]+
-           [Label(text='time')]+
-           [TransitionTime(experiment=W.experiment,digitalout=W.digitalout,transition=T) for t in T]
-         )
-    return grid
 
 enamldef NumpyWaveform(Container):
     attr waveform
@@ -978,23 +975,13 @@ enamldef NumpyWaveform(Container):
                     text='-'
                     clicked::
                         waveform.removeChannel(spin1.value)
-
-#         Container: nameAndChannelNums:
-#             Container:
-#                 padding=0
-#                 constraints<<[vbox(*channelDyno.objects)] if len(channelDyno.objects)>0 else []
-#                 Include: channelDyno:
-#                     objects<<[ChannelCombo(channels=waveform.digitalout.channels,channelList=waveform.channelList,position=i) for i in waveform.channelList]
-
         GroupBox: transitions:
             hug_height='strong'
             hug_width='strong'
             title='waveform'
-            #padding=0
-            constraints<<[grid(*[statesDyno.objects[i:(i+len(waveform.transitions.array)+1)] for i in range(0, len(statesDyno.objects), len(waveform.transitions.array)+1)])] if len(statesDyno.objects)>0 else [] #,row_align='v_center'
+            constraints<<[grid(*[statesDyno.objects[i:(i+len(waveform.transitions.array)+1)] for i in range(0, len(statesDyno.objects), len(waveform.transitions.array)+1)])] if len(statesDyno.objects)>0 else []
             Include: statesDyno:
-                objects<<[DescriptionLabel()]+[TransitionDescription(transition=t) for t in waveform.transitions.array]+[TimeLabel()]+[TransitionTime(transition=t,experiment=waveform.experiment,digitalout=waveform.digitalout) for t in waveform.transitions.array]+(list(itertools.chain(*map(list,zip(*([[ChannelCombo(channels=waveform.digitalout.channels,channelList=waveform.channelList,position=i) for i in waveform.channelList]]+[[NumpyState(state=s,experiment=waveform.experiment,digitalout=waveform.digitalout) for s in waveform.sequence.array.flat][i:i+len(waveform.channelList)] for i in range(0,waveform.sequence.array.size,len(waveform.channelList))]))))) if (len(waveform.channelList)>0) else [])
-                #objects<<gen_grid(W=waveform,T=waveform.transitions.array,S=waveform.sequence.array)
+                objects<<[DescriptionLabel()]+[TransitionDescription(transition=t) for t in waveform.transitions.array]+[TimeLabel()]+[TransitionTime(transition=t,experiment=waveform.experiment,digitalout=waveform.digitalout) for t in waveform.transitions.array]+(list(itertools.chain(*map(list,zip(*([[ChannelCombo(channels=waveform.digitalout.channels,channelList=waveform.channelList,position=i) for i in xrange(len(waveform.channelList))]]+[[NumpyState(state=s,experiment=waveform.experiment,digitalout=waveform.digitalout) for s in waveform.sequence.array.flat][i:i+len(waveform.channelList)] for i in range(0,waveform.sequence.array.size,len(waveform.channelList))]))))) if (len(waveform.channelList)>0) else [])
 
 enamldef WaveformPage(Page):
     attr waveform
@@ -1037,7 +1024,7 @@ enamldef DAQmxDigitalOutPage(Page):
     
     Container:
         Container:
-                constraints=[vbox(p6,hbox(vbox(p0,p1,p2,p3,p4),p5))]
+                constraints=[vbox(p6,hbox(vbox(p0,p1,p2,p3,p4),p5)),align('top',p0,p5)]
                 hug_height='strong'
                 hug_width='strong'
                 EvalProp: p0:
