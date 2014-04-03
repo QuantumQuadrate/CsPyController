@@ -1,4 +1,5 @@
 .DS_Store
+log.txt
 *.pyc
 __enamlcache__
 data
