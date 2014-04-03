@@ -14,7 +14,7 @@ from enaml.widgets.api import (MainWindow, MenuBar, Menu, Action,
                                 Form, Label, Field, CheckBox, SpinBox, PushButton, MPLCanvas,
                                 MultilineField, ProgressBar, ScrollArea, Separator,
                                 FileDialog,Window,
-                                Stack, StackItem, ComboBox, HGroup
+                                Stack, StackItem, ComboBox
 )
 from enaml.core.declarative import d_
 from enaml.core.include import Include
@@ -867,15 +867,16 @@ enamldef NumpyState(Form):
         #text<<str(state['value'])
 
 enamldef ChannelCombo(ComboBox):
+    attr wvf
     attr channels
     attr channelList
     attr position
-
+    
     items<<[str(i)+' '+x for i,x in enumerate(channels.array['description'])]
     index<<int(channelList[position])
     index::
-        print position, index, numpy.uint8(index)
-        channelList[position]=numpy.uint8(index)            
+        channelList[position]=numpy.uint8(index)
+        waveform.updateFigure()
 
 enamldef TransitionsLabel(Container):
     padding=0
@@ -925,11 +926,37 @@ enamldef NumpyWaveform(Container):
     
     hug_height='strong'
     hug_width='ignore'
-    #constraints=[canvas.left==details.left,vertical(canvas,details)]
+    #constraints=[align('left',canvas,plotcontrols,details)] #for some reason this makes the canvas disappear
     
     MPLCanvas: canvas:
         constraints=[(height==500)|'strong',(width==1500)|'strong']
         figure << waveform.figure
+    
+    Container: plotcontrols:
+        hug_width='strong'
+        hug_height='strong'
+        constraints=[hbox(lmin,plotmin,lmax,plotmax)]        
+        padding=0
+        Label: lmin:
+            text='plot min'
+        Field: plotmin:
+            placeholder='blank for autolimit'
+            text::
+                if text=='':
+                    waveform.plotmin=-1
+                else:
+                    waveform.plotmin=float(text)
+                waveform.updateFigure()
+        Label: lmax:
+            text='plot max'
+        Field: plotmax:
+            placeholder='blank for autolimit'
+            text::
+                if text=='':
+                    waveform.plotmax=-1
+                else:
+                    waveform.plotmax=float(text)
+                waveform.updateFigure()
     
     Container: details:
         constraints=[vbox(hbox(nameField,timeControls,channelControls),transitions)]
@@ -981,7 +1008,7 @@ enamldef NumpyWaveform(Container):
             title='waveform'
             constraints<<[grid(*[statesDyno.objects[i:(i+len(waveform.transitions.array)+1)] for i in range(0, len(statesDyno.objects), len(waveform.transitions.array)+1)])] if len(statesDyno.objects)>0 else []
             Include: statesDyno:
-                objects<<[DescriptionLabel()]+[TransitionDescription(transition=t) for t in waveform.transitions.array]+[TimeLabel()]+[TransitionTime(transition=t,experiment=waveform.experiment,digitalout=waveform.digitalout) for t in waveform.transitions.array]+(list(itertools.chain(*map(list,zip(*([[ChannelCombo(channels=waveform.digitalout.channels,channelList=waveform.channelList,position=i) for i in xrange(len(waveform.channelList))]]+[[NumpyState(state=s,experiment=waveform.experiment,digitalout=waveform.digitalout) for s in waveform.sequence.array.flat][i:i+len(waveform.channelList)] for i in range(0,waveform.sequence.array.size,len(waveform.channelList))]))))) if (len(waveform.channelList)>0) else [])
+                objects<<[DescriptionLabel()]+[TransitionDescription(transition=t) for t in waveform.transitions.array]+[TimeLabel()]+[TransitionTime(transition=t,experiment=waveform.experiment,digitalout=waveform.digitalout) for t in waveform.transitions.array]+(list(itertools.chain(*map(list,zip(*([[ChannelCombo(wfm=waveform,channels=waveform.digitalout.channels,channelList=waveform.channelList,position=i) for i in xrange(len(waveform.channelList))]]+[[NumpyState(state=s,experiment=waveform.experiment,digitalout=waveform.digitalout) for s in waveform.sequence.array.flat][i:i+len(waveform.channelList)] for i in range(0,waveform.sequence.array.size,len(waveform.channelList))]))))) if (len(waveform.channelList)>0) else [])
 
 enamldef WaveformPage(Page):
     attr waveform

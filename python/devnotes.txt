@@ -3,6 +3,7 @@ CsPyController notes:
 current question:
 
 TODO:
+    TTL input
     loading of only part of settings
     make it so that the TCP connection is labeled as uninitialized on an error
     replace other indexed Stacks with IndexedStack
