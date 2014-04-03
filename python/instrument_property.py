@@ -77,6 +77,8 @@ class Prop(Atom):
             #use toHDF5() of the object if available
                 try:
                     o.toHDF5(my_node)
+                except PauseError:
+                    raise PauseError #pass it on quietly
                 except Exception as e:
                     logger.warning('While trying '+p+'.toHDF5() in Prop.toHDF5() in '+name+'.\n'+str(e)+'\n'+str(traceback.format_exc())+'\n')
                     raise PauseError
@@ -136,7 +138,13 @@ class Prop(Atom):
                 if exists and hasattr(var,'fromHDF5'):
                     #set it using its own method
                     #this will preserve the instance identity
-                    var.fromHDF5(hdf[i])
+                    try:
+                        var.fromHDF5(hdf[i])
+                    except PauseError:
+                        raise PauseError #pass it on quietly
+                    except Exception as e:
+                        logger.warning('While trying '+p+'.toHDF5() in Prop.toHDF5() in '+name+'.\n'+str(e)+'\n'+str(traceback.format_exc())+'\n')
+                        raise PauseError
                 else:
                     #check to see if it is stored as a dataset
                     if isinstance(h5py._hl.dataset.DataSet):
@@ -659,22 +667,17 @@ class Numpy1DProp(Prop):
         zero=numpy.zeros(1,dtype=self.dtype)
         if self.zero is not None:
             zero.fill(self.zero)
-        self.array=numpy.insert(self.array,index,zero,axis=0)            
+        self.array=numpy.insert(self.array,index,zero)            
     
     def remove(self,index):
-        self.array=numpy.delete(self.array,index,axis=0)
+        self.array=numpy.delete(self.array,index)
 
     def toHDF5(self,hdf):
         print 'Numpy1DProp.toHDF5: self.array=',self.array
         try:
-            x=hdf.create_dataset(self.name,len(self.array),dtype=self.hdf_dtype)
+            x=hdf.create_dataset(self.name,data=self.array,dtype=self.hdf_dtype)
         except Exception as e:
             logger.warning('While trying to create dataset in Numpy1DProp.toHDF5() in '+self.name+'.\n'+str(e)+'\n'+str(traceback.format_exc())+'\n')
-            raise PauseError
-        try:
-            x[:]=self.array
-        except:
-            logger.warning('Failed x[:]=self.array in Numpy1DProp.toHDF5() in '+self.name+'.\n'+str(e)+'\n'+str(traceback.format_exc())+'\n')
             raise PauseError
         
     def fromHDF5(self,hdf):
