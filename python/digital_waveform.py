@@ -458,6 +458,8 @@ class NumpyWaveform(Prop):
     
     def drawMPL(self):
         
+        logger.debug('digital_waveform.drawMPL')        
+        
         #draw on the inactive figure
         fig=self.backFigure
         

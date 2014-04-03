@@ -867,7 +867,7 @@ enamldef NumpyState(Form):
         #text<<str(state['value'])
 
 enamldef ChannelCombo(ComboBox):
-    attr wvf
+    attr wfm
     attr channels
     attr channelList
     attr position
@@ -876,7 +876,7 @@ enamldef ChannelCombo(ComboBox):
     index<<int(channelList[position])
     index::
         channelList[position]=numpy.uint8(index)
-        waveform.updateFigure()
+        wfm.updateFigure()
 
 enamldef TransitionsLabel(Container):
     padding=0

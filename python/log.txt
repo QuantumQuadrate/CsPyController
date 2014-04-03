@@ -6450,3 +6450,167 @@ description: samples/channel/sec
 function: 1000
 
 
+2014/04/03 14:59:44 MainThread experiments DEBUG starting file load
+2014/04/03 14:59:50 MainThread instrument_property WARNING Prop.fromXML(): XML has tag: DAQmxPulse, but this is not in the LabView.properties list.  It will not be loaded.
+
+2014/04/03 14:59:50 MainThread experiments DEBUG ended file load
+2014/04/03 14:59:50 MainThread experiments DEBUG starting evaluateAll
+2014/04/03 14:59:54 MainThread experiments DEBUG ended evaluateAll
+2014/04/03 15:01:48 MainThread __main__ INFO starting application
+2014/04/03 15:05:41 MainThread experiments DEBUG starting file load
+2014/04/03 15:05:46 MainThread instrument_property WARNING Prop.fromXML(): XML has tag: DAQmxPulse, but this is not in the LabView.properties list.  It will not be loaded.
+
+2014/04/03 15:05:46 MainThread experiments DEBUG ended file load
+2014/04/03 15:05:46 MainThread experiments DEBUG starting evaluateAll
+2014/04/03 15:05:50 MainThread digital_waveform DEBUG digital_waveform.drawMPL
+2014/04/03 15:05:50 MainThread experiments DEBUG ended evaluateAll
+2014/04/03 15:07:35 MainThread __main__ INFO starting application
+2014/04/03 15:09:08 MainThread digital_waveform DEBUG digital_waveform.drawMPL
+2014/04/03 15:09:12 MainThread digital_waveform DEBUG digital_waveform.drawMPL
+2014/04/03 15:09:15 MainThread digital_waveform DEBUG digital_waveform.drawMPL
+2014/04/03 15:09:17 MainThread digital_waveform DEBUG digital_waveform.drawMPL
+2014/04/03 15:09:18 MainThread digital_waveform DEBUG digital_waveform.drawMPL
+2014/04/03 15:09:19 MainThread digital_waveform DEBUG digital_waveform.drawMPL
+2014/04/03 15:09:20 MainThread digital_waveform DEBUG digital_waveform.drawMPL
+2014/04/03 15:09:22 MainThread digital_waveform DEBUG digital_waveform.drawMPL
+2014/04/03 15:09:28 MainThread digital_waveform DEBUG digital_waveform.drawMPL
+2014/04/03 15:09:34 MainThread digital_waveform DEBUG digital_waveform.drawMPL
+2014/04/03 15:09:34 MainThread digital_waveform DEBUG digital_waveform.drawMPL
+2014/04/03 15:09:35 MainThread digital_waveform DEBUG digital_waveform.drawMPL
+2014/04/03 15:09:36 MainThread digital_waveform DEBUG digital_waveform.drawMPL
+2014/04/03 15:09:38 MainThread digital_waveform DEBUG digital_waveform.drawMPL
+2014/04/03 15:09:40 MainThread digital_waveform DEBUG digital_waveform.drawMPL
+2014/04/03 15:09:42 MainThread digital_waveform DEBUG digital_waveform.drawMPL
+2014/04/03 15:09:43 MainThread digital_waveform DEBUG digital_waveform.drawMPL
+2014/04/03 15:09:44 MainThread digital_waveform DEBUG digital_waveform.drawMPL
+2014/04/03 15:09:45 MainThread digital_waveform DEBUG digital_waveform.drawMPL
+2014/04/03 15:09:49 MainThread digital_waveform DEBUG digital_waveform.drawMPL
+2014/04/03 15:09:54 MainThread digital_waveform DEBUG digital_waveform.drawMPL
+2014/04/03 15:09:55 MainThread digital_waveform DEBUG digital_waveform.drawMPL
+2014/04/03 15:10:04 MainThread digital_waveform DEBUG digital_waveform.drawMPL
+2014/04/03 15:10:13 MainThread cs_evaluate WARNING evaluating property units, multiplier for timing values (milli=.001), 1
+Could not eval string: m
+name 'm' is not defined
+Traceback (most recent call last):
+  File "D:\users\Lichtman\git\CsPyController\python\cs_evaluate.py", line 28, in evalWithDict
+    return eval(string,globals()) #,varDict.copy()) #dict(numpyDict.items()+varDict.items())) #create a new dictionary so all numpy functions and everything defined in varDict is available as a global during evaluation
+  File "<string>", line 1, in <module>
+NameError: name 'm' is not defined
+
+
+2014/04/03 15:10:13 MainThread instrument_property WARNING Exception in EvalProp.evaluate() in units.
+description: multiplier for timing values (milli=.001)
+function: 1
+
+
+2014/04/03 15:10:13 MainThread cs_evaluate WARNING evaluating property units, multiplier for timing values (milli=.001), 1
+Could not eval string: m
+name 'm' is not defined
+Traceback (most recent call last):
+  File "D:\users\Lichtman\git\CsPyController\python\cs_evaluate.py", line 28, in evalWithDict
+    return eval(string,globals()) #,varDict.copy()) #dict(numpyDict.items()+varDict.items())) #create a new dictionary so all numpy functions and everything defined in varDict is available as a global during evaluation
+  File "<string>", line 1, in <module>
+NameError: name 'm' is not defined
+
+
+2014/04/03 15:10:13 MainThread instrument_property WARNING Exception in EvalProp.evaluate() in units.
+description: multiplier for timing values (milli=.001)
+function: 1
+
+
+2014/04/03 15:10:13 MainThread cs_evaluate WARNING evaluating property units, multiplier for timing values (milli=.001), 1
+Could not eval string: mi
+name 'mi' is not defined
+Traceback (most recent call last):
+  File "D:\users\Lichtman\git\CsPyController\python\cs_evaluate.py", line 28, in evalWithDict
+    return eval(string,globals()) #,varDict.copy()) #dict(numpyDict.items()+varDict.items())) #create a new dictionary so all numpy functions and everything defined in varDict is available as a global during evaluation
+  File "<string>", line 1, in <module>
+NameError: name 'mi' is not defined
+
+
+2014/04/03 15:10:13 MainThread instrument_property WARNING Exception in EvalProp.evaluate() in units.
+description: multiplier for timing values (milli=.001)
+function: 1
+
+
+2014/04/03 15:10:13 MainThread cs_evaluate WARNING evaluating property units, multiplier for timing values (milli=.001), 1
+Could not eval string: mi
+name 'mi' is not defined
+Traceback (most recent call last):
+  File "D:\users\Lichtman\git\CsPyController\python\cs_evaluate.py", line 28, in evalWithDict
+    return eval(string,globals()) #,varDict.copy()) #dict(numpyDict.items()+varDict.items())) #create a new dictionary so all numpy functions and everything defined in varDict is available as a global during evaluation
+  File "<string>", line 1, in <module>
+NameError: name 'mi' is not defined
+
+
+2014/04/03 15:10:13 MainThread instrument_property WARNING Exception in EvalProp.evaluate() in units.
+description: multiplier for timing values (milli=.001)
+function: 1
+
+
+2014/04/03 15:10:13 MainThread cs_evaluate WARNING evaluating property units, multiplier for timing values (milli=.001), 1
+Could not eval string: mil
+name 'mil' is not defined
+Traceback (most recent call last):
+  File "D:\users\Lichtman\git\CsPyController\python\cs_evaluate.py", line 28, in evalWithDict
+    return eval(string,globals()) #,varDict.copy()) #dict(numpyDict.items()+varDict.items())) #create a new dictionary so all numpy functions and everything defined in varDict is available as a global during evaluation
+  File "<string>", line 1, in <module>
+NameError: name 'mil' is not defined
+
+
+2014/04/03 15:10:13 MainThread instrument_property WARNING Exception in EvalProp.evaluate() in units.
+description: multiplier for timing values (milli=.001)
+function: 1
+
+
+2014/04/03 15:10:13 MainThread cs_evaluate WARNING evaluating property units, multiplier for timing values (milli=.001), 1
+Could not eval string: mil
+name 'mil' is not defined
+Traceback (most recent call last):
+  File "D:\users\Lichtman\git\CsPyController\python\cs_evaluate.py", line 28, in evalWithDict
+    return eval(string,globals()) #,varDict.copy()) #dict(numpyDict.items()+varDict.items())) #create a new dictionary so all numpy functions and everything defined in varDict is available as a global during evaluation
+  File "<string>", line 1, in <module>
+NameError: name 'mil' is not defined
+
+
+2014/04/03 15:10:13 MainThread instrument_property WARNING Exception in EvalProp.evaluate() in units.
+description: multiplier for timing values (milli=.001)
+function: 1
+
+
+2014/04/03 15:10:13 MainThread cs_evaluate WARNING evaluating property units, multiplier for timing values (milli=.001), 1
+Could not eval string: mill
+name 'mill' is not defined
+Traceback (most recent call last):
+  File "D:\users\Lichtman\git\CsPyController\python\cs_evaluate.py", line 28, in evalWithDict
+    return eval(string,globals()) #,varDict.copy()) #dict(numpyDict.items()+varDict.items())) #create a new dictionary so all numpy functions and everything defined in varDict is available as a global during evaluation
+  File "<string>", line 1, in <module>
+NameError: name 'mill' is not defined
+
+
+2014/04/03 15:10:13 MainThread instrument_property WARNING Exception in EvalProp.evaluate() in units.
+description: multiplier for timing values (milli=.001)
+function: 1
+
+
+2014/04/03 15:10:13 MainThread cs_evaluate WARNING evaluating property units, multiplier for timing values (milli=.001), 1
+Could not eval string: mill
+name 'mill' is not defined
+Traceback (most recent call last):
+  File "D:\users\Lichtman\git\CsPyController\python\cs_evaluate.py", line 28, in evalWithDict
+    return eval(string,globals()) #,varDict.copy()) #dict(numpyDict.items()+varDict.items())) #create a new dictionary so all numpy functions and everything defined in varDict is available as a global during evaluation
+  File "<string>", line 1, in <module>
+NameError: name 'mill' is not defined
+
+
+2014/04/03 15:10:13 MainThread instrument_property WARNING Exception in EvalProp.evaluate() in units.
+description: multiplier for timing values (milli=.001)
+function: 1
+
+
+2014/04/03 15:10:20 MainThread digital_waveform DEBUG digital_waveform.drawMPL
+2014/04/03 15:10:22 MainThread digital_waveform DEBUG digital_waveform.drawMPL
+2014/04/03 15:10:33 MainThread digital_waveform DEBUG digital_waveform.drawMPL
+2014/04/03 15:10:45 MainThread digital_waveform DEBUG digital_waveform.drawMPL
+2014/04/03 15:10:56 MainThread digital_waveform DEBUG digital_waveform.drawMPL
+2014/04/03 15:11:00 MainThread digital_waveform DEBUG digital_waveform.drawMPL
