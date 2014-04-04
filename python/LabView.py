@@ -33,6 +33,7 @@ class LabView(Instrument):
     connected=Bool(False)
     msg=Str()
     HSDIO=Member()
+    npHSDIO=Member()
     DDS=Member()
     piezo=Member()
     RF_generators=Member()
@@ -52,6 +53,7 @@ class LabView(Instrument):
     def __init__(self,experiment):
         super(LabView,self).__init__('LabView',experiment,'for communicating with a LabView system')
         self.HSDIO=HSDIO.HSDIO(experiment)
+        self.npHSDIO=HSDIO.npHSDIO(experiment)
         self.DDS=DDS.DDS(experiment,self)
         self.piezo=piezo.Piezo(experiment)
         self.RF_generators=RF_generators.RF_generators(experiment)
@@ -62,14 +64,14 @@ class LabView(Instrument):
         self.results={}
         #self.Counter=Counter.Counter(experiment)
         
-        self.instruments=[self.HSDIO,self.DDS,self.piezo,self.RF_generators,self.AnalogOutput,self.DAQmxDO,self.camera,self.EchoBox] #,self.Counter]
+        self.instruments=[self.HSDIO,self.npHSDIO,self.DDS,self.piezo,self.RF_generators,self.AnalogOutput,self.DAQmxDO,self.camera,self.EchoBox] #,self.Counter]
         
         self.sock=None
         self.connected=False
         
         self.timeout=FloatProp('timeout',experiment,'how long before LabView gives up and returns [s]','1.0')
         
-        self.properties+=['IP','port','enabled','connected','timeout','HSDIO','DDS','piezo','RF_generators','AnalogOutput','DAQmxDO','camera','cycleContinuously']#,'EchoBox']
+        self.properties+=['IP','port','enabled','connected','timeout','HSDIO','npHSDIO','DDS','piezo','RF_generators','AnalogOutput','DAQmxDO','camera','cycleContinuously']#,'EchoBox']
         self.doNotSendToHardware+=['IP','port','enabled','connected']
     
     def open(self):

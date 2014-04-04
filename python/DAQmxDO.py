@@ -42,10 +42,9 @@ class DAQmxDO(Instrument):
     units=Typed(FloatProp)
     hardwareAlignmentQuantum=Typed(IntProp)
     waveform=Member()
-    #channels=Typed(Channels)
     channels=Member()
-    triggers=Typed(ListProp)
-    startTrigger=Typed(StartTrigger)
+    triggers=Member()
+    startTrigger=Member()
     version=Member()
     numChannels=Member()
     
@@ -57,10 +56,8 @@ class DAQmxDO(Instrument):
         self.resourceName=StrProp('resourceName',experiment,'the hardware location of the card',"'Dev1'")
         self.clockRate=FloatProp('clockRate',experiment,'samples/channel/sec','1000')
         self.units=FloatProp('units',experiment,'multiplier for timing values (milli=.001)','1')
-        #self.waveform=Waveform('waveform',experiment,self)
         self.channels=NumpyChannels(experiment,self)
-        self.waveform=NumpyWaveform('waveform',experiment,self)
-        #self.channels=Channels(experiment,self)
+        self.waveform=NumpyWaveform('waveform',experiment,digitalout=self)
         self.startTrigger=StartTrigger(experiment)
         self.properties+=['version','enable','resourceName','clockRate','units','channels','waveform','startTrigger']
         self.doNotSendToHardware+=['units','channels'] #waveform is handled specially in toHardware() and channels is used here but not sent to PXI

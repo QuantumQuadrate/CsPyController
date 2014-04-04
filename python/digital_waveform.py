@@ -24,7 +24,7 @@ class Channel(Prop):
 class Channels(ListProp):
     digitalout=Member()
     
-    def __init__(self,experiment,digitalout,description='A list of DAQmxPulse channels'):
+    def __init__(self,experiment,digitalout,description='A list of HSDIO output channels'):
         super(Channels,self).__init__('channels',experiment,description,
             listProperty=[Channel('channel'+str(i),experiment,'') for i in xrange(digitalout.numChannels)],
             listElementType=Channel,listElementName='channel')
@@ -35,12 +35,6 @@ class Channels(ListProp):
         activeChannels=[str(i) for i,c in enumerate(self.listProperty) if c.active.value]
         xState='X'*len(activeChannels)
         return ('<InitialState>'+xState+'</InitialState>\n<IdleState>'+xState+'</IdleState>\n<ActiveChannels>'+','.join(activeChannels)+'</ActiveChannels>\n')
-    
-    #def fromXML(self,xmlNode):
-    #    #while self.listProperty: #go until the list is empty
-    #    #    self.listProperty.pop()
-    #    self.listProperty=[Channel('channel'+str(i),self.experiment,'').fromXML(child) for i, child in enumerate(xmlNode)]
-    #    return self
 
 class State(ListProp):
     digitalout=Member()
@@ -51,12 +45,6 @@ class State(ListProp):
             listProperty=[EnumProp('channel'+str(i),experiment,function=str(defaultState),allowedValues=self.allowedValues) for i in range(digitalout.numChannels)], #defaultState is a global at the top of the module
             listElementType=EnumProp,listElementName='channel',listElementKwargs={'function':str(defaultState),'allowedValues':self.allowedValues})
         self.digitalout=digitalout
-    
-    #def fromXML(self,xmlNode):
-        #while self.listProperty: #go until the list is empty
-        #    self.listProperty.pop()
-        #self.listProperty=[EnumProp('channel'+str(i),self.experiment,function=str(defaultState),allowedValues=self.allowedValues).fromXML(child) for i, child in enumerate(xmlNode)] #defaultState is a global at the top of the module
-        #return self
 
 class Transition(Prop):
     time=Typed(FloatProp) #when does this transition happen
@@ -82,6 +70,7 @@ class Sequence(ListProp):
     #    #    self.listProperty.pop()
     #    self.listProperty=[Transition(self.experiment,self.digitalout).fromXML(child) for child in xmlNode]
     #    return self
+
 class Waveform(Prop):
     
     #MPL plot
@@ -89,7 +78,6 @@ class Waveform(Prop):
     backFigure=Typed(Figure)
     figure1=Typed(Figure)
     figure2=Typed(Figure)
-    
     
     digitalout=Member()
     waveforms=Member()
@@ -100,7 +88,7 @@ class Waveform(Prop):
     stateList=Member()
     duration=Member()
     
-    def __init__(self,name,experiment,digitalout,description='',waveforms=None):
+    def __init__(self,name,experiment,description='',digitalout=None,waveforms=None):
         super(Waveform,self).__init__(name,experiment,description)
         self.digitalout=digitalout
         self.waveforms=waveforms
@@ -112,7 +100,6 @@ class Waveform(Prop):
         self.figure2=Figure(figsize=(5,5))
         self.backFigure=self.figure2
         self.figure=self.figure1
-        #self.updateFigure() #TODO: don't update on init, no data yet, update on evaluate
     
     def fromXML(self,xmlNode):
         super(Waveform,self).fromXML(xmlNode)
@@ -138,10 +125,10 @@ class Waveform(Prop):
             #create arrays
             timeList=numpy.array([i.time.value for i in self.sequence],dtype='float64')
             stateList=numpy.array([[channel.value for channel in transition.state] for transition in self.sequence],dtype='uint8') #channel here refers to an IntProp, not to a Channel
-
+            
             #convert to integral samples
             timeList=(timeList*self.digitalout.clockRate.value*self.digitalout.units.value).astype('uint64')
-
+            
             #put the transition list in order
             order=numpy.argsort(timeList,kind='mergesort') #mergesort is slower than the default quicksort, but it is 'stable' which means items of the same value are kept in their relative order, which is desired here
             timeList=timeList[order]
@@ -293,6 +280,31 @@ class Waveform(Prop):
                 '<states>'+'\n'.join([' '.join([str(sample) for sample in state]) for state in self.stateList])+'</states>\n'+
                 '</waveform>\n')
 
+    def toHDF5(self,hdf_parent_node,name=None):
+        #special toHDF5 method to ease compatability to new numpy based waveforms
+        try:
+            my_node=hdf_parent_node.create_group(name)
+        except:
+            print 'trouble with my_node=hdf_parent_node.create_group(name)'
+        
+        try:
+            trans=numpy.array([(t.description,t.time.function,t.time.value) for t in self.sequence],dtype=[('description',object),('function',object),('value',numpy.float64)])
+        except:
+            print "trouble with trans=numpy.array([(t.time.description,t.time.function,t.time.value) for t in self.sequence],dtype=[('description',object),('function',object),('value',numpy.float64)])"
+        try:
+            my_node.create_dataset('transitions',data=trans,dtype=[('description',h5py.special_dtype(vlen=str)),('function',h5py.special_dtype(vlen=str)),('value',numpy.float64)])
+        except:
+            print "trouble with my_node.create_dataset('transitions',data=trans,dtype=[('description',h5py.special_dtype(vlen=str)),('function',h5py.special_dtype(vlen=str)),('value',numpy.float64)])"
+
+        try:
+            seq=numpy.array([[(c.function,c.value) for c in t.state] for t in self.sequence],dtype=[('function',object),('value',numpy.uint8)])
+        except:
+            print "trouble with seq=numpy.array([[(c.function,c.value) for c in t.state] for t in self.sequence],dtype=[('function',object),('value',numpy.uint8)])"
+        try:
+            my_node.create_dataset('sequence',data=seq,dtype=[('function',h5py.special_dtype(vlen=str)),('value',numpy.uint8)])
+        except:
+            print "trouble with my_node.create_dataset('sequence',data=seq,dtype=[('function',h5py.special_dtype(vlen=str)),('value',numpy.uint8)])"
+
 class NumpyChannels(Numpy1DProp):
     digitalout=Member()
     
@@ -329,7 +341,7 @@ class NumpyWaveform(Prop):
     plotmin=Member()
     plotmax=Member()
     
-    def __init__(self,name,experiment,digitalout,description='',waveforms=None):
+    def __init__(self,name,experiment,description='',digitalout=None,waveforms=None):
         super(NumpyWaveform,self).__init__(name,experiment,description)
         
         self.digitalout=digitalout
@@ -340,7 +352,7 @@ class NumpyWaveform(Prop):
         self.plotmin=-1
         self.plotmax=-1
         self.isEmpty=True
-        self.properties+=['isEmpty','transitions','sequence','plotmin','plotmax']
+        self.properties+=['isEmpty','transitions','sequence','plotmin','plotmax','channelList']
         self.doNotSendToHardware+=['plotmin','plotmax']
         
         self.figure1=Figure(figsize=(5,5))

@@ -143,7 +143,7 @@ class Prop(Atom):
                     except PauseError:
                         raise PauseError #pass it on quietly
                     except Exception as e:
-                        logger.warning('While trying '+p+'.toHDF5() in Prop.toHDF5() in '+name+'.\n'+str(e)+'\n'+str(traceback.format_exc())+'\n')
+                        logger.warning('While trying '+i+'.fromHDF5() in Prop.fromHDF5() in '+self.name+'.\n'+str(e)+'\n'+str(traceback.format_exc())+'\n')
                         raise PauseError
                 else:
                     #check to see if it is stored as a dataset
@@ -529,8 +529,18 @@ class ListProp(Prop):
     def remove(self,x):
         self.listProperty.remove(x)
     
+    def getNextAvailableName(self):
+        #figure out unique name for a new item
+        count=len(self.listProperty) #start naming after current length, so this will go faster
+        names=[i.name for i in self.listProperty]
+        while True:
+            name=self.listElementName+str(count)
+            if not name in names:
+                return name
+            count+=1
+    
     def add(self):
-        new=self.listElementType(self.listElementName+str(len(self.listProperty)),self.experiment,**self.listElementKwargs)
+        new=self.listElementType(self.getNextAvailableName(),self.experiment,**self.listElementKwargs)
         self.listProperty.append(new)
         return new
     
@@ -550,51 +560,55 @@ class ListProp(Prop):
     
     def toHDF5(self,hdf):
         #we do not save any of the normal properties for a listProp.  it confuses things and that is not what they are for
-        ##create the normal hdf group, then use it here (don't worry, 'listProperty' is not in self.properties)
-        #my_node=super(ListProp,self).toHDF5(hdf)
-        my_node=hdf.create_group(self.name)
-        
-        #don't do this anymore:
-        ##create a group called listProperty
-        #list_node=my_node.create_group('listProperty')
-        list_node=my_node
-        
+        list_node=hdf.create_group(self.name)
+                
         #go through the listProperty and toHDF5 each item
         for i,o in enumerate(self.listProperty):
             
-            #if hasattr(o,'name'):
-            #    name=o.name
-            #else:
-            name=self.listElementName+str(i) #TODO: don't force this
-            
-            #try to save it in various ways
-            if hasattr(o,'toHDF5'):
-            #use toHDF5() of the object if available
+            try:
+            #attempt to use given name
+                name=o.name
+                self.toHDF5item(list_node,name,o)
+            except:
+            #using the given name didn't work, try again with an iterative name
                 try:
-                    o.toHDF5(list_node,name=name)
+                    name=self.listElementName+str(i)
+                    self.toHDF5item(list_node,name,o)
                 except PauseError:
-                    #just pass it along
-                    raise PauseError
+                    raise PauseError #quietly pass it along
                 except Exception as e:
-                    logger.warning('While trying toHDF5() on list item {} in ListProp.toHDF5() in {}.\n{}\n'.format(name,self.name,str(e)))
+                    logger.warning('Uncaught exception on list item {} in ListProp.toHDF5item() in {}.\n{}\n{}\n'.format(i,self.name,str(e),str(traceback.format_exc())))
                     raise PauseError
-            else:
-            #try to save it as an attribute, then as a dataset.  If that fails, save its pickle
+        return list_node
+
+    def toHDF5item(self,list_node,name,o):
+        #try to save it in various ways
+        if hasattr(o,'toHDF5'):
+        #use toHDF5() of the object if available
+            try:
+                o.toHDF5(list_node,name=name)
+            except PauseError:
+                #just pass it along
+                raise PauseError
+            except Exception as e:
+                logger.warning('While trying toHDF5() on list item {} in ListProp.toHDF5() in {}.\n{}\n{}\n'.format(name,self.name,str(e),str(traceback.format_exc())))
+                raise PauseError
+        else:
+        #try to save it as an attribute, then as a dataset.  If that fails, save its pickle
+            try:
+                #if it of a known well-behaved type, just go ahead and save to HDF5 attrs (more efficient than dataset)
+                list_node.attrs[name]=o
+            except:
+                #if it is an array, saving to attrs will fail, but we can (and should) save it as a dataset
                 try:
-                    #if it of a known well-behaved type, just go ahead and save to HDF5 attrs (more efficient than dataset)
-                    list_node.attrs[name]=o
+                    list_node[name]=o
                 except:
-                    #if it is an array, saving to attrs will fail, but we can (and should) save it as a dataset
+                    #else just pickle it
                     try:
-                        list_node[name]=o
-                    except:
-                        #else just pickle it
-                        try:
-                            list_node[name]=pickle.dumps(o)
-                        except Exception as e:
-                            logger.warning('While picking list item {} in ListProp.toHDF5() in {}.\n{}\n'.format(i,self.name,str(e)))
-                            raise PauseError
-        return my_node
+                        list_node[name]=pickle.dumps(o)
+                    except Exception as e:
+                        logger.warning('While picking list item {} in ListProp.toHDF5() in {}.\n{}\n'.format(name,self.name,str(e))+'\n'+str(traceback.format_exc())+'\n')
+                        raise PauseError
     
     def fromHDF5(self,hdf):
         #load the normal stuff
@@ -639,10 +653,6 @@ class ListProp(Prop):
         # in a listProp XML all the elements are part of self.listProperty
         # you may need to override this in a subclass if listElementType.__init__ takes in other things besides name and experiment
         try:
-            #so we don't lose our list identity
-            #while self.listProperty: #go until the list is empty
-            #    self.listProperty.pop()
-            #TODO replace self.listElementName+str(i) with child.tag once conversion has been made
             self.listProperty=[self.listElementType(child.tag,self.experiment,**self.listElementKwargs).fromXML(child) for i,child in enumerate(xmlNode)]
         except Exception as e:
             logger.warning('in '+self.name+' in ListProp.fromXML() for xml tag: '+xmlNode.tag+'.\n'+str(e)+'\n'+str(traceback.format_exc())+'\n')
@@ -673,15 +683,22 @@ class Numpy1DProp(Prop):
         self.array=numpy.delete(self.array,index)
 
     def toHDF5(self,hdf):
-        print 'Numpy1DProp.toHDF5: self.array=',self.array
         try:
-            x=hdf.create_dataset(self.name,data=self.array,dtype=self.hdf_dtype)
+            hdf.create_dataset(self.name,data=self.array,dtype=self.hdf_dtype)
         except Exception as e:
             logger.warning('While trying to create dataset in Numpy1DProp.toHDF5() in '+self.name+'.\n'+str(e)+'\n'+str(traceback.format_exc())+'\n')
             raise PauseError
         
     def fromHDF5(self,hdf):
         self.array=hdf.value
+
+    def toXML(self):
+        #special toXML method because the default pickling ends up giving parse errors due to weird characters
+        return '<{}>{}</{}>'.format(self.name,' '.join([str(i) for i in self.array]),self.name)
+        
+    def fromXML(self,node):
+        #special fromXML method to account for special toXML method
+        self.array=numpy.array(node.text.split(' '),dtype=self.dtype)
 
 class Numpy2DProp(Prop):
     array=Member()
@@ -722,3 +739,12 @@ class Numpy2DProp(Prop):
         
     def fromHDF5(self,hdf):
         self.array=hdf.value
+        
+    def toXML(self):
+        #special toXML method because the default pickling ends up giving parse errors due to weird characters
+        return '<{}>{}</{}>'.format(self.name,'\n'.join([' '.join([str(j) for j in i]) for i in self.array]),self.name)
+        
+    def fromXML(self,node):
+        #special fromXML method to account for special toXML method
+        self.array=numpy.array([i.split(' ') for i in node.text.split('\n')],dtype=self.dtype)
+
