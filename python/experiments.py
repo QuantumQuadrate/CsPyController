@@ -502,6 +502,8 @@ class Experiment(Prop):
         #now load the rest of the settings and instruments
         try:
             self.fromXML(xmlNode)
+        except PauseError:
+            raise PauseError #pass it along
         except Exception as e:
             logger.warning('Exception while loading experiment variables XML\n'+str(e)+'\n'+str(traceback.format_exc()))
         logger.debug('ended file load')

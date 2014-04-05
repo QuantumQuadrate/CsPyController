@@ -166,12 +166,12 @@ class HSDIO(Instrument):
 class npHSDIO(Instrument):
     '''version of HSDIO that uses numpy based waveforms'''
     
-    enable=Typed(BoolProp)
-    script=Typed(StrProp)
-    resourceName=Typed(StrProp)
-    clockRate=Typed(FloatProp)
-    units=Typed(FloatProp)
-    hardwareAlignmentQuantum=Typed(IntProp)
+    enable=Member()
+    script=Member()
+    resourceName=Member()
+    clockRate=Member()
+    units=Member()
+    hardwareAlignmentQuantum=Member()
     waveforms=Member()
     channels=Member()
     triggers=Member()
@@ -181,7 +181,7 @@ class npHSDIO(Instrument):
     
     def __init__(self,experiment):
         super(npHSDIO,self).__init__('npHSDIO',experiment)
-        self.version='2014.01.22'
+        self.version='2014.04.05'
         self.numChannels=32
         self.enable=BoolProp('enable',experiment,'enable HSDIO output','False')
         self.script=StrProp('script',experiment,'HSDIO script that says what waveforms to generate',"'script script1\\n  wait 1\\nend script'")

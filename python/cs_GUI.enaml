@@ -7,6 +7,8 @@ Cs.enaml
 
 A GUI for the Cs experiment controller, written using the enaml toolkit for python.
 """
+from cs_errors import setupLog,PauseError
+logger=setupLog(__name__)
 
 from enaml.layout.api import vbox, hbox, align, horizontal, vertical, spacer, grid
 from enaml.widgets.api import (MainWindow, MenuBar, Menu, Action,
@@ -37,13 +39,19 @@ from instrument_property import ListProp
 def get_load_file_callback(experiment):
     def load_file_callback(dlg):
         if dlg.result == 'accepted':
-            experiment.load(dlg.path)
+            try:
+                experiment.load(dlg.path)
+            except PauseError:
+                pass
     return load_file_callback
 
 def get_save_file_callback(experiment):
     def save_file_callback(dlg):
         if dlg.result == 'accepted':
-            experiment.save(dlg.path)
+            try:
+                experiment.save(dlg.path)
+            except PauseError:
+                pass
     return save_file_callback
 
 class MyBoolValidator(Validator):

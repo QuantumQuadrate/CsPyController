@@ -698,7 +698,15 @@ class Numpy1DProp(Prop):
         
     def fromXML(self,node):
         #special fromXML method to account for special toXML method
-        self.array=numpy.array(node.text.split(' '),dtype=self.dtype)
+        if (node.text is None) or (node.text==''):
+            self.array=numpy.zeros(0,dtype=self.dtype)
+            return self
+        try:
+            self.array=numpy.array(node.text.split(' '),dtype=self.dtype)
+            return self
+        except Exception as e:
+            logger.warning('in Numpy1DProp.fromXML() in {}. node.tag={}, node.text={}\n{}\n{}\n'.format(self.name,node.tag,node.text,e,traceback.format_exc()))
+            raise PauseError
 
 class Numpy2DProp(Prop):
     array=Member()
@@ -746,5 +754,13 @@ class Numpy2DProp(Prop):
         
     def fromXML(self,node):
         #special fromXML method to account for special toXML method
-        self.array=numpy.array([i.split(' ') for i in node.text.split('\n')],dtype=self.dtype)
+        if (node.text is None) or (node.text==''):
+            self.array=numpy.zeros((0,0),dtype=self.dtype)
+            return self
+        try:
+            self.array=numpy.array([i.split(' ') for i in node.text.split('\n')],dtype=self.dtype)
+            return self
+        except Exception as e:
+            logger.warning('in Numpy2DProp.fromXML() in {}. node.tag={}, node.text={}\n{}\n{}\n'.format(self.name,node.tag,node.text,e,traceback.format_exc()))
+            raise PauseError
 

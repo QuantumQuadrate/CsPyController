@@ -61,7 +61,6 @@ class DAQmxDO(Instrument):
         self.startTrigger=StartTrigger(experiment)
         self.properties+=['version','enable','resourceName','clockRate','units','channels','waveform','startTrigger']
         self.doNotSendToHardware+=['units','channels'] #waveform is handled specially in toHardware() and channels is used here but not sent to PXI
-        
+    
     def initialize(self):
         self.isInitialized=True
-        

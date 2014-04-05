@@ -385,7 +385,7 @@ class NumpyWaveform(Prop):
         self.sequence.removeColumn(index)
         self.evaluate()
     
-    def fmt(self): #format is a python built-in so I did not want to use that as a function name
+    def format(self):
         '''Create timeList, a 1D array of transition times, and stateList a 2D array of output values.'''
         if len(self.transitions.array)==0:
             self.isEmpty=True
@@ -556,7 +556,7 @@ class NumpyWaveform(Prop):
     
     def updateFigure(self):
         '''This function redraws the broken bar chart display of the waveform sequences.'''
-        self.fmt() #update processed sequence
+        self.format() #update processed sequence
     
         #Make the matplotlib plot
         self.drawMPL()
@@ -575,7 +575,6 @@ class NumpyWaveform(Prop):
         self.updateFigure()
     
     def toHardware(self):
-            self.fmt()
             return ('<waveform>'+
                 '<name>'+self.name+'</name>'+
                 '<transitions>'+' '.join([str(time) for time in self.timeList])+'</transitions>'+
