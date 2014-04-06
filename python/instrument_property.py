@@ -29,22 +29,23 @@ class Prop(Atom):
         self.doNotSendToHardware=['description']
     
     def evaluate(self):
-        #go through the properties list and evaluate
-        for p in self.properties:
-            try:
-                o=getattr(self,p)
-            except:
-                #if the item isn't found
-                logger.warning('In Prop.evaluate for '+self.name+': Property '+p+' does not exist.')
-                continue
-            if hasattr(o,'evaluate'): #check if it has an evaluate method.  If not, do nothing.
+        if self.experiment.allowEvaluation:
+            #go through the properties list and evaluate
+            for p in self.properties:
                 try:
-                    o.evaluate() #evaluate it
-                except PauseError:
-                    raise PauseError
-                except Exception as e:
-                    logger.warning('Evaluating '+p+' in '+self.name+'.properties.\n'+str(e)+str(traceback.format_exc())+'\n')
-                    raise PauseError
+                    o=getattr(self,p)
+                except:
+                    #if the item isn't found
+                    logger.warning('In Prop.evaluate for '+self.name+': Property '+p+' does not exist.')
+                    continue
+                if hasattr(o,'evaluate'): #check if it has an evaluate method.  If not, do nothing.
+                    try:
+                        o.evaluate() #evaluate it
+                    except PauseError:
+                        raise PauseError
+                    except Exception as e:
+                        logger.warning('Evaluating '+p+' in '+self.name+'.properties.\n'+str(e)+str(traceback.format_exc())+'\n')
+                        raise PauseError
     
     def toHDF5(self,hdf_parent_node,name=None):
         '''This function provides generic behavior to save a Prop as an HDF5 group.  The choice of group has been made because a Prop in
@@ -121,6 +122,45 @@ class Prop(Atom):
         elif hasattr(self,'version'):
             logger.warning('Code object '+self.name+' has version '+self.version+' but HSDF5 node has no version tag.')
         
+        #go through all attributes of hdf node and try to load them
+        for i in hdf.attrs:
+            #check to see if this is one of the properties we care to load
+            if i not in self.properties:
+                logger.warning('Prop.fromHDF5(): HDF5 has attribute: '+i+', but this is not in the '+self.name+'.properties list.  It will not be loaded.\n')
+            else:
+                #load in all other tags into variables
+                try:
+                    #identify the variable to be loaded
+                    var=getattr(self,i)
+                    exists=True
+                except:
+                    logger.warning('in '+self.name+' in Prop.fromHDF5().  Will attempt to load attribute'+i+' which was not previously defined in '+self.name+'.\n')
+                    exists=False
+                if exists and hasattr(var,'fromHDF5'):
+                    #set it using its own method
+                    #this will preserve the instance identity
+                    try:
+                        var.fromHDF5(hdf.attrs[i])
+                    except PauseError:
+                        raise PauseError #pass it on quietly
+                    except Exception as e:
+                        logger.warning('While trying attribute'+i+'.fromHDF5() in Prop.fromHDF5() in '+self.name+'.\n'+str(e)+'\n'+str(traceback.format_exc())+'\n')
+                        raise PauseError
+                else:
+                    try:
+                        #try to unpickle it
+                        x=pickle.loads(hdf.attrs[i])
+                    except:
+                        #if unpickling failed, just use the stored value
+                        try:
+                            x=hdf.attrs[i]
+                        except:
+                            logger.warning('Exception trying to load value for HDF5 attribute {} in {}.fromHDF5()'.format(i,self.name))
+                    try:
+                        setattr(self,i,x)
+                    except Exception as e:
+                        logger.warning('in '+self.name+' in Prop.fromHDF5() while setting variable '+i+' in '+self.name+'\n'+str(e)+'\n')
+        
         #go through all names in hdf node (group) and try to load them
         for i in hdf:
             #check to see if this is one of the properties we care to load
@@ -160,11 +200,11 @@ class Prop(Atom):
                         try:
                             setattr(self,i,x)
                         except Exception as e:
-                            logger.warning('in '+self.name+' in Prop.fromHDF5() while unpickling '+i+' in '+self.name+'\n'+str(e)+'\n')
+                            logger.warning('in '+self.name+' in Prop.fromHDF5() while setting variable '+i+' in '+self.name+'\n'+str(e)+'\n')
                     elif isinstance(h5py._hl.group.Group):
                         logger.warning('Cannot load HDF5 Group '+i+' without an fromHDF5() method in '+self.name)
                     else:
-                        logger.warning('Cannot load HDF5 node {} which is of type {} in {}.fromHDF5()'.format(i,type(i),self.name))        
+                        logger.warning('Cannot load HDF5 node {} which is of type {} in {}.fromHDF5()'.format(i,type(i),self.name))
         return self
     
     def toXML(self):
@@ -205,7 +245,7 @@ class Prop(Atom):
             except Exception as e:
                 logger.warning('While picking '+name+' in Prop.XMLProtocol() in '+self.name+'.\n'+str(e)+'\n')
                 return ''
-
+    
     def toHardware(self):
         '''This function provides generic hardware communication XML for this package.  It is similar to toXML(self),
         but in the end it puts out str(value) of each property, which is useful to the hardware, and does not put out any of the
@@ -342,14 +382,15 @@ class EvalProp(Prop,Validator):
         self.observe('function', self.call_evaluate)
     
     def evaluate(self):
-        '''This is the evaluation function that gets run programmatically during experiments and initialization.  It will pause an experiment if an evaluation fails.'''
-        self.valid=self.evalfunc(self.function)
-        #self.validator.valid=self.valid
-        #print 'evaluate: self.valid='+str(self.valid)
-        #self.refreshGUI()
-        #if the experiment is running then pause it
-        if (not self.valid) and (self.experiment is not None) and (self.experiment.status!='idle'):
-            raise PauseError
+        if self.experiment.allowEvaluation:
+            '''This is the evaluation function that gets run programmatically during experiments and initialization.  It will pause an experiment if an evaluation fails.'''
+            self.valid=self.evalfunc(self.function)
+            #self.validator.valid=self.valid
+            #print 'evaluate: self.valid='+str(self.valid)
+            #self.refreshGUI()
+            #if the experiment is running then pause it
+            if (not self.valid) and (self.experiment is not None) and (self.experiment.status!='idle'):
+                raise PauseError
     
     #def refreshGUI(self):
     #    '''Signals the GUI to update whether or not a red error box is shown, based on self.valid'''
@@ -548,15 +589,15 @@ class ListProp(Prop):
         return self.listProperty.index(x)
     
     def evaluate(self):
-        
-        #go through the listProperty and evaluate each item
-        for i,o in enumerate(self.listProperty):
-            if hasattr(o,'evaluate'): #check if it has an evaluate method.  If not, do nothing.
-                try:
-                    o.evaluate() #evaluate it
-                except Exception as e:
-                    logger.warning('Evaluating list item '+str(i)+' '+o.name+' in ListProp.evaluate() in '+self.name+'.\n'+str(e))
-                    raise PauseError
+        if self.experiment.allowEvaluation:
+            #go through the listProperty and evaluate each item
+            for i,o in enumerate(self.listProperty):
+                if hasattr(o,'evaluate'): #check if it has an evaluate method.  If not, do nothing.
+                    try:
+                        o.evaluate() #evaluate it
+                    except Exception as e:
+                        logger.warning('Evaluating list item '+str(i)+' '+o.name+' in ListProp.evaluate() in '+self.name+'.\n'+str(e))
+                        raise PauseError
     
     def toHDF5(self,hdf):
         #we do not save any of the normal properties for a listProp.  it confuses things and that is not what they are for
@@ -690,7 +731,7 @@ class Numpy1DProp(Prop):
             raise PauseError
         
     def fromHDF5(self,hdf):
-        self.array=hdf.value
+        self.array=hdf.value.astype(self.dtype)
 
     def toXML(self):
         #special toXML method because the default pickling ends up giving parse errors due to weird characters
@@ -746,7 +787,7 @@ class Numpy2DProp(Prop):
         x[:,:]=self.array
         
     def fromHDF5(self,hdf):
-        self.array=hdf.value
+        self.array=hdf.value.astype(self.dtype)
         
     def toXML(self):
         #special toXML method because the default pickling ends up giving parse errors due to weird characters

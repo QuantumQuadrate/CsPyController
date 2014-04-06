@@ -43,8 +43,9 @@ class DDS(Instrument):
         self.doNotSendToHardware+=['deviceList','boxDescriptionList']
     
     def evaluate(self):
-        super(DDS,self).evaluate()
-        self.updateBoxDescriptionList()
+        if self.experiment.allowEvaluation:
+            super(DDS,self).evaluate()
+            self.updateBoxDescriptionList()
     
     def addBox(self):
         newbox=DDSbox('box',self.experiment,description='newbox',DDS=self)
@@ -124,9 +125,10 @@ class DDSchannel(Prop):
         self.doNotSendToHardware+=['profileDescriptionList']
     
     def evaluate(self):
-        super(DDSchannel,self).evaluate()
-        self.updateProfileDescriptionList()
-    
+        if self.experiment.allowEvaluation:
+            super(DDSchannel,self).evaluate()
+            self.updateProfileDescriptionList()
+        
     def updateProfileDescriptionList(self):
         if self.profiles is not None:
             #sets the descriptions shown in the combo box in the GUI

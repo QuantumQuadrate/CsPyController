@@ -38,17 +38,19 @@ class AOEquation(EvalProp):
         self.AO.update_plot()
     
     def evaluate(self):
-        #evaluate the 'function' and store it in 'value'
-        #but first add the variable 't' into the variables dictionary for timesteps.
-        #This will overwrite any previous value, so we make a copy of the dictionary
-        vars=self.experiment.vars.copy()
-        vars['t']=self.AO.timesteps
-        try:
-            self.value=cs_evaluate.evalWithDict(self.function,varDict=vars,errStr='AO equation.evaluate: {}, {}, {}\n'.format(self.name,self.description,self.function))
-        except TraitError as e:
-            logger.warning('In AOEquation.evaluate(), TraitError while evaluating: '+self.name+'\ndescription: '+self.description+'\nfunction: '+self.function+'\n'+str(e))
-            #raise PauseError
-        self.AO.update_plot()
+        if self.experiment.allowEvaluation:
+            #evaluate the 'function' and store it in 'value'
+            #but first add the variable 't' into the variables dictionary for timesteps.
+            #This will overwrite any previous value, so we make a copy of the dictionary
+            vars=self.experiment.vars.copy()
+            vars['t']=self.AO.timesteps
+            try:
+                self.value=cs_evaluate.evalWithDict(self.function,varDict=vars,errStr='AO equation.evaluate: {}, {}, {}\n'.format(self.name,self.description,self.function))
+            except TraitError as e:
+                logger.warning('In AOEquation.evaluate(), TraitError while evaluating: '+self.name+'\ndescription: '+self.description+'\nfunction: '+self.function+'\n'+str(e))
+                #raise PauseError
+            self.AO.update_plot()
+
     def toHardware(self):
         try:
             valueStr=' '.join(map(str,self.value.tolist()))
@@ -159,20 +161,22 @@ class AnalogOutput(Instrument):
                 self.swapFigures()
     
     def evaluate(self):
-        self.enable_refresh=False
-        #explicitly evaluate totalAOTime and clockRate and units first, so that we can calculate the time steps
-        self.units.evaluate()
-        self.clockRate.evaluate()
-        self.totalAOTime.evaluate()
-        #evaluate the time steps
-        self.timesteps=numpy.arange(0.0,self.totalAOTime.value,1.0/(self.clockRate.value*self.units.value))
-        #evaluate the rest of the properties, including equations
-        super(AnalogOutput,self).evaluate()
-        
-        # plots will update automatically on every AOequation.evaluate()
-        
-        self.enable_refresh=True
-        self.update_plot()
+        if self.experiment.allowEvaluation:
+
+            self.enable_refresh=False
+            #explicitly evaluate totalAOTime and clockRate and units first, so that we can calculate the time steps
+            self.units.evaluate()
+            self.clockRate.evaluate()
+            self.totalAOTime.evaluate()
+            #evaluate the time steps
+            self.timesteps=numpy.arange(0.0,self.totalAOTime.value,1.0/(self.clockRate.value*self.units.value))
+            #evaluate the rest of the properties, including equations
+            super(AnalogOutput,self).evaluate()
+            
+            # plots will update automatically on every AOequation.evaluate()
+            
+            self.enable_refresh=True
+            self.update_plot()
     
     def initialize(self):
         self.isInitialized=True

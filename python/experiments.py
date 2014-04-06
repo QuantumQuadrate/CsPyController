@@ -67,15 +67,16 @@ class independentVariable(EvalProp):
     
     #override from EvalProp()
     def evaluate(self):
-        if self.function=='':
-            a=None
-        else:
-            a=cs_evaluate.evalWithDict('array('+self.function+').flatten()',errStr='Evaluating independent variable '+', '.join([self.name,self.description,self.function])+'\n')
-        if a==None:
-            a=numpy.array([]).flatten()
-        self.valueList=a
-        self.steps=len(a)
-        self.valueListStr=str(self.valueList)
+        if self.experiment.allowEvaluation:
+            if self.function=='':
+                a=None
+            else:
+                a=cs_evaluate.evalWithDict('array('+self.function+').flatten()',errStr='Evaluating independent variable '+', '.join([self.name,self.description,self.function])+'\n')
+            if a==None:
+                a=numpy.array([]).flatten()
+            self.valueList=a
+            self.steps=len(a)
+            self.valueListStr=str(self.valueList)
     
     def setIndex(self,index):
         if self.steps==0:
@@ -241,13 +242,14 @@ class Experiment(Prop):
     #overwrite from Prop()
     def evaluate(self):
         '''resolves all equations'''
-        
-        #resolve independent variables for correct iteration, and evaluate dependent variables
-        self.evaluateDependentVariables()
-        
-        #re-evaluate all instruments
-        for i in self.instruments:
-            i.evaluate() #each instrument will calculate its properties
+        if self.allowEvaluation:
+            
+            #resolve independent variables for correct iteration, and evaluate dependent variables
+            self.evaluateDependentVariables()
+            
+            #re-evaluate all instruments
+            for i in self.instruments:
+                i.evaluate() #each instrument will calculate its properties
     
     def eval_general(self,string):
         return cs_evaluate.evalWithDict(string,self.vars)
@@ -466,47 +468,55 @@ class Experiment(Prop):
         self.status='idle'
     
     def loadDefaultSettings(self):
-        '''Look for settings.xml in this directory, and if it exists, load it.'''
+        '''Look for settings.hdf5 in this directory, and if it exists, load it.'''
         try:
-            self.load('settings.xml')
+            self.load('settings.hdf5')
         except IOError as e:
-            logger.warning('No default settings.xml found.\n'+str(e))
-    
+            logger.warning('No default settings.hdf5 found.\n'+str(e))
+            
     def load(self,path):
+        self.allowEvaluation=False
         logger.debug('starting file load')
-        #load xml from a file
-        xmlNode=xml.etree.ElementTree.parse(path).getroot()
         
-        #independentVariables
-        ivarXML=xmlNode.find('independentVariables') 
-        if ivarXML is not None:
-            self.independentVariables.fromXML(ivarXML)
-            #remove 'independentVariables' from xml to prevent repeat loading
-            xmlNode.remove(ivarXML)
-        try:
-            self.evaluateIndependentVariables()
-        except Exception as e:
-            logger.warning('Exception in evaluateIndependentVariables() in load() in experiment.\n'+str(e)+'\n'+str(traceback.format_exc()))
+        #load hdf5 from a file
+        f=h5py.File(path,'a')
+        settings=f['settings/experiment']
         
-        #dependentVariables
-        dvarXML=xmlNode.find('dependentVariablesStr')
-        if dvarXML is not None:
-            self.dependentVariablesStr=pickle.loads(dvarXML.text)
-            #remove 'dependentVariables' from xml to prevent repeat loading
-            xmlNode.remove(dvarXML)
+        ##independentVariables
+        #if 'experiment/independentVariables' in settings:
+        #    self.independentVariables.fromHDF5(settings['experiment/independentVariables'])
+        #try:
+        #    self.evaluateIndependentVariables()
+        #except PauseError:
+        #    raise PauseError
+        #except Exception as e:
+        #    logger.warning('Exception in evaluateIndependentVariables() in load() in experiment.\n'+str(e)+'\n'+str(traceback.format_exc()))
+        #    raise PauseError
+        #
+        ##dependentVariables
+        #if 'dependentVariablesStr'
+        #dvarXML=xmlNode.find('dependentVariablesStr')
+        #if dvarXML is not None:
+        #    self.dependentVariablesStr=pickle.loads(dvarXML.text)
+        #    #remove 'dependentVariables' from xml to prevent repeat loading
+        #    xmlNode.remove(dvarXML)
+        #try:
+        #    self.evaluateDependentVariables()
+        #except Exception as e:
+        #    logger.warning('Exception in evaluateDependentVariables() in load() in experiment.\n'+str(e)+'\n'+str(traceback.format_exc()))
+        #
+        ##now load the rest of the settings and instruments
+        ##TODO: skip 'independentVariables' and 'dependentVariables' from xml to prevent repeat loading!!!!!!!!!
+
         try:
-            self.evaluateDependentVariables()
-        except Exception as e:
-            logger.warning('Exception in evaluateDependentVariables() in load() in experiment.\n'+str(e)+'\n'+str(traceback.format_exc()))
-        
-        #now load the rest of the settings and instruments
-        try:
-            self.fromXML(xmlNode)
+            self.fromHDF5(settings)
         except PauseError:
             raise PauseError #pass it along
         except Exception as e:
             logger.warning('Exception while loading experiment variables XML\n'+str(e)+'\n'+str(traceback.format_exc()))
         logger.debug('ended file load')
+        self.allowEvaluation=True
+        #TODO: evaluate here?
     
     def saveThread(self,path):
         '''Starts the saving in a separate thread, in case it takes a while.'''

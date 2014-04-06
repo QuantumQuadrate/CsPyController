@@ -81,8 +81,8 @@ class HSDIO(Instrument):
     version=Str()
     numChannels=Int()
     
-    def __init__(self,experiment):
-        super(HSDIO,self).__init__('HSDIO',experiment)
+    def __init__(self,name,experiment):
+        super(HSDIO,self).__init__(name,experiment)
         self.version='2014.01.22'
         self.numChannels=32
         self.enable=BoolProp('enable',experiment,'enable HSDIO output','False')
@@ -179,8 +179,8 @@ class npHSDIO(Instrument):
     version=Str()
     numChannels=Int()
     
-    def __init__(self,experiment):
-        super(npHSDIO,self).__init__('npHSDIO',experiment)
+    def __init__(self,name,experiment):
+        super(npHSDIO,self).__init__(name,experiment)
         self.version='2014.04.05'
         self.numChannels=32
         self.enable=BoolProp('enable',experiment,'enable HSDIO output','False')

@@ -269,8 +269,9 @@ class Waveform(Prop):
             self.waveforms.remove(self) #remove ourselves from the master list, becoming subject to garbage collection
     
     def evaluate(self):
-        super(Waveform,self).evaluate()
-        self.updateFigure()
+        if self.experiment.allowEvaluation:
+            super(Waveform,self).evaluate()
+            self.updateFigure()
     
     def toHardware(self):
             self.fmt()
@@ -362,6 +363,11 @@ class NumpyWaveform(Prop):
     
     def fromXML(self,xmlNode):
         super(NumpyWaveform,self).fromXML(xmlNode)
+        self.updateFigure()
+        return self
+    
+    def from HDF5(self,hdf):
+        super(NumpyWaveform,self).fromHDF5(hdf)
         self.updateFigure()
         return self
     
@@ -571,8 +577,9 @@ class NumpyWaveform(Prop):
             self.waveforms.remove(self) #remove ourselves from the master list, becoming subject to garbage collection
     
     def evaluate(self):
-        super(NumpyWaveform,self).evaluate()
-        self.updateFigure()
+        if self.experiment.allowEvaluation:
+            super(NumpyWaveform,self).evaluate()
+            self.updateFigure()
     
     def toHardware(self):
             return ('<waveform>'+
