@@ -19,58 +19,61 @@ from cs_instruments import Instrument
 import numpy, struct
 
 def toBool(x):
-    if (x=='False') or (x=='false'):
+    if (x == 'False') or (x == 'false'):
         return False
-    elif (x=='True') or (x=='true'):
+    elif (x == 'True') or (x == 'true'):
         return True
     else:
         return bool(x)
 
 class LabView(Instrument):
-    enabled=Bool()
-    port=Int()
-    IP=Str()
-    connected=Bool(False)
-    msg=Str()
-    HSDIO=Member()
-    DDS=Member()
-    piezo=Member()
-    RF_generators=Member()
-    AnalogOutput=Member()
-    DAQmxDO=Member()
-    EchoBox=Member()
-    results=Member()
-    sock=Member()
-    camera=Member()
-    timeout=Typed(FloatProp)
-    error=Bool()
-    log=Str()
-    cycleContinuously=Bool(False)
+    enabled = Member()
+    port = Int()
+    IP = Str()
+    connected = Member()
+    msg = Str()
+    HSDIO = Member()
+    DDS = Member()
+    piezo = Member()
+    RF_generators = Member()
+    AnalogOutput = Member()
+    DAQmxDO = Member()
+    EchoBox = Member()
+    results = Member()
+    sock = Member()
+    camera = Member()
+    timeout = Typed(FloatProp)
+    error = Bool()
+    log = Str()
+    cycleContinuously = Member()
 
     
     '''This is a meta instrument which encapsulates the capability of the HEXQC2 PXI system. It knows about several subsystems (HSDIO, DAQmx, Counters, Camera), and can send settings and commands to a corresponding Labview client.'''
-    def __init__(self,experiment):
-        super(LabView,self).__init__('LabView',experiment,'for communicating with a LabView system')
-        self.HSDIO=HSDIO.npHSDIO('HSIDO',experiment)
-        self.DDS=DDS.DDS(experiment,self)
-        self.piezo=piezo.Piezo(experiment)
-        self.RF_generators=RF_generators.RF_generators(experiment)
-        self.AnalogOutput=AnalogOutput.AnalogOutput(experiment)
-        self.DAQmxDO=DAQmxDO.DAQmxDO(experiment)
-        self.camera=Camera.HamamatsuC9100_13(experiment)
-        self.EchoBox=EchoBox.EchoBox(experiment)
-        self.results={}
-        #self.Counter=Counter.Counter(experiment)
+    def __init__(self, experiment):
+        super(LabView, self).__init__('LabView', experiment, 'for communicating with a LabView system')
+        self.connected = False
+        self.HSDIO = HSDIO.npHSDIO('HSIDO', experiment)
+        self.DDS = DDS.DDS(experiment, self)
+        self.piezo = piezo.Piezo(experiment)
+        self.RF_generators = RF_generators.RF_generators(experiment)
+        self.AnalogOutput = AnalogOutput.AnalogOutput(experiment)
+        self.DAQmxDO = DAQmxDO.DAQmxDO(experiment)
+        self.camera = Camera.HamamatsuC9100_13(experiment)
+        self.EchoBox = EchoBox.EchoBox(experiment)
+        self.results = {}
+        #self.Counter = Counter.Counter(experiment)
         
-        self.instruments=[self.HSDIO,self.DDS,self.piezo,self.RF_generators,self.AnalogOutput,self.DAQmxDO,self.camera,self.EchoBox] #,self.Counter]
+        self.instruments = [self.HSDIO, self.DDS, self.piezo, self.RF_generators, self.AnalogOutput, self.DAQmxDO,
+                            self.camera, self.EchoBox] #,self.Counter]
         
-        self.sock=None
-        self.connected=False
+        self.sock = None
+        self.connected = False
         
-        self.timeout=FloatProp('timeout',experiment,'how long before LabView gives up and returns [s]','1.0')
+        self.timeout = FloatProp('timeout', experiment, 'how long before LabView gives up and returns [s]', '1.0')
         
-        self.properties+=['IP','port','enabled','connected','timeout','HSDIO','DDS','piezo','RF_generators','AnalogOutput','DAQmxDO','camera','cycleContinuously']#,'EchoBox']
-        self.doNotSendToHardware+=['IP','port','enabled','connected']
+        self.properties += ['IP', 'port', 'enabled', 'connected', 'timeout', 'HSDIO', 'DDS', 'piezo', 'RF_generators',
+                            'AnalogOutput', 'DAQmxDO', 'camera', 'cycleContinuously']  # ,'EchoBox']
+        self.doNotSendToHardware += ['IP', 'port', 'enabled', 'connected']
     
     def open(self):
         if self.enabled:

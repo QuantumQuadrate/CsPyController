@@ -43,7 +43,7 @@ class DDS(Instrument):
         self.doNotSendToHardware+=['deviceList','boxDescriptionList']
     
     def evaluate(self):
-        if self.experiment.allowEvaluation:
+        if self.experiment.allow_evaluation:
             super(DDS,self).evaluate()
             self.updateBoxDescriptionList()
     
@@ -125,7 +125,7 @@ class DDSchannel(Prop):
         self.doNotSendToHardware+=['profileDescriptionList']
     
     def evaluate(self):
-        if self.experiment.allowEvaluation:
+        if self.experiment.allow_evaluation:
             super(DDSchannel,self).evaluate()
             self.updateProfileDescriptionList()
         

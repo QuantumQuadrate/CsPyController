@@ -269,7 +269,7 @@ class Waveform(Prop):
             self.waveforms.remove(self) #remove ourselves from the master list, becoming subject to garbage collection
     
     def evaluate(self):
-        if self.experiment.allowEvaluation:
+        if self.experiment.allow_evaluation:
             super(Waveform,self).evaluate()
             self.updateFigure()
     
@@ -366,23 +366,24 @@ class NumpyWaveform(Prop):
         self.updateFigure()
         return self
     
-    def from HDF5(self,hdf):
-        super(NumpyWaveform,self).fromHDF5(hdf)
+    def fromHDF5(self, hdf):
+        super(NumpyWaveform, self).fromHDF5(hdf)
         self.updateFigure()
         return self
     
-    def addTransition(self,index):
+    def addTransition(self, index):
         self.transitions.add(index)
         self.sequence.addRow(index)
         self.evaluate()
     
-    def removeTransition(self,index):
+    def removeTransition(self, index):
         self.transitions.remove(index)
         self.sequence.removeRow(index)
         self.evaluate()
     
-    def addChannel(self,index):
-        self.channelList=numpy.insert(self.channelList,index,index,axis=0) #insert the index number as the value at that position
+    def addChannel(self, index):
+        # insert the index number as the value at that position
+        self.channelList = numpy.insert(self.channelList, index, index, axis=0)
         self.sequence.addColumn(index)
         self.evaluate()
     
@@ -577,7 +578,7 @@ class NumpyWaveform(Prop):
             self.waveforms.remove(self) #remove ourselves from the master list, becoming subject to garbage collection
     
     def evaluate(self):
-        if self.experiment.allowEvaluation:
+        if self.experiment.allow_evaluation:
             super(NumpyWaveform,self).evaluate()
             self.updateFigure()
     

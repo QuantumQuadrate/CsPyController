@@ -29,7 +29,7 @@ class Prop(Atom):
         self.doNotSendToHardware=['description']
     
     def evaluate(self):
-        if self.experiment.allowEvaluation:
+        if self.experiment.allow_evaluation:
             #go through the properties list and evaluate
             for p in self.properties:
                 try:
@@ -101,7 +101,7 @@ class Prop(Atom):
                             raise PauseError
         return my_node
     
-    def fromHDF5(self,hdf):
+    def fromHDF5(self, hdf):
         '''This function provides generic HDF5 loading behavior for this package.
         First, version tags are checked.
         If an object exists and has its own fromHDF5 method, that will be used.  Else, we will attempt to load it as a python pickle.
@@ -110,56 +110,60 @@ class Prop(Atom):
         self is the object corresponding to the top level tag in the parameter hdf, and its children are what will be loaded here.'''
         
         #hdf node is guaranteed to have a name
-        self.name=hdf.name
+        self.name = hdf.name
         
         #check version
-        if 'version' in hdf:
-            if hasattr(self,'version'):
-                if hdf['version'].value!=self.version:
-                    logger.warning('Current '+self.name+' version is '+self.version+', you are loading from version: '+hdf['version'].value)
+        if 'version' in hdf.attrs:
+            if hasattr(self, 'version'):
+                if hdf.attrs['version'] != self.version:
+                    logger.warning('Current '+self.name+' version is '+self.version+', you are loading from version: '+hdf.attrs['version'])
             else:
-                logger.warning('Code object '+self.name+' has no version, but HDF5 node has version: '+hdf['version'].value)
-        elif hasattr(self,'version'):
-            logger.warning('Code object '+self.name+' has version '+self.version+' but HSDF5 node has no version tag.')
+                logger.warning('Code object '+self.name+' has no version, but HDF5 node has version: '+hdf.attrs['version'])
+        elif hasattr(self, 'version'):
+            logger.warning('Code object '+self.name+' has version '+self.version+' but HDF5 node has no version tag.')
         
         #go through all attributes of hdf node and try to load them
         for i in hdf.attrs:
-            #check to see if this is one of the properties we care to load
-            if i not in self.properties:
-                logger.warning('Prop.fromHDF5(): HDF5 has attribute: '+i+', but this is not in the '+self.name+'.properties list.  It will not be loaded.\n')
-            else:
-                #load in all other tags into variables
-                try:
-                    #identify the variable to be loaded
-                    var=getattr(self,i)
-                    exists=True
-                except:
-                    logger.warning('in '+self.name+' in Prop.fromHDF5().  Will attempt to load attribute'+i+' which was not previously defined in '+self.name+'.\n')
-                    exists=False
-                if exists and hasattr(var,'fromHDF5'):
-                    #set it using its own method
-                    #this will preserve the instance identity
-                    try:
-                        var.fromHDF5(hdf.attrs[i])
-                    except PauseError:
-                        raise PauseError #pass it on quietly
-                    except Exception as e:
-                        logger.warning('While trying attribute'+i+'.fromHDF5() in Prop.fromHDF5() in '+self.name+'.\n'+str(e)+'\n'+str(traceback.format_exc())+'\n')
-                        raise PauseError
+            if i != 'version':
+                #check to see if this is one of the properties we care to load
+                if i not in self.properties:
+                    logger.warning('Prop.fromHDF5(): HDF5 has attribute: '+i+', but this is not in the '+self.name+'.properties list.  It will not be loaded.\n')
                 else:
+                    #load in all other tags into variables
                     try:
-                        #try to unpickle it
-                        x=pickle.loads(hdf.attrs[i])
+                        #identify the variable to be loaded
+                        var = getattr(self, i)
+                        exists = True
                     except:
-                        #if unpickling failed, just use the stored value
+                        logger.warning('in '+self.name+' in Prop.fromHDF5().  Will attempt to load attribute' + i +
+                                       ' which was not previously defined in ' + self.name + '.\n')
+                        exists = False
+                    if exists and hasattr(var, 'fromHDF5'):
+                        #set it using its own method
+                        #this will preserve the instance identity
                         try:
-                            x=hdf.attrs[i]
+                            var.fromHDF5(hdf.attrs[i])
+                        except PauseError:
+                            raise PauseError
+                        except Exception as e:
+                            logger.warning('While trying attribute'+i+'.fromHDF5() in Prop.fromHDF5() in '+self.name+'.\n'+str(e)+'\n'+str(traceback.format_exc())+'\n')
+                            raise PauseError
+                    else:
+                        try:
+                            #try to unpickle it
+                            x = pickle.loads(hdf.attrs[i])
                         except:
-                            logger.warning('Exception trying to load value for HDF5 attribute {} in {}.fromHDF5()'.format(i,self.name))
-                    try:
-                        setattr(self,i,x)
-                    except Exception as e:
-                        logger.warning('in '+self.name+' in Prop.fromHDF5() while setting variable '+i+' in '+self.name+'\n'+str(e)+'\n')
+                            #if unpickling failed, just use the stored value
+                            try:
+                                x=hdf.attrs[i]
+                            except:
+                                logger.warning('Exception trying to load value for HDF5 attribute {} in {}.fromHDF5()'.format(i,self.name))
+                                raise PauseError
+                        try:
+                            setattr(self, i, x)
+                        except Exception as e:
+                            logger.warning('in ' + self.name + ' in Prop.fromHDF5() while setting variable ' + i + ' in ' + self.name + '\n' + str(e) + '\n')
+                            raise PauseError
         
         #go through all names in hdf node (group) and try to load them
         for i in hdf:
@@ -181,7 +185,7 @@ class Prop(Atom):
                     try:
                         var.fromHDF5(hdf[i])
                     except PauseError:
-                        raise PauseError #pass it on quietly
+                        raise PauseError
                     except Exception as e:
                         logger.warning('While trying '+i+'.fromHDF5() in Prop.fromHDF5() in '+self.name+'.\n'+str(e)+'\n'+str(traceback.format_exc())+'\n')
                         raise PauseError
@@ -197,14 +201,18 @@ class Prop(Atom):
                                 x=hdf[i].value
                             except:
                                 logger.warning('Exception trying to load value for HDF5 node {} in {}.fromHDF5()'.format(i,self.name))
+                                raise PauseError
                         try:
                             setattr(self,i,x)
                         except Exception as e:
                             logger.warning('in '+self.name+' in Prop.fromHDF5() while setting variable '+i+' in '+self.name+'\n'+str(e)+'\n')
+                            raise PauseError
                     elif isinstance(h5py._hl.group.Group):
                         logger.warning('Cannot load HDF5 Group '+i+' without an fromHDF5() method in '+self.name)
+                        raise PauseError
                     else:
                         logger.warning('Cannot load HDF5 node {} which is of type {} in {}.fromHDF5()'.format(i,type(i),self.name))
+                        raise PauseError
         return self
     
     def toXML(self):
@@ -382,7 +390,7 @@ class EvalProp(Prop,Validator):
         self.observe('function', self.call_evaluate)
     
     def evaluate(self):
-        if self.experiment.allowEvaluation:
+        if self.experiment.allow_evaluation:
             '''This is the evaluation function that gets run programmatically during experiments and initialization.  It will pause an experiment if an evaluation fails.'''
             self.valid=self.evalfunc(self.function)
             #self.validator.valid=self.valid
@@ -589,7 +597,7 @@ class ListProp(Prop):
         return self.listProperty.index(x)
     
     def evaluate(self):
-        if self.experiment.allowEvaluation:
+        if self.experiment.allow_evaluation:
             #go through the listProperty and evaluate each item
             for i,o in enumerate(self.listProperty):
                 if hasattr(o,'evaluate'): #check if it has an evaluate method.  If not, do nothing.
@@ -599,8 +607,10 @@ class ListProp(Prop):
                         logger.warning('Evaluating list item '+str(i)+' '+o.name+' in ListProp.evaluate() in '+self.name+'.\n'+str(e))
                         raise PauseError
     
-    def toHDF5(self,hdf):
-        #we do not save any of the normal properties for a listProp.  it confuses things and that is not what they are for
+    def toHDF5(self, hdf):
+        """ListProp has a special toHDF5 method because we do not save any of the normal properties for a listProp.
+          It would be confusing to do so, as that is not what a ListProp is for."""
+
         list_node=hdf.create_group(self.name)
                 
         #go through the listProperty and toHDF5 each item
@@ -608,57 +618,56 @@ class ListProp(Prop):
             
             try:
             #attempt to use given name
-                name=o.name
-                self.toHDF5item(list_node,name,o)
+                name = o.name
+                self.toHDF5item(list_node, name, o)
             except:
             #using the given name didn't work, try again with an iterative name
                 try:
-                    name=self.listElementName+str(i)
-                    self.toHDF5item(list_node,name,o)
+                    name = self.listElementName+str(i)
+                    self.toHDF5item(list_node, name, o)
                 except PauseError:
-                    raise PauseError #quietly pass it along
+                    raise PauseError
                 except Exception as e:
                     logger.warning('Uncaught exception on list item {} in ListProp.toHDF5item() in {}.\n{}\n{}\n'.format(i,self.name,str(e),str(traceback.format_exc())))
                     raise PauseError
         return list_node
 
-    def toHDF5item(self,list_node,name,o):
+    def toHDF5item(self, list_node, name, o):
         #try to save it in various ways
-        if hasattr(o,'toHDF5'):
+        if hasattr(o, 'toHDF5'):
         #use toHDF5() of the object if available
             try:
-                o.toHDF5(list_node,name=name)
+                o.toHDF5(list_node, name=name)
             except PauseError:
-                #just pass it along
                 raise PauseError
             except Exception as e:
-                logger.warning('While trying toHDF5() on list item {} in ListProp.toHDF5() in {}.\n{}\n{}\n'.format(name,self.name,str(e),str(traceback.format_exc())))
+                logger.warning('While trying toHDF5() on list item {} in ListProp.toHDF5() in {}.\n{}\n{}\n'.format(name, self.name, str(e), str(traceback.format_exc())))
                 raise PauseError
         else:
         #try to save it as an attribute, then as a dataset.  If that fails, save its pickle
             try:
                 #if it of a known well-behaved type, just go ahead and save to HDF5 attrs (more efficient than dataset)
-                list_node.attrs[name]=o
+                list_node.attrs[name] = o
             except:
                 #if it is an array, saving to attrs will fail, but we can (and should) save it as a dataset
                 try:
-                    list_node[name]=o
+                    list_node[name] = o
                 except:
                     #else just pickle it
                     try:
-                        list_node[name]=pickle.dumps(o)
+                        list_node[name] = pickle.dumps(o)
                     except Exception as e:
-                        logger.warning('While picking list item {} in ListProp.toHDF5() in {}.\n{}\n'.format(name,self.name,str(e))+'\n'+str(traceback.format_exc())+'\n')
+                        logger.warning('While picking list item {} in ListProp.toHDF5() in {}.\n{}\n'.format(name, self.name, str(e)) + '\n' + str(traceback.format_exc()) + '\n')
                         raise PauseError
-    
-    def fromHDF5(self,hdf):
-        #load the normal stuff
-        super(ListProp,self).fromHDF5(hdf)
-        
+
+    def fromHDF5(self, hdf):
+
+        #do not call super
+
         #load the listProperty
         if 'listProperty' in hdf:
             try:
-                self.listProperty=[self.listElementType(child.name,self.experiment,**self.listElementKwargs).fromHDF5(child) for i,child in enumerate(hdf['listProperty'])]
+                self.listProperty = [self.listElementType(child.name, self.experiment, **self.listElementKwargs).fromHDF5(child) for i, child in enumerate(hdf['listProperty'])]
             except Exception as e:
                 logger.warning('in '+self.name+' in ListProp.fromHDF5() for hdf node: '+hdf.name+'.\n'+str(e)+'\n'+str(traceback.format_exc())+'\n')
                 raise PauseError

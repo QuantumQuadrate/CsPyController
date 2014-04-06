@@ -1,8 +1,8 @@
-'''experiments.py
+"""experiments.py
 This file contains the model to describe and experiment, and the machinery of how an iteration based experiment is run.
 
 author=Martin Lichtman
-'''
+"""
 
 from __future__ import division
 
@@ -15,7 +15,7 @@ import threading, time, datetime, traceback, xml.etree.ElementTree, pickle, os, 
 numpy.set_printoptions(formatter=dict(float=lambda t: "%.2e" % t))
 
 # Use Atom traits to automate Enaml updating
-from atom.api import Bool, Int, Float, Str, Member
+from atom.api import Bool, Int, Float, Str, Member, Value
 from enaml.application import deferred_call
 
 # Bring in other files in this package
@@ -23,27 +23,31 @@ import cs_evaluate, analysis, save2013style
 from instrument_property import Prop, EvalProp, ListProp
 import LabView
 
-class independentVariables(ListProp):
+
+class IndependentVariables(ListProp):
     dyno=Member()
     
-    def __init__(self,experiment=None):
-        super(independentVariables,self).__init__('independentVariables',experiment,listElementType=independentVariable,listElementName='independentVariable')
+    def __init__(self, experiment=None):
+        super(IndependentVariables, self).__init__('independentVariables', experiment,
+                                                   listElementType=IndependentVariable,
+                                                   listElementName='independentVariable')
     
-    def fromXML(self,xmlNode):
-        super(independentVariables,self).fromXML(xmlNode)
+    def fromXML(self, xmlNode):
+        super(IndependentVariables, self).fromXML(xmlNode)
         if self.dyno is not None:
             self.dyno.refresh_items()
         #if hasattr(self.experiment,'ivarRefreshButton'): #prevents trying to do this before GUI is active
         #    self.experiment.ivarRefreshButton.clicked() #refresh variables GUI
         return self
 
-class independentVariable(EvalProp):
-    '''A class to hold the independent variables for an experiment.  These are
+
+class IndependentVariable(EvalProp):
+    """A class to hold the independent variables for an experiment.  These are
     the variables that get stepped through during the iterations.  Each 
     independent variable is defined by a valueList which holds an array of values.
     Using this technique, the valueList can be assigned as single value, an arange, linspace,
     logspace, sin(logspace), as complicated as you like, so long as it can be eval()'d and then
-    cast to an array.'''
+    cast to an array."""
     
     valueListStr=Str()
     steps=Int()
@@ -53,7 +57,7 @@ class independentVariable(EvalProp):
     currentValue=Member()
     
     def __init__(self,name,experiment,description='',function=''):
-        super(independentVariable,self).__init__(name,experiment,description,function)
+        super(IndependentVariable,self).__init__(name,experiment,description,function)
         self.valueList=numpy.array([]).flatten()
         self.currentValue=None
     
@@ -67,7 +71,7 @@ class independentVariable(EvalProp):
     
     #override from EvalProp()
     def evaluate(self):
-        if self.experiment.allowEvaluation:
+        if self.experiment.allow_evaluation:
             if self.function=='':
                 a=None
             else:
@@ -91,96 +95,98 @@ class independentVariable(EvalProp):
         self.currentValueStr=str(self.currentValue)
         return self.index
 
+
 class Experiment(Prop):
 
-    version='2014.01.30'
-    ROIrows=7
-    ROIcolumns=7
+    version = '2014.01.30'
 
     #experiment control Traits
-    status=Str('idle')
-    pauseAfterIteration=Bool(False)
-    pauseAfterMeasurement=Bool(False)
-    pauseAfterError=Bool(False)
-    saveData=Bool()
-    saveSettings=Bool()
-    save2013styleFiles=Bool()
-    localDataPath=Str()
-    networkDataPath=Str()
-    copyDataToNetwork=Bool()
-    experimentDescriptionFilenameSuffix=Str()
-    measurementTimeout=Float()
-    measurementsPerIteration=Int()
-    willSendEmail=Bool()
-    emailAddresses=Str()
-    notes=Str()
+    status = Str('idle')
+    pauseAfterIteration = Member()
+    pauseAfterMeasurement = Member()
+    pauseAfterError = Member()
+    saveData = Member()
+    saveSettings = Member()
+    save2013styleFiles = Member()
+    localDataPath = Str()
+    networkDataPath = Str()
+    copyDataToNetwork = Member()
+    experimentDescriptionFilenameSuffix = Str()
+    measurementTimeout = Float()
+    measurementsPerIteration = Int()
+    willSendEmail = Member()
+    emailAddresses = Str()
+    notes = Str()
     
     #iteration Traits
-    progress=Int()
-    path=Member() #full path to current experiment directory
-    iteration=Int()
-    measurement=Int()
-    goodMeasurements=Int()
-    totalIterations=Int()
+    progress = Int()
+    path = Member()  # full path to current experiment directory
+    iteration = Int()
+    measurement = Int()
+    goodMeasurements = Int()
+    totalIterations = Int()
     
     #time Traits
-    timeStartedStr=Str()
-    currentTimeStr=Str()
-    timeElapsedStr=Str()
-    totalTimeStr=Str()
-    timeRemainingStr=Str()
-    completionTimeStr=Str()
+    timeStartedStr = Str()
+    currentTimeStr = Str()
+    timeElapsedStr = Str()
+    totalTimeStr = Str()
+    timeRemainingStr = Str()
+    completionTimeStr = Str()
     
     #variables Traits
-    dependentVariablesStr=Str()
-    variableReportFormat=Str()
-    variableReportStr=Str()
-    variablesNotToSave=Str()
+    dependentVariablesStr = Str()
+    variableReportFormat = Str()
+    variableReportStr = Str()
+    variablesNotToSave = Str()
     
     #list of Analysis objects
-    analyses=Member()
+    analyses = Member()
     
     #things we would rather not define, but are forced to by Atom
-    timeStarted=Member()
-    currentTime=Member()
-    timeElapsed=Member()
-    timeRemaining=Member()
-    totalTime=Member()
-    completionTime=Member()
-    timeOutExpired=Member()
-    instruments=Member()
-    completedMeasurementsByIteration=Member()
-    independentVariables=Member()
-    ivarNames=Member()
-    ivarIndex=Member()
-    ivarValueLists=Member()
-    ivarSteps=Member()
-    #ivarRefreshButton=Member()
-    vars=Member()
-    hdf5=Member()
-    measurementResults=Member()
-    iterationResults=Member()
-    
-     
-    '''Defines a set of instruments, and a sequence of what to do with them.'''
+    timeStarted = Member()
+    currentTime = Member()
+    timeElapsed = Member()
+    timeRemaining = Member()
+    totalTime = Member()
+    completionTime = Member()
+    timeOutExpired = Member()
+    instruments = Member()
+    completedMeasurementsByIteration = Member()
+    independentVariables = Member()
+    ivarNames = Member()
+    ivarIndex = Member()
+    ivarValueLists = Member()
+    ivarSteps = Member()
+    #ivarRefreshButton = Member()
+    vars = Member()
+    hdf5 = Member()
+    measurementResults = Member()
+    iterationResults = Member()
+    allow_evaluation = Member()
+
     def __init__(self):
-        super(Experiment,self).__init__('experiment',self) #name is 'experiment', associated experiment is self
-        self.instruments=[] #a list of the instruments this experiment has defined
-        self.completedMeasurementsByIteration=[]
-        #self.independentVariables=ListProp('independentVariables',self,listElementType=independentVariable,listElementName='independentVariable')
-        self.independentVariables=independentVariables(self)
+        """Defines a set of instruments, and a sequence of what to do with them."""
+
+        self.allow_evaluation = False
+        super(Experiment, self).__init__('experiment',self) #name is 'experiment', associated experiment is self
+        self.instruments = []  # a list of the instruments this experiment has defined
+        self.completedMeasurementsByIteration = []
+        self.independentVariables=IndependentVariables(self)
         self.ivarIndex=[]
-        self.vars={}
-        self.variableReportFormat='""'
-        self.variableReportStr=''
-        self.analyses=[]
-        self.properties+=['version','independentVariables','dependentVariablesStr',
-        'pauseAfterIteration','pauseAfterMeasurement','pauseAfterError','saveData','saveSettings',
-        'save2013styleFiles','localDataPath','networkDataPath',
-        'copyDataToNetwork','experimentDescriptionFilenameSuffix','measurementTimeout','measurementsPerIteration','willSendEmail',
-        'emailAddresses','progress','iteration','measurement','totalIterations','timeStartedStr','currentTimeStr','timeElapsedStr','totalTimeStr',
-        'timeRemainingStr','completionTimeStr','variableReportFormat','variableReportStr','variablesNotToSave','notes']
-        
+        self.vars = {}
+        self.variableReportFormat = '""'
+        self.variableReportStr = ''
+        self.analyses = []
+        self.properties += ['version', 'independentVariables', 'dependentVariablesStr', 'pauseAfterIteration',
+                            'pauseAfterMeasurement', 'pauseAfterError', 'saveData', 'saveSettings',
+                            'save2013styleFiles', 'localDataPath', 'networkDataPath', 'copyDataToNetwork',
+                            'experimentDescriptionFilenameSuffix', 'measurementTimeout', 'measurementsPerIteration',
+                            'willSendEmail', 'emailAddresses', 'progress', 'iteration', 'measurement',
+                            'totalIterations', 'timeStartedStr', 'currentTimeStr', 'timeElapsedStr', 'totalTimeStr',
+                            'timeRemainingStr', 'completionTimeStr', 'variableReportFormat', 'variableReportStr',
+                            'variablesNotToSave', 'notes']
+
     def evaluateIndependentVariables(self):
         #make sure ivar functions have been parsed, don't rely on GUI update
         for i in self.independentVariables:
@@ -242,7 +248,7 @@ class Experiment(Prop):
     #overwrite from Prop()
     def evaluate(self):
         '''resolves all equations'''
-        if self.allowEvaluation:
+        if self.allow_evaluation:
             
             #resolve independent variables for correct iteration, and evaluate dependent variables
             self.evaluateDependentVariables()
@@ -285,7 +291,7 @@ class Experiment(Prop):
         if self.timeElapsed!=0:
             timePerMeasurement=completedMeasurements/self.timeElapsed
         else:
-            timePerMeasurement=1
+            timePerMeasurement = 1
         if len(self.completedMeasurementsByIteration)<=1:
             estTotalMeasurements=self.measurementsPerIteration*self.totalIterations
         else:
@@ -445,16 +451,16 @@ class Experiment(Prop):
         #loop until all instruments are done
         #TODO: can we do this with a callback?
         while not all([i.isDone for i in self.instruments]):
-            if time.time() - start_time > self.measurementTimeout: #break if timeout exceeded
-                self.timeOutExpired=True
+            if time.time() - start_time > self.measurementTimeout:  # break if timeout exceeded
+                self.timeOutExpired = True
                 logger.warning('The following instruments timed out: '+str([i.name for i in self.instruments if not i.isDone]))
-                return #exit without saving results
-            time.sleep(.01) #wait a bit, then check again
+                return  # exit without saving results
+            time.sleep(.01)  # wait a bit, then check again
         
         #set up the results container
-        self.measurementResults=self.hdf5.create_group('iterations/'+str(self.iteration)+'/measurements/'+str(self.measurement))
-        self.measurementResults.attrs['start_time']=start_time
-        self.measurementResults.attrs['measurement']=self.measurement
+        self.measurementResults = self.hdf5.create_group('iterations/'+str(self.iteration)+'/measurements/'+str(self.measurement))
+        self.measurementResults.attrs['start_time'] = start_time
+        self.measurementResults.attrs['measurement'] = self.measurement
         self.measurementResults.create_group('data') #for storing data
         for i in self.instruments:
             #pass the hdf5 group to each instrument so they can write results to it
@@ -468,19 +474,25 @@ class Experiment(Prop):
         self.status='idle'
     
     def loadDefaultSettings(self):
-        '''Look for settings.hdf5 in this directory, and if it exists, load it.'''
+        """Look for settings.hdf5 in this directory, and if it exists, load it."""
         try:
             self.load('settings.hdf5')
         except IOError as e:
             logger.warning('No default settings.hdf5 found.\n'+str(e))
             
-    def load(self,path):
-        self.allowEvaluation=False
+    def load(self, path):
         logger.debug('starting file load')
-        
+
+        #Disable any equation evaluation while loading.  We will evaluate everything after.
+        if self.allow_evaluation:
+            allow_evaluation_was_toggled = True
+            self.allow_evaluation = False
+        else:
+            allow_evaluation_was_toggled = False
+
         #load hdf5 from a file
-        f=h5py.File(path,'a')
-        settings=f['settings/experiment']
+        f = h5py.File(path, 'a')
+        settings = f['settings/experiment']
         
         ##independentVariables
         #if 'experiment/independentVariables' in settings:
@@ -515,27 +527,29 @@ class Experiment(Prop):
         except Exception as e:
             logger.warning('Exception while loading experiment variables XML\n'+str(e)+'\n'+str(traceback.format_exc()))
         logger.debug('ended file load')
-        self.allowEvaluation=True
+
+        if allow_evaluation_was_toggled:
+            self.allow_evaluation = True
         #TODO: evaluate here?
     
-    def saveThread(self,path):
+    def saveThread(self, path):
         '''Starts the saving in a separate thread, in case it takes a while.'''
         #TODO:  This doesn't work because if there are 61 characters in path, it thinks I am passing 61 arguments.
-        threading.Thread(target=self.save,args=(path)).start()
+        threading.Thread(target=self.save, args=(path)).start()
     
     def autosave(self):
         logger.debug('Saving default HDF5...')
         #create file
-        f=h5py.File('settings.hdf5','w')
+        f = h5py.File('settings.hdf5', 'w')
         #recursively add all properties
-        x=f.create_group('settings')
+        x = f.create_group('settings')
         self.toHDF5(x)
         f.flush()
         return f
         #you will need to do autosave().close() wherever this is called
 
-    def save(self,path):
-        '''This function saves all the settings.'''
+    def save(self, path):
+        """This function saves all the settings."""
         
         logger.debug('Saving...')        
         
@@ -693,44 +707,46 @@ class Experiment(Prop):
         for i in self.analyses:
             i.postExperiment(self.hdf5)
 
+
 class AQuA(Experiment):
-    '''A subclass of Experiment which knows about all our particular hardware'''
+    """A subclass of Experiment which knows about all our particular hardware"""
     
-    LabView=Member()
-    shot0Analysis=Member()
-    shotBrowserAnalysis=Member()
-    imageSumAnalysis=Member()
-    squareROIAnalysis=Member()
-    save2013Analysis=Member()
-    optimizer=Member(())
-    
-    
+    LabView = Member()
+    shot0_analysis = Member()
+    shotBrowserAnalysis = Member()
+    imageSumAnalysis = Member()
+    squareROIAnalysis = Member()
+    save2013Analysis = Member()
+    optimizer = Member()
+
     def __init__(self):
-        super(AQuA,self).__init__()
+        super(AQuA, self).__init__()
         
         #add instruments
-        self.LabView=LabView.LabView(experiment=self)
-        self.instruments=[self.LabView]
+        self.LabView = LabView.LabView(experiment=self)
+        self.instruments = [self.LabView]
         
         #analyses
-        self.shot0Analysis=analysis.ImagePlotAnalysis('analysisShot0',self.experiment,description='just show the incoming shot 0')
-        self.shotBrowserAnalysis=analysis.ShotsBrowserAnalysis(self.experiment)
-        self.imageSumAnalysis=analysis.ImageSumAnalysis(self.experiment)
-        self.squareROIAnalysis=analysis.SquareROIAnalysis(self.experiment)
-        self.save2013Analysis=save2013style.Save2013Analysis(self.experiment)
-        self.optimizer=analysis.OptimizerAnalysis(self.experiment)
-        self.analyses+=[self.shot0Analysis,self.shotBrowserAnalysis,self.imageSumAnalysis,self.squareROIAnalysis,self.save2013Analysis]
-        
-        
-        self.properties+=['LabView']
+        self.shot0_analysis = analysis.ImagePlotAnalysis('analysisShot0', self.experiment, description='just show the incoming shot 0')
+        self.shotBrowserAnalysis = analysis.ShotsBrowserAnalysis(self.experiment)
+        self.imageSumAnalysis = analysis.ImageSumAnalysis(self.experiment)
+        self.squareROIAnalysis = analysis.SquareROIAnalysis(self.experiment)
+        self.save2013Analysis = save2013style.Save2013Analysis(self.experiment)
+        self.optimizer = analysis.OptimizerAnalysis(self.experiment)
+        self.analyses += [self.shot0_analysis, self.shotBrowserAnalysis, self.imageSumAnalysis, self.squareROIAnalysis,
+                          self.save2013Analysis]
+
+        self.properties += ['LabView']
+
         try:
             self.loadDefaultSettings()
         except PauseError:
             logger.warning('PauseError')
         except Exception as e:
             logger.warning('While trying Experiment.loadDefaultSettings in AQuA.__init__().\n'+str(e)+'\n'+str(traceback.format_exc())+'\n')
-        
+
         #update variables
+        self.allow_evaluation = True
         try:
             logger.debug('starting evaluateAll')
             self.evaluateAll()
@@ -739,4 +755,3 @@ class AQuA(Experiment):
             logger.warning('PauseError')
         except Exception as e:
             logger.warning('While trying Experiment.evaluateAll() on in AQuA.__init().\n'+str(e)+'\n'+str(traceback.format_exc())+'\n')
-            

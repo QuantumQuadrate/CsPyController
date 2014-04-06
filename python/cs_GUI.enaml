@@ -33,7 +33,7 @@ from sys import maxint
 import threading, datetime, time
 #from enthought.chaco.chaco_plot_editor import ChacoPlotItem
 import numpy, itertools
-from experiments import independentVariable
+from experiments import IndependentVariable
 from instrument_property import ListProp
 
 def get_load_file_callback(experiment):
@@ -417,7 +417,7 @@ enamldef IndependentVariablesGroupBox(GroupBox): iVarBox:
     PushButton: addbutton:
         text='+'
         clicked::
-            newvar=independentVariable('new',experiment) #new blank independentVariable
+            newvar=IndependentVariable('new',experiment) #new blank independentVariable
             iVarBox.experiment.independentVariables.append(newvar) #add a new variable to the list
             dyno.refresh_items()
     GroupBox: varlistContainer:
@@ -1827,13 +1827,13 @@ enamldef Main(MainWindow): main:
                     PI_PiezoPage:
                         piezo=main.experiment.LabView.piezo
                     Shot0ResultsPage:
-                        analysis=main.experiment.shot0Analysis
+                        analysis=main.experiment.shot0_analysis
                     ShotsBrowserPage:
                         experiment=main.experiment
                         analysis=main.experiment.shotBrowserAnalysis
                     MultiImagePage:
                         experiment=main.experiment
-                        analysis0=main.experiment.shot0Analysis
+                        analysis0=main.experiment.shot0_analysis
                         analysis1=main.experiment.shotBrowserAnalysis
                         analysis2=main.experiment.imageSumAnalysis
                     ROIPage:

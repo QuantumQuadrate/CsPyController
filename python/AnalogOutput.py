@@ -1,4 +1,4 @@
-'''AnalogOutput.py
+"""AnalogOutput.py
 Part of the AQuA Cesium Controller software package
 
 author=Martin Lichtman
@@ -6,12 +6,12 @@ created=2013-10-24
 modified>=2013-10-24
 
 This file holds everything needed to model the analog output from a National Instruments HSDIO card.  It communicates to LabView via the higher up LabView(Instrument) class.
-'''
+"""
 
 from __future__ import division
 
 from cs_errors import PauseError, setupLog
-logger=setupLog(__name__)
+logger = setupLog(__name__)
 
 from atom.api import Bool, Typed, Member
 from enaml.application import deferred_call
@@ -22,82 +22,85 @@ import cs_evaluate
 from cs_instruments import Instrument
 import numpy
 
+
 class AOEquation(EvalProp):
-    value=Member()
-    AO=Member()
+    value = Member()
+    AO = Member()
     #properties will already include 'function' from EvalProp, which is what holds our equation string
-    placeholder='AO equation'
+    placeholder = 'AO equation'
     
-    def __init__(self,name,experiment,description='',AO=None):
-        self.AO=AO
-        super(AOEquation,self).__init__(name,experiment,function='0*t')
+    def __init__(self, name, experiment, description='', AO=None):
+        self.AO = AO
+        super(AOEquation, self).__init__(name, experiment, function='0*t')
     
     #update the plot titles when the description changes
     #Atom will recognize this function name and set up an observer
-    def _observe_description(self,change):
+    def _observe_description(self, change):
         self.AO.update_plot()
     
     def evaluate(self):
-        if self.experiment.allowEvaluation:
+        if self.experiment.allow_evaluation:
             #evaluate the 'function' and store it in 'value'
             #but first add the variable 't' into the variables dictionary for timesteps.
             #This will overwrite any previous value, so we make a copy of the dictionary
-            vars=self.experiment.vars.copy()
-            vars['t']=self.AO.timesteps
+            vars = self.experiment.vars.copy()
+            vars['t'] = self.AO.timesteps
             try:
-                self.value=cs_evaluate.evalWithDict(self.function,varDict=vars,errStr='AO equation.evaluate: {}, {}, {}\n'.format(self.name,self.description,self.function))
+                self.value = cs_evaluate.evalWithDict(self.function, varDict=vars,
+                                                      errStr='AO equation.evaluate: {}, {}, {}\n'.format(self.name, self.description, self.function))
             except TraitError as e:
-                logger.warning('In AOEquation.evaluate(), TraitError while evaluating: '+self.name+'\ndescription: '+self.description+'\nfunction: '+self.function+'\n'+str(e))
+                logger.warning('In AOEquation.evaluate(), TraitError while evaluating: '+self.name+'\ndescription: ' + self.description+'\nfunction: ' + self.function + '\n' + str(e))
                 #raise PauseError
             self.AO.update_plot()
 
     def toHardware(self):
         try:
-            valueStr=' '.join(map(str,self.value.tolist()))
+            valueStr = ' '.join(map(str, self.value.tolist()))
         except Exception as e:
-            logger.warning('Exception in ' '.join(map(str,self.value.tolist())) in AnalogOutput.AOEquation.toHardware() in '+self.name+' .\n'+str(e))
+            logger.warning('Exception in ' '.join(map(str,self.value.tolist())) in AnalogOutput.AOEquation.toHardware() in ' + self.name + ' .\n' + str(e))
             raise PauseError
-        return '<{}>{}</{}>\n'.format(self.name,valueStr,self.name)
+        return '<{}>{}</{}>\n'.format(self.name, valueStr, self.name)
+
 
 class AnalogOutput(Instrument):
-    enable=Bool()
-    physicalChannels=Typed(StrProp)
-    minimum=Typed(FloatProp)
-    maximum=Typed(FloatProp)
-    clockRate=Typed(FloatProp)
-    totalAOTime=Typed(FloatProp)
-    units=Typed(FloatProp)
-    waitForStartTrigger=Typed(BoolProp)
-    triggerSource=Typed(StrProp)
-    triggerEdge=Typed(StrProp)
-    equations=Typed(ListProp)
-    exportStartTrigger=Typed(BoolProp)
-    exportStartTriggerDestination=Typed(StrProp)
+    enable = Member()
+    physicalChannels = Typed(StrProp)
+    minimum = Typed(FloatProp)
+    maximum = Typed(FloatProp)
+    clockRate = Typed(FloatProp)
+    totalAOTime = Typed(FloatProp)
+    units = Typed(FloatProp)
+    waitForStartTrigger = Typed(BoolProp)
+    triggerSource = Typed(StrProp)
+    triggerEdge = Typed(StrProp)
+    equations = Typed(ListProp)
+    exportStartTrigger = Typed(BoolProp)
+    exportStartTriggerDestination = Typed(StrProp)
     
-    timesteps=Member()
-    version=Member()
+    timesteps = Member()
+    version = Member()
     
-    figure=Typed(Figure)
-    backFigure=Typed(Figure)
-    figure1=Typed(Figure)
-    figure2=Typed(Figure)
+    figure = Typed(Figure)
+    backFigure = Typed(Figure)
+    figure1 = Typed(Figure)
+    figure2 = Typed(Figure)
     
-    enable_refresh=Bool(False) #makes it so that sub-equations won't redraw graph until full evaluation is done
+    enable_refresh = Bool(False)  # makes it so that sub-equations won't redraw graph until full evaluation is done
     
-    def __init__(self,experiment):
-        super(AnalogOutput,self).__init__('AnalogOutput',experiment)
-        self.version='2014.02.27'
-        self.enable=False
-        self.physicalChannels=StrProp('physicalChannels',self.experiment,'','"PXI1Slot2/ao0:7"')
-        self.minimum=FloatProp('minimum',self.experiment,'','-10')
-        self.maximum=FloatProp('maximum',self.experiment,'','10')
-        self.clockRate=FloatProp('clockRate',self.experiment,'','1000.0')
-        self.totalAOTime=FloatProp('totalAOTime',self.experiment,'','5.0')
-        self.units=FloatProp('units',self.experiment,'equations entered in ms','.001')
-        self.waitForStartTrigger=BoolProp('waitForStartTrigger',self.experiment,'','True')
-        self.triggerSource=StrProp('triggerSource',self.experiment,'','"/PXI1Slot2/PFI0"')
-        self.triggerEdge=StrProp('triggerEdge',self.experiment,'','"Rising"')
-        self.equations=ListProp('equations',self.experiment,listElementType=AOEquation,
+    def __init__(self, experiment):
+        super(AnalogOutput, self).__init__('AnalogOutput', experiment)
+        self.version = '2014.02.27'
+        self.enable = False
+        self.physicalChannels = StrProp('physicalChannels', self.experiment, '', '"PXI1Slot2/ao0:7"')
+        self.minimum = FloatProp('minimum', self.experiment, '', '-10')
+        self.maximum = FloatProp('maximum', self.experiment, '', '10')
+        self.clockRate = FloatProp('clockRate', self.experiment, '', '1000.0')
+        self.totalAOTime = FloatProp('totalAOTime', self.experiment, '', '5.0')
+        self.units = FloatProp('units', self.experiment, 'equations entered in ms', '.001')
+        self.waitForStartTrigger = BoolProp('waitForStartTrigger', self.experiment, '', 'True')
+        self.triggerSource = StrProp('triggerSource', self.experiment, '', '"/PXI1Slot2/PFI0"')
+        self.triggerEdge = StrProp('triggerEdge',self.experiment,'','"Rising"')
+        self.equations = ListProp('equations', self.experiment, listElementType=AOEquation,
                             listElementName='equation',listElementKwargs={'AO':self})
         self.exportStartTrigger=BoolProp('exportStartTrigger',self.experiment,'Should we trigger all other cards off the AO card?','True')
         self.exportStartTriggerDestination=StrProp('exportStartTriggerDestination',self.experiment,'What line to send the AO StartTrigger out to?','"/PXISlot2/PXI_Trig0"')
@@ -161,7 +164,7 @@ class AnalogOutput(Instrument):
                 self.swapFigures()
     
     def evaluate(self):
-        if self.experiment.allowEvaluation:
+        if self.experiment.allow_evaluation:
 
             self.enable_refresh=False
             #explicitly evaluate totalAOTime and clockRate and units first, so that we can calculate the time steps
