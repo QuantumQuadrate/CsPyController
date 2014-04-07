@@ -12,49 +12,62 @@ from enaml.validator import Validator
 import pickle, traceback, h5py, numpy
 import cs_evaluate
 
+
+class myBool(Bool):
+    """This class extends an Atom.Bool to make it more robust against loading settings from HDF5.
+    In a normal Bool, it cannot tolerate being assigned a value from a numpy.bool_
+    Here we get around this by giving the class its own from HDF5 method which casts loaded values to bool
+    before assignment."""
+
+    def toHDF5(self, hdf_parent_node, name='myBool'):
+        hdf_parent_node.attrs[name]=self.value
+
+    def fromHDF5(self, hdf):
+        pass
+
 class Prop(Atom):
-    '''The base class for all stored info about instruments and their properties.'''
+    """The base class for all stored info about instruments and their properties."""
     
-    name=Str()
-    description=Str()
-    experiment=Member()
-    properties=Member()
-    doNotSendToHardware=Member()
+    name = Str()
+    description = Str()
+    experiment = Member()
+    properties = Member()
+    doNotSendToHardware = Member()
     
-    def __init__(self,name,experiment,description=''):
-        self.experiment=experiment #keep track of the experiment so we can get variables and such
-        self.name = name #name must be compatible with being a python variable name, and also an XML tag
-        self.description=description #English language description, including units and hints about possible values
-        self.properties=['description']  #things that are evaluated (if they define evaluate()) and saved to xml.  This is a list of the STRING of variable names (i.e. 'enable', not just: enable)
-        self.doNotSendToHardware=['description']
+    def __init__(self, name, experiment, description=''):
+        self.experiment = experiment  # keep track of the experiment so we can get variables and such
+        self.name = name  # name must be compatible with being a python variable name, and also an XML tag
+        self.description = description  # English language description, including units and hints about possible values
+        self.properties = ['description']  # things that are evaluated (if they define evaluate()) and saved to xml.  This is a list of the STRING of variable names (i.e. 'enable', not just: enable)
+        self.doNotSendToHardware = ['description']
     
     def evaluate(self):
         if self.experiment.allow_evaluation:
             #go through the properties list and evaluate
             for p in self.properties:
                 try:
-                    o=getattr(self,p)
+                    o = getattr(self, p)
                 except:
                     #if the item isn't found
                     logger.warning('In Prop.evaluate for '+self.name+': Property '+p+' does not exist.')
                     continue
-                if hasattr(o,'evaluate'): #check if it has an evaluate method.  If not, do nothing.
+                if hasattr(o, 'evaluate'):  # check if it has an evaluate method.  If not, do nothing.
                     try:
-                        o.evaluate() #evaluate it
+                        o.evaluate()  # evaluate it
                     except PauseError:
                         raise PauseError
                     except Exception as e:
                         logger.warning('Evaluating '+p+' in '+self.name+'.properties.\n'+str(e)+str(traceback.format_exc())+'\n')
                         raise PauseError
     
-    def toHDF5(self,hdf_parent_node,name=None):
-        '''This function provides generic behavior to save a Prop as an HDF5 group.  The choice of group has been made because a Prop in
-        general can have subproperties, and using a dataset would limit this behavior.
-        We go through the properties list.  If an item has its own toHDF5() method, that will be used.
-        If not, then we will try to save it as a dataset. This will only work if it is a type that h5py recognizes.
-        Else, it will be pickled using python's human readable pickling format. And saved to the HDF5 as a string dataset.
-        We assume that settings files will only ever be accessed as read-only and so variable length strings are not bothered with.
-        The node name is self.name, because nodes must have unique names (and so node type cannot be used as the name).'''
+    def toHDF5(self, hdf_parent_node, name=None):
+        """This function provides generic behavior to save a Prop as an HDF5 group.  The choice of group has been made
+        because a Prop in general can have subproperties, and using a dataset would limit this behavior.  We go through
+        the properties list.  If an item has its own toHDF5() method, that will be used.  If not, then we will try to
+        save it as a dataset. This will only work if it is a type that h5py recognizes.  Else, it will be pickled using
+        python's human readable pickling format. And saved to the HDF5 as a string dataset.  We assume that settings
+        files will only ever be accessed as read-only and so variable length strings are not bothered with.  The node
+        name is self.name, because nodes must have unique names (and so node type cannot be used as the name)."""
         
         if name is None:
             #if no name suggestion is given (usually used for ListProps) then use self.name
@@ -77,7 +90,7 @@ class Prop(Atom):
             if hasattr(o,'toHDF5'):
             #use toHDF5() of the object if available
                 try:
-                    o.toHDF5(my_node)
+                    o.toHDF5(my_node,name=p)
                 except PauseError:
                     raise PauseError #pass it on quietly
                 except Exception as e:
@@ -155,7 +168,7 @@ class Prop(Atom):
                         except:
                             #if unpickling failed, just use the stored value
                             try:
-                                x=hdf.attrs[i]
+                                x = hdf.attrs[i]
                                 if exists:
                                     #mitigate the fact that atom cannot handle numpy bool and int types
                                     if type(var) == bool:

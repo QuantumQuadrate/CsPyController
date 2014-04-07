@@ -793,42 +793,16 @@ enamldef NumpyDOchannels(GroupBox):
         Include: dyno:
             objects<<[NumpyDOchannel(channel=x,index=i,digitalout=channels.digitalout,experiment=channels.experiment) for i,x in enumerate(channels.array)]
 
-enamldef NumpyTransition(Container):
-    attr transition
-    attr experiment
-    attr digitalout
-
-    padding=0
-
-    Field:
-        constraints = [height==20]
-        placeholder = 'description'
-        text:=transition['description']
-    Form:
-        padding=0
-        Field:
-            constraints = [width == 100,height==20]
-            placeholder='time'
-            text:=transition['function']
-            validator<<MyFloatValidator(experiment)
-            text::
-                transition['value']=experiment.eval_float(text)
-                valueLabel.text=str(transition['value']) #must be updated manually because transition['value'] identity does not change
-                digitalout.evaluate()
-        Label: valueLabel:
-            constraints = [width == 50,height==20]
-            text<<str(transition['value'])
-
 enamldef NumpyState(Form):
     attr state
     attr experiment
-    attr digitalout
+    attr waveform
 
     padding=0
 
     Field:
         constraints = [width == 100,height==20]
-        placeholder='state: None,0,1'
+        #placeholder='state: None,0,1'
         text:=state['function']
         validator<<MyEnumValidator(experiment,[None,0,1])
         text::
@@ -839,7 +813,7 @@ enamldef NumpyState(Form):
             else:
                 state['value']=temp
                 valueLabel.text=str(state['value']) #must be updated manually because state['value'] identity does not change
-            digitalout.evaluate()
+            waveform.evaluate()
     Label: valueLabel:
         constraints = [width == 50,height==20]
         #text<<str(state['value'])
@@ -881,7 +855,7 @@ enamldef TransitionDescription(Field):
 
 enamldef TransitionTime(Form):
     attr experiment
-    attr digitalout
+    attr waveform
     attr transition
     
     padding=0
@@ -894,7 +868,7 @@ enamldef TransitionTime(Form):
         text::
             transition['value']=experiment.eval_float(text)
             valueLabel.text=str(transition['value']) #must be updated manually because transition['value'] identity does not change
-            digitalout.evaluate()
+            waveform.evaluate()
     Label: valueLabel:
         constraints = [width == 50,height==20]
         text<<str(transition['value'])
@@ -983,10 +957,10 @@ enamldef NumpyWaveform(Container):
         GroupBox: transitions:
             hug_height='strong'
             hug_width='strong'
-            title='waveform'
+            title='waveform transition and sequence (valid states: blank(None),0,1)'
             constraints<<[grid(*[statesDyno.objects[i:(i+len(waveform.transitions.array)+1)] for i in range(0, len(statesDyno.objects), len(waveform.transitions.array)+1)])] if len(statesDyno.objects)>0 else []
             Include: statesDyno:
-                objects<<[DescriptionLabel()]+[TransitionDescription(transition=t) for t in waveform.transitions.array]+[TimeLabel()]+[TransitionTime(transition=t,experiment=waveform.experiment,digitalout=waveform.digitalout) for t in waveform.transitions.array]+(list(itertools.chain(*map(list,zip(*([[ChannelCombo(wfm=waveform,channels=waveform.digitalout.channels,channelList=waveform.channelList,position=i) for i in xrange(len(waveform.channelList))]]+[[NumpyState(state=s,experiment=waveform.experiment,digitalout=waveform.digitalout) for s in waveform.sequence.array.flat][i:i+len(waveform.channelList)] for i in range(0,waveform.sequence.array.size,len(waveform.channelList))]))))) if (len(waveform.channelList)>0) else [])
+                objects<<[DescriptionLabel()]+[TransitionDescription(transition=t) for t in waveform.transitions.array]+[TimeLabel()]+[TransitionTime(transition=t,experiment=waveform.experiment,waveform=waveform) for t in waveform.transitions.array]+(list(itertools.chain(*map(list,zip(*([[ChannelCombo(wfm=waveform,channels=waveform.digitalout.channels,channelList=waveform.channelList,position=i) for i in xrange(len(waveform.channelList))]]+[[NumpyState(state=s,experiment=waveform.experiment,waveform=waveform) for s in waveform.sequence.array.flat][i:i+len(waveform.channelList)] for i in range(0,waveform.sequence.array.size,len(waveform.channelList))]))))) if (len(waveform.channelList)>0) else [])
 
 enamldef WaveformPage(Page):
     attr waveform
@@ -1816,29 +1790,29 @@ enamldef Main(MainWindow): main:
                         DAQmx=main.experiment.LabView.DAQmxDO
                     DDS_Page:
                         DDS=main.experiment.LabView.DDS
-                    RFGenPage:
-                        LabView=main.experiment.LabView
-                    CameraPage:
-                        camera=main.experiment.LabView.camera
-                    #CounterPage:
-                    #    pass
-                    AnalogOutputPage:
-                        AO=main.experiment.LabView.AnalogOutput
-                    PI_PiezoPage:
-                        piezo=main.experiment.LabView.piezo
-                    Shot0ResultsPage:
-                        analysis=main.experiment.shot0_analysis
-                    ShotsBrowserPage:
-                        experiment=main.experiment
-                        analysis=main.experiment.shotBrowserAnalysis
-                    MultiImagePage:
-                        experiment=main.experiment
-                        analysis0=main.experiment.shot0_analysis
-                        analysis1=main.experiment.shotBrowserAnalysis
-                        analysis2=main.experiment.imageSumAnalysis
-                    ROIPage:
-                        experiment=main.experiment
-                        analysis=main.experiment.squareROIAnalysis
-                    OptimizerPage:
-                        experiment=main.experiment
-                        analysis=main.experiment.optimizer
+#                    RFGenPage:
+#                        LabView=main.experiment.LabView
+#                    CameraPage:
+#                        camera=main.experiment.LabView.camera
+#                    #CounterPage:
+#                    #    pass
+#                    AnalogOutputPage:
+#                        AO=main.experiment.LabView.AnalogOutput
+#                    PI_PiezoPage:
+#                        piezo=main.experiment.LabView.piezo
+#                    Shot0ResultsPage:
+#                        analysis=main.experiment.shot0_analysis
+#                    ShotsBrowserPage:
+#                        experiment=main.experiment
+#                        analysis=main.experiment.shotBrowserAnalysis
+#                    MultiImagePage:
+#                        experiment=main.experiment
+#                        analysis0=main.experiment.shot0_analysis
+#                        analysis1=main.experiment.shotBrowserAnalysis
+#                        analysis2=main.experiment.imageSumAnalysis
+#                    ROIPage:
+#                        experiment=main.experiment
+#                        analysis=main.experiment.squareROIAnalysis
+#                    OptimizerPage:
+#                        experiment=main.experiment
+#                        analysis=main.experiment.optimizer

@@ -595,7 +595,7 @@ class NumpyWaveform(Prop):
     
     def evaluate(self):
         if self.experiment.allow_evaluation:
-            super(NumpyWaveform,self).evaluate()
+            super(NumpyWaveform, self).evaluate()
             self.updateFigure()
     
     def toHardware(self):
