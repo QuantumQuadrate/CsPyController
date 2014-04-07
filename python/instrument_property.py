@@ -197,7 +197,7 @@ class Prop(Atom):
                         raise PauseError
                 else:
                     #check to see if it is stored as a dataset
-                    if isinstance(h5py._hl.dataset.DataSet):
+                    if isinstance(hdf[i],h5py._hl.dataset.Dataset):
                         try:
                             #try to unpickle it
                             x = pickle.loads(hdf[i].value)
@@ -219,7 +219,7 @@ class Prop(Atom):
                         except Exception as e:
                             logger.warning('in '+self.name+' in Prop.fromHDF5() while setting variable '+i+' in '+self.name+'\n'+str(e)+'\n')
                             raise PauseError
-                    elif isinstance(h5py._hl.group.Group):
+                    elif isinstance(hdf[i],h5py._hl.group.Group):
                         logger.warning('Cannot load HDF5 Group '+i+' without an fromHDF5() method in '+self.name)
                         raise PauseError
                     else:

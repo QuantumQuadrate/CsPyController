@@ -7,6 +7,7 @@ from cs_instruments import Instrument
 
 
 class PiezoChannel(Prop):
+    version = '2014.04.06'
     setServo = Typed(BoolProp)
     setPosition = Typed(FloatProp)
     readAxis = Str()
@@ -21,7 +22,7 @@ class PiezoChannel(Prop):
         self.readAxis = ''
         self.readServo = False
         self.readPosition = float('nan')
-        self.properties += ['setServo', 'setPosition', 'readAxis', 'readServo', 'readPosition']
+        self.properties += ['version', 'setServo', 'setPosition', 'readAxis', 'readServo', 'readPosition']
 
 
 class PiezoController(Prop):
@@ -39,7 +40,7 @@ class PiezoController(Prop):
         self.identificationRead = ''
         self.serialNumberRead = ''
         self.channels = ListProp('channels', self.experiment, listProperty=[PiezoChannel('channel'+str(i), self.experiment) for i in range(9)], listElementType=PiezoChannel, listElementName='channel')
-        self.properties = ['enable', 'serialNumber', 'identificationRead', 'serialNumberRead', 'channels']
+        self.properties = ['version', 'enable', 'serialNumber', 'identificationRead', 'serialNumberRead', 'channels']
 
 
 class Piezo(Instrument):

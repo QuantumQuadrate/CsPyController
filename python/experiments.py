@@ -132,7 +132,7 @@ class Experiment(Prop):
     notes = Str()
     
     #iteration Traits
-    progress = Member()
+    progress = Int(0)
     path = Member()  # full path to current experiment directory
     iteration = Member()
     measurement = Member()
@@ -503,10 +503,10 @@ class Experiment(Prop):
     
     def loadDefaultSettings(self):
         """Look for settings.hdf5 in this directory, and if it exists, load it."""
-        try:
+        if os.path.isfile('settings.hdf5'):
             self.load('settings.hdf5')
-        except IOError as e:
-            logger.warning('No default settings.hdf5 found.\n'+str(e))
+        else:
+            logger.debug('Default settings.hdf5 does not exist.')
 
     def load(self, path):
         logger.debug('starting file load')
@@ -519,7 +519,16 @@ class Experiment(Prop):
             allow_evaluation_was_toggled = False
 
         #load hdf5 from a file
-        f = h5py.File(path, 'a')
+        if not os.path.isfile(path):
+            logger.debug('Settings file {} does not exist'.format(path))
+            raise PauseError
+            
+        try:
+            f = h5py.File(path, 'a')
+        except Exception as e:
+            logger.warning('Problem loading HDF5 settings file in experiment.load().\n{}\n{}\n'.format(e,traceback.format_exc()))
+            raise PauseError
+        
         settings = f['settings/experiment']
         
         ##independentVariables
@@ -554,11 +563,15 @@ class Experiment(Prop):
             raise PauseError
         except Exception as e:
             logger.warning('in experiment.load()\n'+str(e)+'\n'+str(traceback.format_exc()))
+
+        f.close()
         logger.debug('ended file load')
 
         if allow_evaluation_was_toggled:
             self.allow_evaluation = True
-        #TODO: evaluate here?
+        
+        #now re-evaluate everything
+        self.evaluateAll()
 
     def autosave(self):
         logger.debug('Saving default HDF5...')

@@ -1814,31 +1814,31 @@ enamldef Main(MainWindow): main:
                         HSDIO=main.experiment.LabView.HSDIO
                     DAQmxDigitalOutPage:
                         DAQmx=main.experiment.LabView.DAQmxDO
-#                    DDS_Page:
-#                        DDS=main.experiment.LabView.DDS
-#                    RFGenPage:
-#                        LabView=main.experiment.LabView
-#                    CameraPage:
-#                        camera=main.experiment.LabView.camera
-#                    #CounterPage:
-#                    #    pass
-#                    AnalogOutputPage:
-#                        AO=main.experiment.LabView.AnalogOutput
-#                    PI_PiezoPage:
-#                        piezo=main.experiment.LabView.piezo
-#                    Shot0ResultsPage:
-#                        analysis=main.experiment.shot0_analysis
-#                    ShotsBrowserPage:
-#                        experiment=main.experiment
-#                        analysis=main.experiment.shotBrowserAnalysis
-#                    MultiImagePage:
-#                        experiment=main.experiment
-#                        analysis0=main.experiment.shot0_analysis
-#                        analysis1=main.experiment.shotBrowserAnalysis
-#                        analysis2=main.experiment.imageSumAnalysis
-#                    ROIPage:
-#                        experiment=main.experiment
-#                        analysis=main.experiment.squareROIAnalysis
-#                    OptimizerPage:
-#                        experiment=main.experiment
-#                        analysis=main.experiment.optimizer
+                    DDS_Page:
+                        DDS=main.experiment.LabView.DDS
+                    RFGenPage:
+                        LabView=main.experiment.LabView
+                    CameraPage:
+                        camera=main.experiment.LabView.camera
+                    #CounterPage:
+                    #    pass
+                    AnalogOutputPage:
+                        AO=main.experiment.LabView.AnalogOutput
+                    PI_PiezoPage:
+                        piezo=main.experiment.LabView.piezo
+                    Shot0ResultsPage:
+                        analysis=main.experiment.shot0_analysis
+                    ShotsBrowserPage:
+                        experiment=main.experiment
+                        analysis=main.experiment.shotBrowserAnalysis
+                    MultiImagePage:
+                        experiment=main.experiment
+                        analysis0=main.experiment.shot0_analysis
+                        analysis1=main.experiment.shotBrowserAnalysis
+                        analysis2=main.experiment.imageSumAnalysis
+                    ROIPage:
+                        experiment=main.experiment
+                        analysis=main.experiment.squareROIAnalysis
+                    OptimizerPage:
+                        experiment=main.experiment
+                        analysis=main.experiment.optimizer

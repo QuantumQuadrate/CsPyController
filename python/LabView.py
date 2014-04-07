@@ -61,7 +61,7 @@ class LabView(Instrument):
 
 
         self.connected = False
-        self.HSDIO = HSDIO.npHSDIO('HSIDO', experiment)
+        self.HSDIO = HSDIO.npHSDIO('HSDIO', experiment)
         self.DDS = DDS.DDS(experiment, self)
         self.piezo = piezo.Piezo(experiment)
         self.RF_generators = RF_generators.RF_generators(experiment)
