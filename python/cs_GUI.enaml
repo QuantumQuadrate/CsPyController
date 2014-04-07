@@ -103,18 +103,22 @@ class MyEnumValidator(Validator):
         #if we've gotten this far, all tests have passed
         return True
 
-#TODO make these Fields have validation and able to process statements
+#TODO: make these Fields have validation and able to process statements
 enamldef MyIntField(Field):
+    """This class exists to make an IntField that is able to be synced with a numpy array element."""
     attr value
     text << str(value)
     text :: self.value = int(text)
 
 enamldef MyFloatField(Field):
+    """This class exists to make a FloatField that is able to be synced with a numpy array element."""
     attr value
     text << str(value)
     text :: self.value = float(text)
 
 enamldef MyBoolField(Field):
+    """This class exists to make a BoolField (which isn't something that is available anyway),
+     that is able to be synced with a numpy array element."""
     attr value
     text << str(value)
     text :: self.value = bool(text)
@@ -1190,8 +1194,7 @@ enamldef DDS_box(StackItem):
             Label:
                 text='NI USB-8451 device reference'
             Field:
-                #TODO: make this a combo box, with the ability to get items from LabView
-                # or eventually non-labview 8451 driver
+                pass
                 text:=box.deviceReference
             
             Label:
@@ -1203,10 +1206,9 @@ enamldef DDS_box(StackItem):
                 value:=box.DIOport
             Label:
                 text='serialClockRate'
-            FloatField:
-                value:=box.serialClockRate
+            IntField:
+                value:=box.serialClockRate  # THIS LINE IS THE PROBLEM !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
-        
         GroupBox:
             hug_height='strong'
             hug_width='strong'
@@ -1250,8 +1252,11 @@ enamldef DDS_Page(Page): page:
                 enabled=False #keep it greyed out.
             
             GroupBox: stackGroup:
+                pass
                 title='DDS boxes'
-                constraints=[vbox(hbox(addButton,removeButton,combo),stack),stack.width==contents_width]
+                constraints=[vbox(hbox(combo,addButton,removeButton),stack),stack.width==contents_width]
+                ComboBox: combo:
+                    items<<list(DDS.boxDescriptionList)
                 PushButton: addButton:
                     text='+'
                     constraints=[width==50,height==20]
@@ -1270,12 +1275,11 @@ enamldef DDS_Page(Page): page:
                             dyno.refresh_items()
                             DDS.updateBoxDescriptionList()
                             combo.index=i-1
-                ComboBox: combo:
-                    items<<list(DDS.boxDescriptionList)
                 Stack: stack:
                     index<<combo.index
                     Looper: dyno:
                         iterable<<DDS.boxes
+                        pass
                         DDS_box:
                             box=loop_item
 
@@ -1782,37 +1786,37 @@ enamldef Main(MainWindow): main:
                         LabView=main.experiment.LabView
                     HSDIO_DigitalOutPage:
                         HSDIO=main.experiment.LabView.HSDIO
-#                    #HSDIO_DigitalOutPage:
-#                    #    HSDIO=main.experiment.LabView.HSDIO2
+                    #HSDIO_DigitalOutPage:
+                    #    HSDIO=main.experiment.LabView.HSDIO2
                     WaveformsPage:
                         HSDIO=main.experiment.LabView.HSDIO
                     DAQmxDigitalOutPage:
                         DAQmx=main.experiment.LabView.DAQmxDO
                     DDS_Page:
                         DDS=main.experiment.LabView.DDS
-#                    RFGenPage:
-#                        LabView=main.experiment.LabView
-#                    CameraPage:
-#                        camera=main.experiment.LabView.camera
-#                    #CounterPage:
-#                    #    pass
-#                    AnalogOutputPage:
-#                        AO=main.experiment.LabView.AnalogOutput
-#                    PI_PiezoPage:
-#                        piezo=main.experiment.LabView.piezo
-#                    Shot0ResultsPage:
-#                        analysis=main.experiment.shot0_analysis
-#                    ShotsBrowserPage:
-#                        experiment=main.experiment
-#                        analysis=main.experiment.shotBrowserAnalysis
-#                    MultiImagePage:
-#                        experiment=main.experiment
-#                        analysis0=main.experiment.shot0_analysis
-#                        analysis1=main.experiment.shotBrowserAnalysis
-#                        analysis2=main.experiment.imageSumAnalysis
-#                    ROIPage:
-#                        experiment=main.experiment
-#                        analysis=main.experiment.squareROIAnalysis
-#                    OptimizerPage:
-#                        experiment=main.experiment
-#                        analysis=main.experiment.optimizer
+                    RFGenPage:
+                        LabView=main.experiment.LabView
+                    CameraPage:
+                        camera=main.experiment.LabView.camera
+                    #CounterPage:
+                    #    pass
+                    AnalogOutputPage:
+                        AO=main.experiment.LabView.AnalogOutput
+                    PI_PiezoPage:
+                        piezo=main.experiment.LabView.piezo
+                    Shot0ResultsPage:
+                        analysis=main.experiment.shot0_analysis
+                    ShotsBrowserPage:
+                        experiment=main.experiment
+                        analysis=main.experiment.shotBrowserAnalysis
+                    MultiImagePage:
+                        experiment=main.experiment
+                        analysis0=main.experiment.shot0_analysis
+                        analysis1=main.experiment.shotBrowserAnalysis
+                        analysis2=main.experiment.imageSumAnalysis
+                    ROIPage:
+                        experiment=main.experiment
+                        analysis=main.experiment.squareROIAnalysis
+                    OptimizerPage:
+                        experiment=main.experiment
+                        analysis=main.experiment.optimizer

@@ -13,17 +13,18 @@ import pickle, traceback, h5py, numpy
 import cs_evaluate
 
 
-class myBool(Bool):
-    """This class extends an Atom.Bool to make it more robust against loading settings from HDF5.
-    In a normal Bool, it cannot tolerate being assigned a value from a numpy.bool_
-    Here we get around this by giving the class its own from HDF5 method which casts loaded values to bool
-    before assignment."""
+# class myBool(Bool):
+#     """This class extends an Atom.Bool to make it more robust against loading settings from HDF5.
+#     In a normal Bool, it cannot tolerate being assigned a value from a numpy.bool_
+#     Here we get around this by giving the class its own from HDF5 method which casts loaded values to bool
+#     before assignment."""
+#
+#     def toHDF5(self, hdf_parent_node, name='myBool'):
+#         hdf_parent_node.attrs[name]=self.value #is a Bool accessable this way?
+#
+#     def fromHDF5(self, hdf):
+#         self.value=hdf
 
-    def toHDF5(self, hdf_parent_node, name='myBool'):
-        hdf_parent_node.attrs[name]=self.value
-
-    def fromHDF5(self, hdf):
-        pass
 
 class Prop(Atom):
     """The base class for all stored info about instruments and their properties."""
@@ -71,26 +72,26 @@ class Prop(Atom):
         
         if name is None:
             #if no name suggestion is given (usually used for ListProps) then use self.name
-            name=self.name
+            name = self.name
         
         #create the group that represents this Prop
-        my_node=hdf_parent_node.create_group(name)
+        my_node = hdf_parent_node.create_group(name)
         
         #go through the list of properties:
         for p in self.properties:
             
             #convert the string name to an actual object
             try:
-                o=getattr(self,p)
+                o = getattr(self, p)
             except:
                 logger.warning('In Prop.toXML() for class '+name+': item '+p+' in properties list does not exist.\n')
                 continue
             
             #try to save it in various ways
-            if hasattr(o,'toHDF5'):
+            if hasattr(o, 'toHDF5'):
             #use toHDF5() of the object if available
                 try:
-                    o.toHDF5(my_node,name=p)
+                    o.toHDF5(my_node, p)
                 except PauseError:
                     raise PauseError #pass it on quietly
                 except Exception as e:
@@ -638,7 +639,7 @@ class ListProp(Prop):
                         logger.warning('Evaluating list item '+str(i)+' '+o.name+' in ListProp.evaluate() in '+self.name+'.\n'+str(e)+'\n'+str(traceback.format_exc())+'\n')
                         raise PauseError
     
-    def toHDF5(self, hdf):
+    def toHDF5(self, hdf, name=None):
         """ListProp has a special toHDF5 method because we do not save any of the normal properties for a listProp.
           It would be confusing to do so, as that is not what a ListProp is for."""
 
@@ -763,9 +764,9 @@ class Numpy1DProp(Prop):
     def remove(self,index):
         self.array=numpy.delete(self.array,index)
 
-    def toHDF5(self,hdf):
+    def toHDF5(self, hdf, name=None):
         try:
-            hdf.create_dataset(self.name,data=self.array,dtype=self.hdf_dtype)
+            hdf.create_dataset(self.name, data=self.array, dtype=self.hdf_dtype)
         except Exception as e:
             logger.warning('While trying to create dataset in Numpy1DProp.toHDF5() in '+self.name+'.\n'+str(e)+'\n'+str(traceback.format_exc())+'\n')
             raise PauseError
@@ -826,7 +827,7 @@ class Numpy2DProp(Prop):
     def removeColumn(self,index):
         self.array=numpy.delete(self.array,index,axis=1)
     
-    def toHDF5(self,hdf):
+    def toHDF5(self, hdf, name=None):
         x=hdf.create_dataset(self.name,self.array.shape,dtype=self.hdf_dtype)
         x[:,:]=self.array
         

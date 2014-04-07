@@ -76,10 +76,10 @@ class DDS(Instrument):
         print result
 
 class DDSbox(Prop):
-    enable = Member()
+    enable = Bool()
     deviceReference = Str()
-    DIOport = Member()
-    serialClockRate = Member()
+    DIOport = Int()
+    serialClockRate = Int()
     channels = Typed(ListProp)
     DDS = Member()
     
