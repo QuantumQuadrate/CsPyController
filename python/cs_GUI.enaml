@@ -609,36 +609,6 @@ enamldef StartTrigger(GroupBox):
     EvalProp:
         prop<<trigger.edge
 
-enamldef HSDIO_DigitalOutPage(Page):
-    attr HSDIO
-    title = 'HSDIO Pulses'
-    
-    Container:
-        Container:
-                constraints=[vbox(p1,p9,p2,p3,p4,p5,p6,p7,p8),align('left',p1,p9,p2,p3,p4,p5,p6,p7,p8)]
-                hug_height='strong'
-                hug_width='strong'
-                EvalProp: p1:
-                    prop<<HSDIO.enable
-                StartTrigger: p9:
-                    trigger<<HSDIO.startTrigger
-                IndexedStack: p2:
-                    title='Script Triggers'
-                    iterable=HSDIO.triggers
-                    viewType=HSDIOScriptTrigger
-                MultilineProp: p3:
-                    prop<<HSDIO.script
-                EvalProp: p4:
-                    prop<<HSDIO.resourceName
-                EvalProp: p5:
-                    prop<<HSDIO.clockRate
-                EvalProp: p6:
-                    prop<<HSDIO.units
-                EvalProp: p7:
-                    prop<<HSDIO.hardwareAlignmentQuantum
-                DOchannels: p8:
-                    channels<<HSDIO.channels
-
 enamldef Transition(Container):
     attr transition
     attr waveform
@@ -1024,7 +994,7 @@ enamldef WaveformPage(Page):
     title<<waveform.name
     closed::waveform.remove()
     
-    Waveform:
+    NumpyWaveform:
         waveform<<parent.waveform
 
 enamldef WaveformsPage(Page):
@@ -1052,6 +1022,36 @@ enamldef WaveformsPage(Page):
             tab_style='preferences'
             Include: dynamicInclude:
                 objects=[WaveformPage(waveform=i) for i in HSDIO.waveforms]
+
+enamldef HSDIO_DigitalOutPage(Page):
+    attr HSDIO
+    title = 'HSDIO Pulses'
+
+    Container:
+        Container:
+                constraints=[vbox(p1,p9,p2,p3,p4,p5,p6,p7,p8),align('left',p1,p9,p2,p3,p4,p5,p6,p7,p8)]
+                hug_height='strong'
+                hug_width='strong'
+                EvalProp: p1:
+                    prop<<HSDIO.enable
+                StartTrigger: p9:
+                    trigger<<HSDIO.startTrigger
+                IndexedStack: p2:
+                    title='Script Triggers'
+                    iterable=HSDIO.triggers
+                    viewType=HSDIOScriptTrigger
+                MultilineProp: p3:
+                    prop<<HSDIO.script
+                EvalProp: p4:
+                    prop<<HSDIO.resourceName
+                EvalProp: p5:
+                    prop<<HSDIO.clockRate
+                EvalProp: p6:
+                    prop<<HSDIO.units
+                EvalProp: p7:
+                    prop<<HSDIO.hardwareAlignmentQuantum
+                NumpyDOchannels: p8:
+                    channels<<HSDIO.channels
 
 enamldef DAQmxDigitalOutPage(Page):
     title = 'DAQmx DO'    
@@ -1180,7 +1180,7 @@ enamldef DDS_channel(GroupBox):
         hug_height='strong'
         hug_width='strong'
         ComboBox: combo:
-            items<<channel.profileDescriptionList
+            items<<list(channel.profileDescriptionList)
         Stack:
             index<<combo.index
             #Include: dyno:
@@ -1211,7 +1211,7 @@ enamldef DDS_box(StackItem):
                 clicked::
                     box.deviceReference=combo.selected_item.strip()
             ComboBox: combo:
-                items<<box.DDS.deviceList
+                items<<list(box.DDS.deviceList)
                 
             Label:
                 text='NI USB-8451 device reference'
@@ -1297,7 +1297,7 @@ enamldef DDS_Page(Page): page:
                             DDS.updateBoxDescriptionList()
                             combo.index=i-1
                 ComboBox: combo:
-                    items<<DDS.boxDescriptionList
+                    items<<list(DDS.boxDescriptionList)
                 Stack: stack:
                     index<<combo.index
                     Looper: dyno:
@@ -1795,7 +1795,7 @@ enamldef Main(MainWindow): main:
                     ProgressBar: progress:
                         minimum=0
                         maximum=100
-                        value<<experiment.progress
+                        value<<int(experiment.progress)
                 Notebook:
                     tabs_closable=False
                     tabs_movable=False
@@ -1808,37 +1808,37 @@ enamldef Main(MainWindow): main:
                         LabView=main.experiment.LabView
                     HSDIO_DigitalOutPage:
                         HSDIO=main.experiment.LabView.HSDIO
-                    #HSDIO_DigitalOutPage:
-                    #    HSDIO=main.experiment.LabView.HSDIO2
+#                    #HSDIO_DigitalOutPage:
+#                    #    HSDIO=main.experiment.LabView.HSDIO2
                     WaveformsPage:
                         HSDIO=main.experiment.LabView.HSDIO
                     DAQmxDigitalOutPage:
                         DAQmx=main.experiment.LabView.DAQmxDO
-                    DDS_Page:
-                        DDS=main.experiment.LabView.DDS
-                    RFGenPage:
-                        LabView=main.experiment.LabView
-                    CameraPage:
-                        camera=main.experiment.LabView.camera
-                    #CounterPage:
-                    #    pass
-                    AnalogOutputPage:
-                        AO=main.experiment.LabView.AnalogOutput
-                    PI_PiezoPage:
-                        piezo=main.experiment.LabView.piezo
-                    Shot0ResultsPage:
-                        analysis=main.experiment.shot0_analysis
-                    ShotsBrowserPage:
-                        experiment=main.experiment
-                        analysis=main.experiment.shotBrowserAnalysis
-                    MultiImagePage:
-                        experiment=main.experiment
-                        analysis0=main.experiment.shot0_analysis
-                        analysis1=main.experiment.shotBrowserAnalysis
-                        analysis2=main.experiment.imageSumAnalysis
-                    ROIPage:
-                        experiment=main.experiment
-                        analysis=main.experiment.squareROIAnalysis
-                    OptimizerPage:
-                        experiment=main.experiment
-                        analysis=main.experiment.optimizer
+#                    DDS_Page:
+#                        DDS=main.experiment.LabView.DDS
+#                    RFGenPage:
+#                        LabView=main.experiment.LabView
+#                    CameraPage:
+#                        camera=main.experiment.LabView.camera
+#                    #CounterPage:
+#                    #    pass
+#                    AnalogOutputPage:
+#                        AO=main.experiment.LabView.AnalogOutput
+#                    PI_PiezoPage:
+#                        piezo=main.experiment.LabView.piezo
+#                    Shot0ResultsPage:
+#                        analysis=main.experiment.shot0_analysis
+#                    ShotsBrowserPage:
+#                        experiment=main.experiment
+#                        analysis=main.experiment.shotBrowserAnalysis
+#                    MultiImagePage:
+#                        experiment=main.experiment
+#                        analysis0=main.experiment.shot0_analysis
+#                        analysis1=main.experiment.shotBrowserAnalysis
+#                        analysis2=main.experiment.imageSumAnalysis
+#                    ROIPage:
+#                        experiment=main.experiment
+#                        analysis=main.experiment.squareROIAnalysis
+#                    OptimizerPage:
+#                        experiment=main.experiment
+#                        analysis=main.experiment.optimizer

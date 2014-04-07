@@ -35,6 +35,7 @@ class StartTrigger(Prop):
 #---- DAQmxDO instrument ----
 
 class DAQmxDO(Instrument):
+    version='2014.03.25'
     enable=Typed(BoolProp)
     script=Typed(StrProp)
     resourceName=Typed(StrProp)
@@ -45,13 +46,10 @@ class DAQmxDO(Instrument):
     channels=Member()
     triggers=Member()
     startTrigger=Member()
-    version=Member()
-    numChannels=Member()
+    numChannels=8
     
     def __init__(self,experiment):
         super(DAQmxDO,self).__init__('DAQmxDO',experiment)
-        self.version='2014.03.25'
-        self.numChannels=32
         self.enable=BoolProp('enable',experiment,'enable output','False')
         self.resourceName=StrProp('resourceName',experiment,'the hardware location of the card',"'Dev1'")
         self.clockRate=FloatProp('clockRate',experiment,'samples/channel/sec','1000')

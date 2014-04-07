@@ -31,7 +31,7 @@ class Camera(Instrument):
         self.doNotSendToHardware+=['saveAsPNG','saveAsASCII']
 
 class HamamatsuC9100_13(Camera):
-    version=Str()
+    version='2014.01.17'
     forceImagesToU16=Typed(BoolProp)
     EMGain=Typed(IntRangeProp)
     analogGain=Typed(IntRangeProp)
@@ -63,7 +63,6 @@ class HamamatsuC9100_13(Camera):
     def __init__(self,experiment):
         super(HamamatsuC9100_13,self).__init__(experiment)
         
-        self.version='2014.01.17'
         self.forceImagesToU16=BoolProp('forceImagesToU16',experiment,'convert images to U16 (necessary on Aquarius hardware)','False')
         self.EMGain=IntRangeProp('EMGain',experiment,'EMCCD gain','0',low=0,high=255)
         self.analogGain=IntRangeProp('analogGain',experiment,'analog gain','0',low=0,high=5)

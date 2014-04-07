@@ -1,4 +1,4 @@
-'''HSDIO.py
+"""HSDIO.py
 Part of the AQuA Cesium Controller software package
 
 author=Martin Lichtman
@@ -6,42 +6,42 @@ created=2013-10-08
 modified>=2013-10-08
 
 This file holds everything needed to model the high speed digital output from the National Instruments HSDIO card.  It communicates to LabView via the higher up LabView(Instrument) class.
-'''
+"""
 
 from cs_errors import PauseError, setupLog
-logger=setupLog(__name__)
+logger = setupLog(__name__)
 
 from atom.api import Typed, Str, Int, Member
-#from enthought.chaco.api import ArrayPlotData, Plot #for chaco plot
 from instrument_property import Prop, BoolProp, IntProp, FloatProp, StrProp, ListProp
 from cs_instruments import Instrument
 
-from digital_waveform import Waveform, Channels, NumpyChannels
-#import digital_waveform #my helper class for making Chaco plots of waveforms
+from digital_waveform import NumpyWaveform, Channels, NumpyChannels
 
 #---- HSDIO properties ----
+
+
 class ScriptTrigger(Prop):
-    id=Typed(StrProp)
-    source=Typed(StrProp)
-    type=Typed(StrProp)
-    edge=Typed(StrProp)
-    level=Typed(StrProp)
+    id = Typed(StrProp)
+    source = Typed(StrProp)
+    type = Typed(StrProp)
+    edge = Typed(StrProp)
+    level = Typed(StrProp)
     
-    def __init__(self,name,experiment,description=''):
-        super(ScriptTrigger,self).__init__('trigger',experiment,description)
-        self.id=StrProp('id',experiment,'','"ScriptTrigger0"')
-        self.source=StrProp('source',experiment,'','"PFI0"')
-        self.type=StrProp('type',experiment,'','"edge"')
-        self.edge=StrProp('edge',experiment,'','"rising"')
-        self.level=StrProp('level',experiment,'','"high"')
-        self.properties+=['id','source','type','edge','level']
+    def __init__(self, name, experiment, description=''):
+        super(ScriptTrigger, self).__init__('trigger', experiment, description)
+        self.id = StrProp('id', experiment, '', '"ScriptTrigger0"')
+        self.source = StrProp('source', experiment, '', '"PFI0"')
+        self.type = StrProp('type', experiment, '', '"edge"')
+        self.edge = StrProp('edge', experiment, '', '"rising"')
+        self.level = StrProp('level', experiment, '', '"high"')
+        self.properties += ['id', 'source', 'type', 'edge', 'level']
 
 class Waveforms(ListProp):
     #digitalout=Member()
     #refreshButton=Member()
     '''We can't use an unmodified ListProp for this because the added children must be passed waveforms=self, which is not possible to describe in a one-line definintion.'''
     def __init__(self,experiment,digitalout):
-        super(Waveforms,self).__init__('waveforms',experiment,description='Holds all the digitalout waveforms',listElementType=Waveform,listElementName='waveform',listElementKwargs={'digitalout':digitalout,'waveforms':self})
+        super(Waveforms,self).__init__('waveforms',experiment,description='Holds all the digitalout waveforms',listElementType=NumpyWaveform,listElementName='waveform',listElementKwargs={'digitalout':digitalout,'waveforms':self})
         #self.digitalout=digitalout
         
     #def fromXML(self,xmlNode):
@@ -67,53 +67,53 @@ class StartTrigger(Prop):
 
 #---- HSDIO instrument ----
 
+
 class HSDIO(Instrument):
-    enable=Typed(BoolProp)
-    script=Typed(StrProp)
-    resourceName=Typed(StrProp)
-    clockRate=Typed(FloatProp)
-    units=Typed(FloatProp)
-    hardwareAlignmentQuantum=Typed(IntProp)
-    waveforms=Typed(Waveforms)
-    channels=Typed(Channels)
-    triggers=Typed(ListProp)
-    startTrigger=Typed(StartTrigger)
-    version=Str()
-    numChannels=Int()
+    version = '2014.01.22'
+    enable = Typed(BoolProp)
+    script = Typed(StrProp)
+    resourceName = Typed(StrProp)
+    clockRate = Typed(FloatProp)
+    units = Typed(FloatProp)
+    hardwareAlignmentQuantum = Typed(IntProp)
+    waveforms = Typed(Waveforms)
+    channels = Typed(Channels)
+    triggers = Typed(ListProp)
+    startTrigger = Typed(StartTrigger)
+    numChannels = 32
     
-    def __init__(self,name,experiment):
-        super(HSDIO,self).__init__(name,experiment)
-        self.version='2014.01.22'
-        self.numChannels=32
-        self.enable=BoolProp('enable',experiment,'enable HSDIO output','False')
-        self.script=StrProp('script',experiment,'HSDIO script that says what waveforms to generate',"'script script1\\n  wait 1\\nend script'")
-        self.resourceName=StrProp('resourceName',experiment,'the hardware location of the HSDIO card',"'Dev1'")
-        self.clockRate=FloatProp('clockRate',experiment,'samples/channel/sec','1000')
-        self.units=FloatProp('units',experiment,'multiplier for HSDIO timing values (milli=.001)','1')
-        self.hardwareAlignmentQuantum=IntProp('hardwareAlignmentQuantum',experiment,'(PXI=1,SquareCell=2)','1')
-        self.waveforms=Waveforms(experiment,self)
-        self.channels=Channels(experiment,self)
-        self.triggers=ListProp('triggers',self.experiment,listElementType=ScriptTrigger,listElementName='trigger')
-        self.startTrigger=StartTrigger(experiment)
-        self.properties+=['version','enable','resourceName','clockRate','units','hardwareAlignmentQuantum','waveforms','triggers','channels','startTrigger','script']
-        self.doNotSendToHardware+=['units','script','waveforms'] #script and waveforms are handled specially in HSDIO.toHardware()
+    def __init__(self, name, experiment):
+        super(HSDIO, self).__init__(name, experiment)
+        self.enable = BoolProp('enable', experiment, 'enable HSDIO output', 'False')
+        self.script = StrProp('script', experiment, 'HSDIO script that says what waveforms to generate', "'script script1\\n  wait 1\\nend script'")
+        self.resourceName = StrProp('resourceName', experiment, 'the hardware location of the HSDIO card', "'Dev1'")
+        self.clockRate = FloatProp('clockRate', experiment, 'samples/channel/sec', '1000')
+        self.units = FloatProp('units', experiment, 'multiplier for HSDIO timing values (milli=.001)', '1')
+        self.hardwareAlignmentQuantum = IntProp('hardwareAlignmentQuantum', experiment, '(PXI=1,SquareCell=2)', '1')
+        self.waveforms = Waveforms(experiment, self)
+        self.channels = Channels(experiment, self)
+        self.triggers = ListProp('triggers', self.experiment, listElementType=ScriptTrigger, listElementName='trigger')
+        self.startTrigger = StartTrigger(experiment)
+        self.properties += ['version', 'enable', 'resourceName', 'clockRate', 'units', 'hardwareAlignmentQuantum',
+                            'startTrigger', 'triggers', 'channels', 'waveforms', 'script']
+        self.doNotSendToHardware += ['units', 'script', 'waveforms']  # script and waveforms are handled specially in HSDIO.toHardware()
     
     def initialize(self):
-        self.isInitialized=True
+        self.isInitialized = True
     
     def toHardware(self):
-        '''override to accommodate compressedGenerate, and to only upload necessary waveforms
+        """override to accommodate compressedGenerate, and to only upload necessary waveforms
         toHardware for HSDIO.waveforms and HSDIO.script will be overridden and return blank so they do not append conflicting results
-        no need to evaluate, that will already be done by this point'''
+        no need to evaluate, that will already be done by this point"""
         
         #build dictionary of waveforms keyed on waveform name
-        definedWaveforms={i.name:i for i in self.waveforms}
+        definedWaveforms = {i.name:i for i in self.waveforms}
         
         #keep track of which waveforms are to be uploaded
-        waveformsInUse=[]
+        waveformsInUse = []
         
-        scriptOut=''
-        waveformXML=''
+        scriptOut = ''
+        waveformXML = ''
         
         #go through script line by line
         for row in self.script.value.split('\n'):
@@ -165,7 +165,9 @@ class HSDIO(Instrument):
 
 class npHSDIO(Instrument):
     '''version of HSDIO that uses numpy based waveforms'''
-    
+    version='2014.04.05'
+    numChannels=32
+
     enable=Member()
     script=Member()
     resourceName=Member()
@@ -176,13 +178,9 @@ class npHSDIO(Instrument):
     channels=Member()
     triggers=Member()
     startTrigger=Member()
-    version=Str()
-    numChannels=Int()
-    
+
     def __init__(self,name,experiment):
         super(npHSDIO,self).__init__(name,experiment)
-        self.version='2014.04.05'
-        self.numChannels=32
         self.enable=BoolProp('enable',experiment,'enable HSDIO output','False')
         self.script=StrProp('script',experiment,'HSDIO script that says what waveforms to generate',"'script script1\\n  wait 1\\nend script'")
         self.resourceName=StrProp('resourceName',experiment,'the hardware location of the HSDIO card',"'Dev1'")

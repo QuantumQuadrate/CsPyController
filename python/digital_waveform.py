@@ -13,6 +13,7 @@ import numpy, h5py
 
 defaultState=5
 
+
 class Channel(Prop):
     active=Typed(BoolProp)
     
@@ -20,6 +21,7 @@ class Channel(Prop):
         super(Channel,self).__init__(name,experiment,description)
         self.active=BoolProp('active',experiment,'','True')
         self.properties+=['active']
+
 
 class Channels(ListProp):
     digitalout=Member()
@@ -36,6 +38,7 @@ class Channels(ListProp):
         xState='X'*len(activeChannels)
         return ('<InitialState>'+xState+'</InitialState>\n<IdleState>'+xState+'</IdleState>\n<ActiveChannels>'+','.join(activeChannels)+'</ActiveChannels>\n')
 
+
 class State(ListProp):
     digitalout=Member()
     allowedValues=[0,1,5]
@@ -45,6 +48,7 @@ class State(ListProp):
             listProperty=[EnumProp('channel'+str(i),experiment,function=str(defaultState),allowedValues=self.allowedValues) for i in range(digitalout.numChannels)], #defaultState is a global at the top of the module
             listElementType=EnumProp,listElementName='channel',listElementKwargs={'function':str(defaultState),'allowedValues':self.allowedValues})
         self.digitalout=digitalout
+
 
 class Transition(Prop):
     time=Typed(FloatProp) #when does this transition happen
@@ -57,6 +61,7 @@ class Transition(Prop):
         self.time=FloatProp('time',self.experiment,'when this transition happens','0')
         self.state=State(self.experiment,self.digitalout)
         self.properties+=['time','state']
+
 
 class Sequence(ListProp):
     digitalout=Member()
@@ -74,54 +79,54 @@ class Sequence(ListProp):
 class Waveform(Prop):
     
     #MPL plot
-    figure=Typed(Figure)
-    backFigure=Typed(Figure)
-    figure1=Typed(Figure)
-    figure2=Typed(Figure)
+    figure = Typed(Figure)
+    backFigure = Typed(Figure)
+    figure1 = Typed(Figure)
+    figure2 = Typed(Figure)
     
-    digitalout=Member()
-    waveforms=Member()
-    sequence=Member()
-    isEmpty=Member()
-    ax=Member()
-    timeList=Member()
-    stateList=Member()
-    duration=Member()
+    digitalout = Member()
+    waveforms = Member()
+    sequence = Member()
+    isEmpty = Member()
+    ax = Member()
+    timeList = Member()
+    stateList = Member()
+    duration = Member()
     
-    def __init__(self,name,experiment,description='',digitalout=None,waveforms=None):
-        super(Waveform,self).__init__(name,experiment,description)
-        self.digitalout=digitalout
-        self.waveforms=waveforms
-        self.sequence=Sequence(self.experiment,self.digitalout) #start with no transitions
-        self.isEmpty=True
-        self.properties+=['isEmpty','sequence']
+    def __init__(self, name, experiment, description='', digitalout=None, waveforms=None):
+        super(Waveform,self).__init__(name, experiment, description)
+        self.digitalout = digitalout
+        self.waveforms = waveforms
+        self.sequence = Sequence(self.experiment, self.digitalout)  # start with no transitions
+        self.isEmpty = True
+        self.properties += ['isEmpty', 'sequence']
         
-        self.figure1=Figure(figsize=(5,5))
-        self.figure2=Figure(figsize=(5,5))
-        self.backFigure=self.figure2
-        self.figure=self.figure1
+        self.figure1 = Figure(figsize=(5, 5))
+        self.figure2 = Figure(figsize=(5, 5))
+        self.backFigure = self.figure2
+        self.figure = self.figure1
     
-    def fromXML(self,xmlNode):
-        super(Waveform,self).fromXML(xmlNode)
+    def fromXML(self, xmlNode):
+        super(Waveform, self).fromXML(xmlNode)
         self.updateFigure()
         return self
     
     def addTransition(self):
         #newTransition=Transition(self.experiment,self.digitalout)
-        newTransition=self.sequence.add()
+        newTransition = self.sequence.add()
         self.updateFigure()
         return newTransition
     
     def fmt(self): #format is a python built-in so I did not want to use that as a function name
-        '''Create timeList, a 1D array of transition times, and stateList a 2D array of output values.'''
+        """Create timeList, a 1D array of transition times, and stateList a 2D array of output values."""
         if len(self.sequence)==0:
-            self.isEmpty=True
-            self.timeList=numpy.zeros(0,dtype='uint64')
-            self.stateList=numpy.zeros((0,self.digitalout.numChannels),dtype='uint8')
-            self.duration=numpy.zeros(0,dtype='uint64')
+            self.isEmpty = True
+            self.timeList = numpy.zeros(0, dtype='uint64')
+            self.stateList = numpy.zeros((0, self.digitalout.numChannels), dtype='uint8')
+            self.duration = numpy.zeros(0, dtype='uint64')
         else:
             self.isEmpty=False
-            
+
             #create arrays
             timeList=numpy.array([i.time.value for i in self.sequence],dtype='float64')
             stateList=numpy.array([[channel.value for channel in transition.state] for transition in self.sequence],dtype='uint8') #channel here refers to an IntProp, not to a Channel
@@ -306,6 +311,7 @@ class Waveform(Prop):
         except:
             print "trouble with my_node.create_dataset('sequence',data=seq,dtype=[('function',h5py.special_dtype(vlen=str)),('value',numpy.uint8)])"
 
+
 class NumpyChannels(Numpy1DProp):
     digitalout=Member()
     
@@ -313,13 +319,16 @@ class NumpyChannels(Numpy1DProp):
         super(NumpyChannels,self).__init__('channels',experiment,description,dtype=[('description',object),('function',object),('value',bool)],hdf_dtype=[('description',h5py.special_dtype(vlen=str)),('function',h5py.special_dtype(vlen=str)),('value',bool)],zero=('new','True',True))
         self.digitalout=digitalout
 
+
 class NumpyTransitions(Numpy1DProp):
     def __init__(self,experiment,description=''):
         super(NumpyTransitions,self).__init__('transitions',experiment,description,dtype=[('description',object),('function',object),('value',numpy.float64)],hdf_dtype=[('description',h5py.special_dtype(vlen=str)),('function',h5py.special_dtype(vlen=str)),('value',numpy.float64)],zero=('new','0',0))
 
+
 class NumpySequence(Numpy2DProp):
     def __init__(self,experiment,description=''):
         super(NumpySequence,self).__init__('sequence',experiment,description,dtype=[('function',object),('value',numpy.uint8)],hdf_dtype=[('function',h5py.special_dtype(vlen=str)),('value',numpy.uint8)],zero=('',5))
+
 
 class NumpyWaveform(Prop):
     
@@ -368,6 +377,9 @@ class NumpyWaveform(Prop):
     
     def fromHDF5(self, hdf):
         super(NumpyWaveform, self).fromHDF5(hdf)
+
+        if len(self.channelList)<(numpy.shape(self.sequence.array)[1]):
+            self.channelList=numpy.arange(self.digitalout.numChannels,dtype=numpy.uint8)
         self.updateFigure()
         return self
     
@@ -487,25 +499,27 @@ class NumpyWaveform(Prop):
         
         if not self.isEmpty:
             
-            stateList=self.stateList
+            stateList = self.stateList
             #include final sample, and convert from samples to time
-            timeList=numpy.append(self.timeList,numpy.array(self.timeList[-1]+1,dtype=numpy.uint64)).astype(numpy.float64)/(self.digitalout.clockRate.value*self.digitalout.units.value)
-            duration=self.duration.astype(numpy.float64)/(self.digitalout.clockRate.value*self.digitalout.units.value)
+            timeList = numpy.append(self.timeList,
+                                    numpy.array(self.timeList[-1]+1,
+                                    dtype=numpy.uint64)).astype(numpy.float64)/(self.digitalout.clockRate.value*self.digitalout.units.value)
+            duration = self.duration.astype(numpy.float64)/(self.digitalout.clockRate.value*self.digitalout.units.value)
             
             #get plot info
-            numTransitions,numChannels=numpy.shape(stateList)
+            numTransitions,numChannels = numpy.shape(stateList)
             
             #create axis
-            ax=fig.add_subplot(111)
-            ax.set_ylim(0,numChannels)
+            ax = fig.add_subplot(111)
+            ax.set_ylim(0, numChannels)
             ax.set_xlabel('time')
             
             #create dummy lines for legend
-            ax.plot((),(),linewidth=5,alpha=0.5,color='white',label='off 0')
-            ax.plot((),(),linewidth=5,alpha=0.5,color='black',label='on 1')
+            ax.plot((), (),  linewidth=5, alpha=0.5, color='white', label='off 0')
+            ax.plot((), (), linewidth=5, alpha=0.5, color='black', label='on 1')
             #ax.plot((),(),linewidth=5,alpha=0.5,color='grey',label='unresolved')
             #ax.plot((),(),linewidth=5,alpha=0.5,color='red',label='invalid')
-            ax.legend(loc='upper center',bbox_to_anchor=(0.5, 1.11), fancybox=True, ncol=2)
+            ax.legend(loc='upper center', bbox_to_anchor=(0.5, 1.11), fancybox=True, ncol=2)
             
             #set up plot ticks
             ax.set_xticks(timeList)
@@ -557,25 +571,27 @@ class NumpyWaveform(Prop):
             fig.subplots_adjust(left=.2,right=.95,bottom=.2)
     
     def swapFigures(self):
-        temp=self.backFigure
-        self.backFigure=self.figure
-        self.figure=temp
+        temp = self.backFigure
+        self.backFigure = self.figure
+        self.figure = temp
     
     def updateFigure(self):
-        '''This function redraws the broken bar chart display of the waveform sequences.'''
-        self.format() #update processed sequence
-    
-        #Make the matplotlib plot
-        self.drawMPL()
-        
-        try:
-            deferred_call(self.swapFigures)
-        except RuntimeError: #application not started yet
-            self.swapFigures()
+        """This function redraws the broken bar chart display of the waveform sequences."""
+
+        if self.experiment.allow_evaluation:
+            self.format()  # update processed sequence
+
+            #Make the matplotlib plot
+            self.drawMPL()
+
+            try:
+                deferred_call(self.swapFigures)
+            except RuntimeError:  # application not started yet
+                self.swapFigures()
     
     def remove(self):
         if self.waveforms is not None:
-            self.waveforms.remove(self) #remove ourselves from the master list, becoming subject to garbage collection
+            self.waveforms.remove(self)  # remove ourselves from the master list, becoming subject to garbage collection
     
     def evaluate(self):
         if self.experiment.allow_evaluation:

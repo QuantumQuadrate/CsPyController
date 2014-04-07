@@ -28,7 +28,7 @@ def toBool(x):
 
 class LabView(Instrument):
     enabled = Member()
-    port = Int()
+    port = Member()
     IP = Str()
     connected = Member()
     msg = Str()
@@ -51,6 +51,15 @@ class LabView(Instrument):
     '''This is a meta instrument which encapsulates the capability of the HEXQC2 PXI system. It knows about several subsystems (HSDIO, DAQmx, Counters, Camera), and can send settings and commands to a corresponding Labview client.'''
     def __init__(self, experiment):
         super(LabView, self).__init__('LabView', experiment, 'for communicating with a LabView system')
+
+        #defaults
+        self.enabled = False
+        self.port = 0
+        self.connected = False
+        self.error = False
+        self.cycleContinuously = False
+
+
         self.connected = False
         self.HSDIO = HSDIO.npHSDIO('HSIDO', experiment)
         self.DDS = DDS.DDS(experiment, self)

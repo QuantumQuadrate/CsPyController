@@ -110,24 +110,24 @@ class Prop(Atom):
         self is the object corresponding to the top level tag in the parameter hdf, and its children are what will be loaded here.'''
         
         #hdf node is guaranteed to have a name
-        self.name = hdf.name
+        self.name = hdf.name.split('/')[-1]
         
         #check version
         if 'version' in hdf.attrs:
             if hasattr(self, 'version'):
                 if hdf.attrs['version'] != self.version:
-                    logger.warning('Current '+self.name+' version is '+self.version+', you are loading from version: '+hdf.attrs['version'])
+                    logger.info('Current '+self.name+' version is '+self.version+', you are loading from version: '+hdf.attrs['version'])
             else:
-                logger.warning('Code object '+self.name+' has no version, but HDF5 node has version: '+hdf.attrs['version'])
+                logger.info('Code object '+self.name+' has no version, but HDF5 node has version: '+hdf.attrs['version'])
         elif hasattr(self, 'version'):
-            logger.warning('Code object '+self.name+' has version '+self.version+' but HDF5 node has no version tag.')
+            logger.info('Code object '+self.name+' has version '+self.version+' but HDF5 node has no version tag.')
         
         #go through all attributes of hdf node and try to load them
         for i in hdf.attrs:
             if i != 'version':
                 #check to see if this is one of the properties we care to load
                 if i not in self.properties:
-                    logger.warning('Prop.fromHDF5(): HDF5 has attribute: '+i+', but this is not in the '+self.name+'.properties list.  It will not be loaded.\n')
+                    logger.info('Prop.fromHDF5(): HDF5 has attribute: '+i+', but this is not in the '+self.name+'.properties list.  It will not be loaded.\n')
                 else:
                     #load in all other tags into variables
                     try:
@@ -135,7 +135,7 @@ class Prop(Atom):
                         var = getattr(self, i)
                         exists = True
                     except:
-                        logger.warning('in '+self.name+' in Prop.fromHDF5().  Will attempt to load attribute' + i +
+                        logger.info('in '+self.name+' in Prop.fromHDF5().  Will attempt to load attribute' + i +
                                        ' which was not previously defined in ' + self.name + '.\n')
                         exists = False
                     if exists and hasattr(var, 'fromHDF5'):
@@ -156,6 +156,12 @@ class Prop(Atom):
                             #if unpickling failed, just use the stored value
                             try:
                                 x=hdf.attrs[i]
+                                if exists:
+                                    #mitigate the fact that atom cannot handle numpy bool and int types
+                                    if type(var) == bool:
+                                        x = bool(x)
+                                    elif type(var) == int:
+                                        x = int(x)
                             except:
                                 logger.warning('Exception trying to load value for HDF5 attribute {} in {}.fromHDF5()'.format(i,self.name))
                                 raise PauseError
@@ -169,17 +175,17 @@ class Prop(Atom):
         for i in hdf:
             #check to see if this is one of the properties we care to load
             if i not in self.properties:
-                logger.warning('Prop.fromHDF5(): HDF5 has item: '+i+', but this is not in the '+self.name+'.properties list.  It will not be loaded.\n')
+                logger.info('Prop.fromHDF5(): HDF5 has item: '+i+', but this is not in the '+self.name+'.properties list.  It will not be loaded.\n')
             else:
                 #load in all other tags into variables
                 try:
                     #identify the variable to be loaded
-                    var=getattr(self,i)
-                    exists=True
+                    var = getattr(self, i)
+                    exists = True
                 except:
-                    logger.warning('in '+self.name+' in Prop.fromHDF5().  Will attempt to load '+i+' which was not previously defined in '+self.name+'.\n')
-                    exists=False
-                if exists and hasattr(var,'fromHDF5'):
+                    logger.info('in '+self.name+' in Prop.fromHDF5().  Will attempt to load '+i+' which was not previously defined in '+self.name+'.\n')
+                    exists = False
+                if exists and hasattr(var, 'fromHDF5'):
                     #set it using its own method
                     #this will preserve the instance identity
                     try:
@@ -194,16 +200,22 @@ class Prop(Atom):
                     if isinstance(h5py._hl.dataset.DataSet):
                         try:
                             #try to unpickle it
-                            x=pickle.loads(hdf[i].value)
+                            x = pickle.loads(hdf[i].value)
                         except:
                             #if unpickling failed, just use the stored value
                             try:
-                                x=hdf[i].value
+                                x = hdf[i].value
+                                if exists:
+                                    #mitigate the fact that atom cannot handle numpy bool and int types
+                                    if type(var) == bool:
+                                        x = bool(x)
+                                    elif type(var) == int:
+                                        x = int(x)
                             except:
                                 logger.warning('Exception trying to load value for HDF5 node {} in {}.fromHDF5()'.format(i,self.name))
                                 raise PauseError
                         try:
-                            setattr(self,i,x)
+                            setattr(self, i, x)
                         except Exception as e:
                             logger.warning('in '+self.name+' in Prop.fromHDF5() while setting variable '+i+' in '+self.name+'\n'+str(e)+'\n')
                             raise PauseError
@@ -363,7 +375,8 @@ class Prop(Atom):
     
     def call_evaluate(self,changed):
         '''This function exists to allow Atom calls to evaluate() when something is changed.  @observe passes the 'changed' parameter, whereas evaluate() takes no parameters'''
-        self.evaluate()
+        if self.experiment.allow_evaluation:
+            self.evaluate()
 
 # class EvalPropValidator(Validator):
     # valid=Bool()
@@ -372,7 +385,7 @@ class Prop(Atom):
 
 class EvalProp(Prop,Validator):
 
-    '''The base class for any Prop that has a function, and can be evaluated to a value.'''
+    """The base class for any Prop that has a function, and can be evaluated to a value."""
     
     function=Str()
     valid=Bool()
@@ -391,7 +404,8 @@ class EvalProp(Prop,Validator):
     
     def evaluate(self):
         if self.experiment.allow_evaluation:
-            '''This is the evaluation function that gets run programmatically during experiments and initialization.  It will pause an experiment if an evaluation fails.'''
+            """This is the evaluation function that gets run programmatically during experiments and initialization.
+            It will pause an experiment if an evaluation fails."""
             self.valid=self.evalfunc(self.function)
             #self.validator.valid=self.valid
             #print 'evaluate: self.valid='+str(self.valid)
@@ -409,7 +423,7 @@ class EvalProp(Prop,Validator):
         self.valid=self.evalfunc(text)
         return self.valid
     
-    def evalfunc(self,function):
+    def evalfunc(self, function):
         #If necessary we could call super(EvalProp,self).evaluate() to evaluate things in the properties list.  But I don't think an evalProp will ever need to do that.
         
         #Use experiment.vars, if available
@@ -537,28 +551,32 @@ class EnumProp(EvalProp):
     
     @observe('allowedValues')
     def set_placeholder(self,changed):
-        self.placeholder=','.join([str(i) for i in self.allowedValues])
+        self.placeholder = ','.join([str(i) for i in self.allowedValues])
+
 
 class ListProp(Prop):
-    listProperty=List()
-    listElementType=Member()
-    listElementName=Member()
-    listElementKwargs=Member()
+    listProperty = List()
+    listElementType = Member()
+    listElementName = Member()
+    listElementKwargs = Member()
     
-    def __init__(self,name,experiment,description='',listProperty=None,
-                    listElementType=None,listElementName='element',listElementKwargs={}):
-        super(ListProp,self).__init__(name,experiment,description)
+    def __init__(self, name, experiment, description='', listProperty=None, listElementType=None,
+                 listElementName='element', listElementKwargs=None):
+        super(ListProp, self).__init__(name, experiment, description)
         
         #we need the following if statement, because otherwise the listProperty of different instances of ListProp
         #are all set to point to the SAME default empty list []
         #default arguments are evaluated during definition, not during a call
         if listProperty is None:
-            self.listProperty=[]
+            self.listProperty = []
         else:
-            self.listProperty=listProperty
-        self.listElementType=listElementType
-        self.listElementName=listElementName
-        self.listElementKwargs=listElementKwargs
+            self.listProperty = listProperty
+        self.listElementType = listElementType
+        self.listElementName = listElementName
+        if listElementKwargs is None:
+            self.listElementKwargs = {}
+        else:
+            self.listElementKwargs = listElementKwargs
     
     def __iter__(self): 
         return iter(self.listProperty)
@@ -569,42 +587,42 @@ class ListProp(Prop):
     def __getitem__(self, i):
         return self.listProperty[i]
     
-    def append(self,x):
+    def append(self, x):
         self.listProperty.append(x)
     
-    def pop(self,i):
+    def pop(self, i):
         self.listProperty.pop(i)
     
-    def remove(self,x):
+    def remove(self, x):
         self.listProperty.remove(x)
     
     def getNextAvailableName(self):
         #figure out unique name for a new item
-        count=len(self.listProperty) #start naming after current length, so this will go faster
-        names=[i.name for i in self.listProperty]
+        count = len(self.listProperty) #start naming after current length, so this will go faster
+        names = [i.name for i in self.listProperty]
         while True:
-            name=self.listElementName+str(count)
+            name = self.listElementName+str(count)
             if not name in names:
                 return name
-            count+=1
+            count += 1
     
     def add(self):
-        new=self.listElementType(self.getNextAvailableName(),self.experiment,**self.listElementKwargs)
+        new = self.listElementType(self.getNextAvailableName(), self.experiment, **self.listElementKwargs)
         self.listProperty.append(new)
         return new
     
-    def index(self,x):
+    def index(self, x):
         return self.listProperty.index(x)
     
     def evaluate(self):
         if self.experiment.allow_evaluation:
             #go through the listProperty and evaluate each item
             for i,o in enumerate(self.listProperty):
-                if hasattr(o,'evaluate'): #check if it has an evaluate method.  If not, do nothing.
+                if hasattr(o, 'evaluate'):  # check if it has an evaluate method.  If not, do nothing.
                     try:
-                        o.evaluate() #evaluate it
+                        o.evaluate()  # evaluate it
                     except Exception as e:
-                        logger.warning('Evaluating list item '+str(i)+' '+o.name+' in ListProp.evaluate() in '+self.name+'.\n'+str(e))
+                        logger.warning('Evaluating list item '+str(i)+' '+o.name+' in ListProp.evaluate() in '+self.name+'.\n'+str(e)+'\n'+str(traceback.format_exc())+'\n')
                         raise PauseError
     
     def toHDF5(self, hdf):
@@ -661,24 +679,24 @@ class ListProp(Prop):
                         raise PauseError
 
     def fromHDF5(self, hdf):
+        """ListProp has a special fromHDF5 method because we do not try to load any of the normal properties.  We only
+        load things into the listProperty."""
 
         #do not call super
 
         #load the listProperty
-        if 'listProperty' in hdf:
-            try:
-                self.listProperty = [self.listElementType(child.name, self.experiment, **self.listElementKwargs).fromHDF5(child) for i, child in enumerate(hdf['listProperty'])]
-            except Exception as e:
-                logger.warning('in '+self.name+' in ListProp.fromHDF5() for hdf node: '+hdf.name+'.\n'+str(e)+'\n'+str(traceback.format_exc())+'\n')
-                raise PauseError
-        else:
-            logger.warning('HDF group for ListProp {} did not contain a node listProperty in {}'.format(self.name))
+        try:
+            self.listProperty = [self.listElementType(i, self.experiment, **self.listElementKwargs).fromHDF5(hdf[i]) for i in hdf]
+        except PauseError:
+            raise PauseError
+        except Exception as e:
+            logger.warning('in {} in ListProp.fromHDF5() for hdf node {}\n{}\n{}\n'.format(self.name, hdf.name, e, traceback.format_exc()))
             raise PauseError
         return self
     
     def toXML(self):
         #go through the listProperty and toXML each item
-        output=''
+        output = ''
         
         for i,o in enumerate(self.listProperty):
             try:
@@ -739,8 +757,12 @@ class Numpy1DProp(Prop):
             logger.warning('While trying to create dataset in Numpy1DProp.toHDF5() in '+self.name+'.\n'+str(e)+'\n'+str(traceback.format_exc())+'\n')
             raise PauseError
         
-    def fromHDF5(self,hdf):
-        self.array=hdf.value.astype(self.dtype)
+    def fromHDF5(self, hdf):
+        try:
+            self.array = hdf.value.astype(self.dtype)
+        except Exception as e:
+            logger.warning(' in Numpy1DProp.fromHDF5() in {} for hdf node {}\n{}\n{}\n'.format(self.name, hdf.name, e, traceback.format_exc()))
+            raise PauseError
 
     def toXML(self):
         #special toXML method because the default pickling ends up giving parse errors due to weird characters

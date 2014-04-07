@@ -40,6 +40,14 @@ class IndependentVariables(ListProp):
         #    self.experiment.ivarRefreshButton.clicked() #refresh variables GUI
         return self
 
+    def fromHDF5(self, hdf):
+        super(IndependentVariables, self).fromHDF5(hdf)
+        if self.dyno is not None:
+            self.dyno.refresh_items()
+        #if hasattr(self.experiment,'ivarRefreshButton'): #prevents trying to do this before GUI is active
+        #    self.experiment.ivarRefreshButton.clicked() #refresh variables GUI
+        return self
+
 
 class IndependentVariable(EvalProp):
     """A class to hold the independent variables for an experiment.  These are
@@ -49,38 +57,43 @@ class IndependentVariable(EvalProp):
     logspace, sin(logspace), as complicated as you like, so long as it can be eval()'d and then
     cast to an array."""
     
-    valueListStr=Str()
-    steps=Int()
-    index=Int()
-    currentValueStr=Str()
-    valueList=Member()
-    currentValue=Member()
+    valueListStr = Str()
+    steps = Member()
+    index = Member()
+    currentValueStr = Str()
+    valueList = Member()
+    currentValue = Member()
     
-    def __init__(self,name,experiment,description='',function=''):
-        super(IndependentVariable,self).__init__(name,experiment,description,function)
-        self.valueList=numpy.array([]).flatten()
-        self.currentValue=None
+    def __init__(self, name, experiment, description='', function=''):
+        super(IndependentVariable, self).__init__(name, experiment, description, function)
+        self.steps=0
+        self.index=0
+        self.valueList = numpy.array([]).flatten()
+        self.currentValue = None
+    
+    # #override from EvalProp()
+    # def _function_changed(self, val):
+    #     #re-evaluate the variable when the function is changed
+    #     if self.experiment.allow_evaluation:
+    #         self.evaluate()
+    #         self.setIndex(self.index)
     
     #override from EvalProp()
-    def _function_changed(self,val):
-        #re-evaluate the variable when the function is changed
-        self.evaluate()
-        self.setIndex(self.index)
-        
-        #TODO: should we re-evaluate() the whole experiment on this change?
-    
-    #override from EvalProp()
+
     def evaluate(self):
         if self.experiment.allow_evaluation:
-            if self.function=='':
-                a=None
+            if self.function == '':
+                a = None
             else:
-                a=cs_evaluate.evalWithDict('array('+self.function+').flatten()',errStr='Evaluating independent variable '+', '.join([self.name,self.description,self.function])+'\n')
-            if a==None:
-                a=numpy.array([]).flatten()
-            self.valueList=a
-            self.steps=len(a)
-            self.valueListStr=str(self.valueList)
+                a = cs_evaluate.evalWithDict('array('+self.function+').flatten()',
+                                             errStr='Evaluating independent variable '+', '.join([self.name, self.description, self.function])+'\n')
+            if a is None:
+                a = numpy.array([]).flatten()
+            self.valueList = a
+            self.steps = len(a)
+            self.valueListStr = str(self.valueList)
+        self.setIndex(self.index)
+        #TODO: should we re-evaluate() the whole experiment on this change?
     
     def setIndex(self,index):
         if self.steps==0:
@@ -98,7 +111,7 @@ class IndependentVariable(EvalProp):
 
 class Experiment(Prop):
 
-    version = '2014.01.30'
+    version = '2014.04.06'
 
     #experiment control Traits
     status = Str('idle')
@@ -113,18 +126,18 @@ class Experiment(Prop):
     copyDataToNetwork = Member()
     experimentDescriptionFilenameSuffix = Str()
     measurementTimeout = Float()
-    measurementsPerIteration = Int()
+    measurementsPerIteration = Member()
     willSendEmail = Member()
     emailAddresses = Str()
     notes = Str()
     
     #iteration Traits
-    progress = Int()
+    progress = Member()
     path = Member()  # full path to current experiment directory
-    iteration = Int()
-    measurement = Int()
-    goodMeasurements = Int()
-    totalIterations = Int()
+    iteration = Member()
+    measurement = Member()
+    goodMeasurements = Member()
+    totalIterations = Member()
     
     #time Traits
     timeStartedStr = Str()
@@ -169,6 +182,18 @@ class Experiment(Prop):
         """Defines a set of instruments, and a sequence of what to do with them."""
 
         self.allow_evaluation = False
+
+        #default values
+        self.pauseAfterIteration = False
+        self.pauseAfterMeasurement = False
+        self.pauseAfterError = False
+        self.saveData = False
+        self.saveSettings = False
+        self.save2013styleFiles = False
+        self.copyDataToNetwork = False
+        self.measurementsPerIteration = 0
+        self.willSendEmail = False
+
         super(Experiment, self).__init__('experiment',self) #name is 'experiment', associated experiment is self
         self.instruments = []  # a list of the instruments this experiment has defined
         self.completedMeasurementsByIteration = []
@@ -188,18 +213,20 @@ class Experiment(Prop):
                             'variablesNotToSave', 'notes']
 
     def evaluateIndependentVariables(self):
-        #make sure ivar functions have been parsed, don't rely on GUI update
-        for i in self.independentVariables:
-            i.evaluate()
-        
-        #set up independent variables
-        self.ivarNames=[i.name for i in self.independentVariables] #names of independent variables
-        self.ivarValueLists=[i.valueList for i in self.independentVariables]
-        self.ivarSteps=[i.steps for i in self.independentVariables]
-        self.totalIterations=int(numpy.product(self.ivarSteps))
-        
-        #set the current value of the independent variables
-        self.iterationToIndexArray()
+        if self.allow_evaluation:
+            #make sure ivar functions have been parsed
+            #for i in self.independentVariables:
+            #    i.evaluate()
+            self.independentVariables.evaluate()
+
+            #set up independent variables
+            self.ivarNames = [i.name for i in self.independentVariables] #names of independent variables
+            self.ivarValueLists = [i.valueList for i in self.independentVariables]
+            self.ivarSteps = [i.steps for i in self.independentVariables]
+            self.totalIterations = int(numpy.product(self.ivarSteps))
+
+            #set the current value of the independent variables
+            self.iterationToIndexArray()
     
     def iterationToIndexArray(self):
         '''takes the iteration number and figures out which index number each independent variable should have'''
@@ -232,8 +259,9 @@ class Experiment(Prop):
             i.update() #put the settings to where they should be at this iteration
     
     def evaluateAll(self):
-        self.evaluateIndependentVariables()
-        self.evaluate()
+        if self.allow_evaluation:
+            self.evaluateIndependentVariables()
+            self.evaluate()
     
     def evaluateDependentVariables(self):
         
@@ -479,7 +507,7 @@ class Experiment(Prop):
             self.load('settings.hdf5')
         except IOError as e:
             logger.warning('No default settings.hdf5 found.\n'+str(e))
-            
+
     def load(self, path):
         logger.debug('starting file load')
 
@@ -523,20 +551,15 @@ class Experiment(Prop):
         try:
             self.fromHDF5(settings)
         except PauseError:
-            raise PauseError #pass it along
+            raise PauseError
         except Exception as e:
-            logger.warning('Exception while loading experiment variables XML\n'+str(e)+'\n'+str(traceback.format_exc()))
+            logger.warning('in experiment.load()\n'+str(e)+'\n'+str(traceback.format_exc()))
         logger.debug('ended file load')
 
         if allow_evaluation_was_toggled:
             self.allow_evaluation = True
         #TODO: evaluate here?
-    
-    def saveThread(self, path):
-        '''Starts the saving in a separate thread, in case it takes a while.'''
-        #TODO:  This doesn't work because if there are 61 characters in path, it thinks I am passing 61 arguments.
-        threading.Thread(target=self.save, args=(path)).start()
-    
+
     def autosave(self):
         logger.debug('Saving default HDF5...')
         #create file
@@ -557,26 +580,26 @@ class Experiment(Prop):
         self.autosave().close()
         #copy to default location
         logger.debug('Copying HDF5 to save path...')
-        shutil.copy('settings.hdf5',path+'.hdf5')
+        shutil.copy('settings.hdf5', path+'.hdf5')
         
         #XML
         logger.debug('Creating XML...')
-        x=self.toXML()
+        x = self.toXML()
         #write to the chosen file
         logger.debug('Writing XML to save path...')
-        f=open(path+'.xml','w')
+        f = open(path+'.xml', 'w')
         f.write(x)
         f.close()
         logger.debug('Writing default XML...')
         #write to the default file
-        f=open('settings.xml','w')
+        f = open('settings.xml', 'w')
         f.write(x)
         f.close()
         logger.debug('... Save Complete.')
     
     def create_data_files(self):
-        '''Create a new HDF5 file to store results.  This is done at the beginning of
-        every experiment.'''
+        """Create a new HDF5 file to store results.  This is done at the beginning of
+        every experiment."""
         
         #if a prior HDF5 results file is open, then close it
         if hasattr(self,'hdf5') and (self.hdf5 is not None):
@@ -591,9 +614,9 @@ class Experiment(Prop):
             #create a new directory for experiment
             
             #build the path
-            dailyPath=datetime.datetime.fromtimestamp(self.timeStarted).strftime('%Y_%m_%d')
-            experimentPath=datetime.datetime.fromtimestamp(self.timeStarted).strftime('%Y_%m_%d_%H_%M_%S_')+self.experimentDescriptionFilenameSuffix
-            self.path=os.path.join(self.localDataPath,dailyPath,experimentPath)
+            dailyPath = datetime.datetime.fromtimestamp(self.timeStarted).strftime('%Y_%m_%d')
+            experimentPath = datetime.datetime.fromtimestamp(self.timeStarted).strftime('%Y_%m_%d_%H_%M_%S_')+self.experimentDescriptionFilenameSuffix
+            self.path = os.path.join(self.localDataPath, dailyPath, experimentPath)
             
             #check that it doesn't exist first
             if not os.path.isdir(self.path):
@@ -602,18 +625,18 @@ class Experiment(Prop):
                 os.makedirs(self.path)
             
             #save to a real file
-            self.hdf5=h5py.File(os.path.join(self.path,'results.hdf5'),'a')
+            self.hdf5 = h5py.File(os.path.join(self.path, 'results.hdf5'), 'a')
         
         else:
             #hold results only in memory
-            self.hdf5=h5py.File('results.hdf5','a',driver='core',backing_store=False)
+            self.hdf5 = h5py.File('results.hdf5', 'a', driver='core', backing_store=False)
         
         #add settings
         if self.saveSettings:
         
             #start by saving settings
             logger.debug('Autosaving')
-            autosave_file=self.autosave()
+            autosave_file = self.autosave()
             logger.debug('Done autosaving')
             
             try:
@@ -627,32 +650,32 @@ class Experiment(Prop):
                 logger.debug('Autosave closed')
         
         #store independent variable data for experiment
-        self.hdf5.attrs['start_time']=self.date2str(time.time())
-        self.hdf5.attrs['ivarNames']=self.ivarNames
-        self.hdf5.attrs['ivarValueLists']=self.ivarValueLists
-        self.hdf5.attrs['ivarSteps']=self.ivarSteps
+        self.hdf5.attrs['start_time'] = self.date2str(time.time())
+        self.hdf5.attrs['ivarNames'] = self.ivarNames
+        self.hdf5.attrs['ivarValueLists'] = self.ivarValueLists
+        self.hdf5.attrs['ivarSteps'] = self.ivarSteps
         
         #create a group to hold iterations in the hdf5 file
         self.hdf5.create_group('iterations')
         
         #store notes.  They will be stored again at the end of the experiment.
-        self.hdf5.attrs['notes']=self.notes
+        self.hdf5.attrs['notes'] = self.notes
         
         logger.debug('Finished create_data_files()')
     
     def create_hdf5_iteration(self):
         #write the iteration settings to the hdf5 file
-        self.iterationResults=self.hdf5.create_group('iterations/'+str(self.iteration))
-        self.iterationResults.attrs['start_time']=self.date2str(time.time())
-        self.iterationResults.attrs['iteration']=self.iteration
-        self.iterationResults.attrs['ivarNames']=self.ivarNames
-        self.iterationResults.attrs['ivarValues']=[i.currentValue for i in self.independentVariables]
-        self.iterationResults.attrs['ivarIndex']=self.ivarIndex
-        self.iterationResults.attrs['variableReportStr']=self.variableReportStr
+        self.iterationResults = self.hdf5.create_group('iterations/'+str(self.iteration))
+        self.iterationResults.attrs['start_time'] = self.date2str(time.time())
+        self.iterationResults.attrs['iteration'] = self.iteration
+        self.iterationResults.attrs['ivarNames'] = self.ivarNames
+        self.iterationResults.attrs['ivarValues'] = [i.currentValue for i in self.independentVariables]
+        self.iterationResults.attrs['ivarIndex'] = self.ivarIndex
+        self.iterationResults.attrs['variableReportStr'] = self.variableReportStr
         
-        #store the indepenedent and dependent variable space
+        #store the independent and dependent variable space
         v=self.iterationResults.create_group('v')
-        ignoreList=self.variablesNotToSave.split(',')
+        ignoreList = self.variablesNotToSave.split(',')
         for key,value in self.vars.iteritems():
             if key not in ignoreList:
                 try:

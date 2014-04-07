@@ -78,7 +78,7 @@ class AnalogOutput(Instrument):
     exportStartTriggerDestination = Typed(StrProp)
     
     timesteps = Member()
-    version = Member()
+    version = '2014.02.27'
     
     figure = Typed(Figure)
     backFigure = Typed(Figure)
@@ -89,7 +89,6 @@ class AnalogOutput(Instrument):
     
     def __init__(self, experiment):
         super(AnalogOutput, self).__init__('AnalogOutput', experiment)
-        self.version = '2014.02.27'
         self.enable = False
         self.physicalChannels = StrProp('physicalChannels', self.experiment, '', '"PXI1Slot2/ao0:7"')
         self.minimum = FloatProp('minimum', self.experiment, '', '-10')
