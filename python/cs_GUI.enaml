@@ -1721,7 +1721,6 @@ enamldef ROIPage(Page):
             clicked::
                 analysis.ROIs=numpy.delete(analysis.ROIs,spin0.value,axis=0)
         Container: dynoCont:
-            #constraints << [vbox(*dyno.objects)]
             Include: dyno:
                 objects<<[SquareROI(item=x,num=i) for i,x in enumerate(analysis.ROIs)]
         MPLCanvas: canvas:

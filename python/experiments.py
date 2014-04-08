@@ -768,7 +768,7 @@ class AQuA(Experiment):
         self.shot0_analysis = analysis.ImagePlotAnalysis('analysisShot0', self.experiment, description='just show the incoming shot 0')
         self.shotBrowserAnalysis = analysis.ShotsBrowserAnalysis(self.experiment)
         self.imageSumAnalysis = analysis.ImageSumAnalysis(self.experiment)
-        self.squareROIAnalysis = analysis.SquareROIAnalysis(self.experiment)
+        self.squareROIAnalysis = analysis.SquareROIAnalysis(self.experiment, ROI_rows=2, ROI_columns=2)
         self.save2013Analysis = save2013style.Save2013Analysis(self.experiment)
         self.optimizer = analysis.OptimizerAnalysis(self.experiment)
         self.analyses += [self.shot0_analysis, self.shotBrowserAnalysis, self.imageSumAnalysis, self.squareROIAnalysis,
