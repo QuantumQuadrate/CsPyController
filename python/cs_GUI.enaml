@@ -203,10 +203,10 @@ enamldef CsMenuBar(MenuBar): menuBar:
         title = '&Experiment'
         Action:
             text = 'Reset and Run\tCtrl+R'
-            triggered::experiment.resetAndGo1()
+            triggered::experiment.resetAndGoThread()
         Action:
             text = 'Continue\tCtrl+G'
-            triggered::experiment.go1()
+            triggered::experiment.goThread()
         Action:
             text = 'Halt\tCtrl+H'
             triggered::experiment.halt()
@@ -478,15 +478,11 @@ enamldef LabViewPage(Page):
         Container:
             hug_height='strong'
             Container:
-                constraints=[hbox(b1,b2,b3,b4),b1.width==100,b2.width==100,b3.width==100,b4.width==100]
+                constraints=[hbox(b1,b3,b4),b1.width==100,b3.width==100,b4.width==100]
                 PushButton: b1:
                     text='open connection'
                     clicked::
-                        LabView.open()
-                PushButton: b2:
-                    text='initialize'
-                    clicked::
-                        LabView.initialize()
+                        LabView.openThread()
                 PushButton: b3:
                     text='update settings'
                     clicked::
@@ -1341,6 +1337,8 @@ enamldef RFGenPage(Page):
     attr LabView
     title = 'RF Generators'
     Container:
+        EvalProp:
+            prop<<LabView.RF_generators.enable
         IndexedStack: i1:
             title='HP83623A'
             iterable=LabView.RF_generators.HP83623A_list

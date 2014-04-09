@@ -63,6 +63,3 @@ class DAQmxDO(Instrument):
         # the number of channels is defined by the resourceName (and the waveform which must agree), so
         # channels need not be send to hardware
         self.doNotSendToHardware += ['units', 'channels']
-    
-    def initialize(self):
-        self.isInitialized = True

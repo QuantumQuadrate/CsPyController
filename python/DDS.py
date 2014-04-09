@@ -66,12 +66,15 @@ class DDS(Instrument):
     
     def initializeDDS(self):
         #send just the DDS settings, force initialization, and then set DDS settings
-        result=self.communicator.send('<uninitializeDDS/>'+self.toHardware())
+        #This is not used as the instrument.initialize method at this time
+
+        result = self.communicator.send('<uninitializeDDS/>'+self.toHardware())
+        self.isInitialized = True
         print result
     
     def loadDDS(self):
         #send just the DDS settings, initialize if neccessary, and then set DDS settings
-        result=self.communicator.send(self.toHardware())
+        result = self.communicator.send(self.toHardware())
         self.isInitialized=True
         print result
 

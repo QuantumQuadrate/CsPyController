@@ -16,25 +16,25 @@ from numpy import * #make all numpy functions accessible in this scope
 #numpyDict={v:getattr(numpy, v) for v in dir(numpy)}
 
 def evalWithDict(string,varDict={},errStr=''):
-    '''string: the python expression to be evaluated
+    """string: the python expression to be evaluated
        varDict: a dictionary of variables, functions, modules, etc, to be used during the evaluation
        errStr: a string that says something about what is being evaluated, to make the error reporting useful
-       '''
+    """
     
     globals().update(varDict) #bring the varDict into the namespace
     
     if string!='':
         try:
-            return eval(string,globals()) #,varDict.copy()) #dict(numpyDict.items()+varDict.items())) #create a new dictionary so all numpy functions and everything defined in varDict is available as a global during evaluation
+            return eval(string, globals()) #,varDict.copy()) #dict(numpyDict.items()+varDict.items())) #create a new dictionary so all numpy functions and everything defined in varDict is available as a global during evaluation
         except Exception as e:
             logger.warning(errStr+'Could not eval string: '+string+'\n'+str(e)+'\n'+str(traceback.format_exc())+'\n')
             #return None
             raise PauseError
     return None
 
-def execWithDict(string,varDict={}):
-    '''This executes a string with the globals context including only numpy, and the locals including only what is passed in.
-    The passed in dictionary gets updated with newly defined locals.'''
+def execWithDict(string, varDict={}):
+    """This executes a string with the globals context including only numpy, and the locals including only what is passed in.
+    The passed in dictionary gets updated with newly defined locals."""
     
     if string!='':
         try:

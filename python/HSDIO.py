@@ -54,16 +54,16 @@ class Waveforms(ListProp):
     #        self.refreshButton.clicked()  #refresh the GUI
     
 class StartTrigger(Prop):
-    waitForStartTrigger=Typed(BoolProp)
-    source=Typed(StrProp)
-    edge=Typed(StrProp)
+    waitForStartTrigger = Typed(BoolProp)
+    source = Typed(StrProp)
+    edge = Typed(StrProp)
     
-    def __init__(self,experiment):
-        super(StartTrigger,self).__init__('startTrigger',experiment)
-        self.waitForStartTrigger=BoolProp('waitForStartTrigger',experiment,'HSDIO wait for start trigger','False')
-        self.source=StrProp('source',experiment,'start trigger source','"PFI0"')
-        self.edge=StrProp('edge',experiment,'start trigger edge','"rising"')
-        self.properties+=['waitForStartTrigger','source','edge']
+    def __init__(self, experiment):
+        super(StartTrigger, self).__init__('startTrigger', experiment)
+        self.waitForStartTrigger = BoolProp('waitForStartTrigger', experiment, 'HSDIO wait for start trigger', 'False')
+        self.source = StrProp('source', experiment, 'start trigger source', '"PFI0"')
+        self.edge = StrProp('edge', experiment, 'start trigger edge', '"rising"')
+        self.properties += ['waitForStartTrigger', 'source', 'edge']
 
 #---- HSDIO instrument ----
 
@@ -97,9 +97,6 @@ class HSDIO(Instrument):
         self.properties += ['version', 'enable', 'resourceName', 'clockRate', 'units', 'hardwareAlignmentQuantum',
                             'startTrigger', 'triggers', 'channels', 'waveforms', 'script']
         self.doNotSendToHardware += ['units', 'script', 'waveforms']  # script and waveforms are handled specially in HSDIO.toHardware()
-    
-    def initialize(self):
-        self.isInitialized = True
     
     def toHardware(self):
         """override to accommodate compressedGenerate, and to only upload necessary waveforms
@@ -193,9 +190,6 @@ class npHSDIO(Instrument):
         self.startTrigger = StartTrigger(experiment)
         self.properties += ['version', 'enable', 'resourceName', 'clockRate', 'units', 'hardwareAlignmentQuantum', 'waveforms', 'triggers', 'channels', 'startTrigger', 'script']
         self.doNotSendToHardware += ['units', 'script', 'waveforms']  # script and waveforms are handled specially in HSDIO.toHardware()
-    
-    def initialize(self):
-        self.isInitialized = True
     
     def toHardware(self):
         """override to accommodate compressedGenerate, and to only upload necessary waveforms

@@ -94,9 +94,7 @@ class HamamatsuC9100_13(Camera):
         'frameGrabberAcquisitionRegionTop','frameGrabberAcquisitionRegionRight','frameGrabberAcquisitionRegionBottom',
         'numImageBuffers','shotsPerMeasurement']
         self.doNotSendToHardware+=['photoelectronScaling']
-    
-    def initialize(self):
-        self.isInitialized=True
+
 
 class Andor(Camera):
     andorPath=Typed(StrProp)

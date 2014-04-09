@@ -179,6 +179,3 @@ class AnalogOutput(Instrument):
             
             self.enable_refresh=True
             self.update_plot()
-    
-    def initialize(self):
-        self.isInitialized=True
