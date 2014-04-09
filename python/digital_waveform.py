@@ -336,11 +336,23 @@ class NumpyTransitions(Numpy1DProp):
     def __init__(self, experiment, description=''):
         super(NumpyTransitions, self).__init__('transitions', experiment, description, dtype=[('description', object), ('function', object), ('value', numpy.float64)], hdf_dtype=[('description', h5py.special_dtype(vlen=str)), ('function', h5py.special_dtype(vlen=str)), ('value', numpy.float64)], zero=('new', '0', 0))
 
+    def evaluate(self):
+        for x in self.array:
+            x['value'] = numpy.float64(self.experiment.eval_general(x['function']))
+
 
 class NumpySequence(Numpy2DProp):
-    def __init__(self,experiment,description=''):
-        super(NumpySequence,self).__init__('sequence',experiment,description,dtype=[('function',object),('value',numpy.uint8)],hdf_dtype=[('function',h5py.special_dtype(vlen=str)),('value',numpy.uint8)],zero=('',5))
+    def __init__(self, experiment, description=''):
+        super(NumpySequence, self).__init__('sequence', experiment, description, dtype=[('function', object), ('value', numpy.uint8)], hdf_dtype=[('function', h5py.special_dtype(vlen=str)), ('value', numpy.uint8)], zero=('', 5))
 
+    def evaluate(self):
+        for row in self.array:
+            for x in row:
+                temp = self.experiment.eval_general(x['function'])
+                if (temp == 0) or (temp == 1):
+                    x['value'] = temp
+                else:
+                    x['value'] = 5
 
 class NumpyWaveform(Prop):
     
@@ -382,16 +394,16 @@ class NumpyWaveform(Prop):
         self.backFigure=self.figure2
         self.figure=self.figure1
     
-    def fromXML(self,xmlNode):
-        super(NumpyWaveform,self).fromXML(xmlNode)
+    def fromXML(self, xmlNode):
+        super(NumpyWaveform, self).fromXML(xmlNode)
         self.updateFigure()
         return self
     
     def fromHDF5(self, hdf):
         super(NumpyWaveform, self).fromHDF5(hdf)
 
-        if len(self.channelList)<(numpy.shape(self.sequence.array)[1]):
-            self.channelList=numpy.arange(self.digitalout.numChannels,dtype=numpy.uint8)
+        if len(self.channelList) < (numpy.shape(self.sequence.array)[1]):
+            self.channelList = numpy.arange(self.digitalout.numChannels, dtype=numpy.uint8)
         self.updateFigure()
         return self
     
@@ -417,7 +429,7 @@ class NumpyWaveform(Prop):
         self.evaluate()
     
     def format(self):
-        '''Create timeList, a 1D array of transition times, and stateList a 2D array of output values.'''
+        """Create timeList, a 1D array of transition times, and stateList a 2D array of output values."""
         if len(self.transitions.array)==0:
             self.isEmpty=True
             self.timeList=numpy.zeros(0,dtype=numpy.uint64)
@@ -501,8 +513,6 @@ class NumpyWaveform(Prop):
     
     def drawMPL(self):
         
-        logger.debug('digital_waveform.drawMPL')        
-        
         #draw on the inactive figure
         fig=self.backFigure
         
@@ -549,6 +559,9 @@ class NumpyWaveform(Prop):
                 plotmax=timeList[-1]
             else:
                 plotmax=self.plotmax
+            if plotmin==plotmax:
+                #avoid divide by zeros
+                plotmax+=1
             ax.set_xlim(plotmin,plotmax)
             
             #create a timeList on the scale 0 to 1

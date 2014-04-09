@@ -6,40 +6,62 @@
 
 from __future__ import division #always do float division
 
+from numpy import *
+myGlobalSetup = globals().copy()
+#a global dict to hold some variables
+
 from cs_errors import setupLog, PauseError
-logger=setupLog(__name__)
+logger = setupLog(__name__)
 
 import traceback
 
-from numpy import * #make all numpy functions accessible in this scope
-#import numpy
-#numpyDict={v:getattr(numpy, v) for v in dir(numpy)}
 
-def evalWithDict(string,varDict={},errStr=''):
+def evalIvar(string):
+    if string == '':
+        return None
+    else:
+        try:
+            return eval(string, myGlobalSetup.copy())
+        except Exception as e:
+            logger.warning('Could not evaluate independent variable: '+string+'\n'+str(e)+'\n'+str(traceback.format_exc())+'\n')
+            raise PauseError
+
+def evalWithDict(string, varDict={}, errStr=''):
     """string: the python expression to be evaluated
        varDict: a dictionary of variables, functions, modules, etc, to be used during the evaluation
        errStr: a string that says something about what is being evaluated, to make the error reporting useful
     """
-    
-    globals().update(varDict) #bring the varDict into the namespace
-    
-    if string!='':
+
+    global myGlobals
+
+    if string == '':
+        return None
+    else:
         try:
-            return eval(string, globals()) #,varDict.copy()) #dict(numpyDict.items()+varDict.items())) #create a new dictionary so all numpy functions and everything defined in varDict is available as a global during evaluation
+            #globals_trap = myGlobalSetup.copy()
+            return eval(string, myGlobals, varDict)
+            ##global_trap gets polluted with all sorts of built-in variables and gets thrown away
+            #varDict acts as locals, and in general will remain unchanged
         except Exception as e:
             logger.warning(errStr+'Could not eval string: '+string+'\n'+str(e)+'\n'+str(traceback.format_exc())+'\n')
-            #return None
             raise PauseError
-    return None
 
 def execWithDict(string, varDict={}):
-    """This executes a string with the globals context including only numpy, and the locals including only what is passed in.
+    """This executes a string with an empty globals context.  If the user wishes to have access to numpy they should
+     import numpy as a part of the dependentVariablesStr.
     The passed in dictionary gets updated with newly defined locals."""
-    
-    if string!='':
+
+    global myGlobals
+
+    if string != '':
         try:
-            exec(string,globals(),varDict)
-            #varDict gets updated implicitly
+            #globals_trap = {}
+            myGlobals=myGlobalSetup.copy()
+            exec(string, myGlobals, varDict)
+            myGlobals.update(varDict)
+            ##global_trap gets polluted with all sorts of built-in variables and gets thrown away
+            #varDict acts as locals and gets updated implicitly,
+            #so new variable values do not need to be passed back out of this function
         except Exception as e:
-            logger.warning('\nCould not exec string: '+string+'\n'+str(e)+str(traceback.format_exc())+'\n')
+            logger.warning('Could not exec string:\n{}\n{}\n{}\n'.format(string, e, traceback.format_exc()))
             raise PauseError

@@ -813,10 +813,10 @@ enamldef NumpyState(Form):
             else:
                 state['value']=temp
                 valueLabel.text=str(state['value']) #must be updated manually because state['value'] identity does not change
-            waveform.evaluate()
+            waveform.updateFigure()
     Label: valueLabel:
         constraints = [width == 50,height==20]
-        #text<<str(state['value'])
+        text<<('' if state['value']==5 else str(state['value']))
 
 enamldef ChannelCombo(ComboBox):
     attr wfm
@@ -868,7 +868,7 @@ enamldef TransitionTime(Form):
         text::
             transition['value']=experiment.eval_float(text)
             valueLabel.text=str(transition['value']) #must be updated manually because transition['value'] identity does not change
-            waveform.evaluate()
+            waveform.updateFigure()
     Label: valueLabel:
         constraints = [width == 50,height==20]
         text<<str(transition['value'])

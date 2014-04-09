@@ -66,8 +66,8 @@ class IndependentVariable(EvalProp):
     
     def __init__(self, name, experiment, description='', function=''):
         super(IndependentVariable, self).__init__(name, experiment, description, function)
-        self.steps=0
-        self.index=0
+        self.steps = 0
+        self.index = 0
         self.valueList = numpy.array([]).flatten()
         self.currentValue = None
     
@@ -88,8 +88,14 @@ class IndependentVariable(EvalProp):
             if self.function == '':
                 a = None
             else:
-                a = cs_evaluate.evalWithDict('array('+self.function+').flatten()',
-                                             errStr='Evaluating independent variable '+', '.join([self.name, self.description, self.function])+'\n')
+
+                #Evaluate the independent variable.
+                #Cast it to a 1D numpy array as part of the evaluation.  If this cannot be done, the function is not
+                #valid as an independent variable and an error is returned.
+                #Pass in a dictionary with numpy as the keyword np, for the user to create array variables using
+                #linspace, arange, etc.
+
+                a = cs_evaluate.evalIvar('array('+self.function+').flatten()')
             if a is None:
                 a = numpy.array([]).flatten()
             self.valueList = a
@@ -97,7 +103,7 @@ class IndependentVariable(EvalProp):
             self.valueListStr = str(self.valueList)
         self.setIndex(self.index)
 
-    def setIndex(self,index):
+    def setIndex(self, index):
         if self.steps==0:
             self.currentValue=None
         else:
@@ -217,8 +223,6 @@ class Experiment(Prop):
     def evaluateIndependentVariables(self):
         if self.allow_evaluation:
             #make sure ivar functions have been parsed
-            #for i in self.independentVariables:
-            #    i.evaluate()
             self.independentVariables.evaluate()
 
             #set up independent variables
@@ -265,18 +269,25 @@ class Experiment(Prop):
             self.evaluate()
     
     def evaluateDependentVariables(self):
-        
-        #update variables dictionary.
-        #overwrite the old list and make new list starting with independent variables
-        self.vars = dict(zip(self.ivarNames, [self.ivarValueLists[i][self.ivarIndex[i]] for i in xrange(len(self.ivarValueLists))]))
+        """Update variables dictionary."""
+
+        #starting with independent variables
+
+        #old way
+        #self.vars = dict(zip(self.ivarNames, [self.ivarValueLists[i][self.ivarIndex[i]] for i in xrange(len(self.ivarValueLists))]))
+
+        self.vars = dict([(i.name, i.currentValue) for i in self.independentVariables])
+        #self.vars.update(dict([(i,getattr(numpy,i)) for i in dir(numpy)]))
+
         #evaluate the dependent variable multi-line string
-        cs_evaluate.execWithDict(self.dependentVariablesStr, self.vars)
+        cs_evaluate.execWithDict('from numpy import *\n'+self.dependentVariablesStr, self.vars)
+
         #update the report
         self.variableReportStr = cs_evaluate.evalWithDict(self.variableReportFormat+'%locals()', varDict=self.vars, errStr='evaluating variables report\n')  # update the GUI
     
     #overwrite from Prop()
     def evaluate(self):
-        """resolves all equations"""
+        """Resolve all equation in instruments."""
         if self.allow_evaluation:
             
             #resolve independent variables for correct iteration, and evaluate dependent variables
@@ -294,7 +305,7 @@ class Experiment(Prop):
     
     def eval_float(self, string):
         return float(self.eval_general(string))
-    
+
     def stop(self):
         """Stops output as soon as possible.  This is not run during the course of a normal experiment."""
         [i.__setattr__('isDone', True) for i in self.instruments]
@@ -751,18 +762,16 @@ class AQuA(Experiment):
 
         try:
             self.loadDefaultSettings()
+
+            #update variables
+            self.allow_evaluation = True
+            logger.debug('starting evaluateAll')
+            self.evaluateAll()
+            logger.debug('completed evaluateAll')
         except PauseError:
             logger.warning('Loading default settings aborted in AQuA.__init__().  PauseError')
         except Exception as e:
             logger.warning('Loading default settings aborted in AQuA.__init__().\n{}\n{}\n'.format(e, traceback.format_exc()))
 
-        #update variables
+        #make sure evaluation is allowed now
         self.allow_evaluation = True
-        try:
-            logger.debug('starting evaluateAll')
-            self.evaluateAll()
-            logger.debug('completed evaluateAll')
-        except PauseError:
-            logger.warning('EvaluateAll aborted in AQuA.__init__: PauseError')
-        except Exception as e:
-            logger.warning('EvaluateAll aborted in AQuA.__init__:\n{}\n{}\n'.format(e, traceback.format_exc()))
