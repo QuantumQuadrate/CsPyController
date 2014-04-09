@@ -280,11 +280,11 @@ class Experiment(Prop):
         #self.vars.update(dict([(i,getattr(numpy,i)) for i in dir(numpy)]))
 
         #evaluate the dependent variable multi-line string
-        cs_evaluate.execWithDict('from numpy import *\n'+self.dependentVariablesStr, self.vars)
+        cs_evaluate.execWithDict(self.dependentVariablesStr, self.vars)
 
         #update the report
         self.variableReportStr = cs_evaluate.evalWithDict(self.variableReportFormat+'%locals()', varDict=self.vars, errStr='evaluating variables report\n')  # update the GUI
-    
+
     #overwrite from Prop()
     def evaluate(self):
         """Resolve all equation in instruments."""
