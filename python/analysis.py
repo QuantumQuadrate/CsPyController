@@ -138,7 +138,7 @@ class ImagePlotAnalysis(AnalysisWithFigure):
     
     def analyzeMeasurement(self,measurementResults,iterationResults,experimentResults):
         try:
-            text='iteration {} measurement {}\n{}\nCamera temperature: {} C'.format(iterationResults.attrs['iteration'],measurementResults.name.split('/')[-1],iterationResults.attrs['variableReportStr'],measurementResults['data/Hamamatsu/temperature'].value)
+            text = 'iteration {} measurement {}\nCamera temperature: {} C'.format(iterationResults.attrs['iteration'],measurementResults.name.split('/')[-1],measurementResults['data/Hamamatsu/temperature'].value)
         except KeyError as e:
             logger.warning('HDF5 text does not exist in analysis.ImagePlotAnalysis.analyzeMeasurement()\n'+str(e))
             raise PauseError
@@ -292,7 +292,8 @@ class SquareROIAnalysis(AnalysisWithFigure):
         self.loadingArray = numpy.zeros((0, ROI_rows, ROI_columns), dtype=numpy.bool_) #blank array that will hold digital representation of atom loading
         self.ROI_rows = ROI_rows
         self.ROI_columns = ROI_columns
-        self.ROIs = numpy.zeros((0, 5), numpy.uint16)  # initialize with a blank array
+        self.ROIs = numpy.zeros((ROI_rows*ROI_columns, 5), numpy.uint16)  # initialize with a blank array
+        self.properties += ['ROIs']
     
     def sum(self, roi, shot):
         return numpy.sum(shot[roi[self.top]:roi[self.bottom], roi[self.left]:roi[self.right]])

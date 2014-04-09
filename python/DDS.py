@@ -52,7 +52,7 @@ class DDS(Instrument):
         return newbox
     
     def getDDSDeviceList(self):
-        result=self.communicator.send('<getDDSDeviceList/>')
+        result=self.communicator.send('<LabView><getDDSDeviceList/><LabView>')
         deviceListStr=result['DDS/devices']
         deferred_call(setattr,self,'deviceList',deviceListStr.split('\n'))
     
@@ -68,13 +68,13 @@ class DDS(Instrument):
         #send just the DDS settings, force initialization, and then set DDS settings
         #This is not used as the instrument.initialize method at this time
 
-        result = self.communicator.send('<uninitializeDDS/>'+self.toHardware())
+        result = self.communicator.send('<LabView><uninitializeDDS/>'+self.toHardware()+'</LabView>')
         self.isInitialized = True
         print result
     
     def loadDDS(self):
         #send just the DDS settings, initialize if neccessary, and then set DDS settings
-        result = self.communicator.send(self.toHardware())
+        result = self.communicator.send('<LabView>'+self.toHardware()+'</LabView>')
         self.isInitialized=True
         print result
 

@@ -107,6 +107,8 @@ class CsClientSock(CsSock):
             #self.setblocking(0) #wait until after we are connected, and then set the socket to be non-blocking
         except Exception as e:
             logger.error('Error while opening socket: '+str(e))
+            if self.parent is not None:
+                self.parent.connected = False
             self.close()
             raise PauseError
         if self.parent is not None:

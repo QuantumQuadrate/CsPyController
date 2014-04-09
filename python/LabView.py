@@ -17,7 +17,7 @@ import TCP, HSDIO, piezo, DDS, RF_generators, AnalogOutput, DAQmxDO, Camera, Ech
 from atom.api import Bool, Str, Member, Typed
 from instrument_property import FloatProp
 from cs_instruments import Instrument
-import numpy, struct, traceback
+import numpy, struct, traceback, time, threading
 
 def toBool(x):
     if (x == 'False') or (x == 'false'):
@@ -82,8 +82,8 @@ class LabView(Instrument):
         
         self.timeout = FloatProp('timeout', experiment, 'how long before LabView gives up and returns [s]', '1.0')
         
-        self.properties += ['IP', 'port', 'enabled', 'connected', 'timeout', 'HSDIO', 'DDS', 'piezo', 'RF_generators',
-                            'AnalogOutput', 'DAQmxDO', 'camera', 'cycleContinuously']  # ,'EchoBox']
+        self.properties += ['IP', 'port', 'enabled', 'connected', 'timeout', 'AnalogOutput', 'HSDIO', 'DDS', 'piezo', 'RF_generators',
+                            'DAQmxDO', 'camera', 'cycleContinuously']  # ,'EchoBox']
         self.doNotSendToHardware += ['IP', 'port', 'enabled', 'connected']
 
     def openThread(self):
@@ -107,7 +107,7 @@ class LabView(Instrument):
                     logger.debug('Ignoring exception during sock.close() of previously open sock.\n{}\n'.format(e))
 
                 logger.debug('Waiting 10 seconds for LabView TCP connection to reset.')
-                sleep(10)
+                time.sleep(10)
             # Create a TCP/IP socket
             logger.debug('LabView.open() opening sock')
             try:
@@ -217,9 +217,11 @@ class LabView(Instrument):
                 self.sock.sendmsg(msg)
             except IOError:
                 logger.warning('Timeout while waiting for LabView to send data in LabView.send():\n{}\n'.format(e))
+                self.connected = False
                 raise PauseError
             except Exception as e:
                 logger.warning('while sending message in LabView.send():\n{}\n{}\n'.format(e, traceback.format_exc()))
+                self.connected = False
                 raise PauseError
 
             #wait for response
@@ -227,9 +229,11 @@ class LabView(Instrument):
                 rawdata = self.sock.receive()
             except IOError:
                 logger.warning('Timeout while waiting for LabView to return data in LabView.send():\n{}\n'.format(e))
+                self.connected = False
                 raise PauseError
             except Exception as e:
                 logger.warning('in LabView.sock.receive:\n{}\n{}\n'.format(e, traceback.format_exc()))
+                self.connected = False
                 raise PauseError
 
             #parse results

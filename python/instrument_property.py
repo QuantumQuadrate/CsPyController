@@ -526,24 +526,24 @@ class RangeProp(EvalProp):
             self.placeholder='{}'.format(self.numberType)
 
 class IntRangeProp(RangeProp):
-    value=Int()
-    low=Int()
-    high=Int()
-    numberType='Int'
+    value = Int()
+    low = Int()
+    high = Int()
+    numberType = 'Int'
 
 class FloatRangeProp(RangeProp):
-    value=Float()
-    low=Float()
-    high=Float()
-    numberType='Float'
+    value = Float()
+    low = Float()
+    high = Float()
+    numberType = 'Float'
 
 class FloatProp(EvalProp):
-    value=Float()
-    placeholder='float'
+    value = Float()
+    placeholder = 'float'
 
 class BoolProp(EvalProp):
-    value=Bool()
-    placeholder='boolean'
+    value = Bool()
+    placeholder = 'boolean'
 
 class EnumProp(EvalProp):
     '''A homemade enum holder that allows us to set the possible values dynamically (unlike using a predefined Atom.Enum)'''
