@@ -7,9 +7,9 @@ author=Martin Lichtman
 from __future__ import division
 
 from cs_errors import PauseError, setupLog
-logger=setupLog(__name__)
+logger = setupLog(__name__)
 
-import threading, time, datetime, traceback, xml.etree.ElementTree, pickle, os, numpy, h5py, shutil
+import threading, time, datetime, traceback, os, sys, shutil, numpy, h5py
 
 #set numpy print options to limit to 2 digits
 numpy.set_printoptions(formatter=dict(float=lambda t: "%.2e" % t))
@@ -142,6 +142,9 @@ class Experiment(Prop):
     #iteration Traits
     progress = Int(0)
     path = Member()  # full path to current experiment directory
+    dailyPath = Member()
+    experimentPath = Member()
+
     iteration = Member()
     measurement = Member()
     goodMeasurements = Member()
@@ -446,7 +449,6 @@ class Experiment(Prop):
                         self.status = 'paused after iteration'
                 if self.iteration >= self.totalIterations:
                     self.status = 'idle'  # we are now ready for the next experiment
-                    self.hdf5.attrs['notes'] = self.notes  # store the notes again
                     self.postExperiment()
         except PauseError:
             #This should be the only place that PauseError is explicitly handed.
@@ -613,9 +615,9 @@ class Experiment(Prop):
             #create a new directory for experiment
             
             #build the path
-            dailyPath = datetime.datetime.fromtimestamp(self.timeStarted).strftime('%Y_%m_%d')
-            experimentPath = datetime.datetime.fromtimestamp(self.timeStarted).strftime('%Y_%m_%d_%H_%M_%S_')+self.experimentDescriptionFilenameSuffix
-            self.path = os.path.join(self.localDataPath, dailyPath, experimentPath)
+            self.dailyPath = datetime.datetime.fromtimestamp(self.timeStarted).strftime('%Y_%m_%d')
+            self.experimentPath = datetime.datetime.fromtimestamp(self.timeStarted).strftime('%Y_%m_%d_%H_%M_%S_')+self.experimentDescriptionFilenameSuffix
+            self.path = os.path.join(self.localDataPath, self.dailyPath, self.experimentPath)
             
             #check that it doesn't exist first
             if not os.path.isdir(self.path):
@@ -729,6 +731,14 @@ class Experiment(Prop):
         for i in self.analyses:
             i.postExperiment(self.hdf5)
 
+        #store the notes again
+        self.hdf5.attrs['notes'] = self.notes
+
+        #copy to network
+        if self.copyDataToNetwork:
+            sys.stdout.write('Copying data to network ...')
+            shutil.copytree(self.path, os.path.join(self.networkDataPath, self.dailyPath, self.experimentPath))
+            sys.stdout.write(' Done.')
 
 class AQuA(Experiment):
     """A subclass of Experiment which knows about all our particular hardware"""

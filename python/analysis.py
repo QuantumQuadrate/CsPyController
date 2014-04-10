@@ -288,7 +288,7 @@ class SquareROIAnalysis(AnalysisWithFigure):
     loadingArray = Member()
 
     def __init__(self, experiment, ROI_rows=1, ROI_columns=1):
-        super(SquareROIAnalysis, self).__init__('SquareROIAnalysis',experiment,'Does analysis on square regions of interest')
+        super(SquareROIAnalysis, self).__init__('SquareROIAnalysis', experiment,'Does analysis on square regions of interest')
         self.loadingArray = numpy.zeros((0, ROI_rows, ROI_columns), dtype=numpy.bool_) #blank array that will hold digital representation of atom loading
         self.ROI_rows = ROI_rows
         self.ROI_columns = ROI_columns
@@ -299,34 +299,39 @@ class SquareROIAnalysis(AnalysisWithFigure):
         return numpy.sum(shot[roi[self.top]:roi[self.bottom], roi[self.left]:roi[self.right]])
 
     def sums(self, rois, shot):
-        return numpy.array([self.sum(roi,shot) for roi in rois])
+        return numpy.array([self.sum(roi, shot) for roi in rois], dtype=numpy.uint32)
 
     def analyzeMeasurement(self, measurementResults, iterationResults, experimentResults):
         #here we want to live update a digital plot of atom loading as it happens
-        if len(self.ROIs) > 0:
-            numShots = len(measurementResults['data/Hamamatsu/shots'])
-            self.loadingArray = numpy.zeros((numShots, self.ROI_rows, self.ROI_columns), dtype=numpy.bool_)
-            #for each image
-            for i, (name, shot) in enumerate(measurementResults['data/Hamamatsu/shots'].items()):
-                    #calculate sum of pixels in each ROI
-                    sum_array = self.sums(self.ROIs, shot)
+        numROIs=len(self.ROIs)
+        numShots = len(measurementResults['data/Hamamatsu/shots'])
+        sum_array = numpy.zeros((numShots, numROIs), dtype=numpy.uint32)  # uint32 allows for summing ~65535 regions
+        loadingArray = numpy.zeros((numShots, self.ROI_rows, self.ROI_columns), dtype=numpy.bool_)
 
-                    #compare each roi to threshold
-                    thresholdArray = (sum_array >= self.ROIs[:, 4])
-                    self.loadingArray[i] = numpy.reshape(thresholdArray, (self.ROI_rows, self.ROI_columns))
+        #for each image
+        for i, (name, shot) in enumerate(measurementResults['data/Hamamatsu/shots'].items()):
+            #calculate sum of pixels in each ROI
+            shot_sums = self.sums(self.ROIs, shot)
+            sum_array[i] = shot_sums
 
-                    #data will be stored in hdf5 so that save2013style can then append to Camera Data Iteration0 (signal).txt
-                    measurementResults['data/Hamamatsu/shots/'+name].attrs['squareROIsums'] = sum_array
-            self.updateFigure()
+            #compare each roi to threshold
+            thresholdArray = (shot_sums >= self.ROIs[:, 4])
+            loadingArray[i] = numpy.reshape(thresholdArray, (self.ROI_rows, self.ROI_columns))
+
+        #data will be stored in hdf5 so that save2013style can then append to Camera Data Iteration0 (signal).txt
+        measurementResults['analysis/squareROIsums'] = sum_array
+        self.loadingArray = loadingArray
+        self.updateFigure()
     
     def updateFigure(self):
         fig = self.backFigure
         fig.clf()
-        n = len(self.loadingArray)
-        for i in range(n):
-            ax = fig.add_subplot(n, 1, i+1)
-            #make the digital plot here
-            ax.matshow(self.loadingArray[i])
+        if self.loadingArray.size > 0:
+            n = len(self.loadingArray)
+            for i in range(n):
+                ax = fig.add_subplot(n, 1, i+1)
+                #make the digital plot here
+                ax.matshow(self.loadingArray[i])
         super(SquareROIAnalysis, self).updateFigure()
 
 

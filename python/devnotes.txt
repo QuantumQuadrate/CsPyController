@@ -26,18 +26,17 @@ TODO:
     clear HSDIO waveform memory between iterations?
     make dependent variables a fixed-width (courier) font
     add 2nd HSDIO card, and combine them so it looks like 1 card with 64 channels
-    make it so that only relevant channels are shown in waveform (can we do this is hardware too?)
-    use start trigger on HSDIO
     a lot of the things that I have done using lists of Prop in ListProp would be better done using a separate numpy array for each property of the Prop (or one array of compound dtype)
     check analysis
-    HSDIO start trigger
-    copy to network
     DAQmxDO grid generation is obtuse (simplify it)
     If a variable is created in dependentVariables, and then later deleted (but not reassigned) it persists, and can still be used in all the equation boxes.  This is a problem.
     waveform values are not saved if Validation fails (they erase if a channel is added)
     Ability to send a reset signal to various instruments
 
 Done:
+    make it so that only relevant channels are shown in waveform (can we do this is hardware too? .. no)
+    HSDIO start trigger
+    copy to network
     horizontal scroll bar doesn't appear when too many transitions are added to waveform
     make it so that the TCP connection is labeled as uninitialized on an error
     clean out unnecessary files in LabView section
