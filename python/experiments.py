@@ -66,8 +66,8 @@ class IndependentVariable(EvalProp):
     
     def __init__(self, name, experiment, description='', function=''):
         super(IndependentVariable, self).__init__(name, experiment, description, function)
-        self.steps=0
-        self.index=0
+        self.steps = 0
+        self.index = 0
         self.valueList = numpy.array([]).flatten()
         self.currentValue = None
     
@@ -81,21 +81,29 @@ class IndependentVariable(EvalProp):
     #override from EvalProp()
 
     def evaluate(self):
+        """This function evaluates just the independent variables.  We do not update the rest of the experiment,
+        although it may depend on this change, because it would be too cumbersome.  There is a button available that
+        calls experiment.evaluateAll() to update the whole experiment at will."""
         if self.experiment.allow_evaluation:
             if self.function == '':
                 a = None
             else:
-                a = cs_evaluate.evalWithDict('array('+self.function+').flatten()',
-                                             errStr='Evaluating independent variable '+', '.join([self.name, self.description, self.function])+'\n')
+
+                #Evaluate the independent variable.
+                #Cast it to a 1D numpy array as part of the evaluation.  If this cannot be done, the function is not
+                #valid as an independent variable and an error is returned.
+                #Pass in a dictionary with numpy as the keyword np, for the user to create array variables using
+                #linspace, arange, etc.
+
+                a = cs_evaluate.evalIvar('array('+self.function+').flatten()')
             if a is None:
                 a = numpy.array([]).flatten()
             self.valueList = a
             self.steps = len(a)
             self.valueListStr = str(self.valueList)
         self.setIndex(self.index)
-        #TODO: should we re-evaluate() the whole experiment on this change?
-    
-    def setIndex(self,index):
+
+    def setIndex(self, index):
         if self.steps==0:
             self.currentValue=None
         else:
@@ -215,8 +223,6 @@ class Experiment(Prop):
     def evaluateIndependentVariables(self):
         if self.allow_evaluation:
             #make sure ivar functions have been parsed
-            #for i in self.independentVariables:
-            #    i.evaluate()
             self.independentVariables.evaluate()
 
             #set up independent variables
@@ -252,7 +258,6 @@ class Experiment(Prop):
         #update the instruments with new settings
         
         for i in self.instruments:
-            print 'debug experiment.update() instrument='+i.name
             #check that the instruments are initialized
             if not i.isInitialized:
                 i.initialize()  # reinitialize
@@ -264,18 +269,25 @@ class Experiment(Prop):
             self.evaluate()
     
     def evaluateDependentVariables(self):
-        
-        #update variables dictionary.
-        #overwrite the old list and make new list starting with independent variables
-        self.vars = dict(zip(self.ivarNames, [self.ivarValueLists[i][self.ivarIndex[i]] for i in xrange(len(self.ivarValueLists))]))
+        """Update variables dictionary."""
+
+        #starting with independent variables
+
+        #old way
+        #self.vars = dict(zip(self.ivarNames, [self.ivarValueLists[i][self.ivarIndex[i]] for i in xrange(len(self.ivarValueLists))]))
+
+        self.vars = dict([(i.name, i.currentValue) for i in self.independentVariables])
+        #self.vars.update(dict([(i,getattr(numpy,i)) for i in dir(numpy)]))
+
         #evaluate the dependent variable multi-line string
         cs_evaluate.execWithDict(self.dependentVariablesStr, self.vars)
+
         #update the report
         self.variableReportStr = cs_evaluate.evalWithDict(self.variableReportFormat+'%locals()', varDict=self.vars, errStr='evaluating variables report\n')  # update the GUI
-    
+
     #overwrite from Prop()
     def evaluate(self):
-        """resolves all equations"""
+        """Resolve all equation in instruments."""
         if self.allow_evaluation:
             
             #resolve independent variables for correct iteration, and evaluate dependent variables
@@ -293,7 +305,7 @@ class Experiment(Prop):
     
     def eval_float(self, string):
         return float(self.eval_general(string))
-    
+
     def stop(self):
         """Stops output as soon as possible.  This is not run during the course of a normal experiment."""
         [i.__setattr__('isDone', True) for i in self.instruments]
@@ -348,15 +360,15 @@ class Experiment(Prop):
                 logger.warning('Exception applying {} with value {} in experiments.applyToSelf.\n{}'.format(key, value, e))
                 raise PauseError
     
-    def resetAndGo1(self):
-        thread = threading.Thread(target=self.resetAndGo2)
+    def resetAndGoThread(self):
+        thread = threading.Thread(target=self.resetAndGo)
         thread.daemon = True
         thread.start()
     
-    def resetAndGo2(self):
+    def resetAndGo(self):
         """Reset the iteration variables and timing, then proceed with an experiment."""
         self.reset()
-        self.go2()
+        self.go()
     
     def reset(self):
         """Reset the iteration variables and timing."""
@@ -380,15 +392,13 @@ class Experiment(Prop):
         self.preExperiment()
         
         self.status = 'paused before experiment'
-        
-        self.go2()
-    
-    def go1(self):
-        thread = threading.Thread(target=self.go2)
+
+    def goThread(self):
+        thread = threading.Thread(target=self.go)
         thread.daemon = True
         thread.start()
     
-    def go2(self):
+    def go(self):
         """Pick up the experiment wherever it was left off."""
         
         #check if we are ready to do an experiment
@@ -402,7 +412,7 @@ class Experiment(Prop):
             self.evaluateIndependentVariables()
             
             #loop until iteration are complete
-            while (self.iteration < self.totalIterations) and (self.status=='running'):
+            while (self.iteration < self.totalIterations) and (self.status == 'running'):
                 
                 #at the start of a new iteration, or if we are continuing
                 self.evaluate()  # re-calculate all variables
@@ -433,7 +443,7 @@ class Experiment(Prop):
                     self.measurement = 0
                     self.goodMeasurements = 0
                     if (self.status == 'running' or self.status == 'paused after measurement') and self.pauseAfterIteration:
-                        self.status='paused after iteration'            
+                        self.status = 'paused after iteration'
                 if self.iteration >= self.totalIterations:
                     self.status = 'idle'  # we are now ready for the next experiment
                     self.hdf5.attrs['notes'] = self.notes  # store the notes again
@@ -527,36 +537,10 @@ class Experiment(Prop):
         try:
             f = h5py.File(path, 'a')
         except Exception as e:
-            logger.warning('Problem loading HDF5 settings file in experiment.load().\n{}\n{}\n'.format(e,traceback.format_exc()))
+            logger.warning('Problem loading HDF5 settings file in experiment.load().\n{}\n{}\n'.format(e, traceback.format_exc()))
             raise PauseError
         
         settings = f['settings/experiment']
-        
-        ##independentVariables
-        #if 'experiment/independentVariables' in settings:
-        #    self.independentVariables.fromHDF5(settings['experiment/independentVariables'])
-        #try:
-        #    self.evaluateIndependentVariables()
-        #except PauseError:
-        #    raise PauseError
-        #except Exception as e:
-        #    logger.warning('Exception in evaluateIndependentVariables() in load() in experiment.\n'+str(e)+'\n'+str(traceback.format_exc()))
-        #    raise PauseError
-        #
-        ##dependentVariables
-        #if 'dependentVariablesStr'
-        #dvarXML=xmlNode.find('dependentVariablesStr')
-        #if dvarXML is not None:
-        #    self.dependentVariablesStr=pickle.loads(dvarXML.text)
-        #    #remove 'dependentVariables' from xml to prevent repeat loading
-        #    xmlNode.remove(dvarXML)
-        #try:
-        #    self.evaluateDependentVariables()
-        #except Exception as e:
-        #    logger.warning('Exception in evaluateDependentVariables() in load() in experiment.\n'+str(e)+'\n'+str(traceback.format_exc()))
-        #
-        ##now load the rest of the settings and instruments
-        ##TODO: skip 'independentVariables' and 'dependentVariables' from xml to prevent repeat loading!!!!!!!!!
 
         try:
             self.fromHDF5(settings)
@@ -617,7 +601,7 @@ class Experiment(Prop):
         every experiment."""
         
         #if a prior HDF5 results file is open, then close it
-        if hasattr(self,'hdf5') and (self.hdf5 is not None):
+        if hasattr(self, 'hdf5') and (self.hdf5 is not None):
             try:
                 self.hdf5.flush()
                 self.hdf5.close()
@@ -656,7 +640,7 @@ class Experiment(Prop):
             
             try:
                 logger.debug('Copying autosave data to current HDF5')
-                autosave_file['settings'].copy(autosave_file['settings'],self.hdf5)
+                autosave_file['settings'].copy(autosave_file['settings'], self.hdf5)
             except:
                 logger.warning('Problem trying to copy autosave settings to HDF5 results file.')
                 raise PauseError
@@ -774,22 +758,20 @@ class AQuA(Experiment):
         self.analyses += [self.shot0_analysis, self.shotBrowserAnalysis, self.imageSumAnalysis, self.squareROIAnalysis,
                           self.save2013Analysis]
 
-        self.properties += ['LabView']
+        self.properties += ['LabView', 'squareROIAnalysis']
 
         try:
             self.loadDefaultSettings()
-        except PauseError:
-            logger.warning('PauseError')
-        except Exception as e:
-            logger.warning('While trying Experiment.loadDefaultSettings in AQuA.__init__().\n'+str(e)+'\n'+str(traceback.format_exc())+'\n')
 
-        #update variables
-        self.allow_evaluation = True
-        try:
+            #update variables
+            self.allow_evaluation = True
             logger.debug('starting evaluateAll')
             self.evaluateAll()
-            logger.debug('ended evaluateAll')
+            logger.debug('completed evaluateAll')
         except PauseError:
-            logger.warning('PauseError')
+            logger.warning('Loading default settings aborted in AQuA.__init__().  PauseError')
         except Exception as e:
-            logger.warning('While trying Experiment.evaluateAll() on in AQuA.__init__().\n'+str(e)+'\n'+str(traceback.format_exc())+'\n')
+            logger.warning('Loading default settings aborted in AQuA.__init__().\n{}\n{}\n'.format(e, traceback.format_exc()))
+
+        #make sure evaluation is allowed now
+        self.allow_evaluation = True

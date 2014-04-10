@@ -39,7 +39,13 @@ TODO:
     HSDIO start trigger
     copy to network
     DAQmxDO grid generation is obtuse (simplify it)
-    
+    If a variable is created in dependentVariables, and then later deleted (but not reassigned) it persists, and can still be used in all the equation boxes.  This is a problem.
+    waveform values are not saved if Validation fails (they erase if a channel is added)
+    waveform values don't always appear, even if state evaluates okay
+    DAQmx settings cannot be updated without error
+    "Bad file descriptor" or TCP close, and general ability to restart TCP without restarting python
+    Ability to send a reset signal to various instruments
+
 Done:
     make sure HSDIO script is always written AFTER waveforms
     It would be nice to make the variable reporting format able to handle line breaks somehow.  (Solved using triple quotes ''' ''')

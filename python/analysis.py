@@ -21,19 +21,19 @@ class Analysis(Prop):
         2: med fail, continue with other analyses, do not increment measurement total, and delete measurement data after all analyses
         3: hard fail, do not continue with other analyses, do not increment measurement total, delete measurement data'''
     
-    queueAfterMeasurement=Bool() #Set to True to allow multi-threading on this analysis.  Only do this if you are NOT filtering on this analysis, and if you do NOT depend on the results of this analysis later. Default is False.
-    dropMeasurementIfSlow=Bool() #Set to True to skip measurements when slow.  Applies only to multi-threading.  Raw data can still be used post-iteration and post-experiment. Default is False.
-    queueAfterIteration=Bool() #Set to True to allow multi-threading on this analysis.  Only do this if you do NOT depend on the results of this analysis later. Default is False.
-    dropIterationIfSlow=Bool() #Set to True to skip iterations when slow.  Applies only to multi-threading.  Raw data can still be used in post-experiment.  Default is False.
+    queueAfterMeasurement = Bool()  # Set to True to allow multi-threading on this analysis.  Only do this if you are NOT filtering on this analysis, and if you do NOT depend on the results of this analysis later. Default is False.
+    dropMeasurementIfSlow = Bool()  # Set to True to skip measurements when slow.  Applies only to multi-threading.  Raw data can still be used post-iteration and post-experiment. Default is False.
+    queueAfterIteration = Bool()  # Set to True to allow multi-threading on this analysis.  Only do this if you do NOT depend on the results of this analysis later. Default is False.
+    dropIterationIfSlow = Bool()  # Set to True to skip iterations when slow.  Applies only to multi-threading.  Raw data can still be used in post-experiment.  Default is False.
     
     #internal variables, user should not modify
-    measurementProcessing=Bool()
-    iterationProcessing=Bool()
-    measurementQueue=[]
-    iterationQueue=[]
+    measurementProcessing = Bool()
+    iterationProcessing = Bool()
+    measurementQueue = []
+    iterationQueue = []
     
     #Text output that can be updated back to the GUI
-    text=Str()
+    text = Str()
     
     def __init__(self,name,experiment,description=''): #subclassing from Prop provides save/load mechanisms
         super(Analysis,self).__init__(name,experiment,description)
@@ -281,42 +281,56 @@ class ImageSumAnalysis(AnalysisWithFigure):
         super(ImageSumAnalysis,self).updateFigure()
 
 class SquareROIAnalysis(AnalysisWithFigure):
-    ROIs=Member() #a numpy array holding an ROI in each row
-    left,top,right,bottom,threshold=(0,1,2,3,4) #column ordering of ROI boundaries in each ROI in ROIs
-    loadingArray=numpy.zeros((0,0,0),dtype=numpy.bool_) #blank array that will hold digital representation of atom loading
+    ROI_rows = Int()
+    ROI_columns = Int()
+    ROIs = Member() #a numpy array holding an ROI in each row
+    left, top, right, bottom, threshold = (0, 1, 2, 3, 4) #column ordering of ROI boundaries in each ROI in ROIs
+    loadingArray = Member()
+
+    def __init__(self, experiment, ROI_rows=1, ROI_columns=1):
+        super(SquareROIAnalysis, self).__init__('SquareROIAnalysis',experiment,'Does analysis on square regions of interest')
+        self.loadingArray = numpy.zeros((0, ROI_rows, ROI_columns), dtype=numpy.bool_) #blank array that will hold digital representation of atom loading
+        self.ROI_rows = ROI_rows
+        self.ROI_columns = ROI_columns
+        self.ROIs = numpy.zeros((0, 5), numpy.uint16)  # initialize with a blank array
     
-    def __init__(self,experiment):
-        super(SquareROIAnalysis,self).__init__('SquareROIAnalysis',experiment,'Does analysis on square regions of interest')
-        self.ROIs=numpy.zeros((0,5),numpy.uint16) #initialize with a blank array
-    
-    def sum(self,roi,shot):
-        return numpy.sum(shot[roi[self.top]:roi[self.bottom],roi[self.left]:roi[self.right]])
-    
-    sums=numpy.vectorize(sum,excluded=['shot'])
-    
-    def analyzeMeasurement(self,measurementResults,iterationResults,experimentResults):
+    def sum(self, roi, shot):
+        return numpy.sum(shot[roi[self.top]:roi[self.bottom], roi[self.left]:roi[self.right]])
+
+    def sums(self, rois, shot):
+        return numpy.array([self.sum(roi,shot) for roi in rois])
+
+    def analyzeMeasurement(self, measurementResults, iterationResults, experimentResults):
         #here we want to live update a digital plot of atom loading as it happens
-        #for each image
-        numShots=len(measurementResults['data/Hamamatsu/shots'])
-        loadingArray=numpy.zeros((numShots,self.experiment.ROIrows,self.experiment.ROIcolumns),dtype=numpy.bool_)
-        for i,(name,shot) in enumerate(measurementResults['data/Hamamatsu/shots'].items()):
-                sumArray=self.sums(self.ROIs,shot)
-                measurementResults['data/Hamamatsu/shots/'+name].attrs['squareROIsums']=sumArray
-                #compare each roi to threshold
-                loadingArray[i]=numpy.reshape((sumArray>=self.ROIs[:,4]),numpy.shape(loadingArray[i]))
-        #data will be stored in hdf5 so that save2013style can then append to Camera Data Iteration0 (signal).txt        
+        if len(self.ROIs) > 0:
+            numShots = len(measurementResults['data/Hamamatsu/shots'])
+            self.loadingArray = numpy.zeros((numShots, self.ROI_rows, self.ROI_columns), dtype=numpy.bool_)
+            #for each image
+            for i, (name, shot) in enumerate(measurementResults['data/Hamamatsu/shots'].items()):
+                    #calculate sum of pixels in each ROI
+                    sum_array = self.sums(self.ROIs, shot)
+
+                    #compare each roi to threshold
+                    thresholdArray = (sum_array >= self.ROIs[:, 4])
+                    self.loadingArray[i] = numpy.reshape(thresholdArray, (self.ROI_rows, self.ROI_columns))
+
+                    #data will be stored in hdf5 so that save2013style can then append to Camera Data Iteration0 (signal).txt
+                    measurementResults['data/Hamamatsu/shots/'+name].attrs['squareROIsums'] = sum_array
+            self.updateFigure()
     
     def updateFigure(self):
-        fig=self.backFigure
+        fig = self.backFigure
         fig.clf()
-        n=len(self.loadingArray)
+        n = len(self.loadingArray)
         for i in range(n):
-            ax=fig.add_subplot(n,1,i+1)
+            ax = fig.add_subplot(n, 1, i+1)
             #make the digital plot here
             ax.matshow(self.loadingArray[i])
+        super(SquareROIAnalysis, self).updateFigure()
+
 
 class OptimizerAnalysis(AnalysisWithFigure):
-    costfunction=Str('')
+    costfunction = Str('')
     
     def __init__(self,experiment):
         super(OptimizerAnalysis,self).__init__('OptimizerAnalysis',experiment,'updates independent variables to minimize cost function')

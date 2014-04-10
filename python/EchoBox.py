@@ -1,23 +1,23 @@
-'''EchoBox.py
+"""
+EchoBox.py
     Part of the AQuA Cesium Controller software package.
     This Instrument sends some fake test data to the LabView server (or python test server), which will then be echoed back for display for test purposes.
 
     author=Martin Lichtman
     created=2014.02.10
-    modified>=2014.02.10
-    '''
+    modified>=2014.04.08
+"""
 
 from __future__ import division
 
 from cs_errors import PauseError, setupLog
-logger=setupLog(__name__)
+logger = setupLog(__name__)
 
-from atom.api import Bool, Typed, Str, Int, Member
+from atom.api import Typed
 from instrument_property import BoolProp
 from cs_instruments import Instrument
 import numpy, struct
 from TCP import makemsg
-from digital_waveform import Waveform, Channels
 
 #---- instrument ----
 
@@ -28,9 +28,6 @@ class EchoBox(Instrument):
         super(EchoBox,self).__init__('EchoBox',experiment,'creates fake test data to be parroted back to the client')
         self.enable=BoolProp('enable',experiment,'enable fake EchoBox data','False')
         self.properties+=['enable']
-    
-    def initialize(self):
-        self.isInitialized=True
     
     #intensity, for incoherent beams
     def gaussian(self,A,w,x,y):

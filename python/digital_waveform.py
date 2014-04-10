@@ -11,37 +11,37 @@ from instrument_property import Prop, BoolProp, FloatProp, ListProp, EnumProp, N
 from matplotlib.figure import Figure
 import numpy, h5py
 
-defaultState=5
+defaultState = 5
 
 
 class Channel(Prop):
-    active=Typed(BoolProp)
+    active = Typed(BoolProp)
     
-    def __init__(self,name,experiment,description=''):
-        super(Channel,self).__init__(name,experiment,description)
-        self.active=BoolProp('active',experiment,'','True')
-        self.properties+=['active']
+    def __init__(self, name, experiment, description=''):
+        super(Channel, self).__init__(name, experiment, description)
+        self.active = BoolProp('active', experiment, '', 'True')
+        self.properties += ['active']
 
 
 class Channels(ListProp):
-    digitalout=Member()
+    digitalout = Member()
     
-    def __init__(self,experiment,digitalout,description='A list of HSDIO output channels'):
-        super(Channels,self).__init__('channels',experiment,description,
-            listProperty=[Channel('channel'+str(i),experiment,'') for i in xrange(digitalout.numChannels)],
-            listElementType=Channel,listElementName='channel')
-        self.digitalout=digitalout
+    def __init__(self, experiment, digitalout, description='A list of HSDIO output channels'):
+        super(Channels, self).__init__('channels', experiment, description,
+            listProperty=[Channel('channel'+str(i), experiment, '') for i in xrange(digitalout.numChannels)],
+            listElementType=Channel, listElementName='channel')
+        self.digitalout = digitalout
     
     def toHardware(self):
         #The actual IdleState and InitialState are all set to all X's, for continuity.
-        activeChannels=[str(i) for i,c in enumerate(self.listProperty) if c.active.value]
-        xState='X'*len(activeChannels)
-        return ('<InitialState>'+xState+'</InitialState>\n<IdleState>'+xState+'</IdleState>\n<ActiveChannels>'+','.join(activeChannels)+'</ActiveChannels>\n')
+        activeChannels = [str(i) for i, c in enumerate(self.listProperty) if c.active.value]
+        xState = 'X'*len(activeChannels)
+        return '<InitialState>'+xState+'</InitialState>\n<IdleState>'+xState+'</IdleState>\n<ActiveChannels>'+','.join(activeChannels)+'</ActiveChannels>\n'
 
 
 class State(ListProp):
-    digitalout=Member()
-    allowedValues=[0,1,5]
+    digitalout = Member()
+    allowedValues = [0, 1, 5]
     
     def __init__(self,experiment,digitalout):
         super(State,self).__init__('state',experiment,
@@ -298,7 +298,7 @@ class Waveform(Prop):
         except:
             print "trouble with trans=numpy.array([(t.time.description,t.time.function,t.time.value) for t in self.sequence],dtype=[('description',object),('function',object),('value',numpy.float64)])"
         try:
-            my_node.create_dataset('transitions',data=trans,dtype=[('description',h5py.special_dtype(vlen=str)),('function',h5py.special_dtype(vlen=str)),('value',numpy.float64)])
+            my_node.create_dataset('transitions', data=trans, dtype=[('description', h5py.special_dtype(vlen=str)), ('function', h5py.special_dtype(vlen=str)), ('value', numpy.float64)])
         except:
             print "trouble with my_node.create_dataset('transitions',data=trans,dtype=[('description',h5py.special_dtype(vlen=str)),('function',h5py.special_dtype(vlen=str)),('value',numpy.float64)])"
 
@@ -313,22 +313,46 @@ class Waveform(Prop):
 
 
 class NumpyChannels(Numpy1DProp):
-    digitalout=Member()
+    digitalout = Member()
     
-    def __init__(self,experiment,digitalout,description=''):
-        super(NumpyChannels,self).__init__('channels',experiment,description,dtype=[('description',object),('function',object),('value',bool)],hdf_dtype=[('description',h5py.special_dtype(vlen=str)),('function',h5py.special_dtype(vlen=str)),('value',bool)],zero=('new','True',True))
-        self.digitalout=digitalout
+    def __init__(self, experiment, digitalout, description=''):
+        super(NumpyChannels, self).__init__('channels', experiment, description, dtype=[('description', object), ('function', object), ('value', bool)], hdf_dtype=[('description', h5py.special_dtype(vlen=str)), ('function', h5py.special_dtype(vlen=str)), ('value', bool)], zero=('new', 'True', True))
+        self.digitalout = digitalout
+
+    def toHardware(self):
+
+        #create a list of active channel numbers
+        active_channels = numpy.arange(len(self.array))[self.array['value']]
+        active_channels_str = ','.join(map(str, active_channels))
+
+        #The actual IdleState and InitialState are all set to all X's, for continuity.
+        #We just need the right number of X's corresponding to the number of channels
+        x_state = 'X'*len(active_channels)
+
+        return '<InitialState>{}</InitialState>\n<IdleState>{}</IdleState>\n<ActiveChannels>{}</ActiveChannels>\n'.format(x_state, x_state, active_channels_str)
 
 
 class NumpyTransitions(Numpy1DProp):
-    def __init__(self,experiment,description=''):
-        super(NumpyTransitions,self).__init__('transitions',experiment,description,dtype=[('description',object),('function',object),('value',numpy.float64)],hdf_dtype=[('description',h5py.special_dtype(vlen=str)),('function',h5py.special_dtype(vlen=str)),('value',numpy.float64)],zero=('new','0',0))
+    def __init__(self, experiment, description=''):
+        super(NumpyTransitions, self).__init__('transitions', experiment, description, dtype=[('description', object), ('function', object), ('value', numpy.float64)], hdf_dtype=[('description', h5py.special_dtype(vlen=str)), ('function', h5py.special_dtype(vlen=str)), ('value', numpy.float64)], zero=('new', '0', 0))
+
+    def evaluate(self):
+        for x in self.array:
+            x['value'] = numpy.float64(self.experiment.eval_general(x['function']))
 
 
 class NumpySequence(Numpy2DProp):
-    def __init__(self,experiment,description=''):
-        super(NumpySequence,self).__init__('sequence',experiment,description,dtype=[('function',object),('value',numpy.uint8)],hdf_dtype=[('function',h5py.special_dtype(vlen=str)),('value',numpy.uint8)],zero=('',5))
+    def __init__(self, experiment, description=''):
+        super(NumpySequence, self).__init__('sequence', experiment, description, dtype=[('function', object), ('value', numpy.uint8)], hdf_dtype=[('function', h5py.special_dtype(vlen=str)), ('value', numpy.uint8)], zero=('', 5))
 
+    def evaluate(self):
+        for row in self.array:
+            for x in row:
+                temp = self.experiment.eval_general(x['function'])
+                if (temp == 0) or (temp == 1):
+                    x['value'] = temp
+                else:
+                    x['value'] = 5
 
 class NumpyWaveform(Prop):
     
@@ -370,16 +394,16 @@ class NumpyWaveform(Prop):
         self.backFigure=self.figure2
         self.figure=self.figure1
     
-    def fromXML(self,xmlNode):
-        super(NumpyWaveform,self).fromXML(xmlNode)
+    def fromXML(self, xmlNode):
+        super(NumpyWaveform, self).fromXML(xmlNode)
         self.updateFigure()
         return self
     
     def fromHDF5(self, hdf):
         super(NumpyWaveform, self).fromHDF5(hdf)
 
-        if len(self.channelList)<(numpy.shape(self.sequence.array)[1]):
-            self.channelList=numpy.arange(self.digitalout.numChannels,dtype=numpy.uint8)
+        if len(self.channelList) < (numpy.shape(self.sequence.array)[1]):
+            self.channelList = numpy.arange(self.digitalout.numChannels, dtype=numpy.uint8)
         self.updateFigure()
         return self
     
@@ -405,7 +429,7 @@ class NumpyWaveform(Prop):
         self.evaluate()
     
     def format(self):
-        '''Create timeList, a 1D array of transition times, and stateList a 2D array of output values.'''
+        """Create timeList, a 1D array of transition times, and stateList a 2D array of output values."""
         if len(self.transitions.array)==0:
             self.isEmpty=True
             self.timeList=numpy.zeros(0,dtype=numpy.uint64)
@@ -489,8 +513,6 @@ class NumpyWaveform(Prop):
     
     def drawMPL(self):
         
-        logger.debug('digital_waveform.drawMPL')        
-        
         #draw on the inactive figure
         fig=self.backFigure
         
@@ -537,6 +559,9 @@ class NumpyWaveform(Prop):
                 plotmax=timeList[-1]
             else:
                 plotmax=self.plotmax
+            if plotmin==plotmax:
+                #avoid divide by zeros
+                plotmax+=1
             ax.set_xlim(plotmin,plotmax)
             
             #create a timeList on the scale 0 to 1

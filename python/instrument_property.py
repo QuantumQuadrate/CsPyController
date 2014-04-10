@@ -417,15 +417,15 @@ class EvalProp(Prop,Validator):
         self.observe('function', self.call_evaluate)
     
     def evaluate(self):
+        """This is the evaluation function that gets run programmatically during experiments and initialization.
+        It will pause an experiment if an evaluation fails."""
         if self.experiment.allow_evaluation:
-            """This is the evaluation function that gets run programmatically during experiments and initialization.
-            It will pause an experiment if an evaluation fails."""
-            self.valid=self.evalfunc(self.function)
+            self.valid = self.evalfunc(self.function)
             #self.validator.valid=self.valid
             #print 'evaluate: self.valid='+str(self.valid)
             #self.refreshGUI()
             #if the experiment is running then pause it
-            if (not self.valid) and (self.experiment is not None) and (self.experiment.status!='idle'):
+            if (not self.valid) and (self.experiment is not None) and (self.experiment.status != 'idle'):
                 raise PauseError
     
     #def refreshGUI(self):
@@ -635,6 +635,8 @@ class ListProp(Prop):
                 if hasattr(o, 'evaluate'):  # check if it has an evaluate method.  If not, do nothing.
                     try:
                         o.evaluate()  # evaluate it
+                    except PauseError:
+                        raise PauseError
                     except Exception as e:
                         logger.warning('Evaluating list item '+str(i)+' '+o.name+' in ListProp.evaluate() in '+self.name+'.\n'+str(e)+'\n'+str(traceback.format_exc())+'\n')
                         raise PauseError
@@ -754,7 +756,7 @@ class Numpy1DProp(Prop):
         #create zero length array
         self.array=numpy.zeros(0,dtype=dtype)
         self.properties+=['array']
-    
+
     def add(self,index):
         zero=numpy.zeros(1,dtype=self.dtype)
         if self.zero is not None:

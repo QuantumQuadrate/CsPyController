@@ -38,8 +38,7 @@ class CsSock(socket.socket):
         except Exception as e:
             logger.error('Error sending message: '+str(e))
             raise PauseError
-            return
-    
+
     def receive(self,sock):
         #every message should start with 'MESG'
         try:
@@ -98,40 +97,39 @@ class CsSock(socket.socket):
 class CsClientSock(CsSock):
     
     #if provided, parent is used as a callback to set parent.connected
-    def __init__(self,addressString,portNumber,parent=None):
-        self.parent=parent
-        super(CsClientSock,self).__init__()
-        print 'connecting to {} port {}'.format(addressString,portNumber)
+    def __init__(self, addressString, portNumber, parent=None):
+        self.parent = parent
+        super(CsClientSock, self).__init__()
+        print 'connecting to {} port {}'.format(addressString, portNumber)
         try:
-            self.connect((addressString,portNumber))
+            self.connect((addressString, portNumber))
             #TODO: make it non-blocking on send, but blocking on receive?  or make receive a separate thread?  Would need a timeout timer.
             #self.setblocking(0) #wait until after we are connected, and then set the socket to be non-blocking
         except Exception as e:
             logger.error('Error while opening socket: '+str(e))
             self.close()
             raise PauseError
-        else:
-            if self.parent is not None:
-                self.parent.connected=True
+        if self.parent is not None:
+            self.parent.connected = True
     
-    def sendmsg(self,msgtxt):
+    def sendmsg(self, msgtxt):
         #reference the common message format, pass self as sock
-        super(CsClientSock,self).sendmsg(self,msgtxt)
+        super(CsClientSock, self).sendmsg(self, msgtxt)
     
     def receive(self):
         #reference the common message format, pass self as sock
-        return super(CsClientSock,self).receive(self)
+        return super(CsClientSock, self).receive(self)
     
     def close(self):
         if self.parent is not None:
-            self.parent.connected=False
-            self.parent.isInitialized=False
+            self.parent.connected = False
+            self.parent.isInitialized = False
         self.shutdown(socket.SHUT_RDWR)
-        super(CsClientSock,self).close()
+        super(CsClientSock, self).close()
     
-    def parsemsg(self,msg):
-        '''Take apart an incoming message that is composed of a sequence of (namelength,name,datalength,data) sets.
-        These are then stored in a dictionary under name:data.'''
+    def parsemsg(self, msg):
+        """Take apart an incoming message that is composed of a sequence of (namelength,name,datalength,data) sets.
+        These are then stored in a dictionary under name:data."""
         l=len(msg)
         i=0
         result={}

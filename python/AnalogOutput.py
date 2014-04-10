@@ -45,12 +45,8 @@ class AOEquation(EvalProp):
             #This will overwrite any previous value, so we make a copy of the dictionary
             vars = self.experiment.vars.copy()
             vars['t'] = self.AO.timesteps
-            try:
-                self.value = cs_evaluate.evalWithDict(self.function, varDict=vars,
+            self.value = cs_evaluate.evalWithDict(self.function, varDict=vars,
                                                       errStr='AO equation.evaluate: {}, {}, {}\n'.format(self.name, self.description, self.function))
-            except TraitError as e:
-                logger.warning('In AOEquation.evaluate(), TraitError while evaluating: '+self.name+'\ndescription: ' + self.description+'\nfunction: ' + self.function + '\n' + str(e))
-                #raise PauseError
             self.AO.update_plot()
 
     def toHardware(self):
@@ -179,6 +175,3 @@ class AnalogOutput(Instrument):
             
             self.enable_refresh=True
             self.update_plot()
-    
-    def initialize(self):
-        self.isInitialized=True

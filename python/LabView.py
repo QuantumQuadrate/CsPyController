@@ -1,4 +1,5 @@
-'''LabView.py
+"""
+LabView.py
 This file holds everything needed to talk to the PXI crate known as HEXQC2, running LabView.  It can be modified in the future for other LabView systems.
 On the LabView end, server.vi must be running, part of this package in the labview directory.
 
@@ -6,17 +7,17 @@ Part of the AQuA Cesium Controller software package
 
 author=Martin Lichtman
 created=2013-10-08
-modified>=2013-10-08
-'''
+modified>=2014-04-08
+"""
 
 from cs_errors import PauseError, setupLog
-logger=setupLog(__name__)
+logger = setupLog(__name__)
 
 import TCP, HSDIO, piezo, DDS, RF_generators, AnalogOutput, DAQmxDO, Camera, EchoBox
-from atom.api import Bool, Int, Str, Member, Typed
+from atom.api import Bool, Str, Member, Typed
 from instrument_property import FloatProp
 from cs_instruments import Instrument
-import numpy, struct
+import numpy, struct, traceback
 
 def toBool(x):
     if (x == 'False') or (x == 'false'):
@@ -27,6 +28,9 @@ def toBool(x):
         return bool(x)
 
 class LabView(Instrument):
+    """This is a meta instrument which encapsulates the capability of the HEXQC2 PXI system.
+    It knows about several subsystems (HSDIO, DAQmx, Counters, Camera), and can send settings and commands to a
+    corresponding Labview client."""
     enabled = Member()
     port = Member()
     IP = Str()
@@ -47,8 +51,6 @@ class LabView(Instrument):
     log = Str()
     cycleContinuously = Member()
 
-    
-    '''This is a meta instrument which encapsulates the capability of the HEXQC2 PXI system. It knows about several subsystems (HSDIO, DAQmx, Counters, Camera), and can send settings and commands to a corresponding Labview client.'''
     def __init__(self, experiment):
         super(LabView, self).__init__('LabView', experiment, 'for communicating with a LabView system')
 
@@ -83,72 +85,64 @@ class LabView(Instrument):
         self.properties += ['IP', 'port', 'enabled', 'connected', 'timeout', 'HSDIO', 'DDS', 'piezo', 'RF_generators',
                             'AnalogOutput', 'DAQmxDO', 'camera', 'cycleContinuously']  # ,'EchoBox']
         self.doNotSendToHardware += ['IP', 'port', 'enabled', 'connected']
-    
+
+    def openThread(self):
+        thread = threading.Thread(target=self.initialize)
+        thread.daemon = True
+        thread.start()
+
     def open(self):
         if self.enabled:
+            logger.debug('Opening LabView TCP.')
             #check for an old socket and delete it
             if self.sock is not None:
-                logger.debug('debug LabView.open() closing sock')
-                self.sock.close()
-                del self.sock
+                logger.debug('Closing previously open sock.')
+                try:
+                    self.sock.close()
+                except Exception as e:
+                    logger.debug('Ignoring exception during sock.close() of previously open sock.\n{}\n'.format(e))
+                try:
+                    del self.sock
+                except Exception as e:
+                    logger.debug('Ignoring exception during sock.close() of previously open sock.\n{}\n'.format(e))
+
+                logger.debug('Waiting 10 seconds for LabView TCP connection to reset.')
+                sleep(10)
             # Create a TCP/IP socket
+            logger.debug('LabView.open() opening sock')
             try:
-                logger.debug('LabView.open() opening sock')
-                self.sock=TCP.CsClientSock(self.IP,self.port,parent=self)
-            except:
-                logger.warning('Failed to open TCP socket in LabView.open()')
-            else:
-                logger.debug('LabView.open() sock opened')
-                self.connected=True
-    
+                self.sock = TCP.CsClientSock(self.IP, self.port, parent=self)
+            except Exception as e:
+                logger.warning('Failed to open TCP socket in LabView.open():\n{}\n'.format(e))
+                raise PauseError
+            logger.debug('LabView.open() sock opened')
+            self.connected = True
+
     def initialize(self):
         self.open()
-        for i in self.instruments:
-            i.initialize()
-        self.isInitialized=True
-        
+        logger.debug('Initializing LabView instruments.')
+        super(LabView, self).initialize()
+
     def close(self):
-        if self.sock:
+        if self.sock is not None:
             self.sock.close()
-        self.connected=False
-        self.isInitialized=False
+        self.connected = False
+        self.isInitialized = False
     
     def update(self):
-        super(LabView,self).update()
-        self.msg=self.toHardware()
-        if self.enabled:
-            if self.isInitialized:
-                if self.connected:
-                    self.sock.settimeout(self.timeout.value)
-                    self.sock.sendmsg(self.msg)
-                    #wait for response
-                    try:
-                        rawdata=self.sock.receive()
-                    except IOError:
-                        logger.warning('Timeout while waiting for LabView to return data in LabView.update()')
-                        raise PauseError
-                    else:
-                        self.results=self.sock.parsemsg(rawdata)
-                        for key,value in self.results.iteritems():
-                            #print 'key: {} value: {}'.format(key,str(value)[:40])
-                            if key=='error':
-                                self.error=toBool(value)
-                            elif key=='log':
-                                self.log+=value
-                else:
-                    logger.warning('LabView instrument claims to be initialized, but is not connected in LabView.update()')
-                    raise PauseError
-            else:
-                logger.warning('LabView instrument should be initialized already, but is not, in LabView.update()')
-                raise PauseError
-    
+        """Send the current values to hardware."""
+
+        super(LabView, self).update()
+        self.send(self.toHardware())
+
+
     def start(self):
-        self.send('<measure/>')
+        self.send('<LabView><measure/></LabView>')
     
-    def writeResults(self,hdf5):
-        '''Write the previously obtained results to the experiment hdf5 file.
+    def writeResults(self, hdf5):
+        """Write the previously obtained results to the experiment hdf5 file.
         hdf5 is an hdf5 group, typically the data group in the appropriate part of the
-        hierarchy for the current measurement.'''
+        hierarchy for the current measurement."""
         for key,value in self.results.iteritems():
             #print 'key: {} value: {}'.format(key,str(value)[:40])
             if key.startswith('Hamamatsu/shots/'):
@@ -207,31 +201,48 @@ class LabView(Instrument):
             logger.warning("while getting hdf5['error']\n"+str(e))
             raise PauseError
     
-    def send(self,msg):
-        results={}
+    def send(self, msg):
+        results = {}
         if self.enabled:
-            if not self.connected:
-                logger.info('LabView was not initialized.  Initializing LabView in LabView.send({}...)'.format(msg[:40]))
-                self.open()
-            if self.connected:
-                #tell the LabView instruments to measure
-                self.msg='<LabView>'+msg+'</LabView>'
-                self.sock.sendmsg(self.msg)
-                #wait for response
-                while not self.experiment.timeOutExpired:
-                    try:
-                        rawdata=self.sock.receive()
-                    except IOError:
-                        print 'Waiting for data'
-                    if rawdata is not None:
-                        #print 'data received: {}'.format(rawdata[:40])
-                        results=self.sock.parsemsg(rawdata)
-                        #print 'len(self.results)={}'.format(len(self.results))
-                        break
-            else:
-                logger.warning('LabView instrument is not connected in LabView.send({})'.format(msg))
+            if not (self.isInitialized and self.connected):
+                logger.debug("TCP is not both initialized and connected.  Reinitializing TCP in LabView.send().")
+                self.initialize()
+
+            #display message on GUI
+            self.msg = msg
+
+            #send message
+            try:
+                self.sock.settimeout(self.timeout.value)
+                self.sock.sendmsg(msg)
+            except IOError:
+                logger.warning('Timeout while waiting for LabView to send data in LabView.send():\n{}\n'.format(e))
                 raise PauseError
-        self.results=results
-        self.isDone=True
+            except Exception as e:
+                logger.warning('while sending message in LabView.send():\n{}\n{}\n'.format(e, traceback.format_exc()))
+                raise PauseError
+
+            #wait for response
+            try:
+                rawdata = self.sock.receive()
+            except IOError:
+                logger.warning('Timeout while waiting for LabView to return data in LabView.send():\n{}\n'.format(e))
+                raise PauseError
+            except Exception as e:
+                logger.warning('in LabView.sock.receive:\n{}\n{}\n'.format(e, traceback.format_exc()))
+                raise PauseError
+
+            #parse results
+            results = self.sock.parsemsg(rawdata)
+            #for key, value in self.results.iteritems():
+            #    print 'key: {} value: {}'.format(key,str(value)[:40])
+            if 'log' in self.results:
+                self.log += self.results['log']
+            if 'error' in self.results:
+                self.error = toBool(self.results['error'])
+                if self.error:
+                    logger.warning('Error returned from LabView.send:\n{}\n'.format(self.results['log']))
+                    raise PauseError
+        self.results = results
+        self.isDone = True
         return results
-        
