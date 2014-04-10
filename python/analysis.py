@@ -248,27 +248,27 @@ class ShotsBrowserAnalysis(AnalysisWithFigure):
         super(ShotsBrowserAnalysis,self).updateFigure() #makes a deferred_call to swap_figures()
     
 class ImageSumAnalysis(AnalysisWithFigure):
-    data=Member()
+    data = Member()
     
-    def __init__(self,experiment):
-        super(ImageSumAnalysis,self).__init__('ImageSumAnalysis',experiment,'Sums shot0 images as they come in')
+    def __init__(self, experiment):
+        super(ImageSumAnalysis, self).__init__('ImageSumAnalysis',experiment,'Sums shot0 images as they come in')
     
     def setupExperiment(self,experimentResults):
         #clear old data
-        self.data=None
+        self.data = None
     
-    def analyzeMeasurement(self,measurementResults,iterationResults,experimentResults):
+    def analyzeMeasurement(self, measurementResults,iterationResults,experimentResults):
         if ('data/Hamamatsu/shots/0' in measurementResults):
             try:
-                input=numpy.array(measurementResults['data/Hamamatsu/shots/0'][...])
+                input = numpy.array(measurementResults['data/Hamamatsu/shots/0'][...])
             except KeyError as e:
-                logger.warning('HDF5 data/Hamamatsu/shots/0 does not exist in analysis.ImagePlotAnalysis.analyzeMeasurement()\n'+str(e))
-                raise PauseError
+                logger.warning('data/Hamamatsu/shots/0 does not exist in ImageSumAnalysis.  Discarding measurement.\n'+str(e))
+                return 3 #hard fail
             #first time
             if (measurementResults.attrs['measurement']==0) or (self.data is None):
-                self.data=numpy.zeros_like(input)
-                iterationResults['shot0sum']=self.data
-            self.data+=input
+                self.data = numpy.zeros(input.shape, dtype=numpy.uint64) #allow for holding up to 2^48 images
+                iterationResults['shot0sum'] = self.data
+            self.data += input
             iterationResults['shot0sum'][...]=self.data #overwrite old data
             self.updateFigure() #only update figure if image was loaded
     
@@ -333,6 +333,5 @@ class SquareROIAnalysis(AnalysisWithFigure):
 class OptimizerAnalysis(AnalysisWithFigure):
     costfunction = Str('')
     
-    def __init__(self,experiment):
-        super(OptimizerAnalysis,self).__init__('OptimizerAnalysis',experiment,'updates independent variables to minimize cost function')
-        
+    def __init__(self, experiment):
+        super(OptimizerAnalysis,self).__init__('OptimizerAnalysis', experiment, 'updates independent variables to minimize cost function')

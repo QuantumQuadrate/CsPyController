@@ -471,7 +471,7 @@ class EvalProp(Prop,Validator):
             logger.warning('Exception in str(self.value) in EvalProp.toHardware() in '+self.name+' .\n'+str(e))
             raise PauseError
         return '<{}>{}</{}>\n'.format(self.name,valueStr,self.name)
-    
+
 
 class StrProp(EvalProp):
     value=Str()
@@ -830,8 +830,13 @@ class Numpy2DProp(Prop):
         self.array=numpy.delete(self.array,index,axis=1)
     
     def toHDF5(self, hdf, name=None):
-        x=hdf.create_dataset(self.name,self.array.shape,dtype=self.hdf_dtype)
-        x[:,:]=self.array
+        try:
+            hdf.create_dataset(self.name, data=self.array, dtype=self.hdf_dtype)
+        except Exception as e:
+            logger.warning('While trying to create dataset in Numpy2DProp.toHDF5() in '+self.name+'.\n'+str(e)+'\n'+str(traceback.format_exc())+'\n')
+            raise PauseError
+        #x=hdf.create_dataset(self.name,self.array.shape,dtype=self.hdf_dtype)
+        #x[:,:]=self.array
         
     def fromHDF5(self,hdf):
         self.array=hdf.value.astype(self.dtype)

@@ -562,7 +562,7 @@ class NumpyWaveform(Prop):
             if plotmin==plotmax:
                 #avoid divide by zeros
                 plotmax+=1
-            ax.set_xlim(plotmin,plotmax)
+            ax.set_xlim(plotmin, plotmax)
             
             #create a timeList on the scale 0 to 1
             relativeTimeList=(timeList-plotmin)/(plotmax-plotmin)

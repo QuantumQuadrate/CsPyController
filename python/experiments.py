@@ -740,6 +740,8 @@ class AQuA(Experiment):
     squareROIAnalysis = Member()
     save2013Analysis = Member()
     optimizer = Member()
+    ROI_rows = 7
+    ROI_columns = 7
 
     def __init__(self):
         super(AQuA, self).__init__()
@@ -752,7 +754,7 @@ class AQuA(Experiment):
         self.shot0_analysis = analysis.ImagePlotAnalysis('analysisShot0', self.experiment, description='just show the incoming shot 0')
         self.shotBrowserAnalysis = analysis.ShotsBrowserAnalysis(self.experiment)
         self.imageSumAnalysis = analysis.ImageSumAnalysis(self.experiment)
-        self.squareROIAnalysis = analysis.SquareROIAnalysis(self.experiment, ROI_rows=7, ROI_columns=7)
+        self.squareROIAnalysis = analysis.SquareROIAnalysis(self.experiment, ROI_rows=self.ROI_rows, ROI_columns=self.ROI_columns)
         self.save2013Analysis = save2013style.Save2013Analysis(self.experiment)
         self.optimizer = analysis.OptimizerAnalysis(self.experiment)
         self.analyses += [self.shot0_analysis, self.shotBrowserAnalysis, self.imageSumAnalysis, self.squareROIAnalysis,

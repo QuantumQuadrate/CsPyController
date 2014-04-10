@@ -4,7 +4,7 @@ from cs_errors import setupLog #, PauseError
 logger=setupLog(__name__)
 
 from analysis import Analysis
-import os, numpy, time
+import os, numpy, time, shutil
 import png, itertools #for PyPNG support
 from atom.api import Bool, Member, Str
 
@@ -14,11 +14,11 @@ class Save2013Analysis(Analysis):
     updateAfterIteration=Bool(True)
     updateAfterExperiment=Bool(True)
     
-    iteration=Member()
-    measurement=Member()
+    iteration = Member()
+    measurement = Member()
     
-    iterationPath=Str()
-    measurementPath=Str()
+    iterationPath = Str()
+    measurementPath = Str()
 
     
     def __init__(self,experiment=None):
@@ -40,7 +40,7 @@ class Save2013Analysis(Analysis):
             #Lists number of steps for each ivar.  "Formulas" was never operational.
             #a Iterations:	1	b Iterations:	1	l0 Iterations:	11	Formulas:	0
             with open(os.path.join(self.experiment.path,'All Signal.txt'),'w') as f:
-                f.write('\t'.join(['{} Iterations:\t{}'.format(name,steps) for name,steps in zip(experimentResults.attrs['ivarNames'],experimentResults.attrs['ivarSteps'])]))
+                f.write('\t'.join(['{} Iterations:\t{}'.format(name,steps) for name,steps in zip(experimentResults.attrs['ivarNames'],experimentResults.attrs['ivarSteps'])])+'\nFormulas:\t0')
             
             #save variables.txt
             #Description	Name (a,a0...a9)	min	max	# steps
@@ -49,7 +49,7 @@ class Save2013Analysis(Analysis):
             #459 Raman Pulse	l0	0.000000	0.030000	11
             with open(os.path.join(self.experiment.path,'variables.txt'),'w') as f:
                 f.write('Description	Name (a,a0...a9)	min	max	# steps\n')
-                f.write('\n'.join(['{}\t{}\t{}\t{}'.format(i.description,i.name,numpy.amin(i.valueList),numpy.amax(i.valueList),i.steps) for i in self.experiment.independentVariables]))
+                f.write('\n'.join(['{}\t{}\t{}\t{}\t{}'.format(i.description,i.name,numpy.amin(i.valueList),numpy.amax(i.valueList),i.steps) for i in self.experiment.independentVariables]))
                 f.write('\n')
             
             #begin Data Order Log.txt
@@ -81,15 +81,18 @@ class Save2013Analysis(Analysis):
             #Data Order Log.txt
             #one line with ivar indices
             #(a,b,l0): 	0,0,0	0,0,1	0,0,2	0,0,3	0,0,4	0,0,5	0,0,6	0,0,7	0,0,8	0,0,9	0,0,10
-            with open(os.path.join(self.experiment.path,'Data Order Log.txt'),'a') as f:
+            with open(os.path.join(self.experiment.path,'Data Order Log.txt'), 'a') as f:
                 f.write('\t'+','.join(map(str,iterationResults.attrs['ivarIndex'])))
-            
+
             #Camera Data Iteration0 (signal).txt
-            with open(os.path.join(self.experiment.path,'Camera Data Iteration'+iterationResults['iteration']+' (signal).txt'),'a') as f:
-                f.write('Camera Data\t'+time.strftime('%m/%d/%Y\t%I:%M %p')+'\tShots per Measurement:\t'+self.experiment.camera.shotsPerMeasurement+'\tRegions per Measurement:\t'+str(int(self.experiment.ROIrows*self.experiment.ROIcolumns))+'\n')
+            with open(os.path.join(self.experiment.path, 'Camera Data Iteration{} (signal).txt'.format(iterationResults.attrs['iteration'])), 'a') as f:
+                f.write('Camera Data\t{}\tShots per Measurement:\t{}\tRegions per Measurement:\t{}\n'.format(
+                    time.strftime('%m/%d/%Y\t%I:%M %p'),
+                    self.experiment.LabView.camera.shotsPerMeasurement.value,
+                    int(self.experiment.ROI_rows*self.experiment.ROI_columns)))
                 for measurement in iterationResults['measurements'].itervalues():
                     for shot in measurement['data/Hamamatsu/shots'].itervalues():
-                        f.write('\t'.join(map(str,shot.attrs['sumArray'].tolist()))+'n')
+                        f.write('\t'.join(map(str, shot.attrs['squareROIsums'].tolist()))+'\n')
     
     def analyzeExperiment(self,experimentResults):
         if self.experiment.saveData and self.experiment.save2013styleFiles:
@@ -108,8 +111,9 @@ class Save2013Analysis(Analysis):
             self.savePNG(average_of_images,os.path.join(self.experiment.path,'images','average_of_all_images_in_experiment.png'))
             
             #error log
-            pass
-    
+            with open(os.path.join(self.experiment.path, 'error_log.txt'),'a') as f:
+                f.write(self.experiment.LabView.log)
+
     def create_iteration_directory(self,iterationResults):
         exp=self.experiment
         if exp.saveData and exp.save2013styleFiles:
@@ -120,12 +124,12 @@ class Save2013Analysis(Analysis):
                 #use os.makedirs instead of os.mkdir to create the intermediate directory if it does not exist
                 os.makedirs(iterationPath)
     
-    def savePNG(self,array,filename):
+    def savePNG(self, array, filename):
         #L indicates monochrome, ;16 indicates 16-bit
-        png.from_array(array,'L;16',info={'bitdepth':16}).save(filename)
+        png.from_array(array, 'L;16', info={'bitdepth': 16}).save(filename)
     
-    def readPNG(self,filename):
-        a=png.Reader(filename=filename)
-        b=a.read()
-        c=numpy.vstack(itertools.imap(numpy.uint16,b[2]))
+    def readPNG(self, filename):
+        a = png.Reader(filename=filename)
+        b = a.read()
+        c = numpy.vstack(itertools.imap(numpy.uint16, b[2]))
         return c

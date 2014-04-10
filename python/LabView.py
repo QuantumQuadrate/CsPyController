@@ -17,7 +17,7 @@ import TCP, HSDIO, piezo, DDS, RF_generators, AnalogOutput, DAQmxDO, Camera, Ech
 from atom.api import Bool, Str, Member, Typed
 from instrument_property import FloatProp
 from cs_instruments import Instrument
-import numpy, struct, traceback, time, threading
+import numpy, struct, traceback, threading
 
 def toBool(x):
     if (x == 'False') or (x == 'false'):
@@ -106,8 +106,6 @@ class LabView(Instrument):
                 except Exception as e:
                     logger.debug('Ignoring exception during sock.close() of previously open sock.\n{}\n'.format(e))
 
-                logger.debug('Waiting 10 seconds for LabView TCP connection to reset.')
-                time.sleep(10)
             # Create a TCP/IP socket
             logger.debug('LabView.open() opening sock')
             try:
@@ -137,7 +135,9 @@ class LabView(Instrument):
 
 
     def start(self):
+        print 'LabView sendng ...'
         self.send('<LabView><measure/></LabView>')
+        print '... LabView received.'
     
     def writeResults(self, hdf5):
         """Write the previously obtained results to the experiment hdf5 file.
@@ -150,7 +150,7 @@ class LabView(Instrument):
                 
                 #unpack the image in 2 byte chunks
                 #print "len(value)={}".format(len(value))
-                array=numpy.array(struct.unpack('!'+str(int(len(value)/2))+'H',value),dtype=numpy.uint16)
+                array = numpy.array(struct.unpack('!'+str(int(len(value)/2))+'H', value), dtype=numpy.uint16)
                 
                 #the dictionary is unpacked alphabetically, so if width and height were
                 #transmitted they should be loaded already
@@ -212,6 +212,7 @@ class LabView(Instrument):
             self.msg = msg
 
             #send message
+            print 'LabView sending ...'
             try:
                 self.sock.settimeout(self.timeout.value)
                 self.sock.sendmsg(msg)
@@ -225,6 +226,7 @@ class LabView(Instrument):
                 raise PauseError
 
             #wait for response
+            print 'LabView waiting for response ...'
             try:
                 rawdata = self.sock.receive()
             except IOError:
@@ -237,6 +239,7 @@ class LabView(Instrument):
                 raise PauseError
 
             #parse results
+            print 'LabView parsing results'
             results = self.sock.parsemsg(rawdata)
             #for key, value in self.results.iteritems():
             #    print 'key: {} value: {}'.format(key,str(value)[:40])

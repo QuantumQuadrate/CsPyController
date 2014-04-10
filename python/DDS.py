@@ -62,7 +62,7 @@ class DDS(Instrument):
             deferred_call(setattr,self,'boxDescriptionList',[str(i)+' '+n.description for i,n in enumerate(self.boxes)])
         except RuntimeError:
             #the GUI is not yet active
-            self.boxDescriptionList=[str(i)+' '+n.description for i,n in enumerate(self.boxes)]
+            self.boxDescriptionList=[str(i)+' '+n.description for i, n in enumerate(self.boxes)]
     
     def initializeDDS(self):
         #send just the DDS settings, force initialization, and then set DDS settings
