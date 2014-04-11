@@ -37,7 +37,7 @@ class Analysis(Prop):
     
     def __init__(self,name,experiment,description=''): #subclassing from Prop provides save/load mechanisms
         super(Analysis,self).__init__(name,experiment,description)
-        self.properties+=['updateAfterMeasurement,dropMeasurementIfSlow,updateAfterIteration,dropIterationIfSlow,updateAfterExperiment,text']
+        self.properties += ['dropMeasurementIfSlow','dropIterationIfSlow','text']
     
     def preExperiment(self,experimentResults):
         #no queueing, must complete this before experiment

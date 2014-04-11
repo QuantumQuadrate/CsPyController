@@ -91,8 +91,8 @@ class Save2013Analysis(Analysis):
                     self.experiment.LabView.camera.shotsPerMeasurement.value,
                     int(self.experiment.ROI_rows*self.experiment.ROI_columns)))
                 for measurement in iterationResults['measurements'].itervalues():
-                    roi_sums = measurement['analysis/squareROIsums'].value.T
-                    f.write('\t'.join(['\t'.join([str(shot) for shot in ROI]) for ROI in roi_sums])+'\n')
+                    roi_sums = measurement['analysis/squareROIsums'].value
+                    f.write('\t'.join(['\t'.join([str(ROI) for ROI in shot]) for shot in roi_sums])+'\n')
 
     def analyzeExperiment(self, experimentResults):
         if self.experiment.saveData and self.experiment.save2013styleFiles:
