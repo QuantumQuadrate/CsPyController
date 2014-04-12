@@ -292,13 +292,15 @@ class Experiment(Prop):
     def evaluate(self):
         """Resolve all equation in instruments."""
         if self.allow_evaluation:
-            
+            sys.stdout.write('Evaluating ...')
+
             #resolve independent variables for correct iteration, and evaluate dependent variables
             self.evaluateDependentVariables()
             
             #re-evaluate all instruments
             for i in self.instruments:
                 i.evaluate()  # each instrument will calculate its properties
+            sys.stdout.write(' Done.\n')
     
     def eval_general(self, string):
         return cs_evaluate.evalWithDict(string, self.vars)
@@ -373,6 +375,11 @@ class Experiment(Prop):
         self.reset()
         self.go()
     
+    def resetThread(self):
+        thread = threading.Thread(target=self.reset)
+        thread.daemon = True
+        thread.start()
+
     def reset(self):
         """Reset the iteration variables and timing."""
         
@@ -418,7 +425,7 @@ class Experiment(Prop):
             while (self.iteration < self.totalIterations) and (self.status == 'running'):
                 
                 #at the start of a new iteration, or if we are continuing
-                self.evaluate()  # re-calculate all variables
+                self.evaluateAll()  # re-calculate all variables
                 
                 self.update()  # send current values to hardware
                 
@@ -653,7 +660,7 @@ class Experiment(Prop):
         #store independent variable data for experiment
         self.hdf5.attrs['start_time'] = self.date2str(time.time())
         self.hdf5.attrs['ivarNames'] = self.ivarNames
-        self.hdf5.attrs['ivarValueLists'] = self.ivarValueLists
+        #self.hdf5.attrs['ivarValueLists'] = self.ivarValueLists  # temporarily disabled because HDF5 cannot handle arbitrary length lists of lists
         self.hdf5.attrs['ivarSteps'] = self.ivarSteps
         
         #create a group to hold iterations in the hdf5 file
@@ -748,6 +755,7 @@ class AQuA(Experiment):
     shotBrowserAnalysis = Member()
     imageSumAnalysis = Member()
     squareROIAnalysis = Member()
+    imageWithROIAnalysis = Member()
     save2013Analysis = Member()
     optimizer = Member()
     ROI_rows = 7
@@ -761,14 +769,15 @@ class AQuA(Experiment):
         self.instruments = [self.LabView]
         
         #analyses
-        self.shot0_analysis = analysis.ImagePlotAnalysis('analysisShot0', self.experiment, description='just show the incoming shot 0')
+        self.shot0_analysis = analysis.Shot0Analysis('analysisShot0', self.experiment, description='just show the incoming shot 0')
         self.shotBrowserAnalysis = analysis.ShotsBrowserAnalysis(self.experiment)
         self.imageSumAnalysis = analysis.ImageSumAnalysis(self.experiment)
         self.squareROIAnalysis = analysis.SquareROIAnalysis(self.experiment, ROI_rows=self.ROI_rows, ROI_columns=self.ROI_columns)
+        self.imageWithROIAnalysis = analysis.ImageWithROIAnalysis('shot0_with_ROI_analysis', self.experiment)
         self.save2013Analysis = save2013style.Save2013Analysis(self.experiment)
         self.optimizer = analysis.OptimizerAnalysis(self.experiment)
         self.analyses += [self.shot0_analysis, self.shotBrowserAnalysis, self.imageSumAnalysis, self.squareROIAnalysis,
-                          self.save2013Analysis]
+                          self.imageWithROIAnalysis, self.save2013Analysis]
 
         self.properties += ['LabView', 'squareROIAnalysis']
 

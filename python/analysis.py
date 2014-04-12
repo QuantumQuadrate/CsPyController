@@ -6,6 +6,8 @@ from instrument_property import Prop
 
 #MPL plotting
 from matplotlib.figure import Figure
+from matplotlib.path import Path
+import matplotlib.patches as patches
 from enaml.application import deferred_call
 
 import threading, numpy, traceback
@@ -133,6 +135,11 @@ class AnalysisWithFigure(Analysis):
         except RuntimeError: #application not started yet
             self.swapFigures()
 
+    def blankFigure(self):
+        fig=self.backFigure
+        fig.clf()
+        super(AnalysisWithFigure,self).updateFigure()
+
 class ImagePlotAnalysis(AnalysisWithFigure):
     data=Member()
     
@@ -151,15 +158,46 @@ class ImagePlotAnalysis(AnalysisWithFigure):
             self.updateFigure() #only update figure if image was loaded
         else:
             text+='\n\nno image data'
+            self.blankFigure()
         deferred_call(setattr,self,'text',text)
-    
+
     def updateFigure(self):
         fig=self.backFigure
         fig.clf()
         ax=fig.add_subplot(111)
         ax.matshow(numpy.array(self.data[...]))
         ax.set_title('shot 0')
-        super(ImagePlotAnalysis,self).updateFigure()
+        super(ImagePlotAnalysis, self).updateFigure()
+
+class Shot0Analysis(AnalysisWithFigure):
+    data = Member()
+
+    def analyzeMeasurement(self,measurementResults,iterationResults,experimentResults):
+        try:
+            text = 'iteration {} measurement {}\nCamera temperature: {} C'.format(iterationResults.attrs['iteration'],measurementResults.name.split('/')[-1],measurementResults['data/Hamamatsu/temperature'].value)
+        except KeyError as e:
+            logger.warning('HDF5 text does not exist in analysis.ImagePlotAnalysis.analyzeMeasurement()\n'+str(e))
+            raise PauseError
+        if ('data/Hamamatsu/shots/0' in measurementResults):
+            try:
+                self.data = measurementResults['data/Hamamatsu/shots/0']
+            except KeyError as e:
+                logger.warning('HDF5 data/Hamamatsu/shots/0 does not exist in analysis.ImagePlotAnalysis.analyzeMeasurement()\n' + str(e))
+                raise PauseError
+            self.updateFigure()  # only update figure if image was loaded
+        else:
+            text += '\n\nno image data'
+            self.data = None
+            self.blankFigure()
+        deferred_call(setattr, self, 'text', text)
+
+    def updateFigure(self):
+        fig = self.backFigure
+        fig.clf()
+        ax = fig.add_subplot(111)
+        ax.matshow(self.data)
+        ax.set_title('shot 0')
+        super(Shot0Analysis, self).updateFigure()
 
 class XYPlotAnalysis(AnalysisWithFigure):
     #### needs updating
@@ -171,8 +209,8 @@ class XYPlotAnalysis(AnalysisWithFigure):
         fig.clf()
         ax=fig.add_subplot(111)
         if (self.X is not None) and (self.Y is not None):
-            ax.plot(self.X,self.Y)
-        super(ImagePlotAnalysis,self).updateFigure()
+            ax.plot(self.X, self.Y)
+        super(ImagePlotAnalysis, self).updateFigure()
 
 class SampleXYAnalysis(XYPlotAnalysis):
     #### needs updating
@@ -193,18 +231,18 @@ class ShotsBrowserAnalysis(AnalysisWithFigure):
     array=Member()
     experimentResults=Member()
     
-    def __init__(self,experiment):
-        super(ShotsBrowserAnalysis,self).__init__('ShotsBrowser',experiment,'Shows a particular shot from the experiment')
+    def __init__(self, experiment):
+        super(ShotsBrowserAnalysis, self).__init__('ShotsBrowser',experiment,'Shows a particular shot from the experiment')
     
     def setupExperiment(self,experimentResults):
         self.experimentResults=experimentResults
-        self.ivarValueLists=[i for i in experimentResults.attrs['ivarValueLists']]
+        self.ivarValueLists=[i for i in self.experiment.ivarValueLists]  # this line used to access the hdf5 file, but I have temporarily removed ivarValueLists from the HDF5 because it could not handle arbitrary lists of lists
         self.selection=[0]*len(self.ivarValueLists)
         deferred_call(setattr,self,'ivarNames',[i for i in experimentResults.attrs['ivarNames']])
     
     def setIteration(self,ivarIndex,index):
         try:
-            self.selection[ivarIndex]=index
+            self.selection[ivarIndex] = index
         except Exception as e:
             logger.warning('Invalid ivarIndex in analysis.ShotsBrowserAnalysis.setSelection({},{})\n{}\n[]'.format(ivarIndex,index,e,traceback.format_exc()))
             raise PauseError
@@ -228,7 +266,7 @@ class ShotsBrowserAnalysis(AnalysisWithFigure):
                     #find the first iteration that matches all the selected ivar indices
                     if numpy.all(i.attrs['ivarIndex']==self.selection):
                         try:
-                            self.array=i['measurements/{}/data/Hamamatsu/shots/{}'.format(m,s)].value
+                            self.array = i['measurements/{}/data/Hamamatsu/shots/{}'.format(m,s)]  # TODO: removed .value here
                             self.updateFigure()
                         except Exception as e:
                             logger.warning('Exception trying to plot measurement {}, shot {}, in analysis.ShotsBrowserAnalysis.load()\n{}\n'.format(m,s,e))
@@ -283,13 +321,13 @@ class ImageSumAnalysis(AnalysisWithFigure):
 class SquareROIAnalysis(AnalysisWithFigure):
     ROI_rows = Int()
     ROI_columns = Int()
-    ROIs = Member() #a numpy array holding an ROI in each row
-    left, top, right, bottom, threshold = (0, 1, 2, 3, 4) #column ordering of ROI boundaries in each ROI in ROIs
+    ROIs = Member()  # a numpy array holding an ROI in each row
+    left, top, right, bottom, threshold = (0, 1, 2, 3, 4)  # column ordering of ROI boundaries in each ROI in ROIs
     loadingArray = Member()
 
     def __init__(self, experiment, ROI_rows=1, ROI_columns=1):
         super(SquareROIAnalysis, self).__init__('SquareROIAnalysis', experiment,'Does analysis on square regions of interest')
-        self.loadingArray = numpy.zeros((0, ROI_rows, ROI_columns), dtype=numpy.bool_) #blank array that will hold digital representation of atom loading
+        self.loadingArray = numpy.zeros((0, ROI_rows, ROI_columns), dtype=numpy.bool_)  # blank array that will hold digital representation of atom loading
         self.ROI_rows = ROI_rows
         self.ROI_columns = ROI_columns
         self.ROIs = numpy.zeros((ROI_rows*ROI_columns, 5), numpy.uint16)  # initialize with a blank array
@@ -334,6 +372,63 @@ class SquareROIAnalysis(AnalysisWithFigure):
                 ax.matshow(self.loadingArray[i])
         super(SquareROIAnalysis, self).updateFigure()
 
+class ImageWithROIAnalysis(AnalysisWithFigure):
+    data = Member()
+
+    def analyzeMeasurement(self,measurementResults,iterationResults,experimentResults):
+        if ('data/Hamamatsu/shots/0' in measurementResults):
+            try:
+                self.data = measurementResults['data/Hamamatsu/shots/0']
+            except KeyError as e:
+                logger.warning('HDF5 data/Hamamatsu/shots/0 does not exist in analysis.ImagePlotAnalysis.analyzeMeasurement()\n' + str(e))
+                raise PauseError
+            self.updateFigure()  # only update figure if image was loaded
+        else:
+            self.data = None
+            self.blankFigure()
+
+    def mpl_rectangle(self,ax,ROI):
+        left = ROI[0] - 0.5
+        top = ROI[1] - 0.5
+        right = ROI[2] - 0.5
+        bottom = ROI[3] - 0.5
+        verts = [
+            (left, bottom), # left, bottom
+            (left, top), # left, top
+            (right, top), # right, top
+            (right, bottom), # right, bottom
+            (0., 0.), # ignored
+            ]
+
+        codes = [Path.MOVETO,
+                 Path.LINETO,
+                 Path.LINETO,
+                 Path.LINETO,
+                 Path.CLOSEPOLY,
+                 ]
+
+        path = Path(verts, codes)
+
+        patch = patches.PathPatch(path, edgecolor='black', facecolor='none', lw=2)
+        ax.add_patch(patch)
+
+    def updateFigure(self):
+        fig = self.backFigure
+        fig.clf()
+        ax = fig.add_subplot(111)
+
+        #draw image
+        ax.matshow(self.data)
+
+        #calibration rectangle
+        self.mpl_rectangle(ax, [0,0,3,5])
+
+        #overlay ROIs
+        for ROI in self.experiment.squareROIAnalysis.ROIs:
+            self.mpl_rectangle(ax, ROI)
+
+        ax.set_title('shot 0 with ROI')
+        super(ImageWithROIAnalysis, self).updateFigure()
 
 class OptimizerAnalysis(AnalysisWithFigure):
     costfunction = Str('')

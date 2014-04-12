@@ -205,6 +205,26 @@ enamldef CsMenuBar(MenuBar): menuBar:
             text = 'Reset and Run\tCtrl+R'
             triggered::experiment.resetAndGoThread()
         Action:
+            text = 'Reset'
+            triggered::experiment.resetThread()
+        Action:
+            text = 'Run'
+            triggered::experiment.goThread()
+        Menu:
+            title = 'Pause...'
+            Action:
+                checkable = True
+                text = 'After Measurement'
+                checked := experiment.pauseAfterMeasurement
+            Action:
+                checkable = True
+                text = 'After Iteration'
+                checked := experiment.pauseAfterIteration
+            Action:
+                checkable = True
+                text = 'After Error'
+                checked := experiment.pauseAfterError
+        Action:
             text = 'Continue\tCtrl+G'
             triggered::experiment.goThread()
         Action:
@@ -1012,7 +1032,7 @@ enamldef HSDIO_DigitalOutPage(Page):
 
     Container:
         Container:
-                constraints=[vbox(p1,p9,p2,p3,p4,p5,p6,p7,p8),align('left',p1,p9,p2,p3,p4,p5,p6,p7,p8)]
+                constraints=[hbox(vbox(p1,p9,p2,p4,p5,p6,p7,p8),p3),align('left',p1,p9,p2,p4,p5,p6,p7),align('top',p1,p3)]
                 hug_height='strong'
                 hug_width='strong'
                 EvalProp: p1:
@@ -1736,6 +1756,19 @@ enamldef ROIPage(Page):
             hug_width='ignore'
             figure<<analysis.figure
 
+enamldef ImageWithROIPage(Page):
+    attr experiment
+    attr analysis
+
+    title = 'Image with ROI'
+    Container:
+        hug_height='ignore'
+        hug_width='ignore'
+        MPLCanvas:
+            constraints=[(height==1000)|'strong',(width==1000)|'strong']
+            #hug_width='ignore'
+            figure<<analysis.figure
+
 enamldef OptimizerPage(Page):
     attr experiment
     attr analysis
@@ -1830,6 +1863,9 @@ enamldef Main(MainWindow): main:
                     ROIPage:
                         experiment=main.experiment
                         analysis=main.experiment.squareROIAnalysis
+                    ImageWithROIPage:
+                        experiment=main.experiment
+                        analysis=main.experiment.imageWithROIAnalysis
                     OptimizerPage:
                         experiment=main.experiment
                         analysis=main.experiment.optimizer

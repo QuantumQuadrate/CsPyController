@@ -17,7 +17,7 @@ import TCP, HSDIO, piezo, DDS, RF_generators, AnalogOutput, DAQmxDO, Camera, Ech
 from atom.api import Bool, Str, Member, Typed
 from instrument_property import FloatProp
 from cs_instruments import Instrument
-import numpy, struct, traceback, threading
+import numpy, struct, traceback, threading, sys
 
 def toBool(x):
     if (x == 'False') or (x == 'false'):
@@ -60,7 +60,6 @@ class LabView(Instrument):
         self.connected = False
         self.error = False
         self.cycleContinuously = False
-
 
         self.connected = False
         self.HSDIO = HSDIO.npHSDIO('HSDIO', experiment)
@@ -135,10 +134,8 @@ class LabView(Instrument):
 
 
     def start(self):
-        print 'LabView sendng ...'
         self.send('<LabView><measure/></LabView>')
-        print '... LabView received.'
-    
+
     def writeResults(self, hdf5):
         """Write the previously obtained results to the experiment hdf5 file.
         hdf5 is an hdf5 group, typically the data group in the appropriate part of the
@@ -212,7 +209,7 @@ class LabView(Instrument):
             self.msg = msg
 
             #send message
-            print 'LabView sending ...'
+            sys.stdout.write('LabView: sending ...')
             try:
                 self.sock.settimeout(self.timeout.value)
                 self.sock.sendmsg(msg)
@@ -226,7 +223,7 @@ class LabView(Instrument):
                 raise PauseError
 
             #wait for response
-            print 'LabView waiting for response ...'
+            sys.stdout.write(' waiting for response ...')
             try:
                 rawdata = self.sock.receive()
             except IOError:
@@ -239,7 +236,7 @@ class LabView(Instrument):
                 raise PauseError
 
             #parse results
-            print 'LabView parsing results'
+            sys.stdout.write(' parsing results ...')
             results = self.sock.parsemsg(rawdata)
             #for key, value in self.results.iteritems():
             #    print 'key: {} value: {}'.format(key,str(value)[:40])
@@ -250,6 +247,7 @@ class LabView(Instrument):
                 if self.error:
                     logger.warning('Error returned from LabView.send:\n{}\n'.format(self.results['log']))
                     raise PauseError
+            sys.stdout.write(' done.\n')
         self.results = results
         self.isDone = True
         return results
