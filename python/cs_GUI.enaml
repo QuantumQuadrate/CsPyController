@@ -907,11 +907,11 @@ enamldef NumpyWaveform(Container):
     
     hug_height='strong'
     hug_width='ignore'
-    #constraints=[align('left',canvas,plotcontrols,details)] #for some reason this makes the canvas disappear
+    constraints=[vbox(plotcontrols,details),align('left',plotcontrols,details)] #for some reason this makes the canvas disappear
     
-    MPLCanvas: canvas:
-        constraints=[(height==500)|'strong',(width==1500)|'strong']
-        figure << waveform.figure
+    #MPLCanvas: canvas:
+    #    constraints=[(height==500)|'strong',(width==1500)|'strong']
+    #    figure << waveform.figure
     
     Container: plotcontrols:
         hug_width='strong'
@@ -949,40 +949,40 @@ enamldef NumpyWaveform(Container):
             text:=waveform.name
 
         GroupBox: timeControls:
-                hug_height='strong'
-                hug_width='strong'
-                constraints=[hbox(l0,spin0,addButton0,removeButton0)]
-                Label: l0:
-                    text='times'
-                SpinBox: spin0:
-                    minimum=0
-                    maximum<<len(waveform.transitions.array)
-                PushButton: addButton0:
-                    text='+'
-                    clicked::
-                        waveform.addTransition(spin0.value)
-                PushButton: removeButton0:
-                    text='-'
-                    clicked::
-                        waveform.removeTransition(spin0.value)
+            hug_height='strong'
+            hug_width='strong'
+            constraints=[hbox(l0,spin0,addButton0,removeButton0)]
+            Label: l0:
+                text='times'
+            SpinBox: spin0:
+                minimum=0
+                maximum<<len(waveform.transitions.array)
+            PushButton: addButton0:
+                text='+'
+                clicked::
+                    waveform.addTransition(spin0.value)
+            PushButton: removeButton0:
+                text='-'
+                clicked::
+                    waveform.removeTransition(spin0.value)
 
         GroupBox: channelControls:
-                hug_height='strong'
-                hug_width='strong'
-                constraints=[hbox(l1,spin1,addButton1,removeButton1)]
-                Label: l1:
-                    text='channels'
-                SpinBox: spin1:
-                    minimum=0
-                    maximum<<len(waveform.channelList)
-                PushButton: addButton1:
-                    text='+'
-                    clicked::
-                        waveform.addChannel(spin1.value)
-                PushButton: removeButton1:
-                    text='-'
-                    clicked::
-                        waveform.removeChannel(spin1.value)
+            hug_height='strong'
+            hug_width='strong'
+            constraints=[hbox(l1,spin1,addButton1,removeButton1)]
+            Label: l1:
+                text='channels'
+            SpinBox: spin1:
+                minimum=0
+                maximum<<len(waveform.channelList)
+            PushButton: addButton1:
+                text='+'
+                clicked::
+                    waveform.addChannel(spin1.value)
+            PushButton: removeButton1:
+                text='-'
+                clicked::
+                    waveform.removeChannel(spin1.value)
         GroupBox: transitions:
             hug_height='strong'
             hug_width='strong'
@@ -1000,31 +1000,90 @@ enamldef WaveformPage(Page):
     NumpyWaveform:
         waveform<<parent.waveform
 
+enamldef WaveformStackItem(StackItem):
+    attr item
+    NumpyWaveform:
+        waveform<<item
+
+def get_load_waveform_callback(HSDIO):
+    def load_file_callback(dlg):
+        if dlg.result == 'accepted':
+            try:
+                HSDIO.importWaveform(dlg.path)
+            except PauseError:
+                pass
+    return load_file_callback
+
 enamldef WaveformsPage(Page):
     attr HSDIO
     title='Waveforms'
     
-    #once this exists, pass a reference back to the python backend, so it can force a GUI refresh
-    #initialized::
-    #    HSDIO.waveforms.refreshButton=refresh
-    
     Container:
-        #constraints=[nb.left==contents_left,nb.right==contents_right,nb.bottom==contents_bottom,nb.top==add.bottom+10,add.top==contents_top]
-        constraints=[vbox(add,nb)]
-        PushButton: add:
-            #add a waveform to the list of waveforms
-            text='add waveform'
-            clicked::
-                dynamicInclude.objects.append(WaveformPage(waveform=HSDIO.waveforms.add()))
-        # PushButton: refresh:
-            # #dump the GUI representation, and reload list of waveforms from the HSDIO.waveforms
-            # text='refresh'
-            # clicked::
-                # dynamicInclude.objects=[WaveformPage(waveform=i) for i in HSDIO.waveforms]
-        Notebook: nb:
-            tab_style='preferences'
-            Include: dynamicInclude:
-                objects=[WaveformPage(waveform=i) for i in HSDIO.waveforms]
+        Container:
+            hug_height='strong'
+            hug_width='strong'
+            constraints=[vbox(buttons,canvas,stack),align('left',buttons,canvas,stack)]
+            Container: buttons:
+                constraints=[hbox(combo,importWaveform,addWaveform,removeWaveform,copyWaveform)]
+                hug_height='strong'
+                hug_width='strong'
+                ComboBox: combo:
+                    constraints=[(width==500)|'strong']
+                    items=[i.name for i in HSDIO.waveforms]
+                PushButton: importWaveform:
+                    #add a waveform from a file
+                    text='import'
+                    clicked::
+                        dlg = FileDialog(
+                            parent=importWaveform,
+                            title='Choose file to load waveform from',
+                            mode='open_file',
+                            path=os.path.join('..','settings'),
+                            callback=get_load_waveform_callback(HSDIO),
+                            ).open()
+                        dyno.refresh_items()
+                        combo.items=[i.name for i in HSDIO.waveforms]
+                        combo.index=len(HSDIO.waveforms)-1
+                PushButton: addWaveform:
+                    constraints=[(width==50)|'strong']
+                    text = 'add'
+                    clicked::
+                        HSDIO.waveforms.add()
+                        dyno.refresh_items()
+                        combo.items=[i.name for i in HSDIO.waveforms]
+                        combo.index=len(HSDIO.waveforms)-1
+                PushButton: removeWaveform:
+                    constraints=[(width==50)|'strong']
+                    text = 'remove'
+                    clicked::
+                        i=combo.index
+                        if i>=0:
+                            HSDIO.waveforms.pop(i)
+                            dyno.refresh_items()
+                            if i>1:
+                                combo.index=i-1
+                            else:
+                                combo.index=0
+                        combo.items=[i.name for i in HSDIO.waveforms]
+                PushButton: copyWaveform:
+                    constraints=[(width==50)|'strong']
+                    text = 'copy'
+                    clicked::
+                        HSDIO.waveforms.add(HSDIO.waveforms[combo.index].copy())
+                        dyno.refresh_items()
+                        combo.items=[i.name for i in HSDIO.waveforms]
+                        combo.index=len(HSDIO.waveforms)-1
+            MPLCanvas: canvas:
+                constraints=[(height==500)|'strong',(width==1500)|'strong']
+                figure << HSDIO.waveforms[combo.index].figure
+            Stack: stack:
+                index<<combo.index
+                Looper: dyno:
+                    iterable<<HSDIO.waveforms
+                    WaveformStackItem:
+                            item=loop_item
+            #NumpyWaveform: stack:
+            #    waveform<<HSDIO.waveforms[combo.index]
 
 enamldef HSDIO_DigitalOutPage(Page):
     attr HSDIO
@@ -1062,7 +1121,7 @@ enamldef DAQmxDigitalOutPage(Page):
     
     Container:
         Container:
-                constraints=[vbox(p6,hbox(vbox(p0,p1,p2,p3,p4),p5)),align('top',p0,p5)]
+                constraints=[vbox(canvas,p6,hbox(vbox(p0,p1,p2,p3,p4),p5)),align('top',p0,p5)]
                 hug_height='strong'
                 hug_width='strong'
                 EvalProp: p0:
@@ -1079,6 +1138,9 @@ enamldef DAQmxDigitalOutPage(Page):
                     channels<<DAQmx.channels
                 NumpyWaveform: p6:
                     waveform<<DAQmx.waveform
+                MPLCanvas: canvas:
+                    constraints=[(height==500)|'strong',(width==1500)|'strong']
+                    figure << DAQmx.waveform.figure
 
 enamldef DDS_profile(StackItem):
     attr profile

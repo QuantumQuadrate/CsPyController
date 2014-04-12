@@ -605,7 +605,7 @@ class ListProp(Prop):
         self.listProperty.append(x)
     
     def pop(self, i):
-        self.listProperty.pop(i)
+        return self.listProperty.pop(i)
     
     def remove(self, x):
         self.listProperty.remove(x)

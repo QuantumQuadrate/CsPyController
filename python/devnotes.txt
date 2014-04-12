@@ -31,13 +31,18 @@ TODO:
     If a variable is created in dependentVariables, and then later deleted (but not reassigned) it persists, and can still be used in all the equation boxes.  This is a problem.
     waveform values are not saved if Validation fails (they erase if a channel is added)
     Ability to send a reset signal to various instruments
-    ComboBox for waveforms
-    make sure waveform name updates
+    make sure waveform names updates
     Make it so you can't disturb running experiment settings
     Patch based waveform plot
     Array piezo settings
+    Restart crashed experiment (Use separate load experiment?)
+    Stop crashing: "invalid value in doublescalars"
+    One waveform vs index stacked waveforms
+    Don't let independent variables go out of range at the end of an experiment
+    Allow for choosing current ivar indices
 
 Done:
+    ComboBox for waveforms
     implement settimeout instead of setblocking for TCP communication with timeout equal to experiment timeout or shorter
     improve handling of TCP disconnect/reconnect
     just one big timeout for whole thing, plus a LabView setup timeout
