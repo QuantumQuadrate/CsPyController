@@ -7,9 +7,9 @@ author=Martin Lichtman
 from __future__ import division
 
 from cs_errors import PauseError, setupLog
-logger=setupLog(__name__)
+logger = setupLog(__name__)
 
-import threading, time, datetime, traceback, xml.etree.ElementTree, pickle, os, numpy, h5py, shutil
+import threading, time, datetime, traceback, os, sys, shutil, numpy, h5py
 
 #set numpy print options to limit to 2 digits
 numpy.set_printoptions(formatter=dict(float=lambda t: "%.2e" % t))
@@ -142,6 +142,9 @@ class Experiment(Prop):
     #iteration Traits
     progress = Int(0)
     path = Member()  # full path to current experiment directory
+    dailyPath = Member()
+    experimentPath = Member()
+
     iteration = Member()
     measurement = Member()
     goodMeasurements = Member()
@@ -289,13 +292,15 @@ class Experiment(Prop):
     def evaluate(self):
         """Resolve all equation in instruments."""
         if self.allow_evaluation:
-            
+            sys.stdout.write('Evaluating ...')
+
             #resolve independent variables for correct iteration, and evaluate dependent variables
             self.evaluateDependentVariables()
             
             #re-evaluate all instruments
             for i in self.instruments:
                 i.evaluate()  # each instrument will calculate its properties
+            sys.stdout.write(' Done.\n')
     
     def eval_general(self, string):
         return cs_evaluate.evalWithDict(string, self.vars)
@@ -370,6 +375,11 @@ class Experiment(Prop):
         self.reset()
         self.go()
     
+    def resetThread(self):
+        thread = threading.Thread(target=self.reset)
+        thread.daemon = True
+        thread.start()
+
     def reset(self):
         """Reset the iteration variables and timing."""
         
@@ -415,7 +425,7 @@ class Experiment(Prop):
             while (self.iteration < self.totalIterations) and (self.status == 'running'):
                 
                 #at the start of a new iteration, or if we are continuing
-                self.evaluate()  # re-calculate all variables
+                self.evaluateAll()  # re-calculate all variables
                 
                 self.update()  # send current values to hardware
                 
@@ -446,7 +456,6 @@ class Experiment(Prop):
                         self.status = 'paused after iteration'
                 if self.iteration >= self.totalIterations:
                     self.status = 'idle'  # we are now ready for the next experiment
-                    self.hdf5.attrs['notes'] = self.notes  # store the notes again
                     self.postExperiment()
         except PauseError:
             #This should be the only place that PauseError is explicitly handed.
@@ -613,9 +622,9 @@ class Experiment(Prop):
             #create a new directory for experiment
             
             #build the path
-            dailyPath = datetime.datetime.fromtimestamp(self.timeStarted).strftime('%Y_%m_%d')
-            experimentPath = datetime.datetime.fromtimestamp(self.timeStarted).strftime('%Y_%m_%d_%H_%M_%S_')+self.experimentDescriptionFilenameSuffix
-            self.path = os.path.join(self.localDataPath, dailyPath, experimentPath)
+            self.dailyPath = datetime.datetime.fromtimestamp(self.timeStarted).strftime('%Y_%m_%d')
+            self.experimentPath = datetime.datetime.fromtimestamp(self.timeStarted).strftime('%Y_%m_%d_%H_%M_%S_')+self.experimentDescriptionFilenameSuffix
+            self.path = os.path.join(self.localDataPath, self.dailyPath, self.experimentPath)
             
             #check that it doesn't exist first
             if not os.path.isdir(self.path):
@@ -651,7 +660,7 @@ class Experiment(Prop):
         #store independent variable data for experiment
         self.hdf5.attrs['start_time'] = self.date2str(time.time())
         self.hdf5.attrs['ivarNames'] = self.ivarNames
-        self.hdf5.attrs['ivarValueLists'] = self.ivarValueLists
+        #self.hdf5.attrs['ivarValueLists'] = self.ivarValueLists  # temporarily disabled because HDF5 cannot handle arbitrary length lists of lists
         self.hdf5.attrs['ivarSteps'] = self.ivarSteps
         
         #create a group to hold iterations in the hdf5 file
@@ -729,6 +738,14 @@ class Experiment(Prop):
         for i in self.analyses:
             i.postExperiment(self.hdf5)
 
+        #store the notes again
+        self.hdf5.attrs['notes'] = self.notes
+
+        #copy to network
+        if self.copyDataToNetwork:
+            sys.stdout.write('Copying data to network ...')
+            shutil.copytree(self.path, os.path.join(self.networkDataPath, self.dailyPath, self.experimentPath))
+            sys.stdout.write(' Done.')
 
 class AQuA(Experiment):
     """A subclass of Experiment which knows about all our particular hardware"""
@@ -738,6 +755,7 @@ class AQuA(Experiment):
     shotBrowserAnalysis = Member()
     imageSumAnalysis = Member()
     squareROIAnalysis = Member()
+    imageWithROIAnalysis = Member()
     save2013Analysis = Member()
     optimizer = Member()
     ROI_rows = 7
@@ -751,14 +769,15 @@ class AQuA(Experiment):
         self.instruments = [self.LabView]
         
         #analyses
-        self.shot0_analysis = analysis.ImagePlotAnalysis('analysisShot0', self.experiment, description='just show the incoming shot 0')
+        self.shot0_analysis = analysis.Shot0Analysis('analysisShot0', self.experiment, description='just show the incoming shot 0')
         self.shotBrowserAnalysis = analysis.ShotsBrowserAnalysis(self.experiment)
         self.imageSumAnalysis = analysis.ImageSumAnalysis(self.experiment)
         self.squareROIAnalysis = analysis.SquareROIAnalysis(self.experiment, ROI_rows=self.ROI_rows, ROI_columns=self.ROI_columns)
+        self.imageWithROIAnalysis = analysis.ImageWithROIAnalysis('shot0_with_ROI_analysis', self.experiment)
         self.save2013Analysis = save2013style.Save2013Analysis(self.experiment)
         self.optimizer = analysis.OptimizerAnalysis(self.experiment)
         self.analyses += [self.shot0_analysis, self.shotBrowserAnalysis, self.imageSumAnalysis, self.squareROIAnalysis,
-                          self.save2013Analysis]
+                          self.imageWithROIAnalysis, self.save2013Analysis]
 
         self.properties += ['LabView', 'squareROIAnalysis']
 

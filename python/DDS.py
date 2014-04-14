@@ -68,15 +68,17 @@ class DDS(Instrument):
         #send just the DDS settings, force initialization, and then set DDS settings
         #This is not used as the instrument.initialize method at this time
 
+        print 'DDS: Requesting initialize and load ...'
         result = self.communicator.send('<LabView><uninitializeDDS/>'+self.toHardware()+'</LabView>')
         self.isInitialized = True
-        print result
+        print 'DDS: ... done.'
     
     def loadDDS(self):
         #send just the DDS settings, initialize if neccessary, and then set DDS settings
+        print 'DDS: Loading settings ...'
         result = self.communicator.send('<LabView>'+self.toHardware()+'</LabView>')
         self.isInitialized=True
-        print result
+        print 'DDS: ... done.'
 
 class DDSbox(Prop):
     enable = Bool()

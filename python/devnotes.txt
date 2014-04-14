@@ -3,7 +3,9 @@ CsPyController notes:
 current question:
 
 TODO:
-    TTL input
+    piezo numpy array
+    AO numpy array
+    RF gen numpy aray
     loading of only part of settings
     replace other indexed Stacks with IndexedStack
     make it so that RangeProp high and low could be re-assigned to None dynamically if desired (without raising error, unless value is outside that range)
@@ -11,33 +13,43 @@ TODO:
     get red box validation display working completely (right now only works from GUI, but not from backend)
     make analog output graph update on add new equation or delete equation
     send AO equations in compressed form
-    improve handling of TCP disconnect/reconnect
-    implement settimeout instead of setblocking for TCP communication with timeout equal to experiment timeout or shorter
     use http://olgabot.github.io/prettyplotlib/ ?
     change LabView demo data to be a more flexible "echo" from python, would be useful for running analysis tests, implement in python test server as well
     optimizer
-    just one big timeout for whole thing, plus a LabView setup timeout
-    python menu Halt should send kill signal to LabView
+    python menu Halt should send kill signal to LabView (no longer an issue with cycling of measurements)
     is it possible to do echoBox measurement by measurement? (send with "measure" command, instead of as instrument setup?)
     send only changed commands on new iteration
     make red validation boxes work well enough to be used
     make shotsBrowser update each measurement if selected index is same as current iteration and measurement
     selectable colors on digital waveform plot
-    clear HSDIO waveform memory between iterations?
     make dependent variables a fixed-width (courier) font
     add 2nd HSDIO card, and combine them so it looks like 1 card with 64 channels
-    make it so that only relevant channels are shown in waveform (can we do this is hardware too?)
-    use start trigger on HSDIO
     a lot of the things that I have done using lists of Prop in ListProp would be better done using a separate numpy array for each property of the Prop (or one array of compound dtype)
+    TTL input
     check analysis
-    HSDIO start trigger
-    copy to network
     DAQmxDO grid generation is obtuse (simplify it)
     If a variable is created in dependentVariables, and then later deleted (but not reassigned) it persists, and can still be used in all the equation boxes.  This is a problem.
     waveform values are not saved if Validation fails (they erase if a channel is added)
     Ability to send a reset signal to various instruments
+    make sure waveform names updates
+    Make it so you can't disturb running experiment settings
+    Patch based waveform plot
+    Array piezo settings
+    Restart crashed experiment (Use separate load experiment?)
+    Stop crashing: "invalid value in doublescalars"
+    One waveform vs index stacked waveforms
+    Don't let independent variables go out of range at the end of an experiment
+    Allow for choosing current ivar indices
 
 Done:
+    ComboBox for waveforms
+    implement settimeout instead of setblocking for TCP communication with timeout equal to experiment timeout or shorter
+    improve handling of TCP disconnect/reconnect
+    just one big timeout for whole thing, plus a LabView setup timeout
+    clear HSDIO waveform memory between iterations?
+    make it so that only relevant channels are shown in waveform (can we do this is hardware too? .. no)
+    HSDIO start trigger
+    copy to network
     horizontal scroll bar doesn't appear when too many transitions are added to waveform
     make it so that the TCP connection is labeled as uninitialized on an error
     clean out unnecessary files in LabView section

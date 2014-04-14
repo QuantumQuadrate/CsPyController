@@ -40,16 +40,16 @@ class Save2013Analysis(Analysis):
             #Lists number of steps for each ivar.  "Formulas" was never operational.
             #a Iterations:	1	b Iterations:	1	l0 Iterations:	11	Formulas:	0
             with open(os.path.join(self.experiment.path,'All Signal.txt'),'w') as f:
-                f.write('\t'.join(['{} Iterations:\t{}'.format(name,steps) for name,steps in zip(experimentResults.attrs['ivarNames'],experimentResults.attrs['ivarSteps'])])+'\nFormulas:\t0')
+                f.write('\t'.join(['{} Iterations:\t{}'.format(name,steps) for name,steps in zip(experimentResults.attrs['ivarNames'],experimentResults.attrs['ivarSteps'])])+'\tFormulas:\t0')
             
             #save variables.txt
             #Description	Name (a,a0...a9)	min	max	# steps
             #raman frequency 	a	9172.618868	9172.618868	1
             #microwave frequency	b	9192.632496	9192.632496	1
             #459 Raman Pulse	l0	0.000000	0.030000	11
-            with open(os.path.join(self.experiment.path,'variables.txt'),'w') as f:
+            with open(os.path.join(self.experiment.path, 'variables.txt'), 'w') as f:
                 f.write('Description	Name (a,a0...a9)	min	max	# steps\n')
-                f.write('\n'.join(['{}\t{}\t{}\t{}\t{}'.format(i.description,i.name,numpy.amin(i.valueList),numpy.amax(i.valueList),i.steps) for i in self.experiment.independentVariables]))
+                f.write('\n'.join(['{}\t{}\t{}\t{}\t{}'.format(i.description, i.name, numpy.amin(i.valueList), numpy.amax(i.valueList), i.steps) for i in self.experiment.independentVariables]))
                 f.write('\n')
             
             #begin Data Order Log.txt
@@ -91,12 +91,17 @@ class Save2013Analysis(Analysis):
                     self.experiment.LabView.camera.shotsPerMeasurement.value,
                     int(self.experiment.ROI_rows*self.experiment.ROI_columns)))
                 for measurement in iterationResults['measurements'].itervalues():
-                    for shot in measurement['data/Hamamatsu/shots'].itervalues():
-                        f.write('\t'.join(map(str, shot.attrs['squareROIsums'].tolist()))+'\n')
-    
-    def analyzeExperiment(self,experimentResults):
+                    roi_sums = measurement['analysis/squareROIsums'].value
+                    f.write('\t'.join(['\t'.join([str(ROI) for ROI in shot]) for shot in roi_sums])+'\n')
+
+    def analyzeExperiment(self, experimentResults):
         if self.experiment.saveData and self.experiment.save2013styleFiles:
-        
+
+            #Data Order Log.txt
+            #finish with carriage return
+            with open(os.path.join(self.experiment.path, 'Data Order Log.txt'), 'a') as f:
+                f.write('\n')
+
             #sum images
             sumlist=[]
             if 'iterations' in experimentResults:
@@ -106,13 +111,17 @@ class Save2013Analysis(Analysis):
                             if 'data/Hamamatsu/shots' in m:
                                 for s in m['data/Hamamatsu/shots'].itervalues():
                                     sumlist.append(s.value)
-            sumarray=numpy.array(sumlist)
-            average_of_images=numpy.mean(sumarray,axis=0)
-            self.savePNG(average_of_images,os.path.join(self.experiment.path,'images','average_of_all_images_in_experiment.png'))
+            sumarray = numpy.array(sumlist)
+            average_of_images = numpy.mean(sumarray,axis=0)
+            self.savePNG(average_of_images, os.path.join(self.experiment.path, 'images', 'average_of_all_images_in_experiment.png'))
             
-            #error log
-            with open(os.path.join(self.experiment.path, 'error_log.txt'),'a') as f:
+            #error_log.txt
+            with open(os.path.join(self.experiment.path, 'error_log.txt'), 'a') as f:
                 f.write(self.experiment.LabView.log)
+
+            #notes.txt
+            with open(os.path.join(self.experiment.path, 'notes.txt'), 'a') as f:
+                f.write(self.experiment.notes)
 
     def create_iteration_directory(self,iterationResults):
         exp=self.experiment
