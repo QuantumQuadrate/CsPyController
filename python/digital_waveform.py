@@ -559,7 +559,7 @@ class NumpyWaveform(Prop):
             #create axis
             ax = fig.add_subplot(111)
             ax.set_ylim(0, numChannels)
-            ax.set_xlabel('time')
+            ax.set_xlabel('time ['+self.digitalout.units.function+']')
             
             #create dummy lines for legend
             ax.plot((), (),  linewidth=5, alpha=0.5, color='white', label='off 0')

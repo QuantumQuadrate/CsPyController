@@ -26,7 +26,7 @@ class Save2013Analysis(Analysis):
         self.measurement=None
         super(Save2013Analysis,self).__init__('save2013Analysis',experiment,'save 2013 style files')
     
-    def setupExperiment(self,experimentResults):
+    def preExperiment(self,experimentResults):
         if self.experiment.saveData and self.experiment.save2013styleFiles:
             
             #save "Processed Data.txt"
@@ -61,10 +61,10 @@ class Save2013Analysis(Analysis):
                 f.write('('+','.join(experimentResults.attrs['ivarNames'])+'): ')
     
     def analyzeMeasurement(self,measurementResults,iterationResults,experimentResults):
-        if self.experiment.saveData and self.experiment.save2013styleFiles:
+        if self.experiment.saveData and self.experiment.save2013styleFiles and self.experiment.LabView.camera.saveAsPNG.value:
             
             #create a directory to hold measurement images, if it doesn't exist
-            iterationPath=os.path.join(self.experiment.path,'images','Iteration'+str(iterationResults.attrs['iteration']))
+            iterationPath=os.path.join(self.experiment.path, 'images', 'Iteration'+str(iterationResults.attrs['iteration']))
             if not os.path.isdir(iterationPath):
                 #create the directory
                 #use os.makedirs instead of os.mkdir to create the intermediate directory if it does not exist
@@ -123,11 +123,10 @@ class Save2013Analysis(Analysis):
             with open(os.path.join(self.experiment.path, 'notes.txt'), 'a') as f:
                 f.write(self.experiment.notes)
 
-    def create_iteration_directory(self,iterationResults):
-        exp=self.experiment
-        if exp.saveData and exp.save2013styleFiles:
+    def create_iteration_directory(self, iterationResults):
+        if self.experiment.saveData and self.experiment.save2013styleFiles:
             #check that it doesn't exist first
-            iterationPath=os.path.join(exp.path,'iteration'+str(iterationResults.attrs['iteration']))
+            iterationPath=os.path.join(self.experiment.path,'iteration'+str(iterationResults.attrs['iteration']))
             if not os.path.isdir(iterationPath):
                 #create the directory
                 #use os.makedirs instead of os.mkdir to create the intermediate directory if it does not exist
@@ -136,6 +135,9 @@ class Save2013Analysis(Analysis):
     def savePNG(self, array, filename):
         #L indicates monochrome, ;16 indicates 16-bit
         png.from_array(array, 'L;16', info={'bitdepth': 16}).save(filename)
+        #pngWriter = png.Writer(width=array.shape[0],height=array.shape[1], greyscale=True, bitdepth=16)
+        #with open(filename,'wb') as f:
+        #    pngWriter.write(f, array)
     
     def readPNG(self, filename):
         a = png.Reader(filename=filename)

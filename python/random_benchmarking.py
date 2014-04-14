@@ -11,7 +11,7 @@ def script(n, delay_before_excitation_pulse, microwave_pi_by_2, clockRate):
   compressedGenerate close_HF_shutter
   compressedGenerate Optical_Pumping
 '''
-    
+    #script names were 1 based
     n-=1
     
     order = [

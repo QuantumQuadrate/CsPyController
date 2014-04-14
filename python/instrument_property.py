@@ -33,6 +33,7 @@ class Prop(Atom):
     description = Str()
     experiment = Member()
     properties = Member()
+    #GUI = Member()  # an optional enaml object that represents this class in the GUI, and has an update() method, to be run on eval
     doNotSendToHardware = Member()
     
     def __init__(self, name, experiment, description=''):
@@ -60,6 +61,8 @@ class Prop(Atom):
                     except Exception as e:
                         logger.warning('Evaluating '+p+' in '+self.name+'.properties.\n'+str(e)+str(traceback.format_exc())+'\n')
                         raise PauseError
+            #if self.GUI is not None and hasattr(self.GUI, 'update'):
+            #    self.GUI.update()
     
     def toHDF5(self, hdf_parent_node, name=None):
         """This function provides generic behavior to save a Prop as an HDF5 group.  The choice of group has been made
@@ -103,8 +106,8 @@ class Prop(Atom):
                     #if it of a known well-behaved type, just go ahead and save to HDF5 attribute
                     my_node.attrs[p]=o
                 except:
-                    #if it is an array, it can't be saved as an attribute, but it can (and should) be saved as a dataset
                     try:
+                        #if it is an array, it can't be saved as an attribute, but it can (and should) be saved as a dataset
                         my_node[p]=0
                     except:
                         #else just pickle it

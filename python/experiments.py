@@ -398,7 +398,7 @@ class Experiment(Prop):
         
         # setup data directory and files
         self.create_data_files()
-        # run analyses setupExperiment
+        # run analyses preExperiment
         self.preExperiment()
         
         self.status = 'paused before experiment'
@@ -433,6 +433,7 @@ class Experiment(Prop):
                 if self.measurement == 0:
                     self.completedMeasurementsByIteration.append(0)  # start a new counter for this iteration
                     self.create_hdf5_iteration()
+                    self.preIteration()
                 
                 #loop until the desired number of measurements are taken
                 while (self.goodMeasurements < self.measurementsPerIteration) and (self.status == 'running'):
@@ -692,10 +693,15 @@ class Experiment(Prop):
                     logger.warning('Could not save variable '+key+' as an hdf5 dataset with value: '+str(value)+'\n'+str(e))
     
     def preExperiment(self):
-        #run analysis
+        #run analyses
         for i in self.analyses:
             i.preExperiment(self.hdf5)
-    
+
+    def preIteration(self):
+        #run analyses
+        for i in self.analyses:
+            i.preIteration(self.iterationResults, self.hdf5)
+
     def postMeasurement(self):
         #run analysis
         good = True
@@ -756,6 +762,7 @@ class AQuA(Experiment):
     imageSumAnalysis = Member()
     squareROIAnalysis = Member()
     imageWithROIAnalysis = Member()
+    histogramAnalysis = Member()
     save2013Analysis = Member()
     optimizer = Member()
     ROI_rows = 7
@@ -774,12 +781,13 @@ class AQuA(Experiment):
         self.imageSumAnalysis = analysis.ImageSumAnalysis(self.experiment)
         self.squareROIAnalysis = analysis.SquareROIAnalysis(self.experiment, ROI_rows=self.ROI_rows, ROI_columns=self.ROI_columns)
         self.imageWithROIAnalysis = analysis.ImageWithROIAnalysis('shot0_with_ROI_analysis', self.experiment)
+        self.histogramAnalysis = analysis.HistogramAnalysis('plot the histogram of any shot and roi',self.experiment)
         self.save2013Analysis = save2013style.Save2013Analysis(self.experiment)
         self.optimizer = analysis.OptimizerAnalysis(self.experiment)
         self.analyses += [self.shot0_analysis, self.shotBrowserAnalysis, self.imageSumAnalysis, self.squareROIAnalysis,
-                          self.imageWithROIAnalysis, self.save2013Analysis]
+                          self.imageWithROIAnalysis, self.histogramAnalysis, self.save2013Analysis]
 
-        self.properties += ['LabView', 'squareROIAnalysis']
+        self.properties += ['LabView', 'squareROIAnalysis', 'histogramAnalysis']
 
         try:
             self.loadDefaultSettings()

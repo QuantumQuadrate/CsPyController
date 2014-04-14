@@ -48,7 +48,7 @@ def evalWithDict(string, varDict=None, errStr=''):
             #varDict acts as locals, and in general will remain unchanged
             return eval(string, myGlobals, varDict)
         except Exception as e:
-            logger.warning(errStr+'Could not eval string: '+string+'\n'+str(e)+'\n'+str(traceback.format_exc())+'\n')
+            print errStr+'Could not eval string: '+string+'\n'+str(e)+'\n'
             raise PauseError
 
 def execWithDict(string, varDict=None):

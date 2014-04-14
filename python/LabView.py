@@ -42,7 +42,6 @@ class LabView(Instrument):
     RF_generators = Member()
     AnalogOutput = Member()
     DAQmxDO = Member()
-    EchoBox = Member()
     results = Member()
     sock = Member()
     camera = Member()
@@ -69,12 +68,11 @@ class LabView(Instrument):
         self.AnalogOutput = AnalogOutput.AnalogOutput(experiment)
         self.DAQmxDO = DAQmxDO.DAQmxDO(experiment)
         self.camera = Camera.HamamatsuC9100_13(experiment)
-        self.EchoBox = EchoBox.EchoBox(experiment)
         self.results = {}
         #self.Counter = Counter.Counter(experiment)
         
         self.instruments = [self.HSDIO, self.DDS, self.piezo, self.RF_generators, self.AnalogOutput, self.DAQmxDO,
-                            self.camera, self.EchoBox] #,self.Counter]
+                            self.camera] #,self.Counter]
         
         self.sock = None
         self.connected = False

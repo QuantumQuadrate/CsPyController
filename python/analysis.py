@@ -1,20 +1,42 @@
 from cs_errors import PauseError, setupLog
 logger=setupLog(__name__)
 
-from atom.api import Bool, Typed, Str, Member, List, Int, observe, Atom
+from atom.api import Bool, Typed, Str, Member, List, Int, observe
 from instrument_property import Prop
 
 #MPL plotting
 from matplotlib.figure import Figure
 from matplotlib.path import Path
 import matplotlib.patches as patches
+from matplotlib.colors import LinearSegmentedColormap
 from enaml.application import deferred_call
 
 import threading, numpy, traceback
 
+#define a color map that I like
+cdict = {'red': ((0.0, 0.0, 0.0),
+                 (0.5, 1.0, 1.0),
+                 (1.0, 0.0, 0.0)),
+         'green': ((0.0, 0.0, 0.0),
+                 (0.5, 1.0, 1.0),
+                   (1.0, 1.0, 1.0)),
+         'blue': ((0.0, 0.0, 0.0),
+                 (0.5, 1.0, 1.0),
+                  (1.0, 0.0, 0.0))}
+my_cmap = LinearSegmentedColormap('my_colormap',cdict,256)
+#define a color map that I like
+cdict = {'red': ((0.0, 0.0, 0.0),
+                 (1.0, 0.0, 0.0)),
+         'green': ((0.0, 0.0, 0.0),
+                   (1.0, 1.0, 1.0)),
+         'blue': ((0.0, 0.0, 0.0),
+                  (1.0, 0.0, 0.0))}
+from matplotlib.colors import LinearSegmentedColormap
+green_cmap = LinearSegmentedColormap('my_colormap',cdict,256)
+
 class Analysis(Prop):
     '''This is the parent class for all data analyses.  New analyses should subclass off this,
-    and redefine at least one of setupExperiment(), postMeasurement(), postIteration() or postExperiment().
+    and redefine at least one of preExperiment(), preIteration(), postMeasurement(), postIteration() or postExperiment().
     You can enable multi-threading of analyses using queueAfterMeasurement and queueAfterIteration, but only if those results are not needed for other things (filtering, other analyses, optimization).
     If multi-threading, you can also chose to dropMeasurementIfSlow or dropIterationIfSlow, which will not delete the data but will just not process it.
     An analysis can return a success code after analyzeMesurement, which can be used to filter results.  The highest returned code dominates others:
@@ -41,16 +63,19 @@ class Analysis(Prop):
         super(Analysis,self).__init__(name,experiment,description)
         self.properties += ['dropMeasurementIfSlow','dropIterationIfSlow','text']
     
-    def preExperiment(self,experimentResults):
-        #no queueing, must complete this before experiment
-        self.setupExperiment(experimentResults)
-    
-    def setupExperiment(self,experimentResults):
-        '''This is called before an experiment.
+    def preExperiment(self, experimentResults):
+        """This is called before an experiment.
         The parameter experimentResults is a reference to the HDF5 file for this experiment.
-        Subclass this to update the analysis appropriately.'''
+        Subclass this to prepare the analysis appropriately."""
         pass
-    
+
+    def preIteration(self, iterationResults, experimentResults):
+        """This is called before an iteration.
+        The parameter experimentResults is a reference to the HDF5 file for this experiment.
+        The parameter iterationResults is a reference to the HDF5 node for this coming iteration.
+        Subclass this to prepare the analysis appropriately."""
+        pass
+
     def postMeasurement(self,measurementResults,iterationResults,experimentResults):
         '''results is a tuple of (measurementResult,iterationResult,experimentResult) references to HDF5 nodes for this measurement'''
         if self.queueAfterMeasurement: #if self.updateAfterMeasurement:
@@ -234,7 +259,7 @@ class ShotsBrowserAnalysis(AnalysisWithFigure):
     def __init__(self, experiment):
         super(ShotsBrowserAnalysis, self).__init__('ShotsBrowser',experiment,'Shows a particular shot from the experiment')
     
-    def setupExperiment(self,experimentResults):
+    def preExperiment(self,experimentResults):
         self.experimentResults=experimentResults
         self.ivarValueLists=[i for i in self.experiment.ivarValueLists]  # this line used to access the hdf5 file, but I have temporarily removed ivarValueLists from the HDF5 because it could not handle arbitrary lists of lists
         self.selection=[0]*len(self.ivarValueLists)
@@ -291,7 +316,7 @@ class ImageSumAnalysis(AnalysisWithFigure):
     def __init__(self, experiment):
         super(ImageSumAnalysis, self).__init__('ImageSumAnalysis',experiment,'Sums shot0 images as they come in')
     
-    def setupExperiment(self,experimentResults):
+    def preExperiment(self,experimentResults):
         #clear old data
         self.data = None
     
@@ -369,7 +394,8 @@ class SquareROIAnalysis(AnalysisWithFigure):
             for i in range(n):
                 ax = fig.add_subplot(n, 1, i+1)
                 #make the digital plot here
-                ax.matshow(self.loadingArray[i])
+                ax.matshow(self.loadingArray[i],cmap=green_cmap)
+                ax.set_title('shot '+str(i))
         super(SquareROIAnalysis, self).updateFigure()
 
 class ImageWithROIAnalysis(AnalysisWithFigure):
@@ -387,7 +413,8 @@ class ImageWithROIAnalysis(AnalysisWithFigure):
             self.data = None
             self.blankFigure()
 
-    def mpl_rectangle(self,ax,ROI):
+    def mpl_rectangle(self, ax, ROI):
+        #left, top, right, bottom, threshold = (0, 1, 2, 3, 4)  # column ordering of ROI boundaries in each ROI in ROIs
         left = ROI[0] - 0.5
         top = ROI[1] - 0.5
         right = ROI[2] - 0.5
@@ -409,7 +436,7 @@ class ImageWithROIAnalysis(AnalysisWithFigure):
 
         path = Path(verts, codes)
 
-        patch = patches.PathPatch(path, edgecolor='black', facecolor='none', lw=2)
+        patch = patches.PathPatch(path, edgecolor='white', facecolor='none', lw=2)
         ax.add_patch(patch)
 
     def updateFigure(self):
@@ -418,10 +445,7 @@ class ImageWithROIAnalysis(AnalysisWithFigure):
         ax = fig.add_subplot(111)
 
         #draw image
-        ax.matshow(self.data)
-
-        #calibration rectangle
-        self.mpl_rectangle(ax, [0,0,3,5])
+        ax.matshow(self.data, cmap=my_cmap)
 
         #overlay ROIs
         for ROI in self.experiment.squareROIAnalysis.ROIs:
@@ -430,8 +454,87 @@ class ImageWithROIAnalysis(AnalysisWithFigure):
         ax.set_title('shot 0 with ROI')
         super(ImageWithROIAnalysis, self).updateFigure()
 
+class HistogramAnalysis(AnalysisWithFigure):
+    """This class live updates a histogram as data comes in."""
+    shot = Int(0)
+    roi = Int(0)
+    all_shots_array = Member()
+    update_lock = Bool(False)
+
+    def __init__(self, name, experiment, description=''):
+        super(HistogramAnalysis, self).__init__(name, experiment, description)
+        self.properties+=['shot', 'roi']
+
+    def preIteration(self, iterationResults, experimentResults):
+        #reset the histogram data
+        self.all_shots_array = None
+        m = self.experiment.LabView.camera.shotsPerMeasurement.value
+        n = len(self.experiment.squareROIAnalysis.ROIs)
+        self.all_shots_array = numpy.zeros((0, m, n), dtype=numpy.uint32)
+
+    def analyzeMeasurement(self, measurementResults, iterationResults, experimentResults):
+        #every measurement, update a big array of all the ROI sums, then histogram only the requested shot/site
+        d = measurementResults['analysis/squareROIsums']
+        if self.all_shots_array is None:
+            self.all_shots_array = numpy.zeros((0, d.shape[0], d.shape[1]), dtype=numpy.uint32)
+        self.all_shots_array = numpy.append(self.all_shots_array, numpy.array([d]), axis=0)
+        self.updateFigure()
+
+    @observe('shot', 'roi')
+    def setHistogram(self, change):
+        self.updateFigure()
+
+    def fastHistogram(self, data, ax):
+            # histogram our data with numpy
+            n, bins = numpy.histogram(data, bins=int(numpy.sqrt(len(data))))
+
+            # get the corners of the rectangles for the histogram
+            left = numpy.array(bins[:-1])
+            right = numpy.array(bins[1:])
+            bottom = numpy.zeros(len(left))
+            top = bottom + n
+            nrects = len(left)
+
+            #draw image
+            nverts = nrects*(1+3+1)
+            verts = numpy.zeros((nverts, 2))
+            codes = numpy.ones(nverts, int) * Path.LINETO
+            codes[0::5] = Path.MOVETO
+            codes[4::5] = Path.CLOSEPOLY
+            verts[0::5,0] = left
+            verts[0::5,1] = bottom
+            verts[1::5,0] = left
+            verts[1::5,1] = top
+            verts[2::5,0] = right
+            verts[2::5,1] = top
+            verts[3::5,0] = right
+            verts[3::5,1] = bottom
+
+            barpath = Path(verts, codes)
+            patch = patches.PathPatch(barpath, facecolor='green', edgecolor='yellow', alpha=0.5)
+            ax.add_patch(patch)
+
+    def updateFigure(self):
+        if not self.update_lock:
+            self.update_lock = True
+            fig = self.backFigure
+            fig.clf()
+            ax = fig.add_subplot(111)
+
+            if self.all_shots_array is not None:
+
+                data = self.all_shots_array[:, self.shot, self.roi]
+                #n, bins, patches =
+                ax.hist(data, int(numpy.sqrt(len(data))), alpha=0.75)
+                #ax.add_patch(patches)
+            super(HistogramAnalysis, self).updateFigure()
+            self.update_lock = False
+
+class PopulationAnalysis(AnalysisWithFigure):
+    pass
+
 class OptimizerAnalysis(AnalysisWithFigure):
     costfunction = Str('')
     
     def __init__(self, experiment):
-        super(OptimizerAnalysis,self).__init__('OptimizerAnalysis', experiment, 'updates independent variables to minimize cost function')
+        super(OptimizerAnalysis, self).__init__('OptimizerAnalysis', experiment, 'updates independent variables to minimize cost function')
