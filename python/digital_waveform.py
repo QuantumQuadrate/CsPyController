@@ -310,7 +310,7 @@ class Waveform(Prop):
             my_node.create_dataset('sequence',data=seq,dtype=[('function',h5py.special_dtype(vlen=str)),('value',numpy.uint8)])
         except:
             print "trouble with my_node.create_dataset('sequence',data=seq,dtype=[('function',h5py.special_dtype(vlen=str)),('value',numpy.uint8)])"
-
+    
 
 class NumpyChannels(Numpy1DProp):
     digitalout = Member()
@@ -340,6 +340,13 @@ class NumpyTransitions(Numpy1DProp):
         for x in self.array:
             x['value'] = numpy.float64(self.experiment.eval_general(x['function']))
 
+    def copy(self):
+        new=NumpyTransitions(self.experiment,self.description)
+        new.dtype=self.dtype
+        new.hdf_dtype=self.hdf_dtype
+        new.zero=self.zero
+        new.array=self.array.copy()
+        return new
 
 class NumpySequence(Numpy2DProp):
     def __init__(self, experiment, description=''):
@@ -353,6 +360,14 @@ class NumpySequence(Numpy2DProp):
                     x['value'] = temp
                 else:
                     x['value'] = 5
+    
+    def copy(self):
+        new=NumpySequence(self.experiment,self.description)
+        new.dtype=self.dtype
+        new.hdf_dtype=self.hdf_dtype
+        new.zero=self.zero
+        new.array=self.array.copy()
+        return new
 
 class NumpyWaveform(Prop):
     
@@ -393,6 +408,16 @@ class NumpyWaveform(Prop):
         self.figure2=Figure(figsize=(5,5))
         self.backFigure=self.figure2
         self.figure=self.figure1
+    
+    def copy(self):
+        new=NumpyWaveform(self.name+'_copy',self.experiment,self.description,self.digitalout,self.waveforms)
+        new.channelList=self.channelList.copy()
+        new.transitions=self.transitions.copy()
+        new.sequence=self.sequence.copy()
+        new.plotmin=self.plotmin
+        new.plotmax=self.plotmax
+        new.evaluate()
+        return new
     
     def fromXML(self, xmlNode):
         super(NumpyWaveform, self).fromXML(xmlNode)

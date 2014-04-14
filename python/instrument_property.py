@@ -592,7 +592,7 @@ class ListProp(Prop):
         else:
             self.listElementKwargs = listElementKwargs
     
-    def __iter__(self): 
+    def __iter__(self):
         return iter(self.listProperty)
     
     def __len__(self):
@@ -609,6 +609,9 @@ class ListProp(Prop):
     
     def remove(self, x):
         self.listProperty.remove(x)
+    
+    def copy(self,i):
+        self.listProperty.append(self.listProperty[i].copy())
     
     def getNextAvailableName(self):
         #figure out unique name for a new item

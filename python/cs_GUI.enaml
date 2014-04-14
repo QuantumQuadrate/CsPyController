@@ -1069,7 +1069,7 @@ enamldef WaveformsPage(Page):
                     constraints=[(width==50)|'strong']
                     text = 'copy'
                     clicked::
-                        HSDIO.waveforms.add(HSDIO.waveforms[combo.index].copy())
+                        HSDIO.waveforms.copy(combo.index)
                         dyno.refresh_items()
                         combo.items=[i.name for i in HSDIO.waveforms]
                         combo.index=len(HSDIO.waveforms)-1
