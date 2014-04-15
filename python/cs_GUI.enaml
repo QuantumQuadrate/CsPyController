@@ -1650,41 +1650,56 @@ enamldef PI_PiezoPage(Page):
 enamldef PicomotorPage(Page):
     title = 'Picomotor'
 
-enamldef Analysis(Container):
+enamldef AnalysisImage(Container):
     attr analysis
     
-    hug_height='ignore'
-    hug_width='ignore'
-    Label:
-        text<<analysis.text
+    padding=0
+    constraints=[(height==600)|'strong',(width==600)|'strong']
     MPLCanvas:
-        constraints=[(height==800)|'strong',(width==800)|'strong']
-        hug_width='ignore'
+        constraints=[(height==600)|'strong',(width==600)|'strong']
         figure<<analysis.figure
 
+
 enamldef MultiImagePage(Page): page:
-    title='Side By Side'
+    title='Images'
     attr experiment
     attr analysis0
     attr analysis1
     attr analysis2
-    
+    attr analysis3
+
     Container:
-        constraints=[vbox(l1,hbox(mpl0,a1,mpl2))]
+        constraints=[vbox(l0,hbox(a0,a1,a2)),align('top',a0,a1,a2)]
         
-        Label: l1:
-            text<<analysis0.text
-        MPLCanvas: mpl0:
-            constraints=[(height==500)|'strong',(width==500)|'strong']
-            hug_width='ignore'
-            figure<<analysis0.figure
+        Label: l0:
+            text<<analysis3.text
+
+        Container: a0:
+            hug_height = 'strong'
+            hug_width = 'strong'
+            AnalysisImage:
+                analysis<<analysis0
+            Form:
+                Label:
+                    text = 'Show ROIs?'
+                CheckBox:
+                    checked := analysis0.showROIs
+                Label:
+                    text = 'shot'
+                SpinBox:
+                    minimum=0
+                    value := analysis0.shot
+
         Container: a1:
             hug_height='strong'
             hug_width='strong'
-            MPLCanvas: mpl1:
-                constraints=[(height==500)|'strong',(width==500)|'strong']
-                hug_width='ignore'
-                figure<<analysis1.figure
+            AnalysisImage:
+                analysis<<analysis1
+            Form:
+                Label:
+                   text='Show ROIs?'
+                CheckBox:
+                    checked:=analysis1.showROIs
             GroupBox:
                 hug_height='strong'
                 hug_width='strong'
@@ -1711,55 +1726,16 @@ enamldef MultiImagePage(Page): page:
                         minimum=0
                         maximum=9999999 #a big number
                         value:=analysis1.shot
-        MPLCanvas: mpl2:
-            constraints=[(height==500)|'strong',(width==500)|'strong']
-            hug_width='ignore'
-            figure<<analysis2.figure
-
-enamldef Shot0ResultsPage(Page):
-    title = 'Shot 0 Results'
-    attr analysis
-    
-    Analysis:
-        analysis<<parent.analysis
-
-enamldef ShotsBrowserPage(Page):
-    title = 'Shots Browser'
-    attr analysis
-    attr experiment
-    attr indexList=List()
-    attr ind
-    
-    Container:
-        hug_height='ignore'
-        hug_width='ignore'
-        Form:
-            hug_height='strong'
-            hug_width='strong'
-#            Conditional:
-#                condition<<(len(analysis.ivarNames)>0)
-            Looper: looper:
-                iterable << analysis.ivarNames
+        Container: a2:
+            hug_height = 'strong'
+            hug_width = 'strong'
+            AnalysisImage:
+                analysis<<analysis2
+            Form:
                 Label:
-                    text=loop_item
-                ComboBox:
-                    items=[str(i) for i in analysis.ivarValueLists[loop_index]]
-                    index::
-                        analysis.setIteration(loop_index, index) #send which ivar (loop_index) to update to index
-            Label:
-                text='Measurement'
-            SpinBox:
-                minimum=0
-                value:=analysis.measurement
-            Label:
-                text='Shot'
-            SpinBox:
-                minimum=0
-                value:=analysis.shot
-        MPLCanvas:
-            constraints=[(height==700)|'strong']
-            hug_width='ignore'
-            figure<<analysis.figure
+                   text='Show ROIs?'
+                CheckBox:
+                    checked:=analysis2.showROIs
 
 enamldef SquareROI(Container):
     attr item
@@ -1795,38 +1771,12 @@ enamldef ROIPage(Page):
         hug_height='ignore'
         hug_width='ignore'
         constraints=[hbox(dynoCont,canvas),align('top',dynoCont,canvas)]
-#        constraints=[hbox(vbox(hbox(spin0,addButton,removeButton),dynoCont),canvas),removeButton.top==canvas.top]
-#        SpinBox: spin0:
-#            minimum=0
-#            maximum<<len(analysis.ROIs)
-#        PushButton: addButton:
-#            text='+'
-#            clicked::
-#                newrow=numpy.zeros((1,5),dtype=numpy.uint16)
-#                analysis.ROIs=numpy.insert(analysis.ROIs,spin0.value,newrow,axis=0)
-#        PushButton: removeButton:
-#            text='-'
-#            clicked::
-#                analysis.ROIs=numpy.delete(analysis.ROIs,spin0.value,axis=0)
         Container: dynoCont:
             Include: dyno:
                 objects<<[SquareROI(item=x,num=i) for i,x in enumerate(analysis.ROIs)]
         MPLCanvas: canvas:
             constraints=[(height==1000)|'strong',(width==1000)|'strong']
             hug_width='ignore'
-            figure<<analysis.figure
-
-enamldef ImageWithROIPage(Page):
-    attr experiment
-    attr analysis
-
-    title = 'Image with ROI'
-    Container:
-        hug_height='ignore'
-        hug_width='ignore'
-        MPLCanvas:
-            constraints=[(height==1000)|'strong',(width==1000)|'strong']
-            #hug_width='ignore'
             figure<<analysis.figure
 
 enamldef HistogramPage(Page):
@@ -1936,22 +1886,15 @@ enamldef Main(MainWindow): main:
                         AO=main.experiment.LabView.AnalogOutput
                     PI_PiezoPage:
                         piezo=main.experiment.LabView.piezo
-                    Shot0ResultsPage:
-                        analysis=main.experiment.shot0_analysis
-                    ShotsBrowserPage:
-                        experiment=main.experiment
-                        analysis=main.experiment.shotBrowserAnalysis
                     MultiImagePage:
                         experiment=main.experiment
-                        analysis0=main.experiment.shot0_analysis
+                        analysis0=main.experiment.recent_shot_analysis
                         analysis1=main.experiment.shotBrowserAnalysis
                         analysis2=main.experiment.imageSumAnalysis
+                        analysis3=main.experiment.text_analysis
                     ROIPage:
                         experiment=main.experiment
                         analysis=main.experiment.squareROIAnalysis
-                    ImageWithROIPage:
-                        experiment=main.experiment
-                        analysis=main.experiment.imageWithROIAnalysis
                     HistogramPage:
                         experiment=main.experiment
                         analysis=main.experiment.histogramAnalysis

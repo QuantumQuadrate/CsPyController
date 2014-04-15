@@ -757,7 +757,8 @@ class AQuA(Experiment):
     """A subclass of Experiment which knows about all our particular hardware"""
     
     LabView = Member()
-    shot0_analysis = Member()
+    text_analysis = Member()
+    recent_shot_analysis = Member()
     shotBrowserAnalysis = Member()
     imageSumAnalysis = Member()
     squareROIAnalysis = Member()
@@ -776,18 +777,18 @@ class AQuA(Experiment):
         self.instruments = [self.LabView]
         
         #analyses
-        self.shot0_analysis = analysis.Shot0Analysis('analysisShot0', self.experiment, description='just show the incoming shot 0')
-        self.shotBrowserAnalysis = analysis.ShotsBrowserAnalysis(self.experiment)
+        self.text_analysis = analysis.TextAnalysis('text_analysis', self.experiment, 'text results from the measurement')
         self.imageSumAnalysis = analysis.ImageSumAnalysis(self.experiment)
+        self.recent_shot_analysis = analysis.RecentShotAnalysis('recent_shot_analysis', self.experiment, description='just show the most recent shot')
+        self.shotBrowserAnalysis = analysis.ShotsBrowserAnalysis(self.experiment)
         self.squareROIAnalysis = analysis.SquareROIAnalysis(self.experiment, ROI_rows=self.ROI_rows, ROI_columns=self.ROI_columns)
-        self.imageWithROIAnalysis = analysis.ImageWithROIAnalysis('shot0_with_ROI_analysis', self.experiment)
-        self.histogramAnalysis = analysis.HistogramAnalysis('plot the histogram of any shot and roi',self.experiment)
+        self.histogramAnalysis = analysis.HistogramAnalysis('plot the histogram of any shot and roi', self.experiment)
         self.save2013Analysis = save2013style.Save2013Analysis(self.experiment)
         self.optimizer = analysis.OptimizerAnalysis(self.experiment)
-        self.analyses += [self.shot0_analysis, self.shotBrowserAnalysis, self.imageSumAnalysis, self.squareROIAnalysis,
-                          self.imageWithROIAnalysis, self.histogramAnalysis, self.save2013Analysis]
+        self.analyses += [self.text_analysis, self.imageSumAnalysis, self.recent_shot_analysis, self.shotBrowserAnalysis, self.squareROIAnalysis,
+                          self.histogramAnalysis, self.save2013Analysis]
 
-        self.properties += ['LabView', 'squareROIAnalysis', 'histogramAnalysis']
+        self.properties += ['LabView', 'imageSumAnalysis', 'recent_shot_analysis', 'shotBrowserAnalysis', 'squareROIAnalysis', 'histogramAnalysis']
 
         try:
             self.loadDefaultSettings()

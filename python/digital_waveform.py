@@ -468,7 +468,10 @@ class NumpyWaveform(Prop):
             stateList=self.sequence.array['value']
             
             #convert to integral samples
-            timeList=(timeList*self.digitalout.clockRate.value*self.digitalout.units.value).astype(numpy.uint64)
+            #TODO: round to int, instead of floor to int
+            temp=numpy.empty_like(timeList, dtype=numpy.uint64)
+            timeList=numpy.rint(timeList*self.digitalout.clockRate.value*self.digitalout.units.value,out=temp)
+            #timeList=(timeList*self.digitalout.clockRate.value*self.digitalout.units.value).astype(numpy.uint64)
             
             #put the transition list in order
             order=numpy.argsort(timeList,kind='mergesort') #mergesort is slower than the default quicksort, but it is 'stable' which means items of the same value are kept in their relative order, which is desired here
@@ -570,7 +573,7 @@ class NumpyWaveform(Prop):
             
             #set up plot ticks
             ax.set_xticks(timeList)
-            ax.set_xticklabels(map(lambda x: str.format('{:G}',x),timeList))
+            ax.set_xticklabels(map(lambda x: str.format('{:.6g}',x),timeList))
             
             #make horizontal grid lines
             ax.grid(True)

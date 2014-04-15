@@ -841,9 +841,7 @@ class Numpy2DProp(Prop):
         except Exception as e:
             logger.warning('While trying to create dataset in Numpy2DProp.toHDF5() in '+self.name+'.\n'+str(e)+'\n'+str(traceback.format_exc())+'\n')
             raise PauseError
-        #x=hdf.create_dataset(self.name,self.array.shape,dtype=self.hdf_dtype)
-        #x[:,:]=self.array
-        
+
     def fromHDF5(self,hdf):
         self.array=hdf.value.astype(self.dtype)
         
