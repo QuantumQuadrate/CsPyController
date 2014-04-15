@@ -12,7 +12,7 @@ def script(n, delay_before_excitation_pulse, microwave_pi_by_2, clockRate):
   compressedGenerate Optical_Pumping
 '''
     #script names were 1 based
-    n-=1
+    n=int(n)-1
     
     order = [
             [1,3,1],
@@ -41,3 +41,16 @@ def script(n, delay_before_excitation_pulse, microwave_pi_by_2, clockRate):
 end script'''
     
     return header+middle+wait+footer
+
+def script_from_file(n):
+    with open(r'C:\Users\Saffmanlab\Documents\AQuA_settings\RB\script'+str(n)+'.txt') as f:
+        return f.read()
+
+def parse_script_wait(script,k8,l5):
+    lines = script.split('\n')
+    for i,line in enumerate(lines):
+        if line.strip().split(' ')[0]=='wait':
+            delay=eval(line.strip().split(' ')[1])
+            lines[i]='wait '+str(int(delay))
+    return '\n'.join(lines)
+    
