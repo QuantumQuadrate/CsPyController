@@ -41,7 +41,8 @@ TODO:
     Don't let independent variables go out of range at the end of an experiment
     Allow for choosing current ivar indices
     Make ctrl+Q halt
-    Button to upload experiment at current point when paused
+    Button to upload experiment at current point when paused (Finish experiment)
+    Blank middle image on bad selector
 
 Done:
     ComboBox for waveforms

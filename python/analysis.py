@@ -1,3 +1,5 @@
+from __future__ import division
+
 from cs_errors import PauseError, setupLog
 logger=setupLog(__name__)
 
@@ -26,7 +28,7 @@ cdict = {
                 (0.8,0.48,0.48),
                 (0.9,0.72,0.72),
                 (1.0,1.0,1.0)),
-         'green': ((0.0,0.0,0.0),
+         'blue': ((0.0,0.0,0.0),
                 (0.1,0.02,0.02),
                 (0.2,0.08,0.08),
                 (0.3,0.18,0.18),
@@ -37,7 +39,7 @@ cdict = {
                 (0.8,0.32,0.32),
                 (0.9,0.18,0.18),
                 (1.0,0.0,0.0)),
-        'blue': ((0.0,0.0,0.0),
+        'green': ((0.0,0.0,0.0),
                 (0.1,0.08,0.08),
                 (0.2,0.12,0.12),
                 (0.3,0.12,0.12),
@@ -50,7 +52,7 @@ cdict = {
                 (1.0,0.0,0.0))
                 }
 my_cmap = LinearSegmentedColormap('my_colormap',cdict,256)
-#my_camp = 'jet'
+#my_cmap = 'jet'
 
 #color map for ROI images
 cdict = {'red': ((0.0, 0.0, 0.0),
@@ -257,21 +259,25 @@ class RecentShotAnalysis(AnalysisWithFigure):
 
     def updateFigure(self):
         if not self.update_lock:
-            self.update_lock = True
-            fig = self.backFigure
-            fig.clf()
+            try:
+                self.update_lock = True
+                fig = self.backFigure
+                fig.clf()
 
-            if (self.data is not None) and (self.shot < len(self.data)):
-                ax = fig.add_subplot(111)
-                ax.matshow(self.data[self.shot], cmap=my_cmap)
-                ax.set_title('most recent shot '+str(self.shot))
-                if self.showROIs:
-                    #overlay ROIs
-                    for ROI in self.experiment.squareROIAnalysis.ROIs:
-                        mpl_rectangle(ax, ROI)
+                if (self.data is not None) and (self.shot < len(self.data)):
+                    ax = fig.add_subplot(111)
+                    ax.matshow(self.data[self.shot], cmap=my_cmap, vmin=self.experiment.imageSumAnalysis.min, vmax=self.experiment.imageSumAnalysis.max)
+                    ax.set_title('most recent shot '+str(self.shot))
+                    if self.showROIs:
+                        #overlay ROIs
+                        for ROI in self.experiment.squareROIAnalysis.ROIs:
+                            mpl_rectangle(ax, ROI)
 
-            super(RecentShotAnalysis, self).updateFigure()
-            self.update_lock = False
+                super(RecentShotAnalysis, self).updateFigure()
+            except Exception as e:
+                logger.warning('Problem in RecentShotAnalysis.updateFigure()\n:{}'.format(e))
+            finally:
+                self.update_lock = False
 
 class XYPlotAnalysis(AnalysisWithFigure):
     #### needs updating
@@ -367,15 +373,18 @@ class ImageSumAnalysis(AnalysisWithFigure):
     data = Member()
     sum_array = Member()  # holds the sum of each shot
     count_array = Member()  # holds the number of measurements summed
+    mean_array = Member()  # holds the mean image for each shot
     showROIs = Bool(False)  # should we superimpose ROIs?
     shot = Int()  # which shot to display
     update_lock = Bool(False)
-    min = Float(0.0)
-    max = Float(1.0)
+    min = Member()
+    max = Member()
 
     def __init__(self, experiment):
         super(ImageSumAnalysis, self).__init__('ImageSumAnalysis',experiment,'Sums shot0 images as they come in')
         self.properties += ['showROIs', 'shot']
+        self.min = 0
+        self.max = 1
 
     def preIteration(self, iterationResults, experimentResults):
         #clear old data
@@ -387,15 +396,18 @@ class ImageSumAnalysis(AnalysisWithFigure):
             #start a sum array of the right shape
             self.sum_array = numpy.array([shot for shot in measurementResults['data/Hamamatsu/shots'].itervalues()], dtype=numpy.uint64)
             self.count_array = numpy.zeros(len(self.sum_array), dtype=numpy.uint64)
+            self.mean_array=self.sum_array.astype(numpy.float64)
+
         else:
             #add new data
             for i, shot in enumerate(measurementResults['data/Hamamatsu/shots'].itervalues()):
                 self.sum_array[i] += shot
                 self.count_array[i] += 1
+                self.mean_array[i]=self.sum_array[i]/self.count_array[i]
 
         #update the min/max that other image plots will use
-        self.min=amin(self.sum_array, axis=0)
-        self.max=amax(self.sum_array, axis=0)
+        self.min = numpy.amin(self.mean_array)
+        self.max = numpy.amax(self.mean_array)
 
         self.updateFigure()  # only update figure if image was loaded
 
@@ -408,23 +420,27 @@ class ImageSumAnalysis(AnalysisWithFigure):
 
     def updateFigure(self):
         if not self.update_lock:
-            self.update_lock = True
+            try:
+                self.update_lock = True
 
-            fig = self.backFigure
-            fig.clf()
+                fig = self.backFigure
+                fig.clf()
 
-            if (self.sum_array is not None) and (self.shot < len(self.sum_array)):
-                ax = fig.add_subplot(111)
-                ax.matshow(self.sum_array[self.shot], cmap=my_cmap)
-                ax.set_title('shot {} mean'.format(self.shot))
+                if (self.mean_array is not None) and (self.shot < len(self.mean_array)):
+                    ax = fig.add_subplot(111)
+                    ax.matshow(self.mean_array[self.shot], cmap=my_cmap)
+                    ax.set_title('shot {} mean'.format(self.shot))
 
-                if self.showROIs:
-                    #overlay ROIs
-                    for ROI in self.experiment.squareROIAnalysis.ROIs:
-                        mpl_rectangle(ax, ROI)
+                    if self.showROIs:
+                        #overlay ROIs
+                        for ROI in self.experiment.squareROIAnalysis.ROIs:
+                            mpl_rectangle(ax, ROI)
 
-            super(ImageSumAnalysis, self).updateFigure()
-            self.update_lock = False
+                super(ImageSumAnalysis, self).updateFigure()
+            except Exception as e:
+                logger.warning('Problem in ImageSumAnalysish.updateFigure()\n:{}'.format(e))
+            finally:
+                self.update_lock = False
 
 class SquareROIAnalysis(AnalysisWithFigure):
     ROI_rows = Int()
@@ -481,36 +497,6 @@ class SquareROIAnalysis(AnalysisWithFigure):
                 ax.set_title('shot '+str(i))
         super(SquareROIAnalysis, self).updateFigure()
 
-class ImageWithROIAnalysis(AnalysisWithFigure):
-    data = Member()
-
-    def analyzeMeasurement(self,measurementResults,iterationResults,experimentResults):
-        if ('data/Hamamatsu/shots/0' in measurementResults):
-            try:
-                self.data = measurementResults['data/Hamamatsu/shots/0']
-            except KeyError as e:
-                logger.warning('HDF5 data/Hamamatsu/shots/0 does not exist in analysis.ImageWithROIAnalysis.analyzeMeasurement()\n' + str(e))
-                raise PauseError
-            self.updateFigure()  # only update figure if image was loaded
-        else:
-            self.data = None
-            self.blankFigure()
-
-    def updateFigure(self):
-        fig = self.backFigure
-        fig.clf()
-        ax = fig.add_subplot(111)
-
-        #draw image
-        ax.matshow(self.data, cmap=my_cmap)
-
-        #overlay ROIs
-        for ROI in self.experiment.squareROIAnalysis.ROIs:
-            mpl_rectangle(ax, ROI)
-
-        ax.set_title('shot 0 with ROI')
-        super(ImageWithROIAnalysis, self).updateFigure()
-
 class HistogramAnalysis(AnalysisWithFigure):
     """This class live updates a histogram as data comes in."""
     shot = Int(0)
@@ -544,38 +530,95 @@ class HistogramAnalysis(AnalysisWithFigure):
 
     def updateFigure(self):
         if not self.update_lock:
-            self.update_lock = True
-            fig = self.backFigure
-            fig.clf()
-            ax = fig.add_subplot(111)
+            try:
+                self.update_lock = True
+                fig = self.backFigure
+                fig.clf()
 
-            if self.all_shots_array is not None:
+                if self.all_shots_array is not None:
+                    ax = fig.add_subplot(111)
+                    data = self.all_shots_array[:, self.shot, self.roi]
+                    #n, bins, patches =
+                    ax.hist(data, int(numpy.rint(numpy.sqrt(len(data)))), alpha=0.75)
+                    #ax.add_patch(patches)
+                super(HistogramAnalysis, self).updateFigure()
+            except Exception as e:
+                logger.warning('Problem in HistogramAnalysis.updateFigure()\n:{}'.format(e))
+            finally:
+                self.update_lock = False
 
-                data = self.all_shots_array[:, self.shot, self.roi]
-                #n, bins, patches =
-                ax.hist(data, int(numpy.rint(numpy.sqrt(len(data)))), alpha=0.75)
-                #ax.add_patch(patches)
-            super(HistogramAnalysis, self).updateFigure()
-            self.update_lock = False
-
-class MeasurementGraph(AnalysisWithFigure):
-    """This replicates the former "mesurement graph"""
+class MeasurementsGraph(AnalysisWithFigure):
+    """This replicates the former 'measurement graph'"""
     shot = Int(0)
     roi = Int(0)
     data = Member()
     update_lock = Bool(False)
 
     def __init__(self, name, experiment, description=''):
-        super(MeasurementGraph, self).__init__(name, experiment, description)
+        super(MeasurementsGraph, self).__init__(name, experiment, description)
         self.properties += ['shot', 'roi']
+        self.data = None
 
     def analyzeMeasurement(self, measurementResults, iterationResults, experimentResults):
         #every measurement, update a big array of all the ROI sums, then histogram only the requested shot/site
         d = measurementResults['analysis/squareROIsums']
-        # if self.all_shots_array is None:
-        #     self.all_shots_array = numpy.array([d])
-        # else:
-        #     self.all_shots_array = numpy.append(self.all_shots_array, numpy.array([d]), axis=0)
+        if self.data is None:
+            self.data = numpy.array([d])
+        else:
+            self.data = numpy.append(self.data, numpy.array([d]), axis=0)
+        self.updateFigure()
+
+    @observe('shot', 'roi')
+    def reload(self, change):
+        self.updateFigure()
+
+    def clear(self):
+        self.data = None
+        self.updateFigure()
+
+    def updateFigure(self):
+        if not self.update_lock:
+            try:
+                self.update_lock = True
+                fig = self.backFigure
+                fig.clf()
+
+                if self.data is not None:
+                    ax = fig.add_subplot(111)
+                    data = self.data[:, self.shot, self.roi]
+                    ax.plot(data,'b.')
+                super(MeasurementsGraph, self).updateFigure()
+            except Exception as e:
+                logger.warning('Problem in MeasurementsGraph.updateFigure()\n:{}'.format(e))
+            finally:
+                self.update_lock = False
+
+
+#TODO: This is unfinished.
+class IterationsGraph(AnalysisWithFigure):
+    """This replicates the former 'iteration graph'"""
+    shot = Int(0)
+    roi = Int(0)
+    data = Member()
+    update_lock = Bool(False)
+
+    def __init__(self, name, experiment, description=''):
+        super(IterationsGraph, self).__init__(name, experiment, description)
+        self.properties += ['shot', 'roi']
+        self.data = None
+
+    def preExperiment(self, experimentResults):
+        self.data = None
+
+    def analyzeIteration(self, iterationResults, experimentResults):
+        d = [m['analysis/squareROIsums'] for m in iterationResults['measurements'].itervalues()]
+
+        #every measurement, update a big array of all the ROI sums, then histogram only the requested shot/site
+        #d = iterationResults['analysis/squareROIsums']
+        if self.data is None:
+            self.data = numpy.array([d])
+        else:
+            self.data = numpy.append(self.data, numpy.array([d]), axis=0)
         self.updateFigure()
 
     @observe('shot', 'roi')
@@ -584,22 +627,23 @@ class MeasurementGraph(AnalysisWithFigure):
 
     def updateFigure(self):
         if not self.update_lock:
-            self.update_lock = True
-            fig = self.backFigure
-            fig.clf()
-            ax = fig.add_subplot(111)
+            try:
+                self.update_lock = True
+                fig = self.backFigure
+                fig.clf()
 
-            # if self.all_shots_array is not None:
-            #
-            #     data = self.all_shots_array[:, self.shot, self.roi]
-            #     #n, bins, patches =
-            #     ax.hist(data, int(numpy.rint(numpy.sqrt(len(data)))), alpha=0.75)
-            #     #ax.add_patch(patches)
-            super(MeasurementGraph, self).updateFigure()
-            self.update_lock = False
+                if self.data is not None:
+                    ax = fig.add_subplot(111)
+                    data = self.data[:, self.shot, self.roi]
+                    ax.plot(data,'ro')
+                super(IterationsGraph, self).updateFigure()
+            except Exception as e:
+                logger.warning('Problem in MeasurementsGraph.updateFigure()\n:{}'.format(e))
+            finally:
+                self.update_lock = False
 
 
-class PopulationAnalysis(AnalysisWithFigure):
+class RetentionAnalysis(AnalysisWithFigure):
     pass
 
 class OptimizerAnalysis(AnalysisWithFigure):

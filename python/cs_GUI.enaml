@@ -1736,6 +1736,12 @@ enamldef MultiImagePage(Page): page:
                    text='Show ROIs?'
                 CheckBox:
                     checked:=analysis2.showROIs
+                Label:
+                    text = 'shot'
+                SpinBox:
+                    minimum=0
+                    value := analysis2.shot
+
 
 enamldef SquareROI(Container):
     attr item
@@ -1803,6 +1809,34 @@ enamldef HistogramPage(Page):
         MPLCanvas:
             constraints=[(height==1000)|'strong',(width==1000)|'strong']
             #hug_width='ignore'
+            figure<<analysis.figure
+
+enamldef MeasurementsGraphPage(Page):
+    attr experiment
+    attr analysis
+    title = 'Measurements Graph'
+
+    Container:
+        hug_height='ignore'
+        hug_width='ignore'
+        Form:
+            Label:
+                text = 'shot'
+            SpinBox:
+                value := analysis.shot
+                minimum = 0
+                maximum << experiment.LabView.camera.shotsPerMeasurement.value
+            Label:
+                text = 'roi'
+            SpinBox:
+                value := analysis.roi
+                minimum = 0
+                maximum << len(experiment.squareROIAnalysis.ROIs)
+        PushButton:
+            text = 'clear'
+            clicked::analysis.clear()
+        MPLCanvas:
+            constraints=[(height==1000)|'strong',(width==1000)|'strong']
             figure<<analysis.figure
 
 enamldef OptimizerPage(Page):
@@ -1898,6 +1932,9 @@ enamldef Main(MainWindow): main:
                     HistogramPage:
                         experiment=main.experiment
                         analysis=main.experiment.histogramAnalysis
+                    MeasurementsGraphPage:
+                       experiment=main.experiment
+                       analysis=main.experiment.measurements_graph
                     OptimizerPage:
                         experiment=main.experiment
                         analysis=main.experiment.optimizer

@@ -764,6 +764,7 @@ class AQuA(Experiment):
     squareROIAnalysis = Member()
     imageWithROIAnalysis = Member()
     histogramAnalysis = Member()
+    measurements_graph = Member()
     save2013Analysis = Member()
     optimizer = Member()
     ROI_rows = 7
@@ -783,12 +784,13 @@ class AQuA(Experiment):
         self.shotBrowserAnalysis = analysis.ShotsBrowserAnalysis(self.experiment)
         self.squareROIAnalysis = analysis.SquareROIAnalysis(self.experiment, ROI_rows=self.ROI_rows, ROI_columns=self.ROI_columns)
         self.histogramAnalysis = analysis.HistogramAnalysis('plot the histogram of any shot and roi', self.experiment)
+        self.measurements_graph = analysis.MeasurementsGraph('measurements_graph',self.experiment,'plot the ROI sum vs all measurements')
         self.save2013Analysis = save2013style.Save2013Analysis(self.experiment)
         self.optimizer = analysis.OptimizerAnalysis(self.experiment)
         self.analyses += [self.text_analysis, self.imageSumAnalysis, self.recent_shot_analysis, self.shotBrowserAnalysis, self.squareROIAnalysis,
-                          self.histogramAnalysis, self.save2013Analysis]
+                          self.histogramAnalysis, self.measurements_graph, self.save2013Analysis]
 
-        self.properties += ['LabView', 'imageSumAnalysis', 'recent_shot_analysis', 'shotBrowserAnalysis', 'squareROIAnalysis', 'histogramAnalysis']
+        self.properties += ['LabView', 'imageSumAnalysis', 'recent_shot_analysis', 'shotBrowserAnalysis', 'squareROIAnalysis', 'histogramAnalysis', 'measurements_graph']
 
         try:
             self.loadDefaultSettings()
