@@ -341,15 +341,15 @@ class ImageSumAnalysis(AnalysisWithFigure):
 
     def preIteration(self, iterationResults, experimentResults):
         #clear old data
-        self.data = None
+        self.mean_array = None
 
     def analyzeMeasurement(self, measurementResults,iterationResults,experimentResults):
 
-        if self.sum_array is None:
+        if self.mean_array is None:
             #start a sum array of the right shape
             self.sum_array = numpy.array([shot for shot in measurementResults['data/Hamamatsu/shots'].itervalues()], dtype=numpy.uint64)
             self.count_array = numpy.zeros(len(self.sum_array), dtype=numpy.uint64)
-            self.mean_array=self.sum_array.astype(numpy.float64)
+            self.mean_array = self.sum_array.astype(numpy.float64)
 
         else:
             #add new data
@@ -382,6 +382,9 @@ class ImageSumAnalysis(AnalysisWithFigure):
                 if (self.mean_array is not None) and (self.shot < len(self.mean_array)):
                     ax = fig.add_subplot(111)
                     ax.matshow(self.mean_array[self.shot], cmap=my_cmap)
+
+                    #TODO: make a colorbar (this doesn't work and we can't use pyplot)
+                    #fig.colorbar(plot,cax=ax,ax=ax)
                     ax.set_title('shot {} mean'.format(self.shot))
 
                     if self.showROIs:
@@ -547,7 +550,6 @@ class MeasurementsGraph(AnalysisWithFigure):
                 self.update_lock = False
 
 
-#TODO: This is unfinished.
 class IterationsGraph(AnalysisWithFigure):
     """This replicates the former 'iteration graph'"""
     shot = Int(0)
@@ -569,14 +571,14 @@ class IterationsGraph(AnalysisWithFigure):
         d = numpy.array([m['analysis/squareROIsums'] for m in iterationResults['measurements'].itervalues()])
 
         #sum across measurements (result is (shots X rois))
-        sums = numpy.sum(d, axis=0)
+        sums = numpy.sum(d, axis=0, keepdims=True)/len(d)
 
         if self.data is None:
         #on first iteration start anew
             self.data = sums
-        #else app
         else:
-            self.data = numpy.append(self.data, d, axis=0)
+        #else append
+            self.data = numpy.append(self.data, sums, axis=0)
         self.updateFigure()
 
     @observe('shot', 'roi')
@@ -593,10 +595,10 @@ class IterationsGraph(AnalysisWithFigure):
                 if self.data is not None:
                     ax = fig.add_subplot(111)
                     data = self.data[:, self.shot, self.roi]
-                    ax.plot(data,'ro')
+                    ax.plot(data, 'ro')
                 super(IterationsGraph, self).updateFigure()
             except Exception as e:
-                logger.warning('Problem in IterationsGraph.updateFigure()\n:{}'.format(e))
+                logger.warning('Problem in IterationsGraph.updateFigure()\n{}\n{}\n'.format(e,traceback.format_exc()))
             finally:
                 self.update_lock = False
 

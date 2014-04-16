@@ -387,7 +387,9 @@ class Experiment(Prop):
         if self.status != 'idle':
             logger.info('Current status is {}. Cannot reset experiment unless status is idle.  Try halting first.'.format(self.status))
             return  # exit
-        
+
+        self.status = 'beginning experiment'
+
         #reset experiment variables
         self.timeStarted = time.time()
         self.timeStartedStr = self.date2str(self.timeStarted)
@@ -724,7 +726,6 @@ class Experiment(Prop):
             i.preIteration(self.iterationResults, self.hdf5)
 
     def postMeasurement(self):
-        self.status = 'finishing experiment'
         #run analysis
         good = True
         delete = False
@@ -755,26 +756,32 @@ class Experiment(Prop):
             del self.measurementResults  # remove the bad data
         if good:
             self.goodMeasurements += 1
-        self.status = 'idle'
-    
+
     def postIteration(self):
         # run analysis
         for i in self.analyses:
             i.postIteration(self.iterationResults, self.hdf5)
     
     def postExperiment(self):
+        self.status = 'finishing experiment'
+
+        sys.stdout.write('Running analyses ...')
         # run analysis
         for i in self.analyses:
             i.postExperiment(self.hdf5)
+        sys.stdout.write(' done.')
 
         #store the notes again
         self.hdf5.attrs['notes'] = self.notes
+        self.hdf5.flush()
 
         #copy to network
         if self.copyDataToNetwork:
             sys.stdout.write('Copying data to network ...')
             shutil.copytree(self.path, os.path.join(self.networkDataPath, self.dailyPath, self.experimentPath))
-            sys.stdout.write(' Done.')
+            sys.stdout.write(' Done.\n')
+
+        self.status = 'idle'
 
 class AQuA(Experiment):
     """A subclass of Experiment which knows about all our particular hardware"""

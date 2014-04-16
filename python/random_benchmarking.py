@@ -20,7 +20,7 @@ def script(n, delay_before_excitation_pulse, microwave_pi_by_2, clockRate):
 
     delays = [(561,1111),(505,1001),(439,859),(378,736),(311,597),(255,485),(189,362),(123,232),(62,118),(0,0)]
 
-    middle = '\n'.join(['  compressedGenerate RB'+str(x) for x in order[n]])+'\n'
+    middle = '\n'.join(['  compressedGenerate RB'+str(x) for x in order])+'\n'
     
     delay = int((delays[n][0]*delay_before_excitation_pulse + delays[n][1]*microwave_pi_by_2) * clockRate/1000)
     wait = '  compressedGenerate RB_wait\n'+('' if delay==0 else '  wait {}\n'.format(delay))
