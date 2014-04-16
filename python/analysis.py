@@ -10,59 +10,12 @@ from instrument_property import Prop
 from matplotlib.figure import Figure
 from matplotlib.path import Path
 import matplotlib.patches as patches
-from matplotlib.colors import LinearSegmentedColormap
 from enaml.application import deferred_call
 
 import threading, numpy, traceback
 
-#color map for camera images
-cdict = {
-         'red': ((0.0,0.0,0.0),
-                (0.1,0.0,0.0),
-                (0.2,0.0,0.0),
-                (0.3,0.0,0.0),
-                (0.4,0.0,0.0),
-                (0.5,0.0,0.0),
-                (0.6,0.12,0.12),
-                (0.7,0.28,0.28),
-                (0.8,0.48,0.48),
-                (0.9,0.72,0.72),
-                (1.0,1.0,1.0)),
-         'blue': ((0.0,0.0,0.0),
-                (0.1,0.02,0.02),
-                (0.2,0.08,0.08),
-                (0.3,0.18,0.18),
-                (0.4,0.32,0.32),
-                (0.5,0.5,0.5),
-                (0.6,0.48,0.48),
-                (0.7,0.42,0.42),
-                (0.8,0.32,0.32),
-                (0.9,0.18,0.18),
-                (1.0,0.0,0.0)),
-        'green': ((0.0,0.0,0.0),
-                (0.1,0.08,0.08),
-                (0.2,0.12,0.12),
-                (0.3,0.12,0.12),
-                (0.4,0.08,0.08),
-                (0.5,0.0,0.0),
-                (0.6,0.0,0.0),
-                (0.7,0.0,0.0),
-                (0.8,0.0,0.0),
-                (0.9,0.0,0.0),
-                (1.0,0.0,0.0))
-                }
-my_cmap = LinearSegmentedColormap('my_colormap',cdict,256)
-#my_cmap = 'jet'
+from colors import my_cmap, green_cmap
 
-#color map for ROI images
-cdict = {'red': ((0.0, 0.0, 0.0),
-                 (1.0, 0.0, 0.0)),
-         'green': ((0.0, 0.0, 0.0),
-                   (1.0, 1.0, 1.0)),
-         'blue': ((0.0, 0.0, 0.0),
-                  (1.0, 0.0, 0.0))}
-from matplotlib.colors import LinearSegmentedColormap
-green_cmap = LinearSegmentedColormap('my_colormap',cdict,256)
 
 def mpl_rectangle(ax, ROI):
     """Draws a rectangle, for use in drawing ROIs on images"""
@@ -605,20 +558,25 @@ class IterationsGraph(AnalysisWithFigure):
     def __init__(self, name, experiment, description=''):
         super(IterationsGraph, self).__init__(name, experiment, description)
         self.properties += ['shot', 'roi']
-        self.data = None
 
     def preExperiment(self, experimentResults):
+        #erase the old data at the start of the experiment
         self.data = None
 
     def analyzeIteration(self, iterationResults, experimentResults):
-        d = [m['analysis/squareROIsums'] for m in iterationResults['measurements'].itervalues()]
 
-        #every measurement, update a big array of all the ROI sums, then histogram only the requested shot/site
-        #d = iterationResults['analysis/squareROIsums']
+        #load in data from all the measurements (ROI sums produced in SquareROIAnalysis)
+        d = numpy.array([m['analysis/squareROIsums'] for m in iterationResults['measurements'].itervalues()])
+
+        #sum across measurements (result is (shots X rois))
+        sums = numpy.sum(d, axis=0)
+
         if self.data is None:
-            self.data = numpy.array([d])
+        #on first iteration start anew
+            self.data = sums
+        #else app
         else:
-            self.data = numpy.append(self.data, numpy.array([d]), axis=0)
+            self.data = numpy.append(self.data, d, axis=0)
         self.updateFigure()
 
     @observe('shot', 'roi')
@@ -638,7 +596,7 @@ class IterationsGraph(AnalysisWithFigure):
                     ax.plot(data,'ro')
                 super(IterationsGraph, self).updateFigure()
             except Exception as e:
-                logger.warning('Problem in MeasurementsGraph.updateFigure()\n:{}'.format(e))
+                logger.warning('Problem in IterationsGraph.updateFigure()\n:{}'.format(e))
             finally:
                 self.update_lock = False
 

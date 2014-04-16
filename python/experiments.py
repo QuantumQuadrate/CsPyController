@@ -469,7 +469,27 @@ class Experiment(Prop):
             logger.error('Exception during experiment:\n'+str(e)+'\n'+str(traceback.format_exc())+'\n')
             if self.pauseAfterError:
                 self.status = 'paused after error'
-    
+
+    def endThread(self):
+        """Launches end() in a new thread, to keep GUI free"""
+        thread = threading.Thread(target=self.end)
+        thread.daemon = True
+        thread.start()
+
+    def end(self):
+        """Finished the current experiment, and then uploads data"""
+        if self.status.startswith('paused'):
+            try:
+                self.postExperiment()
+            except PauseError:
+                self.status == 'paused after error'
+            except Exception as e:
+                logger.warning('Uncaught Exception in experiment.end')
+                self.status == 'paused after error'
+        else:
+            print 'You cannot manually finish an experiment unless it is paused first.'
+
+
     def measure(self):
         """Enables all instruments to begin a measurement.  Sent at the beginning of every measurement.
         Actual output or input from the measurement may yet wait for a signal from another device."""
@@ -520,7 +540,8 @@ class Experiment(Prop):
         self.completedMeasurementsByIteration[-1] += 1  # add one to the last counter in the list
     
     def halt(self):
-        self.status='idle'
+        """Manually force the status to idle, to cause the experiment to end"""
+        self.status = 'idle'
     
     def loadDefaultSettings(self):
         """Look for settings.hdf5 in this directory, and if it exists, load it."""
@@ -703,6 +724,7 @@ class Experiment(Prop):
             i.preIteration(self.iterationResults, self.hdf5)
 
     def postMeasurement(self):
+        self.status = 'finishing experiment'
         #run analysis
         good = True
         delete = False
@@ -733,6 +755,7 @@ class Experiment(Prop):
             del self.measurementResults  # remove the bad data
         if good:
             self.goodMeasurements += 1
+        self.status = 'idle'
     
     def postIteration(self):
         # run analysis
@@ -765,6 +788,7 @@ class AQuA(Experiment):
     imageWithROIAnalysis = Member()
     histogramAnalysis = Member()
     measurements_graph = Member()
+    iterations_graph = Member()
     save2013Analysis = Member()
     optimizer = Member()
     ROI_rows = 7
@@ -785,12 +809,13 @@ class AQuA(Experiment):
         self.squareROIAnalysis = analysis.SquareROIAnalysis(self.experiment, ROI_rows=self.ROI_rows, ROI_columns=self.ROI_columns)
         self.histogramAnalysis = analysis.HistogramAnalysis('plot the histogram of any shot and roi', self.experiment)
         self.measurements_graph = analysis.MeasurementsGraph('measurements_graph',self.experiment,'plot the ROI sum vs all measurements')
+        self.iterations_graph = analysis.IterationsGraph('iterations_graph',self.experiment,'plot the average of ROI sums vs iterations')
         self.save2013Analysis = save2013style.Save2013Analysis(self.experiment)
         self.optimizer = analysis.OptimizerAnalysis(self.experiment)
         self.analyses += [self.text_analysis, self.imageSumAnalysis, self.recent_shot_analysis, self.shotBrowserAnalysis, self.squareROIAnalysis,
-                          self.histogramAnalysis, self.measurements_graph, self.save2013Analysis]
+                          self.histogramAnalysis, self.measurements_graph, self.iterations_graph, self.save2013Analysis]
 
-        self.properties += ['LabView', 'imageSumAnalysis', 'recent_shot_analysis', 'shotBrowserAnalysis', 'squareROIAnalysis', 'histogramAnalysis', 'measurements_graph']
+        self.properties += ['LabView', 'imageSumAnalysis', 'recent_shot_analysis', 'shotBrowserAnalysis', 'squareROIAnalysis', 'histogramAnalysis', 'measurements_graph', 'iterations_graph']
 
         try:
             self.loadDefaultSettings()
