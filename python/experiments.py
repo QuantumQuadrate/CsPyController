@@ -128,6 +128,7 @@ class Experiment(Prop):
     pauseAfterError = Member()
     saveData = Member()
     saveSettings = Member()
+    settings_path = Str()
     save2013styleFiles = Member()
     localDataPath = Str()
     networkDataPath = Str()
@@ -215,7 +216,7 @@ class Experiment(Prop):
         self.variableReportStr = ''
         self.analyses = []
         self.properties += ['version', 'independentVariables', 'dependentVariablesStr', 'pauseAfterIteration',
-                            'pauseAfterMeasurement', 'pauseAfterError', 'saveData', 'saveSettings',
+                            'pauseAfterMeasurement', 'pauseAfterError', 'saveData', 'saveSettings', 'settings_path',
                             'save2013styleFiles', 'localDataPath', 'networkDataPath', 'copyDataToNetwork',
                             'experimentDescriptionFilenameSuffix', 'measurementTimeout', 'measurementsPerIteration',
                             'willSendEmail', 'emailAddresses', 'progress', 'iteration', 'measurement',
@@ -555,6 +556,9 @@ class Experiment(Prop):
     def load(self, path):
         logger.debug('starting file load')
 
+        #set path as default
+        self.settings_path = os.path.dirname(path)
+
         #Disable any equation evaluation while loading.  We will evaluate everything after.
         if self.allow_evaluation:
             allow_evaluation_was_toggled = True
@@ -606,12 +610,15 @@ class Experiment(Prop):
         """This function saves all the settings."""
         
         logger.debug('Saving...')        
-        
+
+        #set path as default
+        self.settings_path = os.path.dirname(path)
+
         #HDF5
         self.autosave().close()
         #copy to default location
         logger.debug('Copying HDF5 to save path...')
-        shutil.copy('settings.hdf5', path+'.hdf5')
+        shutil.copy('settings.hdf5', path)
         
         #XML
         #logger.debug('Creating XML...')

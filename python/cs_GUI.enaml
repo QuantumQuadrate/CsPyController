@@ -182,7 +182,7 @@ enamldef CsMenuBar(MenuBar): menuBar:
                     parent=menuBar,
                     title='Choose file to load',
                     mode='open_file',
-                    path=os.path.join('..','settings'), #os.path.abspath(r'C:\Users\Saffmanlab\Documents\CsController2\settings'),
+                    path=experiment.settings_path,
                     callback=get_load_file_callback(experiment),
                     ).open()
         Action:
@@ -192,7 +192,7 @@ enamldef CsMenuBar(MenuBar): menuBar:
                     parent=menuBar,
                     title='Save As?',
                     mode='save_file',
-                    path=os.path.join('..','settings','settings-'+datetime.datetime.now().strftime('%Y-%m-%d-%H-%M-%S')), #os.path.abspath(r'C:\Users\Saffmanlab\Documents\CsController2\settings\settings-'+datetime.datetime.now().strftime('%Y-%m-%d-%H-%M-%S')),
+                    path=os.path.join(experiment.settings_path,'settings-{}.hdf5'.format(datetime.datetime.now().strftime('%Y-%m-%d-%H-%M-%S'))),
                     callback=get_save_file_callback(experiment),
                     ).open()
         Action:
