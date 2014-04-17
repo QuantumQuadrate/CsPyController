@@ -207,6 +207,9 @@ enamldef CsMenuBar(MenuBar): menuBar:
         Action:
             text = 'Reset'
             triggered::experiment.resetThread()
+        Action:
+            text = 'Run'
+            triggered::experiment.goThread()
         Menu:
             title = 'Pause...'
             Action:

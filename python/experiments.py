@@ -15,7 +15,8 @@ import threading, time, datetime, traceback, os, sys, shutil, numpy, h5py
 numpy.set_printoptions(formatter=dict(float=lambda t: "%.2e" % t))
 
 # Use Atom traits to automate Enaml updating
-from atom.api import Bool, Int, Float, Str, Member
+from atom.api import Bool, Int, Float, Str, Member, Value
+from enaml.application import deferred_call
 
 # Bring in other files in this package
 import cs_evaluate, analysis, save2013style
@@ -148,14 +149,8 @@ class Experiment(Prop):
     measurement = Member()
     goodMeasurements = Member()
     totalIterations = Member()
-
-    #iteration display strings
-    iterationStr = Str()
-    measurementStr = Str()
-    goodMeasurementsStr = Str()
-    totalIterationsStr = Str()
-
-    #time display strings
+    
+    #time Traits
     timeStartedStr = Str()
     currentTimeStr = Str()
     timeElapsedStr = Str()
@@ -187,12 +182,12 @@ class Experiment(Prop):
     ivarIndex = Member()
     ivarValueLists = Member()
     ivarSteps = Member()
+    #ivarRefreshButton = Member()
     vars = Member()
     hdf5 = Member()
     measurementResults = Member()
     iterationResults = Member()
     allow_evaluation = Member()
-    GUI_active = Bool(False)
 
     def __init__(self):
         """Defines a set of instruments, and a sequence of what to do with them."""
@@ -230,7 +225,6 @@ class Experiment(Prop):
 
     def evaluateIndependentVariables(self):
         if self.allow_evaluation:
-            sys.stdout.write('Evaluate independent vars ...')
             #make sure ivar functions have been parsed
             self.independentVariables.evaluate()
 
@@ -242,8 +236,6 @@ class Experiment(Prop):
 
             #set the current value of the independent variables
             self.iterationToIndexArray()
-
-            sys.stdout.write(' done.\n')
     
     def iterationToIndexArray(self):
         """takes the iteration number and figures out which index number each independent variable should have"""
@@ -319,20 +311,10 @@ class Experiment(Prop):
     def eval_float(self, string):
         return float(self.eval_general(string))
 
-    def halt(self):
+    def stop(self):
         """Stops output as soon as possible.  This is not run during the course of a normal experiment."""
-        self.status = 'halting'
-        try:
-            for i in self.instruments:
-                i.isDone = True
-            for i in self.instruments:
-                i.stop()
-        except PauseError:
-            pass
-        except Exception as e:
-            logger.warning('while trying experiment.halt():\n{}\n{}\n'.format(e,traceback.format_exc()))
-        finally:
-            self.status = 'idle'
+        [i.__setattr__('isDone', True) for i in self.instruments]
+        [i.stop() for i in self.instruments]
     
     def date2str(self, time):
         return datetime.datetime.fromtimestamp(time).strftime('%Y-%m-%d %H:%M:%S')
@@ -344,9 +326,11 @@ class Experiment(Prop):
         """Updates the GUI clock and recalculates the time-to-completion predictions."""
         
         self.currentTime = time.time()
-
+        self.currentTimeStr = self.date2str(self.currentTime)
+        
         self.timeElapsed = self.currentTime-self.timeStarted
-
+        self.timeElapsedStr = self.time2str(self.timeElapsed)
+        
         #calculate time per measurement
         completedMeasurements = sum(self.completedMeasurementsByIteration)
         if self.timeElapsed != 0:
@@ -358,23 +342,29 @@ class Experiment(Prop):
         else:
             estTotalMeasurements = numpy.mean(self.completedMeasurementsByIteration[:-1])*self.totalIterations
         if estTotalMeasurements > 0:
-            progress = int(100*completedMeasurements/estTotalMeasurements)
+            deferred_call(setattr, self, 'progress', int(100*completedMeasurements/estTotalMeasurements))
+            #self.progress=int(100*completedMeasurements/estTotalMeasurements)
         else:
-            progress = 0
-
+            deferred_call(setattr, self, 'progress', 0)
+            #self.progress=0
         self.timeRemaining = timePerMeasurement*(estTotalMeasurements-completedMeasurements)
-        self.totalTime = self.timeElapsed + self.timeRemaining
+        self.timeRemainingStr = self.time2str(self.timeRemaining)
+        self.totalTime = self.timeElapsed+self.timeRemaining
+        self.totalTimeStr = self.time2str(self.totalTime)
         self.completionTime = self.timeStarted+self.totalTime
-
-        self.set({
-            'progress': progress,
-            'currentTimeStr': self.date2str(self.currentTime),
-            'timeElapsedStr': self.time2str(self.timeElapsed),
-            'timeRemainingStr': self.time2str(self.timeRemaining),
-            'totalTimeStr': self.time2str(self.totalTime),
-            'completionTimeStr': self.date2str(self.completionTime)
-            })
-
+        self.completionTimeStr = self.date2str(self.completionTime)
+    
+    def applyToSelf(self, dict):
+        """Used to apply a bunch of variables at once.  This function is called using an Enaml deferred_call so that the
+         updates are done in the GUI thread."""
+        
+        for key, value in dict.iteritems():
+            try:
+                setattr(self, key, value)
+            except Exception as e:
+                logger.warning('Exception applying {} with value {} in experiments.applyToSelf.\n{}'.format(key, value, e))
+                raise PauseError
+    
     def resetAndGoThread(self):
         thread = threading.Thread(target=self.resetAndGo)
         thread.daemon = True
@@ -390,10 +380,6 @@ class Experiment(Prop):
         thread.daemon = True
         thread.start()
 
-    def setStatus(self, s):
-        self.status = s
-        self.set({'statusStr': s})
-
     def reset(self):
         """Reset the iteration variables and timing."""
         
@@ -402,28 +388,22 @@ class Experiment(Prop):
             logger.info('Current status is {}. Cannot reset experiment unless status is idle.  Try halting first.'.format(self.status))
             return  # exit
 
-        self.setStatus('beginning experiment')
+        self.status = 'beginning experiment'
 
         #reset experiment variables
         self.timeStarted = time.time()
+        self.timeStartedStr = self.date2str(self.timeStarted)
         self.iteration = 0
         self.measurement = 0
         self.goodMeasurements = 0
         self.completedMeasurementsByIteration = []
-
-        self.set({
-            'timeStartedStr': self.date2str(self.timeStarted),
-            'iterationStr': str(self.iteration),
-            'measurementStr': str(self.measurement),
-            'goodMeasurementsStr': str(self.goodMeasurements)
-        })
-
+        
         # setup data directory and files
         self.create_data_files()
         # run analyses preExperiment
         self.preExperiment()
         
-        self.setStatus('paused before experiment')
+        self.status = 'paused before experiment'
 
     def goThread(self):
         thread = threading.Thread(target=self.go)
@@ -470,35 +450,27 @@ class Experiment(Prop):
                     self.hdf5.flush()
                 
                 if self.goodMeasurements >= self.measurementsPerIteration:
-                    # We have completed this iteration
+                    # We have completed this iteration, move on to the next one
                     self.postIteration()  # run analysis
-                    if self.iteration < self.totalIterations-1:
-                        print 'setting iteration strings'
-                        # move on to the next iteration
-                        self.iteration += 1
-                        self.measurement = 0
-                        self.goodMeasurements = 0
-                        self.set({
-                            'iterationStr': str(self.iteration),
-                            'measurementStr': str(self.measurement),
-                            'goodMeasurementsStr': str(self.goodMeasurements)
-                        })
-                    else:
-                        #finish the experiment
-                        self.postExperiment()
+                    self.iteration += 1
+                    self.measurement = 0
+                    self.goodMeasurements = 0
                     if (self.status == 'running' or self.status == 'paused after measurement') and self.pauseAfterIteration:
-                        self.setStatus('paused after iteration')
+                        self.status = 'paused after iteration'
+                if self.iteration >= self.totalIterations:
+                    self.status = 'idle'  # we are now ready for the next experiment
+                    self.postExperiment()
         except PauseError:
             #This should be the only place that PauseError is explicitly handed.
             #All other non-fatal error caught higher up in the experiment chain should
             #gracefully handle the error, then 'raise PauseError' so that the experiment
             #exits out to this point.
             if self.pauseAfterError:
-                self.setStatus('paused after error')
+                self.status = 'paused after error'
         except Exception as e:
             logger.error('Exception during experiment:\n'+str(e)+'\n'+str(traceback.format_exc())+'\n')
             if self.pauseAfterError:
-                self.setStatus('paused after error')
+                self.status = 'paused after error'
 
     def endThread(self):
         """Launches end() in a new thread, to keep GUI free"""
@@ -512,10 +484,10 @@ class Experiment(Prop):
             try:
                 self.postExperiment()
             except PauseError:
-                self.setStatus('paused after error')
+                self.status == 'paused after error'
             except Exception as e:
-                logger.warning('Uncaught Exception in experiment.end:\n{}\n{}\n'.format(e, traceback.format_exc()))
-                self.setStatus('paused after error')
+                logger.warning('Uncaught Exception in experiment.end')
+                self.status == 'paused after error'
         else:
             print 'You cannot manually finish an experiment unless it is paused first.'
 
@@ -555,7 +527,7 @@ class Experiment(Prop):
                 logger.warning('The following instruments timed out: '+str([i.name for i in self.instruments if not i.isDone]))
                 return  # exit without saving results
             time.sleep(.01)  # wait a bit, then check again
-
+        
         #set up the results container
         self.measurementResults = self.hdf5.create_group('iterations/'+str(self.iteration)+'/measurements/'+str(self.measurement))
         self.measurementResults.attrs['start_time'] = start_time
@@ -568,6 +540,10 @@ class Experiment(Prop):
         
         self.postMeasurement()
         self.completedMeasurementsByIteration[-1] += 1  # add one to the last counter in the list
+    
+    def halt(self):
+        """Manually force the status to idle, to cause the experiment to end"""
+        self.status = 'idle'
     
     def loadDefaultSettings(self):
         """Look for settings.hdf5 in this directory, and if it exists, load it."""
@@ -746,9 +722,8 @@ class Experiment(Prop):
 
     def preIteration(self):
         #run analyses
-        for i, a in enumerate(self.analyses):
-            print 'preIteration:', i, a.name
-            a.preIteration(self.iterationResults, self.hdf5)
+        for i in self.analyses:
+            i.preIteration(self.iterationResults, self.hdf5)
 
     def postMeasurement(self):
         #run analysis
@@ -784,9 +759,8 @@ class Experiment(Prop):
 
     def postIteration(self):
         # run analysis
-        for i, a in enumerate(self.analyses):
-            print 'postIteration:', i, a.name
-            a.postIteration(self.iterationResults, self.hdf5)
+        for i in self.analyses:
+            i.postIteration(self.iterationResults, self.hdf5)
     
     def postExperiment(self):
         self.status = 'finishing experiment'
@@ -795,7 +769,7 @@ class Experiment(Prop):
         # run analysis
         for i in self.analyses:
             i.postExperiment(self.hdf5)
-        sys.stdout.write(' done.\n')
+        sys.stdout.write(' done.')
 
         #store the notes again
         self.hdf5.attrs['notes'] = self.notes
@@ -805,7 +779,7 @@ class Experiment(Prop):
         if self.copyDataToNetwork:
             sys.stdout.write('Copying data to network ...')
             shutil.copytree(self.path, os.path.join(self.networkDataPath, self.dailyPath, self.experimentPath))
-            sys.stdout.write(' done.\n')
+            sys.stdout.write(' Done.\n')
 
         self.status = 'idle'
 

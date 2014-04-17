@@ -27,8 +27,8 @@ import threading
 
 import logging
 logging.basicConfig(format='%(asctime)s %(threadName)s %(name)s %(levelname)s %(message)s', datefmt='%Y/%m/%d %H:%M:%S', level=logging.DEBUG)
-from cs_errors import setupLog  # ,PauseError
-logger = setupLog(__name__)
+from cs_errors import PauseError, setupLog
+logger=setupLog(__name__)
 
 import experiments
 
@@ -46,31 +46,24 @@ import experiments
         # self.windows.append(mainWindow)
 
 def guiThread(exp):
-    logger.info("Building GUI")
     with enaml.imports():
         from cs_GUI import Main
     app = QtApplication()
-    main = Main(experiment=exp)
+    main=Main(experiment=exp)
     main.show()
     main.activate_window()
     main.send_to_front()
     main.maximize()
-    logger.info("Starting GUI")
+    logger.info("starting application")
     app.start()
-    exp.GUI_active=True
 
 def new():
-    print "CsPyController by Martin Lichtman (2014)"
-    logger.info("Building experiment")
     exp=experiments.AQuA()
     #start in a new thread so you can continue to use the shell
-    logger.info("Starting GUI thread")
     threading.Thread(target=guiThread,args=[exp]).start()
     return exp
 
 if __name__ == '__main__':
-    logger.info("CsPyController by Martin Lichtman (2014)")
-    logger.info("Building experiment")
     exp=experiments.AQuA()
     #start without creating a new thread
     guiThread(exp)
