@@ -3,10 +3,12 @@ This file contains the mechanism for a property that describes some setting of a
 A Prop can have properties of its own.
 A Prop has extensions like EvalProp from a setting that takes some string input and is evaluated.
 '''
+
 from cs_errors import PauseError, setupLog
-logger=setupLog(__name__)
+logger = setupLog(__name__)
 
 from atom.api import Atom, Str, Bool, Int, Float, List, Member, Value, observe
+from enaml.application import deferred_call
 from enaml.validator import Validator
 
 import pickle, traceback, h5py, numpy
@@ -394,6 +396,29 @@ class Prop(Atom):
         '''This function exists to allow Atom calls to evaluate() when something is changed.  @observe passes the 'changed' parameter, whereas evaluate() takes no parameters'''
         if self.experiment.allow_evaluation:
             self.evaluate()
+
+    def set(self, dict):
+        """Used to apply a bunch of variables at once.  This function uses an Enaml deferred_call so that the
+         updates are done in the GUI thread.  If applying a variable will update the GUI, then it should be done
+         using this method."""
+        if self.experiment.GUI_active:
+            for key, value in dict.iteritems():
+                try:
+                    deferred_call(setattr, self, key, value)
+                except Exception as e:
+                    #report error from the first call
+                    logger.warning('Exception applying {} with value {} in experiments.applyToSelf.\n{}\n'.format(key, value, e))
+                    raise PauseError
+        else:
+            #if the Qt application for the gui is not yet active, the deferred_call will fail
+            #try again with a regular setattr
+            for key, value in dict.iteritems():
+                try:
+                    setattr(self, key, value)
+                except Exception as e:
+                    #report error from the first call
+                    logger.warning('Exception applying {} with value {} in experiments.applyToSelf.\n{}\n'.format(key, value, e))
+                    raise PauseError
 
 # class EvalPropValidator(Validator):
     # valid=Bool()
