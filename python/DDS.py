@@ -8,8 +8,10 @@ modified>=2013-10-08
 This file holds everything needed to model the Direct Digital Synthesis frequency generators.  These are currently controlled
 from LabView, via USB.
 '''
-from cs_errors import PauseError, setupLog
-logger=setupLog(__name__)
+
+from __future__ import division
+import logging
+logger = logging.getLogger(__name__)
 
 from atom.api import Bool, Int, Float, Str, Typed, Member, List, observe, Atom
 from enaml.application import deferred_call

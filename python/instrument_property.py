@@ -3,8 +3,12 @@ This file contains the mechanism for a property that describes some setting of a
 A Prop can have properties of its own.
 A Prop has extensions like EvalProp from a setting that takes some string input and is evaluated.
 '''
-from cs_errors import PauseError, setupLog
-logger=setupLog(__name__)
+
+from __future__ import division
+import logging
+logger = logging.getLogger(__name__)
+
+from cs_errors import PauseError
 
 from atom.api import Atom, Str, Bool, Int, Float, List, Member, Value, observe
 from enaml.validator import Validator

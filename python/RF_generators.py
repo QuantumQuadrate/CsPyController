@@ -9,8 +9,9 @@ This file holds everything needed to model the microwave RF generators (HP/Agile
 It communicates to LabView via the higher up HEXQC2 class.
 """
 
-from cs_errors import setupLog #, PauseError
-logger = setupLog(__name__)
+from __future__ import division
+import logging
+logger = logging.getLogger(__name__)
 
 from atom.api import Bool, Int, Typed, Member
 from instrument_property import Prop, BoolProp, FloatProp, ListProp

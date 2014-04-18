@@ -9,8 +9,9 @@ modified>=2014-03-25
 This file holds everything to model a National Instruments DAQmx pulse output.  It communicated to LabView via the higher up LabView class.
 """
 
-from cs_errors import setupLog  # ,PauseError
-logger = setupLog(__name__)
+from __future__ import division
+import logging
+logger = logging.getLogger(__name__)
 
 from cs_instruments import Instrument
 

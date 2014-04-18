@@ -1,9 +1,8 @@
 #this files contains the workings to store a digital waveform and plot it using Matplotlib
 
 from __future__ import division
-
-from cs_errors import setupLog #, PauseError
-logger=setupLog(__name__)
+import logging
+logger = logging.getLogger(__name__)
 
 from atom.api import Member, Typed
 from enaml.application import deferred_call

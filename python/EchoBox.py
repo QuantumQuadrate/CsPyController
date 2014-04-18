@@ -9,9 +9,8 @@ EchoBox.py
 """
 
 from __future__ import division
-
-from cs_errors import PauseError, setupLog
-logger = setupLog(__name__)
+import logging
+logger = logging.getLogger(__name__)
 
 from atom.api import Typed
 from instrument_property import BoolProp

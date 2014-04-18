@@ -10,8 +10,11 @@ created=2013-10-08
 modified>=2014-04-08
 """
 
-from cs_errors import PauseError, setupLog
-logger = setupLog(__name__)
+from __future__ import division
+import logging
+logger = logging.getLogger(__name__)
+
+from cs_errors import PauseError
 
 import TCP, HSDIO, piezo, DDS, RF_generators, AnalogOutput, DAQmxDO, Camera, EchoBox
 from atom.api import Bool, Str, Member, Typed

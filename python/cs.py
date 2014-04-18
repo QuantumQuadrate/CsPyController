@@ -24,12 +24,10 @@ from enaml.qt.qt_application import QtApplication
 #from cs_icons import CsIconProvider
 
 import threading
-
+import cs_errors
 import logging
-logging.basicConfig(format='%(asctime)s %(threadName)s %(name)s %(levelname)s %(message)s', datefmt='%Y/%m/%d %H:%M:%S', level=logging.DEBUG)
-from cs_errors import PauseError, setupLog
-logger=setupLog(__name__)
-
+cs_errors.setup_log()
+logger = logging.getLogger(__name__)
 import experiments
 
 #for icons
@@ -46,6 +44,7 @@ import experiments
         # self.windows.append(mainWindow)
 
 def guiThread(exp):
+    logger.info("starting application")
     with enaml.imports():
         from cs_GUI import Main
     app = QtApplication()
@@ -54,10 +53,10 @@ def guiThread(exp):
     main.activate_window()
     main.send_to_front()
     main.maximize()
-    logger.info("starting application")
     app.start()
 
 def new():
+    cs_errors.setup_log()
     exp=experiments.AQuA()
     #start in a new thread so you can continue to use the shell
     threading.Thread(target=guiThread,args=[exp]).start()

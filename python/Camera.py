@@ -8,11 +8,12 @@ modified>=2014-01-17
 This file holds everything needed to model the high speed digital output from the National Instruments HSDIO card.  It communicates to LabView via the higher up LabView(Instrument) class.
 '''
 
-from cs_errors import PauseError, setupLog
-logger=setupLog(__name__)
+from __future__ import division
+import logging
+logger = logging.getLogger(__name__)
 
-from atom.api import Typed, Str
-from instrument_property import Prop, BoolProp, IntProp, FloatProp, StrProp, ListProp, IntRangeProp, FloatRangeProp, EnumProp
+from atom.api import Typed
+from instrument_property import BoolProp, FloatProp, StrProp, IntRangeProp, FloatRangeProp, EnumProp
 from cs_instruments import Instrument
 
 #---- instrument ----

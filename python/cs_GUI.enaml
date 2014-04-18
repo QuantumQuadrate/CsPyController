@@ -7,8 +7,12 @@ Cs.enaml
 
 A GUI for the Cs experiment controller, written using the enaml toolkit for python.
 """
-from cs_errors import setupLog,PauseError
-logger=setupLog(__name__)
+
+from __future__ import division
+import logging
+logger = logging.getLogger(__name__)
+
+from cs_errors import PauseError
 
 from enaml.layout.api import vbox, hbox, align, horizontal, vertical, spacer, grid
 from enaml.widgets.api import (MainWindow, MenuBar, Menu, Action,
@@ -1367,9 +1371,8 @@ enamldef DDS_Page(Page): page:
                     index<<combo.index
                     Looper: dyno:
                         iterable<<DDS.boxes
-                        pass
                         DDS_box:
-                            box=loop_item
+                            box<<loop_item
 
 enamldef RF_gen(StackItem):
     attr item

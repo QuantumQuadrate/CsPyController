@@ -10,8 +10,10 @@ This file holds everything needed to model the analog output from a National Ins
 
 from __future__ import division
 
-from cs_errors import PauseError, setupLog
-logger = setupLog(__name__)
+import logging
+logger = logging.getLogger(__name__)
+
+from cs_errors import PauseError
 
 from atom.api import Bool, Typed, Member
 from enaml.application import deferred_call

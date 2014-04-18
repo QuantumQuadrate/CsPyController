@@ -1,7 +1,8 @@
 from __future__ import division
+import logging
+logger = logging.getLogger(__name__)
 
-from cs_errors import PauseError, setupLog
-logger=setupLog(__name__)
+from cs_errors import PauseError
 
 from atom.api import Bool, Typed, Str, Member, List, Int, observe, Float
 from instrument_property import Prop

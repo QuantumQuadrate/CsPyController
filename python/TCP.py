@@ -1,19 +1,23 @@
-#TCP.py
-#author: Martin Lichtman
-#created = 2013.08.02
-#modified >= 2013.08.02
+"""
+TCP.py
+author: Martin Lichtman
+created = 2013.08.02
+modified >= 2013.08.02
 
-#This module bundles the TCP message passing protocol defined for the Cesium project.
+This module bundles the TCP message passing protocol defined for the Cesium project.
 
-#Messages begin with 'MESG' followed by a 4 byte unsigned long int that gives the length of the remainder of the message.
+Messages begin with 'MESG' followed by a 4 byte unsigned long int that gives the length of the remainder of the message.
+The class CsSock inherets from socket.socket, and makes it easier to open up the type of socket we use, and then send or receive
+a message with the correct format.
+"""
 
-#The class CsSock inherets from socket.socket, and makes it easier to open up the type of socket we use, and then send or receive
-#a message with the correct format.
+from __future__ import division
+import logging
+logger = logging.getLogger(__name__)
 
-from cs_errors import PauseError, setupLog
-logger=setupLog(__name__)
+from cs_errors import PauseError
 
-import socket, struct, logging, numpy, threading, traceback
+import socket, struct, threading, traceback
 
 
 def prefixLength(txt):

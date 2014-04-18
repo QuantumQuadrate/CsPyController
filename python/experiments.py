@@ -5,9 +5,8 @@ author=Martin Lichtman
 """
 
 from __future__ import division
-
-from cs_errors import PauseError, setupLog
-logger = setupLog(__name__)
+import logging
+logger = logging.getLogger(__name__)
 
 import threading, time, datetime, traceback, os, sys, shutil, numpy, h5py
 
@@ -20,6 +19,7 @@ from enaml.application import deferred_call
 
 # Bring in other files in this package
 import cs_evaluate, analysis, save2013style
+from cs_errors import PauseError
 from instrument_property import Prop, EvalProp, ListProp
 import LabView
 

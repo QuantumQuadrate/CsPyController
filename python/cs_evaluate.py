@@ -5,6 +5,8 @@
 #modified >= 2013-08-22
 
 from __future__ import division  # always do float division
+import logging
+logger = logging.getLogger(__name__)
 
 from numpy import *
 #create a nice clean globals with only numpy, so we can keep resetting to this point
@@ -12,8 +14,7 @@ myGlobalSetup = globals().copy()
 #the global dict that will hold the variables
 myGlobals = myGlobalSetup.copy()
 
-from cs_errors import setupLog, PauseError
-logger = setupLog(__name__)
+from cs_errors import PauseError
 
 import traceback
 

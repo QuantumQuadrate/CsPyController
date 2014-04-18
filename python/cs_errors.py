@@ -1,15 +1,17 @@
-# Martin Lichtman
-# created = 2013-10-07
-# modified >= 2013-10-07
-
 """
+Martin Lichtman
+created = 2013-10-07
+modified >= 2013-10-07
+
 cs_errors.py
 
 Exceptions for use in the cesium controller software.
 """
 
+import logging
+
 class PauseError(Exception):
-    '''This class is defined so we can raise an exception to have the experiment pause immediately.
+    """This class is defined so we can raise an exception to have the experiment pause immediately.
     Usually this will be raised in the except clause after another error is caught.
     We want to be able to have try-except blocks for tricky parts of the code, but then still have the experiment pause
     as soon as possible.  We could just raise an Exception at this point, but this allows us to keep better track of what has
@@ -29,18 +31,34 @@ class PauseError(Exception):
         logger.error('An exception occurred, and we don't know what to do about it.\n'+str(e))
         
     If general Exceptions are not caught, then unexpected Exceptions will cause the code to stop and the error will be reported by the default mechanism.
-    '''
+    """
     pass
 
-def setupLog(name):
-    '''This function sets up the error logging to both console and file, and should be imported and run at the top of each module in this package, by doing:
-    from cs_errors import PauseError, setupLog
-    logger=setupLog(__name__)
-    '''
+def setup_log():
+    """This function sets up the error logging to both console and file.  Logging should be set up at the top of each
+    file by doing:
     import logging
-    logger = logging.getLogger(name)
-    hdlr = logging.FileHandler('log.txt')
-    formatter = logging.Formatter(fmt='%(asctime)s %(threadName)s %(name)s %(levelname)s %(message)s', datefmt='%Y/%m/%d %H:%M:%S')
-    hdlr.setFormatter(formatter)
-    logger.addHandler(hdlr)
-    return logger
+    logger = logging.getLogger(__name__)
+    """
+
+    #logging.basicConfig(filename='log.txt',filemode='a',format='%(asctime)s %(threadName)s %(filename)s %(funcName) %(lineno) %(levelname)s %(message)s', datefmt='%Y/%m/%d %H:%M:%S')
+
+    #get the root logger
+    logger = logging.getLogger()
+    logger.setLevel(logging.DEBUG)
+
+    #set up logging to console
+    sh = logging.StreamHandler()
+    sh.setLevel(logging.DEBUG)
+    sh_formatter = logging.Formatter(fmt='%(asctime)s\n%(message)s\n', datefmt='%H:%M:%S')
+    sh.setFormatter(sh_formatter)
+
+    #set up logging to file
+    fh = logging.FileHandler('log.txt')
+    fh.setLevel(logging.DEBUG)
+    fh_formatter = logging.Formatter(fmt='%(asctime)s - %(threadName)s - %(filename)s.%(funcName)s.%(lineno)s - %(levelname)s\n%(message)s\n', datefmt='%Y/%m/%d %H:%M:%S')
+    fh.setFormatter(fh_formatter)
+
+    #put the handlers to use
+    logger.addHandler(sh)
+    logger.addHandler(fh)
