@@ -8,7 +8,7 @@ from __future__ import division
 import logging
 logger = logging.getLogger(__name__)
 
-import threading, time, datetime, traceback, os, sys, shutil, numpy, h5py
+import threading, time, datetime, traceback, os, sys, shutil, cStringIO, numpy, h5py
 
 #set numpy print options to limit to 2 digits
 numpy.set_printoptions(formatter=dict(float=lambda t: "%.2e" % t))
@@ -189,9 +189,19 @@ class Experiment(Prop):
     measurementResults = Member()
     iterationResults = Member()
     allow_evaluation = Member()
+    log = Member()
 
     def __init__(self):
         """Defines a set of instruments, and a sequence of what to do with them."""
+
+        #allow logging to a variable
+        self.log = cStringIO.StringIO()
+        rootlogger = logging.getLogger()
+        sh = logging.StreamHandler(self.log)
+        sh.setLevel(logging.DEBUG)
+        sh_formatter = logging.Formatter(fmt='%(asctime)s - %(threadName)s - %(filename)s.%(funcName)s.%(lineno)s - %(levelname)s\n%(message)s\n', datefmt='%Y/%m/%d %H:%M:%S')
+        sh.setFormatter(sh_formatter)
+        rootlogger.addHandler(sh)
 
         self.allow_evaluation = False
 
@@ -389,6 +399,12 @@ class Experiment(Prop):
             logger.info('Current status is {}. Cannot reset experiment unless status is idle.  Try halting first.'.format(self.status))
             return  # exit
 
+        #reset the log
+        self.log.flush()
+        self.log = ''
+
+        logger.info('resetting experiment')
+
         self.status = 'beginning experiment'
 
         #reset experiment variables
@@ -419,7 +435,9 @@ class Experiment(Prop):
             logger.info('Current status is {}. Cannot continue an experiment unless status is paused.'.format(self.status))
             return  # exit
         self.status = 'running'  # prevent another experiment from being started at the same time
-        
+
+        logger.warning('running experiment')
+
         try:  # if there is an error we exit the inner loops and respond appropriately
             #make sure the independent variables are processed
             self.evaluateIndependentVariables()
@@ -440,7 +458,7 @@ class Experiment(Prop):
                 
                 #loop until the desired number of measurements are taken
                 while (self.goodMeasurements < self.measurementsPerIteration) and (self.status == 'running'):
-                    print 'iteration {} measurement {}'.format(self.iteration, self.measurement)
+                    logger.info('iteration {} measurement {}'.format(self.iteration, self.measurement))
                     self.measure()  # tell all instruments to do the experiment sequence and acquire data
                     self.updateTime()  # update the countdown/countup clocks
                     self.measurement += 1  # update the measurement count
@@ -698,7 +716,7 @@ class Experiment(Prop):
         self.hdf5.create_group('iterations')
         
         #store notes.  They will be stored again at the end of the experiment.
-        self.hdf5.attrs['notes'] = self.notes
+        self.hdf5['notes'] = self.notes
         
         logger.debug('Finished create_data_files()')
     
@@ -780,6 +798,9 @@ class Experiment(Prop):
 
         #store the notes again
         self.hdf5.attrs['notes'] = self.notes
+        #store the log
+        self.log.flush()
+        self.hdf5['log'] = self.log.getvalue()
         self.hdf5.flush()
 
         #copy to network
