@@ -43,6 +43,7 @@ TODO:
     Make ctrl+Q halt
     Button to upload experiment at current point when paused (Finish experiment)
     Blank middle image on bad selector
+    All ListProps lose GUI linkage on load from file.  Assign GUI to .listProperty instead?
 
 Done:
     ComboBox for waveforms
