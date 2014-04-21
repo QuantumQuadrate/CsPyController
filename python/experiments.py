@@ -401,7 +401,7 @@ class Experiment(Prop):
 
         #reset the log
         self.log.flush()
-        self.log = ''
+        self.log = cStringIO.StringIO()
 
         logger.info('resetting experiment')
 
