@@ -30,6 +30,8 @@ cs_errors.setup_log()
 logger = logging.getLogger(__name__)
 import experiments
 
+from Controller import Controller
+
 #for icons
 # class CsSession(Session):
     
@@ -48,7 +50,9 @@ def guiThread(exp):
     with enaml.imports():
         from cs_GUI import Main
     app = QtApplication()
-    main=Main(experiment=exp)
+    main = Main(experiment=exp)
+    #controller = Controller(exp=exp, view=main)
+
     main.show()
     main.activate_window()
     main.send_to_front()
@@ -57,12 +61,13 @@ def guiThread(exp):
 
 def new():
     cs_errors.setup_log()
-    exp=experiments.AQuA()
+    exp = experiments.AQuA()
     #start in a new thread so you can continue to use the shell
     threading.Thread(target=guiThread,args=[exp]).start()
     return exp
 
 if __name__ == '__main__':
-    exp=experiments.AQuA()
+    exp = experiments.AQuA()
+
     #start without creating a new thread
     guiThread(exp)
