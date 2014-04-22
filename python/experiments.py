@@ -452,7 +452,7 @@ class Experiment(Prop):
                     logger.debug("Finished iteration")
                     # We have completed this iteration, move on to the next one
                     self.postIteration()  # run analysis
-                    if self.iteration < self.totalIterations:
+                    if self.iteration < self.totalIterations-1:
                         self.iteration += 1
                         self.measurement = 0
                         self.goodMeasurements = 0
