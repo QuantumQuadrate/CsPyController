@@ -369,4 +369,4 @@ cdict = {'red': ((0.0, 0.0, 0.0),
                   (1.0, 1.0, 1.0))}
 kbgrw_cmap = LinearSegmentedColormap('my_colormap',cdict,256)
 
-my_cmap = kbgrw_cmap
+my_cmap = 'jet'

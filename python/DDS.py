@@ -36,8 +36,6 @@ class DDS(Instrument):
         self.communicator=communicator
         self.enable=BoolProp('enable',self.experiment,'enable DDS output','False')
         self.boxes=ListProp('boxes',experiment,listElementType=DDSbox,listElementName='box',listElementKwargs={'DDS':self})
-        #self.addBox() #TODO:don't add this initial box, but if we don't then the comboBox doesn't update for some reason
-        #self.deviceList=self.deviceListStr.split('\n')
         self.deviceList=[]
         self.boxDescriptionList=[]
         self.properties+=['version','enable','boxes','deviceList','boxDescriptionList']
@@ -47,11 +45,6 @@ class DDS(Instrument):
         if self.experiment.allow_evaluation:
             super(DDS,self).evaluate()
             self.updateBoxDescriptionList()
-    
-    def addBox(self):
-        newbox=DDSbox('box',self.experiment,description='newbox',DDS=self)
-        self.boxes.append(newbox)
-        return newbox
     
     def getDDSDeviceList(self):
         result=self.communicator.send('<LabView><getDDSDeviceList/><LabView>')

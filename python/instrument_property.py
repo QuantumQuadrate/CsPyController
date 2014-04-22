@@ -5,6 +5,7 @@ A Prop has extensions like EvalProp from a setting that takes some string input 
 '''
 
 from __future__ import division
+
 import logging
 logger = logging.getLogger(__name__)
 
@@ -12,6 +13,7 @@ from cs_errors import PauseError
 
 from atom.api import Atom, Str, Bool, Int, Float, List, Member, Value, observe
 from enaml.validator import Validator
+from enaml.application import deferred_call
 
 import pickle, traceback, h5py, numpy
 import cs_evaluate
@@ -580,6 +582,8 @@ class ListProp(Prop):
     listElementType = Member()
     listElementName = Member()
     listElementKwargs = Member()
+    gui = Member() #store a link to the enaml GUI so we can force it to refresh
+    length = Int(0)
     
     def __init__(self, name, experiment, description='', listProperty=None, listElementType=None,
                  listElementName='element', listElementKwargs=None):
@@ -598,27 +602,47 @@ class ListProp(Prop):
             self.listElementKwargs = {}
         else:
             self.listElementKwargs = listElementKwargs
-    
+        self.refreshGUI()
+
+    def refreshGUI(self):
+        #update anything that uses the length variable, such as spin boxes
+        self.length = len(self.listProperty)
+
+        #forcibly refresh the list
+        if self.gui is not None:
+            try:
+                deferred_call(self.gui.refresh_items)
+            except:
+                logger.debug('ListProp call to refreshGUI when no GUI exists.')
+
     def __iter__(self):
         return iter(self.listProperty)
     
     def __len__(self):
         return len(self.listProperty)
-    
+
     def __getitem__(self, i):
         return self.listProperty[i]
     
     def append(self, x):
         self.listProperty.append(x)
+        self.refreshGUI()
     
     def pop(self, i):
-        return self.listProperty.pop(i)
-    
+        x = self.listProperty.pop(i)
+        self.refreshGUI()
+        return x
+
     def remove(self, x):
         self.listProperty.remove(x)
+        self.refreshGUI()
     
-    def copy(self,i):
-        self.listProperty.append(self.listProperty[i].copy())
+    def copy(self, i):
+        """Make a copy of element i of the list and append it to the end."""
+        x = self.listProperty[i].copy()
+        self.listProperty.append(x)
+        self.refreshGUI()
+        return x
     
     def getNextAvailableName(self):
         #figure out unique name for a new item
@@ -633,8 +657,19 @@ class ListProp(Prop):
     def add(self):
         new = self.listElementType(self.getNextAvailableName(), self.experiment, **self.listElementKwargs)
         self.listProperty.append(new)
+        self.refreshGUI()
         return new
-    
+
+    def add_at(self, i):
+        new = self.listElementType(self.getNextAvailableName(), self.experiment, **self.listElementKwargs)
+        self.listProperty.insert(i, new)
+        self.refreshGUI()
+        return new
+
+    def insert(self, i, x):
+        self.listProperty.insert(i, x)
+        self.refreshGUI()
+
     def index(self, x):
         return self.listProperty.index(x)
     
@@ -650,7 +685,8 @@ class ListProp(Prop):
                     except Exception as e:
                         logger.warning('Evaluating list item '+str(i)+' '+o.name+' in ListProp.evaluate() in '+self.name+'.\n'+str(e)+'\n'+str(traceback.format_exc())+'\n')
                         raise PauseError
-    
+        self.refreshGUI()
+
     def toHDF5(self, hdf, name=None):
         """ListProp has a special toHDF5 method because we do not save any of the normal properties for a listProp.
           It would be confusing to do so, as that is not what a ListProp is for."""
@@ -718,6 +754,7 @@ class ListProp(Prop):
         except Exception as e:
             logger.warning('in {} in ListProp.fromHDF5() for hdf node {}\n{}\n{}\n'.format(self.name, hdf.name, e, traceback.format_exc()))
             raise PauseError
+        self.refreshGUI()
         return self
     
     def toXML(self):
@@ -750,6 +787,7 @@ class ListProp(Prop):
             self.listProperty=[self.listElementType(child.tag,self.experiment,**self.listElementKwargs).fromXML(child) for i,child in enumerate(xmlNode)]
         except Exception as e:
             logger.warning('in '+self.name+' in ListProp.fromXML() for xml tag: '+xmlNode.tag+'.\n'+str(e)+'\n'+str(traceback.format_exc())+'\n')
+        self.refreshGUI()
         return self
 
 class Numpy1DProp(Prop):

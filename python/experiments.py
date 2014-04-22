@@ -14,7 +14,7 @@ import threading, time, datetime, traceback, os, sys, shutil, cStringIO, numpy, 
 numpy.set_printoptions(formatter=dict(float=lambda t: "%.2e" % t))
 
 # Use Atom traits to automate Enaml updating
-from atom.api import Bool, Int, Float, Str, Member, Value
+from atom.api import Int, Float, Str, Member
 from enaml.application import deferred_call
 
 # Bring in other files in this package
@@ -23,30 +23,6 @@ from cs_errors import PauseError
 from instrument_property import Prop, EvalProp, ListProp
 import LabView
 
-
-class IndependentVariables(ListProp):
-    dyno=Member()
-    
-    def __init__(self, experiment=None):
-        super(IndependentVariables, self).__init__('independentVariables', experiment,
-                                                   listElementType=IndependentVariable,
-                                                   listElementName='independentVariable')
-    
-    def fromXML(self, xmlNode):
-        super(IndependentVariables, self).fromXML(xmlNode)
-        if self.dyno is not None:
-            self.dyno.refresh_items()
-        #if hasattr(self.experiment,'ivarRefreshButton'): #prevents trying to do this before GUI is active
-        #    self.experiment.ivarRefreshButton.clicked() #refresh variables GUI
-        return self
-
-    def fromHDF5(self, hdf):
-        super(IndependentVariables, self).fromHDF5(hdf)
-        if self.dyno is not None:
-            self.dyno.refresh_items()
-        #if hasattr(self.experiment,'ivarRefreshButton'): #prevents trying to do this before GUI is active
-        #    self.experiment.ivarRefreshButton.clicked() #refresh variables GUI
-        return self
 
 
 class IndependentVariable(EvalProp):
@@ -70,15 +46,6 @@ class IndependentVariable(EvalProp):
         self.index = 0
         self.valueList = numpy.array([]).flatten()
         self.currentValue = None
-    
-    # #override from EvalProp()
-    # def _function_changed(self, val):
-    #     #re-evaluate the variable when the function is changed
-    #     if self.experiment.allow_evaluation:
-    #         self.evaluate()
-    #         self.setIndex(self.index)
-    
-    #override from EvalProp()
 
     def evaluate(self):
         """This function evaluates just the independent variables.  We do not update the rest of the experiment,
@@ -101,7 +68,7 @@ class IndependentVariable(EvalProp):
             self.valueList = a
             self.steps = len(a)
             self.valueListStr = str(self.valueList)
-        self.setIndex(self.index)
+            self.setIndex(self.index)
 
     def setIndex(self, index):
         if self.steps==0:
@@ -190,18 +157,12 @@ class Experiment(Prop):
     iterationResults = Member()
     allow_evaluation = Member()
     log = Member()
+    log_handler = Member()
 
     def __init__(self):
         """Defines a set of instruments, and a sequence of what to do with them."""
 
-        #allow logging to a variable
-        self.log = cStringIO.StringIO()
-        rootlogger = logging.getLogger()
-        sh = logging.StreamHandler(self.log)
-        sh.setLevel(logging.DEBUG)
-        sh_formatter = logging.Formatter(fmt='%(asctime)s - %(threadName)s - %(filename)s.%(funcName)s.%(lineno)s - %(levelname)s\n%(message)s\n', datefmt='%Y/%m/%d %H:%M:%S')
-        sh.setFormatter(sh_formatter)
-        rootlogger.addHandler(sh)
+        self.setup_logger()
 
         self.allow_evaluation = False
 
@@ -219,7 +180,8 @@ class Experiment(Prop):
         super(Experiment, self).__init__('experiment',self) #name is 'experiment', associated experiment is self
         self.instruments = []  # a list of the instruments this experiment has defined
         self.completedMeasurementsByIteration = []
-        self.independentVariables=IndependentVariables(self)
+        self.independentVariables = ListProp('independentVariables', self, listElementType=IndependentVariable,
+                                             listElementName='independentVariable')
         self.ivarIndex=[]
         self.vars = {}
         self.variableReportFormat = '""'
@@ -233,6 +195,25 @@ class Experiment(Prop):
                             'totalIterations', 'timeStartedStr', 'currentTimeStr', 'timeElapsedStr', 'totalTimeStr',
                             'timeRemainingStr', 'completionTimeStr', 'variableReportFormat', 'variableReportStr',
                             'variablesNotToSave', 'notes']
+
+    def setup_logger(self):
+        #allow logging to a variable
+        self.log = cStringIO.StringIO()
+        rootlogger = logging.getLogger()
+        self.log_handler = logging.StreamHandler(self.log)
+        self.log_handler.setLevel(logging.DEBUG)
+        formatter = logging.Formatter(fmt='%(asctime)s - %(threadName)s - %(filename)s.%(funcName)s.%(lineno)s - %(levelname)s\n%(message)s\n', datefmt='%Y/%m/%d %H:%M:%S')
+        self.log_handler.setFormatter(formatter)
+        rootlogger.addHandler(self.log_handler)
+
+    def reset_logger(self):
+        #close old stream
+        if self.log is not None:
+            self.log.flush()
+            self.log.close()
+        #create a new one
+        self.log = cStringIO.StringIO()
+        self.log_handler.stream = self.log
 
     def evaluateIndependentVariables(self):
         if self.allow_evaluation:
@@ -400,8 +381,7 @@ class Experiment(Prop):
             return  # exit
 
         #reset the log
-        self.log.flush()
-        self.log = cStringIO.StringIO()
+        self.reset_logger()
 
         logger.info('resetting experiment')
 
@@ -797,7 +777,9 @@ class Experiment(Prop):
         sys.stdout.write(' done.')
 
         #store the notes again
-        self.hdf5.attrs['notes'] = self.notes
+        del self.hdf5['notes']
+        self.hdf5['notes'] = self.notes
+
         #store the log
         self.log.flush()
         self.hdf5['log'] = self.log.getvalue()

@@ -178,6 +178,7 @@ class npHSDIO(Instrument):
     channels = Member()
     triggers = Member()
     startTrigger = Member()
+    import_path = Member()
 
     def __init__(self, name, experiment):
         super(npHSDIO, self).__init__(name, experiment)
@@ -193,7 +194,12 @@ class npHSDIO(Instrument):
         self.startTrigger = StartTrigger(experiment)
         self.properties += ['version', 'enable', 'resourceName', 'clockRate', 'units', 'hardwareAlignmentQuantum', 'waveforms', 'triggers', 'channels', 'startTrigger', 'script']
         self.doNotSendToHardware += ['units', 'script', 'waveforms']  # script and waveforms are handled specially in HSDIO.toHardware()
-    
+
+    def import_waveform(self, path):
+        #set path as default
+        self.import_path = os.path.dirname(path)
+        raise NotImplementedError
+
     def toHardware(self):
         """override to accommodate compressedGenerate, and to only upload necessary waveforms
         toHardware for HSDIO.waveforms and HSDIO.script will be overridden and return blank so they do not append conflicting results

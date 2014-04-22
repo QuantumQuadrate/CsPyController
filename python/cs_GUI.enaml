@@ -1,9 +1,9 @@
-# Martin Lichtman
-# created = 2013-04-02
-# modified >= 2013-04-02
-
 """
-Cs.enaml
+author = 'Martin Lichtman'
+created = 2013-04-02
+modified >= 2014-04-21
+
+cs_GUI.enaml
 
 A GUI for the Cs experiment controller, written using the enaml toolkit for python.
 """
@@ -35,28 +35,23 @@ from atom.api import Bool, Typed, observe, Callable
 import os #for file dialogs
 from sys import maxint
 import threading, datetime, time
-#from enthought.chaco.chaco_plot_editor import ChacoPlotItem
 import numpy, itertools
 from experiments import IndependentVariable
 from instrument_property import ListProp
 
-def get_load_file_callback(experiment):
-    def load_file_callback(dlg):
-        if dlg.result == 'accepted':
-            try:
-                experiment.load(dlg.path)
-            except PauseError:
-                pass
-    return load_file_callback
+##This didn't work:
+#class RefreshableLooper(Looper):
+#    """This class allows the ListProp assigned to iterable to have a reference to the Looper.  Therefore the
+#    ListProp can then call Looper.refresh_items when updates need to be made."""
+#
+#    def initialize(self):
+#        super(RefreshableLooper, self).__init__()
+#        self.iterable.gui = self
 
-def get_save_file_callback(experiment):
-    def save_file_callback(dlg):
-        if dlg.result == 'accepted':
-            try:
-                experiment.save(dlg.path)
-            except PauseError:
-                pass
-    return save_file_callback
+enamldef RefreshableLooper(Looper): self:
+    """A Looper that sends a reference to itself to the backend controller, so it can be forcibly updated."""
+    initialized::
+        iterable.gui = self
 
 class MyBoolValidator(Validator):
     experiment=Member()
@@ -132,7 +127,7 @@ enamldef IndexedStack(GroupBox): indexedStack:
     attr viewType #=Class(StackItem)  #do we really have to declare what type? I suppose this was so that we would be okay with creating an instance
     hug_height = 'strong'
     hug_width = 'strong'
-    
+
     Container: controls:
         constraints=[hbox(addButton,removeButton,combo)]
         PushButton: addButton:
@@ -140,8 +135,6 @@ enamldef IndexedStack(GroupBox): indexedStack:
             constraints=[width==50,height==20]
             clicked::
                 iterable.add()
-                dyno.refresh_items()
-                #dyno.objects.append(viewType(item=iterable.add()))
                 combo.maximum=len(iterable)-1
                 combo.value=combo.maximum
         PushButton: removeButton:
@@ -150,9 +143,7 @@ enamldef IndexedStack(GroupBox): indexedStack:
             clicked::
                 i=combo.value
                 if i>=0:
-                    #dyno.objects.pop(i)
                     iterable.pop(i)
-                    dyno.refresh_items()
                     combo.maximum=len(iterable)-1
                     if i>1:
                         combo.value=i-1
@@ -162,16 +153,32 @@ enamldef IndexedStack(GroupBox): indexedStack:
             # items<<[str(i)+' '+n.description for i,n in enumerate(iterable)]
         SpinBox: combo:
             constraints=[width==50,height==20]
-            maximum=len(iterable)-1
+            maximum<<len(iterable)-1
             minimum=0
     Stack: stack:
         index<<combo.value
-        #Include: dyno:
-        #    objects<<[viewType(item=i) for i in iterable]
-        Looper: dyno:
+        RefreshableLooper:
             iterable<<indexedStack.iterable
             Include:
                 objects=[viewType(item=loop_item)]
+
+def get_load_file_callback(experiment):
+    def load_file_callback(dlg):
+        if dlg.result == 'accepted':
+            try:
+                experiment.load(dlg.path)
+            except PauseError:
+                pass
+    return load_file_callback
+
+def get_save_file_callback(experiment):
+    def save_file_callback(dlg):
+        if dlg.result == 'accepted':
+            try:
+                experiment.save(dlg.path)
+            except PauseError:
+                pass
+    return save_file_callback
 
 enamldef CsMenuBar(MenuBar): menuBar:
     attr experiment
@@ -411,17 +418,9 @@ enamldef ExperimentPage(Page):
 
 enamldef VariableEntry(GroupBox):
     attr indepVar
-    attr myIndependentVariables
-    attr myDyno
+
+    constraints=[nameCont.width==0.5*descCont.width,descCont.width==funcCont.width,currentValueLabel.right==funcCont.right,vbox(hbox(nameCont,descCont,funcCont),valueListLabel,hbox(stepsLabel,currentValueLabel)),align('v_center',nameCont,descCont,funcCont),align('v_center',stepsLabel,currentValueLabel)]
     
-    constraints=[nameCont.width==0.5*descCont.width,descCont.width==funcCont.width,currentValueLabel.right==funcCont.right,vbox(hbox(remove,nameCont,descCont,funcCont),valueListLabel,hbox(stepsLabel,currentValueLabel)),align('v_center',remove,nameCont,descCont,funcCont),align('v_center',stepsLabel,currentValueLabel)]
-    
-    PushButton: remove:
-        text='-'
-        clicked::
-            #i=myIndependentVariables.index(indepVar) #find current index
-            myIndependentVariables.remove(indepVar) #remove from backend list
-            myDyno.refresh_items() #refresh GUI
     Field: nameCont:
         text:=indepVar.name
         placeholder='name'
@@ -438,26 +437,30 @@ enamldef VariableEntry(GroupBox):
     Label: currentValueLabel:
         text<<'current value: '+indepVar.currentValueStr
 
-enamldef IndependentVariablesGroupBox(GroupBox): iVarBox:
-    attr experiment
+enamldef IndependentVariablesGroupBox(GroupBox):
+    attr independentVariables
     title='Independent Variables'
     
-    initialized::
-        experiment.independentVariables.dyno=dyno
-    
-    PushButton: addbutton:
-        text='+'
-        clicked::
-            newvar=IndependentVariable('new',experiment) #new blank independentVariable
-            iVarBox.experiment.independentVariables.append(newvar) #add a new variable to the list
-            dyno.refresh_items()
-    GroupBox: varlistContainer:
-        Looper: dyno:
-            iterable<<iVarBox.experiment.independentVariables
-            VariableEntry:
-                myIndependentVariables=iVarBox.experiment.independentVariables
-                indepVar=loop_item
-                myDyno=dyno
+    GroupBox:
+        hug_height='strong'
+        hug_width='strong'
+        constraints=[hbox(spin0,addButton0,removeButton0)]
+        SpinBox: spin0:
+            minimum=0
+            maximum << independentVariables.length
+        PushButton: addButton0:
+            text='+'
+            clicked::
+                independentVariables.add_at(spin0.value)
+        PushButton: removeButton0:
+            text='-'
+            clicked::
+                independentVariables.pop(spin0.value)
+
+    RefreshableLooper:
+        iterable<<independentVariables
+        VariableEntry:
+            indepVar << loop_item
 
 enamldef VariablesPage(Page): main:
     attr experiment
@@ -478,7 +481,7 @@ enamldef VariablesPage(Page): main:
                     clicked::
                         experiment.evaluateAll()
                 IndependentVariablesGroupBox: independent:
-                    experiment<<main.experiment
+                    independentVariables<<experiment.independentVariables
 
                 GroupBox: dependent:
                     title='Dependent Variables'
@@ -599,17 +602,6 @@ enamldef DOchannel(Container):
     Label: activeL:
         text<<str(channel.active.value)
 
-enamldef DOchannels(GroupBox):
-    attr channels
-    flat=True
-    title='channels (#, description, active?)'
-    
-    Looper: looper:
-        iterable << channels
-        DOchannel:
-            channel=loop_item
-            index=loop_index
-
 enamldef HSDIOScriptTrigger(StackItem):
     attr item
     
@@ -643,49 +635,6 @@ enamldef StartTrigger(GroupBox):
     EvalProp:
         prop<<trigger.edge
 
-enamldef Transition(Container):
-    attr transition
-    attr waveform
-    attr waveformContainer
-    
-    #constraints=[vbox(remove,form)]
-    padding=0
-    PushButton: remove:
-        constraints = [height==20]
-        text='-'
-        clicked::
-            waveform.sequence.remove(transition) #remove ourselves from the backend
-            waveformContainer.itemToRemove=parent #we can't just do the removing from here because once the GUI reference is gone, we get garbage collected and can't trigger the resetting of constraints
-            #remove ourselves from the GUI
-            waveformContainer.remove = not waveformContainer.remove #TODO: figure out how to do this with a true callable event, rather than signaling with a changed Bool
-    Field:
-        constraints = [height==20]
-        placeholder = 'description'
-        text:=transition.description
-    Form:
-        padding=0
-        Field:
-            constraints = [width == 100,height==20]
-            placeholder='time'
-            text:=transition.time.function
-            text::waveform.evaluate()
-        Label:
-            constraints = [width == 50,height==20]
-            text<<str(transition.time.value)
-        Looper:
-            iterable<<transition.state
-        #EvalProp:
-            #prop<<loop_item
-            Field:
-                constraints = [width == 100,height==20]
-                text:=loop_item.function
-                placeholder=loop_item.placeholder #or perhaps use str(loop_index)
-                validator=loop_item
-                text::waveform.evaluate()
-            Label:
-                constraints = [width == 50,height==20]
-                text<<str(loop_item.value)
-
 class RefreshableMPLCanvas(MPLCanvas):
     """ An MPLCanvas that can be refreshed on command by toggling refresh.
     Requires adding a function to MPLCanvas in
@@ -699,82 +648,6 @@ class RefreshableMPLCanvas(MPLCanvas):
 
 class RemoveEventContainer(Container):
     remove=d_(Bool())
-
-enamldef Waveform(RemoveEventContainer): thisWaveformContainer:
-    attr waveform
-    attr itemToRemove
-    hug_height='strong'
-    hug_width='ignore'
-    
-    constraints=[canvas.left==details.left,vertical(canvas,details)]
-    
-    remove::
-        dyno.objects.remove(itemToRemove)
-        transitions.constraints=[hbox(*dyno.objects)] if len(dyno.objects)>0 else []
-        waveform.evaluate()
-    #Container:
-    #uncomment me!
-    #constraints=[vbox(canvas,details)]
-    # PushButton: updateCanvas:
-        # text='update graph'
-        # clicked::
-            # waveform.updateFigure()
-    
-    #the following 7 lines are used for the matplotlib digital waveform plot 
-    MPLCanvas: canvas:
-        constraints=[(height==500)|'strong',(width==1500)|'strong']
-        #hug_width='ignore'
-        figure << waveform.figure
-        #refresh<<waveform.refresh
-    
-    #the following 6 lines would be used for the Chaco digital waveform plot
-    #constraints=[vbox(canvas,details)]
-    #EnableCanvas: canvas:
-    #    # TODO: make this expand and shrink nicely while filling the width
-    #    hug_width='ignore'
-    #    constraints=[height==500]
-    #    component<<waveform.component
-    
-    Container: details:
-        #constraints=[nameAndChannelNums.top==contents_top,transitions.top==contents_top,addButton.top==contents_top,nameAndChannelNums.left==contents_left,
-        #    nameAndChannelNums.right==transitions.left,transitions.right==addButton.left]
-        constraints=[hbox(nameAndChannelNums,transitions,addButton),addButton.top==transitions.top]
-        hug_height='strong'
-        hug_width='strong'
-        Container: nameAndChannelNums:
-            #constraints=[vbox(f1,l1,loop1)]
-            padding=0
-            Field: f1:
-                constraints = [width == 150, height == 20]
-                text:=waveform.name
-            Label:
-                constraints = [height == 20]
-                text='description'                
-            Label: l1:
-                constraints = [height == 20]
-                text='time'
-            Looper: loop1:
-                iterable<<range(waveform.digitalout.numChannels)
-                Label:
-                    constraints=[height==20]
-                    text<<str(loop_index)+': '+waveform.experiment.LabView.HSDIO.channels[loop_index].description
-        Container: transitions:
-            padding=0
-            #constraints=gen_constraints(dyno.objects)
-            #constraints=[grid(dyno.objects,row_align='top')]
-            constraints=[hbox(*dyno.objects)] if len(dyno.objects)>0 else []
-            Include: dyno:
-                objects=[Transition(transition=i,waveform=waveform,waveformContainer=thisWaveformContainer) for i in waveform.sequence]
-        PushButton: addButton:
-            #add a transition to this waveform
-            constraints = [width == 50, height == 20]
-            text='+'
-            clicked::
-                dyno.objects.append(Transition(transition=waveform.addTransition(),waveform=waveform,waveformContainer=thisWaveformContainer))
-                transitions.constraints=[hbox(*dyno.objects)] if len(dyno.objects)>0 else []
-                #transitions.constraints=[grid(dyno.objects,row_align='top')]
-                #transitions.constraints=gen_constraints(dyno.objects)
-                waveform.evaluate()
 
 enamldef NumpyDOchannel(Container):
     attr channel
@@ -1005,6 +878,7 @@ enamldef WaveformPage(Page):
     NumpyWaveform:
         waveform<<parent.waveform
 
+#TODO just put StackItem directly into the Looper
 enamldef WaveformStackItem(StackItem):
     attr item
     NumpyWaveform:
@@ -1014,7 +888,7 @@ def get_load_waveform_callback(HSDIO):
     def load_file_callback(dlg):
         if dlg.result == 'accepted':
             try:
-                HSDIO.importWaveform(dlg.path)
+                HSDIO.import_waveform(dlg.path)
             except PauseError:
                 pass
     return load_file_callback
@@ -1022,7 +896,7 @@ def get_load_waveform_callback(HSDIO):
 enamldef WaveformsPage(Page):
     attr HSDIO
     title='Waveforms'
-    
+
     Container:
         Container:
             hug_height='strong'
@@ -1043,10 +917,9 @@ enamldef WaveformsPage(Page):
                             parent=importWaveform,
                             title='Choose file to load waveform from',
                             mode='open_file',
-                            path=os.path.join('..','settings'),
+                            path=HSDIO.import_path,
                             callback=get_load_waveform_callback(HSDIO),
                             ).open()
-                        dyno.refresh_items()
                         combo.items=[i.name for i in HSDIO.waveforms]
                         combo.index=len(HSDIO.waveforms)-1
                 PushButton: addWaveform:
@@ -1054,7 +927,6 @@ enamldef WaveformsPage(Page):
                     text = 'add'
                     clicked::
                         HSDIO.waveforms.add()
-                        dyno.refresh_items()
                         combo.items=[i.name for i in HSDIO.waveforms]
                         combo.index=len(HSDIO.waveforms)-1
                 PushButton: removeWaveform:
@@ -1064,7 +936,6 @@ enamldef WaveformsPage(Page):
                         i=combo.index
                         if i>=0:
                             HSDIO.waveforms.pop(i)
-                            dyno.refresh_items()
                             if i>1:
                                 combo.index=i-1
                             else:
@@ -1075,20 +946,17 @@ enamldef WaveformsPage(Page):
                     text = 'copy'
                     clicked::
                         HSDIO.waveforms.copy(combo.index)
-                        dyno.refresh_items()
                         combo.items=[i.name for i in HSDIO.waveforms]
                         combo.index=len(HSDIO.waveforms)-1
             MPLCanvas: canvas:
                 constraints=[(height==500)|'strong',(width==1500)|'strong']
-                figure << HSDIO.waveforms[combo.index].figure
+                figure << (HSDIO.waveforms[combo.index].figure if (len(HSDIO.waveforms)>0) else None)
             Stack: stack:
                 index<<combo.index
-                Looper: dyno:
+                RefreshableLooper:
                     iterable<<HSDIO.waveforms
                     WaveformStackItem:
-                            item=loop_item
-            #NumpyWaveform: stack:
-            #    waveform<<HSDIO.waveforms[combo.index]
+                            item<<loop_item
 
 enamldef HSDIO_DigitalOutPage(Page):
     attr HSDIO
@@ -1105,7 +973,7 @@ enamldef HSDIO_DigitalOutPage(Page):
                     trigger<<HSDIO.startTrigger
                 IndexedStack: p2:
                     title='Script Triggers'
-                    iterable=HSDIO.triggers
+                    iterable<<HSDIO.triggers
                     viewType=HSDIOScriptTrigger
                 MultilineProp: p3:
                     prop<<HSDIO.script
@@ -1207,14 +1075,14 @@ enamldef ItemProp(StackItem):
         padding=0
         EvalProp:
             prop<<item
-                
+
 enamldef DDS_channel(GroupBox):
     attr channel
     attr index
     
     title='channel '+str(index)
     constraints=[hbox(vbox(parameters,RAM),profiles)]
-    
+
     GroupBox: parameters:
         title='channel parameters'
         flat=True
@@ -1253,16 +1121,14 @@ enamldef DDS_channel(GroupBox):
             items<<list(channel.profileDescriptionList)
         Stack:
             index<<combo.index
-            #Include: dyno:
-            #    objects<<[DDS_profile(profile=i) for i in channel.profiles]
-            Looper:
+            RefreshableLooper:
                 iterable<<channel.profiles
                 DDS_profile:
-                    profile=loop_item
+                    profile<<loop_item
     
 enamldef DDS_box(StackItem):
     attr box
-    
+
     Container:
         padding=0
         Form:
@@ -1299,15 +1165,13 @@ enamldef DDS_box(StackItem):
             Label:
                 text='serialClockRate'
             IntField:
-                value:=box.serialClockRate  # THIS LINE IS THE PROBLEM !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+                value := box.serialClockRate  # THIS LINE IS THE PROBLEM !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
         GroupBox:
             hug_height='strong'
             hug_width='strong'
             title='channels'
-            #Include: dyno:
-            #    objects<<[DDS_channel(index=i,channel=c) for i,c in enumerate(box.channels)]
-            Looper:
+            RefreshableLooper:
                 iterable<<box.channels
                 DDS_channel:
                     index<<loop_index
@@ -1353,8 +1217,7 @@ enamldef DDS_Page(Page): page:
                     text='+'
                     constraints=[width==50,height==20]
                     clicked::
-                        DDS.addBox()
-                        dyno.refresh_items()
+                        DDS.boxes.add()
                         DDS.updateBoxDescriptionList()
                         combo.index=len(DDS.boxes)-2 #point to new box
                 PushButton: removeButton:
@@ -1364,12 +1227,11 @@ enamldef DDS_Page(Page): page:
                         i=combo.index
                         if i>=0:
                             DDS.boxes.pop(i)
-                            dyno.refresh_items()
                             DDS.updateBoxDescriptionList()
                             combo.index=i-1
                 Stack: stack:
                     index<<combo.index
-                    Looper: dyno:
+                    RefreshableLooper:
                         iterable<<DDS.boxes
                         DDS_box:
                             box<<loop_item
@@ -1556,10 +1418,9 @@ enamldef AnalogOutputPage(Page):
             constraints=[(height==500)|'strong']
             hug_width='ignore'
             figure << AO.figure
-            #refresh << AO.refresh
         IndexedStack: equations:
             title='equations'
-            iterable=AO.equations
+            iterable<<AO.equations
             viewType=AOequation
         Container: c1:
             hug_height='strong'
@@ -1636,10 +1497,10 @@ enamldef PiezoController(StackItem):
                 text='serial number read:'
             Label:
                 text:=item.serialNumberRead
-        Looper:
+        RefreshableLooper:
             iterable<<item.channels
             PiezoChannel:
-                channel=loop_item
+                channel<<loop_item
 
 enamldef PI_PiezoPage(Page):
     attr piezo
@@ -1650,7 +1511,7 @@ enamldef PI_PiezoPage(Page):
             checked:=piezo.enable
         IndexedStack:
             title='Piezo Controllers'
-            iterable=piezo.controllers
+            iterable<<piezo.controllers
             viewType=PiezoController
 
 enamldef PicomotorPage(Page):
@@ -1713,9 +1574,9 @@ enamldef MultiImagePage(Page): page:
                     iterable << analysis1.ivarNames
                     Form:
                         Label:
-                            text=loop_item
+                            text<<loop_item
                         ComboBox:
-                            items=[str(i) for i in analysis1.ivarValueLists[loop_index]]
+                            items<<[str(i) for i in analysis1.ivarValueLists[loop_index]]
                             index::
                                 analysis1.setIteration(loop_index, index) #send which ivar (loop_index) to update to index
                 Form:

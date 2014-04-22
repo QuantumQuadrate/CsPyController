@@ -43,9 +43,12 @@ TODO:
     Make ctrl+Q halt
     Button to upload experiment at current point when paused (Finish experiment)
     Blank middle image on bad selector
-    All ListProps lose GUI linkage on load from file.  Assign GUI to .listProperty instead?
+    Lots more logging
+    Investigate 'crashes' branch
+    All ListProps lose GUI linkage on load from file.  Fix by giving ListProp a reference to gui in 'initialized::'
 
 Done:
+    Logging to memory and then saving that log to hdf5
     ComboBox for waveforms
     implement settimeout instead of setblocking for TCP communication with timeout equal to experiment timeout or shorter
     improve handling of TCP disconnect/reconnect
