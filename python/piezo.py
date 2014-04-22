@@ -55,3 +55,9 @@ class Piezo(Instrument):
         self.enable = False
         self.controllers = ListProp('controllers', self.experiment, listProperty=[PiezoController('controller'+str(i), self.experiment) for i in range(2)], listElementType=PiezoController, listElementName='controller')
         self.properties += ['version', 'enable', 'controllers']
+
+    def evaluate(self):
+        if self.experiment.allow_evaluation:
+            logger.debug('piezo.evaluate()')
+            return super(Piezo, self).evaluate()
+

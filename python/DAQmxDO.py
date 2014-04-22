@@ -64,3 +64,8 @@ class DAQmxDO(Instrument):
         # the number of channels is defined by the resourceName (and the waveform which must agree), so
         # channels need not be send to hardware
         self.doNotSendToHardware += ['units', 'channels']
+
+    def evaluate(self):
+        if self.experiment.allow_evaluation:
+            logger.debug('DAQmxDO.evaluate()')
+            return super(DAQmxDO, self).evaluate()

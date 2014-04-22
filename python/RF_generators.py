@@ -46,6 +46,11 @@ class RF_generators(Instrument):
         self.HP83712B_list.add()
         self.properties += ['version', 'enable', 'HP83623A_list', 'HP8662A_list', 'HP83712B_list']
 
+    def evaluate(self):
+        if self.experiment.allow_evaluation:
+            logger.debug('RF_generators.evaluate()')
+            return super(RF_generators, self).evaluate()
+
 
 class RF_generator(Prop):
     enable = Member()

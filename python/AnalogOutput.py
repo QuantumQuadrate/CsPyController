@@ -162,6 +162,7 @@ class AnalogOutput(Instrument):
     
     def evaluate(self):
         if self.experiment.allow_evaluation:
+            logger.debug('AnalogOutput.evaluate()')
 
             self.enable_refresh=False
             #explicitly evaluate totalAOTime and clockRate and units first, so that we can calculate the time steps

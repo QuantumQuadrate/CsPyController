@@ -94,6 +94,11 @@ class npHSDIO(Instrument):
         self.properties += ['version', 'enable', 'resourceName', 'clockRate', 'units', 'hardwareAlignmentQuantum', 'waveforms', 'triggers', 'channels', 'startTrigger', 'script']
         self.doNotSendToHardware += ['units', 'script', 'waveforms']  # script and waveforms are handled specially in HSDIO.toHardware()
 
+    def evaluate(self):
+        if self.experiment.allow_evaluation:
+            logger.debug('npHSDIO.evaluate()')
+            return super(npHSDIO, self).evaluate()
+
     def import_waveform(self, path):
         #set path as default
         self.import_path = os.path.dirname(path)

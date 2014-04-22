@@ -16,7 +16,7 @@ logger = logging.getLogger(__name__)
 
 from cs_errors import PauseError
 
-import TCP, HSDIO, piezo, DDS, RF_generators, AnalogOutput, DAQmxDO, Camera, EchoBox
+import TCP, HSDIO, piezo, DDS, RF_generators, AnalogOutput, DAQmxDO, Camera
 from atom.api import Bool, Str, Member, Typed
 from instrument_property import FloatProp
 from cs_instruments import Instrument
@@ -83,7 +83,7 @@ class LabView(Instrument):
         self.timeout = FloatProp('timeout', experiment, 'how long before LabView gives up and returns [s]', '1.0')
         
         self.properties += ['IP', 'port', 'enabled', 'connected', 'timeout', 'AnalogOutput', 'HSDIO', 'DDS', 'piezo', 'RF_generators',
-                            'DAQmxDO', 'camera', 'cycleContinuously']  # ,'EchoBox']
+                            'DAQmxDO', 'camera', 'cycleContinuously']
         self.doNotSendToHardware += ['IP', 'port', 'enabled', 'connected']
 
     def openThread(self):
@@ -251,3 +251,8 @@ class LabView(Instrument):
         self.results = results
         self.isDone = True
         return results
+
+    def evaluate(self):
+        if self.experiment.allow_evaluation:
+            logger.debug('LabView.evaluate()')
+            return super(LabView, self).evaluate()

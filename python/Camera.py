@@ -96,6 +96,11 @@ class HamamatsuC9100_13(Camera):
         'numImageBuffers','shotsPerMeasurement']
         self.doNotSendToHardware+=['photoelectronScaling']
 
+    def evaluate(self):
+        if self.experiment.allow_evaluation:
+            logger.debug('HamamatsuC9100_13.evaluate()')
+            return super(HamamatsuC9100_13, self).evaluate()
+
 
 class Andor(Camera):
     andorPath=Typed(StrProp)

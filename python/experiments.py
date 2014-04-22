@@ -270,6 +270,8 @@ class Experiment(Prop):
 
         logger.debug('Evaluating dependent variables ...')
 
+        # TODO: CRASH START LIMIT
+
         #starting with independent variables
         self.vars = dict([(i.name, i.currentValue) for i in self.independentVariables])
 
@@ -287,10 +289,14 @@ class Experiment(Prop):
 
             #resolve independent variables for correct iteration, and evaluate dependent variables
             self.evaluateDependentVariables()
-            
+
+            logger.debug('Evaluating instruments ...')
             #re-evaluate all instruments
             for i in self.instruments:
                 i.evaluate()  # each instrument will calculate its properties
+
+            # TODO: CRASH END LIMIT
+
             logger.debug('Finished evaluate().')
 
     def eval_general(self, string):

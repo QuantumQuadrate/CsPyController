@@ -18,4 +18,7 @@ from cs_errors import PauseError
 from cs_instruments import Instrument
 
 class Counter(Instrument):
-    pass
+    def evaluate(self):
+        if self.experiment.allow_evaluation:
+            logger.debug('Counter.evaluate()')
+            return super(Counter, self).evaluate()
