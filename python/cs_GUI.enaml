@@ -17,9 +17,9 @@ from cs_errors import PauseError
 from enaml.layout.api import vbox, hbox, align, horizontal, vertical, spacer, grid
 from enaml.widgets.api import (MainWindow, MenuBar, Menu, Action,
                                 Notebook, Page, Container, GroupBox, 
-                                Form, Label, Field, CheckBox, SpinBox, PushButton, MPLCanvas,
+                                Form, Label, CheckBox, SpinBox, PushButton, MPLCanvas,
                                 MultilineField, ProgressBar, ScrollArea, Separator,
-                                FileDialog,Window,
+                                FileDialog,Window, StatusBar, StatusItem,
                                 Stack, StackItem, ComboBox
 )
 from enaml.core.declarative import d_
@@ -27,29 +27,20 @@ from enaml.core.include import Include
 from enaml.stdlib.fields import FloatField, IntField
 from enaml.core.api import Looper, Conditional
 from enaml.validator import Validator
-from atom.api import Member
-#from enaml.core.trait_types import EnamlEvent
-#from enable_canvas import EnableCanvas
-#from traitsui.api import View #requires "set ETS_TOOLKIT=qt4" on windows command line
-from atom.api import Bool, Typed, observe, Callable
-import os #for file dialogs
-from sys import maxint
-import threading, datetime, time
+from atom.api import Member, Bool, Typed, observe, Callable
+import threading, datetime, time, os, itertools
 import numpy, itertools
+
 from experiments import IndependentVariable
 from instrument_property import ListProp
 
-##This didn't work:
-#class RefreshableLooper(Looper):
-#    """This class allows the ListProp assigned to iterable to have a reference to the Looper.  Therefore the
-#    ListProp can then call Looper.refresh_items when updates need to be made."""
-#
-#    def initialize(self):
-#        super(RefreshableLooper, self).__init__()
-#        self.iterable.gui = self
+# redefine field so that all Fields will give tool_tips
+from enaml.widgets.api import Field as OldField
+enamldef Field(OldField):
+    tool_tip << text
 
 enamldef RefreshableLooper(Looper): self:
-    """A Looper that sends a reference to itself to the backend controller, so it can be forcibly updated."""
+    """A Looper that sends a reference of itself to the backend controller, so it can be forcibly updated."""
     initialized::
         iterable.gui = self
 
@@ -768,6 +759,8 @@ enamldef TransitionTime(Form):
     padding=0
     
     Field:
+        tool_tip << text
+        status_tip << transition['function']
         constraints = [width == 100,height==20]
         placeholder='time'
         text:=transition['function']
@@ -785,11 +778,7 @@ enamldef NumpyWaveform(Container):
     
     hug_height='strong'
     hug_width='ignore'
-    constraints=[vbox(plotcontrols,details),align('left',plotcontrols,details)] #for some reason this makes the canvas disappear
-    
-    #MPLCanvas: canvas:
-    #    constraints=[(height==500)|'strong',(width==1500)|'strong']
-    #    figure << waveform.figure
+    constraints=[vbox(plotcontrols,details),align('left',plotcontrols,details)]
     
     Container: plotcontrols:
         hug_width='strong'
@@ -864,25 +853,10 @@ enamldef NumpyWaveform(Container):
         GroupBox: transitions:
             hug_height='strong'
             hug_width='strong'
-            title='waveform transition and sequence (valid states: blank(None),0,1)'
+            title='waveform transition and sequence (valid states: blank(continue), 0(off), 1(on))'
             constraints<<[grid(*[statesDyno.objects[i:(i+len(waveform.transitions.array)+1)] for i in range(0, len(statesDyno.objects), len(waveform.transitions.array)+1)])] if len(statesDyno.objects)>0 else []
             Include: statesDyno:
                 objects<<[DescriptionLabel()]+[TransitionDescription(transition=t) for t in waveform.transitions.array]+[TimeLabel()]+[TransitionTime(transition=t,experiment=waveform.experiment,waveform=waveform) for t in waveform.transitions.array]+(list(itertools.chain(*map(list,zip(*([[ChannelCombo(wfm=waveform,channels=waveform.digitalout.channels,channelList=waveform.channelList,position=i) for i in xrange(len(waveform.channelList))]]+[[NumpyState(state=s,experiment=waveform.experiment,waveform=waveform) for s in waveform.sequence.array.flat][i:i+len(waveform.channelList)] for i in range(0,waveform.sequence.array.size,len(waveform.channelList))]))))) if (len(waveform.channelList)>0) else [])
-
-enamldef WaveformPage(Page):
-    attr waveform
-    
-    title<<waveform.name
-    closed::waveform.remove()
-    
-    NumpyWaveform:
-        waveform<<parent.waveform
-
-#TODO just put StackItem directly into the Looper
-enamldef WaveformStackItem(StackItem):
-    attr item
-    NumpyWaveform:
-        waveform<<item
 
 def get_load_waveform_callback(HSDIO):
     def load_file_callback(dlg):
@@ -893,70 +867,81 @@ def get_load_waveform_callback(HSDIO):
                 pass
     return load_file_callback
 
-enamldef WaveformsPage(Page):
+enamldef Waveforms(Container):
     attr HSDIO
-    title='Waveforms'
 
     Container:
-        Container:
+        hug_height='strong'
+        hug_width='strong'
+        constraints=[vbox(buttons,c1),align('left',buttons,c1)]
+        Container: buttons:
+            constraints=[hbox(combo,importWaveform,addWaveform,removeWaveform,copyWaveform)]
             hug_height='strong'
             hug_width='strong'
-            constraints=[vbox(buttons,canvas,stack),align('left',buttons,canvas,stack)]
-            Container: buttons:
-                constraints=[hbox(combo,importWaveform,addWaveform,removeWaveform,copyWaveform)]
-                hug_height='strong'
-                hug_width='strong'
-                ComboBox: combo:
-                    constraints=[(width==500)|'strong']
-                    items=[i.name for i in HSDIO.waveforms]
-                PushButton: importWaveform:
-                    #add a waveform from a file
-                    text='import'
-                    clicked::
-                        dlg = FileDialog(
-                            parent=importWaveform,
-                            title='Choose file to load waveform from',
-                            mode='open_file',
-                            path=HSDIO.import_path,
-                            callback=get_load_waveform_callback(HSDIO),
-                            ).open()
-                        combo.items=[i.name for i in HSDIO.waveforms]
-                        combo.index=len(HSDIO.waveforms)-1
-                PushButton: addWaveform:
-                    constraints=[(width==50)|'strong']
-                    text = 'add'
-                    clicked::
-                        HSDIO.waveforms.add()
-                        combo.items=[i.name for i in HSDIO.waveforms]
-                        combo.index=len(HSDIO.waveforms)-1
-                PushButton: removeWaveform:
-                    constraints=[(width==50)|'strong']
-                    text = 'remove'
-                    clicked::
-                        i=combo.index
-                        if i>=0:
-                            HSDIO.waveforms.pop(i)
-                            if i>1:
-                                combo.index=i-1
-                            else:
-                                combo.index=0
-                        combo.items=[i.name for i in HSDIO.waveforms]
-                PushButton: copyWaveform:
-                    constraints=[(width==50)|'strong']
-                    text = 'copy'
-                    clicked::
-                        HSDIO.waveforms.copy(combo.index)
-                        combo.items=[i.name for i in HSDIO.waveforms]
-                        combo.index=len(HSDIO.waveforms)-1
-            MPLCanvas: canvas:
-                constraints=[(height==500)|'strong',(width==1500)|'strong']
-                figure << (HSDIO.waveforms[combo.index].figure if (len(HSDIO.waveforms)>0) else None)
-            Stack: stack:
-                index<<combo.index
-                RefreshableLooper:
-                    iterable<<HSDIO.waveforms
-                    WaveformStackItem:
-                            item<<loop_item
+            ComboBox: combo:
+                constraints=[(width==500)|'strong']
+                items << list(HSDIO.waveforms.names)
+                index = (0 if (HSDIO.waveforms.length>0) else -1) # pick first profile on load
+            PushButton: importWaveform:
+                enabled = False
+                #add a waveform from a file
+                text='import'
+                clicked::
+                    dlg = FileDialog(
+                        parent=importWaveform,
+                        title='Choose file to load waveform from',
+                        mode='open_file',
+                        path=HSDIO.import_path,
+                        callback=get_load_waveform_callback(HSDIO),
+                        ).open()
+                    combo.index=len(HSDIO.waveforms)-1
+            PushButton: addWaveform:
+                constraints=[(width==50)|'strong']
+                text = 'add'
+                clicked::
+                    HSDIO.waveforms.add()
+                    combo.index=len(HSDIO.waveforms)-1
+            PushButton: removeWaveform:
+                constraints=[(width==50)|'strong']
+                text = 'remove'
+                clicked::
+                    i=combo.index
+                    if i>=0:
+                        if i>1:
+                            combo.index=i-1
+                        else:
+                            combo.index=0
+                        HSDIO.waveforms.pop(i)
+            PushButton: copyWaveform:
+                constraints=[(width==50)|'strong']
+                text = 'copy'
+                clicked::
+                    HSDIO.waveforms.copy(combo.index)
+                    combo.index=len(HSDIO.waveforms)-1
+        Container: c1:
+            padding=0
+            Conditional:
+                condition << ((HSDIO.waveforms.length>0) and (combo.index >= 0))
+                Container:
+                    padding=0
+                    constraints=[vbox(canvas,stack),align('left',canvas,stack)]
+                    MPLCanvas: canvas:
+                        constraints=[(height==500)|'strong',(width==1500)|'strong']
+                        figure << HSDIO.waveforms.listProperty[combo.index].figure
+                    Container: stack:
+                        padding=0
+                        # There were too many problems with getting a stack to update properly, so we are using the slower to switch but
+                        # quicker to instantiate single element
+                        NumpyWaveform:
+                            waveform << HSDIO.waveforms.listProperty[combo.index]
+#        Stack: stack:
+#            index<<combo.index
+#            RefreshableLooper:
+#                iterable<<HSDIO.waveforms
+#                StackItem:
+#                    NumpyWaveform:
+#                        waveform<<loop_item
+
 
 enamldef HSDIO_DigitalOutPage(Page):
     attr HSDIO
@@ -1015,58 +1000,58 @@ enamldef DAQmxDigitalOutPage(Page):
                     constraints=[(height==500)|'strong',(width==1500)|'strong']
                     figure << DAQmx.waveform.figure
 
-enamldef DDS_profile(StackItem):
+enamldef DDS_profile(Container):
     attr profile
     
+    hug_height='strong'
+    hug_width='strong'
+    padding=0
+
     Container:
+        padding=0
         hug_height='strong'
         hug_width='strong'
-        padding=0
-        Container:
-            padding=0
+        constraints=[vbox(description,hbox(container1,container2))]
+        Form: description:
+            Label:
+                text='description'
+            Field:
+                placeholder='description'
+                text:=profile.description
+        Container: container1:
             hug_height='strong'
             hug_width='strong'
-            constraints=[vbox(description,hbox(container1,container2))]
-            Form: description:
-                Label:
-                    text='description'
-                Field:
-                    placeholder='description'
-                    text:=profile.description
-            Container: container1:
-                hug_height='strong'
-                hug_width='strong'
-                EvalProp:
-                    prop<<profile.frequency
-                EvalProp:
-                    prop<<profile.amplitude
-                EvalProp:
-                    prop<<profile.phase
-                EvalProp:
-                    prop<<profile.RAMMode
-                EvalProp:
-                    prop<<profile.ZeroCrossing
-                EvalProp:
-                    prop<<profile.NoDwellHigh
-                EvalProp:
-                    prop<<profile.FunctionOrStatic
-            Container: container2:
-                hug_height='strong'
-                hug_width='strong'
-                EvalProp:
-                    prop<<profile.RAMFunction
-                EvalProp:
-                    prop<<profile.RAMInitialValue
-                EvalProp:
-                    prop<<profile.RAMStepValue
-                EvalProp:
-                    prop<<profile.RAMTimeStep
-                EvalProp:
-                    prop<<profile.RAMNumSteps
-                IndexedStack:
-                    title='RAMStaticArray'
-                    iterable<<profile.RAMStaticArray
-                    viewType=ItemProp
+            EvalProp:
+                prop<<profile.frequency
+            EvalProp:
+                prop<<profile.amplitude
+            EvalProp:
+                prop<<profile.phase
+            EvalProp:
+                prop<<profile.RAMMode
+            EvalProp:
+                prop<<profile.ZeroCrossing
+            EvalProp:
+                prop<<profile.NoDwellHigh
+            EvalProp:
+                prop<<profile.FunctionOrStatic
+        Container: container2:
+            hug_height='strong'
+            hug_width='strong'
+            EvalProp:
+                prop<<profile.RAMFunction
+            EvalProp:
+                prop<<profile.RAMInitialValue
+            EvalProp:
+                prop<<profile.RAMStepValue
+            EvalProp:
+                prop<<profile.RAMTimeStep
+            EvalProp:
+                prop<<profile.RAMNumSteps
+            IndexedStack:
+                title='RAMStaticArray'
+                iterable<<profile.RAMStaticArray
+                viewType=ItemProp
 
 enamldef ItemProp(StackItem):
     attr item
@@ -1118,123 +1103,132 @@ enamldef DDS_channel(GroupBox):
         hug_height='strong'
         hug_width='strong'
         ComboBox: combo:
-            items<<list(channel.profileDescriptionList)
-        Stack:
-            index<<combo.index
-            RefreshableLooper:
-                iterable<<channel.profiles
-                DDS_profile:
-                    profile<<loop_item
-    
-enamldef DDS_box(StackItem):
+            items << list(channel.profileDescriptionList)
+            index = (0 if (channel.profiles.length>0) else -1) # pick first profile on load
+#        Stack: p1:
+#            index<<combo.index
+#            RefreshableLooper:
+#                iterable<<channel.profiles
+#                StackItem:
+#                    DDS_profile:
+#                        profile<<loop_item
+        Conditional:
+            condition << ((channel.profiles.length>0) and (combo.index >= 0))
+            DDS_profile:
+                profile << channel.profiles.listProperty[combo.index]
+
+enamldef DDS_box(Form):
     attr box
 
-    Container:
-        padding=0
-        Form:
-            Label:
-                text='enable'
-            CheckBox:
-                checked:=box.enable
-            
-            Label:
-                text='Description'
-            Field:
-                text:=box.description
-                
-            PushButton:
-                text='select USB device reference'
-                clicked::
-                    box.deviceReference=combo.selected_item.strip()
-            ComboBox: combo:
-                items<<list(box.DDS.deviceList)
-                
-            Label:
-                text='NI USB-8451 device reference'
-            Field:
-                pass
-                text:=box.deviceReference
-            
-            Label:
-                text='DIO port'
-            SpinBox: sbox:
-                #maximum = maxint
-                maximum = 999999
-                minimum = 0
-                value:=box.DIOport
-            Label:
-                text='serialClockRate'
-            IntField:
-                value := box.serialClockRate  # THIS LINE IS THE PROBLEM !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+    Label:
+        text='enable'
+    CheckBox:
+        checked:=box.enable
 
-        GroupBox:
-            hug_height='strong'
-            hug_width='strong'
-            title='channels'
-            RefreshableLooper:
-                iterable<<box.channels
-                DDS_channel:
-                    index<<loop_index
-                    channel<<loop_item
+    Label:
+        text='Description'
+    Field:
+        text:=box.description
 
-enamldef DDS_Page(Page): page:
+    PushButton:
+        text='select USB device reference'
+        clicked::
+            box.deviceReference=combo.selected_item.strip()
+    ComboBox: combo:
+        items<<list(box.DDS.deviceList)
+
+    Label:
+        text='NI USB-8451 device reference'
+    Field:
+        pass
+        text:=box.deviceReference
+
+    Label:
+        text='DIO port'
+    SpinBox: sbox:
+        #maximum = sys.maxint  # this crashes on Windows, but not on OS X
+        maximum = 999999
+        minimum = 0
+        value:=box.DIOport
+    Label:
+        text='serialClockRate'
+    IntField:
+        value := box.serialClockRate
+
+    GroupBox:
+        hug_height='strong'
+        hug_width='strong'
+        title='channels'
+        RefreshableLooper:
+            iterable<<box.channels
+            DDS_channel:
+                index<<loop_index
+                channel<<loop_item
+
+enamldef DDS_Page(Container): page:
     attr DDS
-    title = 'DDS'
-    
-    Container:
-        Container:
-            hug_width='strong'
-            hug_height='strong'
-            constraints=[vbox(hbox(enable,isInit,getDevicesButton,initButton,loadButton),stackGroup),align('v_center',getDevicesButton,initButton,loadButton,enable,isInit),enable.width==500,getDevicesButton.width==200,initButton.width==200,loadButton.width==200]
-            EvalProp: enable:
-                        prop<<DDS.enable
-            PushButton: getDevicesButton:
-                text='Get DDS Device List'
-                clicked::DDS.getDDSDeviceList()
-            PushButton: initButton:
-                text='Initialize and Load'
-                clicked::DDS.initializeDDS()
-            PushButton: loadButton:
-                text='Load'
-                clicked::DDS.loadDDS()
 
-            #LabelBox: enable:
-            #    text='enable'
-            #    checked:=DDS.enable.value
-            
-            LabelBox: isInit:
-                text='initialized?'
-                checked<<DDS.isInitialized
-                enabled=False #keep it greyed out.
-            
-            GroupBox: stackGroup:
-                pass
-                title='DDS boxes'
-                constraints=[vbox(hbox(combo,addButton,removeButton),stack),stack.width==contents_width]
-                ComboBox: combo:
-                    items<<list(DDS.boxDescriptionList)
-                PushButton: addButton:
-                    text='+'
-                    constraints=[width==50,height==20]
-                    clicked::
-                        DDS.boxes.add()
+    Container:
+        hug_width='strong'
+        hug_height='strong'
+        constraints=[vbox(hbox(enable,isInit,getDevicesButton,initButton,loadButton),stackGroup),align('v_center',getDevicesButton,initButton,loadButton,enable,isInit),enable.width==500,getDevicesButton.width==200,initButton.width==200,loadButton.width==200]
+        EvalProp: enable:
+                    prop<<DDS.enable
+        PushButton: getDevicesButton:
+            text='Get DDS Device List'
+            clicked::DDS.getDDSDeviceList()
+        PushButton: initButton:
+            text='Initialize and Load'
+            clicked::DDS.initializeDDS()
+        PushButton: loadButton:
+            text='Load'
+            clicked::DDS.loadDDS()
+
+        #LabelBox: enable:
+        #    text='enable'
+        #    checked:=DDS.enable.value
+
+        LabelBox: isInit:
+            text='initialized?'
+            checked<<DDS.isInitialized
+            enabled=False #keep it greyed out.
+
+        GroupBox: stackGroup:
+            pass
+            title='DDS boxes'
+            constraints=[vbox(hbox(combo,addButton,removeButton),stack),stack.width==contents_width]
+            ComboBox: combo:
+                items<<list(DDS.boxDescriptionList)
+                index = (0 if (DDS.boxes.length>0) else -1) # pick first profile on load
+            PushButton: addButton:
+                text='+'
+                constraints=[width==50,height==20]
+                clicked::
+                    DDS.boxes.add()
+                    DDS.updateBoxDescriptionList()
+                    combo.index=len(DDS.boxes)-2 #point to new box
+            PushButton: removeButton:
+                text='-'
+                constraints=[width==50,height==20]
+                clicked::
+                    i=combo.index
+                    if i>=0:
+                        DDS.boxes.pop(i)
                         DDS.updateBoxDescriptionList()
-                        combo.index=len(DDS.boxes)-2 #point to new box
-                PushButton: removeButton:
-                    text='-'
-                    constraints=[width==50,height==20]
-                    clicked::
-                        i=combo.index
-                        if i>=0:
-                            DDS.boxes.pop(i)
-                            DDS.updateBoxDescriptionList()
-                            combo.index=i-1
-                Stack: stack:
-                    index<<combo.index
-                    RefreshableLooper:
-                        iterable<<DDS.boxes
-                        DDS_box:
-                            box<<loop_item
+                        combo.index=i-1
+#            Stack: stack:
+#                index<<combo.index
+#                RefreshableLooper:
+#                    iterable<<DDS.boxes
+#                    StackItem:
+#                        DDS_box:
+#                            box<<loop_item
+            Container: stack:
+                padding = 0
+                Conditional:
+                    condition << ((DDS.boxes.length>0) and (combo.index >= 0))
+                    DDS_box:
+                        box<<DDS.boxes.listProperty[combo.index]
 
 enamldef RF_gen(StackItem):
     attr item
@@ -1732,27 +1726,25 @@ enamldef IterationsGraphPage(Page):
             figure<<analysis.figure
 
 
-enamldef OptimizerPage(Page):
+enamldef Optimizer(Form):
     attr experiment
     attr analysis
-    title='Optimization'
-    
-    Form:
-        Label:
-            text='cost function'
-        MultilineField:
-            constraints=[height==600]
-            text:=experiment.optimizer.costfunction
-        
-        Label:
-            text='update method'
-        ComboBox:
-            items=['Nelder-Mead','genetic','gradient descent']
-        
-        MPLCanvas: canvas:
-            constraints=[(height==1000)|'strong',(width==1000)|'strong']
-            hug_width='ignore'
-            figure<<analysis.figure
+
+    Label:
+        text='cost function'
+    MultilineField:
+        constraints=[height==600]
+        text:=experiment.optimizer.costfunction
+
+    Label:
+        text='update method'
+    ComboBox:
+        items=['Nelder-Mead','genetic','gradient descent']
+
+    MPLCanvas: canvas:
+        constraints=[(height==1000)|'strong',(width==1000)|'strong']
+        hug_width='ignore'
+        figure<<analysis.figure
 
 enamldef Main(MainWindow): main:
     attr experiment
@@ -1765,6 +1757,10 @@ enamldef Main(MainWindow): main:
     CsMenuBar:
         experiment=main.experiment
         mainWindow=main
+    StatusBar:
+        StatusItem:
+            Label:
+                text = 'Status'
     Container:
         padding = 0
         ScrollArea:
@@ -1797,12 +1793,16 @@ enamldef Main(MainWindow): main:
                         HSDIO=main.experiment.LabView.HSDIO
                     #HSDIO_DigitalOutPage:
                     #    HSDIO=main.experiment.LabView.HSDIO2
-                    WaveformsPage:
-                        HSDIO=main.experiment.LabView.HSDIO
+                    Page:
+                        title='Waveforms'
+                        Waveforms:
+                            HSDIO=main.experiment.LabView.HSDIO
                     DAQmxDigitalOutPage:
                         DAQmx=main.experiment.LabView.DAQmxDO
-                    DDS_Page:
-                        DDS=main.experiment.LabView.DDS
+                    Page:
+                        title = 'DDS'
+                        DDS_Page:
+                            DDS=main.experiment.LabView.DDS
                     RFGenPage:
                         LabView=main.experiment.LabView
                     CameraPage:
@@ -1831,6 +1831,8 @@ enamldef Main(MainWindow): main:
                     IterationsGraphPage:
                        experiment=main.experiment
                        analysis=main.experiment.iterations_graph
-                    OptimizerPage:
-                        experiment=main.experiment
-                        analysis=main.experiment.optimizer
+                    Page:
+                        title='Optimization'
+                        Optimizer:
+                            experiment=main.experiment
+                            analysis=main.experiment.optimizer

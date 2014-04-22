@@ -155,7 +155,7 @@ class LabView(Instrument):
                 try: #if ('Hamamatsu/rows' in hdf5) and ('Hamamtsu/columns' in hdf5):
                     array.resize((int(hdf5['Hamamatsu/rows'].value),int(hdf5['Hamamatsu/columns'].value)))
                 except Exception as e:
-                    print 'unable to resize image, check for Hamamatsu row/column data:'+str(e)
+                    logger.warning('unable to resize image, check for Hamamatsu row/column data:'+str(e))
                     raise PauseError
                 try:
                     hdf5[key]=array
@@ -210,7 +210,7 @@ class LabView(Instrument):
             self.msg = msg
 
             #send message
-            sys.stdout.write('LabView: sending ...')
+            logger.debug('LabView sending message ...')
             try:
                 self.sock.settimeout(self.timeout.value)
                 self.sock.sendmsg(msg)
@@ -224,7 +224,7 @@ class LabView(Instrument):
                 raise PauseError
 
             #wait for response
-            sys.stdout.write(' waiting for response ...')
+            logger.debug('Labview waiting for response ...')
             try:
                 rawdata = self.sock.receive()
             except IOError:
@@ -237,7 +237,7 @@ class LabView(Instrument):
                 raise PauseError
 
             #parse results
-            sys.stdout.write(' parsing results ...')
+            logger.debug('Parsing TCP results ...')
             results = self.sock.parsemsg(rawdata)
             #for key, value in self.results.iteritems():
             #    print 'key: {} value: {}'.format(key,str(value)[:40])
@@ -248,7 +248,6 @@ class LabView(Instrument):
                 if self.error:
                     logger.warning('Error returned from LabView.send:\n{}\n'.format(self.results['log']))
                     raise PauseError
-            sys.stdout.write(' done.\n')
         self.results = results
         self.isDone = True
         return results

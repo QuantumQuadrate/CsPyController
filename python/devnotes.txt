@@ -45,9 +45,11 @@ TODO:
     Blank middle image on bad selector
     Lots more logging
     Investigate 'crashes' branch
-    All ListProps lose GUI linkage on load from file.  Fix by giving ListProp a reference to gui in 'initialized::'
+    Change tool_tip to status_tip, but first submit Github feature request to make status_tips actually update on '<<'
 
 Done:
+    All ListProps lose GUI linkage on load from file.  Fix with custom Looper that gives ListProp a reference to gui in 'initialized::'
+    Tool tips on all Fields
     Logging to memory and then saving that log to hdf5
     ComboBox for waveforms
     implement settimeout instead of setblocking for TCP communication with timeout equal to experiment timeout or shorter

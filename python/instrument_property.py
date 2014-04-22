@@ -578,12 +578,17 @@ class EnumProp(EvalProp):
 
 
 class ListProp(Prop):
+    """A ListProp is used to store a list of Props.  Unlike a normal list, they can be evaluated and saved properly as
+    part of the tree."""
+
     listProperty = List()
     listElementType = Member()
     listElementName = Member()
     listElementKwargs = Member()
     gui = Member() #store a link to the enaml GUI so we can force it to refresh
     length = Int(0)
+    names = List(Str())
+    descriptions = List(Str())
     
     def __init__(self, name, experiment, description='', listProperty=None, listElementType=None,
                  listElementName='element', listElementKwargs=None):
@@ -607,6 +612,8 @@ class ListProp(Prop):
     def refreshGUI(self):
         #update anything that uses the length variable, such as spin boxes
         self.length = len(self.listProperty)
+        self.names = [i.name for i in self.listProperty]
+        self.descriptions = [i.description for i in self.listProperty]
 
         #forcibly refresh the list
         if self.gui is not None:
@@ -761,7 +768,7 @@ class ListProp(Prop):
         #go through the listProperty and toXML each item
         output = ''
         
-        for i,o in enumerate(self.listProperty):
+        for i, o in enumerate(self.listProperty):
             try:
                 output+=self.XMLProtocol(o,self.listElementName+str(i)) #give the index number as the XML tag, this will only be used if the item does not have its own toXML()
             except PauseError:

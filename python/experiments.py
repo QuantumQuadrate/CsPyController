@@ -217,6 +217,8 @@ class Experiment(Prop):
 
     def evaluateIndependentVariables(self):
         if self.allow_evaluation:
+            logger.debug('Evaluating independent variables ...')
+
             #make sure ivar functions have been parsed
             self.independentVariables.evaluate()
 
@@ -266,13 +268,10 @@ class Experiment(Prop):
     def evaluateDependentVariables(self):
         """Update variables dictionary."""
 
+        logger.debug('Evaluating dependent variables ...')
+
         #starting with independent variables
-
-        #old way
-        #self.vars = dict(zip(self.ivarNames, [self.ivarValueLists[i][self.ivarIndex[i]] for i in xrange(len(self.ivarValueLists))]))
-
         self.vars = dict([(i.name, i.currentValue) for i in self.independentVariables])
-        #self.vars.update(dict([(i,getattr(numpy,i)) for i in dir(numpy)]))
 
         #evaluate the dependent variable multi-line string
         cs_evaluate.execWithDict(self.dependentVariablesStr, self.vars)
@@ -284,7 +283,7 @@ class Experiment(Prop):
     def evaluate(self):
         """Resolve all equation in instruments."""
         if self.allow_evaluation:
-            sys.stdout.write('Evaluating ...')
+            logger.debug('Experiment.evaluate() ...')
 
             #resolve independent variables for correct iteration, and evaluate dependent variables
             self.evaluateDependentVariables()
@@ -292,8 +291,8 @@ class Experiment(Prop):
             #re-evaluate all instruments
             for i in self.instruments:
                 i.evaluate()  # each instrument will calculate its properties
-            sys.stdout.write(' Done.\n')
-    
+            logger.debug('Finished evaluate().')
+
     def eval_general(self, string):
         return cs_evaluate.evalWithDict(string, self.vars)
     
@@ -416,7 +415,7 @@ class Experiment(Prop):
             return  # exit
         self.status = 'running'  # prevent another experiment from being started at the same time
 
-        logger.warning('running experiment')
+        logger.info('running experiment')
 
         try:  # if there is an error we exit the inner loops and respond appropriately
             #make sure the independent variables are processed
@@ -546,13 +545,15 @@ class Experiment(Prop):
     
     def loadDefaultSettings(self):
         """Look for settings.hdf5 in this directory, and if it exists, load it."""
+        logger.debug('Loading default settings ...')
+
         if os.path.isfile('settings.hdf5'):
             self.load('settings.hdf5')
         else:
             logger.debug('Default settings.hdf5 does not exist.')
 
     def load(self, path):
-        logger.debug('starting file load')
+        logger.debug('Loading file: '+path)
 
         #set path as default
         self.settings_path = os.path.dirname(path)
@@ -585,7 +586,7 @@ class Experiment(Prop):
             logger.warning('in experiment.load()\n'+str(e)+'\n'+str(traceback.format_exc()))
 
         f.close()
-        logger.debug('ended file load')
+        logger.debug('File load done.')
 
         if allow_evaluation_was_toggled:
             self.allow_evaluation = True
@@ -594,7 +595,17 @@ class Experiment(Prop):
         self.evaluateAll()
 
     def autosave(self):
-        logger.debug('Saving default HDF5...')
+        logger.debug('Saving settings to default settings.hdf5 ...')
+        #remove old autosave file
+        try:
+            os.remove('previous_settings.hdf5')
+        except Exception as e:
+            logger.debug('Could not delete previous_settings.hdf5:\n'+str(e))
+        try:
+            os.rename('settings.hdf5','previous_settings.hdf5')
+        except Exception as e:
+            logger.debug('Could not rename old settings.hdf5 toe previous_settings.hdf5:\n'+str(e))
+
         #create file
         f = h5py.File('settings.hdf5', 'w')
         #recursively add all properties
@@ -614,6 +625,7 @@ class Experiment(Prop):
 
         #HDF5
         self.autosave().close()
+
         #copy to default location
         logger.debug('Copying HDF5 to save path...')
         shutil.copy('settings.hdf5', path)
@@ -770,28 +782,29 @@ class Experiment(Prop):
     def postExperiment(self):
         self.status = 'finishing experiment'
 
-        sys.stdout.write('Running analyses ...')
+        logger.info('Running analyses ...')
         # run analysis
         for i in self.analyses:
             i.postExperiment(self.hdf5)
-        sys.stdout.write(' done.')
 
         #store the notes again
+        logger.info('Storing notes ...')
         del self.hdf5['notes']
         self.hdf5['notes'] = self.notes
 
         #store the log
+        logger.info('Storing log ...')
         self.log.flush()
         self.hdf5['log'] = self.log.getvalue()
         self.hdf5.flush()
 
         #copy to network
         if self.copyDataToNetwork:
-            sys.stdout.write('Copying data to network ...')
+            logger.debug('Copying data to network...')
             shutil.copytree(self.path, os.path.join(self.networkDataPath, self.dailyPath, self.experimentPath))
-            sys.stdout.write(' Done.\n')
 
         self.status = 'idle'
+        logger.info('Finished Experiment.')
 
 class AQuA(Experiment):
     """A subclass of Experiment which knows about all our particular hardware"""
@@ -835,13 +848,12 @@ class AQuA(Experiment):
         self.properties += ['LabView', 'imageSumAnalysis', 'recent_shot_analysis', 'shotBrowserAnalysis', 'squareROIAnalysis', 'histogramAnalysis', 'measurements_graph', 'iterations_graph']
 
         try:
+            self.allow_evaluation=False
             self.loadDefaultSettings()
 
             #update variables
             self.allow_evaluation = True
-            logger.debug('starting evaluateAll')
             self.evaluateAll()
-            logger.debug('completed evaluateAll')
         except PauseError:
             logger.warning('Loading default settings aborted in AQuA.__init__().  PauseError')
         except Exception as e:

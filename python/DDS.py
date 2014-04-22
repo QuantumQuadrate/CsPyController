@@ -122,7 +122,7 @@ class DDSchannel(Prop):
         self.RAMDefaultPhase = FloatProp('RAMDefaultPhase', self.experiment, '[rad]', '0')
         '''each channel has exactly 8 profiles'''
         self.profileDescriptionList = []
-        self.profiles = ListProp('profiles', self.experiment, listProperty=[DDSprofile('profile', self.experiment, channel=self) for i in range(8)], listElementType=DDSprofile, listElementName='profile', listElementKwargs={'channel':self})
+        self.profiles = ListProp('profiles', self.experiment, listProperty=[DDSprofile('profile', self.experiment, channel=self) for i in range(8)], listElementType=DDSprofile, listElementName='profile', listElementKwargs={'channel': self})
         self.properties += ['power', 'refClockRate', 'fullScaleOutputPower', 'RAMenable', 'RAMDestType', 'RAMDefaultFrequency',
             'RAMDefaultAmplitude', 'RAMDefaultPhase', 'profiles', 'profileDescriptionList']
         self.doNotSendToHardware += ['profileDescriptionList']
@@ -131,15 +131,16 @@ class DDSchannel(Prop):
         if self.experiment.allow_evaluation:
             super(DDSchannel, self).evaluate()
             self.updateProfileDescriptionList()
-        
+
     def updateProfileDescriptionList(self):
         if self.profiles is not None:
             #sets the descriptions shown in the combo box in the GUI
+            pdl = ['{} {}'.format(i, n.description) for i,n in enumerate(self.profiles)]
             try:
-                deferred_call(setattr, self, 'profileDescriptionList', ['{} {}'.format(i, n.description) for i,n in enumerate(self.profiles)])
+                deferred_call(setattr, self, 'profileDescriptionList', pdl)
             except RuntimeError:
                 #the GUI is not yet active
-                self.profileDescriptionList=['{} {}'.format(i, n.description) for i,n in enumerate(self.profiles)]
+                self.profileDescriptionList = pdl
 
 
 class DDSprofile(Prop):
@@ -177,9 +178,9 @@ class DDSprofile(Prop):
         self.properties+=['frequency','amplitude','phase','RAMMode','ZeroCrossing','NoDwellHigh',
             'FunctionOrStatic','RAMFunction','RAMInitialValue','RAMStepValue','RAMTimeStep','RAMNumSteps','RAMStaticArray']
         self.doNotSendToHardware+=['RAMFunction','RAMInitialValue','RAMStepValue','RAMTimeStep','RAMNumSteps','RAMStaticArray']
-    
+
     @observe('description')
-    def descriptionChanged(self,change):
+    def descriptionChanged(self, change):
         self.channel.updateProfileDescriptionList()
     
     #override from Prop to give special formating of RAMFunction and RAMStaticArray.  They are in doNotSendToHardware, so they will not otherwise be sent
