@@ -148,3 +148,10 @@ Scratch notes:
                 average of images.
             error_log.txt
                 saved error log
+
+Crash notes:
+    It did not crash on this, but is this related to Enaml thread problems?:
+        QObject::connect: Cannot queue arguments of type 'QModelIndex'
+        (Make sure 'QModelIndex' is registered using qRegisterMetaType().)
+        QObject::connect: Cannot queue arguments of type 'QModelIndex'
+        (Make sure 'QModelIndex' is registered using qRegisterMetaType().)
