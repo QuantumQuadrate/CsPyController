@@ -251,7 +251,7 @@ class Experiment(Prop):
     
     def update(self):
         """Sends updated settings to all instruments.  This function is run at the beginning of every new iteration."""
-        
+        logger.debug("updating instruments")
         #update the instruments with new settings
         
         for i in self.instruments:
@@ -423,6 +423,7 @@ class Experiment(Prop):
             
             #loop until iteration are complete
             while (self.iteration < self.totalIterations) and (self.status == 'running'):
+                logger.debug("starting new iteration")
                 
                 #at the start of a new iteration, or if we are continuing
                 self.evaluateAll()  # re-calculate all variables
@@ -448,16 +449,18 @@ class Experiment(Prop):
                     self.hdf5.flush()
                 
                 if self.goodMeasurements >= self.measurementsPerIteration:
+                    logger.debug("Finished iteration")
                     # We have completed this iteration, move on to the next one
                     self.postIteration()  # run analysis
-                    self.iteration += 1
-                    self.measurement = 0
-                    self.goodMeasurements = 0
-                    if (self.status == 'running' or self.status == 'paused after measurement') and self.pauseAfterIteration:
-                        self.status = 'paused after iteration'
-                if self.iteration >= self.totalIterations:
-                    self.status = 'idle'  # we are now ready for the next experiment
-                    self.postExperiment()
+                    if self.iteration < self.totalIterations:
+                        self.iteration += 1
+                        self.measurement = 0
+                        self.goodMeasurements = 0
+                        if (self.status == 'running' or self.status == 'paused after measurement') and self.pauseAfterIteration:
+                            self.status = 'paused after iteration'
+                    else:
+                        logger.debug("Finished all iterations")
+                        self.postExperiment()
         except PauseError:
             #This should be the only place that PauseError is explicitly handed.
             #All other non-fatal error caught higher up in the experiment chain should
