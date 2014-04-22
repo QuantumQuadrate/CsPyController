@@ -496,10 +496,11 @@ class Experiment(Prop):
     def measure(self):
         """Enables all instruments to begin a measurement.  Sent at the beginning of every measurement.
         Actual output or input from the measurement may yet wait for a signal from another device."""
-        
+
+        logger.debug('starting measurement')
         start_time = time.time()  # record start time of measurement
         self.timeOutExpired = False
-        
+
         #for all instruments
         for i in self.instruments:
             #check that the instruments are initalized
@@ -519,7 +520,8 @@ class Experiment(Prop):
                     #TODO: enable threading?
                     #threading.Thread(target=i.start).start()
                     i.start()
-        
+        logger.debug('all instruments started')
+
         #loop until all instruments are done
         #TODO: can we do this with a callback?
         while not all([i.isDone for i in self.instruments]):
@@ -528,7 +530,8 @@ class Experiment(Prop):
                 logger.warning('The following instruments timed out: '+str([i.name for i in self.instruments if not i.isDone]))
                 return  # exit without saving results
             time.sleep(.01)  # wait a bit, then check again
-        
+        logger.debug('all instruments done')
+
         #set up the results container
         self.measurementResults = self.hdf5.create_group('iterations/'+str(self.iteration)+'/measurements/'+str(self.measurement))
         self.measurementResults.attrs['start_time'] = start_time
@@ -538,7 +541,7 @@ class Experiment(Prop):
             #Pass the hdf5 group to each instrument so they can write results to it.  We do it here because h5py is not
             # thread safe, and also this way we avoid saving results for aborted measurements.
             i.writeResults(self.measurementResults['data'])
-        
+
         self.postMeasurement()
         self.completedMeasurementsByIteration[-1] += 1  # add one to the last counter in the list
     
@@ -746,6 +749,7 @@ class Experiment(Prop):
             i.preIteration(self.iterationResults, self.hdf5)
 
     def postMeasurement(self):
+        logger.debug('starting post measurement analyses')
         #run analysis
         good = True
         delete = False
@@ -778,6 +782,7 @@ class Experiment(Prop):
             self.goodMeasurements += 1
 
     def postIteration(self):
+        logger.debug('Starting postIteration()')
         # run analysis
         for i in self.analyses:
             i.postIteration(self.iterationResults, self.hdf5)

@@ -354,7 +354,7 @@ cdict = {'red': ((0.0,0.0,0.0),
          }
 kbgr_cmap = LinearSegmentedColormap('my_colormap',cdict,256)
 
-#A black-blue-yellow-white colormap whose brightness corresponds linearly to intensity
+#A black-blue-cyan-white colormap whose brightness corresponds linearly to intensity
 cdict = {'red': ((0.0, 0.0, 0.0),
                  (0.333, 0.0, 0.0),
                  (0.667, 0.0, 0.0),
@@ -369,4 +369,4 @@ cdict = {'red': ((0.0, 0.0, 0.0),
                   (1.0, 1.0, 1.0))}
 kbgrw_cmap = LinearSegmentedColormap('my_colormap',cdict,256)
 
-my_cmap = 'jet'
+my_cmap = kbgrw_cmap
