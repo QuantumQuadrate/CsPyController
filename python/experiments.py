@@ -90,6 +90,7 @@ class Experiment(Prop):
 
     #experiment control Traits
     status = Str('idle')
+    statusStr = Str()
     pauseAfterIteration = Member()
     pauseAfterMeasurement = Member()
     pauseAfterError = Member()
@@ -108,8 +109,8 @@ class Experiment(Prop):
     notes = Str()
     
     #iteration Traits
-    progress = Int(0)
-    progressGUI = Int(0)
+    progress = Int()
+    progressGUI = Int()
     path = Member()  # full path to current experiment directory
     dailyPath = Member()
     experimentPath = Member()
@@ -120,15 +121,20 @@ class Experiment(Prop):
     measurementStr = Str()
     goodMeasurements = Member()
     goodMeasurementsStr = Str()
-    statusStr = Str()
     totalIterations = Member()
 
     #time Traits
+    timeStarted = Float()
     timeStartedStr = Str()
+    currentTime = Float()
     currentTimeStr = Str()
+    timeElapsed = Float()
     timeElapsedStr = Str()
+    totalTime = Float()
     totalTimeStr = Str()
+    timeRemaining = Float()
     timeRemainingStr = Str()
+    completionTime = Float()
     completionTimeStr = Str()
     
     #variables Traits
@@ -140,13 +146,7 @@ class Experiment(Prop):
     #list of Analysis objects
     analyses = Member()
     
-    #things we would rather not define, but are forced to by Atom
-    timeStarted = Member()
-    currentTime = Member()
-    timeElapsed = Member()
-    timeRemaining = Member()
-    totalTime = Member()
-    completionTime = Member()
+    #things we would rather not have to make Atom definitions for, but are forced to by Atom
     timeOutExpired = Member()
     instruments = Member()
     completedMeasurementsByIteration = Member()
@@ -155,7 +155,6 @@ class Experiment(Prop):
     ivarIndex = Member()
     ivarValueLists = Member()
     ivarSteps = Member()
-    #ivarRefreshButton = Member()
     vars = Member()
     hdf5 = Member()
     measurementResults = Member()
@@ -199,11 +198,14 @@ class Experiment(Prop):
                             'pauseAfterMeasurement', 'pauseAfterError', 'saveData', 'saveSettings', 'settings_path',
                             'save2013styleFiles', 'localDataPath', 'networkDataPath', 'copyDataToNetwork',
                             'experimentDescriptionFilenameSuffix', 'measurementTimeout', 'measurementsPerIteration',
-                            'willSendEmail', 'emailAddresses', 'progress', 'progressGUI', 'iteration', 'iterationStr', 'measurement',
-                            'measurementStr', 'goodMeasurements', 'goodMeasurementsStr', 'status', 'statusStr',
-                            'totalIterations', 'timeStartedStr', 'currentTimeStr', 'timeElapsedStr', 'totalTimeStr',
-                            'timeRemainingStr', 'completionTimeStr', 'variableReportFormat', 'variableReportStr',
-                            'variablesNotToSave', 'notes']
+                            'willSendEmail', 'emailAddresses', 'progress', 'progressGUI', 'iteration', 'measurement',
+                            'goodMeasurements', 'status', 'totalIterations', 'timeStarted', 'currentTime',
+                            'timeElapsed', 'timeRemaining', 'totalTime', 'completionTime', 'variableReportFormat',
+                            'variableReportStr', 'variablesNotToSave', 'notes']
+
+    def set_status(self,s):
+        self.status = s
+        self.set_gui({'statusStr': s})
 
     def setup_logger(self):
         #allow logging to a variable
@@ -303,6 +305,8 @@ class Experiment(Prop):
             for i in self.instruments:
                 i.evaluate()  # each instrument will calculate its properties
 
+            self.update_gui()
+
             logger.debug('Finished evaluate().')
 
     def eval_general(self, string):
@@ -357,7 +361,7 @@ class Experiment(Prop):
         self.set_gui({'measurementStr': str(self.measurement),
                     'iterationStr': '{} of {}'.format(self.iteration, self.totalIterations-1),
                     'goodMeasurementsStr': '{} of {}'.format(self.goodMeasurements, self.measurementsPerIteration-1),
-                    'statusStr': str(self.status),
+                    'statusStr': self.status,
                     'currentTimeStr': self.date2str(self.currentTime),
                     'timeElapsedStr': self.time2str(self.timeElapsed),
                     'timeRemainingStr': self.time2str(self.timeRemaining),
@@ -405,7 +409,7 @@ class Experiment(Prop):
 
         logger.info('resetting experiment')
 
-        self.status = 'beginning experiment'
+        self.set_status('beginning experiment')
 
         #reset experiment variables
         self.timeStarted = time.time()
@@ -423,7 +427,7 @@ class Experiment(Prop):
         # run analyses preExperiment
         self.preExperiment()
 
-        self.status = 'paused before experiment'
+        self.set_status('paused before experiment')
 
     def goThread(self):
         thread = threading.Thread(target=self.go)
@@ -437,7 +441,7 @@ class Experiment(Prop):
         if not self.status.startswith('paused'):
             logger.info('Current status is {}. Cannot continue an experiment unless status is paused.'.format(self.status))
             return  # exit
-        self.status = 'running'  # prevent another experiment from being started at the same time
+        self.set_status('running')  # prevent another experiment from being started at the same time
 
         logger.info('running experiment')
 
@@ -468,7 +472,7 @@ class Experiment(Prop):
                     logger.debug('updating measurement count')
                     self.measurement += 1  # update the measurement count
                     if self.status == 'running' and self.pauseAfterMeasurement:
-                        self.status = 'paused after measurement'
+                        self.set_status('paused after measurement')
                     self.update_gui()
                     #make sure results are written to disk
                     logger.debug('flushing hdf5')
@@ -485,7 +489,7 @@ class Experiment(Prop):
                         self.measurement = 0
                         self.goodMeasurements = 0
                         if (self.status == 'running' or self.status == 'paused after measurement') and self.pauseAfterIteration:
-                            self.status = 'paused after iteration'
+                            self.set_status('paused after iteration')
                     else:
                         logger.debug("Finished all iterations")
                         self.postExperiment()
@@ -495,11 +499,11 @@ class Experiment(Prop):
             #gracefully handle the error, then 'raise PauseError' so that the experiment
             #exits out to this point.
             if self.pauseAfterError:
-                self.status = 'paused after error'
+                self.set_status('paused after error')
         except Exception as e:
             logger.error('Exception during experiment:\n'+str(e)+'\n'+str(traceback.format_exc())+'\n')
             if self.pauseAfterError:
-                self.status = 'paused after error'
+                self.set_status('paused after error')
 
     def endThread(self):
         """Launches end() in a new thread, to keep GUI free"""
@@ -513,12 +517,12 @@ class Experiment(Prop):
             try:
                 self.postExperiment()
             except PauseError:
-                self.status = 'paused after error'
+                self.set_status('paused after error')
             except Exception as e:
                 logger.warning('Uncaught Exception in experiment.end')
-                self.status = 'paused after error'
+                self.set_status('paused after error')
         else:
-            print 'You cannot manually finish an experiment unless it is paused first.'
+            logger.info('You cannot manually finish an experiment unless it is paused first.')
 
     def measure(self):
         """Enables all instruments to begin a measurement.  Sent at the beginning of every measurement.
@@ -575,7 +579,7 @@ class Experiment(Prop):
     
     def halt(self):
         """Manually force the status to idle, to cause the experiment to end"""
-        self.status = 'idle'
+        self.set_status('idle')
     
     def loadDefaultSettings(self):
         """Look for settings.hdf5 in this directory, and if it exists, load it."""
@@ -816,7 +820,7 @@ class Experiment(Prop):
             i.postIteration(self.iterationResults, self.hdf5)
     
     def postExperiment(self):
-        self.status = 'finishing experiment'
+        self.set_status('finishing experiment')
 
         logger.info('Running analyses ...')
         # run analysis
@@ -839,7 +843,7 @@ class Experiment(Prop):
             logger.info('Copying data to network...')
             shutil.copytree(self.path, os.path.join(self.networkDataPath, self.dailyPath, self.experimentPath))
 
-        self.status = 'idle'
+        self.set_status('idle')
         logger.info('Finished Experiment.')
 
 class AQuA(Experiment):

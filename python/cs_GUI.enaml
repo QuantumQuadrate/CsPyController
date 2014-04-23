@@ -760,7 +760,7 @@ enamldef TransitionTime(Form):
     
     Field:
         tool_tip << text
-        status_tip << transition['function']
+        status_tip << text
         constraints = [width == 100,height==20]
         placeholder='time'
         text:=transition['function']
@@ -1773,18 +1773,6 @@ enamldef Main(MainWindow): main:
             Container:
                 hug_height='strong'
                 hug_width='strong'
-                #constraints=[vbox(infobar,notebook),align('left',infobar,notebook)]
-                #Container: infobar:
-                #    constraints=[hbox(status,progress)]
-                #    hug_width='strong'
-                #    hug_height='strong'
-                #    Label: status:
-                #        text<<'Status: {}, Iteration: {}, Measurement: {}, Good Measurements: {}, Progress: {}'.format(experiment.status,str(experiment.iteration)+' of '+str(experiment.totalIterations-1),str(experiment.measurement),str(experiment.goodMeasurements)+' of '+str(experiment.measurementsPerIteration-1),str(experiment.progress))
-                #    ProgressBar: progress:
-                #        constraints=[width==1200]
-                #        minimum=0
-                #        maximum=100
-                #        value<<int(experiment.progress)
                 Notebook: notebook:
                     tabs_closable=False
                     tabs_movable=False
