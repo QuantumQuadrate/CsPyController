@@ -409,14 +409,15 @@ class Experiment(Prop):
 
         #reset experiment variables
         self.timeStarted = time.time()
-        self.timeStartedStr = self.date2str(self.timeStarted)
+        self.currentTime = timeStarted()
+        #self.timeStartedStr = self.date2str(self.timeStarted)
         self.iteration = 0
         self.measurement = 0
         self.goodMeasurements = 0
         self.completedMeasurementsByIteration = []
         self.progress = 0
 
-        self.update_gui()
+        #self.update_gui()
 
         # setup data directory and files
         self.create_data_files()
