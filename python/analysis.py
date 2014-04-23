@@ -187,7 +187,7 @@ class TextAnalysis(Analysis):
         except KeyError as e:
             logger.warning('HDF5 text does not exist in TextAnalysis\n{}\n'.format(e))
             return
-        deferred_call(setattr, self, 'text', text)
+        self.set_gui({'text': text})
 
 class RecentShotAnalysis(AnalysisWithFigure):
     """Plots the currently incoming shot"""

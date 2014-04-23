@@ -322,7 +322,7 @@ enamldef ExperimentPage(Page):
             Label:
                 text="Status:"
             Label:
-                text<<experiment.status
+                text<<experiment.statusStr
 
             Label:
                 text='Pause after iteration'
@@ -377,13 +377,13 @@ enamldef ExperimentPage(Page):
             Label: text<<str(experiment.progress)+'%'
             
             Label: text='Iteration'
-            Label: text<<str(experiment.iteration)+' of '+str(experiment.totalIterations-1)
+            Label: text<<experiment.iterationStr
             
             Label: text='Measurement'
-            Label: text<<str(experiment.measurement)+' of '+str(experiment.measurementsPerIteration-1)
+            Label: text<<experiment.measurementStr
             
             Label: text='Good Measurements'
-            Label: text<<str(experiment.goodMeasurements)+' of '+str(experiment.measurementsPerIteration-1)
+            Label: text<<experiment.goodMeasurementsStr
             
             Label: text='Time started'
             Label: text<<experiment.timeStartedStr
@@ -1760,25 +1760,31 @@ enamldef Main(MainWindow): main:
     StatusBar:
         StatusItem:
             Label:
-                text = 'Status'
+                text << 'Status: {}, Iteration: {}, Measurement: {}, Good Measurements: {}, Progress: {}'.format(experiment.statusStr,experiment.iterationStr,experiment.measurementStr,experiment.goodMeasurementsStr,str(experiment.progress))
+        StatusItem:
+            ProgressBar: progress:
+                #constraints=[width==1200]
+                minimum=0
+                maximum=100
+                value<<int(experiment.progress)
     Container:
         padding = 0
         ScrollArea:
             Container:
                 hug_height='strong'
                 hug_width='strong'
-                constraints=[vbox(infobar,notebook),align('left',infobar,notebook)]
-                Container: infobar:
-                    constraints=[hbox(status,progress)]
-                    hug_width='strong'
-                    hug_height='strong'
-                    Label: status:
-                        text<<'Status: {}, Iteration: {}, Measurement: {}, Good Measurements: {}, Progress: {}'.format(experiment.status,str(experiment.iteration)+' of '+str(experiment.totalIterations-1),str(experiment.measurement),str(experiment.goodMeasurements)+' of '+str(experiment.measurementsPerIteration-1),str(experiment.progress))
-                    ProgressBar: progress:
-                        constraints=[width==1200]
-                        minimum=0
-                        maximum=100
-                        value<<int(experiment.progress)
+                #constraints=[vbox(infobar,notebook),align('left',infobar,notebook)]
+                #Container: infobar:
+                #    constraints=[hbox(status,progress)]
+                #    hug_width='strong'
+                #    hug_height='strong'
+                #    Label: status:
+                #        text<<'Status: {}, Iteration: {}, Measurement: {}, Good Measurements: {}, Progress: {}'.format(experiment.status,str(experiment.iteration)+' of '+str(experiment.totalIterations-1),str(experiment.measurement),str(experiment.goodMeasurements)+' of '+str(experiment.measurementsPerIteration-1),str(experiment.progress))
+                #    ProgressBar: progress:
+                #        constraints=[width==1200]
+                #        minimum=0
+                #        maximum=100
+                #        value<<int(experiment.progress)
                 Notebook: notebook:
                     tabs_closable=False
                     tabs_movable=False

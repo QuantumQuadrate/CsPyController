@@ -114,10 +114,14 @@ class Experiment(Prop):
     experimentPath = Member()
 
     iteration = Member()
+    iterationStr = Str()
     measurement = Member()
+    measurementStr = Str()
     goodMeasurements = Member()
+    goodMeasurementsStr = Str()
+    statusStr = Str()
     totalIterations = Member()
-    
+
     #time Traits
     timeStartedStr = Str()
     currentTimeStr = Str()
@@ -189,11 +193,13 @@ class Experiment(Prop):
         self.variableReportFormat = '""'
         self.variableReportStr = ''
         self.analyses = []
+
         self.properties += ['version', 'independentVariables', 'dependentVariablesStr', 'pauseAfterIteration',
                             'pauseAfterMeasurement', 'pauseAfterError', 'saveData', 'saveSettings', 'settings_path',
                             'save2013styleFiles', 'localDataPath', 'networkDataPath', 'copyDataToNetwork',
                             'experimentDescriptionFilenameSuffix', 'measurementTimeout', 'measurementsPerIteration',
-                            'willSendEmail', 'emailAddresses', 'progress', 'iteration', 'measurement',
+                            'willSendEmail', 'emailAddresses', 'progress', 'iteration', 'iterationStr', 'measurement',
+                            'measurementStr', 'goodMeasurements', 'goodMeasurementsStr', 'status', 'statusStr',
                             'totalIterations', 'timeStartedStr', 'currentTimeStr', 'timeElapsedStr', 'totalTimeStr',
                             'timeRemainingStr', 'completionTimeStr', 'variableReportFormat', 'variableReportStr',
                             'variablesNotToSave', 'notes']
@@ -272,8 +278,6 @@ class Experiment(Prop):
 
         logger.debug('Evaluating dependent variables ...')
 
-        # TODO: CRASH START LIMIT
-
         #starting with independent variables
         self.vars = dict([(i.name, i.currentValue) for i in self.independentVariables])
 
@@ -297,8 +301,6 @@ class Experiment(Prop):
             #re-evaluate all instruments
             for i in self.instruments:
                 i.evaluate()  # each instrument will calculate its properties
-
-            # TODO: CRASH END LIMIT
 
             logger.debug('Finished evaluate().')
 
@@ -349,13 +351,18 @@ class Experiment(Prop):
         self.totalTime = self.timeElapsed+self.timeRemaining
         self.completionTime = self.timeStarted+self.totalTime
 
-        self.set_gui({
-            'currentTimeStr': self.date2str(self.currentTime),
-            'timeElapsedStr': self.time2str(self.timeElapsed),
-            'timeRemainingStr': self.time2str(self.timeRemaining),
-            'totalTimeStr': self.time2str(self.totalTime),
-            'completionTimeStr': self.date2str(self.completionTime),
-            'progress': progress
+    def update_gui(self):
+        logger.debug('experiment.update_gui()')
+        self.set_gui({'measurementStr': str(self.measurement),
+                    'iterationStr': '{} of {}'.format(self.iteration, self.totalIterations-1),
+                    'goodMeasurementsStr': '{} of {}'.format(self.goodMeasurements, self.measurementsPerIteration-1),
+                    'statusStr': str(self.status),
+                    'currentTimeStr': self.date2str(self.currentTime),
+                    'timeElapsedStr': self.time2str(self.timeElapsed),
+                    'timeRemainingStr': self.time2str(self.timeRemaining),
+                    'totalTimeStr': self.time2str(self.totalTime),
+                    'completionTimeStr': self.date2str(self.completionTime),
+                    'progress': progress
         })
 
     def applyToSelf(self, dict):
@@ -458,7 +465,7 @@ class Experiment(Prop):
                     self.measurement += 1  # update the measurement count
                     if self.status == 'running' and self.pauseAfterMeasurement:
                         self.status = 'paused after measurement'
-                    
+                    self.update_gui()
                     #make sure results are written to disk
                     logger.debug('flushing hdf5')
                     self.hdf5.flush()
@@ -502,13 +509,12 @@ class Experiment(Prop):
             try:
                 self.postExperiment()
             except PauseError:
-                self.status == 'paused after error'
+                self.status = 'paused after error'
             except Exception as e:
                 logger.warning('Uncaught Exception in experiment.end')
-                self.status == 'paused after error'
+                self.status = 'paused after error'
         else:
             print 'You cannot manually finish an experiment unless it is paused first.'
-
 
     def measure(self):
         """Enables all instruments to begin a measurement.  Sent at the beginning of every measurement.
@@ -826,7 +832,7 @@ class Experiment(Prop):
 
         #copy to network
         if self.copyDataToNetwork:
-            logger.debug('Copying data to network...')
+            logger.info('Copying data to network...')
             shutil.copytree(self.path, os.path.join(self.networkDataPath, self.dailyPath, self.experimentPath))
 
         self.status = 'idle'
