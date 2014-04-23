@@ -364,7 +364,7 @@ class Experiment(Prop):
                     'iterationStr': '{} of {}'.format(self.iteration, self.totalIterations-1),
                     'goodMeasurementsStr': '{} of {}'.format(self.goodMeasurements, self.measurementsPerIteration-1),
                     'statusStr': self.status,
-                    'timeStartedStr': self.date2sstr(self.timeStarted),
+                    'timeStartedStr': self.date2str(self.timeStarted),
                     'currentTimeStr': self.date2str(self.currentTime),
                     'timeElapsedStr': self.time2str(self.timeElapsed),
                     'timeRemainingStr': self.time2str(self.timeRemaining),
