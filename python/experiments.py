@@ -362,6 +362,7 @@ class Experiment(Prop):
                     'iterationStr': '{} of {}'.format(self.iteration, self.totalIterations-1),
                     'goodMeasurementsStr': '{} of {}'.format(self.goodMeasurements, self.measurementsPerIteration-1),
                     'statusStr': self.status,
+                    'timeStartedStr': self.date2sstr(self.timeStarted)
                     'currentTimeStr': self.date2str(self.currentTime),
                     'timeElapsedStr': self.time2str(self.timeElapsed),
                     'timeRemainingStr': self.time2str(self.timeRemaining),
@@ -413,14 +414,13 @@ class Experiment(Prop):
 
         #reset experiment variables
         self.timeStarted = time.time()
-        #self.timeStartedStr = self.date2str(self.timeStarted)
         self.iteration = 0
         self.measurement = 0
         self.goodMeasurements = 0
         self.completedMeasurementsByIteration = []
         self.progress = 0
 
-        #self.update_gui()
+        self.update_gui()
 
         # setup data directory and files
         self.create_data_files()
