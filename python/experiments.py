@@ -616,7 +616,7 @@ class Experiment(Prop):
         try:
             os.rename('settings.hdf5','previous_settings.hdf5')
         except Exception as e:
-            logger.debug('Could not rename old settings.hdf5 toe previous_settings.hdf5:\n'+str(e))
+            logger.error('Could not rename old settings.hdf5 to previous_settings.hdf5:\n'+str(e))
 
         #create file
         f = h5py.File('settings.hdf5', 'w')
@@ -630,7 +630,7 @@ class Experiment(Prop):
     def save(self, path):
         """This function saves all the settings."""
         
-        logger.debug('Saving...')        
+        logger.info('Saving...')
 
         #set path as default
         self.settings_path = os.path.dirname(path)
@@ -656,7 +656,7 @@ class Experiment(Prop):
         #f.write(x)
         #f.close()
 
-        logger.debug('... Save Complete.')
+        logger.info('... Save Complete.')
     
     def create_data_files(self):
         """Create a new HDF5 file to store results.  This is done at the beginning of
