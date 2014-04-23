@@ -30,8 +30,6 @@ cs_errors.setup_log()
 logger = logging.getLogger(__name__)
 import experiments
 
-from Controller import Controller
-
 #for icons
 # class CsSession(Session):
     
@@ -46,7 +44,7 @@ from Controller import Controller
         # self.windows.append(mainWindow)
 
 def guiThread(exp):
-    logger.info("starting application")
+    logger.debug('importing GUI')
     with enaml.imports():
         from cs_GUI import Main
     app = QtApplication()
@@ -57,16 +55,20 @@ def guiThread(exp):
     main.activate_window()
     main.send_to_front()
     main.maximize()
+
+    logger.debug('starting QtApplication')
     app.start()
+    logger.info('Application active')
 
 def new():
-    cs_errors.setup_log()
+    logger.info('Started CsPyController')
     exp = experiments.AQuA()
     #start in a new thread so you can continue to use the shell
     threading.Thread(target=guiThread,args=[exp]).start()
     return exp
 
 if __name__ == '__main__':
+    logger.info('Started CsPyController')
     exp = experiments.AQuA()
 
     #start without creating a new thread

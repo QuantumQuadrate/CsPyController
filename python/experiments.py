@@ -161,6 +161,7 @@ class Experiment(Prop):
 
     def __init__(self):
         """Defines a set of instruments, and a sequence of what to do with them."""
+        logger.debug('experiment.__init__()')
 
         self.setup_logger()
 

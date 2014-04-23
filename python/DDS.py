@@ -43,7 +43,7 @@ class DDS(Instrument):
     
     def evaluate(self):
         if self.experiment.allow_evaluation:
-            logger.debug('.evaluate()')
+            logger.debug('DDS.evaluate()')
             super(DDS,self).evaluate()
             self.updateBoxDescriptionList()
     
