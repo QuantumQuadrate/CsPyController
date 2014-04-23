@@ -396,10 +396,26 @@ class Prop(Atom):
         
         return self
     
-    def call_evaluate(self,changed):
+    def call_evaluate(self, changed):
         '''This function exists to allow Atom calls to evaluate() when something is changed.  @observe passes the 'changed' parameter, whereas evaluate() takes no parameters'''
         if self.experiment.allow_evaluation:
             self.evaluate()
+
+    def set_gui(self, d):
+        """Takes in a dictionary (d) of things to set, where self.key is the parameter to set, and value is what it will
+        be set to.  Makes a deferred call to set_dict so that this will happen in the gui thread"""
+        if self.experiment.gui is not None:
+            deferred_call(self.set_dict, d)
+        else:
+            self.set_dict(d)
+
+    def set_dict(self, d):
+        """Takes in a dictionary (d) of things to set, where self.key is the parameter to set, and value is what it will
+        be set to.  Makes a deferred call to set_dict so that this will happen in the gui thread"""
+
+        for key, value in d.iteritems():
+            setattr(self, key, value)
+
 
 # class EvalPropValidator(Validator):
     # valid=Bool()

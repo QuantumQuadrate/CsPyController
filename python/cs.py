@@ -56,6 +56,9 @@ def guiThread(exp):
     main.send_to_front()
     main.maximize()
 
+    #give the experiment a reference to the gui
+    exp.gui = main
+
     logger.debug('starting QtApplication')
     app.start()
     logger.info('Application active')

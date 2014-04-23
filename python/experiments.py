@@ -158,6 +158,7 @@ class Experiment(Prop):
     allow_evaluation = Member()
     log = Member()
     log_handler = Member()
+    gui = Member() #a reference to the gui Main, for use in Prop.set_gui
 
     def __init__(self):
         """Defines a set of instruments, and a sequence of what to do with them."""
@@ -178,7 +179,7 @@ class Experiment(Prop):
         self.measurementsPerIteration = 0
         self.willSendEmail = False
 
-        super(Experiment, self).__init__('experiment',self) #name is 'experiment', associated experiment is self
+        super(Experiment, self).__init__('experiment', self) #name is 'experiment', associated experiment is self
         self.instruments = []  # a list of the instruments this experiment has defined
         self.completedMeasurementsByIteration = []
         self.independentVariables = ListProp('independentVariables', self, listElementType=IndependentVariable,
@@ -280,7 +281,8 @@ class Experiment(Prop):
         cs_evaluate.execWithDict(self.dependentVariablesStr, self.vars)
 
         #update the report
-        self.variableReportStr = cs_evaluate.evalWithDict(self.variableReportFormat+'%locals()', varDict=self.vars, errStr='evaluating variables report\n')  # update the GUI
+        variableReportStr = cs_evaluate.evalWithDict(self.variableReportFormat+'%locals()', varDict=self.vars, errStr='evaluating variables report\n')
+        self.set_dict({'variableReportStr': variableReportStr})
 
     #overwrite from Prop()
     def evaluate(self):
@@ -322,13 +324,12 @@ class Experiment(Prop):
     
     def updateTime(self):
         """Updates the GUI clock and recalculates the time-to-completion predictions."""
-        
+
+        logger.debug('experiment.updateTime()')
         self.currentTime = time.time()
-        self.currentTimeStr = self.date2str(self.currentTime)
         
         self.timeElapsed = self.currentTime-self.timeStarted
-        self.timeElapsedStr = self.time2str(self.timeElapsed)
-        
+
         #calculate time per measurement
         completedMeasurements = sum(self.completedMeasurementsByIteration)
         if self.timeElapsed != 0:
@@ -340,18 +341,23 @@ class Experiment(Prop):
         else:
             estTotalMeasurements = numpy.mean(self.completedMeasurementsByIteration[:-1])*self.totalIterations
         if estTotalMeasurements > 0:
-            deferred_call(setattr, self, 'progress', int(100*completedMeasurements/estTotalMeasurements))
-            #self.progress=int(100*completedMeasurements/estTotalMeasurements)
+            progress = int(100*completedMeasurements/estTotalMeasurements)
         else:
-            deferred_call(setattr, self, 'progress', 0)
-            #self.progress=0
+            progress = 0
+
         self.timeRemaining = timePerMeasurement*(estTotalMeasurements-completedMeasurements)
-        self.timeRemainingStr = self.time2str(self.timeRemaining)
         self.totalTime = self.timeElapsed+self.timeRemaining
-        self.totalTimeStr = self.time2str(self.totalTime)
         self.completionTime = self.timeStarted+self.totalTime
-        self.completionTimeStr = self.date2str(self.completionTime)
-    
+
+        self.set_gui({
+            'currentTimeStr': self.date2str(self.currentTime),
+            'timeElapsedStr': self.time2str(self.timeElapsed),
+            'timeRemainingStr': self.time2str(self.timeRemaining),
+            'totalTimeStr': self.time2str(self.totalTime),
+            'completionTimeStr': self.date2str(self.completionTime),
+            'progress': progress
+        })
+
     def applyToSelf(self, dict):
         """Used to apply a bunch of variables at once.  This function is called using an Enaml deferred_call so that the
          updates are done in the GUI thread."""
@@ -448,13 +454,17 @@ class Experiment(Prop):
                     logger.info('iteration {} measurement {}'.format(self.iteration, self.measurement))
                     self.measure()  # tell all instruments to do the experiment sequence and acquire data
                     self.updateTime()  # update the countdown/countup clocks
+                    logger.debug('updating measurement count')
                     self.measurement += 1  # update the measurement count
                     if self.status == 'running' and self.pauseAfterMeasurement:
                         self.status = 'paused after measurement'
                     
                     #make sure results are written to disk
+                    logger.debug('flushing hdf5')
                     self.hdf5.flush()
-                
+
+                # Measurement loop exited, but that might mean we are pause, or an error.
+                # So check to see if we completed the iteration.
                 if self.goodMeasurements >= self.measurementsPerIteration:
                     logger.debug("Finished iteration")
                     # We have completed this iteration, move on to the next one
@@ -551,6 +561,7 @@ class Experiment(Prop):
 
         self.postMeasurement()
         self.completedMeasurementsByIteration[-1] += 1  # add one to the last counter in the list
+        logger.debug('finished measurement')
     
     def halt(self):
         """Manually force the status to idle, to cause the experiment to end"""
