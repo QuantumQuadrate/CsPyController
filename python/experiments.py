@@ -409,7 +409,6 @@ class Experiment(Prop):
 
         #reset experiment variables
         self.timeStarted = time.time()
-        self.currentTime = timeStarted()
         #self.timeStartedStr = self.date2str(self.timeStarted)
         self.iteration = 0
         self.measurement = 0
