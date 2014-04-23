@@ -109,6 +109,7 @@ class Experiment(Prop):
     
     #iteration Traits
     progress = Int(0)
+    progressGUI = Int(0)
     path = Member()  # full path to current experiment directory
     dailyPath = Member()
     experimentPath = Member()
@@ -198,7 +199,7 @@ class Experiment(Prop):
                             'pauseAfterMeasurement', 'pauseAfterError', 'saveData', 'saveSettings', 'settings_path',
                             'save2013styleFiles', 'localDataPath', 'networkDataPath', 'copyDataToNetwork',
                             'experimentDescriptionFilenameSuffix', 'measurementTimeout', 'measurementsPerIteration',
-                            'willSendEmail', 'emailAddresses', 'progress', 'iteration', 'iterationStr', 'measurement',
+                            'willSendEmail', 'emailAddresses', 'progress', 'progressGUI', 'iteration', 'iterationStr', 'measurement',
                             'measurementStr', 'goodMeasurements', 'goodMeasurementsStr', 'status', 'statusStr',
                             'totalIterations', 'timeStartedStr', 'currentTimeStr', 'timeElapsedStr', 'totalTimeStr',
                             'timeRemainingStr', 'completionTimeStr', 'variableReportFormat', 'variableReportStr',
@@ -343,9 +344,9 @@ class Experiment(Prop):
         else:
             estTotalMeasurements = numpy.mean(self.completedMeasurementsByIteration[:-1])*self.totalIterations
         if estTotalMeasurements > 0:
-            progress = int(100*completedMeasurements/estTotalMeasurements)
+            self.progress = int(100*completedMeasurements/estTotalMeasurements)
         else:
-            progress = 0
+            self.progress = 0
 
         self.timeRemaining = timePerMeasurement*(estTotalMeasurements-completedMeasurements)
         self.totalTime = self.timeElapsed+self.timeRemaining
@@ -362,7 +363,7 @@ class Experiment(Prop):
                     'timeRemainingStr': self.time2str(self.timeRemaining),
                     'totalTimeStr': self.time2str(self.totalTime),
                     'completionTimeStr': self.date2str(self.completionTime),
-                    'progress': progress
+                    'progressGUI': self.progress
         })
 
     def applyToSelf(self, dict):
@@ -413,12 +414,15 @@ class Experiment(Prop):
         self.measurement = 0
         self.goodMeasurements = 0
         self.completedMeasurementsByIteration = []
-        
+        self.progress = 0
+
+        self.update_gui()
+
         # setup data directory and files
         self.create_data_files()
         # run analyses preExperiment
         self.preExperiment()
-        
+
         self.status = 'paused before experiment'
 
     def goThread(self):

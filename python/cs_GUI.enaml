@@ -374,7 +374,7 @@ enamldef ExperimentPage(Page):
                 text:=experiment.emailAddresses
             
             Label: text='Progress'
-            Label: text<<str(experiment.progress)+'%'
+            Label: text<<'{}%'.format(experiment.progressGUI)
             
             Label: text='Iteration'
             Label: text<<experiment.iterationStr
@@ -1760,13 +1760,13 @@ enamldef Main(MainWindow): main:
     StatusBar:
         StatusItem:
             Label:
-                text << 'Status: {}, Iteration: {}, Measurement: {}, Good Measurements: {}, Progress: {}'.format(experiment.statusStr,experiment.iterationStr,experiment.measurementStr,experiment.goodMeasurementsStr,str(experiment.progress))
+                text << 'Status: {}, Iteration: {}, Measurement: {}, Good Measurements: {}, Progress: {}%'.format(experiment.statusStr,experiment.iterationStr,experiment.measurementStr,experiment.goodMeasurementsStr,experiment.progressGUI)
         StatusItem:
             ProgressBar: progress:
                 #constraints=[width==1200]
                 minimum=0
                 maximum=100
-                value<<int(experiment.progress)
+                value<<int(experiment.progressGUI)
     Container:
         padding = 0
         ScrollArea:
