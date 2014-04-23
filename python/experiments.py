@@ -199,9 +199,11 @@ class Experiment(Prop):
                             'save2013styleFiles', 'localDataPath', 'networkDataPath', 'copyDataToNetwork',
                             'experimentDescriptionFilenameSuffix', 'measurementTimeout', 'measurementsPerIteration',
                             'willSendEmail', 'emailAddresses', 'progress', 'progressGUI', 'iteration', 'measurement',
-                            'goodMeasurements', 'status', 'totalIterations', 'timeStarted', 'currentTime',
+                            'goodMeasurements', 'totalIterations', 'timeStarted', 'currentTime',
                             'timeElapsed', 'timeRemaining', 'totalTime', 'completionTime', 'variableReportFormat',
                             'variableReportStr', 'variablesNotToSave', 'notes']
+        #we do not load in status as a variable, to allow old settings to be loaded without bringing in the status of
+        #the saved experiments
 
     def set_status(self,s):
         self.status = s
