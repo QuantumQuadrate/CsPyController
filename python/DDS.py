@@ -48,7 +48,7 @@ class DDS(Instrument):
             self.updateBoxDescriptionList()
     
     def getDDSDeviceList(self):
-        result=self.communicator.send('<LabView><getDDSDeviceList/><LabView>')
+        result=self.communicator.send('<LabView><getDDSDeviceList/></LabView>')
         deviceListStr=result['DDS/devices']
         deferred_call(setattr,self,'deviceList',deviceListStr.split('\n'))
     
