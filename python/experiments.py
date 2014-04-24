@@ -205,7 +205,7 @@ class Experiment(Prop):
         #we do not load in status as a variable, to allow old settings to be loaded without bringing in the status of
         #the saved experiments
 
-    def set_status(self,s):
+    def set_status(self, s):
         self.status = s
         self.set_gui({'statusStr': s})
 
@@ -760,10 +760,10 @@ class Experiment(Prop):
         self.iterationResults.attrs['ivarNames'] = self.ivarNames
         self.iterationResults.attrs['ivarValues'] = [i.currentValue for i in self.independentVariables]
         self.iterationResults.attrs['ivarIndex'] = self.ivarIndex
-        self.iterationResults.attrs['variableReportStr'] = self.variableReportStr
+        self.iterationResults['report'] = self.variableReportStr
         
         #store the independent and dependent variable space
-        v = self.iterationResults.create_group('v')
+        v = self.iterationResults.create_group('variables')
         ignoreList = self.variablesNotToSave.split(',')
         for key, value in self.vars.iteritems():
             if key not in ignoreList:
