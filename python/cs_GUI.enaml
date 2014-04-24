@@ -1145,7 +1145,7 @@ enamldef DDS_box(Form):
 
     Label:
         text='DIO port'
-    SpinBox: sbox:
+    IntField:
         #maximum = sys.maxint  # this crashes on Windows, but not on OS X
         maximum = 999999
         minimum = 0
