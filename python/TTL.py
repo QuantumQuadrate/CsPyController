@@ -44,7 +44,7 @@ class TTL_filters(Analysis):
 
     def __init__(self, name, experiment, description=''):
         super(TTL_filters, self).__init__(name, experiment, description)
-        self.properties += ['text', 'lines']
+        self.properties += ['text', 'filter_level']
 
     def analyzeMeasurement(self, measurementResults, iterationResults, experimentResults):
         text = 'none'
