@@ -472,6 +472,7 @@ class Experiment(Prop):
                     self.measurement += 1  # update the measurement count
                     if self.status == 'running' and self.pauseAfterMeasurement:
                         self.set_status('paused after measurement')
+                        sound.error_sound()
                     self.update_gui()
                     #make sure results are written to disk
                     logger.debug('flushing hdf5')
@@ -489,6 +490,7 @@ class Experiment(Prop):
                         self.goodMeasurements = 0
                         if (self.status == 'running' or self.status == 'paused after measurement') and self.pauseAfterIteration:
                             self.set_status('paused after iteration')
+                            sound.error_sound()
                     else:
                         logger.debug("Finished all iterations")
                         self.postExperiment()
