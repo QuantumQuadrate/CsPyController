@@ -13,10 +13,7 @@ from __future__ import division
 import logging
 logger = logging.getLogger(__name__)
 
-
-from atom.api import Bool, Int, Float, Str, Typed, Member, List, observe, Atom
-from enaml.application import deferred_call
-from instrument_property import Prop, BoolProp, IntProp, FloatProp, StrProp, ListProp
+import numpy
 from cs_instruments import Instrument
 from analysis import Analysis
 
