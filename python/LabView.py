@@ -234,10 +234,10 @@ class LabView(Instrument):
             #report LabView errors
             log = ''
             if 'log' in results:
-                log = self.results['log']
+                log = results['log']
                 self.set_gui({'log': self.log + log})
             if 'error' in results:
-                error = toBool(self.results['error'])
+                error = toBool(results['error'])
                 self.set_gui({'error': error})
                 if error:
                     logger.warning('Error returned from LabView.send:\n{}\n'.format(log))

@@ -13,6 +13,8 @@ from __future__ import division
 import logging
 logger = logging.getLogger(__name__)
 
+import threading
+
 from atom.api import Bool, Int, Float, Str, Typed, Member, List, observe, Atom
 from enaml.application import deferred_call
 from instrument_property import Prop, BoolProp, IntProp, FloatProp, StrProp, ListProp
@@ -46,7 +48,12 @@ class DDS(Instrument):
             logger.debug('DDS.evaluate()')
             super(DDS,self).evaluate()
             self.updateBoxDescriptionList()
-    
+
+    def getDDSDeviceListThread(self):
+        thread = threading.Thread(target=self.getDDSDeviceList)
+        thread.daemon = True
+        thread.start()
+
     def getDDSDeviceList(self):
         result=self.communicator.send('<LabView><getDDSDeviceList/></LabView>')
         deviceListStr=result['DDS/devices']
@@ -59,7 +66,12 @@ class DDS(Instrument):
         except RuntimeError:
             #the GUI is not yet active
             self.boxDescriptionList=[str(i)+' '+n.description for i, n in enumerate(self.boxes)]
-    
+
+    def initializeDDSThread(self):
+        thread = threading.Thread(target=self.initializeDDS)
+        thread.daemon = True
+        thread.start()
+
     def initializeDDS(self):
         #send just the DDS settings, force initialization, and then set DDS settings
         #This is not used as the instrument.initialize method at this time
@@ -68,7 +80,12 @@ class DDS(Instrument):
         result = self.communicator.send('<LabView><uninitializeDDS/>'+self.toHardware()+'</LabView>')
         self.isInitialized = True
         print 'DDS: ... done.'
-    
+
+    def loadDDSThread(self):
+        thread = threading.Thread(target=self.loadDDS)
+        thread.daemon = True
+        thread.start()
+
     def loadDDS(self):
         #send just the DDS settings, initialize if neccessary, and then set DDS settings
         print 'DDS: Loading settings ...'

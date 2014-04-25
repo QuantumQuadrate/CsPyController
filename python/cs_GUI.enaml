@@ -1176,13 +1176,13 @@ enamldef DDS_Page(Container): page:
                     prop<<DDS.enable
         PushButton: getDevicesButton:
             text='Get DDS Device List'
-            clicked::DDS.getDDSDeviceList()
+            clicked::DDS.getDDSDeviceListThread()
         PushButton: initButton:
             text='Initialize and Load'
-            clicked::DDS.initializeDDS()
+            clicked::DDS.initializeDDSThread()
         PushButton: loadButton:
             text='Load'
-            clicked::DDS.loadDDS()
+            clicked::DDS.loadDDSThread()
 
         #LabelBox: enable:
         #    text='enable'
