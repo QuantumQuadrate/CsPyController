@@ -48,23 +48,21 @@ class TTL_filters(Analysis):
 
     def analyzeMeasurement(self, measurementResults, iterationResults, experimentResults):
         text = 'none'
-        if self.enable:
-            if 'TTL/data' in measurementResults['data']:
-                a = measurementResults['data/TTL/data']
-                text = str(a)
-                #check to see if any of the inputs were True
-                if numpy.any(a):
-                    #report the true inputs
-                    text = 'TTL Filters failed:\n'
-                    for i,b in enumerate(a):
-                        #print out the row and column of the True input
-                        text += 'Check {}: Laser(s) {}\n'.format(i, arange(len(b))[b])
-                    #record to the log and screen
-                    logger.warning(text)
-                    self.set_gui({'text': text})
-                    # User chooses whether or not to delete data.
-                    # max takes care of ComboBox returning -1 for no selection
-                    return max(0, self.filter_level)
-                else:
-                    text = 'okay'
+        if 'TTL/data' in measurementResults['data']:
+            a = measurementResults['data/TTL/data']
+            #check to see if any of the inputs were True
+            if numpy.any(a):
+                #report the true inputs
+                text = 'TTL Filters failed:\n'
+                for i,b in enumerate(a):
+                    #print out the row and column of the True input
+                    text += 'Check {}: Laser(s) {}\n'.format(i, arange(len(b))[b])
+                #record to the log and screen
+                logger.warning(text)
+                self.set_gui({'text': text})
+                # User chooses whether or not to delete data.
+                # max takes care of ComboBox returning -1 for no selection
+                return max(0, self.filter_level)
+            else:
+                text = 'okay '+str(a)
         self.set_gui({'text': text})
