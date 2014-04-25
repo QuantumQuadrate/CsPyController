@@ -51,7 +51,6 @@ def evalWithDict(string, varDict=None, errStr=''):
             return eval(string, myGlobals, varDict)
         except Exception as e:
             print errStr+'Could not eval string: '+string+'\n'+str(e)+'\n'
-            sound.minor_error_sound()
             raise PauseError
 
 def execWithDict(string, varDict=None):
