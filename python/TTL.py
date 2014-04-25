@@ -54,7 +54,7 @@ class TTL_filters(Analysis):
                 text = 'TTL Filters failed:\n'
                 for i,b in enumerate(a):
                     #print out the row and column of the True input
-                    text += 'Check {}: Laser(s) {}\n'.format(i, arange(len(b))[b])
+                    text += 'Check {}: Laser(s) {}\n'.format(i, numpy.arange(len(b))[b])
                 #record to the log and screen
                 logger.warning(text)
                 self.set_gui({'text': text})

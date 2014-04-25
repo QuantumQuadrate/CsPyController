@@ -576,7 +576,6 @@ class Experiment(Prop):
             i.writeResults(self.measurementResults['data'])
 
         self.postMeasurement()
-        self.completedMeasurementsByIteration[-1] += 1  # add one to the last counter in the list
         logger.debug('finished measurement')
     
     def halt(self):
@@ -811,9 +810,12 @@ class Experiment(Prop):
             #we are not saving data so remove the measurement from the hdf5
             delete = True
         if delete:
-            del self.measurementResults  # remove the bad data
+            m = self.measurementResults.attrs['measurement']  # get the measurement number
+            del self.measurementResults  # remove the reference to the bad data
+            del self.iterationResults['measurements/'+str(m)]  # really remove the bad data
         if good:
             self.goodMeasurements += 1
+            self.completedMeasurementsByIteration[-1] += 1  # add one to the last counter in the list
 
     def postIteration(self):
         logger.debug('Starting postIteration()')
