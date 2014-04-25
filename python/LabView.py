@@ -133,7 +133,6 @@ class LabView(Instrument):
         super(LabView, self).update()
         self.send(self.toHardware())
 
-
     def start(self):
         self.send('<LabView><measure/></LabView>')
 
@@ -141,8 +140,11 @@ class LabView(Instrument):
         """Write the previously obtained results to the experiment hdf5 file.
         hdf5 is an hdf5 group, typically the data group in the appropriate part of the
         hierarchy for the current measurement."""
-        for key,value in self.results.iteritems():
+
+        for key, value in self.results.iteritems():
+
             #print 'key: {} value: {}'.format(key,str(value)[:40])
+
             if key.startswith('Hamamatsu/shots/'):
                 #specific protocol for images: turn them into 2D numpy arrays
                 
@@ -155,50 +157,37 @@ class LabView(Instrument):
                 try: #if ('Hamamatsu/rows' in hdf5) and ('Hamamtsu/columns' in hdf5):
                     array.resize((int(hdf5['Hamamatsu/rows'].value),int(hdf5['Hamamatsu/columns'].value)))
                 except Exception as e:
-                    logger.warning('unable to resize image, check for Hamamatsu row/column data:'+str(e))
+                    logger.error('unable to resize image, check for Hamamatsu row/column data:\n'+str(e))
                     raise PauseError
                 try:
-                    hdf5[key]=array
+                    hdf5[key] = array
                 except Exception as e:
-                    logger.warning('in LabView.writeResults() doing hdf5[key]=array for key='+key+'\n'+str(e))
-                    raise PauseError
-            elif key=='error':
-                self.error=toBool(value)
-                try:
-                    hdf5[key]=self.error
-                except Exception as e:
-                    logger.warning('in LabView.writeResults() doing hdf5[key]=self.error for key='+key+'\n'+str(e))
+                    logger.error('in LabView.writeResults() doing hdf5[key]=array for key='+key+'\n'+str(e))
                     raise PauseError
 
-            elif key=='log':
-                self.log+=value
+            elif key == 'TTL/data':
+                #boolean data was stored as 2 byte signed int
+                array = numpy.array(struct.unpack('!'+str(int(len(value)/2))+'h', value), dtype=numpy.bool_)
                 try:
-                    hdf5[key]=value
+                    dims = map(int, self.results['TTL/dimensions'].split(','))
+                    array.resize(dims)
                 except Exception as e:
-                    logger.warning('in LabView.writeResults() doing hdf5[key]=value for key='+key+'\n'+str(e))
+                    logger.error('unable to resize TTL data, check for TTL/dimensions in returned data:\n'+str(e))
+                    raise PauseError
+                try:
+                    hdf5[key] = array
+                except Exception as e:
+                    logger.error('in LabView.writeResults() doing hdf5[{}]\n{}'.format(key,e))
                     raise PauseError
 
             else:
                 # no special protocol
                 try:
-                    hdf5[key]=value
+                    hdf5[key] = value
                 except Exception as e:
-                    logger.warning('in LabView.writeResults() doing hdf5[key]=value for key='+key+'\n'+str(e))
+                    logger.error('in LabView.writeResults() doing hdf5[key]=value for key='+key+'\n'+str(e))
                     raise PauseError
-        
-        try:
-            if ('error' in hdf5) and (hdf5['error'].value):
-                if ('log' in hdf5):
-                    logger.warning('LabView error.  Log:\n'+hdf5['log'].value)
-                else:
-                    logger.warning('LabView error.  No log available.')
-                raise PauseError
-        except PauseError:
-            raise PauseError
-        except Exception as e:
-            logger.warning("while getting hdf5['error']\n"+str(e))
-            raise PauseError
-    
+
     def send(self, msg):
         results = {}
         if self.enabled:
@@ -241,13 +230,19 @@ class LabView(Instrument):
             results = self.sock.parsemsg(rawdata)
             #for key, value in self.results.iteritems():
             #    print 'key: {} value: {}'.format(key,str(value)[:40])
-            if 'log' in self.results:
-                self.log += self.results['log']
-            if 'error' in self.results:
-                self.error = toBool(self.results['error'])
-                if self.error:
-                    logger.warning('Error returned from LabView.send:\n{}\n'.format(self.results['log']))
+
+            #report LabView errors
+            log = ''
+            if 'log' in results:
+                log = self.results['log']
+                self.set_gui({'log': self.log + log})
+            if 'error' in results:
+                error = toBool(self.results['error'])
+                self.set_gui({'error': error})
+                if error:
+                    logger.warning('Error returned from LabView.send:\n{}\n'.format(log))
                     raise PauseError
+
         self.results = results
         self.isDone = True
         return results
