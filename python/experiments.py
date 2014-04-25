@@ -18,7 +18,7 @@ from atom.api import Int, Float, Str, Member
 from enaml.application import deferred_call
 
 # Bring in other files in this package
-import cs_evaluate, analysis, save2013style
+import cs_evaluate, analysis, save2013style, TTL
 from cs_errors import PauseError
 from instrument_property import Prop, EvalProp, ListProp
 import LabView
@@ -883,11 +883,11 @@ class AQuA(Experiment):
         self.histogramAnalysis = analysis.HistogramAnalysis('plot the histogram of any shot and roi', self)
         self.measurements_graph = analysis.MeasurementsGraph('measurements_graph',self,'plot the ROI sum vs all measurements')
         self.iterations_graph = analysis.IterationsGraph('iterations_graph',self,'plot the average of ROI sums vs iterations')
-        self.TTL_filters = analysis.TTL_filters('TTL_filters', self)
+        self.TTL_filters = TTL.TTL_filters('TTL_filters', self)
         self.save2013Analysis = save2013style.Save2013Analysis(self)
         self.optimizer = analysis.OptimizerAnalysis(self)
-        self.analyses += [self.text_analysis, self.imageSumAnalysis, self.recent_shot_analysis, self.shotBrowserAnalysis, self.squareROIAnalysis,
-                          self.histogramAnalysis, self.measurements_graph, self.iterations_graph, self.TTL_filters, self.save2013Analysis]
+        self.analyses += [self.TTL_filters, self.text_analysis, self.imageSumAnalysis, self.recent_shot_analysis, self.shotBrowserAnalysis, self.squareROIAnalysis,
+                          self.histogramAnalysis, self.measurements_graph, self.iterations_graph, self.save2013Analysis]
 
         self.properties += ['LabView', 'imageSumAnalysis', 'recent_shot_analysis', 'shotBrowserAnalysis', 'squareROIAnalysis', 'histogramAnalysis', 'measurements_graph', 'iterations_graph', 'TTL_filters']
 

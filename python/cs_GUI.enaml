@@ -1726,18 +1726,18 @@ enamldef IterationsGraphPage(Page):
             figure<<analysis.figure
 
 enamldef TTL_filters(Form):
-    attr experiment
-    attr TTL
+    attr instrument
+    attr filter
 
     Label:
         text = 'enable'
     CheckBox:
-        checked := TTL.enable
+        checked := instrument.enable
 
     Label:
         text = 'lines'
     Field:
-        text := TTL.lines
+        text := instrument.lines
 
     Label:
         text = 'filter level'
@@ -1746,12 +1746,12 @@ enamldef TTL_filters(Form):
                  'soft: continue with other analyses, but do not increment measurement total',
                  'med: continue with other analyses, do not increment measurement total, and delete measurement data after all analyses',
                  'hard: do not continue with other analyses, do not increment measurement total, delete measurement data']
-        index := TTL.filter_level
+        index := filter.filter_level
 
     Label:
         text = 'Status'
     Label:
-        text := TTL.text
+        text := filter.text
 
 enamldef Optimizer(Form):
     attr experiment
@@ -1855,8 +1855,8 @@ enamldef Main(MainWindow): main:
                     Page:
                         title='TTL filter'
                         TTL_filters:
-                            experiment=main.experiment
-                            TTL=main.experiment.TTL_filters
+                            instrument = main.experiment.LabView.TTL
+                            filter = main.experiment.TTL_filters
                     Page:
                         title='Optimization'
                         Optimizer:
