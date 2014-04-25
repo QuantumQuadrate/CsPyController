@@ -1515,9 +1515,9 @@ enamldef AnalysisImage(Container):
     attr analysis
     
     padding=0
-    constraints=[(height==600)|'strong',(width==600)|'strong']
+    constraints=[(height==550)|'strong',(width==550)|'strong']
     MPLCanvas:
-        constraints=[(height==600)|'strong',(width==600)|'strong']
+        constraints=[(height==550)|'strong',(width==550)|'strong']
         figure<<analysis.figure
 
 
@@ -1668,7 +1668,7 @@ enamldef HistogramPage(Page):
                 minimum = 0
                 maximum << len(experiment.squareROIAnalysis.ROIs)
         MPLCanvas:
-            constraints=[(height==900)|'strong',(width==1500)|'strong']
+            constraints=[(height==900)|'strong',(width==1700)|'strong']
             #hug_width='ignore'
             figure<<analysis.figure
 
@@ -1697,7 +1697,7 @@ enamldef MeasurementsGraphPage(Page):
             text = 'clear'
             clicked::analysis.clear()
         MPLCanvas:
-            constraints=[(height==900)|'strong',(width==1500)|'strong']
+            constraints=[(height==900)|'strong',(width==1700)|'strong']
             figure<<analysis.figure
 
 enamldef IterationsGraphPage(Page):
@@ -1722,9 +1722,36 @@ enamldef IterationsGraphPage(Page):
                 minimum = 0
                 maximum << len(experiment.squareROIAnalysis.ROIs)
         MPLCanvas:
-            constraints=[(height==900)|'strong',(width==1500)|'strong']
+            constraints=[(height==900)|'strong',(width==1700)|'strong']
             figure<<analysis.figure
 
+enamldef TTL_filters(Form):
+    attr experiment
+    attr TTL
+
+    Label:
+        text = 'enable'
+    CheckBox:
+        checked := TTL.enable
+
+    Label:
+        text = 'lines'
+    Field:
+        text := TTL.lines
+
+    Label:
+        text = 'filter level'
+    ComboBox:
+        items = ['None: increment measurement total',
+                 'soft: continue with other analyses, but do not increment measurement total',
+                 'med: continue with other analyses, do not increment measurement total, and delete measurement data after all analyses',
+                 'hard: do not continue with other analyses, do not increment measurement total, delete measurement data']
+        index := TTL.filter_level
+
+    Label:
+        text = 'Status'
+    Label:
+        text := TTL.text
 
 enamldef Optimizer(Form):
     attr experiment
@@ -1825,6 +1852,11 @@ enamldef Main(MainWindow): main:
                     IterationsGraphPage:
                        experiment=main.experiment
                        analysis=main.experiment.iterations_graph
+                    Page:
+                        title='TTL filter'
+                        TTL_filters:
+                            experiment=main.experiment
+                            TTL=main.experiment.TTL_filters
                     Page:
                         title='Optimization'
                         Optimizer:

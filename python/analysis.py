@@ -67,9 +67,9 @@ class Analysis(Prop):
     measurementQueue = []
     iterationQueue = []
 
-    def __init__(self,name,experiment,description=''): #subclassing from Prop provides save/load mechanisms
-        super(Analysis,self).__init__(name,experiment,description)
-        self.properties += ['dropMeasurementIfSlow','dropIterationIfSlow']
+    def __init__(self, name, experiment, description=''):  # subclassing from Prop provides save/load mechanisms
+        super(Analysis, self).__init__(name, experiment, description)
+        self.properties += ['dropMeasurementIfSlow', 'dropIterationIfSlow']
     
     def preExperiment(self, experimentResults):
         """This is called before an experiment.
@@ -187,6 +187,41 @@ class TextAnalysis(Analysis):
         except KeyError as e:
             logger.warning('HDF5 text does not exist in TextAnalysis\n{}\n'.format(e))
             return
+        self.set_gui({'text': text})
+
+class TTL_filters(Analysis):
+    """This analysis monitors the TTL inputs and does either hard or soft cuts of the data accordingly.
+    Low is good, high is bad."""
+
+    enable = Bool(False)
+    text = Str()
+    lines = Str('PXI1Slot6/port0')
+    filter_level = Int()
+
+    def __init__(self, name, experiment, description=''):
+        super(TTL_filters, self).__init__(name, experiment, description)
+        self.properties += ['text','lines']
+
+    def analyzeMeasurement(self, measurementResults, iterationResults, experimentResults):
+        text = 'none'
+        if self.enable:
+            if 'TTL/data' in measurementResults['data']:
+                a = measurementResults['data/TTL/data']
+                #check to see if any of the inputs were True
+                if numpy.any(a):
+                    #report the true inputs
+                    text = 'TTL Filters failed:\n'
+                    for i,b in enumerate(a):
+                        #print out the row and column of the True input
+                        text += 'Check {}: Laser(s) {}\n'.format(i, arange(len(b))[b])
+                    #record to the log and screen
+                    logger.warning(text)
+                    self.set_gui({'text': text})
+                    # User chooses whether or not to delete data.
+                    # max takes care of ComboBox returning -1 for no selection
+                    return max(0, self.filter_level)
+                else:
+                    text = 'okay'
         self.set_gui({'text': text})
 
 class RecentShotAnalysis(AnalysisWithFigure):

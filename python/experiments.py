@@ -861,6 +861,7 @@ class AQuA(Experiment):
     histogramAnalysis = Member()
     measurements_graph = Member()
     iterations_graph = Member()
+    TTL_filters = Member()
     save2013Analysis = Member()
     optimizer = Member()
     ROI_rows = 7
@@ -874,23 +875,24 @@ class AQuA(Experiment):
         self.instruments = [self.LabView]
         
         #analyses
-        self.text_analysis = analysis.TextAnalysis('text_analysis', self.experiment, 'text results from the measurement')
-        self.imageSumAnalysis = analysis.ImageSumAnalysis(self.experiment)
-        self.recent_shot_analysis = analysis.RecentShotAnalysis('recent_shot_analysis', self.experiment, description='just show the most recent shot')
-        self.shotBrowserAnalysis = analysis.ShotsBrowserAnalysis(self.experiment)
-        self.squareROIAnalysis = analysis.SquareROIAnalysis(self.experiment, ROI_rows=self.ROI_rows, ROI_columns=self.ROI_columns)
-        self.histogramAnalysis = analysis.HistogramAnalysis('plot the histogram of any shot and roi', self.experiment)
-        self.measurements_graph = analysis.MeasurementsGraph('measurements_graph',self.experiment,'plot the ROI sum vs all measurements')
-        self.iterations_graph = analysis.IterationsGraph('iterations_graph',self.experiment,'plot the average of ROI sums vs iterations')
-        self.save2013Analysis = save2013style.Save2013Analysis(self.experiment)
-        self.optimizer = analysis.OptimizerAnalysis(self.experiment)
+        self.text_analysis = analysis.TextAnalysis('text_analysis', self, 'text results from the measurement')
+        self.imageSumAnalysis = analysis.ImageSumAnalysis(self)
+        self.recent_shot_analysis = analysis.RecentShotAnalysis('recent_shot_analysis', self, description='just show the most recent shot')
+        self.shotBrowserAnalysis = analysis.ShotsBrowserAnalysis(self)
+        self.squareROIAnalysis = analysis.SquareROIAnalysis(self, ROI_rows=self.ROI_rows, ROI_columns=self.ROI_columns)
+        self.histogramAnalysis = analysis.HistogramAnalysis('plot the histogram of any shot and roi', self)
+        self.measurements_graph = analysis.MeasurementsGraph('measurements_graph',self,'plot the ROI sum vs all measurements')
+        self.iterations_graph = analysis.IterationsGraph('iterations_graph',self,'plot the average of ROI sums vs iterations')
+        self.TTL_filters = analysis.TTL_filters('TTL_filters', self)
+        self.save2013Analysis = save2013style.Save2013Analysis(self)
+        self.optimizer = analysis.OptimizerAnalysis(self)
         self.analyses += [self.text_analysis, self.imageSumAnalysis, self.recent_shot_analysis, self.shotBrowserAnalysis, self.squareROIAnalysis,
-                          self.histogramAnalysis, self.measurements_graph, self.iterations_graph, self.save2013Analysis]
+                          self.histogramAnalysis, self.measurements_graph, self.iterations_graph, self.TTL_filters, self.save2013Analysis]
 
-        self.properties += ['LabView', 'imageSumAnalysis', 'recent_shot_analysis', 'shotBrowserAnalysis', 'squareROIAnalysis', 'histogramAnalysis', 'measurements_graph', 'iterations_graph']
+        self.properties += ['LabView', 'imageSumAnalysis', 'recent_shot_analysis', 'shotBrowserAnalysis', 'squareROIAnalysis', 'histogramAnalysis', 'measurements_graph', 'iterations_graph', 'TTL_filters']
 
         try:
-            self.allow_evaluation=False
+            self.allow_evaluation = False
             self.loadDefaultSettings()
 
             #update variables
