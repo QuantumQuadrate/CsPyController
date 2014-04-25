@@ -17,6 +17,7 @@ import numpy
 from atom.api import Bool, Str, Int
 from cs_instruments import Instrument
 from analysis import Analysis
+import sound
 
 
 class TTL(Instrument):
@@ -58,9 +59,11 @@ class TTL_filters(Analysis):
                 #record to the log and screen
                 logger.warning(text)
                 self.set_gui({'text': text})
+                sound.warning_sound()
+
                 # User chooses whether or not to delete data.
                 # max takes care of ComboBox returning -1 for no selection
                 return max(0, self.filter_level)
             else:
-                text = 'okay '+str(a)
+                text = 'okay'
         self.set_gui({'text': text})

@@ -18,12 +18,9 @@ from atom.api import Int, Float, Str, Member
 from enaml.application import deferred_call
 
 # Bring in other files in this package
-import cs_evaluate, analysis, save2013style, TTL
+import cs_evaluate, analysis, save2013style, TTL, LabView, sound
 from cs_errors import PauseError
 from instrument_property import Prop, EvalProp, ListProp
-import LabView
-
-
 
 class IndependentVariable(EvalProp):
     """A class to hold the independent variables for an experiment.  These are
@@ -502,10 +499,12 @@ class Experiment(Prop):
             #exits out to this point.
             if self.pauseAfterError:
                 self.set_status('paused after error')
+            sound.error_sound()
         except Exception as e:
             logger.error('Exception during experiment:\n'+str(e)+'\n'+str(traceback.format_exc())+'\n')
             if self.pauseAfterError:
                 self.set_status('paused after error')
+            sound.error_sound()
 
     def endThread(self):
         """Launches end() in a new thread, to keep GUI free"""
@@ -849,6 +848,7 @@ class Experiment(Prop):
 
         self.set_status('idle')
         logger.info('Finished Experiment.')
+        sound.complete_sound()
 
 class AQuA(Experiment):
     """A subclass of Experiment which knows about all our particular hardware"""
