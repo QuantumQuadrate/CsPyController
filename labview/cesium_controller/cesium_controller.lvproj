@@ -626,7 +626,7 @@
 				<Property Name="Bld_localDestDirType" Type="Str">relativeToCommon</Property>
 				<Property Name="Bld_modifyLibraryFile" Type="Bool">true</Property>
 				<Property Name="Bld_previewCacheID" Type="Str">{574B9F9D-241F-4A68-8892-A5E401941744}</Property>
-				<Property Name="Bld_version.build" Type="Int">16</Property>
+				<Property Name="Bld_version.build" Type="Int">18</Property>
 				<Property Name="Bld_version.major" Type="Int">1</Property>
 				<Property Name="Destination[0].destName" Type="Str">cs_server.exe</Property>
 				<Property Name="Destination[0].path" Type="Path">../cs_server.exe</Property>
@@ -649,6 +649,43 @@
 				<Property Name="TgtF_productName" Type="Str">cs_server</Property>
 				<Property Name="TgtF_targetfileGUID" Type="Str">{2D7F779A-32BB-42BE-B579-CEB9E3237BAD}</Property>
 				<Property Name="TgtF_targetfileName" Type="Str">cs_server.exe</Property>
+			</Item>
+			<Item Name="ListDDSDevices" Type="EXE">
+				<Property Name="App_copyErrors" Type="Bool">true</Property>
+				<Property Name="App_INI_aliasGUID" Type="Str">{4D86B001-C138-4DBA-872C-213EECBF0080}</Property>
+				<Property Name="App_INI_GUID" Type="Str">{2DAEAF9D-4016-41D0-84EE-B3EA26876626}</Property>
+				<Property Name="App_serverConfig.httpPort" Type="Int">8002</Property>
+				<Property Name="Bld_autoIncrement" Type="Bool">true</Property>
+				<Property Name="Bld_buildCacheID" Type="Str">{19A59580-669B-45FF-BA0A-B56A146B91DC}</Property>
+				<Property Name="Bld_buildSpecName" Type="Str">ListDDSDevices</Property>
+				<Property Name="Bld_excludeInlineSubVIs" Type="Bool">true</Property>
+				<Property Name="Bld_excludeLibraryItems" Type="Bool">true</Property>
+				<Property Name="Bld_excludePolymorphicVIs" Type="Bool">true</Property>
+				<Property Name="Bld_localDestDir" Type="Path">../builds/NI_AB_PROJECTNAME/ListDDSDevices</Property>
+				<Property Name="Bld_localDestDirType" Type="Str">relativeToCommon</Property>
+				<Property Name="Bld_modifyLibraryFile" Type="Bool">true</Property>
+				<Property Name="Bld_previewCacheID" Type="Str">{DDEAF3EF-2B2E-4F56-BCB3-7B957593EFC9}</Property>
+				<Property Name="Bld_version.major" Type="Int">1</Property>
+				<Property Name="Destination[0].destName" Type="Str">ListDDSDevices.exe</Property>
+				<Property Name="Destination[0].path" Type="Path">../builds/NI_AB_PROJECTNAME/ListDDSDevices/ListDDSDevices.exe</Property>
+				<Property Name="Destination[0].preserveHierarchy" Type="Bool">true</Property>
+				<Property Name="Destination[0].type" Type="Str">App</Property>
+				<Property Name="Destination[1].destName" Type="Str">Support Directory</Property>
+				<Property Name="Destination[1].path" Type="Path">../builds/NI_AB_PROJECTNAME/ListDDSDevices/data</Property>
+				<Property Name="DestinationCount" Type="Int">2</Property>
+				<Property Name="Source[0].itemID" Type="Str">{F6BDF1D6-1493-4462-AC18-492482200DBC}</Property>
+				<Property Name="Source[0].type" Type="Str">Container</Property>
+				<Property Name="Source[1].destinationIndex" Type="Int">0</Property>
+				<Property Name="Source[1].itemID" Type="Ref">/My Computer/DDS.lvclass/NI-845x Find Devices.vi</Property>
+				<Property Name="Source[1].sourceInclusion" Type="Str">TopLevel</Property>
+				<Property Name="Source[1].type" Type="Str">VI</Property>
+				<Property Name="SourceCount" Type="Int">2</Property>
+				<Property Name="TgtF_fileDescription" Type="Str">ListDDSDevices</Property>
+				<Property Name="TgtF_internalName" Type="Str">ListDDSDevices</Property>
+				<Property Name="TgtF_legalCopyright" Type="Str">Copyright © 2014 </Property>
+				<Property Name="TgtF_productName" Type="Str">ListDDSDevices</Property>
+				<Property Name="TgtF_targetfileGUID" Type="Str">{F062E381-2F6E-49C5-80EE-8229AF4E1D18}</Property>
+				<Property Name="TgtF_targetfileName" Type="Str">ListDDSDevices.exe</Property>
 			</Item>
 		</Item>
 	</Item>

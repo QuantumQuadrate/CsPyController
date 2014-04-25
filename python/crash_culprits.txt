@@ -1,0 +1,14 @@
+2014/04/23 10:24:21 - Thread-1 - experiments.py.postIteration.803 - DEBUG
+Starting postIteration()
+
+2014/04/23 10:26:45 - Thread-1 - experiments.py.go.457 - DEBUG
+updating measurement count
+
+2014/04/23 10:28:25 - Thread-1 - experiments.py.measure.550 - DEBUG
+all instruments done
+
+2014/04/23 10:33:08 - Thread-2 - experiments.py.postMeasurement.770 - DEBUG
+starting post measurement analyses
+
+2014/04/23 10:38:25 - Thread-1 - experiments.py.postMeasurement.770 - DEBUG
+starting post measurement analyses
