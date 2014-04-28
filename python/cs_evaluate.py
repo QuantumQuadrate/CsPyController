@@ -30,11 +30,9 @@ def evalIvar(string):
             logger.warning('Could not evaluate independent variable: '+string+'\n'+str(e)+'\n'+str(traceback.format_exc())+'\n')
             raise PauseError
 
-def evalWithDict(string, varDict=None, errStr=''):
+def evalWithDict(string, varDict=None):
     """string: the python expression to be evaluated
-       varDict: a dictionary of variables, functions, modules, etc, to be used during the evaluation
-       errStr: a string that says something about what is being evaluated, to make the error reporting useful
-    """
+       varDict: a dictionary of variables, functions, modules, etc, to be used during the evaluation"""
 
     global myGlobals
 
@@ -50,7 +48,7 @@ def evalWithDict(string, varDict=None, errStr=''):
             #varDict acts as locals, and in general will remain unchanged
             return eval(string, myGlobals, varDict)
         except Exception as e:
-            print errStr+'Could not eval string: '+string+'\n'+str(e)+'\n'
+            logger.warning('Could not eval string: {}\n{}\n'.format(string,e))
             raise PauseError
 
 def execWithDict(string, varDict=None):

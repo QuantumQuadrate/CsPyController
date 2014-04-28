@@ -261,7 +261,7 @@ enamldef EvalProp(GroupBox):
     padding = 0
     flat = True
     title << prop.name
-    constraints = [desc.width==func.width,func.width==val.width,hbox(desc,func,val),align('v_center',desc,func,val)]
+    constraints = [desc.width==func.width, func.width==val.width, hbox(desc,func,val), align('v_center',desc,func,val)]
 
     # can be made to show an error status by setting valid to false
     attr valid = True
@@ -274,10 +274,9 @@ enamldef EvalProp(GroupBox):
         text := prop.function
         placeholder = prop.placeholder
         style_class << 'valid' if prop.valid else 'invalid'
-        #validator = prop #.validator
 
     Label: val:
-        text << str(prop.value)
+        text << prop.valueStr
 
 enamldef MultilineProp(GroupBox):        
     attr prop
@@ -290,7 +289,7 @@ enamldef MultilineProp(GroupBox):
     MultilineField: func:
         text:=prop.function
     Label: val:
-        text<<str(prop.value)
+        text << prop.valueStr
 
 enamldef LabelBox(Container):
     attr checked #=False
@@ -721,7 +720,6 @@ enamldef NumpyState(Form):
 
     Field:
         constraints = [width == 100,height==20]
-        #placeholder='state: None,0,1'
         text:=state['function']
         validator<<MyEnumValidator(experiment,[None,0,1])
         text::
@@ -780,8 +778,6 @@ enamldef TransitionTime(Form):
     padding=0
     
     Field:
-        tool_tip << text
-        status_tip << text
         constraints = [width == 100,height==20]
         placeholder='time'
         text:=transition['function']
@@ -955,14 +951,6 @@ enamldef Waveforms(Container):
                         # quicker to instantiate single element
                         NumpyWaveform:
                             waveform << HSDIO.waveforms.listProperty[combo.index]
-#        Stack: stack:
-#            index<<combo.index
-#            RefreshableLooper:
-#                iterable<<HSDIO.waveforms
-#                StackItem:
-#                    NumpyWaveform:
-#                        waveform<<loop_item
-
 
 enamldef HSDIO_DigitalOutPage(Page):
     attr HSDIO

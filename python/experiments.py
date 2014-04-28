@@ -287,8 +287,12 @@ class Experiment(Prop):
         cs_evaluate.execWithDict(self.dependentVariablesStr, self.vars)
 
         #update the report
-        variableReportStr = cs_evaluate.evalWithDict(self.variableReportFormat+'%locals()', varDict=self.vars, errStr='evaluating variables report\n')
-        self.set_dict({'variableReportStr': variableReportStr})
+        try:
+            variableReportStr = cs_evaluate.evalWithDict(self.variableReportFormat+'%locals()', varDict=self.vars)
+        except Exception as e:
+            logger.error('Exception evaluating variables report:\n{}'.format(e))
+            raise PauseError
+        self.set_gui({'variableReportStr': variableReportStr})
 
     #overwrite from Prop()
     def evaluate(self):

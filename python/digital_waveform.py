@@ -91,6 +91,7 @@ class NumpyChannels(Numpy1DProp):
 
 
 class NumpyTransitions(Numpy1DProp):
+    """Hold the list of times for a NumpyWaveform"""
     def __init__(self, experiment, description=''):
         super(NumpyTransitions, self).__init__('transitions', experiment, description, dtype=[('description', object), ('function', object), ('value', numpy.float64)], hdf_dtype=[('description', h5py.special_dtype(vlen=str)), ('function', h5py.special_dtype(vlen=str)), ('value', numpy.float64)], zero=('new', '0', 0))
 
