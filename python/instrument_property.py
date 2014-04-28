@@ -303,34 +303,36 @@ class Prop(Atom):
                     o=getattr(self,p)
                 except:
                     logger.warning('In Prop.toHardware() for class '+self.name+': item '+p+' in properties list does not exist.\n')
-                    continue
+                    raise PauseError
                 
-                output+=self.HardwareProtocol(o,p)
-        
+                output += self.HardwareProtocol(o, p)
+
         try:
-            return '<{}>{}</{}>\n'.format(self.name,output,self.name)
+            return '<{}>{}</{}>\n'.format(self.name, output, self.name)
         except Exception as e:
             logger.warning('While in format() in Prop.toHardware() in '+self.name+'.\n'+str(e)+'\n')
-            return ''
-    
-    def HardwareProtocol(self,o,name):
+            raise PauseError
+
+    def HardwareProtocol(self, o, name):
         '''A separate function with just the toHardware protocol, so we can reuse it independently of toXML(self)'''
         #if it has its own toHardware method, use it
         if hasattr(o,'toHardware'):
             try:
                 return o.toHardware()
+            except PauseError:
+                raise PauseError
             except Exception as e:
                 logger.warning('In Prop.HardwareProtocol() for class '+self.name+' while trying '+name+'.toHardware.\n'+str(e)+'\n')
-                return ''
+                raise PauseError
 
         #else just give str(o)
         else:
             try:
-                return '<{}>{}</{}>\n'.format(name,str(o),name)
+                return '<{}>{}</{}>\n'.format(name, str(o), name)
             except Exception as e:
                 logger.warning('In str('+name+') in Prop.HardwareProtocol() for '+self.name+'.\n'+str(e)+'\n')
-                return ''
-    
+                raise PauseError
+
     def fromXML(self,xmlNode):
         '''This function provides generic XML loading behavior for this package.
         First, version tags are checked.

@@ -16,7 +16,7 @@ logger = logging.getLogger(__name__)
 
 from cs_errors import PauseError
 
-import TCP, HSDIO, piezo, DDS, RF_generators, AnalogOutput, DAQmxDO, Camera
+import TCP, HSDIO, piezo, DDS, RF_generators, AnalogOutput, DAQmxDO, Camera, TTL
 from atom.api import Bool, Str, Member, Typed
 from instrument_property import FloatProp
 from cs_instruments import Instrument
@@ -45,9 +45,10 @@ class LabView(Instrument):
     RF_generators = Member()
     AnalogOutput = Member()
     DAQmxDO = Member()
+    camera = Member()
+    TTL = Member()
     results = Member()
     sock = Member()
-    camera = Member()
     timeout = Typed(FloatProp)
     error = Bool()
     log = Str()
@@ -71,11 +72,12 @@ class LabView(Instrument):
         self.AnalogOutput = AnalogOutput.AnalogOutput(experiment)
         self.DAQmxDO = DAQmxDO.DAQmxDO(experiment)
         self.camera = Camera.HamamatsuC9100_13(experiment)
+        self.TTL = TTL.TTL(experiment)
         self.results = {}
         #self.Counter = Counter.Counter(experiment)
-        
+
         self.instruments = [self.HSDIO, self.DDS, self.piezo, self.RF_generators, self.AnalogOutput, self.DAQmxDO,
-                            self.camera] #,self.Counter]
+                            self.camera, self.TTL] #,self.Counter]
         
         self.sock = None
         self.connected = False
@@ -83,7 +85,7 @@ class LabView(Instrument):
         self.timeout = FloatProp('timeout', experiment, 'how long before LabView gives up and returns [s]', '1.0')
         
         self.properties += ['IP', 'port', 'enabled', 'connected', 'timeout', 'AnalogOutput', 'HSDIO', 'DDS', 'piezo', 'RF_generators',
-                            'DAQmxDO', 'camera', 'cycleContinuously']
+                            'DAQmxDO', 'camera', 'TTL', 'cycleContinuously']
         self.doNotSendToHardware += ['IP', 'port', 'enabled', 'connected']
 
     def openThread(self):
@@ -234,10 +236,10 @@ class LabView(Instrument):
             #report LabView errors
             log = ''
             if 'log' in results:
-                log = self.results['log']
+                log = results['log']
                 self.set_gui({'log': self.log + log})
             if 'error' in results:
-                error = toBool(self.results['error'])
+                error = toBool(results['error'])
                 self.set_gui({'error': error})
                 if error:
                     logger.warning('Error returned from LabView.send:\n{}\n'.format(log))

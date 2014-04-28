@@ -207,6 +207,7 @@ class TTL_filters(Analysis):
         if self.enable:
             if 'TTL/data' in measurementResults['data']:
                 a = measurementResults['data/TTL/data']
+                text = str(a)
                 #check to see if any of the inputs were True
                 if numpy.any(a):
                     #report the true inputs

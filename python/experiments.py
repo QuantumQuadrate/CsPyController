@@ -18,12 +18,9 @@ from atom.api import Int, Float, Str, Member
 from enaml.application import deferred_call
 
 # Bring in other files in this package
-import cs_evaluate, analysis, save2013style
+import cs_evaluate, analysis, save2013style, TTL, LabView, sound
 from cs_errors import PauseError
 from instrument_property import Prop, EvalProp, ListProp
-import LabView
-
-
 
 class IndependentVariable(EvalProp):
     """A class to hold the independent variables for an experiment.  These are
@@ -475,6 +472,7 @@ class Experiment(Prop):
                     self.measurement += 1  # update the measurement count
                     if self.status == 'running' and self.pauseAfterMeasurement:
                         self.set_status('paused after measurement')
+                        sound.error_sound()
                     self.update_gui()
                     #make sure results are written to disk
                     logger.debug('flushing hdf5')
@@ -492,6 +490,7 @@ class Experiment(Prop):
                         self.goodMeasurements = 0
                         if (self.status == 'running' or self.status == 'paused after measurement') and self.pauseAfterIteration:
                             self.set_status('paused after iteration')
+                            sound.error_sound()
                     else:
                         logger.debug("Finished all iterations")
                         self.postExperiment()
@@ -502,10 +501,12 @@ class Experiment(Prop):
             #exits out to this point.
             if self.pauseAfterError:
                 self.set_status('paused after error')
+            sound.error_sound()
         except Exception as e:
             logger.error('Exception during experiment:\n'+str(e)+'\n'+str(traceback.format_exc())+'\n')
             if self.pauseAfterError:
                 self.set_status('paused after error')
+            sound.error_sound()
 
     def endThread(self):
         """Launches end() in a new thread, to keep GUI free"""
@@ -576,7 +577,6 @@ class Experiment(Prop):
             i.writeResults(self.measurementResults['data'])
 
         self.postMeasurement()
-        self.completedMeasurementsByIteration[-1] += 1  # add one to the last counter in the list
         logger.debug('finished measurement')
     
     def halt(self):
@@ -811,9 +811,12 @@ class Experiment(Prop):
             #we are not saving data so remove the measurement from the hdf5
             delete = True
         if delete:
-            del self.measurementResults  # remove the bad data
+            m = self.measurementResults.attrs['measurement']  # get the measurement number
+            del self.measurementResults  # remove the reference to the bad data
+            del self.iterationResults['measurements/'+str(m)]  # really remove the bad data
         if good:
             self.goodMeasurements += 1
+            self.completedMeasurementsByIteration[-1] += 1  # add one to the last counter in the list
 
     def postIteration(self):
         logger.debug('Starting postIteration()')
@@ -847,6 +850,7 @@ class Experiment(Prop):
 
         self.set_status('idle')
         logger.info('Finished Experiment.')
+        sound.complete_sound()
 
 class AQuA(Experiment):
     """A subclass of Experiment which knows about all our particular hardware"""
@@ -883,11 +887,11 @@ class AQuA(Experiment):
         self.histogramAnalysis = analysis.HistogramAnalysis('plot the histogram of any shot and roi', self)
         self.measurements_graph = analysis.MeasurementsGraph('measurements_graph',self,'plot the ROI sum vs all measurements')
         self.iterations_graph = analysis.IterationsGraph('iterations_graph',self,'plot the average of ROI sums vs iterations')
-        self.TTL_filters = analysis.TTL_filters('TTL_filters', self)
+        self.TTL_filters = TTL.TTL_filters('TTL_filters', self)
         self.save2013Analysis = save2013style.Save2013Analysis(self)
         self.optimizer = analysis.OptimizerAnalysis(self)
-        self.analyses += [self.text_analysis, self.imageSumAnalysis, self.recent_shot_analysis, self.shotBrowserAnalysis, self.squareROIAnalysis,
-                          self.histogramAnalysis, self.measurements_graph, self.iterations_graph, self.TTL_filters, self.save2013Analysis]
+        self.analyses += [self.TTL_filters, self.text_analysis, self.imageSumAnalysis, self.recent_shot_analysis, self.shotBrowserAnalysis, self.squareROIAnalysis,
+                          self.histogramAnalysis, self.measurements_graph, self.iterations_graph, self.save2013Analysis]
 
         self.properties += ['LabView', 'imageSumAnalysis', 'recent_shot_analysis', 'shotBrowserAnalysis', 'squareROIAnalysis', 'histogramAnalysis', 'measurements_graph', 'iterations_graph', 'TTL_filters']
 
