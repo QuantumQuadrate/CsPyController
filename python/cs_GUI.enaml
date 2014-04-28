@@ -26,6 +26,7 @@ from enaml.core.declarative import d_
 from enaml.core.include import Include
 from enaml.stdlib.fields import FloatField, IntField
 from enaml.core.api import Looper, Conditional
+from enaml.styling import StyleSheet, Style, Setter
 from enaml.validator import Validator
 from atom.api import Member, Bool, Typed, observe, Callable
 import threading, datetime, time, os, itertools
@@ -34,13 +35,32 @@ import numpy, itertools
 from experiments import IndependentVariable
 from instrument_property import ListProp
 
-# redefine field so that all Fields will give tool_tips
+# redefine Field so that all Fields will have status_tips
 from enaml.widgets.api import Field as OldField
 enamldef Field(OldField):
-    tool_tip << text
+    status_tip << text
+
+enamldef MyStyleSheet(StyleSheet):
+    Style:
+        style_class = 'invalid'
+        Setter:
+            field = 'background-color'
+            value = 'pink'
+        Setter:
+            field = 'border-color'
+            value = 'red'
+        Setter:
+            field = 'border-style'
+            value = 'solid'
+        Setter:
+            field = 'border-width'
+            value = '2'
+    Style:
+        style_class = 'valid'
 
 enamldef RefreshableLooper(Looper): self:
-    """A Looper that sends a reference of itself to the backend controller, so it can be forcibly updated."""
+    """A Looper that sends a reference of itself to the backend controller, so it can be forcibly updated using the
+    refresh_items() method."""
     initialized::
         iterable.gui = self
 
@@ -238,26 +258,27 @@ enamldef CsMenuBar(MenuBar): menuBar:
 
 enamldef EvalProp(GroupBox):
     attr prop
-    padding=0
-    flat=True
-    title<<prop.name
-    constraints=[desc.width==func.width,func.width==val.width,hbox(desc,func,val),align('v_center',desc,func,val)]
+    padding = 0
+    flat = True
+    title << prop.name
+    constraints = [desc.width==func.width,func.width==val.width,hbox(desc,func,val),align('v_center',desc,func,val)]
+
+    # can be made to show an error status by setting valid to false
+    attr valid = True
 
     Field: desc:
-        text:=prop.description
-        placeholder='description'
+        text := prop.description
+        placeholder = 'description'
+
     Field: func:
-        text:=prop.function
-        placeholder=prop.placeholder
-        validator=prop #.validator
-        #valid<<prop.valid
+        text := prop.function
+        placeholder = prop.placeholder
+        style_class << 'valid' if prop.valid else 'invalid'
+        #validator = prop #.validator
+
     Label: val:
-        text<<str(prop.value)
-#    CheckBox: check:
-#        checked<<prop.valid
-#        enabled=False
-        
-    
+        text << str(prop.value)
+
 enamldef MultilineProp(GroupBox):        
     attr prop
     flat=True
@@ -1780,7 +1801,10 @@ enamldef Main(MainWindow): main:
     initial_position=(0,0)
     initial_size=(1500,1100)
     #icon_source='icon://myicons/atom_loading'
-    
+
+    MyStyleSheet:
+        #just implement the style sheet defined separately
+        pass
     CsMenuBar:
         experiment=main.experiment
         mainWindow=main

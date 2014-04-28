@@ -1,0 +1,36 @@
+from enaml.widgets.api import MainWindow, ProgressBar, PushButton, StatusBar, Container, Field, StatusItem, CheckBox
+from enaml.styling import StyleSheet, Style, Setter
+
+enamldef ValidField(Field):
+    attr valid = True
+    status_tip << text
+    style_class << 'valid' if valid else 'invalid'
+
+enamldef Main(MainWindow):
+    StyleSheet:
+        Style:
+            style_class = 'invalid'
+            Setter:
+                field = 'background-color'
+                value = 'pink'
+            Setter:
+                field = 'border-color'
+                value = 'red'
+            Setter:
+                field = 'border-style'
+                value = 'solid'
+            Setter:
+                field = 'border-width'
+                value = '2'
+        Style:
+            style_class = 'valid'
+    StatusBar:
+        StatusItem:
+            ProgressBar:
+                value = 47
+    Container:
+        ValidField: f:
+            pass
+        CheckBox:
+            checked = True
+            checked := f.valid
