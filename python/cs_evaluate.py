@@ -31,25 +31,40 @@ def evalIvar(string):
             raise PauseError
 
 def evalWithDict(string, varDict=None):
-    """string: the python expression to be evaluated
-       varDict: a dictionary of variables, functions, modules, etc, to be used during the evaluation"""
+    """
+    This function evalutes a string as python code.  It is used as the general evaluator for most input boxes.
+    It is not used for the independent or dependent variable evaluation.
+    It uses a passed in dictionary as the local namespace.
+    inputs:
+        string: the python expression to be evaluated
+        varDict: a dictionary of variables, functions, modules, etc, to be used during the evaluation.
+    outputs:
+        value: the result of the evaluation
+        valid: a boolean that says if the evaluation succeeded
+    """
 
     global myGlobals
 
     if varDict is None:
         #create default here, otherwise ALL default varDicts would be one-in-the-same
-        varDict={}
+        varDict = {}
 
     if string == '':
-        return None
+        # In the case of a blank string, we return None.  We do not let eval() run, because it would error
+        # on a blank input.  We return valid=True, because blank might be an okay input in some cases (such as
+        # in wavefom states where it means 'no change').  The caller can choose to set valid=False or raise an
+        # Exception on value=None.
+        return None, True
     else:
         try:
-            #myGlobals is reset and filled with the dependent variables, and numpy, in execWithDict
-            #varDict acts as locals, and in general will remain unchanged
-            return eval(string, myGlobals, varDict)
+            # myGlobals is reset and filled with the dependent variables and numpy whenever execWithDict is run
+            # varDict acts as locals, and in general will remain unchanged
+            # If the eval succeeds, we return the value and valid=True
+            return eval(string, myGlobals, varDict), True
         except Exception as e:
-            logger.warning('Could not eval string: {}\n{}\n'.format(string,e))
-            raise PauseError
+            #in case of a genuine eval error, we return value=None and valid=False
+            logger.warning('Could not eval string: {}\n{}\n'.format(string, e))
+            return None, False
 
 def execWithDict(string, varDict=None):
     """This executes a string with a globals context containing only numpy.

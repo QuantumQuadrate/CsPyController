@@ -47,11 +47,18 @@ class AOEquation(EvalProp):
             #This will overwrite any previous value, so we make a copy of the dictionary
             vars = self.experiment.vars.copy()
             vars['t'] = self.AO.timesteps
-            try:
-                self.value = cs_evaluate.evalWithDict(self.function, varDict=vars)
-            except Exception as e:
+            value, valid = cs_evaluate.evalWithDict(self.function, varDict=vars)
+            if not valid:
+                #zero the output and raise an error
                 logger.error('Exception in AO equation.evaluate: {}, {}, {}:\n{}'.format(self.name, self.description, self.function, e))
+                self.value = numpy.zeros_like(self.AO.timestamps)
                 raise PauseError
+            elif value is None:
+                #the input was blank, zero output, no error
+                self.value = numpy.zeros_like(self.AO.timestamps)
+            else:
+                #eval worked
+                self.value = value
             self.AO.update_plot()
 
     def toHardware(self):

@@ -351,14 +351,9 @@ class EvalProp(Prop):
                 vars = {}
 
             # evaluate the 'function'
-            try:
-                value = cs_evaluate.evalWithDict(self.function, varDict=vars)
-            except PauseError:
-                logger.error('PauseError in EvalProp.evaluate() evaluating property {}, {}, {}'.format(self.name, self.description, self.function))
-                self.set_gui({'valid': False, 'valueStr': ''})
-                raise PauseError
-            except Exception as e:
-                logger.error('Exception in EvalProp.evaluate() evaluating property {}, {}, {}\n{}'.format(self.name, self.description, self.function, e))
+            value, valid = cs_evaluate.evalWithDict(self.function, varDict=vars)
+            if not valid:
+                logger.error('Error in EvalProp.evaluate() while evaluating property {}, {}, {}\n{}'.format(self.name, self.description, self.function, e))
                 self.set_gui({'valid': False, 'valueStr': ''})
                 raise PauseError
 

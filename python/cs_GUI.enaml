@@ -508,17 +508,20 @@ enamldef VariablesPage(Page): main:
                         Field:
                             text:=experiment.variablesNotToSave
                             placeholder='scipy,numpy,x'
-            GroupBox: report:
-                title='Report'
-                hug_height='strong'
-                hug_width='strong'
-                constraints=[hbox(f1,lb2),align('top',f1,lb2)]
 
-                MultilineField: f1:
-                    constraints=[height==600]
-                    text:=experiment.variableReportFormat
-                Label: lb2:
-                    text<<experiment.variableReportStr
+enamldef Reports(Container):
+    attr experiment
+        GroupBox: report:
+            title = 'Variable Report'
+            hug_height = 'strong'
+            hug_width = 'strong'
+            constraints = [hbox(f1,lb2),align('top',f1,lb2)]
+            MultilineField: f1:
+                constraints = [height==600, width=600]
+                text := experiment.variableReport.function
+                style_class << 'valid' if experiment.variableReport.valid else 'invalid'
+            Label: lb2:
+                text << experiment.variableReport.valueStr
 
 enamldef LabViewPage(Page):
     attr LabView
@@ -720,20 +723,31 @@ enamldef NumpyState(Form):
 
     Field:
         constraints = [width == 100,height==20]
+        style_class = 'valid' if state['']
         text:=state['function']
-        validator<<MyEnumValidator(experiment,[None,0,1])
         text::
-            temp=experiment.eval_general(text)
-            if temp is None:
-                state['value']=5
-                valueLabel.text=''
-            else:
-                state['value']=temp
+            value, valid = experiment.eval_general(text)
+            if not valid:
+                style_class = 'invalid'
+            if value is None:
+                state['value'] = 5
+                valueLabel.text = ''
+                style_class = 'valid'
+            elif (value == 0) or (value ==1):
+                state['value'] = value
                 valueLabel.text=str(state['value']) #must be updated manually because state['value'] identity does not change
+                style_class = 'valid'
+            else:
+                logger.warning('Invalid state in waveform {}.  States must evaluate to None, 0 or 1.\n{} = {}'.format(waveform.name,text,value))
+                state['value'] = 5
+                valueLabel.text = ''
+                style_class = 'invalid'
             waveform.updateFigure()
     Label: valueLabel:
         constraints = [width == 50,height==20]
-        text<<('' if state['value']==5 else str(state['value']))
+        # no point in subscribing this, because identity does not change on backend update and it will not trigger
+        # instead we remake the whole array on bakend evaluate
+        text = ('' if state['value']==5 else str(state['value']))
 
 enamldef ChannelCombo(ComboBox):
     attr wfm
@@ -1817,9 +1831,12 @@ enamldef Main(MainWindow): main:
                     tabs_movable=False
                     tab_style = 'preferences'
                     ExperimentPage:
-                        experiment=main.experiment
+                        experiment = main.experiment
                     VariablesPage:
-                        experiment=main.experiment
+                        experiment = main.experiment
+                    Page:
+                        Reports:
+                            experiment = main.experiment
                     LabViewPage:
                         LabView=main.experiment.LabView
                     HSDIO_DigitalOutPage:

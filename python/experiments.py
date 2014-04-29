@@ -136,8 +136,8 @@ class Experiment(Prop):
     
     #variables Traits
     dependentVariablesStr = Str()
-    variableReportFormat = Str()
-    variableReportStr = Str()
+    constantReport = Member()
+    variableReport = Member()
     variablesNotToSave = Str()
     
     #list of Analysis objects
@@ -170,15 +170,8 @@ class Experiment(Prop):
         self.allow_evaluation = False
 
         #default values
-        self.pauseAfterIteration = False
-        self.pauseAfterMeasurement = False
-        self.pauseAfterError = False
-        self.saveData = False
-        self.saveSettings = False
-        self.save2013styleFiles = False
-        self.copyDataToNetwork = False
-        self.measurementsPerIteration = 0
-        self.willSendEmail = False
+        self.constantReport = StrProp('constantReport', experiment, 'Important output that does not change with iterations', '""')
+        self.variableReport = StrProp('variableReport', experiment, 'Important output that might change with iterations', '""')
 
         super(Experiment, self).__init__('experiment', self) #name is 'experiment', associated experiment is self
         self.instruments = []  # a list of the instruments this experiment has defined
@@ -197,8 +190,8 @@ class Experiment(Prop):
                             'experimentDescriptionFilenameSuffix', 'measurementTimeout', 'measurementsPerIteration',
                             'willSendEmail', 'emailAddresses', 'progress', 'progressGUI', 'iteration', 'measurement',
                             'goodMeasurements', 'totalIterations', 'timeStarted', 'currentTime',
-                            'timeElapsed', 'timeRemaining', 'totalTime', 'completionTime', 'variableReportFormat',
-                            'variableReportStr', 'variablesNotToSave', 'notes']
+                            'timeElapsed', 'timeRemaining', 'totalTime', 'completionTime', 'constantReport',
+                            'variableReport', 'variablesNotToSave', 'notes']
         #we do not load in status as a variable, to allow old settings to be loaded without bringing in the status of
         #the saved experiments
 
@@ -280,19 +273,11 @@ class Experiment(Prop):
 
         logger.debug('Evaluating dependent variables ...')
 
-        #starting with independent variables
+        #build a dictionary of the independent variables
         self.vars = dict([(i.name, i.currentValue) for i in self.independentVariables])
 
         #evaluate the dependent variable multi-line string
         cs_evaluate.execWithDict(self.dependentVariablesStr, self.vars)
-
-        #update the report
-        try:
-            variableReportStr = cs_evaluate.evalWithDict(self.variableReportFormat+'%locals()', varDict=self.vars)
-        except Exception as e:
-            logger.error('Exception evaluating variables report:\n{}'.format(e))
-            raise PauseError
-        self.set_gui({'variableReportStr': variableReportStr})
 
     #overwrite from Prop()
     def evaluate(self):
@@ -316,10 +301,18 @@ class Experiment(Prop):
         return cs_evaluate.evalWithDict(string, self.vars)
     
     def eval_bool(self, string):
-        return bool(self.eval_general(string))
-    
+        value, valid = self.eval_general(string)
+        if value is None:
+            return value, valid
+        else:
+            return bool(value), valid
+
     def eval_float(self, string):
-        return float(self.eval_general(string))
+        value, valid = self.eval_general(string)
+        if value is None:
+            return value, valid
+        else:
+            return float(value), valid
 
     def stop(self):
         """Stops output as soon as possible.  This is not run during the course of a normal experiment."""

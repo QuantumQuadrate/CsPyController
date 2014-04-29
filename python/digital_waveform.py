@@ -91,13 +91,33 @@ class NumpyChannels(Numpy1DProp):
 
 
 class NumpyTransitions(Numpy1DProp):
-    """Hold the list of times for a NumpyWaveform"""
+    eval2 = Member()
+
     def __init__(self, experiment, description=''):
         super(NumpyTransitions, self).__init__('transitions', experiment, description, dtype=[('description', object), ('function', object), ('value', numpy.float64)], hdf_dtype=[('description', h5py.special_dtype(vlen=str)), ('function', h5py.special_dtype(vlen=str)), ('value', numpy.float64)], zero=('new', '0', 0))
+        self.eval2 = numpy.vectorize(self.eval1, otypes=[numpy.float64), numpy.bool_])
+        self.toStr = numpy.vectorize(str)
 
-    def evaluate(self):
+    def eval1(self, x):
+        return self.experiment.eval_general(x)
+
+    def old_evaluate(self):
         for x in self.array:
             x['value'] = numpy.float64(self.experiment.eval_general(x['function']))
+
+    def evaluate(self):
+        """Here we create a new self.array, rather than just assigning to elements of the old self.array.
+        This triggers the gui to update."""
+        temp = self.array.copy()
+
+        if len(temp) > 0:
+            logger.info('NumpyTransitions.evaluate')
+            values, valids = self.eval2(self.array['function'])
+            temp['value'] = values
+        self.array = temp
+        self.valid =
+        self.set_gui({'valueStr': self.toStr(self.array['value']),
+                      'valid': self.toStr)})
 
     def copy(self):
         new=NumpyTransitions(self.experiment,self.description)
