@@ -478,7 +478,6 @@ enamldef VariablesPage(Page): main:
     title = 'Variables'
     Container:
         Container:
-            constraints=[hbox(settings,report),align('top',settings,report)]
             hug_height='strong'
             hug_width='strong'
 
@@ -511,17 +510,17 @@ enamldef VariablesPage(Page): main:
 
 enamldef Reports(Container):
     attr experiment
-        GroupBox: report:
-            title = 'Variable Report'
-            hug_height = 'strong'
-            hug_width = 'strong'
-            constraints = [hbox(f1,lb2),align('top',f1,lb2)]
-            MultilineField: f1:
-                constraints = [height==600, width=600]
-                text := experiment.variableReport.function
-                style_class << 'valid' if experiment.variableReport.valid else 'invalid'
-            Label: lb2:
-                text << experiment.variableReport.valueStr
+    GroupBox: report:
+        title = 'Variable Report'
+        hug_height = 'strong'
+        hug_width = 'strong'
+        constraints = [hbox(f1,lb2),align('top',f1,lb2)]
+        MultilineField: f1:
+            constraints = [height==600, width==600]
+            text := experiment.variableReport.function
+            style_class << 'valid' if experiment.variableReport.valid else 'invalid'
+        Label: lb2:
+            text << experiment.variableReport.valueStr
 
 enamldef LabViewPage(Page):
     attr LabView
@@ -723,7 +722,7 @@ enamldef NumpyState(Form):
 
     Field:
         constraints = [width == 100,height==20]
-        style_class = 'valid' if state['']
+        #style_class = 'valid' # if state['function']==''
         text:=state['function']
         text::
             value, valid = experiment.eval_general(text)
@@ -788,21 +787,24 @@ enamldef TransitionTime(Form):
     attr experiment
     attr waveform
     attr transition
+    attr value_str = ''
+    attr valid = False
     
     padding=0
     
     Field:
-        constraints = [width == 100,height==20]
-        placeholder='time'
-        text:=transition['function']
-        validator<<MyFloatValidator(experiment)
+        constraints = [width == 100, height==20]
+        placeholder = 'time'
+        text := transition['function']
+        style_class << 'valid' if valid else 'invalid'
+        #validator << MyFloatValidator(experiment)
         text::
-            transition['value']=experiment.eval_float(text)
-            valueLabel.text='{:.6f}'.format(transition['value']) #must be updated manually because transition['value'] identity does not change
+            transition['value'], valid = experiment.eval_float(text)
+            valueLabel.text = '{:.6f}'.format(transition['value']) #must be updated manually because transition['value'] identity does not change
             waveform.updateFigure()
     Label: valueLabel:
         constraints = [width == 50,height==20]
-        text<<'{:.6f}'.format(transition['value'])
+        text = value_str
 
 enamldef NumpyWaveform(Container):
     attr waveform
@@ -1835,6 +1837,7 @@ enamldef Main(MainWindow): main:
                     VariablesPage:
                         experiment = main.experiment
                     Page:
+                        title = 'Report'
                         Reports:
                             experiment = main.experiment
                     LabViewPage:

@@ -8,19 +8,18 @@ from __future__ import division
 import logging
 logger = logging.getLogger(__name__)
 
-import threading, time, datetime, traceback, os, sys, shutil, cStringIO, numpy, h5py
+import threading, time, datetime, traceback, os, shutil, cStringIO, numpy, h5py
 
 #set numpy print options to limit to 2 digits
 numpy.set_printoptions(formatter=dict(float=lambda t: "%.2e" % t))
 
 # Use Atom traits to automate Enaml updating
-from atom.api import Int, Float, Str, Member
-from enaml.application import deferred_call
+from atom.api import Int, Float, Str, Member, Bool
 
 # Bring in other files in this package
 import cs_evaluate, analysis, save2013style, TTL, LabView, sound
 from cs_errors import PauseError
-from instrument_property import Prop, EvalProp, ListProp
+from instrument_property import Prop, EvalProp, ListProp, StrProp
 
 class IndependentVariable(EvalProp):
     """A class to hold the independent variables for an experiment.  These are
@@ -83,25 +82,25 @@ class IndependentVariable(EvalProp):
 
 class Experiment(Prop):
 
-    version = '2014.04.06'
+    version = '2014.04.30'
 
-    #experiment control Traits
+    #experiment control
     status = Str('idle')
     statusStr = Str()
-    pauseAfterIteration = Member()
-    pauseAfterMeasurement = Member()
-    pauseAfterError = Member()
-    saveData = Member()
-    saveSettings = Member()
+    pauseAfterIteration = Bool()
+    pauseAfterMeasurement = Bool()
+    pauseAfterError = Bool()
+    saveData = Bool()
+    saveSettings = Bool()
     settings_path = Str()
-    save2013styleFiles = Member()
+    save2013styleFiles = Bool()
     localDataPath = Str()
     networkDataPath = Str()
-    copyDataToNetwork = Member()
+    copyDataToNetwork = Bool()
     experimentDescriptionFilenameSuffix = Str()
     measurementTimeout = Float()
-    measurementsPerIteration = Member()
-    willSendEmail = Member()
+    measurementsPerIteration = Int()
+    willSendEmail = Bool()
     emailAddresses = Str()
     notes = Str()
     
@@ -164,24 +163,22 @@ class Experiment(Prop):
     def __init__(self):
         """Defines a set of instruments, and a sequence of what to do with them."""
         logger.debug('experiment.__init__()')
-
         self.setup_logger()
 
         self.allow_evaluation = False
 
-        #default values
-        self.constantReport = StrProp('constantReport', experiment, 'Important output that does not change with iterations', '""')
-        self.variableReport = StrProp('variableReport', experiment, 'Important output that might change with iterations', '""')
-
         super(Experiment, self).__init__('experiment', self) #name is 'experiment', associated experiment is self
+
+        #default values
+        self.constantReport = StrProp('constantReport', self, 'Important output that does not change with iterations', '""')
+        self.variableReport = StrProp('variableReport', self, 'Important output that might change with iterations', '""')
+
         self.instruments = []  # a list of the instruments this experiment has defined
         self.completedMeasurementsByIteration = []
         self.independentVariables = ListProp('independentVariables', self, listElementType=IndependentVariable,
                                              listElementName='independentVariable')
         self.ivarIndex=[]
         self.vars = {}
-        self.variableReportFormat = '""'
-        self.variableReportStr = ''
         self.analyses = []
 
         self.properties += ['version', 'independentVariables', 'dependentVariablesStr', 'pauseAfterIteration',

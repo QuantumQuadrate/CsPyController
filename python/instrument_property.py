@@ -667,20 +667,6 @@ class ListProp(Prop):
         self.refreshGUI()
         return self
     
-    def toXML(self):
-        #go through the listProperty and toXML each item
-        output = ''
-        
-        for i, o in enumerate(self.listProperty):
-            try:
-                output+=self.XMLProtocol(o,self.listElementName+str(i)) #give the index number as the XML tag, this will only be used if the item does not have its own toXML()
-            except PauseError:
-                raise PauseError
-            except Exception as e:
-                logger.warning('Evaluating list item '+str(i)+' in ListProp.evaluate() in'+self.name+'.\n'+str(e))
-        
-        return '<{}>{}</{}>\n'.format(self.name,output,self.name)
-    
     def toHardware(self):
         #go through the listProperty and toXML each item
         output=''
@@ -689,31 +675,22 @@ class ListProp(Prop):
             output+=self.HardwareProtocol(o,self.listElementName+str(i)) #give the index number as the XML tag, this will only be used if the item does not have its own toHardware()
         
         return '<{}>{}</{}>\n'.format(self.name,output,self.name)
-    
-    def fromXML(self,xmlNode):
-        # in a listProp XML all the elements are part of self.listProperty
-        # you may need to override this in a subclass if listElementType.__init__ takes in other things besides name and experiment
-        try:
-            self.listProperty=[self.listElementType(child.tag,self.experiment,**self.listElementKwargs).fromXML(child) for i,child in enumerate(xmlNode)]
-        except Exception as e:
-            logger.warning('in '+self.name+' in ListProp.fromXML() for xml tag: '+xmlNode.tag+'.\n'+str(e)+'\n'+str(traceback.format_exc())+'\n')
-        self.refreshGUI()
-        return self
+
 
 class Numpy1DProp(Prop):
-    array=Member()
-    dtype=Member()
-    hdf_dtype=Member()
-    zero=Member()
+    array = Member()
+    dtype = Member()
+    hdf_dtype = Member()
+    zero = Member()
     
-    def __init__(self,name,experiment,description='',dtype=float,hdf_dtype=float,zero=None):
-        super(Numpy1DProp,self).__init__(name,experiment,description)
-        self.dtype=dtype
-        self.hdf_dtype=hdf_dtype
-        self.zero=zero
+    def __init__(self, name, experiment, description='', dtype=float, hdf_dtype=float, zero=None):
+        super(Numpy1DProp,self).__init__(name, experiment, description)
+        self.dtype = dtype
+        self.hdf_dtype = hdf_dtype
+        self.zero = zero
         #create zero length array
-        self.array=numpy.zeros(0,dtype=dtype)
-        self.properties+=['array']
+        self.array = numpy.zeros(0,dtype=dtype)
+        self.properties += ['array']
 
     def add(self,index):
         zero=numpy.zeros(1,dtype=self.dtype)
@@ -738,21 +715,6 @@ class Numpy1DProp(Prop):
             logger.warning(' in Numpy1DProp.fromHDF5() in {} for hdf node {}\n{}\n{}\n'.format(self.name, hdf.name, e, traceback.format_exc()))
             raise PauseError
 
-    def toXML(self):
-        #special toXML method because the default pickling ends up giving parse errors due to weird characters
-        return '<{}>{}</{}>'.format(self.name,' '.join([str(i) for i in self.array]),self.name)
-        
-    def fromXML(self,node):
-        #special fromXML method to account for special toXML method
-        if (node.text is None) or (node.text==''):
-            self.array=numpy.zeros(0,dtype=self.dtype)
-            return self
-        try:
-            self.array=numpy.array(node.text.split(' '),dtype=self.dtype)
-            return self
-        except Exception as e:
-            logger.warning('in Numpy1DProp.fromXML() in {}. node.tag={}, node.text={}\n{}\n{}\n'.format(self.name,node.tag,node.text,e,traceback.format_exc()))
-            raise PauseError
 
 class Numpy2DProp(Prop):
     array=Member()
@@ -796,20 +758,3 @@ class Numpy2DProp(Prop):
 
     def fromHDF5(self,hdf):
         self.array=hdf.value.astype(self.dtype)
-        
-    def toXML(self):
-        #special toXML method because the default pickling ends up giving parse errors due to weird characters
-        return '<{}>{}</{}>'.format(self.name,'\n'.join([' '.join([str(j) for j in i]) for i in self.array]),self.name)
-        
-    def fromXML(self,node):
-        #special fromXML method to account for special toXML method
-        if (node.text is None) or (node.text==''):
-            self.array=numpy.zeros((0,0),dtype=self.dtype)
-            return self
-        try:
-            self.array=numpy.array([i.split(' ') for i in node.text.split('\n')],dtype=self.dtype)
-            return self
-        except Exception as e:
-            logger.warning('in Numpy2DProp.fromXML() in {}. node.tag={}, node.text={}\n{}\n{}\n'.format(self.name,node.tag,node.text,e,traceback.format_exc()))
-            raise PauseError
-
