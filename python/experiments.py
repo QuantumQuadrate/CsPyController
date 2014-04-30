@@ -302,14 +302,22 @@ class Experiment(Prop):
         if value is None:
             return value, valid
         else:
-            return bool(value), valid
+            try:
+                return bool(value), valid
+            except Exception as e:
+                logger.warning('Unable to convert string to bool: {}, {}\n{}\n'.format(string, value, e))
+                return None, False
 
     def eval_float(self, string):
         value, valid = self.eval_general(string)
         if value is None:
             return value, valid
         else:
-            return float(value), valid
+            try:
+                return float(value), valid
+            except Exception as e:
+                logger.warning('Unable to convert string to bool: {}, {}\n{}\n'.format(string, value, e))
+                return None, False
 
     def stop(self):
         """Stops output as soon as possible.  This is not run during the course of a normal experiment."""

@@ -787,8 +787,8 @@ enamldef TransitionTime(Form):
     attr experiment
     attr waveform
     attr transition
-    attr value_str = ''
-    attr valid = False
+    attr value_str
+    attr valid
     
     padding=0
     
@@ -799,7 +799,7 @@ enamldef TransitionTime(Form):
         style_class << 'valid' if valid else 'invalid'
         #validator << MyFloatValidator(experiment)
         text::
-            transition['value'], valid = experiment.eval_float(text)
+            transition['value'], parent.valid = experiment.eval_float(text)
             valueLabel.text = '{:.6f}'.format(transition['value']) #must be updated manually because transition['value'] identity does not change
             waveform.updateFigure()
     Label: valueLabel:
@@ -889,7 +889,7 @@ enamldef NumpyWaveform(Container):
             title='waveform transition and sequence (valid states: blank(continue), 0(off), 1(on))'
             constraints<<[grid(*[statesDyno.objects[i:(i+len(waveform.transitions.array)+1)] for i in range(0, len(statesDyno.objects), len(waveform.transitions.array)+1)])] if len(statesDyno.objects)>0 else []
             Include: statesDyno:
-                objects<<[DescriptionLabel()]+[TransitionDescription(transition=t) for t in waveform.transitions.array]+[TimeLabel()]+[TransitionTime(transition=t,experiment=waveform.experiment,waveform=waveform) for t in waveform.transitions.array]+(list(itertools.chain(*map(list,zip(*([[ChannelCombo(wfm=waveform,channels=waveform.digitalout.channels,channelList=waveform.channelList,position=i) for i in xrange(len(waveform.channelList))]]+[[NumpyState(state=s,experiment=waveform.experiment,waveform=waveform) for s in waveform.sequence.array.flat][i:i+len(waveform.channelList)] for i in range(0,waveform.sequence.array.size,len(waveform.channelList))]))))) if (len(waveform.channelList)>0) else [])
+                objects<<[DescriptionLabel()]+[TransitionDescription(transition=t) for t in waveform.transitions.array]+[TimeLabel()]+[TransitionTime(transition=t,experiment=waveform.experiment,waveform=waveform,value_str=value_str,valid=valid) for t,value_str,valid in zip(waveform.transitions.array,waveform.transitions.value_str,waveform.transitions.valid)]+(list(itertools.chain(*map(list,zip(*([[ChannelCombo(wfm=waveform,channels=waveform.digitalout.channels,channelList=waveform.channelList,position=i) for i in xrange(len(waveform.channelList))]]+[[NumpyState(state=s,experiment=waveform.experiment,waveform=waveform) for s in waveform.sequence.array.flat][i:i+len(waveform.channelList)] for i in range(0,waveform.sequence.array.size,len(waveform.channelList))]))))) if (len(waveform.channelList)>0) else [])
 
 def get_load_waveform_callback(HSDIO):
     def load_file_callback(dlg):

@@ -107,11 +107,7 @@ class NumpyTransitions(Numpy1DProp):
         self.eval2 = numpy.vectorize(self.eval1, otypes=[numpy.float64, numpy.bool_])
 
     def eval1(self, x):
-        return self.experiment.eval_general(x)
-
-    #def old_evaluate(self):
-    #    for x in self.array:
-    #        x['value'] = numpy.float64(self.experiment.eval_general(x['function']))
+        return self.experiment.eval_float(x)
 
     def evaluate(self):
         """Here we create a new self.array, rather than just assigning to elements of the old self.array.

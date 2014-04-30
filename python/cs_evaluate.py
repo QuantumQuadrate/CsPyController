@@ -76,17 +76,13 @@ def execWithDict(string, varDict=None):
     if varDict is None:
         #create default here, otherwise ALL default varDicts would be one-in-the-same
         varDict={}
-
+    myGlobals = myGlobalSetup.copy()
     if string != '':
         try:
-            #globals_trap = {}
-            myGlobals = myGlobalSetup.copy()
-            exec(string, myGlobals, varDict)
-            myGlobals.update(varDict)
-
-            ##global_trap gets polluted with all sorts of built-in variables and gets thrown away
             #varDict acts as locals and gets updated implicitly,
             #so new variable values do not need to be passed back out of this function
+            exec(string, myGlobals, varDict)
         except Exception as e:
             logger.warning('Could not exec string:\n{}\n{}\n{}\n'.format(string, e, traceback.format_exc()))
             raise PauseError
+    myGlobals.update(varDict)
