@@ -91,34 +91,99 @@ class NumpyChannels(Numpy1DProp):
 
 
 class NumpyTransitions(Numpy1DProp):
+    valid = Member()  # an array to store the evaluation success of the array
+    value_str = Member()  # an array to store the string that should be displayed for each element of the array ['value']
+    eval2 = Member()
+    #toStr = numpy.vectorize(str)
+
     def __init__(self, experiment, description=''):
-        super(NumpyTransitions, self).__init__('transitions', experiment, description, dtype=[('description', object), ('function', object), ('value', numpy.float64)], hdf_dtype=[('description', h5py.special_dtype(vlen=str)), ('function', h5py.special_dtype(vlen=str)), ('value', numpy.float64)], zero=('new', '0', 0))
+        super(NumpyTransitions, self).__init__('transitions', experiment, description,
+            dtype=[('description', object), ('function', object), ('value', numpy.float64)],
+            hdf_dtype=[('description', h5py.special_dtype(vlen=str)), ('function', h5py.special_dtype(vlen=str)), ('value', numpy.float64)],
+            zero=('new', '0', 0)
+        )
+        self.valid = numpy.zeros(0, dtype=numpy.bool_)
+        self.value_str = numpy.zeros(0, dtype='S1')
+        self.eval2 = numpy.vectorize(self.eval1) #, otypes=[numpy.float64, numpy.bool_, numpy.object])
+
+    def eval1(self, x):
+        value, valid = self.experiment.eval_float(x)
+        if value is None:
+            return 0, False, ''
+        else:
+            return value, valid, str(value)
 
     def evaluate(self):
-        for x in self.array:
-            x['value'] = numpy.float64(self.experiment.eval_general(x['function']))
+        """self.array['value'] is assigned right away, but self.valid and self.value_str are what trigger the gui update
+        """
+
+        if len(self.array) > 0:
+            self.array['value'], valid, value_str = self.eval2(self.array['function'])
+            #value_str = self.toStr(self.array['value'])
+        else:
+            # We cannot allow calls to a vectorized function with a length zero input,
+            # so create these zero length arrays manually.
+            value_str = numpy.zeros(0, dtype='S1')
+            valid = numpy.zeros(0, dtype=numpy.bool_)
+
+        self.set_gui({'value_str': value_str,
+                      'valid': valid})
 
     def copy(self):
-        new=NumpyTransitions(self.experiment,self.description)
-        new.dtype=self.dtype
-        new.hdf_dtype=self.hdf_dtype
-        new.zero=self.zero
-        new.array=self.array.copy()
+        new = NumpyTransitions(self.experiment,self.description)
+        new.dtype = self.dtype
+        new.hdf_dtype = self.hdf_dtype
+        new.zero = self.zero
+        new.array = self.array.copy()
         return new
 
 class NumpySequence(Numpy2DProp):
+    valid = Member()  # an array to store the evaluation success of the array
+    value_str = Member()  # an array to store the string that should be displayed for each element of the array ['value']
+    eval2 = Member()
+
     def __init__(self, experiment, description=''):
-        super(NumpySequence, self).__init__('sequence', experiment, description, dtype=[('function', object), ('value', numpy.uint8)], hdf_dtype=[('function', h5py.special_dtype(vlen=str)), ('value', numpy.uint8)], zero=('', 5))
+        super(NumpySequence, self).__init__('sequence', experiment, description,
+                                        dtype=[('function', object), ('value', numpy.uint8)],
+                                        hdf_dtype=[('function', h5py.special_dtype(vlen=str)), ('value', numpy.uint8)],
+                                        zero=('', 5))
+        self.valid = numpy.zeros(0, dtype=numpy.bool_)
+        self.value_str = numpy.zeros(0, dtype='S1')
+        self.eval2 = numpy.vectorize(self.eval1) #, otypes=[numpy.float64, numpy.bool_, numpy.object])
+
+    def eval1(self, string):
+        value, valid = self.experiment.eval_general(string)
+        if value is None:
+            return 5, True, ''
+        elif (value == 0) or (value == 1):
+            return int(value), valid, str(int(value))
+        else:
+            logger.warning('Waveform state must be either None (continue), 0 (off) or 1 (on).  Got:\n{} = {}\n'.format(string,value))
+            return 5, False, ''
 
     def evaluate(self):
-        for row in self.array:
-            for x in row:
-                temp = self.experiment.eval_general(x['function'])
-                if (temp == 0) or (temp == 1):
-                    x['value'] = temp
-                else:
-                    x['value'] = 5
-    
+        """self.array['value'] is assigned right away, but self.valid and self.value_str are what trigger the gui update
+        """
+        if self.array.size > 0:
+            self.array['value'], valid, value_str = self.eval2(self.array['function'])
+            #value_str = self.toStr(self.array['value'])
+        else:
+            # We cannot allow calls to a vectorized function with a length zero input,
+            # so create these zero length arrays manually.
+            value_str = numpy.zeros((0, 0), dtype='S1')
+            valid = numpy.zeros((0, 0), dtype=numpy.bool_)
+
+        self.set_gui({'value_str': value_str,
+                      'valid': valid})
+
+#        for row in self.array:
+#            for x in row:
+#                temp = self.experiment.eval_general(x['function'])
+#                if (temp == 0) or (temp == 1):
+#                    x['value'] = temp
+#                else:
+#                    x['value'] = 5
+
     def copy(self):
         new = NumpySequence(self.experiment, self.description)
         new.dtype = self.dtype
@@ -237,7 +302,7 @@ class NumpyWaveform(Prop):
             #timeList=(timeList*self.digitalout.clockRate.value*self.digitalout.units.value).astype(numpy.uint64)
             
             #put the transition list in order
-            order=numpy.argsort(timeList,kind='mergesort') #mergesort is slower than the default quicksort, but it is 'stable' which means items of the same value are kept in their relative order, which is desired here
+            order=numpy.argsort(timeList,kind='mergesort')  # mergesort is slower than the default quicksort, but it is 'stable' which means items of the same value are kept in their relative order, which is desired here
             timeList=timeList[order]
             stateList=stateList[order]
             

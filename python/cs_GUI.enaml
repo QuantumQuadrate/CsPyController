@@ -26,6 +26,7 @@ from enaml.core.declarative import d_
 from enaml.core.include import Include
 from enaml.stdlib.fields import FloatField, IntField
 from enaml.core.api import Looper, Conditional
+from enaml.styling import StyleSheet, Style, Setter
 from enaml.validator import Validator
 from atom.api import Member, Bool, Typed, observe, Callable
 import threading, datetime, time, os, itertools
@@ -34,13 +35,32 @@ import numpy, itertools
 from experiments import IndependentVariable
 from instrument_property import ListProp
 
-# redefine field so that all Fields will give tool_tips
+# redefine Field so that all Fields will have status_tips
 from enaml.widgets.api import Field as OldField
 enamldef Field(OldField):
-    tool_tip << text
+    status_tip << text
+
+enamldef MyStyleSheet(StyleSheet):
+    Style:
+        style_class = 'invalid'
+        Setter:
+            field = 'background-color'
+            value = 'pink'
+        Setter:
+            field = 'border-color'
+            value = 'red'
+        Setter:
+            field = 'border-style'
+            value = 'solid'
+        Setter:
+            field = 'border-width'
+            value = '2'
+    Style:
+        style_class = 'valid'
 
 enamldef RefreshableLooper(Looper): self:
-    """A Looper that sends a reference of itself to the backend controller, so it can be forcibly updated."""
+    """A Looper that sends a reference of itself to the backend controller, so it can be forcibly updated using the
+    refresh_items() method."""
     initialized::
         iterable.gui = self
 
@@ -58,19 +78,6 @@ class MyBoolValidator(Validator):
             return False
         return True
 
-class MyFloatValidator(Validator):
-    experiment=Member()
-
-    def __init__(self,experiment):
-        super(MyFloatValidator,self).__init__()
-        self.experiment=experiment
-
-    def validate(self,text):
-        try:
-            value = self.experiment.eval_float(text)
-        except:
-            return False
-        return True
 
 class MyEnumValidator(Validator):
     experiment=Member()
@@ -238,26 +245,26 @@ enamldef CsMenuBar(MenuBar): menuBar:
 
 enamldef EvalProp(GroupBox):
     attr prop
-    padding=0
-    flat=True
-    title<<prop.name
-    constraints=[desc.width==func.width,func.width==val.width,hbox(desc,func,val),align('v_center',desc,func,val)]
+    padding = 0
+    flat = True
+    title << prop.name
+    constraints = [desc.width==func.width, func.width==val.width, hbox(desc,func,val), align('v_center',desc,func,val)]
+
+    # can be made to show an error status by setting valid to false
+    attr valid = True
 
     Field: desc:
-        text:=prop.description
-        placeholder='description'
+        text := prop.description
+        placeholder = 'description'
+
     Field: func:
-        text:=prop.function
-        placeholder=prop.placeholder
-        validator=prop #.validator
-        #valid<<prop.valid
+        text := prop.function
+        placeholder = prop.placeholder
+        style_class << 'valid' if prop.valid else 'invalid'
+
     Label: val:
-        text<<str(prop.value)
-#    CheckBox: check:
-#        checked<<prop.valid
-#        enabled=False
-        
-    
+        text << prop.valueStr
+
 enamldef MultilineProp(GroupBox):        
     attr prop
     flat=True
@@ -269,7 +276,7 @@ enamldef MultilineProp(GroupBox):
     MultilineField: func:
         text:=prop.function
     Label: val:
-        text<<str(prop.value)
+        text << prop.valueStr
 
 enamldef LabelBox(Container):
     attr checked #=False
@@ -458,7 +465,6 @@ enamldef VariablesPage(Page): main:
     title = 'Variables'
     Container:
         Container:
-            constraints=[hbox(settings,report),align('top',settings,report)]
             hug_height='strong'
             hug_width='strong'
 
@@ -488,17 +494,20 @@ enamldef VariablesPage(Page): main:
                         Field:
                             text:=experiment.variablesNotToSave
                             placeholder='scipy,numpy,x'
-            GroupBox: report:
-                title='Report'
-                hug_height='strong'
-                hug_width='strong'
-                constraints=[hbox(f1,lb2),align('top',f1,lb2)]
 
-                MultilineField: f1:
-                    constraints=[height==600]
-                    text:=experiment.variableReportFormat
-                Label: lb2:
-                    text<<experiment.variableReportStr
+enamldef Reports(Container):
+    attr experiment
+    GroupBox: report:
+        title = 'Variable Report'
+        hug_height = 'strong'
+        hug_width = 'strong'
+        constraints = [hbox(f1,lb2),align('top',f1,lb2)]
+        MultilineField: f1:
+            constraints = [height==600, width==600]
+            text := experiment.variableReport.function
+            style_class << 'valid' if experiment.variableReport.valid else 'invalid'
+        Label: lb2:
+            text << experiment.variableReport.valueStr
 
 enamldef LabViewPage(Page):
     attr LabView
@@ -695,26 +704,32 @@ enamldef NumpyState(Form):
     attr state
     attr experiment
     attr waveform
+    attr value_str
+    attr valid
 
     padding=0
 
     Field:
         constraints = [width == 100,height==20]
-        #placeholder='state: None,0,1'
+        style_class << 'valid' if valid else 'invalid'
         text:=state['function']
-        validator<<MyEnumValidator(experiment,[None,0,1])
         text::
-            temp=experiment.eval_general(text)
-            if temp is None:
-                state['value']=5
-                valueLabel.text=''
+            value, parent.valid = experiment.eval_general(text)
+            if value is None:
+                state['value'] = 5
+                parent.value_str = ''
+            elif (value == 0) or (value ==1):
+                state['value'] = value
+                parent.value_str = str(state['value']) #must be updated manually because state['value'] identity does not change
             else:
-                state['value']=temp
-                valueLabel.text=str(state['value']) #must be updated manually because state['value'] identity does not change
+                logger.warning('Invalid state in waveform {}.  States must evaluate to None, 0 or 1.\n{} = {}'.format(waveform.name,text,value))
+                state['value'] = 5
+                parent.value_str = ''
+                parent.valid = False
             waveform.updateFigure()
     Label: valueLabel:
-        constraints = [width == 50,height==20]
-        text<<('' if state['value']==5 else str(state['value']))
+        constraints = [width==50, height==20]
+        text << value_str
 
 enamldef ChannelCombo(ComboBox):
     attr wfm
@@ -755,23 +770,23 @@ enamldef TransitionTime(Form):
     attr experiment
     attr waveform
     attr transition
+    attr value_str
+    attr valid
     
     padding=0
     
     Field:
-        tool_tip << text
-        status_tip << text
-        constraints = [width == 100,height==20]
-        placeholder='time'
-        text:=transition['function']
-        validator<<MyFloatValidator(experiment)
+        constraints = [width == 100, height==20]
+        placeholder = 'time'
+        text := transition['function']
+        style_class << 'valid' if valid else 'invalid'
         text::
-            transition['value']=experiment.eval_float(text)
-            valueLabel.text='{:.6f}'.format(transition['value']) #must be updated manually because transition['value'] identity does not change
+            transition['value'], parent.valid = experiment.eval_float(text)
+            value_str = '{:.6f}'.format(transition['value']) #must be updated manually because transition['value'] identity does not change
             waveform.updateFigure()
     Label: valueLabel:
-        constraints = [width == 50,height==20]
-        text<<'{:.6f}'.format(transition['value'])
+        constraints = [width==50, height==20]
+        text << value_str
 
 enamldef NumpyWaveform(Container):
     attr waveform
@@ -856,7 +871,13 @@ enamldef NumpyWaveform(Container):
             title='waveform transition and sequence (valid states: blank(continue), 0(off), 1(on))'
             constraints<<[grid(*[statesDyno.objects[i:(i+len(waveform.transitions.array)+1)] for i in range(0, len(statesDyno.objects), len(waveform.transitions.array)+1)])] if len(statesDyno.objects)>0 else []
             Include: statesDyno:
-                objects<<[DescriptionLabel()]+[TransitionDescription(transition=t) for t in waveform.transitions.array]+[TimeLabel()]+[TransitionTime(transition=t,experiment=waveform.experiment,waveform=waveform) for t in waveform.transitions.array]+(list(itertools.chain(*map(list,zip(*([[ChannelCombo(wfm=waveform,channels=waveform.digitalout.channels,channelList=waveform.channelList,position=i) for i in xrange(len(waveform.channelList))]]+[[NumpyState(state=s,experiment=waveform.experiment,waveform=waveform) for s in waveform.sequence.array.flat][i:i+len(waveform.channelList)] for i in range(0,waveform.sequence.array.size,len(waveform.channelList))]))))) if (len(waveform.channelList)>0) else [])
+                objects << ([DescriptionLabel()]
+                    +[TransitionDescription(transition=t) for t in waveform.transitions.array]
+                    +[TimeLabel()]
+                    +[TransitionTime(transition=t,experiment=waveform.experiment,waveform=waveform,value_str=value_str,valid=valid) for t,value_str,valid in zip(waveform.transitions.array,waveform.transitions.value_str,waveform.transitions.valid)]
+                    +(list(itertools.chain(*map(list,zip(*([[ChannelCombo(wfm=waveform,channels=waveform.digitalout.channels,channelList=waveform.channelList,position=i) for i in xrange(len(waveform.channelList))]]
+                    +[[NumpyState(state=s,experiment=waveform.experiment,waveform=waveform,value_str=value_str,valid=valid) for s,value_str,valid in zip(waveform.sequence.array.flat,waveform.sequence.value_str.flat,waveform.sequence.valid.flat)][i:i+len(waveform.channelList)] for i in range(0,waveform.sequence.array.size,len(waveform.channelList))]))))) if (len(waveform.channelList)>0) else [])
+                    )
 
 def get_load_waveform_callback(HSDIO):
     def load_file_callback(dlg):
@@ -934,14 +955,6 @@ enamldef Waveforms(Container):
                         # quicker to instantiate single element
                         NumpyWaveform:
                             waveform << HSDIO.waveforms.listProperty[combo.index]
-#        Stack: stack:
-#            index<<combo.index
-#            RefreshableLooper:
-#                iterable<<HSDIO.waveforms
-#                StackItem:
-#                    NumpyWaveform:
-#                        waveform<<loop_item
-
 
 enamldef HSDIO_DigitalOutPage(Page):
     attr HSDIO
@@ -1780,7 +1793,10 @@ enamldef Main(MainWindow): main:
     initial_position=(0,0)
     initial_size=(1500,1100)
     #icon_source='icon://myicons/atom_loading'
-    
+
+    MyStyleSheet:
+        #just implement the style sheet defined separately
+        pass
     CsMenuBar:
         experiment=main.experiment
         mainWindow=main
@@ -1805,9 +1821,13 @@ enamldef Main(MainWindow): main:
                     tabs_movable=False
                     tab_style = 'preferences'
                     ExperimentPage:
-                        experiment=main.experiment
+                        experiment = main.experiment
                     VariablesPage:
-                        experiment=main.experiment
+                        experiment = main.experiment
+                    Page:
+                        title = 'Report'
+                        Reports:
+                            experiment = main.experiment
                     LabViewPage:
                         LabView=main.experiment.LabView
                     HSDIO_DigitalOutPage:

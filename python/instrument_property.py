@@ -50,6 +50,9 @@ class Prop(Atom):
         self.doNotSendToHardware = ['description']
     
     def evaluate(self):
+        """This function goes through the properties list and evaluates any of them with their own evaluate() method.
+        This function should be overridden in subclasses at the lowest level on the Prop tree."""
+
         if self.experiment.allow_evaluation:
             #go through the properties list and evaluate
             for p in self.properties:
@@ -249,46 +252,7 @@ class Prop(Atom):
                         logger.warning('Cannot load HDF5 node {} which is of type {} in {}.fromHDF5()'.format(i,type(i),self.name))
                         raise PauseError
         return self
-    
-    def toXML(self):
-        '''This function provides generic XML saving behavior for this package.
-        It goes through the properties list. If an item has its own toXML method, that will be used.
-        Else, it will be pickled using python's human-readable pickling format.'''
-        output=''
-        
-        #go through list of single properties:
-        for p in self.properties: # I use a for loop instead of list comprehension so I can have more detailed error reporting.
-            
-            #convert the string name to an actual object
-            try:
-                o=getattr(self,p)
-            except:
-                logger.warning('In Prop.toXML() for class '+self.name+': item '+p+' in properties list does not exist.\n')
-                continue
-            
-            #defer to the separate function for the XML protocol
-            output+=self.XMLProtocol(o,p)
-            
-        return '<{}>{}</{}>\n'.format(self.name,output,self.name)
-    
-    def XMLProtocol(self,o,name):
-        '''A separate function with just the toXML protocol, so we can reuse it independently of toXML(self)'''
-        #if it has its own toXML method, use it
-        if hasattr(o,'toXML'):
-            try:
-                return o.toXML()
-            except Exception as e:
-                logger.warning('While trying '+name+'.toXML() in Prop.XMLProtocol() in '+self.name+'.\n'+str(e)+'\n')
-                return ''
-        
-        #else just pickle it
-        else:
-            try:
-                return '<{}>{}</{}>\n'.format(name,pickle.dumps(o),name)
-            except Exception as e:
-                logger.warning('While picking '+name+' in Prop.XMLProtocol() in '+self.name+'.\n'+str(e)+'\n')
-                return ''
-    
+
     def toHardware(self):
         '''This function provides generic hardware communication XML for this package.  It is similar to toXML(self),
         but in the end it puts out str(value) of each property, which is useful to the hardware, and does not put out any of the
@@ -333,73 +297,9 @@ class Prop(Atom):
                 logger.warning('In str('+name+') in Prop.HardwareProtocol() for '+self.name+'.\n'+str(e)+'\n')
                 raise PauseError
 
-    def fromXML(self,xmlNode):
-        '''This function provides generic XML loading behavior for this package.
-        First, version tags are checked.
-        If an object has its own fromXML method, that will be used.  Else, it will be assumed that the XML is a pickle string, and
-        it will be loaded using python's human-readable pickling format.
-        self is the object corresponding to the top level tag in xmlNode, and its children are what will be loaded here.'''
-        
-        version=None
-        
-        try:
-            self.name=xmlNode.tag
-        except Exception as e:
-            logger.warning('Bad xml tag: '+xmlNode.tag+', in Prop.fromXML() in '+self.name+'.\n'+str(e))
-        
-        for child in xmlNode:
-            
-            #check to see if this is one of the properties we care to load
-            if child.tag not in self.properties:
-                logger.warning('Prop.fromXML(): XML has tag: '+child.tag+', but this is not in the '+self.name+'.properties list.  It will not be loaded.\n')
-            else:            
-                #check if the version tags match
-                if child.tag=='version':
-                    version=pickle.loads(child.text)
-                    if hasattr(self,'version'):
-                        if version!=self.version:
-                            logger.warning('Current '+xmlNode.tag+' version is '+self.version+', you are loading from version: '+version)
-                    else:
-                        logger.warning('Code object '+self.name+' has no version, but XML node '+xmlNode.tag+' has version: '+version)
-                
-                #load in all other tags into variables
-                else:
-                    try:
-                        #identify the variable to be loaded
-                        var=getattr(self,child.tag)
-                        exists=True
-                    except:
-                        logger.warning('in '+self.name+' in Prop.fromXML() while loading '+child.tag+' which was not previously defined in '+xmlNode.tag+'\n')
-                        exists=False
-                    if exists:
-                        if hasattr(var,'fromXML'):
-                            #set it using its own method
-                            #this will preserve the instance identity
-                            var.fromXML(child)
-                        else:
-                            #assume it is a pickle, and overwrite the existing variable
-                            #this will overwrite the instance identity
-                            try:
-                                setattr(self,child.tag,pickle.loads(child.text))
-                            except Exception as e:
-                                logger.warning('in '+self.name+' in Prop.fromXML() while unpickling existing variable '+child.tag+' in '+xmlNode.tag+'\n'+str(e)+'\n')
-                    else:
-                        #variable was not pre-existing
-                        #assume it is a pickle, and write a new variable
-                        #this will create a new instance identity
-                        try:
-                            setattr(self,child.tag,pickle.loads(child.text))
-                        except Exception as e:
-                            logger.warning('in '+self.name+' prop.fromXML() while unpickling new variable '+child.tag+' in '+xmlNode.tag+'\n'+str(e)+'\n')
-        
-        #if we didn't see any version tag
-        if (version is None) and hasattr(self,'version'):
-            logger.warning('Code has version '+self.version+' but XML node '+xmlNode.tag+' has no version tag.')
-        
-        return self
-    
     def call_evaluate(self, changed):
-        '''This function exists to allow Atom calls to evaluate() when something is changed.  @observe passes the 'changed' parameter, whereas evaluate() takes no parameters'''
+        """This function exists to allow Atom calls to evaluate() when something is changed.
+        @observe passes the 'changed' parameter, whereas evaluate() takes no parameters."""
         if self.experiment.allow_evaluation:
             self.evaluate()
 
@@ -419,78 +319,61 @@ class Prop(Atom):
             setattr(self, key, value)
 
 
-# class EvalPropValidator(Validator):
-    # valid=Bool()
-    # def validate(self,text):
-        # return self.valid
-
-class EvalProp(Prop,Validator):
+class EvalProp(Prop):
 
     """The base class for any Prop that has a function, and can be evaluated to a value."""
     
-    function=Str()
-    valid=Bool()
-    placeholder=Str('')
-    #validator=EvalPropValidator()
-    #refresh=Bool()
-    
-    def __init__(self,name,experiment,description='',function=''):
-        super(EvalProp,self).__init__(name,experiment,description)
-        self.function=function
-        self.properties+=['function']
-        #self.valid=True
-        #self.refresh=False #this value doesn't matter, we just toggle it update the Enaml field validation
-        #start tracking function here, instead of with @observe, so that it doesn't update on initialization
+    function = Str()
+    valid = Bool(True)
+    placeholder = Str()
+    valueStr = Str()
+
+    def __init__(self, name, experiment, description='', function=''):
+        super(EvalProp, self).__init__(name, experiment, description)
+        self.function = function
+        self.properties += ['function']
         self.observe('function', self.call_evaluate)
     
     def evaluate(self):
         """This is the evaluation function that gets run programmatically during experiments and initialization.
         It will pause an experiment if an evaluation fails."""
+
+        # We do not call super(EvalProp,self).evaluate() to evaluate things in the properties list,
+        # because there is no need for an EvalProp to have subproperties at this time.
+
         if self.experiment.allow_evaluation:
-            self.valid = self.evalfunc(self.function)
-            #self.validator.valid=self.valid
-            #print 'evaluate: self.valid='+str(self.valid)
-            #self.refreshGUI()
-            #if the experiment is running then pause it
-            if (not self.valid) and (self.experiment is not None) and (self.experiment.status != 'idle'):
+
+            # Use experiment.vars, if available
+            try:
+                vars = self.experiment.vars
+            except:
+                logger.warning('EvalProp ' + self.name + ' has no experiment assigned in evaluate().')
+                vars = {}
+
+            # evaluate the 'function'
+            value, valid = cs_evaluate.evalWithDict(self.function, varDict=vars)
+            if not valid:
+                logger.error('Error in EvalProp.evaluate() while evaluating property {}, {}, {}\n{}'.format(self.name, self.description, self.function, e))
+                self.set_gui({'valid': False, 'valueStr': ''})
                 raise PauseError
-    
-    #def refreshGUI(self):
-    #    '''Signals the GUI to update whether or not a red error box is shown, based on self.valid'''
-    #    self.refresh=not self.refresh
-    
-    def validate(self,text):
-        '''This is the evaluation function that gets run on user GUI input.'''
-        self.valid=self.evalfunc(text)
-        return self.valid
-    
-    def evalfunc(self, function):
-        #If necessary we could call super(EvalProp,self).evaluate() to evaluate things in the properties list.  But I don't think an evalProp will ever need to do that.
-        
-        #Use experiment.vars, if available
-        try:
-            vars=self.experiment.vars
-        except:
-            logger.warning('EvalProp '+self.name+' has no experiment assigned in evaluate().')
-            vars={}
-        
-        #evaluate the 'function' and store it in 'value'
-        try:
-            value=cs_evaluate.evalWithDict(function,varDict=vars,errStr='evaluating property {}, {}, {}\n'.format(self.name,self.description,self.function))
-            if value is not None:
-               self.value=value
-            else:
-                #evaluation failed, error will already have been logged in cs_evaluate.evalWithDict
-                return False
-        except TypeError as e:
-            #this type of error is raised by Atom type checking
-            logger.warning('TypeError while evaluating:\nproperty: '+self.name+'\ndescription: '+self.description+'\nfunction: '+self.function+'\n'+str(e)+'\n')
-            return False
-        except Exception as e:
-            logger.warning('Exception in EvalProp.evaluate() in '+self.name+'.\ndescription: '+self.description+'\nfunction: '+self.function+'\n'+str(e)+'\n')
-            return False
-        return True
-    
+
+            # store the result in self.value (we used to check for None here, but now allow it)
+            try:
+                self.value = value
+                self.set_gui({'valueStr': str(value)})
+            except TypeError as e:
+                #this type of error is raised by Atom type checking
+                logger.error('TypeError while evaluating:\nproperty: '+self.name+'\ndescription: '+self.description+'\nfunction: '+self.function+'\n'+str(e)+'\n')
+                self.set_gui({'valid': False, 'valueStr': ''})
+                raise PauseError
+            except Exception as e:
+                logger.error('Exception in EvalProp.evaluate() in '+self.name+'.\ndescription: '+self.description+'\nfunction: '+self.function+'\n'+str(e)+'\n')
+                self.set_gui({'valid': False, 'valueStr': ''})
+                raise PauseError
+
+            #if we made it through all that, then the evaluation was okay
+            self.set_gui({'valid': True})
+
     def toHardware(self):
         try:
             valueStr=str(self.value)
@@ -504,9 +387,11 @@ class StrProp(EvalProp):
     value=Str()
     placeholder='string'
 
+
 class IntProp(EvalProp):
     value=Int()
     placeholder='integer'
+
 
 class RangeProp(EvalProp):
     '''This can't be instantiated directly.  Use IntRangeProp or FloatRangeProp.'''
@@ -782,20 +667,6 @@ class ListProp(Prop):
         self.refreshGUI()
         return self
     
-    def toXML(self):
-        #go through the listProperty and toXML each item
-        output = ''
-        
-        for i, o in enumerate(self.listProperty):
-            try:
-                output+=self.XMLProtocol(o,self.listElementName+str(i)) #give the index number as the XML tag, this will only be used if the item does not have its own toXML()
-            except PauseError:
-                raise PauseError
-            except Exception as e:
-                logger.warning('Evaluating list item '+str(i)+' in ListProp.evaluate() in'+self.name+'.\n'+str(e))
-        
-        return '<{}>{}</{}>\n'.format(self.name,output,self.name)
-    
     def toHardware(self):
         #go through the listProperty and toXML each item
         output=''
@@ -804,31 +675,22 @@ class ListProp(Prop):
             output+=self.HardwareProtocol(o,self.listElementName+str(i)) #give the index number as the XML tag, this will only be used if the item does not have its own toHardware()
         
         return '<{}>{}</{}>\n'.format(self.name,output,self.name)
-    
-    def fromXML(self,xmlNode):
-        # in a listProp XML all the elements are part of self.listProperty
-        # you may need to override this in a subclass if listElementType.__init__ takes in other things besides name and experiment
-        try:
-            self.listProperty=[self.listElementType(child.tag,self.experiment,**self.listElementKwargs).fromXML(child) for i,child in enumerate(xmlNode)]
-        except Exception as e:
-            logger.warning('in '+self.name+' in ListProp.fromXML() for xml tag: '+xmlNode.tag+'.\n'+str(e)+'\n'+str(traceback.format_exc())+'\n')
-        self.refreshGUI()
-        return self
+
 
 class Numpy1DProp(Prop):
-    array=Member()
-    dtype=Member()
-    hdf_dtype=Member()
-    zero=Member()
+    array = Member()
+    dtype = Member()
+    hdf_dtype = Member()
+    zero = Member()
     
-    def __init__(self,name,experiment,description='',dtype=float,hdf_dtype=float,zero=None):
-        super(Numpy1DProp,self).__init__(name,experiment,description)
-        self.dtype=dtype
-        self.hdf_dtype=hdf_dtype
-        self.zero=zero
+    def __init__(self, name, experiment, description='', dtype=float, hdf_dtype=float, zero=None):
+        super(Numpy1DProp,self).__init__(name, experiment, description)
+        self.dtype = dtype
+        self.hdf_dtype = hdf_dtype
+        self.zero = zero
         #create zero length array
-        self.array=numpy.zeros(0,dtype=dtype)
-        self.properties+=['array']
+        self.array = numpy.zeros(0,dtype=dtype)
+        self.properties += ['array']
 
     def add(self,index):
         zero=numpy.zeros(1,dtype=self.dtype)
@@ -853,21 +715,6 @@ class Numpy1DProp(Prop):
             logger.warning(' in Numpy1DProp.fromHDF5() in {} for hdf node {}\n{}\n{}\n'.format(self.name, hdf.name, e, traceback.format_exc()))
             raise PauseError
 
-    def toXML(self):
-        #special toXML method because the default pickling ends up giving parse errors due to weird characters
-        return '<{}>{}</{}>'.format(self.name,' '.join([str(i) for i in self.array]),self.name)
-        
-    def fromXML(self,node):
-        #special fromXML method to account for special toXML method
-        if (node.text is None) or (node.text==''):
-            self.array=numpy.zeros(0,dtype=self.dtype)
-            return self
-        try:
-            self.array=numpy.array(node.text.split(' '),dtype=self.dtype)
-            return self
-        except Exception as e:
-            logger.warning('in Numpy1DProp.fromXML() in {}. node.tag={}, node.text={}\n{}\n{}\n'.format(self.name,node.tag,node.text,e,traceback.format_exc()))
-            raise PauseError
 
 class Numpy2DProp(Prop):
     array=Member()
@@ -911,20 +758,3 @@ class Numpy2DProp(Prop):
 
     def fromHDF5(self,hdf):
         self.array=hdf.value.astype(self.dtype)
-        
-    def toXML(self):
-        #special toXML method because the default pickling ends up giving parse errors due to weird characters
-        return '<{}>{}</{}>'.format(self.name,'\n'.join([' '.join([str(j) for j in i]) for i in self.array]),self.name)
-        
-    def fromXML(self,node):
-        #special fromXML method to account for special toXML method
-        if (node.text is None) or (node.text==''):
-            self.array=numpy.zeros((0,0),dtype=self.dtype)
-            return self
-        try:
-            self.array=numpy.array([i.split(' ') for i in node.text.split('\n')],dtype=self.dtype)
-            return self
-        except Exception as e:
-            logger.warning('in Numpy2DProp.fromXML() in {}. node.tag={}, node.text={}\n{}\n{}\n'.format(self.name,node.tag,node.text,e,traceback.format_exc()))
-            raise PauseError
-

@@ -18,9 +18,7 @@ from atom.api import Typed, Member
 from instrument_property import Prop, BoolProp, IntProp, FloatProp, StrProp, ListProp
 from cs_instruments import Instrument
 
-from digital_waveform import NumpyWaveform, Channels, NumpyChannels
-
-#---- HSDIO properties ----
+from digital_waveform import NumpyWaveform, NumpyChannels
 
 
 class ScriptTrigger(Prop):

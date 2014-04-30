@@ -7,7 +7,7 @@ TODO:
     AO numpy array
     RF gen numpy aray
     loading of only part of settings
-    replace other indexed Stacks with IndexedStack
+    replace other indexed Stacks with no stack at all?
     make it so that RangeProp high and low could be re-assigned to None dynamically if desired (without raising error, unless value is outside that range)
     make it so that BoolProps get evaluated on instantiation, don't wait for settings to be loaded, because that may never happen, function passed on initialization should be valid (or provide default behavior), could make alternate valueText if that is useful
     get red box validation display working completely (right now only works from GUI, but not from backend)
@@ -25,29 +25,31 @@ TODO:
     make dependent variables a fixed-width (courier) font
     add 2nd HSDIO card, and combine them so it looks like 1 card with 64 channels
     a lot of the things that I have done using lists of Prop in ListProp would be better done using a separate numpy array for each property of the Prop (or one array of compound dtype)
-    TTL input
     check analysis
     DAQmxDO grid generation is obtuse (simplify it)
-    If a variable is created in dependentVariables, and then later deleted (but not reassigned) it persists, and can still be used in all the equation boxes.  This is a problem.
     waveform values are not saved if Validation fails (they erase if a channel is added)
     Ability to send a reset signal to various instruments
-    make sure waveform names updates
     Make it so you can't disturb running experiment settings
-    Patch based waveform plot
     Array piezo settings
     Restart crashed experiment (Use separate load experiment?)
-    Stop crashing: "invalid value in doublescalars"
-    One waveform vs index stacked waveforms
-    Don't let independent variables go out of range at the end of an experiment
-    Allow for choosing current ivar indices
+    Allow for choosing current ivar indices, and ordering
     Make ctrl+Q halt
-    Button to upload experiment at current point when paused (Finish experiment)
     Blank middle image on bad selector
-    Lots more logging
-    Investigate 'crashes' branch
-    Change tool_tip to status_tip, but first submit Github feature request to make status_tips actually update on '<<'
+    Make sure to use deferred_call everywhere necessary
+    Updating of evaluated numbers for waveform grid
 
 Done:
+    make sure waveform names updates
+    Patch based waveform plot
+    Stop crashing: "invalid value in doublescalars"
+    Change tool_tip to status_tip
+    If a variable is created in dependentVariables, and then later deleted (but not reassigned) it persists, and can still be used in all the equation boxes.  This is a problem.
+    Don't let independent variables go out of range at the end of an experiment
+    One waveform vs index stacked waveforms
+    TTL input
+    Button to upload experiment at current point when paused (Finish experiment)
+    Lots more logging
+    Investigate 'crashes' branch
     All ListProps lose GUI linkage on load from file.  Fix with custom Looper that gives ListProp a reference to gui in 'initialized::'
     Tool tips on all Fields
     Logging to memory and then saving that log to hdf5
