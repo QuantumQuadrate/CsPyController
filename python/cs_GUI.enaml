@@ -78,19 +78,6 @@ class MyBoolValidator(Validator):
             return False
         return True
 
-class MyFloatValidator(Validator):
-    experiment=Member()
-
-    def __init__(self,experiment):
-        super(MyFloatValidator,self).__init__()
-        self.experiment=experiment
-
-    def validate(self,text):
-        try:
-            value = self.experiment.eval_float(text)
-        except:
-            return False
-        return True
 
 class MyEnumValidator(Validator):
     experiment=Member()
@@ -717,36 +704,32 @@ enamldef NumpyState(Form):
     attr state
     attr experiment
     attr waveform
+    attr value_str
+    attr valid
 
     padding=0
 
     Field:
         constraints = [width == 100,height==20]
-        #style_class = 'valid' # if state['function']==''
+        style_class << 'valid' if valid else 'invalid'
         text:=state['function']
         text::
-            value, valid = experiment.eval_general(text)
-            if not valid:
-                style_class = 'invalid'
+            value, parent.valid = experiment.eval_general(text)
             if value is None:
                 state['value'] = 5
-                valueLabel.text = ''
-                style_class = 'valid'
+                parent.value_str = ''
             elif (value == 0) or (value ==1):
                 state['value'] = value
-                valueLabel.text=str(state['value']) #must be updated manually because state['value'] identity does not change
-                style_class = 'valid'
+                parent.value_str = str(state['value']) #must be updated manually because state['value'] identity does not change
             else:
                 logger.warning('Invalid state in waveform {}.  States must evaluate to None, 0 or 1.\n{} = {}'.format(waveform.name,text,value))
                 state['value'] = 5
-                valueLabel.text = ''
-                style_class = 'invalid'
+                parent.value_str = ''
+                parent.valid = False
             waveform.updateFigure()
     Label: valueLabel:
-        constraints = [width == 50,height==20]
-        # no point in subscribing this, because identity does not change on backend update and it will not trigger
-        # instead we remake the whole array on bakend evaluate
-        text = ('' if state['value']==5 else str(state['value']))
+        constraints = [width==50, height==20]
+        text << value_str
 
 enamldef ChannelCombo(ComboBox):
     attr wfm
@@ -797,14 +780,13 @@ enamldef TransitionTime(Form):
         placeholder = 'time'
         text := transition['function']
         style_class << 'valid' if valid else 'invalid'
-        #validator << MyFloatValidator(experiment)
         text::
             transition['value'], parent.valid = experiment.eval_float(text)
-            valueLabel.text = '{:.6f}'.format(transition['value']) #must be updated manually because transition['value'] identity does not change
+            value_str = '{:.6f}'.format(transition['value']) #must be updated manually because transition['value'] identity does not change
             waveform.updateFigure()
     Label: valueLabel:
-        constraints = [width == 50,height==20]
-        text = value_str
+        constraints = [width==50, height==20]
+        text << value_str
 
 enamldef NumpyWaveform(Container):
     attr waveform
@@ -889,7 +871,13 @@ enamldef NumpyWaveform(Container):
             title='waveform transition and sequence (valid states: blank(continue), 0(off), 1(on))'
             constraints<<[grid(*[statesDyno.objects[i:(i+len(waveform.transitions.array)+1)] for i in range(0, len(statesDyno.objects), len(waveform.transitions.array)+1)])] if len(statesDyno.objects)>0 else []
             Include: statesDyno:
-                objects<<[DescriptionLabel()]+[TransitionDescription(transition=t) for t in waveform.transitions.array]+[TimeLabel()]+[TransitionTime(transition=t,experiment=waveform.experiment,waveform=waveform,value_str=value_str,valid=valid) for t,value_str,valid in zip(waveform.transitions.array,waveform.transitions.value_str,waveform.transitions.valid)]+(list(itertools.chain(*map(list,zip(*([[ChannelCombo(wfm=waveform,channels=waveform.digitalout.channels,channelList=waveform.channelList,position=i) for i in xrange(len(waveform.channelList))]]+[[NumpyState(state=s,experiment=waveform.experiment,waveform=waveform) for s in waveform.sequence.array.flat][i:i+len(waveform.channelList)] for i in range(0,waveform.sequence.array.size,len(waveform.channelList))]))))) if (len(waveform.channelList)>0) else [])
+                objects << ([DescriptionLabel()]
+                    +[TransitionDescription(transition=t) for t in waveform.transitions.array]
+                    +[TimeLabel()]
+                    +[TransitionTime(transition=t,experiment=waveform.experiment,waveform=waveform,value_str=value_str,valid=valid) for t,value_str,valid in zip(waveform.transitions.array,waveform.transitions.value_str,waveform.transitions.valid)]
+                    +(list(itertools.chain(*map(list,zip(*([[ChannelCombo(wfm=waveform,channels=waveform.digitalout.channels,channelList=waveform.channelList,position=i) for i in xrange(len(waveform.channelList))]]
+                    +[[NumpyState(state=s,experiment=waveform.experiment,waveform=waveform,value_str=value_str,valid=valid) for s,value_str,valid in zip(waveform.sequence.array.flat,waveform.sequence.value_str.flat,waveform.sequence.valid.flat)][i:i+len(waveform.channelList)] for i in range(0,waveform.sequence.array.size,len(waveform.channelList))]))))) if (len(waveform.channelList)>0) else [])
+                    )
 
 def get_load_waveform_callback(HSDIO):
     def load_file_callback(dlg):

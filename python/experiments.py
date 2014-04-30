@@ -762,7 +762,7 @@ class Experiment(Prop):
         self.iterationResults.attrs['ivarNames'] = self.ivarNames
         self.iterationResults.attrs['ivarValues'] = [i.currentValue for i in self.independentVariables]
         self.iterationResults.attrs['ivarIndex'] = self.ivarIndex
-        self.iterationResults['report'] = self.variableReportStr
+        self.iterationResults['report'] = self.variableReport.value
         
         #store the independent and dependent variable space
         v = self.iterationResults.create_group('variables')
