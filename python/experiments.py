@@ -862,16 +862,17 @@ class AQuA(Experiment):
     """A subclass of Experiment which knows about all our particular hardware"""
     
     LabView = Member()
+    TTL_filters = Member()
+    squareROIAnalysis = Member()
+    loading_fitlers = Member()
     text_analysis = Member()
     recent_shot_analysis = Member()
     shotBrowserAnalysis = Member()
     imageSumAnalysis = Member()
-    squareROIAnalysis = Member()
     imageWithROIAnalysis = Member()
     histogramAnalysis = Member()
     measurements_graph = Member()
     iterations_graph = Member()
-    TTL_filters = Member()
     save2013Analysis = Member()
     optimizer = Member()
     ROI_rows = 7
@@ -885,21 +886,23 @@ class AQuA(Experiment):
         self.instruments += [self.LabView]
         
         #analyses
+        self.TTL_filters = TTL.TTL_filters('TTL_filters', self)
+        self.loading_filters = analysis.LoadingFilters('loading_filters', self, 'drop measurements with no atom loaded')
+        self.squareROIAnalysis = analysis.SquareROIAnalysis(self, ROI_rows=self.ROI_rows, ROI_columns=self.ROI_columns)
         self.text_analysis = analysis.TextAnalysis('text_analysis', self, 'text results from the measurement')
         self.imageSumAnalysis = analysis.ImageSumAnalysis(self)
         self.recent_shot_analysis = analysis.RecentShotAnalysis('recent_shot_analysis', self, description='just show the most recent shot')
         self.shotBrowserAnalysis = analysis.ShotsBrowserAnalysis(self)
-        self.squareROIAnalysis = analysis.SquareROIAnalysis(self, ROI_rows=self.ROI_rows, ROI_columns=self.ROI_columns)
         self.histogramAnalysis = analysis.HistogramAnalysis('plot the histogram of any shot and roi', self)
-        self.measurements_graph = analysis.MeasurementsGraph('measurements_graph',self,'plot the ROI sum vs all measurements')
-        self.iterations_graph = analysis.IterationsGraph('iterations_graph',self,'plot the average of ROI sums vs iterations')
-        self.TTL_filters = TTL.TTL_filters('TTL_filters', self)
+        self.measurements_graph = analysis.MeasurementsGraph('measurements_graph', self,'plot the ROI sum vs all measurements')
+        self.iterations_graph = analysis.IterationsGraph('iterations_graph', self, 'plot the average of ROI sums vs iterations')
         self.save2013Analysis = save2013style.Save2013Analysis(self)
         self.optimizer = analysis.OptimizerAnalysis(self)
-        self.analyses += [self.TTL_filters, self.text_analysis, self.imageSumAnalysis, self.recent_shot_analysis, self.shotBrowserAnalysis, self.squareROIAnalysis,
+        self.analyses += [self.TTL_filters, self.squareROIAnalysis, self.loading_filters, self.text_analysis,
+                          self.imageSumAnalysis, self.recent_shot_analysis, self.shotBrowserAnalysis,
                           self.histogramAnalysis, self.measurements_graph, self.iterations_graph, self.save2013Analysis]
 
-        self.properties += ['LabView', 'imageSumAnalysis', 'recent_shot_analysis', 'shotBrowserAnalysis', 'squareROIAnalysis', 'histogramAnalysis', 'measurements_graph', 'iterations_graph', 'TTL_filters']
+        self.properties += ['LabView', 'squareROIAnalysis', 'TTL_filters', 'loading_filters', 'imageSumAnalysis', 'recent_shot_analysis', 'shotBrowserAnalysis', 'histogramAnalysis', 'measurements_graph', 'iterations_graph']
 
         try:
             self.allow_evaluation = False

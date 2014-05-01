@@ -110,7 +110,7 @@ class Prop(Atom):
                     logger.warning('While trying '+p+'.toHDF5() in Prop.toHDF5() in '+name+'.\n'+str(e)+'\n'+str(traceback.format_exc())+'\n')
                     raise PauseError
             else:
-                if p=='version':
+                if p == 'version':
                     #save the version tag as an attribte
                     my_node.attrs['version'] = o
                 else:

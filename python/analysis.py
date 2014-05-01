@@ -200,14 +200,13 @@ class TTL_filters(Analysis):
 
     def __init__(self, name, experiment, description=''):
         super(TTL_filters, self).__init__(name, experiment, description)
-        self.properties += ['text','lines']
+        self.properties += ['lines', 'filter_level']
 
     def analyzeMeasurement(self, measurementResults, iterationResults, experimentResults):
         text = 'none'
         if self.enable:
             if 'TTL/data' in measurementResults['data']:
                 a = measurementResults['data/TTL/data']
-                text = str(a)
                 #check to see if any of the inputs were True
                 if numpy.any(a):
                     #report the true inputs
@@ -394,7 +393,7 @@ class ImageSumAnalysis(AnalysisWithFigure):
                 for i, shot in enumerate(measurementResults['data/Hamamatsu/shots'].itervalues()):
                     self.sum_array[i] += shot
                     self.count_array[i] += 1
-                    self.mean_array[i]=self.sum_array[i]/self.count_array[i]
+                    self.mean_array[i] = self.sum_array[i]/self.count_array[i]
 
             #update the min/max that other image plots will use
             self.min = numpy.amin(self.mean_array)
@@ -405,8 +404,8 @@ class ImageSumAnalysis(AnalysisWithFigure):
     def analyzeIteration(self, iterationResults,experimentResults):
         iterationResults['sum_array'] = self.sum_array
 
-    @observe('shot','showROIs')
-    def reload(self,change):
+    @observe('shot', 'showROIs')
+    def reload(self, change):
         self.updateFigure()
 
     def updateFigure(self):
@@ -440,7 +439,8 @@ class SquareROIAnalysis(AnalysisWithFigure):
     ROI_rows = Int()
     ROI_columns = Int()
     ROIs = Member()  # a numpy array holding an ROI in each row
-    left, top, right, bottom, threshold = (0, 1, 2, 3, 4)  # column ordering of ROI boundaries in each ROI in ROIs
+    filter_level = Int()
+    #left, top, right, bottom, threshold = (0, 1, 2, 3, 4)  # column ordering of ROI boundaries in each ROI in ROIs
     loadingArray = Member()
 
     def __init__(self, experiment, ROI_rows=1, ROI_columns=1):
@@ -448,11 +448,12 @@ class SquareROIAnalysis(AnalysisWithFigure):
         self.loadingArray = numpy.zeros((0, ROI_rows, ROI_columns), dtype=numpy.bool_)  # blank array that will hold digital representation of atom loading
         self.ROI_rows = ROI_rows
         self.ROI_columns = ROI_columns
-        self.ROIs = numpy.zeros((ROI_rows*ROI_columns, 5), numpy.uint16)  # initialize with a blank array
-        self.properties += ['ROIs']
+        dtype=[('left', numpy.uint16), ('top', numpy.uint16), ('right', numpy.uint16), ('bottom', numpy.uint16), ('threshold', numpy.uint32)]
+        self.ROIs = numpy.zeros(ROI_rows*ROI_columns, dtype=dtype)  # initialize with a blank array
+        self.properties += ['ROIs', 'filter_level']
     
     def sum(self, roi, shot):
-        return numpy.sum(shot[roi[self.top]:roi[self.bottom], roi[self.left]:roi[self.right]])
+        return numpy.sum(shot[roi['top']:roi['bottom'], roi['left']:roi['right']])
 
     def sums(self, rois, shot):
         return numpy.array([self.sum(roi, shot) for roi in rois], dtype=numpy.uint32)
@@ -471,14 +472,19 @@ class SquareROIAnalysis(AnalysisWithFigure):
             sum_array[i] = shot_sums
 
             #compare each roi to threshold
-            thresholdArray = (shot_sums >= self.ROIs[:, 4])
+            thresholdArray = (shot_sums >= self.ROIs['threshold'])
             loadingArray[i] = numpy.reshape(thresholdArray, (self.ROI_rows, self.ROI_columns))
 
         #data will be stored in hdf5 so that save2013style can then append to Camera Data Iteration0 (signal).txt
         measurementResults['analysis/squareROIsums'] = sum_array
         self.loadingArray = loadingArray
         self.updateFigure()
-    
+
+        # Cut data based on atom loading
+        # User chooses whether or not to delete data.
+        # max takes care of ComboBox returning -1 for no selection
+        #return max(0, self.filter_level)
+
     def updateFigure(self):
         fig = self.backFigure
         fig.clf()
@@ -487,9 +493,41 @@ class SquareROIAnalysis(AnalysisWithFigure):
             for i in range(n):
                 ax = fig.add_subplot(n, 1, i+1)
                 #make the digital plot here
-                ax.matshow(self.loadingArray[i],cmap=green_cmap)
+                ax.matshow(self.loadingArray[i], cmap=green_cmap)
                 ax.set_title('shot '+str(i))
         super(SquareROIAnalysis, self).updateFigure()
+
+
+class LoadingFilters(Analysis):
+    """This analysis monitors the brightess in the regions of interest, to decide if an atom was loaded or not"""
+
+    enable = Bool(False)
+    text = Str()
+    filter_expression = Str()
+    filter_level = Int()
+
+    def __init__(self, name, experiment, description=''):
+        super(LoadingFilters, self).__init__(name, experiment, description)
+        self.properties += ['filter_expression', 'filter_level']
+
+    def analyzeMeasurement(self, measurementResults, iterationResults, experimentResults):
+        text = 'none'
+        if self.enable:
+            if ('analysis/squareROIsums' in measurementResults) and (self.filter_expression != ''):
+                a = measurementResults['analysis/squareROIsums']
+                #evaluate the boolean expression, with the squareROIsums as 'a' in the namespace
+                b = eval(self.filter_expression, {'a': a})
+                measurementResults['analysis/loading_filter'] = b
+                if b:
+                    text = 'okay'
+                else:
+                    text = 'Loading filter failed.'
+                    self.set_gui({'text': text})
+                    # User chooses whether or not to delete data.
+                    # max takes care of ComboBox returning -1 for no selection
+                    return max(0, self.filter_level)
+        self.set_gui({'text': text})
+
 
 class HistogramAnalysis(AnalysisWithFigure):
     """This class live updates a histogram as data comes in."""

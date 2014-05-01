@@ -1619,36 +1619,33 @@ enamldef MultiImagePage(Page): page:
 
 enamldef SquareROI(Container):
     attr item
-    attr filter
     attr num
     hug_height='strong'
     hug_width='strong'
-    constraints=[hbox(l0,f0,f1,f2,f3,f4)]
+    constraints=[hbox(l0,f0,f1,f2,f3)]
     Label: l0:
         constraints = [(width==50)|'strong']
         text=str(num)
     MyIntField: f0:
         constraints = [(width==100)|'strong']
         placeholder='left'
-        value:=item[0]
+        value:=item['left']
     MyIntField: f1:
         constraints = [(width==100)|'strong']
         placeholder='top'
-        value:=item[1]
+        value:=item['top']
     MyIntField: f2:
         constraints = [(width==100)|'strong']
         placeholder='right'
-        value:=item[2]
+        value:=item['right']
     MyIntField: f3:
         constraints = [(width==100)|'strong']
         placeholder='bottom'
-        value:=item[3]
+        value:=item['bottom']
     MyFloatField: f4:
         constraints = [(width==100)|'strong']
         placeholder='threshold'
-        value:=item[4]
-    CheckBox: f5:
-        constraints = [(width==100)|'strong']
+        value:=item['threshold']
 
 enamldef SquareROIContainer(Container):
     attr experiment
@@ -1661,7 +1658,7 @@ enamldef SquareROIContainer(Container):
         Container:
             hug_height='strong'
             hug_width='strong'
-            constraints=[hbox(l0,l1,l2,l3,l4,l5)]
+            constraints=[hbox(l0,l1,l2,l3,l4)]
             Label: l0:
                 constraints = [(width==50)|'strong']
                 text = 'ROI#'
@@ -1680,15 +1677,41 @@ enamldef SquareROIContainer(Container):
             Label: l5:
                 constraints = [(width==100)|'strong']
                 text = 'threshold'
-            Label: l6:
-                constraints = [(width==100)|'strong']
-                text = 'filter'
         Include: dyno:
             objects<<[SquareROI(item=x,num=i) for i,x in enumerate(analysis.ROIs)]
     MPLCanvas: canvas:
         constraints=[(height==1000)|'strong',(width==1000)|'strong']
         hug_width='ignore'
         figure<<analysis.figure
+
+enamldef LoadingFilters(GroupBox):
+    attr filters
+
+    Form:
+        Label:
+            text = 'enable'
+        CheckBox:
+            checked := filters.enable
+
+        Label:
+            text = 'A boolean expression that evaluates the filter.\nUse a[shot,region] for the summation over any shot and region.\nFor example: a[0,17]>20000 and a[0,15]>21000'
+        Field:
+            text := filters.filter_expression
+
+        Label:
+            text = 'filter level'
+        ComboBox:
+            items = ['None: increment measurement total',
+                     'soft: continue with other analyses, but do not increment measurement total',
+                     'med: continue with other analyses, do not increment measurement total, and delete measurement data after all analyses',
+                     'hard: do not continue with other analyses, do not increment measurement total, delete measurement data']
+            index := filters.filter_level
+
+        Label:
+            text = 'Status'
+        Label:
+            text := filters.text
+
 
 enamldef HistogramPage(Page):
     attr experiment
@@ -1753,33 +1776,34 @@ enamldef IterationsGraph(Container):
         constraints=[(height==900)|'strong',(width==1700)|'strong']
         figure<<analysis.figure
 
-enamldef TTL_filters(Form):
+enamldef TTL_filters(GroupBox):
     attr instrument
     attr filters
 
-    Label:
-        text = 'enable'
-    CheckBox:
-        checked := instrument.enable
+    Form:
+        Label:
+            text = 'enable'
+        CheckBox:
+            checked := instrument.enable
 
-    Label:
-        text = 'lines'
-    Field:
-        text := instrument.lines
+        Label:
+            text = 'lines'
+        Field:
+            text := instrument.lines
 
-    Label:
-        text = 'filter level'
-    ComboBox:
-        items = ['None: increment measurement total',
-                 'soft: continue with other analyses, but do not increment measurement total',
-                 'med: continue with other analyses, do not increment measurement total, and delete measurement data after all analyses',
-                 'hard: do not continue with other analyses, do not increment measurement total, delete measurement data']
-        index := filters.filter_level
+        Label:
+            text = 'filter level'
+        ComboBox:
+            items = ['None: increment measurement total',
+                     'soft: continue with other analyses, but do not increment measurement total',
+                     'med: continue with other analyses, do not increment measurement total, and delete measurement data after all analyses',
+                     'hard: do not continue with other analyses, do not increment measurement total, delete measurement data']
+            index := filters.filter_level
 
-    Label:
-        text = 'Status'
-    Label:
-        text := filters.text
+        Label:
+            text = 'Status'
+        Label:
+            text := filters.text
 
 enamldef Optimizer(Form):
     attr experiment
@@ -1894,10 +1918,14 @@ enamldef Main(MainWindow): main:
                             experiment=main.experiment
                             analysis=main.experiment.iterations_graph
                     Page:
-                        title='TTL filter'
-                        TTL_filters:
-                            instrument = main.experiment.LabView.TTL
-                            filters = main.experiment.TTL_filters
+                        title='Filters'
+                        Container:
+                            TTL_filters:
+                                instrument = main.experiment.LabView.TTL
+                                filters = main.experiment.TTL_filters
+                            LoadingFilters:
+                                filters = main.experiment.loading_filters
+
                     Page:
                         title='Optimization'
                         Optimizer:
