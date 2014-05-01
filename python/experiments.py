@@ -617,7 +617,7 @@ class Experiment(Prop):
             raise PauseError
             
         try:
-            f = h5py.File(path, 'a')
+            f = h5py.File(path, 'r')
         except Exception as e:
             logger.warning('Problem loading HDF5 settings file in experiment.load().\n{}\n{}\n'.format(e, traceback.format_exc()))
             raise PauseError
@@ -864,7 +864,7 @@ class AQuA(Experiment):
     LabView = Member()
     TTL_filters = Member()
     squareROIAnalysis = Member()
-    loading_fitlers = Member()
+    loading_filters = Member()
     text_analysis = Member()
     recent_shot_analysis = Member()
     shotBrowserAnalysis = Member()

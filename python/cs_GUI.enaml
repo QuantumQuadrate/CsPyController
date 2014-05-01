@@ -1622,7 +1622,7 @@ enamldef SquareROI(Container):
     attr num
     hug_height='strong'
     hug_width='strong'
-    constraints=[hbox(l0,f0,f1,f2,f3)]
+    constraints=[hbox(l0,f0,f1,f2,f3,f4)]
     Label: l0:
         constraints = [(width==50)|'strong']
         text=str(num)

@@ -436,6 +436,9 @@ class ImageSumAnalysis(AnalysisWithFigure):
                 self.update_lock = False
 
 class SquareROIAnalysis(AnalysisWithFigure):
+    """Add up the sums of pixels in a region, and evaluate whether or not an atom is present based on the totals."""
+
+    version = '2014.05.01'
     ROI_rows = Int()
     ROI_columns = Int()
     ROIs = Member()  # a numpy array holding an ROI in each row
@@ -500,6 +503,7 @@ class SquareROIAnalysis(AnalysisWithFigure):
 
 class LoadingFilters(Analysis):
     """This analysis monitors the brightess in the regions of interest, to decide if an atom was loaded or not"""
+    version = '2014.05.01'
 
     enable = Bool(False)
     text = Str()
