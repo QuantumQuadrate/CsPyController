@@ -17,8 +17,6 @@ myGlobals = myGlobalSetup.copy()
 from cs_errors import PauseError
 
 import traceback
-import sound
-
 
 def evalIvar(string):
     if string == '':

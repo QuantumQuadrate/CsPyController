@@ -24,6 +24,7 @@ enamldef Main(MainWindow):
                 value = '2'
         Style:
             style_class = 'valid'
+    style_class = 'invalid'
     StatusBar:
         StatusItem:
             ProgressBar:

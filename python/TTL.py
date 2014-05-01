@@ -59,6 +59,7 @@ class TTL_filters(Analysis):
                 #record to the log and screen
                 logger.warning(text)
                 self.set_gui({'text': text})
+                self.experiment.set_gui({'valid': False})
                 sound.warning_sound()
 
                 # User chooses whether or not to delete data.

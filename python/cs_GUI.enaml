@@ -1853,6 +1853,7 @@ enamldef Main(MainWindow): main:
         padding = 0
         ScrollArea:
             Container:
+                style_class << 'valid' if experiment.valid else 'invalid'
                 hug_height='strong'
                 hug_width='strong'
                 Notebook: notebook:
@@ -1860,40 +1861,55 @@ enamldef Main(MainWindow): main:
                     tabs_movable=False
                     tab_style = 'preferences'
                     ExperimentPage:
+                        style_class << 'valid' if experiment.valid else 'invalid'
                         experiment = main.experiment
                     VariablesPage:
+                        style_class << 'valid' if experiment.valid else 'invalid'
                         experiment = main.experiment
                     Page:
                         title = 'Report'
+                        style_class << 'valid' if experiment.valid else 'invalid'
                         Reports:
                             experiment = main.experiment
                     LabViewPage:
+                        style_class << 'valid' if experiment.valid else 'invalid'
                         LabView=main.experiment.LabView
                     HSDIO_DigitalOutPage:
+                        style_class << 'valid' if experiment.valid else 'invalid'
                         HSDIO=main.experiment.LabView.HSDIO
                     #HSDIO_DigitalOutPage:
+                    #    style_class << 'valid' if experiment.valid else 'invalid'
                     #    HSDIO=main.experiment.LabView.HSDIO2
                     Page:
                         title='Waveforms'
+                        style_class << 'valid' if experiment.valid else 'invalid'
                         Waveforms:
                             HSDIO=main.experiment.LabView.HSDIO
                     DAQmxDigitalOutPage:
+                        style_class << 'valid' if experiment.valid else 'invalid'
                         DAQmx=main.experiment.LabView.DAQmxDO
                     Page:
                         title = 'DDS'
+                        style_class << 'valid' if experiment.valid else 'invalid'
                         DDS_Page:
                             DDS=main.experiment.LabView.DDS
                     RFGenPage:
+                        style_class << 'valid' if experiment.valid else 'invalid'
                         LabView=main.experiment.LabView
                     CameraPage:
+                        style_class << 'valid' if experiment.valid else 'invalid'
                         camera=main.experiment.LabView.camera
                     #CounterPage:
+                    #    style_class << 'valid' if experiment.valid else 'invalid'
                     #    pass
                     AnalogOutputPage:
+                        style_class << 'valid' if experiment.valid else 'invalid'
                         AO=main.experiment.LabView.AnalogOutput
                     PI_PiezoPage:
+                        style_class << 'valid' if experiment.valid else 'invalid'
                         piezo=main.experiment.LabView.piezo
                     MultiImagePage:
+                        style_class << 'valid' if experiment.valid else 'invalid'
                         experiment=main.experiment
                         analysis0=main.experiment.recent_shot_analysis
                         analysis1=main.experiment.shotBrowserAnalysis
@@ -1901,33 +1917,38 @@ enamldef Main(MainWindow): main:
                         analysis3=main.experiment.text_analysis
                     Page:
                         title = 'ROI'
+                        style_class << 'valid' if experiment.valid else 'invalid'
                         SquareROIContainer:
                             experiment=main.experiment
                             analysis=main.experiment.squareROIAnalysis
                     HistogramPage:
+                        style_class << 'valid' if experiment.valid else 'invalid'
                         experiment=main.experiment
                         analysis=main.experiment.histogramAnalysis
                     Page:
                         title = 'Measurements Graph'
+                        style_class << 'valid' if experiment.valid else 'invalid'
                         MeasurementsGraph:
                            experiment=main.experiment
                            analysis=main.experiment.measurements_graph
                     Page:
                         title = 'Iterations Graph'
+                        style_class << 'valid' if experiment.valid else 'invalid'
                         IterationsGraph:
                             experiment=main.experiment
                             analysis=main.experiment.iterations_graph
                     Page:
                         title='Filters'
+                        style_class << 'valid' if experiment.valid else 'invalid'
                         Container:
                             TTL_filters:
                                 instrument = main.experiment.LabView.TTL
                                 filters = main.experiment.TTL_filters
                             LoadingFilters:
                                 filters = main.experiment.loading_filters
-
                     Page:
                         title='Optimization'
+                        style_class << 'valid' if experiment.valid else 'invalid'
                         Optimizer:
                             experiment=main.experiment
                             analysis=main.experiment.optimizer

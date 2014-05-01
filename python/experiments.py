@@ -87,6 +87,7 @@ class Experiment(Prop):
     #experiment control
     status = Str('idle')
     statusStr = Str()
+    valid = Bool(True)  # the window will flash red on error
     pauseAfterIteration = Bool()
     pauseAfterMeasurement = Bool()
     pauseAfterError = Bool()
@@ -103,8 +104,9 @@ class Experiment(Prop):
     willSendEmail = Bool()
     emailAddresses = Str()
     notes = Str()
+
     
-    #iteration Traits
+    #iteration traits
     progress = Int()
     progressGUI = Int()
     path = Member()  # full path to current experiment directory
@@ -119,7 +121,7 @@ class Experiment(Prop):
     goodMeasurementsStr = Str()
     totalIterations = Member()
 
-    #time Traits
+    #time traits
     timeStarted = Float()
     timeStartedStr = Str()
     currentTime = Float()
@@ -133,7 +135,7 @@ class Experiment(Prop):
     completionTime = Float()
     completionTimeStr = Str()
     
-    #variables Traits
+    #variables traits
     dependentVariablesStr = Str()
     constantReport = Member()
     variableReport = Member()
@@ -412,8 +414,8 @@ class Experiment(Prop):
 
         #reset the log
         self.reset_logger()
-
         logger.info('resetting experiment')
+        self.set_gui({'valid': True})
 
         self.set_status('beginning experiment')
 
@@ -447,7 +449,7 @@ class Experiment(Prop):
             logger.info('Current status is {}. Cannot continue an experiment unless status is paused.'.format(self.status))
             return  # exit
         self.set_status('running')  # prevent another experiment from being started at the same time
-
+        self.set_gui({'valid': True})
         logger.info('running experiment')
 
         try:  # if there is an error we exit the inner loops and respond appropriately
@@ -471,6 +473,7 @@ class Experiment(Prop):
                 
                 #loop until the desired number of measurements are taken
                 while (self.goodMeasurements < self.measurementsPerIteration) and (self.status == 'running'):
+                    self.set_gui({'valid': True})
                     logger.info('iteration {} measurement {}'.format(self.iteration, self.measurement))
                     self.measure()  # tell all instruments to do the experiment sequence and acquire data
                     self.updateTime()  # update the countdown/countup clocks
@@ -478,6 +481,7 @@ class Experiment(Prop):
                     self.measurement += 1  # update the measurement count
                     if self.status == 'running' and self.pauseAfterMeasurement:
                         self.set_status('paused after measurement')
+                        self.set_gui({'valid': False})
                         sound.error_sound()
                     self.update_gui()
                     #make sure results are written to disk
@@ -496,6 +500,7 @@ class Experiment(Prop):
                         self.goodMeasurements = 0
                         if (self.status == 'running' or self.status == 'paused after measurement') and self.pauseAfterIteration:
                             self.set_status('paused after iteration')
+                            self.set_gui({'valid': False})
                             sound.error_sound()
                     else:
                         logger.debug("Finished all iterations")
@@ -507,11 +512,13 @@ class Experiment(Prop):
             #exits out to this point.
             if self.pauseAfterError:
                 self.set_status('paused after error')
+            self.set_gui({'valid': False})
             sound.error_sound()
         except Exception as e:
             logger.error('Exception during experiment:\n'+str(e)+'\n'+str(traceback.format_exc())+'\n')
             if self.pauseAfterError:
                 self.set_status('paused after error')
+            self.set_gui({'valid': False})
             sound.error_sound()
 
     def endThread(self):
