@@ -382,24 +382,25 @@ class ImageSumAnalysis(AnalysisWithFigure):
 
     def analyzeMeasurement(self, measurementResults,iterationResults,experimentResults):
 
-        if self.mean_array is None:
-            #start a sum array of the right shape
-            self.sum_array = numpy.array([shot for shot in measurementResults['data/Hamamatsu/shots'].itervalues()], dtype=numpy.uint64)
-            self.count_array = numpy.zeros(len(self.sum_array), dtype=numpy.uint64)
-            self.mean_array = self.sum_array.astype(numpy.float64)
+        if 'data/Hamamatsu/shots' in measurementReslts:
+            if self.mean_array is None:
+                #start a sum array of the right shape
+                self.sum_array = numpy.array([shot for shot in measurementResults['data/Hamamatsu/shots'].itervalues()], dtype=numpy.uint64)
+                self.count_array = numpy.zeros(len(self.sum_array), dtype=numpy.uint64)
+                self.mean_array = self.sum_array.astype(numpy.float64)
 
-        else:
-            #add new data
-            for i, shot in enumerate(measurementResults['data/Hamamatsu/shots'].itervalues()):
-                self.sum_array[i] += shot
-                self.count_array[i] += 1
-                self.mean_array[i]=self.sum_array[i]/self.count_array[i]
+            else:
+                #add new data
+                for i, shot in enumerate(measurementResults['data/Hamamatsu/shots'].itervalues()):
+                    self.sum_array[i] += shot
+                    self.count_array[i] += 1
+                    self.mean_array[i]=self.sum_array[i]/self.count_array[i]
 
-        #update the min/max that other image plots will use
-        self.min = numpy.amin(self.mean_array)
-        self.max = numpy.amax(self.mean_array)
+            #update the min/max that other image plots will use
+            self.min = numpy.amin(self.mean_array)
+            self.max = numpy.amax(self.mean_array)
 
-        self.updateFigure()  # only update figure if image was loaded
+            self.updateFigure()  # only update figure if image was loaded
 
     def analyzeIteration(self, iterationResults,experimentResults):
         iterationResults['sum_array'] = self.sum_array

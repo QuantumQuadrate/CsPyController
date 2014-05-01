@@ -285,6 +285,10 @@ class Experiment(Prop):
             #resolve independent variables for correct iteration, and evaluate dependent variables
             self.evaluateDependentVariables()
 
+            #evaluate variable report
+            #at this time the properties are not all evaluated, so, we must do this one manually
+            self.variableReport.evaluate()
+
             logger.debug('Evaluating instruments ...')
             #re-evaluate all instruments
             for i in self.instruments:
@@ -878,7 +882,7 @@ class AQuA(Experiment):
         
         #add instruments
         self.LabView = LabView.LabView(experiment=self)
-        self.instruments = [self.LabView]
+        self.instruments += [self.LabView]
         
         #analyses
         self.text_analysis = analysis.TextAnalysis('text_analysis', self, 'text results from the measurement')
