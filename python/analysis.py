@@ -381,7 +381,7 @@ class ImageSumAnalysis(AnalysisWithFigure):
 
     def analyzeMeasurement(self, measurementResults,iterationResults,experimentResults):
 
-        if 'data/Hamamatsu/shots' in measurementReslts:
+        if 'data/Hamamatsu/shots' in measurementResults:
             if self.mean_array is None:
                 #start a sum array of the right shape
                 self.sum_array = numpy.array([shot for shot in measurementResults['data/Hamamatsu/shots'].itervalues()], dtype=numpy.uint64)
