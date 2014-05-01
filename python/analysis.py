@@ -645,7 +645,7 @@ class IterationsGraph(AnalysisWithFigure):
                     for i in plotlist:
                         data = self.data[:, i[0], i[1]]
                         label = '({},{})'.format(i[0], i[1])
-                        linestyle = '-' if draw_connecting_lines else ''
+                        linestyle = '-' if self.draw_connecting_lines else ''
                         ax.plot(data, linestyle=linestyle, label=label)
                     #add legend using the labels assigned during ax.plot()
                     ax.legend()

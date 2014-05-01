@@ -1641,23 +1641,36 @@ enamldef SquareROI(Container):
         placeholder='threshold'
         value:=item[4]
 
-enamldef ROIPage(Page):
+enamldef ROIPage(Container):
     attr experiment
     attr analysis
     
-    title='ROI'
-    
+    hug_height='ignore'
+    hug_width='ignore'
+    constraints=[hbox(dynoCont,canvas),align('top',dynoCont,canvas)]
     Container:
-        hug_height='ignore'
+        hug_height='strong'
+        hug_width='strong'
+        constraints=[hbox(l0,l1,l2,l3,l4,l5)]
+        Label: l0:
+            text = 'ROI#'
+        Label: l1:
+            text = 'left'
+        Label: l2:
+            text = 'top'
+        Label: l3:
+            text = 'right'
+        Label: l4:
+            text = 'bottom'
+        Label: l5:
+            text = 'threshold'
+    Container: dynoCont:
+        Include: dyno:
+            objects<<[SquareROI(item=x,num=i) for i,x in enumerate(analysis.ROIs)]
+    MPLCanvas: canvas:
+        constraints=[(height==1000)|'strong',(width==1000)|'strong']
         hug_width='ignore'
-        constraints=[hbox(dynoCont,canvas),align('top',dynoCont,canvas)]
-        Container: dynoCont:
-            Include: dyno:
-                objects<<[SquareROI(item=x,num=i) for i,x in enumerate(analysis.ROIs)]
-        MPLCanvas: canvas:
-            constraints=[(height==1000)|'strong',(width==1000)|'strong']
-            hug_width='ignore'
-            figure<<analysis.figure
+        figure<<analysis.figure
 
 enamldef HistogramPage(Page):
     attr experiment
@@ -1844,9 +1857,11 @@ enamldef Main(MainWindow): main:
                         analysis1=main.experiment.shotBrowserAnalysis
                         analysis2=main.experiment.imageSumAnalysis
                         analysis3=main.experiment.text_analysis
-                    ROIPage:
-                        experiment=main.experiment
-                        analysis=main.experiment.squareROIAnalysis
+                    Page:
+                        title = 'ROI'
+                        SquareROI:
+                            experiment=main.experiment
+                            analysis=main.experiment.squareROIAnalysis
                     HistogramPage:
                         experiment=main.experiment
                         analysis=main.experiment.histogramAnalysis
