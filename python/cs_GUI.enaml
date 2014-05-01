@@ -1641,7 +1641,7 @@ enamldef SquareROI(Container):
         placeholder='threshold'
         value:=item[4]
 
-enamldef SquareROI(Container):
+enamldef SquareROIContainer(Container):
     attr experiment
     attr analysis
     
@@ -1859,7 +1859,7 @@ enamldef Main(MainWindow): main:
                         analysis3=main.experiment.text_analysis
                     Page:
                         title = 'ROI'
-                        SquareROI:
+                        SquareROIContainer:
                             experiment=main.experiment
                             analysis=main.experiment.squareROIAnalysis
                     HistogramPage:
