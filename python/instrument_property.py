@@ -110,21 +110,25 @@ class Prop(Atom):
                     logger.warning('While trying '+p+'.toHDF5() in Prop.toHDF5() in '+name+'.\n'+str(e)+'\n'+str(traceback.format_exc())+'\n')
                     raise PauseError
             else:
-            #try to save it as an attribute, then as a dataset.  If that fails, save its pickle
-                try:
-                    #if it of a known well-behaved type, just go ahead and save to HDF5 attribute
-                    my_node.attrs[p]=o
-                except:
+                if p=='version':
+                    #save the version tag as an attribte
+                    my_node.attrs['version'] = o
+                else:
+                    #try to save it as a dataset, then as an attribute.  If that fails, save its pickle
                     try:
-                        #if it is an array, it can't be saved as an attribute, but it can (and should) be saved as a dataset
-                        my_node[p]=0
+                        #first try saving as a dataset
+                        my_node[p] = o
                     except:
-                        #else just pickle it
                         try:
-                            my_node[p]=pickle.dumps(o)
-                        except Exception as e:
-                            logger.warning('While picking '+p+' in Prop.toHDF5() in '+name+'.\n'+str(e)+'\n')
-                            raise PauseError
+                            #if that doesn't work, try saving as an attribute
+                            my_node.attrs[p] = o
+                        except:
+                            #else just pickle it
+                            try:
+                                my_node[p]=pickle.dumps(o)
+                            except Exception as e:
+                                logger.warning('While picking '+p+' in Prop.toHDF5() in '+name+'.\n'+str(e)+'\n')
+                                raise PauseError
         return my_node
     
     def fromHDF5(self, hdf):

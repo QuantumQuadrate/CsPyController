@@ -1619,27 +1619,36 @@ enamldef MultiImagePage(Page): page:
 
 enamldef SquareROI(Container):
     attr item
+    attr filter
     attr num
     hug_height='strong'
     hug_width='strong'
     constraints=[hbox(l0,f0,f1,f2,f3,f4)]
     Label: l0:
+        constraints = [(width==50)|'strong']
         text=str(num)
     MyIntField: f0:
+        constraints = [(width==100)|'strong']
         placeholder='left'
         value:=item[0]
     MyIntField: f1:
+        constraints = [(width==100)|'strong']
         placeholder='top'
         value:=item[1]
     MyIntField: f2:
+        constraints = [(width==100)|'strong']
         placeholder='right'
         value:=item[2]
     MyIntField: f3:
+        constraints = [(width==100)|'strong']
         placeholder='bottom'
         value:=item[3]
     MyFloatField: f4:
+        constraints = [(width==100)|'strong']
         placeholder='threshold'
         value:=item[4]
+    CheckBox: f5:
+        constraints = [(width==100)|'strong']
 
 enamldef SquareROIContainer(Container):
     attr experiment
@@ -1648,23 +1657,32 @@ enamldef SquareROIContainer(Container):
     hug_height='ignore'
     hug_width='ignore'
     constraints=[hbox(dynoCont,canvas),align('top',dynoCont,canvas)]
-    Container:
-        hug_height='strong'
-        hug_width='strong'
-        constraints=[hbox(l0,l1,l2,l3,l4,l5)]
-        Label: l0:
-            text = 'ROI#'
-        Label: l1:
-            text = 'left'
-        Label: l2:
-            text = 'top'
-        Label: l3:
-            text = 'right'
-        Label: l4:
-            text = 'bottom'
-        Label: l5:
-            text = 'threshold'
     Container: dynoCont:
+        Container:
+            hug_height='strong'
+            hug_width='strong'
+            constraints=[hbox(l0,l1,l2,l3,l4,l5)]
+            Label: l0:
+                constraints = [(width==50)|'strong']
+                text = 'ROI#'
+            Label: l1:
+                constraints = [(width==100)|'strong']
+                text = 'left'
+            Label: l2:
+                constraints = [(width==100)|'strong']
+                text = 'top'
+            Label: l3:
+                constraints = [(width==100)|'strong']
+                text = 'right'
+            Label: l4:
+                constraints = [(width==100)|'strong']
+                text = 'bottom'
+            Label: l5:
+                constraints = [(width==100)|'strong']
+                text = 'threshold'
+            Label: l6:
+                constraints = [(width==100)|'strong']
+                text = 'filter'
         Include: dyno:
             objects<<[SquareROI(item=x,num=i) for i,x in enumerate(analysis.ROIs)]
     MPLCanvas: canvas:
