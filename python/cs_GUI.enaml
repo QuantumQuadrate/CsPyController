@@ -1641,7 +1641,7 @@ enamldef SquareROI(Container):
         placeholder='threshold'
         value:=item[4]
 
-enamldef ROIPage(Container):
+enamldef SquareROI(Container):
     attr experiment
     attr analysis
     
