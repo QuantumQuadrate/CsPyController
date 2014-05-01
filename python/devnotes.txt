@@ -36,9 +36,9 @@ TODO:
     Make ctrl+Q halt
     Blank middle image on bad selector
     Make sure to use deferred_call everywhere necessary
-    Updating of evaluated numbers for waveform grid
 
 Done:
+    Updating of evaluated numbers for waveform grid
     make sure waveform names updates
     Patch based waveform plot
     Stop crashing: "invalid value in doublescalars"

@@ -176,14 +176,6 @@ class NumpySequence(Numpy2DProp):
         self.set_gui({'value_str': value_str,
                       'valid': valid})
 
-#        for row in self.array:
-#            for x in row:
-#                temp = self.experiment.eval_general(x['function'])
-#                if (temp == 0) or (temp == 1):
-#                    x['value'] = temp
-#                else:
-#                    x['value'] = 5
-
     def copy(self):
         new = NumpySequence(self.experiment, self.description)
         new.dtype = self.dtype

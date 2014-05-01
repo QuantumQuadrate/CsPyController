@@ -589,14 +589,14 @@ class MeasurementsGraph(AnalysisWithFigure):
 
 class IterationsGraph(AnalysisWithFigure):
     """This replicates the former 'iteration graph'"""
-    shot = Int(0)
-    roi = Int(0)
     data = Member()
     update_lock = Bool(False)
+    list_of_what_to_plot = Str()
+    draw_connecting_lines = Bool()
 
     def __init__(self, name, experiment, description=''):
         super(IterationsGraph, self).__init__(name, experiment, description)
-        self.properties += ['shot', 'roi']
+        self.properties += ['list_of_what_to_plot', 'draw_connecting_lines']
 
     def preExperiment(self, experimentResults):
         #erase the old data at the start of the experiment
@@ -618,7 +618,7 @@ class IterationsGraph(AnalysisWithFigure):
             self.data = numpy.append(self.data, sums, axis=0)
         self.updateFigure()
 
-    @observe('shot', 'roi')
+    @observe('list_of_what_to_plot', 'draw_connecting_lines')
     def reload(self, change):
         self.updateFigure()
 
@@ -630,9 +630,16 @@ class IterationsGraph(AnalysisWithFigure):
                 fig.clf()
 
                 if self.data is not None:
+                    #parse the list of what to plot from a string to a list of numbers
+                    plotlist = eval(self.list_of_what_to_plot)
+
+                    #make one plot
                     ax = fig.add_subplot(111)
-                    data = self.data[:, self.shot, self.roi]
-                    ax.plot(data, 'ro')
+                    for i in plotlist:
+                        data = self.data[:, i[0], i[1]]
+                        label = '({},{})'.format(i[0], i[1])
+                        linestyle = '-' if draw_connecting_lines else ''
+                        ax.plot(data, linestyle=linestyle, label=label)
                 super(IterationsGraph, self).updateFigure()
             except Exception as e:
                 logger.warning('Problem in IterationsGraph.updateFigure()\n{}\n{}\n'.format(e,traceback.format_exc()))
