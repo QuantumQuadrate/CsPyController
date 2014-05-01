@@ -584,7 +584,7 @@ class MeasurementsGraph(AnalysisWithFigure):
                     for i in plotlist:
                         data = self.data[:, i[0], i[1]]
                         label = '({},{})'.format(i[0], i[1])
-                        ax.plot(data, linestyle='', label=label)
+                        ax.plot(data, linestyle='o', label=label)
                     #add legend using the labels assigned during ax.plot()
                     ax.legend()
                 super(MeasurementsGraph, self).updateFigure()
@@ -645,7 +645,7 @@ class IterationsGraph(AnalysisWithFigure):
                     for i in plotlist:
                         data = self.data[:, i[0], i[1]]
                         label = '({},{})'.format(i[0], i[1])
-                        linestyle = '-' if self.draw_connecting_lines else ''
+                        linestyle = '-o' if self.draw_connecting_lines else 'o'
                         ax.plot(data, linestyle=linestyle, label=label)
                     #add legend using the labels assigned during ax.plot()
                     ax.legend()
