@@ -1685,33 +1685,23 @@ enamldef HistogramPage(Page):
             #hug_width='ignore'
             figure<<analysis.figure
 
-enamldef MeasurementsGraphPage(Page):
+enamldef MeasurementsGraph(Container):
     attr experiment
     attr analysis
-    title = 'Measurements Graph'
 
-    Container:
-        hug_height='ignore'
-        hug_width='ignore'
-        Form:
-            Label:
-                text = 'shot'
-            SpinBox:
-                value := analysis.shot
-                minimum = 0
-                maximum << experiment.LabView.camera.shotsPerMeasurement.value
-            Label:
-                text = 'roi'
-            SpinBox:
-                value := analysis.roi
-                minimum = 0
-                maximum << len(experiment.squareROIAnalysis.ROIs)
-        PushButton:
-            text = 'clear'
-            clicked::analysis.clear()
-        MPLCanvas:
-            constraints=[(height==900)|'strong',(width==1700)|'strong']
-            figure<<analysis.figure
+    hug_height='ignore'
+    hug_width='ignore'
+    Form:
+        Label:
+            text = 'specify shots and regions to graph with a list of pairs: [(shot,region),(shot,region)]'
+        Field:
+            text := analysis.list_of_what_to_plot
+    PushButton:
+        text = 'clear'
+        clicked::analysis.clear()
+    MPLCanvas:
+        constraints=[(height==900)|'strong',(width==1700)|'strong']
+        figure<<analysis.figure
 
 enamldef IterationsGraph(Container):
     attr experiment
@@ -1719,19 +1709,6 @@ enamldef IterationsGraph(Container):
 
     hug_height='ignore'
     hug_width='ignore'
-#    Form:
-#        Label:
-#            text = 'shot'
-#        SpinBox:
-#            value := analysis.shot
-#            minimum = 0
-#            maximum << experiment.LabView.camera.shotsPerMeasurement.value
-#        Label:
-#            text = 'roi'
-#        SpinBox:
-#            value := analysis.roi
-#            minimum = 0
-#            maximum << len(experiment.squareROIAnalysis.ROIs)
     Form:
         Label:
             text = 'specify shots and regions to graph with a list of pairs: [(shot,region),(shot,region)]'
@@ -1873,9 +1850,11 @@ enamldef Main(MainWindow): main:
                     HistogramPage:
                         experiment=main.experiment
                         analysis=main.experiment.histogramAnalysis
-                    MeasurementsGraphPage:
-                       experiment=main.experiment
-                       analysis=main.experiment.measurements_graph
+                    Page:
+                        title = 'Measurements Graph'
+                        MeasurementsGraph:
+                           experiment=main.experiment
+                           analysis=main.experiment.measurements_graph
                     Page:
                         title = 'Iterations Graph'
                         IterationsGraph:

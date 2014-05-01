@@ -541,15 +541,14 @@ class HistogramAnalysis(AnalysisWithFigure):
                 self.update_lock = False
 
 class MeasurementsGraph(AnalysisWithFigure):
-    """This replicates the former 'measurement graph'"""
-    shot = Int(0)
-    roi = Int(0)
+    """Plots a region of interest sum after every measurement"""
     data = Member()
     update_lock = Bool(False)
+    list_of_what_to_plot = Str()
 
     def __init__(self, name, experiment, description=''):
         super(MeasurementsGraph, self).__init__(name, experiment, description)
-        self.properties += ['shot', 'roi']
+        self.properties += ['list_of_what_to_plot']
         self.data = None
 
     def analyzeMeasurement(self, measurementResults, iterationResults, experimentResults):
@@ -561,7 +560,7 @@ class MeasurementsGraph(AnalysisWithFigure):
             self.data = numpy.append(self.data, numpy.array([d]), axis=0)
         self.updateFigure()
 
-    @observe('shot', 'roi')
+    @observe('list_of_what_to_plot')
     def reload(self, change):
         self.updateFigure()
 
@@ -577,9 +576,17 @@ class MeasurementsGraph(AnalysisWithFigure):
                 fig.clf()
 
                 if self.data is not None:
+                    #parse the list of what to plot from a string to a list of numbers
+                    plotlist = eval(self.list_of_what_to_plot)
+
+                    #make one plot
                     ax = fig.add_subplot(111)
-                    data = self.data[:, self.shot, self.roi]
-                    ax.plot(data,'b.')
+                    for i in plotlist:
+                        data = self.data[:, i[0], i[1]]
+                        label = '({},{})'.format(i[0], i[1])
+                        ax.plot(data, linestyle='', label=label)
+                    #add legend using the labels assigned during ax.plot()
+                    ax.legend()
                 super(MeasurementsGraph, self).updateFigure()
             except Exception as e:
                 logger.warning('Problem in MeasurementsGraph.updateFigure()\n:{}'.format(e))
@@ -588,7 +595,7 @@ class MeasurementsGraph(AnalysisWithFigure):
 
 
 class IterationsGraph(AnalysisWithFigure):
-    """This replicates the former 'iteration graph'"""
+    """Plots the average of a region of interest sum for an iteration, after each iteration"""
     data = Member()
     update_lock = Bool(False)
     list_of_what_to_plot = Str()
@@ -607,15 +614,15 @@ class IterationsGraph(AnalysisWithFigure):
         #load in data from all the measurements (ROI sums produced in SquareROIAnalysis)
         d = numpy.array([m['analysis/squareROIsums'] for m in iterationResults['measurements'].itervalues()])
 
-        #sum across measurements (result is (shots X rois))
-        sums = numpy.sum(d, axis=0, keepdims=True)/len(d)
+        #average across measurements (result is (shots X rois))
+        averages = numpy.sum(d, axis=0, keepdims=True)/len(d)
 
         if self.data is None:
         #on first iteration start anew
-            self.data = sums
+            self.data = averages
         else:
         #else append
-            self.data = numpy.append(self.data, sums, axis=0)
+            self.data = numpy.append(self.data, averages, axis=0)
         self.updateFigure()
 
     @observe('list_of_what_to_plot', 'draw_connecting_lines')
@@ -640,6 +647,8 @@ class IterationsGraph(AnalysisWithFigure):
                         label = '({},{})'.format(i[0], i[1])
                         linestyle = '-' if draw_connecting_lines else ''
                         ax.plot(data, linestyle=linestyle, label=label)
+                    #add legend using the labels assigned during ax.plot()
+                    ax.legend()
                 super(IterationsGraph, self).updateFigure()
             except Exception as e:
                 logger.warning('Problem in IterationsGraph.updateFigure()\n{}\n{}\n'.format(e,traceback.format_exc()))
