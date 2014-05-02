@@ -669,10 +669,12 @@ class IterationsGraph(AnalysisWithFigure):
     draw_connecting_lines = Bool()
     draw_error_bars = Bool()
     add_only_filtered_data = Bool()
+    ymin = Str()
+    ymax = Str()
 
     def __init__(self, name, experiment, description=''):
         super(IterationsGraph, self).__init__(name, experiment, description)
-        self.properties += ['list_of_what_to_plot', 'draw_connecting_lines', 'draw_error_bars']
+        self.properties += ['list_of_what_to_plot', 'draw_connecting_lines', 'draw_error_bars', 'ymin', 'ymax']
 
     def preExperiment(self, experimentResults):
         #erase the old data at the start of the experiment
@@ -737,7 +739,7 @@ class IterationsGraph(AnalysisWithFigure):
     #         self.data = numpy.append(self.data, averages, axis=0)
     #     self.updateFigure()
 
-    @observe('list_of_what_to_plot', 'draw_connecting_lines')
+    @observe('list_of_what_to_plot', 'draw_connecting_lines', 'ymin', 'ymax')
     def reload(self, change):
         self.updateFigure()
 
@@ -765,6 +767,10 @@ class IterationsGraph(AnalysisWithFigure):
                             ax.plot(numpy.arange(len(mean)), mean, linestyle, label=label)
                     #adjust the limits so that the data isn't right on the edge of the graph
                     ax.set_xlim(-.5, len(self.mean)+0.5)
+                    if self.ymin != '':
+                        ax.set_ylim(bottom=float(self.ymin))
+                    if self.ymax != '':
+                        ax.set_ylim(top=float(self.ymax))
                     #add legend using the labels assigned during ax.plot() or ax.errorbar()
                     ax.legend()
                 super(IterationsGraph, self).updateFigure()
