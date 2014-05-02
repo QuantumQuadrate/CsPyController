@@ -1686,6 +1686,7 @@ enamldef SquareROIContainer(Container):
 
 enamldef LoadingFilters(GroupBox):
     attr filters
+    title = 'Region of Interest Sum (Loading) Filters'
 
     Form:
         Label:
@@ -1788,6 +1789,7 @@ enamldef IterationsGraph(Container):
 enamldef TTL_filters(GroupBox):
     attr instrument
     attr filters
+    title = 'TTL (Laser Lock Monitor) Filters'
 
     Form:
         Label:
