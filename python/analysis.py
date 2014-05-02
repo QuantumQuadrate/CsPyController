@@ -687,7 +687,7 @@ class IterationsGraph(AnalysisWithFigure):
     def analyzeMeasurement(self, measurementResults, iterationResults, experimentResults):
         # Check to see if we want to do anything with this data, based on the LoadingFilters.
         # Careful here to use .value, otherwise it will always be True if the dataset exists.
-        if measurementResults['analysis/loading_filter'].value or (not self.add_only_filtered_data):
+        if (not self.add_only_filtered_data) or (('analysis/loading_filter' in measurementResults) and ['analysis/loading_filter'].value):
 
             d = numpy.array([measurementResults['analysis/squareROIsums']])
 
