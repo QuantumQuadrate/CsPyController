@@ -4,7 +4,7 @@ logger = logging.getLogger(__name__)
 
 from cs_errors import PauseError
 
-from atom.api import Bool, Typed, Str, Member, List, Int, observe, Float
+from atom.api import Bool, Typed, Str, Member, List, Int, observe
 from instrument_property import Prop
 
 #MPL plotting
@@ -211,9 +211,9 @@ class TTL_filters(Analysis):
                 if numpy.any(a):
                     #report the true inputs
                     text = 'TTL Filters failed:\n'
-                    for i,b in enumerate(a):
+                    for i, b in enumerate(a):
                         #print out the row and column of the True input
-                        text += 'Check {}: Laser(s) {}\n'.format(i, arange(len(b))[b])
+                        text += 'Check {}: Laser(s) {}\n'.format(i, numpy.arange(len(b))[b])
                     #record to the log and screen
                     logger.warning(text)
                     self.set_gui({'text': text})
@@ -286,8 +286,8 @@ class SampleXYAnalysis(XYPlotAnalysis):
     
     '''This analysis plots the sum of the whole camera image every measurement.'''
     def analyzeMeasurement(self,measurementResults,iterationResults,experimentResults):
-        self.Y=numpy.append(self.Y,numpy.sum(measurementResults['data/Hamamatsu/shots/0']))
-        self.X=numpy.arange(len(self.Y))
+        self.Y = numpy.append(self.Y,numpy.sum(measurementResults['data/Hamamatsu/shots/0']))
+        self.X = numpy.arange(len(self.Y))
         self.updateFigure()
 
 class ShotsBrowserAnalysis(AnalysisWithFigure):
@@ -509,6 +509,7 @@ class LoadingFilters(Analysis):
     text = Str()
     filter_expression = Str()
     filter_level = Int()
+    valid = Bool(True)
 
     def __init__(self, name, experiment, description=''):
         super(LoadingFilters, self).__init__(name, experiment, description)
@@ -517,20 +518,42 @@ class LoadingFilters(Analysis):
     def analyzeMeasurement(self, measurementResults, iterationResults, experimentResults):
         text = 'none'
         if self.enable:
-            if ('analysis/squareROIsums' in measurementResults) and (self.filter_expression != ''):
-                a = measurementResults['analysis/squareROIsums']
-                #evaluate the boolean expression, with the squareROIsums as 'a' in the namespace
-                b = eval(self.filter_expression, {'a': a})
-                measurementResults['analysis/loading_filter'] = b
-                if b:
-                    text = 'okay'
-                else:
-                    text = 'Loading filter failed.'
-                    self.set_gui({'text': text})
-                    # User chooses whether or not to delete data.
-                    # max takes care of ComboBox returning -1 for no selection
-                    return max(0, self.filter_level)
-        self.set_gui({'text': text})
+            text = 'okay'
+            if self.filter_expression != '':
+                if ('analysis/squareROIsums' in measurementResults):
+
+                    #evaluate the boolean expression, with the squareROIsums as 't' in the namespace
+                    #This will overwrite any previous value, so we make a copy of the dictionary
+                    vars = self.experiment.vars.copy()
+                    vars['t'] = measurementResults['analysis/squareROIsums']
+                    value, valid = cs_evaluate.evalWithDict(self.function, varDict=vars)
+                    if not valid:
+                        #raise an error
+                        text = 'Failed to evaluate loading filter: {}:\n'.format(self.filter_expression)
+                        logger.error(text)
+                        self.set_gui({'text': text,
+                                      'valid': False})
+                        raise PauseError
+                    elif not type(value) == bool:
+                        #Enforce that the expression must evaluate to a bool
+                        text = 'Loading filter must be True or False, but it evaluated to: {}\nfor expression: {}:\n'.format(value, self.filter_expression)
+                        logger.error(text)
+                        self.set_gui({'text': text,
+                                      'valid': False})
+                        raise PauseError
+                    else:
+                        #eval worked, save value
+                        measurementResults['analysis/loading_filter'] = value
+                        if not value:
+                            #Measurement did not pass filter (We do not need to take special action if the filter passes.)
+                            text = 'Loading filter failed.'
+                            self.set_gui({'text': text,
+                                          'valid': False})
+                            # User chooses whether or not to delete data.
+                            # max takes care of ComboBox returning -1 for no selection
+                            return max(0, self.filter_level)
+        self.set_gui({'text': text,
+                      'valid': True})
 
 
 class HistogramAnalysis(AnalysisWithFigure):
