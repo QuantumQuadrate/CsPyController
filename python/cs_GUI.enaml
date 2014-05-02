@@ -1697,7 +1697,7 @@ enamldef LoadingFilters(GroupBox):
             text = 'A boolean expression that evaluates the filter.\nUse t[shot,region] for the summation over any shot and region.\nFor example to require that sites 15 and 17 load: t[0,17]>20000 and t[0,15]>21000'
         Field:
             text := filters.filter_expression
-            style_class << 'valid' if filter.valid else 'invalid'
+            style_class << 'valid' if filters.valid else 'invalid'
 
         Label:
             text = 'filter level'
