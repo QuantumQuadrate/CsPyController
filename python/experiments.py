@@ -880,6 +880,7 @@ class AQuA(Experiment):
     histogramAnalysis = Member()
     measurements_graph = Member()
     iterations_graph = Member()
+    retention_graph = Member()
     save2013Analysis = Member()
     optimizer = Member()
     ROI_rows = 7
@@ -901,15 +902,18 @@ class AQuA(Experiment):
         self.recent_shot_analysis = analysis.RecentShotAnalysis('recent_shot_analysis', self, description='just show the most recent shot')
         self.shotBrowserAnalysis = analysis.ShotsBrowserAnalysis(self)
         self.histogramAnalysis = analysis.HistogramAnalysis('plot the histogram of any shot and roi', self)
-        self.measurements_graph = analysis.MeasurementsGraph('measurements_graph', self,'plot the ROI sum vs all measurements')
+        self.measurements_graph = analysis.MeasurementsGraph('measurements_graph', self, 'plot the ROI sum vs all measurements')
         self.iterations_graph = analysis.IterationsGraph('iterations_graph', self, 'plot the average of ROI sums vs iterations')
+        self.retention_graph = analysis.RetentionGraph('retention_graph', self, 'plot occurence of binary result (i.e. whether or not atoms are there in the 2nd shot)')
         self.save2013Analysis = save2013style.Save2013Analysis(self)
         self.optimizer = analysis.OptimizerAnalysis(self)
         self.analyses += [self.TTL_filters, self.squareROIAnalysis, self.loading_filters, self.text_analysis,
                           self.imageSumAnalysis, self.recent_shot_analysis, self.shotBrowserAnalysis,
-                          self.histogramAnalysis, self.measurements_graph, self.iterations_graph, self.save2013Analysis]
+                          self.histogramAnalysis, self.measurements_graph, self.iterations_graph, self.retention_graph, self.save2013Analysis]
 
-        self.properties += ['LabView', 'squareROIAnalysis', 'TTL_filters', 'loading_filters', 'imageSumAnalysis', 'recent_shot_analysis', 'shotBrowserAnalysis', 'histogramAnalysis', 'measurements_graph', 'iterations_graph']
+        self.properties += ['LabView', 'squareROIAnalysis', 'TTL_filters', 'loading_filters', 'imageSumAnalysis',
+                            'recent_shot_analysis', 'shotBrowserAnalysis', 'histogramAnalysis', 'measurements_graph',
+                            'iterations_graph', 'retention_graph']
 
         try:
             self.allow_evaluation = False

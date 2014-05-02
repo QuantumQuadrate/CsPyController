@@ -1798,6 +1798,45 @@ enamldef IterationsGraph(Container):
         constraints=[(height==900)|'strong',(width==1700)|'strong']
         figure<<analysis.figure
 
+enamldef RetentionGraph(Container):
+    attr experiment
+    attr analysis
+
+    hug_height='ignore'
+    hug_width='ignore'
+    Form:
+        Label:
+            text = 'specify shots and regions to graph with a list of pairs: [(shot,region),(shot,region)]'
+        Field:
+            text := analysis.list_of_what_to_plot
+    Container:
+        constraints = [hbox(l0,cb0,l1,cb1,l2,cb2,l3,f3,l4,f4)]
+        Label: l0:
+            text = 'draw connecting lines'
+        CheckBox: cb0:
+            checked := analysis.draw_connecting_lines
+        Label: l1:
+            text = 'draw error bars'
+        CheckBox: cb1:
+            checked := analysis.draw_error_bars
+        Label: l2:
+            text = 'only add data that has passed loading filter'
+        CheckBox: cb2:
+            checked := analysis.add_only_filtered_data
+        Label: l3:
+            text = 'plot ymin'
+        Field: f3:
+            placeholder='blank for autolimit'
+            text := analysis.ymin
+        Label: l4:
+            text = 'plot ymax'
+        Field: f4:
+            placeholder='blank for autolimit'
+            text := analysis.ymax
+    MPLCanvas:
+        constraints=[(height==900)|'strong',(width==1700)|'strong']
+        figure<<analysis.figure
+
 enamldef TTL_filters(GroupBox):
     attr instrument
     attr filters
@@ -1960,6 +1999,12 @@ enamldef Main(MainWindow): main:
                         IterationsGraph:
                             experiment=main.experiment
                             analysis=main.experiment.iterations_graph
+                    Page:
+                        title = 'Retention Graph'
+                        style_class << 'valid' if experiment.valid else 'invalid'
+                        RetentionGraph:
+                            experiment=main.experiment
+                            analysis=main.experiment.retention_graph
                     Page:
                         title='Filters'
                         style_class << 'valid' if experiment.valid else 'invalid'

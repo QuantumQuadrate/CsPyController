@@ -47,7 +47,7 @@ def mpl_rectangle(ax, ROI):
     ax.add_patch(patch)
 
 class Analysis(Prop):
-    '''This is the parent class for all data analyses.  New analyses should subclass off this,
+    """This is the parent class for all data analyses.  New analyses should subclass off this,
     and redefine at least one of preExperiment(), preIteration(), postMeasurement(), postIteration() or postExperiment().
     You can enable multi-threading of analyses using queueAfterMeasurement and queueAfterIteration, but only if those results are not needed for other things (filtering, other analyses, optimization).
     If multi-threading, you can also chose to dropMeasurementIfSlow or dropIterationIfSlow, which will not delete the data but will just not process it.
@@ -55,7 +55,7 @@ class Analysis(Prop):
         0 or None: good measurement, increment measurement total
         1: soft fail, continue with other analyses, but do not increment measurement total
         2: med fail, continue with other analyses, do not increment measurement total, and delete measurement data after all analyses
-        3: hard fail, do not continue with other analyses, do not increment measurement total, delete measurement data'''
+        3: hard fail, do not continue with other analyses, do not increment measurement total, delete measurement data"""
     
     queueAfterMeasurement = Bool()  # Set to True to allow multi-threading on this analysis.  Only do this if you are NOT filtering on this analysis, and if you do NOT depend on the results of this analysis later. Default is False.
     dropMeasurementIfSlow = Bool()  # Set to True to skip measurements when slow.  Applies only to multi-threading.  Raw data can still be used post-iteration and post-experiment. Default is False.
@@ -85,59 +85,61 @@ class Analysis(Prop):
         Subclass this to prepare the analysis appropriately."""
         pass
 
-    def postMeasurement(self,measurementResults,iterationResults,experimentResults):
-        '''results is a tuple of (measurementResult,iterationResult,experimentResult) references to HDF5 nodes for this measurement'''
-        if self.queueAfterMeasurement: #if self.updateAfterMeasurement:
-            if not self.measurementProcessing: #check to see if a processing queue is already going
-                self.measurementProcessing=True
-                self.measurementQueue.append((measurementResults,iterationResults,experimentResults))
+    def postMeasurement(self, measurementResults, iterationResults, experimentResults):
+        """Results is a tuple of (measurementResult,iterationResult,experimentResult) references to HDF5 nodes for this
+        measurement."""
+        if self.queueAfterMeasurement:  # if self.updateAfterMeasurement:
+            if not self.measurementProcessing:  # check to see if a processing queue is already going
+                self.measurementProcessing  =True
+                self.measurementQueue.append((measurementResults, iterationResults, experimentResults))
                 threading.Thread(target=self.measurementProcessLoop).start()
-            elif not self.dropMeasurementIfSlow: #if a queue is already going, add to it, unless we can't tolerate being behind
-                self.measurementQueue.append((measurementResults,iterationResults,experimentResults))
+            elif not self.dropMeasurementIfSlow:  # if a queue is already going, add to it, unless we can't tolerate being behind
+                self.measurementQueue.append((measurementResults, iterationResults, experimentResults))
         else:
-            return self.analyzeMeasurement(measurementResults,iterationResults,experimentResults)
+            return self.analyzeMeasurement(measurementResults, iterationResults, experimentResults)
     
     def measurementProcessLoop(self):
-        while len(self.measurementQueue)>0:
-            self.analyzeMeasurement(*self.measurementQueue.pop(0)) #process the oldest element
-        self.measurementProcessing=False
+        while len(self.measurementQueue) > 0:
+            self.analyzeMeasurement(*self.measurementQueue.pop(0))  # process the oldest element
+        self.measurementProcessing = False
     
-    def analyzeMeasurement(self,measurementResults,iterationResults,experimentResults):
-        '''This is called after each measurement.
+    def analyzeMeasurement(self, measurementResults, iterationResults, experimentResults):
+        """This is called after each measurement.
         The parameter results is a tuple of (measurementResult,iterationResult,experimentResult) references to HDF5 nodes for this measurement.
-        Subclass this to update the analysis appropriately.'''
+        Subclass this to update the analysis appropriately."""
         return
     
-    def postIteration(self,iterationResults,experimentResults):
+    def postIteration(self, iterationResults, experimentResults):
         if self.queueAfterIteration:
-            if not self.iterationProcessing: #check to see if a processing queue is already going
-                self.iterationProcessing=True
-                self.iterationQueue.append((iterationResults,experimentResults))
+            if not self.iterationProcessing:  # check to see if a processing queue is already going
+                self.iterationProcessing = True
+                self.iterationQueue.append((iterationResults, experimentResults))
                 threading.Thread(target=self.iterationProcessLoop).start()
-            elif not self.dropIterationIfSlow: #if a queue is already going, add to it, unless we can't tolerate being behind
-                self.iterationQueue.append((iterationResults,experimentResults))
+            elif not self.dropIterationIfSlow:
+                # if a queue is already going, add to it, unless we can't tolerate being behind
+                self.iterationQueue.append((iterationResults, experimentResults))
         else:
-            self.analyzeIteration(iterationResults,experimentResults)
+            self.analyzeIteration(iterationResults, experimentResults)
     
     def iterationProcessLoop(self):
-        while len(self.iterationQueue)>0:
-            self.analyzeIteration(*self.iterationQueue.pop(0)) #process the oldest element
-        self.iterationProcessing=False
+        while len(self.iterationQueue) > 0:
+            self.analyzeIteration(*self.iterationQueue.pop(0))  # process the oldest element
+        self.iterationProcessing = False
     
-    def analyzeIteration(self,iterationResults,experimentResults):
-        '''This is called after each iteration.
+    def analyzeIteration(self, iterationResults, experimentResults):
+        """This is called after each iteration.
         The parameter results is a tuple of (iterationResult,experimentResult) references to HDF5 nodes for this measurement.
-        Subclass this to update the analysis appropriately.'''
+        Subclass this to update the analysis appropriately."""
         pass
     
-    def postExperiment(self,experimentResults):
+    def postExperiment(self, experimentResults):
         #no queueing, must do post experiment processing at this time
         self.analyzeExperiment(experimentResults)
     
-    def analyzeExperiment(self,experimentResults):
-        '''This is called at the end of the experiment.
+    def analyzeExperiment(self, experimentResults):
+        """This is called at the end of the experiment.
         The parameter experimentResults is a reference to the HDF5 file for the experiment.
-        Subclass this to update the analysis appropriately.'''
+        Subclass this to update the analysis appropriately."""
         pass
 
 class AnalysisWithFigure(Analysis):
@@ -330,7 +332,7 @@ class ShotsBrowserAnalysis(AnalysisWithFigure):
             if 'iterations' in self.experimentResults:
                 for i in self.experimentResults['iterations'].itervalues():
                     #find the first iteration that matches all the selected ivar indices
-                    if numpy.all(i.attrs['ivarIndex']==self.selection):
+                    if numpy.all(i.attrs['ivarIndex'] == self.selection):
                         try:
                             self.array = i['measurements/{}/data/Hamamatsu/shots/{}'.format(m,s)]
                             self.updateFigure()
@@ -446,11 +448,11 @@ class SquareROIAnalysis(AnalysisWithFigure):
     loadingArray = Member()
 
     def __init__(self, experiment, ROI_rows=1, ROI_columns=1):
-        super(SquareROIAnalysis, self).__init__('SquareROIAnalysis', experiment,'Does analysis on square regions of interest')
+        super(SquareROIAnalysis, self).__init__('SquareROIAnalysis', experiment, 'Does analysis on square regions of interest')
         self.loadingArray = numpy.zeros((0, ROI_rows, ROI_columns), dtype=numpy.bool_)  # blank array that will hold digital representation of atom loading
         self.ROI_rows = ROI_rows
         self.ROI_columns = ROI_columns
-        dtype=[('left', numpy.uint16), ('top', numpy.uint16), ('right', numpy.uint16), ('bottom', numpy.uint16), ('threshold', numpy.uint32)]
+        dtype = [('left', numpy.uint16), ('top', numpy.uint16), ('right', numpy.uint16), ('bottom', numpy.uint16), ('threshold', numpy.uint32)]
         self.ROIs = numpy.zeros(ROI_rows*ROI_columns, dtype=dtype)  # initialize with a blank array
         self.properties += ['ROIs', 'filter_level']
     
@@ -465,7 +467,8 @@ class SquareROIAnalysis(AnalysisWithFigure):
         numROIs=len(self.ROIs)
         numShots = len(measurementResults['data/Hamamatsu/shots'])
         sum_array = numpy.zeros((numShots, numROIs), dtype=numpy.uint32)  # uint32 allows for summing ~65535 regions
-        loadingArray = numpy.zeros((numShots, self.ROI_rows, self.ROI_columns), dtype=numpy.bool_)
+        thresholdArray = numpy.zeros((numShots, numROIs), dtype=numpy.bool_)
+        #loadingArray = numpy.zeros((numShots, self.ROI_rows, self.ROI_columns), dtype=numpy.bool_)
 
         #for each image
         for i, (name, shot) in enumerate(measurementResults['data/Hamamatsu/shots'].items()):
@@ -474,18 +477,13 @@ class SquareROIAnalysis(AnalysisWithFigure):
             sum_array[i] = shot_sums
 
             #compare each roi to threshold
-            thresholdArray = (shot_sums >= self.ROIs['threshold'])
-            loadingArray[i] = numpy.reshape(thresholdArray, (self.ROI_rows, self.ROI_columns))
+            thresholdArray[i] = (shot_sums >= self.ROIs['threshold'])
 
+        self.loadingArray = thresholdArray.reshape((numShots, self.ROI_rows, self.ROI_columns))
         #data will be stored in hdf5 so that save2013style can then append to Camera Data Iteration0 (signal).txt
         measurementResults['analysis/squareROIsums'] = sum_array
-        self.loadingArray = loadingArray
+        measurementResults['analysis/squareROIthresholded'] = thresholdArray
         self.updateFigure()
-
-        # Cut data based on atom loading
-        # User chooses whether or not to delete data.
-        # max takes care of ComboBox returning -1 for no selection
-        #return max(0, self.filter_level)
 
     def updateFigure(self):
         fig = self.backFigure
@@ -687,7 +685,7 @@ class IterationsGraph(AnalysisWithFigure):
     def analyzeMeasurement(self, measurementResults, iterationResults, experimentResults):
         # Check to see if we want to do anything with this data, based on the LoadingFilters.
         # Careful here to use .value, otherwise it will always be True if the dataset exists.
-        if (not self.add_only_filtered_data) or (('analysis/loading_filter' in measurementResults) and ['analysis/loading_filter'].value):
+        if (not self.add_only_filtered_data) or (('analysis/loading_filter' in measurementResults) and measurementResults['analysis/loading_filter'].value):
 
             d = numpy.array([measurementResults['analysis/squareROIsums']])
 
@@ -704,7 +702,7 @@ class IterationsGraph(AnalysisWithFigure):
             # keepdims gives result with size (1 x shots X rois)
             mean = numpy.mean(self.current_iteration_data, axis=0, keepdims=True)
             #find standard deviation
-            sigma = numpy.std(self.current_iteration_data, axis=0, keepdims=True)
+            sigma = numpy.std(self.current_iteration_data, axis=0, keepdims=True)/numpy.sqrt(len(self.current_iteration_data))
 
             if self.mean is None:
                 #on first iteration start anew
@@ -720,24 +718,6 @@ class IterationsGraph(AnalysisWithFigure):
                     self.mean[-1] = mean
                     self.sigma[-1] = sigma
             self.updateFigure()
-
-    # def analyzeIteration(self, iterationResults, experimentResults):
-    #
-    #     #load in data from all the measurements (ROI sums produced in SquareROIAnalysis)
-    #     d = numpy.array([m['analysis/squareROIsums'] for m in iterationResults['measurements'].itervalues()])
-    #
-    #     #average across measurements (result is (shots X rois))
-    #     averages = numpy.sum(d, axis=0, keepdims=True)/len(d)
-    #     #find standard deviation
-    #     sigma = numpy.std(d, axis=0, keepdims=True)
-    #
-    #     if self.data is None:
-    #     #on first iteration start anew
-    #         self.data = averages
-    #     else:
-    #     #else append
-    #         self.data = numpy.append(self.data, averages, axis=0)
-    #     self.updateFigure()
 
     @observe('list_of_what_to_plot', 'draw_connecting_lines', 'ymin', 'ymax')
     def reload(self, change):
@@ -780,8 +760,112 @@ class IterationsGraph(AnalysisWithFigure):
                 self.update_lock = False
 
 
-class RetentionAnalysis(AnalysisWithFigure):
-    pass
+class RetentionGraph(AnalysisWithFigure):
+    """Plots the average of a region of interest sum for an iteration, after each iteration"""
+    mean = Member()
+    sigma = Member()
+    current_iteration_data = Member()
+    update_lock = Bool(False)
+    list_of_what_to_plot = Str()
+    draw_connecting_lines = Bool()
+    draw_error_bars = Bool()
+    add_only_filtered_data = Bool()
+    ymin = Str()
+    ymax = Str()
+
+    def __init__(self, name, experiment, description=''):
+        super(RetentionGraph, self).__init__(name, experiment, description)
+        self.properties += ['list_of_what_to_plot', 'draw_connecting_lines', 'draw_error_bars', 'ymin', 'ymax']
+
+    def preExperiment(self, experimentResults):
+        #erase the old data at the start of the experiment
+        self.mean = None
+        self.sigma = None
+
+    def preIteration(self, iterationResults, experimentResults):
+        self.current_iteration_data = None
+
+    def analyzeMeasurement(self, measurementResults, iterationResults, experimentResults):
+        """Every measurement, update the results.  Plot the """
+        # Check to see if we want to do anything with this data, based on the LoadingFilters.
+        # Careful here to use .value, otherwise it will always be True if the dataset exists.
+        if (not self.add_only_filtered_data) or (('analysis/loading_filter' in measurementResults) and measurementResults['analysis/loading_filter'].value):
+
+            # grab already thresholded data from SquareROIAnalysis
+            a = measurementResults['analysis/squareROIthresholded']
+            # add one dimension to the data to help with appending
+            d = numpy.reshape(a, (1, a.shape[0], a.shape[1]))
+
+            if self.current_iteration_data is None:
+                #on first measurement of an iteration, start anew
+                new_iteration = True
+                self.current_iteration_data = d
+            else:
+                #else append
+                new_iteration = False
+                self.current_iteration_data = numpy.append(self.current_iteration_data, d, axis=0)
+
+            # average across measurements
+            # keepdims gives result with size (1 x shots X rois)
+            mean = numpy.mean(self.current_iteration_data, axis=0, keepdims=True)
+            #find the 1 sigma confidence interval using the normal approximation: http://en.wikipedia.org/wiki/Binomial_proportion_confidence_interval
+            sigma = numpy.sqrt(mean*(1-mean)/len(self.current_iteration_data))
+
+            if self.mean is None:
+                #on first iteration start anew
+                self.mean = mean
+                self.sigma = sigma
+            else:
+                if new_iteration:
+                    #append
+                    self.mean = numpy.append(self.mean, mean, axis=0)
+                    self.sigma = numpy.append(self.sigma, sigma, axis=0)
+                else:
+                    #replace last entry
+                    self.mean[-1] = mean
+                    self.sigma[-1] = sigma
+            self.updateFigure()
+
+    @observe('list_of_what_to_plot', 'draw_connecting_lines', 'draw_error_bars', 'ymin', 'ymax')
+    def reload(self, change):
+        self.updateFigure()
+
+    def updateFigure(self):
+        if not self.update_lock:
+            try:
+                self.update_lock = True
+                fig = self.backFigure
+                fig.clf()
+
+                if self.mean is not None:
+                    #parse the list of what to plot from a string to a list of numbers
+                    plotlist = eval(self.list_of_what_to_plot)
+
+                    #make one plot
+                    ax = fig.add_subplot(111)
+                    for i in plotlist:
+                        mean = self.mean[:, i[0], i[1]]
+                        sigma = self.sigma[:, i[0], i[1]]
+                        label = '({},{})'.format(i[0], i[1])
+                        linestyle = '-o' if self.draw_connecting_lines else 'o'
+                        if self.draw_error_bars:
+                            ax.errorbar(numpy.arange(len(mean)), mean, yerr=sigma, fmt=linestyle, label=label)
+                        else:
+                            ax.plot(numpy.arange(len(mean)), mean, linestyle, label=label)
+                    #adjust the limits so that the data isn't right on the edge of the graph
+                    ax.set_xlim(-.5, len(self.mean)+0.5)
+                    if self.ymin != '':
+                        ax.set_ylim(bottom=float(self.ymin))
+                    if self.ymax != '':
+                        ax.set_ylim(top=float(self.ymax))
+                    #add legend using the labels assigned during ax.plot() or ax.errorbar()
+                    ax.legend()
+                super(RetentionGraph, self).updateFigure()
+            except Exception as e:
+                logger.warning('Problem in RetentionGraph.updateFigure()\n{}\n{}\n'.format(e, traceback.format_exc()))
+            finally:
+                self.update_lock = False
+
 
 class OptimizerAnalysis(AnalysisWithFigure):
     costfunction = Str('')
