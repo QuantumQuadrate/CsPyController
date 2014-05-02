@@ -1658,7 +1658,7 @@ enamldef SquareROIContainer(Container):
         Container:
             hug_height='strong'
             hug_width='strong'
-            constraints=[hbox(l0,l1,l2,l3,l4)]
+            constraints=[hbox(l0,l1,l2,l3,l4,l5)]
             Label: l0:
                 constraints = [(width==50)|'strong']
                 text = 'ROI#'
@@ -1771,7 +1771,7 @@ enamldef IterationsGraph(Container):
         Field:
             text := analysis.list_of_what_to_plot
     Container:
-        constraints = [hbox(l0,cb0,l1,cb1,l2,cb2)]
+        constraints = [hbox(l0,cb0,l1,cb1,l2,cb2,l3,f3,l4,f4)]
         Label: l0:
             text = 'draw connecting lines'
         CheckBox: cb0:
@@ -1789,9 +1789,9 @@ enamldef IterationsGraph(Container):
         Field: f3:
             placeholder='blank for autolimit'
             text := analysis.ymin
-        Label: l3:
+        Label: l4:
             text = 'plot ymax'
-        Field: f3:
+        Field: f4:
             placeholder='blank for autolimit'
             text := analysis.ymax
     MPLCanvas:
