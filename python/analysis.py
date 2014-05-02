@@ -6,6 +6,7 @@ from cs_errors import PauseError
 
 from atom.api import Bool, Typed, Str, Member, List, Int, observe
 from instrument_property import Prop
+import cs_evaluate
 
 #MPL plotting
 from matplotlib.figure import Figure
@@ -193,7 +194,6 @@ class TTL_filters(Analysis):
     """This analysis monitors the TTL inputs and does either hard or soft cuts of the data accordingly.
     Low is good, high is bad."""
 
-    enable = Bool(False)
     text = Str()
     lines = Str('PXI1Slot6/port0')
     filter_level = Int()
@@ -204,24 +204,23 @@ class TTL_filters(Analysis):
 
     def analyzeMeasurement(self, measurementResults, iterationResults, experimentResults):
         text = 'none'
-        if self.enable:
-            if 'TTL/data' in measurementResults['data']:
-                a = measurementResults['data/TTL/data']
-                #check to see if any of the inputs were True
-                if numpy.any(a):
-                    #report the true inputs
-                    text = 'TTL Filters failed:\n'
-                    for i, b in enumerate(a):
-                        #print out the row and column of the True input
-                        text += 'Check {}: Laser(s) {}\n'.format(i, numpy.arange(len(b))[b])
-                    #record to the log and screen
-                    logger.warning(text)
-                    self.set_gui({'text': text})
-                    # User chooses whether or not to delete data.
-                    # max takes care of ComboBox returning -1 for no selection
-                    return max(0, self.filter_level)
-                else:
-                    text = 'okay'
+        if self.experiment.LabView.TTL.enable and ('TTL/data' in measurementResults['data']):
+            a = measurementResults['data/TTL/data']
+            #check to see if any of the inputs were True
+            if numpy.any(a):
+                #report the true inputs
+                text = 'TTL Filters failed:\n'
+                for i, b in enumerate(a):
+                    #print out the row and column of the True input
+                    text += 'Check {}: Laser(s) {}\n'.format(i, numpy.arange(len(b))[b])
+                #record to the log and screen
+                logger.warning(text)
+                self.set_gui({'text': text})
+                # User chooses whether or not to delete data.
+                # max takes care of ComboBox returning -1 for no selection
+                return max(0, self.filter_level)
+            else:
+                text = 'okay'
         self.set_gui({'text': text})
 
 class RecentShotAnalysis(AnalysisWithFigure):
@@ -505,7 +504,7 @@ class LoadingFilters(Analysis):
     """This analysis monitors the brightess in the regions of interest, to decide if an atom was loaded or not"""
     version = '2014.05.01'
 
-    enable = Bool(False)
+    enable = Bool()
     text = Str()
     filter_expression = Str()
     filter_level = Int()
@@ -513,7 +512,7 @@ class LoadingFilters(Analysis):
 
     def __init__(self, name, experiment, description=''):
         super(LoadingFilters, self).__init__(name, experiment, description)
-        self.properties += ['filter_expression', 'filter_level']
+        self.properties += ['enable', 'filter_expression', 'filter_level']
 
     def analyzeMeasurement(self, measurementResults, iterationResults, experimentResults):
         text = 'none'
@@ -526,7 +525,7 @@ class LoadingFilters(Analysis):
                     #This will overwrite any previous value, so we make a copy of the dictionary
                     vars = self.experiment.vars.copy()
                     vars['t'] = measurementResults['analysis/squareROIsums']
-                    value, valid = cs_evaluate.evalWithDict(self.function, varDict=vars)
+                    value, valid = cs_evaluate.evalWithDict(self.filter_expression, varDict=vars)
                     if not valid:
                         #raise an error
                         text = 'Failed to evaluate loading filter: {}:\n'.format(self.filter_expression)
@@ -534,7 +533,7 @@ class LoadingFilters(Analysis):
                         self.set_gui({'text': text,
                                       'valid': False})
                         raise PauseError
-                    elif not type(value) == bool:
+                    elif not ((value == True) or (value == False)):
                         #Enforce that the expression must evaluate to a bool
                         text = 'Loading filter must be True or False, but it evaluated to: {}\nfor expression: {}:\n'.format(value, self.filter_expression)
                         logger.error(text)
@@ -548,7 +547,7 @@ class LoadingFilters(Analysis):
                             #Measurement did not pass filter (We do not need to take special action if the filter passes.)
                             text = 'Loading filter failed.'
                             self.set_gui({'text': text,
-                                          'valid': False})
+                                          'valid': True})
                             # User chooses whether or not to delete data.
                             # max takes care of ComboBox returning -1 for no selection
                             return max(0, self.filter_level)
@@ -662,34 +661,81 @@ class MeasurementsGraph(AnalysisWithFigure):
 
 class IterationsGraph(AnalysisWithFigure):
     """Plots the average of a region of interest sum for an iteration, after each iteration"""
-    data = Member()
+    mean = Member()
+    sigma = Member()
+    current_iteration_data = Member()
     update_lock = Bool(False)
     list_of_what_to_plot = Str()
     draw_connecting_lines = Bool()
+    draw_error_bars = Bool()
+    add_only_filtered_data = Bool()
 
     def __init__(self, name, experiment, description=''):
         super(IterationsGraph, self).__init__(name, experiment, description)
-        self.properties += ['list_of_what_to_plot', 'draw_connecting_lines']
+        self.properties += ['list_of_what_to_plot', 'draw_connecting_lines', 'draw_error_bars']
 
     def preExperiment(self, experimentResults):
         #erase the old data at the start of the experiment
-        self.data = None
+        self.mean = None
+        self.sigma = None
 
-    def analyzeIteration(self, iterationResults, experimentResults):
+    def preIteration(self, iterationResults, experimentResults):
+        self.current_iteration_data = None
 
-        #load in data from all the measurements (ROI sums produced in SquareROIAnalysis)
-        d = numpy.array([m['analysis/squareROIsums'] for m in iterationResults['measurements'].itervalues()])
+    def analyzeMeasurement(self, measurementResults, iterationResults, experimentResults):
+        # Check to see if we want to do anything with this data, based on the LoadingFilters.
+        # Careful here to use .value, otherwise it will always be True if the dataset exists.
+        if measurementResults['analysis/loading_filter'].value or (not self.add_only_filtered_data):
 
-        #average across measurements (result is (shots X rois))
-        averages = numpy.sum(d, axis=0, keepdims=True)/len(d)
+            d = numpy.array([measurementResults['analysis/squareROIsums']])
 
-        if self.data is None:
-        #on first iteration start anew
-            self.data = averages
-        else:
-        #else append
-            self.data = numpy.append(self.data, averages, axis=0)
-        self.updateFigure()
+            if self.current_iteration_data is None:
+                #on first measurement of an iteration, start anew
+                new_iteration = True
+                self.current_iteration_data = d
+            else:
+                #else append
+                new_iteration = False
+                self.current_iteration_data = numpy.append(self.current_iteration_data, d, axis=0)
+
+            # average across measurements
+            # keepdims gives result with size (1 x shots X rois)
+            mean = numpy.mean(self.current_iteration_data, axis=0, keepdims=True)
+            #find standard deviation
+            sigma = numpy.std(self.current_iteration_data, axis=0, keepdims=True)
+
+            if self.mean is None:
+                #on first iteration start anew
+                self.mean = mean
+                self.sigma = sigma
+            else:
+                if new_iteration:
+                    #append
+                    self.mean = numpy.append(self.mean, mean, axis=0)
+                    self.sigma = numpy.append(self.sigma, sigma, axis=0)
+                else:
+                    #replace last entry
+                    self.mean[-1] = mean
+                    self.sigma[-1] = sigma
+            self.updateFigure()
+
+    # def analyzeIteration(self, iterationResults, experimentResults):
+    #
+    #     #load in data from all the measurements (ROI sums produced in SquareROIAnalysis)
+    #     d = numpy.array([m['analysis/squareROIsums'] for m in iterationResults['measurements'].itervalues()])
+    #
+    #     #average across measurements (result is (shots X rois))
+    #     averages = numpy.sum(d, axis=0, keepdims=True)/len(d)
+    #     #find standard deviation
+    #     sigma = numpy.std(d, axis=0, keepdims=True)
+    #
+    #     if self.data is None:
+    #     #on first iteration start anew
+    #         self.data = averages
+    #     else:
+    #     #else append
+    #         self.data = numpy.append(self.data, averages, axis=0)
+    #     self.updateFigure()
 
     @observe('list_of_what_to_plot', 'draw_connecting_lines')
     def reload(self, change):
@@ -702,18 +748,24 @@ class IterationsGraph(AnalysisWithFigure):
                 fig = self.backFigure
                 fig.clf()
 
-                if self.data is not None:
+                if self.mean is not None:
                     #parse the list of what to plot from a string to a list of numbers
                     plotlist = eval(self.list_of_what_to_plot)
 
                     #make one plot
                     ax = fig.add_subplot(111)
                     for i in plotlist:
-                        data = self.data[:, i[0], i[1]]
+                        mean = self.mean[:, i[0], i[1]]
+                        sigma = self.sigma[:, i[0], i[1]]
                         label = '({},{})'.format(i[0], i[1])
                         linestyle = '-o' if self.draw_connecting_lines else 'o'
-                        ax.plot(data, linestyle, label=label)
-                    #add legend using the labels assigned during ax.plot()
+                        if self.draw_error_bars:
+                            ax.errorbar(numpy.arange(len(mean)), mean, yerr=sigma, fmt=linestyle, label=label)
+                        else:
+                            ax.plot(numpy.arange(len(mean)), mean, linestyle, label=label)
+                    #adjust the limits so that the data isn't right on the edge of the graph
+                    ax.set_xlim(-.5, len(self.mean)+0.5)
+                    #add legend using the labels assigned during ax.plot() or ax.errorbar()
                     ax.legend()
                 super(IterationsGraph, self).updateFigure()
             except Exception as e:

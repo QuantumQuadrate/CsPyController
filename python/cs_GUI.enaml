@@ -1773,6 +1773,14 @@ enamldef IterationsGraph(Container):
             text = 'draw connecting lines'
         CheckBox:
             checked := analysis.draw_connecting_lines
+        Label:
+            text = 'draw error bars'
+        CheckBox:
+            checked := analysis.draw_error_bars
+        Label:
+            text = 'only add data that has passed loading filter'
+        CheckBox:
+            checked := analysis.add_only_filtered_data
     MPLCanvas:
         constraints=[(height==900)|'strong',(width==1700)|'strong']
         figure<<analysis.figure
