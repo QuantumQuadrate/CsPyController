@@ -455,7 +455,7 @@ class SquareROIAnalysis(AnalysisWithFigure):
         self.ROI_columns = ROI_columns
         dtype = [('left', numpy.uint16), ('top', numpy.uint16), ('right', numpy.uint16), ('bottom', numpy.uint16), ('threshold', numpy.uint32)]
         self.ROIs = numpy.zeros(ROI_rows*ROI_columns, dtype=dtype)  # initialize with a blank array
-        self.properties += ['ROIs', 'filter_level']
+        self.properties += ['version', 'ROIs', 'filter_level']
     
     def sum(self, roi, shot):
         return numpy.sum(shot[roi['top']:roi['bottom'], roi['left']:roi['right']])
@@ -511,7 +511,7 @@ class LoadingFilters(Analysis):
 
     def __init__(self, name, experiment, description=''):
         super(LoadingFilters, self).__init__(name, experiment, description)
-        self.properties += ['enable', 'filter_expression', 'filter_level']
+        self.properties += ['version', 'enable', 'filter_expression', 'filter_level']
 
     def analyzeMeasurement(self, measurementResults, iterationResults, experimentResults):
         text = 'none'
