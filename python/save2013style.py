@@ -1,6 +1,9 @@
-'''This file contains all the machinery to save 2013 style files (individual PNGs and text files with variable info).  This is done in the structure of an analysis routine.'''
+"""
+This file contains all the machinery to save 2013 style files (individual PNGs and text files with variable info).
+  This is done in the structure of an analysis routine."""
 
 from __future__ import division
+__author__ = 'Martin Lichtman'
 import logging
 logger = logging.getLogger(__name__)
 

@@ -1,3 +1,7 @@
+__author__ = 'Martin Lichtman'
+import logging
+logger = logging.getLogger(__name__)
+
 import pyaudio
 import wave
 import os

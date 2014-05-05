@@ -10,6 +10,7 @@ This file holds everything to model a National Instruments DAQmx pulse output.  
 """
 
 from __future__ import division
+__author__ = 'Martin Lichtman'
 import logging
 logger = logging.getLogger(__name__)
 

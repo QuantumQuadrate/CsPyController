@@ -1,12 +1,15 @@
-#cs_instruments.py
-#author = Martin Lichtman
-#created = 2013-07-10
-#modified >= 2013-07-10
+"""
+cs_instruments.py
+author = Martin Lichtman
+created = 2013-07-10
+modified >= 2013-07-10
 
-#This file is part of the Cesium Control program designed by Martin Lichtman in 2013 for the AQuA project.
-#It contains classes that represent instruments
+This file is part of the Cesium Control program designed by Martin Lichtman in 2013 for the AQuA project.
+It contains classes that represent instruments
+"""
 
 from __future__ import division
+__author__ = 'Martin Lichtman'
 import logging
 logger = logging.getLogger(__name__)
 

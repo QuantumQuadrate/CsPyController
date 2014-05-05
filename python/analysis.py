@@ -1,4 +1,5 @@
 from __future__ import division
+__author__ = 'Martin Lichtman'
 import logging
 logger = logging.getLogger(__name__)
 
@@ -868,7 +869,56 @@ class RetentionGraph(AnalysisWithFigure):
 
 
 class OptimizerAnalysis(AnalysisWithFigure):
-    costfunction = Str('')
-    
+    #cost_function = Str()
+    cost_history = Member()  # stores the evaluation of the cost function for each iteration
+    cost_function_handle = Member()
+
     def __init__(self, experiment):
         super(OptimizerAnalysis, self).__init__('OptimizerAnalysis', experiment, 'updates independent variables to minimize cost function')
+
+    def preExperiment(self, experimentResults):
+        super(OptimizerAnalysis, self).preExperiment(experimentResults)
+        self.costfunction_handle = eval(costfunction)
+
+    def postIteration(self, iterationResults, experimentResults):
+        """Evaluate the average of the cost function, and use that info to update independent variables."""
+        costfunction_handle = eval(costfunction)
+
+
+class LoadingOptimization(OptimizerAnalysis):
+    enable = Bool()  # whether or not to activate this optimization
+    axes = Member()  # the number of independent variables
+    n = Member()  # the size of the simplex
+    x0 = Member()  # the starting settings
+    x = Member()  # the current setting
+    xlist = Member()  # a history of the settings
+
+    def preExperiment(self, experimentResults):
+        if self.enable:
+
+            # number of free variables
+            self.axes = len(self.experiment.ivars)
+            # we want a polytope of dimension axes+1 (e.g. a triangle in 2D space)
+            self.n = self.axes+1
+
+            #start all the independent variables at the value given for the 0th iteration
+            self.x0 = numpy.array([i.valueList[0] for i in self.experiment.ivars])
+            self.x = self.x0
+            self.variable_history = numpy.array([self.x0])
+
+
+    def postIteration(self, iterationResults, experimentResults):
+        if self.enable:
+            # sum up all the loaded atoms from shot 0 in all regions in all measurements
+            # (negative because cost will be minimized)
+
+            cost = -numpy.sum([i['analysis/squareROIthresholded'][0] for i in iterationResults['measurements'].itervalues()])
+
+            # set the new independent variable values
+            i = iterationResults.attrs['iteration']
+            if i < self.axes:
+                # for the first several measurements, we just explore the cardinal axes
+                self.x = self.x0
+                self.x[i] *= 1.1  # take a 10% step along an axis
+            else:
+                #use the simplex algorithm to assign a new setting

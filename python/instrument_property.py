@@ -1,11 +1,11 @@
-'''instrument_property.py
+"""instrument_property.py
 This file contains the mechanism for a property that describes some setting of an instrument.  A Prop can be saved and loaded.
 A Prop can have properties of its own.
 A Prop has extensions like EvalProp from a setting that takes some string input and is evaluated.
-'''
+"""
 
 from __future__ import division
-
+__author__ = 'Martin Lichtman'
 import logging
 logger = logging.getLogger(__name__)
 

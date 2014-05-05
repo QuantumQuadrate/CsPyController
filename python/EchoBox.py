@@ -9,6 +9,7 @@ EchoBox.py
 """
 
 from __future__ import division
+__author__ = 'Martin Lichtman'
 import logging
 logger = logging.getLogger(__name__)
 

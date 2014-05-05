@@ -7,6 +7,7 @@ cs_errors.py
 
 Exceptions for use in the cesium controller software.
 """
+__author__ = 'Martin Lichtman'
 
 import logging
 

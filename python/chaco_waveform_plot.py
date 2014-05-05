@@ -1,3 +1,5 @@
+__author__ = 'Martin Lichtman'
+
 class WaveformPlot(Plot):
     '''A custom built Chaco plot to show waveforms.'''
     data=ArrayPlotData()

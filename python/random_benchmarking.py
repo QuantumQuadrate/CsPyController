@@ -1,3 +1,5 @@
+__author__ = 'Martin Lichtman'
+
 def script(n, delay_before_excitation_pulse, microwave_pi_by_2, clockRate):
     
     header='''script script1

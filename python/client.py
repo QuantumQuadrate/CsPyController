@@ -1,3 +1,5 @@
+__author__ = 'Martin Lichtman'
+
 import TCP
 c=TCP.CsClientSock('localhost',10000)
 

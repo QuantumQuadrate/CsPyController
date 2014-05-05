@@ -1,4 +1,3 @@
-# Martin Lichtman
 # created = 2013-04-03
 # modified >= 2013-07-09
 
@@ -8,6 +7,7 @@ cs.py
 The cesium controller.  Handles user input/output, experiment flow control,
 analysis, and TCP server for communication with LabView.
 """
+__author__ = 'Martin Lichtman'
 
 #The following no longer applies now that:
 #On Windows you must do "set ETS_TOOLKIT=qt4" from the command line before running this.
@@ -18,30 +18,12 @@ analysis, and TCP server for communication with LabView.
 
 import enaml
 from enaml.qt.qt_application import QtApplication
-
-#for button and taskbar icons
-#from enaml.session import Session
-#from cs_icons import CsIconProvider
-
 import threading
 import cs_errors
 import logging
 cs_errors.setup_log()
 logger = logging.getLogger(__name__)
 import experiments
-
-#for icons
-# class CsSession(Session):
-    
-    # def on_open(self):
-        # global mainWindow
-        # """ Override from enaml.session.Session to setup the windows and resources for the session."""
-        # self.resource_manager.icon_providers['myicons'] = CsIconProvider()
-        # with enaml.imports():
-            # from cs_GUI import Main
-        # mainWindow=Main()
-        # mainWindow.experiment=exp
-        # self.windows.append(mainWindow)
 
 def guiThread(exp):
     logger.debug('importing GUI')

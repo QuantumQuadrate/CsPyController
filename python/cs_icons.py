@@ -2,6 +2,7 @@
 #based on enthought example icons.py and icons_view.enaml
 
 from __future__ import division
+__author__ = 'Martin Lichtman'
 import logging
 logger = logging.getLogger(__name__)
 
@@ -15,7 +16,7 @@ class CsIconProvider(IconProvider):
     path_map = {
         '/plus': 'plus.png',
         '/minus': 'minus.png',
-        '/atom_loading':'atom_loading.png'
+        '/atom_loading': 'atom_loading.png'
     }
 
     def request_icon(self, path, callback):
