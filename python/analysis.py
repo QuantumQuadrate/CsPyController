@@ -786,7 +786,7 @@ class RetentionGraph(AnalysisWithFigure):
         self.current_iteration_data = None
 
     def analyzeMeasurement(self, measurementResults, iterationResults, experimentResults):
-        """Every measurement, update the results.  Plot the """
+        """Every measurement, update the results.  Plot the ratio of shots with an atom to shots without."""
         # Check to see if we want to do anything with this data, based on the LoadingFilters.
         # Careful here to use .value, otherwise it will always be True if the dataset exists.
         if (not self.add_only_filtered_data) or (('analysis/loading_filter' in measurementResults) and measurementResults['analysis/loading_filter'].value):

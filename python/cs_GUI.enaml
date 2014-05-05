@@ -1777,7 +1777,7 @@ enamldef IterationsGraph(Container):
         CheckBox: cb0:
             checked := analysis.draw_connecting_lines
         Label: l1:
-            text = 'draw error bars'
+            text = 'draw error bars (1 sigma std dev of mean)'
         CheckBox: cb1:
             checked := analysis.draw_error_bars
         Label: l2:
@@ -1816,7 +1816,7 @@ enamldef RetentionGraph(Container):
         CheckBox: cb0:
             checked := analysis.draw_connecting_lines
         Label: l1:
-            text = 'draw error bars'
+            text = 'draw error bars (1 sigma binomial std dev of mean using normal approximation)'
         CheckBox: cb1:
             checked := analysis.draw_error_bars
         Label: l2:
