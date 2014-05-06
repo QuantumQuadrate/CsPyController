@@ -606,23 +606,25 @@ class HistogramAnalysis(AnalysisWithFigure):
 
 class MeasurementsGraph(AnalysisWithFigure):
     """Plots a region of interest sum after every measurement"""
+    enable = Bool()
     data = Member()
     update_lock = Bool(False)
     list_of_what_to_plot = Str()
 
     def __init__(self, name, experiment, description=''):
         super(MeasurementsGraph, self).__init__(name, experiment, description)
-        self.properties += ['list_of_what_to_plot']
+        self.properties += ['enable', 'list_of_what_to_plot']
         self.data = None
 
     def analyzeMeasurement(self, measurementResults, iterationResults, experimentResults):
-        #every measurement, update a big array of all the ROI sums, then histogram only the requested shot/site
-        d = measurementResults['analysis/squareROIsums']
-        if self.data is None:
-            self.data = numpy.array([d])
-        else:
-            self.data = numpy.append(self.data, numpy.array([d]), axis=0)
-        self.updateFigure()
+        if self.enable:
+            #every measurement, update a big array of all the ROI sums, then histogram only the requested shot/site
+            d = measurementResults['analysis/squareROIsums']
+            if self.data is None:
+                self.data = numpy.array([d])
+            else:
+                self.data = numpy.append(self.data, numpy.array([d]), axis=0)
+            self.updateFigure()
 
     @observe('list_of_what_to_plot')
     def reload(self, change):
@@ -660,6 +662,7 @@ class MeasurementsGraph(AnalysisWithFigure):
 
 class IterationsGraph(AnalysisWithFigure):
     """Plots the average of a region of interest sum for an iteration, after each iteration"""
+    enable = Member()
     mean = Member()
     sigma = Member()
     current_iteration_data = Member()
@@ -673,7 +676,7 @@ class IterationsGraph(AnalysisWithFigure):
 
     def __init__(self, name, experiment, description=''):
         super(IterationsGraph, self).__init__(name, experiment, description)
-        self.properties += ['list_of_what_to_plot', 'draw_connecting_lines', 'draw_error_bars', 'ymin', 'ymax']
+        self.properties += ['enable', 'list_of_what_to_plot', 'draw_connecting_lines', 'draw_error_bars', 'ymin', 'ymax']
 
     def preExperiment(self, experimentResults):
         #erase the old data at the start of the experiment
@@ -686,39 +689,40 @@ class IterationsGraph(AnalysisWithFigure):
     def analyzeMeasurement(self, measurementResults, iterationResults, experimentResults):
         # Check to see if we want to do anything with this data, based on the LoadingFilters.
         # Careful here to use .value, otherwise it will always be True if the dataset exists.
-        if (not self.add_only_filtered_data) or (('analysis/loading_filter' in measurementResults) and measurementResults['analysis/loading_filter'].value):
+        if self.enable:
+            if (not self.add_only_filtered_data) or (('analysis/loading_filter' in measurementResults) and measurementResults['analysis/loading_filter'].value):
 
-            d = numpy.array([measurementResults['analysis/squareROIsums']])
+                d = numpy.array([measurementResults['analysis/squareROIsums']])
 
-            if self.current_iteration_data is None:
-                #on first measurement of an iteration, start anew
-                new_iteration = True
-                self.current_iteration_data = d
-            else:
-                #else append
-                new_iteration = False
-                self.current_iteration_data = numpy.append(self.current_iteration_data, d, axis=0)
-
-            # average across measurements
-            # keepdims gives result with size (1 x shots X rois)
-            mean = numpy.mean(self.current_iteration_data, axis=0, keepdims=True)
-            #find standard deviation
-            sigma = numpy.std(self.current_iteration_data, axis=0, keepdims=True)/numpy.sqrt(len(self.current_iteration_data))
-
-            if self.mean is None:
-                #on first iteration start anew
-                self.mean = mean
-                self.sigma = sigma
-            else:
-                if new_iteration:
-                    #append
-                    self.mean = numpy.append(self.mean, mean, axis=0)
-                    self.sigma = numpy.append(self.sigma, sigma, axis=0)
+                if self.current_iteration_data is None:
+                    #on first measurement of an iteration, start anew
+                    new_iteration = True
+                    self.current_iteration_data = d
                 else:
-                    #replace last entry
-                    self.mean[-1] = mean
-                    self.sigma[-1] = sigma
-            self.updateFigure()
+                    #else append
+                    new_iteration = False
+                    self.current_iteration_data = numpy.append(self.current_iteration_data, d, axis=0)
+
+                # average across measurements
+                # keepdims gives result with size (1 x shots X rois)
+                mean = numpy.mean(self.current_iteration_data, axis=0, keepdims=True)
+                #find standard deviation
+                sigma = numpy.std(self.current_iteration_data, axis=0, keepdims=True)/numpy.sqrt(len(self.current_iteration_data))
+
+                if self.mean is None:
+                    #on first iteration start anew
+                    self.mean = mean
+                    self.sigma = sigma
+                else:
+                    if new_iteration:
+                        #append
+                        self.mean = numpy.append(self.mean, mean, axis=0)
+                        self.sigma = numpy.append(self.sigma, sigma, axis=0)
+                    else:
+                        #replace last entry
+                        self.mean[-1] = mean
+                        self.sigma[-1] = sigma
+                self.updateFigure()
 
     @observe('list_of_what_to_plot', 'draw_connecting_lines', 'ymin', 'ymax')
     def reload(self, change):
@@ -763,6 +767,7 @@ class IterationsGraph(AnalysisWithFigure):
 
 class RetentionGraph(AnalysisWithFigure):
     """Plots the average of a region of interest sum for an iteration, after each iteration"""
+    enable = Bool()
     mean = Member()
     sigma = Member()
     current_iteration_data = Member()
@@ -776,7 +781,7 @@ class RetentionGraph(AnalysisWithFigure):
 
     def __init__(self, name, experiment, description=''):
         super(RetentionGraph, self).__init__(name, experiment, description)
-        self.properties += ['list_of_what_to_plot', 'draw_connecting_lines', 'draw_error_bars', 'ymin', 'ymax']
+        self.properties += ['enable', 'list_of_what_to_plot', 'draw_connecting_lines', 'draw_error_bars', 'ymin', 'ymax']
 
     def preExperiment(self, experimentResults):
         #erase the old data at the start of the experiment
@@ -790,42 +795,43 @@ class RetentionGraph(AnalysisWithFigure):
         """Every measurement, update the results.  Plot the ratio of shots with an atom to shots without."""
         # Check to see if we want to do anything with this data, based on the LoadingFilters.
         # Careful here to use .value, otherwise it will always be True if the dataset exists.
-        if (not self.add_only_filtered_data) or (('analysis/loading_filter' in measurementResults) and measurementResults['analysis/loading_filter'].value):
+        if self.enable:
+            if (not self.add_only_filtered_data) or (('analysis/loading_filter' in measurementResults) and measurementResults['analysis/loading_filter'].value):
 
-            # grab already thresholded data from SquareROIAnalysis
-            a = measurementResults['analysis/squareROIthresholded']
-            # add one dimension to the data to help with appending
-            d = numpy.reshape(a, (1, a.shape[0], a.shape[1]))
+                # grab already thresholded data from SquareROIAnalysis
+                a = measurementResults['analysis/squareROIthresholded']
+                # add one dimension to the data to help with appending
+                d = numpy.reshape(a, (1, a.shape[0], a.shape[1]))
 
-            if self.current_iteration_data is None:
-                #on first measurement of an iteration, start anew
-                new_iteration = True
-                self.current_iteration_data = d
-            else:
-                #else append
-                new_iteration = False
-                self.current_iteration_data = numpy.append(self.current_iteration_data, d, axis=0)
-
-            # average across measurements
-            # keepdims gives result with size (1 x shots X rois)
-            mean = numpy.mean(self.current_iteration_data, axis=0, keepdims=True)
-            #find the 1 sigma confidence interval using the normal approximation: http://en.wikipedia.org/wiki/Binomial_proportion_confidence_interval
-            sigma = numpy.sqrt(mean*(1-mean)/len(self.current_iteration_data))
-
-            if self.mean is None:
-                #on first iteration start anew
-                self.mean = mean
-                self.sigma = sigma
-            else:
-                if new_iteration:
-                    #append
-                    self.mean = numpy.append(self.mean, mean, axis=0)
-                    self.sigma = numpy.append(self.sigma, sigma, axis=0)
+                if self.current_iteration_data is None:
+                    #on first measurement of an iteration, start anew
+                    new_iteration = True
+                    self.current_iteration_data = d
                 else:
-                    #replace last entry
-                    self.mean[-1] = mean
-                    self.sigma[-1] = sigma
-            self.updateFigure()
+                    #else append
+                    new_iteration = False
+                    self.current_iteration_data = numpy.append(self.current_iteration_data, d, axis=0)
+
+                # average across measurements
+                # keepdims gives result with size (1 x shots X rois)
+                mean = numpy.mean(self.current_iteration_data, axis=0, keepdims=True)
+                #find the 1 sigma confidence interval using the normal approximation: http://en.wikipedia.org/wiki/Binomial_proportion_confidence_interval
+                sigma = numpy.sqrt(mean*(1-mean)/len(self.current_iteration_data))
+
+                if self.mean is None:
+                    #on first iteration start anew
+                    self.mean = mean
+                    self.sigma = sigma
+                else:
+                    if new_iteration:
+                        #append
+                        self.mean = numpy.append(self.mean, mean, axis=0)
+                        self.sigma = numpy.append(self.sigma, sigma, axis=0)
+                    else:
+                        #replace last entry
+                        self.mean[-1] = mean
+                        self.sigma[-1] = sigma
+                self.updateFigure()
 
     @observe('list_of_what_to_plot', 'draw_connecting_lines', 'draw_error_bars', 'ymin', 'ymax')
     def reload(self, change):

@@ -1752,15 +1752,19 @@ enamldef MeasurementsGraph(Container):
     hug_width='ignore'
     Form:
         Label:
+            text = 'enable'
+        CheckBox:
+            checked := analysis.enable
+        Label:
             text = 'specify shots and regions to graph with a list of pairs: [(shot,region),(shot,region)]'
         Field:
             text := analysis.list_of_what_to_plot
     PushButton:
         text = 'clear'
-        clicked::analysis.clear()
+        clicked :: analysis.clear()
     MPLCanvas:
-        constraints=[(height==900)|'strong',(width==1700)|'strong']
-        figure<<analysis.figure
+        constraints = [(height==900)|'strong',(width==1700)|'strong']
+        figure << analysis.figure
 
 enamldef IterationsGraph(Container):
     attr experiment
@@ -1774,7 +1778,11 @@ enamldef IterationsGraph(Container):
         Field:
             text := analysis.list_of_what_to_plot
     Container:
-        constraints = [hbox(l0,cb0,l1,cb1,l2,cb2,l3,f3,l4,f4)]
+        constraints = [hbox(l5,cb5,l0,cb0,l1,cb1,l2,cb2,l3,f3,l4,f4)]
+        Label: l5:
+            text = 'enable'
+        CheckBox: cb5:
+            checked := analysis.enable
         Label: l0:
             text = 'draw connecting lines'
         CheckBox: cb0:
@@ -1813,7 +1821,11 @@ enamldef RetentionGraph(Container):
         Field:
             text := analysis.list_of_what_to_plot
     Container:
-        constraints = [hbox(l0,cb0,l1,cb1,l2,cb2,l3,f3,l4,f4)]
+        constraints = [hbox(l5,cb5,l0,cb0,l1,cb1,l2,cb2,l3,f3,l4,f4)]
+        Label: l5:
+            text = 'enable'
+        CheckBox: cb5:
+            checked := analysis.enable
         Label: l0:
             text = 'draw connecting lines'
         CheckBox: cb0:
