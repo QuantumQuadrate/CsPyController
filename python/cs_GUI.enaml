@@ -1546,7 +1546,7 @@ enamldef MultiImagePage(Page): page:
     attr analysis3
 
     Container:
-        constraints=[vbox(l0,hbox(a0,a1,a2)),align('top',a0,a1,a2)]
+        constraints=[vbox(l0,hbox(a0,a1,a2,colorbar)),align('top',a0,a1,a2,colorbar)]
         
         Label: l0:
             text<<analysis3.text
@@ -1618,7 +1618,6 @@ enamldef MultiImagePage(Page): page:
                 SpinBox:
                     minimum=0
                     value := analysis2.shot
-
 
 enamldef SquareROI(Container):
     attr item

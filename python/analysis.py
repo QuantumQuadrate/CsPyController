@@ -304,14 +304,14 @@ class ShotsBrowserAnalysis(AnalysisWithFigure):
     showROIs = Bool(False)
     
     def __init__(self, experiment):
-        super(ShotsBrowserAnalysis, self).__init__('ShotsBrowser',experiment,'Shows a particular shot from the experiment')
+        super(ShotsBrowserAnalysis, self).__init__('ShotsBrowser', experiment, 'Shows a particular shot from the experiment')
         self.properties += ['measurement', 'shot', 'showROIs']
     
-    def preExperiment(self,experimentResults):
-        self.experimentResults=experimentResults
-        self.ivarValueLists=[i for i in self.experiment.ivarValueLists]  # this line used to access the hdf5 file, but I have temporarily removed ivarValueLists from the HDF5 because it could not handle arbitrary lists of lists
-        self.selection=[0]*len(self.ivarValueLists)
-        deferred_call(setattr,self,'ivarNames',[i for i in experimentResults.attrs['ivarNames']])
+    def preExperiment(self, experimentResults):
+        self.experimentResults = experimentResults
+        self.ivarValueLists = [i for i in self.experiment.ivarValueLists]  # this line used to access the hdf5 file, but I have temporarily removed ivarValueLists from the HDF5 because it could not handle arbitrary lists of lists
+        self.selection = [0]*len(self.ivarValueLists)
+        deferred_call(setattr, self, 'ivarNames', [i for i in experimentResults.attrs['ivarNames']])
     
     def setIteration(self,ivarIndex,index):
         try:
@@ -372,7 +372,7 @@ class ImageSumAnalysis(AnalysisWithFigure):
     max = Member()
 
     def __init__(self, experiment):
-        super(ImageSumAnalysis, self).__init__('ImageSumAnalysis',experiment,'Sums shot0 images as they come in')
+        super(ImageSumAnalysis, self).__init__('ImageSumAnalysis', experiment, 'Sums shot0 images as they come in')
         self.properties += ['showROIs', 'shot']
         self.min = 0
         self.max = 1
@@ -420,11 +420,14 @@ class ImageSumAnalysis(AnalysisWithFigure):
 
                 if (self.mean_array is not None) and (self.shot < len(self.mean_array)):
                     ax = fig.add_subplot(111)
-                    ax.matshow(self.mean_array[self.shot], cmap=my_cmap)
+                    im = ax.matshow(self.mean_array[self.shot], cmap=my_cmap)
 
-                    #TODO: make a colorbar (this doesn't work and we can't use pyplot)
-                    #fig.colorbar(plot,cax=ax,ax=ax)
+                    #label plot
                     ax.set_title('shot {} mean'.format(self.shot))
+
+                    # make a colorbar
+                    cax = fig.add_axes([0.9, 0.1, .03, .8])
+                    fig.colorbar(im, cax=cax)
 
                     if self.showROIs:
                         #overlay ROIs
