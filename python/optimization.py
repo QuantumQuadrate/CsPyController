@@ -35,7 +35,7 @@ for i in range(axes):
     data[i+1] = datapoint(x[i+1])
 
 #Nelder-Mead downhill simplex method
-def simplex(x, y):
+def simplex(x, y, status):
     """Perform the simplex algorithm.  x is 2D array of settings.  y is a 1D array of costs at each of those settings.
     When comparisons are made, lower is better."""
 

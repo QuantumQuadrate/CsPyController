@@ -355,8 +355,10 @@ class Experiment(Prop):
         else:
             timePerMeasurement = 1
         if len(self.completedMeasurementsByIteration) <= 1:
+            #if we're still in the first iteration, use the intended number of measurements
             estTotalMeasurements = self.measurementsPerIteration*self.totalIterations
         else:
+            #if we're after the first iteration, we have more information to work with, use the actual average number of measurements per iteration
             estTotalMeasurements = numpy.mean(self.completedMeasurementsByIteration[:-1])*self.totalIterations
         if estTotalMeasurements > 0:
             self.progress = int(100*completedMeasurements/estTotalMeasurements)
@@ -571,8 +573,8 @@ class Experiment(Prop):
                     logger.debug('flushing hdf5')
                     self.hdf5.flush()
 
-                # Measurement loop exited, but that might mean we are pause, or an error.
-                # So check to see if we completed the iteration.
+                # Measurement loop exited, but that could mean either the iteration was completed, or it might mean we
+                # are paused, or that there was error, so check to see if we completed the iteration.
                 if self.goodMeasurements >= self.measurementsPerIteration:
                     logger.debug("Finished iteration")
                     # We have completed this iteration, move on to the next one
