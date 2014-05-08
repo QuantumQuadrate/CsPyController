@@ -643,7 +643,7 @@ class HistogramGrid(AnalysisWithFigure):
             self.all_shots_array = numpy.array([m['analysis/squareROIsums'] for m in iterationResults['measurements'].itervalues()])
             self.updateFigure()
 
-    def gaussian1D(x, x0, a, w):
+    def gaussian1D(self, x, x0, a, w):
         """returns the height of a gaussian (with mean x0, amplitude, a and width w) at the value(s) x"""
         g = a/(w*sqrt(2*pi))*exp(-0.5*(x-x0)**2/w**2)  # normalize
         g[isnan(g)] = 0  # eliminate bad elements

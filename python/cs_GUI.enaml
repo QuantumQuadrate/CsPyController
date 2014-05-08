@@ -1910,7 +1910,10 @@ enamldef Optimizer(Form):
     Label:
         text='update method'
     ComboBox:
-        items=['Nelder-Mead','genetic','gradient descent']
+        items = ['Nelder-Mead','genetic','gradient descent']
+        index = 0
+        enabled = False
+
 
     MPLCanvas: canvas:
         constraints=[(height==1000)|'strong',(width==1000)|'strong']
