@@ -645,8 +645,8 @@ class HistogramGrid(AnalysisWithFigure):
 
     def gaussian1D(self, x, x0, a, w):
         """returns the height of a gaussian (with mean x0, amplitude, a and width w) at the value(s) x"""
-        g = a/(w*sqrt(2*pi))*exp(-0.5*(x-x0)**2/w**2)  # normalize
-        g[isnan(g)] = 0  # eliminate bad elements
+        g = a/(w*numpy.sqrt(2*numpy.pi))*numpy.exp(-0.5*(x-x0)**2/w**2)  # normalize
+        g[numpy.isnan(g)] = 0  # eliminate bad elements
         return g
 
     def updateFigure(self):
