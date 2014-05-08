@@ -426,7 +426,7 @@ class ImageSumAnalysis(AnalysisWithFigure):
                     ax.set_title('shot {} mean'.format(self.shot))
 
                     # make a colorbar
-                    cax = fig.add_axes([0.9, 0.1, .03, .8])
+                    cax = fig.add_axes([0.95, 0.1, .03, .8])
                     fig.colorbar(im, cax=cax)
 
                     if self.showROIs:
@@ -667,7 +667,7 @@ class HistogramGrid(AnalysisWithFigure):
                 maxs = []
                 maxcounts = []
                 for i in xrange(N):
-                    ROI_sums = roidata[i]
+                    ROI_sums = roidata[:,i]
                     hist, bin_edges = numpy.histogram(ROI_sums, bins=bins)
                     hists.append(hist)
                     bin_edges_list.append(bin_edges)
@@ -1176,7 +1176,7 @@ class LoadingOptimization(AnalysisWithFigure):
             if xi[i] == 0:
                 xi[i] = .1
             else:
-                xi[i] *= .95  # TODO: allow this jump to be specified
+                xi[i] *= 1.5  # TODO: allow this jump to be specified
             yield xi
             x[i+1] = self.xi
             y[i+1] = self.yi
