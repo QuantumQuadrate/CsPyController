@@ -1721,7 +1721,6 @@ enamldef LoadingFilters(GroupBox):
         Label:
             text := filters.text
 
-
 enamldef Histogram(Container):
     attr experiment
     attr analysis
@@ -1740,6 +1739,21 @@ enamldef Histogram(Container):
     MPLCanvas:
         constraints=[(height==900)|'strong',(width==1700)|'strong']
         #hug_width='ignore'
+        figure<<analysis.figure
+
+enamldef HistogramGrid(Container):
+    attr experiment
+    attr analysis
+
+    hug_height='ignore'
+    hug_width='ignore'
+    Form:
+        Label:
+            text = 'enable'
+        CheckBox:
+            checked := analysis.enable
+    MPLCanvas:
+        constraints=[(height==900)|'strong',(width==1700)|'strong']
         figure<<analysis.figure
 
 enamldef MeasurementsGraph(Container):
@@ -2013,6 +2027,12 @@ enamldef Main(MainWindow): main:
                         Histogram:
                             experiment=main.experiment
                             analysis=main.experiment.histogramAnalysis
+                    Page:
+                        title = 'Histogram Grid'
+                        style_class << 'valid' if experiment.valid else 'invalid'
+                        HistogramGrid:
+                            experiment=main.experiment
+                            analysis=main.experiment.histogram_grid
                     Page:
                         title = 'Measurements Graph'
                         style_class << 'valid' if experiment.valid else 'invalid'
