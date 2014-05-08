@@ -1546,7 +1546,7 @@ enamldef MultiImagePage(Page): page:
     attr analysis3
 
     Container:
-        constraints=[vbox(l0,hbox(a0,a1,a2,colorbar)),align('top',a0,a1,a2,colorbar)]
+        constraints=[vbox(l0,hbox(a0,a1,a2)),align('top',a0,a1,a2)]
         
         Label: l0:
             text<<analysis3.text
@@ -1717,31 +1717,25 @@ enamldef LoadingFilters(GroupBox):
             text := filters.text
 
 
-enamldef HistogramPage(Page):
+enamldef Histogram(Container):
     attr experiment
     attr analysis
 
-    title = 'Histogram'
-    Container:
-        hug_height='ignore'
-        hug_width='ignore'
-        Form:
-            Label:
-                text = 'shot'
-            SpinBox:
-                value := analysis.shot
-                minimum = 0
-                maximum << experiment.LabView.camera.shotsPerMeasurement.value
-            Label:
-                text = 'roi'
-            SpinBox:
-                value := analysis.roi
-                minimum = 0
-                maximum << len(experiment.squareROIAnalysis.ROIs)
-        MPLCanvas:
-            constraints=[(height==900)|'strong',(width==1700)|'strong']
-            #hug_width='ignore'
-            figure<<analysis.figure
+    hug_height='ignore'
+    hug_width='ignore'
+    Form:
+        Label:
+            text = 'enable'
+        CheckBox:
+            checked := analysis.enable
+        Label:
+            text = 'specify shots and regions to graph with a list of pairs: [(shot,region),(shot,region)]'
+        Field:
+            text := analysis.list_of_what_to_plot
+    MPLCanvas:
+        constraints=[(height==900)|'strong',(width==1700)|'strong']
+        #hug_width='ignore'
+        figure<<analysis.figure
 
 enamldef MeasurementsGraph(Container):
     attr experiment
@@ -1885,12 +1879,15 @@ enamldef Optimizer(Form):
     attr experiment
     attr analysis
 
+    Label:
+        text = 'enable'
+    CheckBox:
+        checked := analysis.enable
     #Label:
     #    text='cost function'
     #MultilineField:
     #    constraints=[height==300]
     #    text:=experiment.optimizer.cost_function
-
     Label:
         text='update method'
     ComboBox:
@@ -2005,10 +2002,12 @@ enamldef Main(MainWindow): main:
                         SquareROIContainer:
                             experiment=main.experiment
                             analysis=main.experiment.squareROIAnalysis
-                    HistogramPage:
+                    Page:
+                        title = 'Histogram'
                         style_class << 'valid' if experiment.valid else 'invalid'
-                        experiment=main.experiment
-                        analysis=main.experiment.histogramAnalysis
+                        Histogram:
+                            experiment=main.experiment
+                            analysis=main.experiment.histogramAnalysis
                     Page:
                         title = 'Measurements Graph'
                         style_class << 'valid' if experiment.valid else 'invalid'

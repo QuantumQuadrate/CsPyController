@@ -559,32 +559,30 @@ class LoadingFilters(Analysis):
 
 class HistogramAnalysis(AnalysisWithFigure):
     """This class live updates a histogram as data comes in."""
-    shot = Int(0)
-    roi = Int(0)
+    enable = Bool()
     all_shots_array = Member()
     update_lock = Bool(False)
+    list_of_what_to_plot = Str()
 
     def __init__(self, name, experiment, description=''):
         super(HistogramAnalysis, self).__init__(name, experiment, description)
-        self.properties += ['shot', 'roi']
+        self.properties += ['enable', 'list_of_what_to_plot']
 
     def preIteration(self, iterationResults, experimentResults):
         #reset the histogram data
         self.all_shots_array = None
-        #m = self.experiment.LabView.camera.shotsPerMeasurement.value
-        #n = len(self.experiment.squareROIAnalysis.ROIs)
-        #self.all_shots_array = numpy.zeros((0, m, n), dtype=numpy.uint32)
 
     def analyzeMeasurement(self, measurementResults, iterationResults, experimentResults):
-        #every measurement, update a big array of all the ROI sums, then histogram only the requested shot/site
-        d = measurementResults['analysis/squareROIsums']
-        if self.all_shots_array is None:
-            self.all_shots_array = numpy.array([d])
-        else:
-            self.all_shots_array = numpy.append(self.all_shots_array, numpy.array([d]), axis=0)
-        self.updateFigure()
+        if self.enable:
+            #every measurement, update a big array of all the ROI sums, then histogram only the requested shot/site
+            d = measurementResults['analysis/squareROIsums']
+            if self.all_shots_array is None:
+                self.all_shots_array = numpy.array([d])
+            else:
+                self.all_shots_array = numpy.append(self.all_shots_array, numpy.array([d]), axis=0)
+            self.updateFigure()
 
-    @observe('shot', 'roi')
+    @observe('list_of_what_to_plot')
     def reload(self, change):
         self.updateFigure()
 
@@ -596,11 +594,28 @@ class HistogramAnalysis(AnalysisWithFigure):
                 fig.clf()
 
                 if self.all_shots_array is not None:
+
+                    #parse the list of what to plot from a string to a list of numbers
+                    try:
+                        plotlist = eval(self.list_of_what_to_plot)
+                    except Exception as e:
+                        logger.warning('Could not eval plotlist in MeasurementsGraph:\n{}\n'.format(e))
+                        return
+
                     ax = fig.add_subplot(111)
-                    data = self.all_shots_array[:, self.shot, self.roi]
-                    #n, bins, patches =
-                    ax.hist(data, int(numpy.rint(numpy.sqrt(len(data)))), alpha=0.75)
-                    #ax.add_patch(patches)
+                    #for i in plotlist:
+                    #    try:
+                    #        data = self.all_shots_array[:, i[0], i[1]]
+                    #    except:
+                    #        logger.warning('Trying to plot data that does not exist in MeasurementsGraph: shot {} roi {}'.format(i[0], i[1]))
+                    #        continue
+                    #    bins = int(numpy.rint(numpy.sqrt(len(data))))
+                    #    ax.hist(data, bins, histtype='step')
+                    shots = [i[0] for i in plotlist]
+                    rois = [i[1] for i in plotlist]
+                    data = self.all_shots_array[:, shots, rois]
+                    bins = int(1.2*numpy.rint(numpy.sqrt(len(data))))
+                    ax.hist(data, bins, histtype='step')
                 super(HistogramAnalysis, self).updateFigure()
             except Exception as e:
                 logger.warning('Problem in HistogramAnalysis.updateFigure()\n:{}'.format(e))
@@ -915,39 +930,159 @@ class OptimizerAnalysis(AnalysisWithFigure):
         costfunction_handle = eval(costfunction)
 
 
-class LoadingOptimization(OptimizerAnalysis):
+class LoadingOptimization(AnalysisWithFigure):
     enable = Bool()  # whether or not to activate this optimization
-    axes = Member()  # the number of independent variables
-    n = Member()  # the size of the simplex
-    x0 = Member()  # the starting settings
-    x = Member()  # the current setting
-    xlist = Member()  # a history of the settings
+    axes = Member()
+    xi = Member()  # the current settings (len=axes)
+    yi = Member()  # the current cost
+    xlist = Member()  # a history of the settings (shape=(iterations,axes))
+    ylist = Member()  # a history of the costs (shape=(iterations))
+    generator = Member()
+
+    def __init__(self, name, experiment, description=''):
+        super(LoadingOptimization, self).__init__(name, experiment, description)
+        self.properties += ['enable']
+
 
     def preExperiment(self, experimentResults):
         if self.enable:
 
-            # number of free variables
-            self.axes = len(self.experiment.ivars)
-            # we want a polytope of dimension axes+1 (e.g. a triangle in 2D space)
-            self.n = self.axes+1
-
             #start all the independent variables at the value given for the 0th iteration
-            self.x0 = numpy.array([i.valueList[0] for i in self.experiment.ivars])
-            self.x = self.x0
-            self.variable_history = numpy.array([self.x0])
+            x0 = numpy.array([i.valueList[0] for i in self.experiment.ivars])
+            self.axes = len(x0)
+            self.xi = x0
+
+            #create a new generator to choose optimization points
+            self.generator = self.simplex(x0)
+
+            self.xlist = []
+            self.ylist = []
 
     def postIteration(self, iterationResults, experimentResults):
         if self.enable:
+
+            # evaluate cost of iteration just finished
             # sum up all the loaded atoms from shot 0 in all regions in all measurements
             # (negative because cost will be minimized)
+            self.yi = -numpy.sum([i['analysis/squareROIthresholded'][0] for i in iterationResults['measurements'].itervalues()])
+            self.xlist.append(self.xi)
+            self.ylist.append(self.yi)
 
-            cost = -numpy.sum([i['analysis/squareROIthresholded'][0] for i in iterationResults['measurements'].itervalues()])
+            # let the simplex generator decide on the next point to look at
+            self.xi = self.simplex()
+            self.setVars(self.xi)
+            self.updateFigure()
 
-            # set the new independent variable values
-            i = iterationResults.attrs['iteration']
-            if i < self.axes:
-                # for the first several measurements, we just explore the cardinal axes
-                self.x = self.x0
-                self.x[i] *= 1.1  # take a 10% step along an axis
+    def updateFigure(self):
+            fig = self.backFigure
+            fig.clf()
+
+            # plot cost
+            ax = fig.add_subplot(1, self.axes+2, 1)
+            ax.plot(self.ylist)
+
+            # plot settings
+            d = numpy.array(self.xlist).T
+            for i in range(self.axes):
+                ax = fig.add_subplot(1, self.axes+2, i+2)
+                ax.plot(d[i])
+
+            super(LoadingOptimization, self).updateFigure()
+
+    def setVars(self, xi):
+        for i, x in zip(self.experiment.independentVariables, xi):
+            i.currentValue = x
+
+    #Nelder-Mead downhill simplex method
+    def simplex(x0):
+        """Perform the simplex algorithm.  x is 2D array of settings.  y is a 1D array of costs at each of those settings.
+        When comparisons are made, lower is better."""
+
+        #x0 is assigned when this generator is created, but nothing else is done until the first time next() is called
+
+        axes = len(x0)
+        n = axes + 1
+        x = numpy.zeros((n, axes))
+        y = numpy.zeros(n)
+        x[0] = self.xi
+        y[0] = self.yi
+
+        # for the first several measurements, we just explore the cardinal axes to create the simplex
+        for i in range(axes):
+            print 'exploring axis', i
+            # for the new settings, start with the inital settings and then modify them by unit vectors
+            xi = x0.copy()
+            xi[i] += 1  # TODO: allow this jump to be specified
+            yield xi
+            x[i+1] = self.xi
+            y[i+1] = self.yi
+
+        while True:  # TODO: some exit condition?
+
+            # order the values
+            order = np.argsort(y)
+            x[:] = x[order]
+            y[:] = y[order]
+
+            #find the mean of all except the worst point
+            x0 = numpy.mean(x[:-1], axis=0)
+
+            #reflection
+            print 'reflecting'
+            # reflect the worst point in the mean of the other points, to try and find a better point on the other side
+            a = 1
+            xr = x0+a*(x0-x[-1])
+            #yr = datapoint(xr)
+            yield xr
+            yr = self.yi
+
+            if y[0] <= yr < y[-2]:
+                #if the new point is no longer the worst, but not the best, use it to replace the worst point
+                print 'keeping reflection'
+                x[-1, :] = xr[:]
+                y[-1] = yr
+
+            #expansion
+            elif yr < y[0]:
+                print 'expanding'
+                #if the new point is the best, keep going in that direction
+                b = 2
+                xe = x0+b*(x0-x[-1])
+                #ye = datapoint(xe)
+                yield xe
+                ye = self.yi
+                if ye < yr:
+                    #if this expanded point is even better than the initial reflection, keep it
+                    print 'keeping expansion'
+                    x[-1, :] = xe[:]
+                    y[-1] = ye
+                else:
+                    #if the expanded point is not any better than the reflection, use the reflection
+                    print 'keeping reflection (after expansion)'
+                    x[-1, :] = xr[:]
+                    y[-1] = yr
+
+            #contraction
             else:
-                #use the simplex algorithm to assign a new setting
+                print 'contracting'
+                # The reflected point is still worse than all other points, so try not crossing over the mean, but instead
+                # go halfway between the original worst point and the mean.
+                c = -0.5
+                xc = x0+c*(x0-x[-1])
+                #yc = datapoint(xc)
+                yield xc
+                yc = self.yi
+                if yc < y[-1]:
+                    #if the contracted point is better than the original worst point, keep it
+                    print 'keeping contraction'
+                    x[-1, :] = xc[:]
+                    y[-1] = yc
+
+                #reduction
+                else:
+                    # the contracted point is the worst of all points considered.  So reduce the size of the whole simplex,
+                    # bringing each point in halfway towards the best point
+                    print 'reducing'
+                    d = 0.5
+                    for i in range(1, len(x)):
+                        x[i] = x[0]+d*(x[i]-x[0])
