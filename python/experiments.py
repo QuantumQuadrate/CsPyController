@@ -1003,10 +1003,11 @@ class AQuA(Experiment):
         self.optimizer = analysis.LoadingOptimization('optimizer', self, 'updates independent variables to maximize shot 0 loading')
         self.analyses += [self.TTL_filters, self.squareROIAnalysis, self.loading_filters, self.text_analysis,
                           self.imageSumAnalysis, self.recent_shot_analysis, self.shotBrowserAnalysis,
-                          self.histogramAnalysis, self.measurements_graph, self.iterations_graph, self.retention_graph, self.save2013Analysis, self.optimizer]
+                          self.histogramAnalysis, self.histogram_grid, self.measurements_graph, self.iterations_graph,
+                          self.retention_graph, self.save2013Analysis, self.optimizer]
 
         self.properties += ['LabView', 'squareROIAnalysis', 'TTL_filters', 'loading_filters', 'imageSumAnalysis',
-                            'recent_shot_analysis', 'shotBrowserAnalysis', 'histogramAnalysis', 'measurements_graph',
+                            'recent_shot_analysis', 'shotBrowserAnalysis', 'histogramAnalysis', 'histogram_grid', 'measurements_graph',
                             'iterations_graph', 'retention_graph', 'optimizer']
 
         try:

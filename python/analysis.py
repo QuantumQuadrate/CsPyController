@@ -651,7 +651,6 @@ class HistogramGrid(AnalysisWithFigure):
 
     def updateFigure(self):
         try:
-            self.update_lock = True
             fig = self.backFigure
             fig.clf()
 
@@ -778,9 +777,7 @@ class HistogramGrid(AnalysisWithFigure):
 
             super(HistogramGrid, self).updateFigure()
         except Exception as e:
-            logger.warning('Problem in HistogramAnalysis.updateFigure()\n:{}'.format(e))
-        finally:
-            self.update_lock = False
+            logger.warning('Problem in HistogramGrid.updateFigure()\n:{}'.format(e))
 
 
 class MeasurementsGraph(AnalysisWithFigure):
