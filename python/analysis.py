@@ -615,8 +615,8 @@ class HistogramAnalysis(AnalysisWithFigure):
                     rois = [i[1] for i in plotlist]
                     data = self.all_shots_array[:, shots, rois]
                     bins = int(1.2*numpy.rint(numpy.sqrt(len(data))))
-                    ax.hist(data, bins, histtype='step', label=self.list_of_what_to_plot.split[1:-1].split(','))
-                    fig.legend()
+                    ax.hist(data, bins, histtype='step', label=self.list_of_what_to_plot[1:-1].split(','))
+                    ax.legend()
                 super(HistogramAnalysis, self).updateFigure()
             except Exception as e:
                 logger.warning('Problem in HistogramAnalysis.updateFigure()\n:{}'.format(e))
@@ -964,8 +964,8 @@ class LoadingOptimization(AnalysisWithFigure):
 
             # evaluate cost of iteration just finished
             # sum up all the loaded atoms from shot 0 in all regions in all measurements
-            # (negative because cost will be minimized)
-            self.yi = -numpy.sum([i['analysis/squareROIsums'][0] for i in iterationResults['measurements'].itervalues()])
+            # (negative because cost will be minimized, must convert to float otherwise negative wraps around)
+            self.yi = -numpy.sum(numpy.array([i['analysis/squareROIsums'][0] for i in iterationResults['measurements'].itervalues()]),dtype=numpy.float64)
             self.xlist.append(self.xi)
             self.ylist.append(self.yi)
 
