@@ -426,7 +426,7 @@ class ImageSumAnalysis(AnalysisWithFigure):
                     ax.set_title('shot {} mean'.format(self.shot))
 
                     # make a colorbar
-                    cax = fig.add_axes([0.95, 0.1, .03, .8])
+                    cax = fig.add_axes([0.9, 0.1, .03, .8])
                     fig.colorbar(im, cax=cax)
 
                     if self.showROIs:
@@ -1123,6 +1123,8 @@ class LoadingOptimization(AnalysisWithFigure):
             # sum up all the loaded atoms from shot 0 in all regions in all measurements
             # (negative because cost will be minimized, must convert to float otherwise negative wraps around)
             self.yi = -numpy.sum(numpy.array([i['analysis/squareROIsums'][0] for i in iterationResults['measurements'].itervalues()]),dtype=numpy.float64)
+            iterationResults['analysis/optimization_xi'] = self.xi
+            iterationResults['analysis/optimization_yi'] = self.yi
             self.xlist.append(self.xi)
             self.ylist.append(self.yi)
 
