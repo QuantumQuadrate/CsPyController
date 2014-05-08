@@ -744,7 +744,7 @@ class HistogramGrid(AnalysisWithFigure):
                     #go in steps on 1 from peak to peak
                     x = numpy.arange(best_mean1, best_mean2)
                     y = self.gaussian1D(x, best_mean1, best_amplitude1, best_width1)+self.gaussian1D(x, best_mean2, best_amplitude2, best_width2)
-                    cutoff = x[argmin(y)]
+                    cutoff = x[numpy.argmin(y)]
                     best_cutoffs.append(cutoff)
 
                 #plot
@@ -754,16 +754,16 @@ class HistogramGrid(AnalysisWithFigure):
                         n = self.experiment.ROI_columns*i+j
                         ax = fig.add_subplot(7, 7, n+1)
                         #plot histogram
-                        x = zeros(bins+2)
+                        x = numpy.zeros(bins+2)
                         x[1:] = bin_edges_list[n]
-                        y = zeros(bins+2,dtype=int)
+                        y = numpy.zeros(bins+2,dtype=int)
                         y[1:-1] = hists[n]
                         ax.step(x, y, where='post')
                         ax.set_xlim([overall_min, overall_max])
                         ax.set_ylim([0, overall_maxcount])
                         ax.set_title('site '+str(n), size=font)
-                        ax.set_xticks([best_mean1s[n], best_cutoffs[n],best_mean2s[n],overall_max])
-                        ax.set_xticklabels([str(int(best_mean1s[n]/1000)),str(int(best_cutoffs[n]/1000)),str(int(best_mean2s[n]/1000)), 'e3'], size=font)
+                        ax.set_xticks([best_mean1s[n], best_cutoffs[n], best_mean2s[n], overall_max])
+                        ax.set_xticklabels([str(int(best_mean1s[n]/1000)), str(int(best_cutoffs[n]/1000)),str(int(best_mean2s[n]/1000)), 'e3'], size=font)
                         ax.set_yticks([0, max(best_g1s[n]), max(best_g2s[n])])
                         ax.set_yticklabels([str(0), str(int(max(best_g1s[n]))), str(int(max(best_g2s[n])))], size=font)
                         #plot gaussians
