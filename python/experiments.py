@@ -399,12 +399,22 @@ class Experiment(Prop):
         thread = threading.Thread(target=self.resetAndGo)
         thread.daemon = True
         thread.start()
-    
+
+    def optimize_resetAndGoThread(self):
+        thread = threading.Thread(target=self.optimize_resetAndGo)
+        thread.daemon = True
+        thread.start()
+
     def resetAndGo(self):
         """Reset the iteration variables and timing, then proceed with an experiment."""
         self.reset()
         self.go()
-    
+
+    def optimize_resetAndGo(self):
+        """Reset the iteration variables and timing, then proceed with an experiment."""
+        self.reset()
+        self.optimize_go()
+
     def resetThread(self):
         thread = threading.Thread(target=self.reset)
         thread.daemon = True
@@ -536,7 +546,7 @@ class Experiment(Prop):
             return  # exit
         self.set_status('running')  # prevent another experiment from being started at the same time
         self.set_gui({'valid': True})
-        logger.info('running experiment')
+        logger.info('running optimization')
 
         try:  # if there is an error we exit the inner loops and respond appropriately
             #make sure the independent variables are processed

@@ -615,7 +615,8 @@ class HistogramAnalysis(AnalysisWithFigure):
                     rois = [i[1] for i in plotlist]
                     data = self.all_shots_array[:, shots, rois]
                     bins = int(1.2*numpy.rint(numpy.sqrt(len(data))))
-                    ax.hist(data, bins, histtype='step')
+                    ax.hist(data, bins, histtype='step', label=self.list_of_what_to_plot.split[1:-1].split(','))
+                    fig.legend()
                 super(HistogramAnalysis, self).updateFigure()
             except Exception as e:
                 logger.warning('Problem in HistogramAnalysis.updateFigure()\n:{}'.format(e))
@@ -687,7 +688,7 @@ class MeasurementsGraph(AnalysisWithFigure):
 
 class IterationsGraph(AnalysisWithFigure):
     """Plots the average of a region of interest sum for an iteration, after each iteration"""
-    enable = Member()
+    enable = Bool()
     mean = Member()
     sigma = Member()
     current_iteration_data = Member()
@@ -931,6 +932,7 @@ class OptimizerAnalysis(AnalysisWithFigure):
 
 
 class LoadingOptimization(AnalysisWithFigure):
+    version = '2014.05.07'
     enable = Bool()  # whether or not to activate this optimization
     axes = Member()
     xi = Member()  # the current settings (len=axes)
@@ -941,14 +943,13 @@ class LoadingOptimization(AnalysisWithFigure):
 
     def __init__(self, name, experiment, description=''):
         super(LoadingOptimization, self).__init__(name, experiment, description)
-        self.properties += ['enable']
-
+        self.properties += ['version', 'enable']
 
     def preExperiment(self, experimentResults):
         if self.enable:
 
             #start all the independent variables at the value given for the 0th iteration
-            x0 = numpy.array([i.valueList[0] for i in self.experiment.ivars])
+            x0 = numpy.array([i.valueList[0] for i in self.experiment.independentVariables])
             self.axes = len(x0)
             self.xi = x0
 
@@ -964,37 +965,40 @@ class LoadingOptimization(AnalysisWithFigure):
             # evaluate cost of iteration just finished
             # sum up all the loaded atoms from shot 0 in all regions in all measurements
             # (negative because cost will be minimized)
-            self.yi = -numpy.sum([i['analysis/squareROIthresholded'][0] for i in iterationResults['measurements'].itervalues()])
+            self.yi = -numpy.sum([i['analysis/squareROIsums'][0] for i in iterationResults['measurements'].itervalues()])
             self.xlist.append(self.xi)
             self.ylist.append(self.yi)
 
             # let the simplex generator decide on the next point to look at
-            self.xi = self.simplex()
+            self.xi = self.generator.next()
             self.setVars(self.xi)
             self.updateFigure()
 
     def updateFigure(self):
-            fig = self.backFigure
-            fig.clf()
+        fig = self.backFigure
+        fig.clf()
 
-            # plot cost
-            ax = fig.add_subplot(1, self.axes+2, 1)
-            ax.plot(self.ylist)
+        # plot cost
+        ax = fig.add_subplot(self.axes+2, 1, 1)
+        ax.plot(self.ylist)
+        ax.set_ylabel('cost')
 
-            # plot settings
-            d = numpy.array(self.xlist).T
-            for i in range(self.axes):
-                ax = fig.add_subplot(1, self.axes+2, i+2)
-                ax.plot(d[i])
+        # plot settings
+        d = numpy.array(self.xlist).T
+        for i in range(self.axes):
+            ax = fig.add_subplot(self.axes+2, 1, i+2)
+            ax.plot(d[i])
+            ax.set_ylabel(self.experiment.independentVariables[i].name)
 
-            super(LoadingOptimization, self).updateFigure()
+        super(LoadingOptimization, self).updateFigure()
 
     def setVars(self, xi):
         for i, x in zip(self.experiment.independentVariables, xi):
             i.currentValue = x
+            i.set_gui({'currentValueStr': str(x)})
 
     #Nelder-Mead downhill simplex method
-    def simplex(x0):
+    def simplex(self, x0):
         """Perform the simplex algorithm.  x is 2D array of settings.  y is a 1D array of costs at each of those settings.
         When comparisons are made, lower is better."""
 
@@ -1012,7 +1016,10 @@ class LoadingOptimization(AnalysisWithFigure):
             print 'exploring axis', i
             # for the new settings, start with the inital settings and then modify them by unit vectors
             xi = x0.copy()
-            xi[i] += 1  # TODO: allow this jump to be specified
+            if xi[i] == 0:
+                xi[i] = .1
+            else:
+                xi[i] *= .95  # TODO: allow this jump to be specified
             yield xi
             x[i+1] = self.xi
             y[i+1] = self.yi
@@ -1020,7 +1027,7 @@ class LoadingOptimization(AnalysisWithFigure):
         while True:  # TODO: some exit condition?
 
             # order the values
-            order = np.argsort(y)
+            order = numpy.argsort(y)
             x[:] = x[order]
             y[:] = y[order]
 
@@ -1028,7 +1035,7 @@ class LoadingOptimization(AnalysisWithFigure):
             x0 = numpy.mean(x[:-1], axis=0)
 
             #reflection
-            print 'reflecting'
+            logger.info('reflecting')
             # reflect the worst point in the mean of the other points, to try and find a better point on the other side
             a = 1
             xr = x0+a*(x0-x[-1])
@@ -1038,13 +1045,13 @@ class LoadingOptimization(AnalysisWithFigure):
 
             if y[0] <= yr < y[-2]:
                 #if the new point is no longer the worst, but not the best, use it to replace the worst point
-                print 'keeping reflection'
+                logger.info('keeping reflection')
                 x[-1, :] = xr[:]
                 y[-1] = yr
 
             #expansion
             elif yr < y[0]:
-                print 'expanding'
+                logger.info('expanding')
                 #if the new point is the best, keep going in that direction
                 b = 2
                 xe = x0+b*(x0-x[-1])
@@ -1053,12 +1060,12 @@ class LoadingOptimization(AnalysisWithFigure):
                 ye = self.yi
                 if ye < yr:
                     #if this expanded point is even better than the initial reflection, keep it
-                    print 'keeping expansion'
+                    logger.info('keeping expansion')
                     x[-1, :] = xe[:]
                     y[-1] = ye
                 else:
                     #if the expanded point is not any better than the reflection, use the reflection
-                    print 'keeping reflection (after expansion)'
+                    logger.info('keeping reflection (after expansion)')
                     x[-1, :] = xr[:]
                     y[-1] = yr
 

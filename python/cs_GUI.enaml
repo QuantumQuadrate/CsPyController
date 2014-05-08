@@ -245,6 +245,11 @@ enamldef CsMenuBar(MenuBar): menuBar:
         Action:
             text = 'Halt\tCtrl+H'
             triggered::experiment.halt()
+    Menu:
+        title = '&Optimize'
+        Action:
+            text = 'Reset and Run'
+            triggered::experiment.optimize_resetAndGoThread()
 
 enamldef EvalProp(GroupBox):
     attr prop
