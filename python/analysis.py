@@ -704,14 +704,14 @@ class HistogramGrid(AnalysisWithFigure):
                         r1 = numpy.sqrt((x[:j]-mean1)**2)  # an array of distances from the mean
                         width1 = numpy.sqrt(numpy.abs(numpy.sum((r1**2)*y[:j])/numpy.sum(y[:j])))  # the standard deviation
                         amplitude1 = numpy.sum(y[:j]*bin_size[:j])  # area under gaussian is 1, so scale by total volume (i.e. the sum of y)
-                        g1 = gaussian1D(x, mean1, amplitude1, width1)
+                        g1 = self.gaussian1D(x, mean1, amplitude1, width1)
 
                         #fit a gaussian above the cutoff
                         mean2 = numpy.sum(x[j:]*y[j:])/numpy.sum(y[j:])
                         r2 = numpy.sqrt((x[j:]-mean2)**2) #an array of distances from the mean
                         width2 = numpy.sqrt(numpy.abs(numpy.sum((r2**2)*y[j:])/numpy.sum(y[j:]))) #the standard deviation
                         amplitude2 = numpy.sum(y[j:]*bin_size[j:]) #area under gaussian is 1, so scale by total volume (i.e. the sum of y * step size)
-                        g2=gaussian1D(x, mean2, amplitude2, width2)
+                        g2 = self.gaussian1D(x, mean2, amplitude2, width2)
 
                         #find the total error
                         error = sum(abs(y-g1-g2))
@@ -743,7 +743,7 @@ class HistogramGrid(AnalysisWithFigure):
                     #find the lowest point on the sum of the two gaussians
                     #go in steps on 1 from peak to peak
                     x = numpy.arange(best_mean1, best_mean2)
-                    y = gaussian1D(x, best_mean1, best_amplitude1, best_width1)+gaussian1D(x, best_mean2, best_amplitude2, best_width2)
+                    y = self.gaussian1D(x, best_mean1, best_amplitude1, best_width1)+self.gaussian1D(x, best_mean2, best_amplitude2, best_width2)
                     cutoff = x[argmin(y)]
                     best_cutoffs.append(cutoff)
 
@@ -768,8 +768,8 @@ class HistogramGrid(AnalysisWithFigure):
                         ax.set_yticklabels([str(0), str(int(max(best_g1s[n]))), str(int(max(best_g2s[n])))], size=font)
                         #plot gaussians
                         x = numpy.linspace(overall_min, overall_max, 100)
-                        y1 = numpy.concatenate([[0], gaussian1D(x, best_mean1s[n], best_amplitude1s[n], best_width1s[n]), [0]]) #pad with zeros so that matplotlib fill shows up correctly
-                        y2 = numpy.concatenate([[0], gaussian1D(x, best_mean2s[n], best_amplitude2s[n], best_width2s[n]), [0]])
+                        y1 = numpy.concatenate([[0], self.gaussian1D(x, best_mean1s[n], best_amplitude1s[n], best_width1s[n]), [0]]) #pad with zeros so that matplotlib fill shows up correctly
+                        y2 = numpy.concatenate([[0], self.gaussian1D(x, best_mean2s[n], best_amplitude2s[n], best_width2s[n]), [0]])
                         x = numpy.concatenate([[0], x, [0]])
                         ax.fill(x, y1, 'b', x, y2, 'r', alpha=0.5)
                         #plot cutoff line
