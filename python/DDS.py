@@ -1,4 +1,4 @@
-'''DDS.py
+"""DDS.py
 Part of the AQuA Cesium Controller software package
 
 author=Martin Lichtman
@@ -7,9 +7,10 @@ modified>=2013-10-08
 
 This file holds everything needed to model the Direct Digital Synthesis frequency generators.  These are currently controlled
 from LabView, via USB.
-'''
+"""
 
 from __future__ import division
+__author__ = 'Martin Lichtman'
 import logging
 logger = logging.getLogger(__name__)
 
@@ -32,7 +33,7 @@ class DDS(Instrument):
     #deviceListStr=Str()
     deviceList=Member()
     boxDescriptionList=Member()
-    
+
     def __init__(self,experiment,communicator):
         super(DDS,self).__init__('DDS',experiment)
         self.communicator=communicator
@@ -42,7 +43,7 @@ class DDS(Instrument):
         self.boxDescriptionList=[]
         self.properties+=['version','enable','boxes','deviceList','boxDescriptionList']
         self.doNotSendToHardware+=['deviceList','boxDescriptionList']
-    
+
     def evaluate(self):
         if self.experiment.allow_evaluation:
             logger.debug('DDS.evaluate()')

@@ -1,10 +1,12 @@
-#cs_evaluate.py
-#A separate module where things can be evaluated without access to programmatic variables.
-#author: Martin Lichtman
-#created = 2013-08-22
-#modified >= 2013-08-22
+"""cs_evaluate.py
+A separate module where things can be evaluated without access to programmatic variables.
+author: Martin Lichtman
+created = 2013-08-22
+modified >= 2013-08-22
+"""
 
 from __future__ import division  # always do float division
+__author__ = 'Martin Lichtman'
 import logging
 logger = logging.getLogger(__name__)
 

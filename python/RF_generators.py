@@ -10,6 +10,7 @@ It communicates to LabView via the higher up HEXQC2 class.
 """
 
 from __future__ import division
+__author__ = 'Martin Lichtman'
 import logging
 logger = logging.getLogger(__name__)
 

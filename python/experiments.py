@@ -5,6 +5,7 @@ author=Martin Lichtman
 """
 
 from __future__ import division
+__author__ = 'Martin Lichtman'
 import logging
 logger = logging.getLogger(__name__)
 
@@ -67,16 +68,16 @@ class IndependentVariable(EvalProp):
             self.setIndex(self.index)
 
     def setIndex(self, index):
-        if self.steps==0:
-            self.currentValue=None
+        if self.steps == 0:
+            self.currentValue = None
         else:
-            if 0<=index<self.steps:
-                self.index=index
+            if 0 <= index < self.steps:
+                self.index = index
             else:
                 logger.warning('Index='+str(index)+' out of range for independent variable '+self.name+'. Setting '+self.name+'.index=0\n')
-                self.index=0
-            self.currentValue=self.valueList[self.index]
-        self.currentValueStr=str(self.currentValue)
+                self.index = 0
+            self.currentValue = self.valueList[self.index]
+        self.currentValueStr = str(self.currentValue)
         return self.index
 
 
@@ -143,7 +144,10 @@ class Experiment(Prop):
     
     #list of Analysis objects
     analyses = Member()
-    
+
+    #optimization
+    max_iterations = Int()
+
     #things we would rather not have to make Atom definitions for, but are forced to by Atom
     timeOutExpired = Member()
     instruments = Member()
@@ -190,7 +194,7 @@ class Experiment(Prop):
                             'willSendEmail', 'emailAddresses', 'progress', 'progressGUI', 'iteration', 'measurement',
                             'goodMeasurements', 'totalIterations', 'timeStarted', 'currentTime',
                             'timeElapsed', 'timeRemaining', 'totalTime', 'completionTime', 'constantReport',
-                            'variableReport', 'variablesNotToSave', 'notes']
+                            'variableReport', 'variablesNotToSave', 'notes', 'max_iterations']
         #we do not load in status as a variable, to allow old settings to be loaded without bringing in the status of
         #the saved experiments
 
@@ -351,8 +355,10 @@ class Experiment(Prop):
         else:
             timePerMeasurement = 1
         if len(self.completedMeasurementsByIteration) <= 1:
+            #if we're still in the first iteration, use the intended number of measurements
             estTotalMeasurements = self.measurementsPerIteration*self.totalIterations
         else:
+            #if we're after the first iteration, we have more information to work with, use the actual average number of measurements per iteration
             estTotalMeasurements = numpy.mean(self.completedMeasurementsByIteration[:-1])*self.totalIterations
         if estTotalMeasurements > 0:
             self.progress = int(100*completedMeasurements/estTotalMeasurements)
@@ -393,12 +399,22 @@ class Experiment(Prop):
         thread = threading.Thread(target=self.resetAndGo)
         thread.daemon = True
         thread.start()
-    
+
+    def optimize_resetAndGoThread(self):
+        thread = threading.Thread(target=self.optimize_resetAndGo)
+        thread.daemon = True
+        thread.start()
+
     def resetAndGo(self):
         """Reset the iteration variables and timing, then proceed with an experiment."""
         self.reset()
         self.go()
-    
+
+    def optimize_resetAndGo(self):
+        """Reset the iteration variables and timing, then proceed with an experiment."""
+        self.reset()
+        self.optimize_go()
+
     def resetThread(self):
         thread = threading.Thread(target=self.reset)
         thread.daemon = True
@@ -505,6 +521,81 @@ class Experiment(Prop):
                     else:
                         logger.debug("Finished all iterations")
                         self.postExperiment()
+        except PauseError:
+            #This should be the only place that PauseError is explicitly handed.
+            #All other non-fatal error caught higher up in the experiment chain should
+            #gracefully handle the error, then 'raise PauseError' so that the experiment
+            #exits out to this point.
+            if self.pauseAfterError:
+                self.set_status('paused after error')
+            self.set_gui({'valid': False})
+            sound.error_sound()
+        except Exception as e:
+            logger.error('Exception during experiment:\n'+str(e)+'\n'+str(traceback.format_exc())+'\n')
+            if self.pauseAfterError:
+                self.set_status('paused after error')
+            self.set_gui({'valid': False})
+            sound.error_sound()
+
+    def optimize_go(self):
+        """Pick up the experiment wherever it was left off."""
+
+        #check if we are ready to do an experiment
+        if not self.status.startswith('paused'):
+            logger.info('Current status is {}. Cannot continue an experiment unless status is paused.'.format(self.status))
+            return  # exit
+        self.set_status('running')  # prevent another experiment from being started at the same time
+        self.set_gui({'valid': True})
+        logger.info('running optimization')
+
+        try:  # if there is an error we exit the inner loops and respond appropriately
+            #make sure the independent variables are processed
+            self.evaluateIndependentVariables()
+
+            #loop until the OptimizerAnalysis stops us
+            while self.status == 'running':
+                logger.debug("starting new iteration (or continuing)")
+
+                #at the start of a new iteration, or if we are continuing
+                self.evaluate()  # re-calculate all variables
+                self.update()  # send current values to hardware
+
+                #only at the start of a new iteration
+                if self.measurement == 0:
+                    self.completedMeasurementsByIteration.append(0)  # start a new counter for this iteration
+                    self.create_hdf5_iteration()
+                    self.preIteration()
+
+                #loop until the desired number of measurements are taken
+                while (self.goodMeasurements < self.measurementsPerIteration) and (self.status == 'running'):
+                    self.set_gui({'valid': True})
+                    logger.info('iteration {} measurement {}'.format(self.iteration, self.measurement))
+                    self.measure()  # tell all instruments to do the experiment sequence and acquire data
+                    self.updateTime()  # update the countdown/countup clocks
+                    logger.debug('updating measurement count')
+                    self.measurement += 1  # update the measurement count
+                    if self.status == 'running' and self.pauseAfterMeasurement:
+                        self.set_status('paused after measurement')
+                        self.set_gui({'valid': False})
+                        sound.error_sound()
+                    self.update_gui()
+                    #make sure results are written to disk
+                    logger.debug('flushing hdf5')
+                    self.hdf5.flush()
+
+                # Measurement loop exited, but that could mean either the iteration was completed, or it might mean we
+                # are paused, or that there was error, so check to see if we completed the iteration.
+                if self.goodMeasurements >= self.measurementsPerIteration:
+                    logger.debug("Finished iteration")
+                    # We have completed this iteration, move on to the next one
+                    self.postIteration()  # run analysis
+                    self.iteration += 1
+                    self.measurement = 0
+                    self.goodMeasurements = 0
+                    if (self.status == 'running' or self.status == 'paused after measurement') and self.pauseAfterIteration:
+                        self.set_status('paused after iteration')
+                        self.set_gui({'valid': False})
+                        sound.error_sound()
         except PauseError:
             #This should be the only place that PauseError is explicitly handed.
             #All other non-fatal error caught higher up in the experiment chain should
@@ -865,6 +956,7 @@ class Experiment(Prop):
         logger.info('Finished Experiment.')
         sound.complete_sound()
 
+
 class AQuA(Experiment):
     """A subclass of Experiment which knows about all our particular hardware"""
     
@@ -906,14 +998,14 @@ class AQuA(Experiment):
         self.iterations_graph = analysis.IterationsGraph('iterations_graph', self, 'plot the average of ROI sums vs iterations')
         self.retention_graph = analysis.RetentionGraph('retention_graph', self, 'plot occurence of binary result (i.e. whether or not atoms are there in the 2nd shot)')
         self.save2013Analysis = save2013style.Save2013Analysis(self)
-        self.optimizer = analysis.OptimizerAnalysis(self)
+        self.optimizer = analysis.LoadingOptimization('optimizer', self, 'updates independent variables to maximize shot 0 loading')
         self.analyses += [self.TTL_filters, self.squareROIAnalysis, self.loading_filters, self.text_analysis,
                           self.imageSumAnalysis, self.recent_shot_analysis, self.shotBrowserAnalysis,
-                          self.histogramAnalysis, self.measurements_graph, self.iterations_graph, self.retention_graph, self.save2013Analysis]
+                          self.histogramAnalysis, self.measurements_graph, self.iterations_graph, self.retention_graph, self.save2013Analysis, self.optimizer]
 
         self.properties += ['LabView', 'squareROIAnalysis', 'TTL_filters', 'loading_filters', 'imageSumAnalysis',
                             'recent_shot_analysis', 'shotBrowserAnalysis', 'histogramAnalysis', 'measurements_graph',
-                            'iterations_graph', 'retention_graph']
+                            'iterations_graph', 'retention_graph', 'optimizer']
 
         try:
             self.allow_evaluation = False

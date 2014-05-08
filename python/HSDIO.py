@@ -1,3 +1,4 @@
+
 """HSDIO.py
 Part of the AQuA Cesium Controller software package
 
@@ -9,6 +10,7 @@ This file holds everything needed to model the high speed digital output from th
 """
 
 from __future__ import division
+__author__ = 'Martin Lichtman'
 import logging
 logger = logging.getLogger(__name__)
 

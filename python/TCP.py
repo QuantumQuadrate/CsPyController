@@ -12,6 +12,7 @@ a message with the correct format.
 """
 
 from __future__ import division
+__author__ = 'Martin Lichtman'
 import logging
 logger = logging.getLogger(__name__)
 

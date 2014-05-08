@@ -9,7 +9,7 @@ This file holds everything needed to model the analog output from a National Ins
 """
 
 from __future__ import division
-
+__author__ = 'Martin Lichtman'
 import logging
 logger = logging.getLogger(__name__)
 

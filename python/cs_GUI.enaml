@@ -9,6 +9,7 @@ A GUI for the Cs experiment controller, written using the enaml toolkit for pyth
 """
 
 from __future__ import division
+__author__ = 'Martin Lichtman'
 import logging
 logger = logging.getLogger(__name__)
 
@@ -22,6 +23,8 @@ from enaml.widgets.api import (MainWindow, MenuBar, Menu, Action,
                                 FileDialog,Window, StatusBar, StatusItem,
                                 Stack, StackItem, ComboBox
 )
+from enaml.icon import Icon, IconImage
+from enaml.image import Image
 from enaml.core.declarative import d_
 from enaml.core.include import Include
 from enaml.stdlib.fields import FloatField, IntField
@@ -242,6 +245,11 @@ enamldef CsMenuBar(MenuBar): menuBar:
         Action:
             text = 'Halt\tCtrl+H'
             triggered::experiment.halt()
+    Menu:
+        title = '&Optimize'
+        Action:
+            text = 'Reset and Run'
+            triggered::experiment.optimize_resetAndGoThread()
 
 enamldef EvalProp(GroupBox):
     attr prop
@@ -1616,7 +1624,6 @@ enamldef MultiImagePage(Page): page:
                     minimum=0
                     value := analysis2.shot
 
-
 enamldef SquareROI(Container):
     attr item
     attr num
@@ -1715,31 +1722,25 @@ enamldef LoadingFilters(GroupBox):
             text := filters.text
 
 
-enamldef HistogramPage(Page):
+enamldef Histogram(Container):
     attr experiment
     attr analysis
 
-    title = 'Histogram'
-    Container:
-        hug_height='ignore'
-        hug_width='ignore'
-        Form:
-            Label:
-                text = 'shot'
-            SpinBox:
-                value := analysis.shot
-                minimum = 0
-                maximum << experiment.LabView.camera.shotsPerMeasurement.value
-            Label:
-                text = 'roi'
-            SpinBox:
-                value := analysis.roi
-                minimum = 0
-                maximum << len(experiment.squareROIAnalysis.ROIs)
-        MPLCanvas:
-            constraints=[(height==900)|'strong',(width==1700)|'strong']
-            #hug_width='ignore'
-            figure<<analysis.figure
+    hug_height='ignore'
+    hug_width='ignore'
+    Form:
+        Label:
+            text = 'enable'
+        CheckBox:
+            checked := analysis.enable
+        Label:
+            text = 'specify shots and regions to graph with a list of pairs: [(shot,region),(shot,region)]'
+        Field:
+            text := analysis.list_of_what_to_plot
+    MPLCanvas:
+        constraints=[(height==900)|'strong',(width==1700)|'strong']
+        #hug_width='ignore'
+        figure<<analysis.figure
 
 enamldef MeasurementsGraph(Container):
     attr experiment
@@ -1749,15 +1750,19 @@ enamldef MeasurementsGraph(Container):
     hug_width='ignore'
     Form:
         Label:
+            text = 'enable'
+        CheckBox:
+            checked := analysis.enable
+        Label:
             text = 'specify shots and regions to graph with a list of pairs: [(shot,region),(shot,region)]'
         Field:
             text := analysis.list_of_what_to_plot
     PushButton:
         text = 'clear'
-        clicked::analysis.clear()
+        clicked :: analysis.clear()
     MPLCanvas:
-        constraints=[(height==900)|'strong',(width==1700)|'strong']
-        figure<<analysis.figure
+        constraints = [(height==900)|'strong',(width==1700)|'strong']
+        figure << analysis.figure
 
 enamldef IterationsGraph(Container):
     attr experiment
@@ -1771,13 +1776,17 @@ enamldef IterationsGraph(Container):
         Field:
             text := analysis.list_of_what_to_plot
     Container:
-        constraints = [hbox(l0,cb0,l1,cb1,l2,cb2,l3,f3,l4,f4)]
+        constraints = [hbox(l5,cb5,l0,cb0,l1,cb1,l2,cb2,l3,f3,l4,f4)]
+        Label: l5:
+            text = 'enable'
+        CheckBox: cb5:
+            checked := analysis.enable
         Label: l0:
             text = 'draw connecting lines'
         CheckBox: cb0:
             checked := analysis.draw_connecting_lines
         Label: l1:
-            text = 'draw error bars'
+            text = 'draw error bars (1 sigma std dev of mean)'
         CheckBox: cb1:
             checked := analysis.draw_error_bars
         Label: l2:
@@ -1810,13 +1819,17 @@ enamldef RetentionGraph(Container):
         Field:
             text := analysis.list_of_what_to_plot
     Container:
-        constraints = [hbox(l0,cb0,l1,cb1,l2,cb2,l3,f3,l4,f4)]
+        constraints = [hbox(l5,cb5,l0,cb0,l1,cb1,l2,cb2,l3,f3,l4,f4)]
+        Label: l5:
+            text = 'enable'
+        CheckBox: cb5:
+            checked := analysis.enable
         Label: l0:
             text = 'draw connecting lines'
         CheckBox: cb0:
             checked := analysis.draw_connecting_lines
         Label: l1:
-            text = 'draw error bars'
+            text = 'draw error bars (1 sigma binomial std dev of mean using normal approximation)'
         CheckBox: cb1:
             checked := analysis.draw_error_bars
         Label: l2:
@@ -1872,11 +1885,14 @@ enamldef Optimizer(Form):
     attr analysis
 
     Label:
-        text='cost function'
-    MultilineField:
-        constraints=[height==600]
-        text:=experiment.optimizer.costfunction
-
+        text = 'enable'
+    CheckBox:
+        checked := analysis.enable
+    #Label:
+    #    text='cost function'
+    #MultilineField:
+    #    constraints=[height==300]
+    #    text:=experiment.optimizer.cost_function
     Label:
         text='update method'
     ComboBox:
@@ -1887,13 +1903,21 @@ enamldef Optimizer(Form):
         hug_width='ignore'
         figure<<analysis.figure
 
+def loadIcon():
+    #create icon
+    with open(os.path.join('icons','2013_11_14_15_18_54_retention_PCA_filtered_image_rotated_smoothed.png'), 'rb') as f:
+        data = f.read()
+    image = Image(data=data)
+    icon = Icon(images=[IconImage(image=image)])
+    return icon
+
 enamldef Main(MainWindow): main:
     attr experiment
     
     title='Saffmanlab experiment controller'
     initial_position=(0,0)
     initial_size=(1500,1100)
-    #icon_source='icon://myicons/atom_loading'
+    icon = loadIcon()
 
     MyStyleSheet:
         #just implement the style sheet defined separately
@@ -1983,10 +2007,12 @@ enamldef Main(MainWindow): main:
                         SquareROIContainer:
                             experiment=main.experiment
                             analysis=main.experiment.squareROIAnalysis
-                    HistogramPage:
+                    Page:
+                        title = 'Histogram'
                         style_class << 'valid' if experiment.valid else 'invalid'
-                        experiment=main.experiment
-                        analysis=main.experiment.histogramAnalysis
+                        Histogram:
+                            experiment=main.experiment
+                            analysis=main.experiment.histogramAnalysis
                     Page:
                         title = 'Measurements Graph'
                         style_class << 'valid' if experiment.valid else 'invalid'

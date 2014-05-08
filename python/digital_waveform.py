@@ -1,6 +1,8 @@
-#this files contains the workings to store a digital waveform and plot it using Matplotlib
+
+"""this files contains the workings to store a digital waveform and plot it using Matplotlib"""
 
 from __future__ import division
+__author__ = 'Martin Lichtman'
 import logging
 logger = logging.getLogger(__name__)
 

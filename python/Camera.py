@@ -1,4 +1,4 @@
-'''camera.py
+"""camera.py
 Part of the AQuA Cesium Controller software package
 
 author=Martin Lichtman
@@ -6,9 +6,10 @@ created=2014-01-17
 modified>=2014-01-17
 
 This file holds everything needed to model the high speed digital output from the National Instruments HSDIO card.  It communicates to LabView via the higher up LabView(Instrument) class.
-'''
+"""
 
 from __future__ import division
+__author__ = 'Martin Lichtman'
 import logging
 logger = logging.getLogger(__name__)
 

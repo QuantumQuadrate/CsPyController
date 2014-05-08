@@ -1,10 +1,12 @@
-'''
+"""
 This file contains some helper functions for interfacing with hdf5 files
 
 author=Martin Lichtman
 created=2014-01-09
 modified>=2014-01-09
-'''
+"""
+
+__author__ = 'Martin Lichtman'
 
 def dict2hdf(dict,hdf):
     for i in dict:

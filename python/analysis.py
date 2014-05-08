@@ -1,4 +1,5 @@
 from __future__ import division
+__author__ = 'Martin Lichtman'
 import logging
 logger = logging.getLogger(__name__)
 
@@ -303,14 +304,14 @@ class ShotsBrowserAnalysis(AnalysisWithFigure):
     showROIs = Bool(False)
     
     def __init__(self, experiment):
-        super(ShotsBrowserAnalysis, self).__init__('ShotsBrowser',experiment,'Shows a particular shot from the experiment')
+        super(ShotsBrowserAnalysis, self).__init__('ShotsBrowser', experiment, 'Shows a particular shot from the experiment')
         self.properties += ['measurement', 'shot', 'showROIs']
     
-    def preExperiment(self,experimentResults):
-        self.experimentResults=experimentResults
-        self.ivarValueLists=[i for i in self.experiment.ivarValueLists]  # this line used to access the hdf5 file, but I have temporarily removed ivarValueLists from the HDF5 because it could not handle arbitrary lists of lists
-        self.selection=[0]*len(self.ivarValueLists)
-        deferred_call(setattr,self,'ivarNames',[i for i in experimentResults.attrs['ivarNames']])
+    def preExperiment(self, experimentResults):
+        self.experimentResults = experimentResults
+        self.ivarValueLists = [i for i in self.experiment.ivarValueLists]  # this line used to access the hdf5 file, but I have temporarily removed ivarValueLists from the HDF5 because it could not handle arbitrary lists of lists
+        self.selection = [0]*len(self.ivarValueLists)
+        deferred_call(setattr, self, 'ivarNames', [i for i in experimentResults.attrs['ivarNames']])
     
     def setIteration(self,ivarIndex,index):
         try:
@@ -371,7 +372,7 @@ class ImageSumAnalysis(AnalysisWithFigure):
     max = Member()
 
     def __init__(self, experiment):
-        super(ImageSumAnalysis, self).__init__('ImageSumAnalysis',experiment,'Sums shot0 images as they come in')
+        super(ImageSumAnalysis, self).__init__('ImageSumAnalysis', experiment, 'Sums shot0 images as they come in')
         self.properties += ['showROIs', 'shot']
         self.min = 0
         self.max = 1
@@ -419,11 +420,14 @@ class ImageSumAnalysis(AnalysisWithFigure):
 
                 if (self.mean_array is not None) and (self.shot < len(self.mean_array)):
                     ax = fig.add_subplot(111)
-                    ax.matshow(self.mean_array[self.shot], cmap=my_cmap)
+                    im = ax.matshow(self.mean_array[self.shot], cmap=my_cmap)
 
-                    #TODO: make a colorbar (this doesn't work and we can't use pyplot)
-                    #fig.colorbar(plot,cax=ax,ax=ax)
+                    #label plot
                     ax.set_title('shot {} mean'.format(self.shot))
+
+                    # make a colorbar
+                    cax = fig.add_axes([0.9, 0.1, .03, .8])
+                    fig.colorbar(im, cax=cax)
 
                     if self.showROIs:
                         #overlay ROIs
@@ -454,7 +458,7 @@ class SquareROIAnalysis(AnalysisWithFigure):
         self.ROI_columns = ROI_columns
         dtype = [('left', numpy.uint16), ('top', numpy.uint16), ('right', numpy.uint16), ('bottom', numpy.uint16), ('threshold', numpy.uint32)]
         self.ROIs = numpy.zeros(ROI_rows*ROI_columns, dtype=dtype)  # initialize with a blank array
-        self.properties += ['ROIs', 'filter_level']
+        self.properties += ['version', 'ROIs', 'filter_level']
     
     def sum(self, roi, shot):
         return numpy.sum(shot[roi['top']:roi['bottom'], roi['left']:roi['right']])
@@ -510,7 +514,7 @@ class LoadingFilters(Analysis):
 
     def __init__(self, name, experiment, description=''):
         super(LoadingFilters, self).__init__(name, experiment, description)
-        self.properties += ['enable', 'filter_expression', 'filter_level']
+        self.properties += ['version', 'enable', 'filter_expression', 'filter_level']
 
     def analyzeMeasurement(self, measurementResults, iterationResults, experimentResults):
         text = 'none'
@@ -555,32 +559,30 @@ class LoadingFilters(Analysis):
 
 class HistogramAnalysis(AnalysisWithFigure):
     """This class live updates a histogram as data comes in."""
-    shot = Int(0)
-    roi = Int(0)
+    enable = Bool()
     all_shots_array = Member()
     update_lock = Bool(False)
+    list_of_what_to_plot = Str()
 
     def __init__(self, name, experiment, description=''):
         super(HistogramAnalysis, self).__init__(name, experiment, description)
-        self.properties += ['shot', 'roi']
+        self.properties += ['enable', 'list_of_what_to_plot']
 
     def preIteration(self, iterationResults, experimentResults):
         #reset the histogram data
         self.all_shots_array = None
-        #m = self.experiment.LabView.camera.shotsPerMeasurement.value
-        #n = len(self.experiment.squareROIAnalysis.ROIs)
-        #self.all_shots_array = numpy.zeros((0, m, n), dtype=numpy.uint32)
 
     def analyzeMeasurement(self, measurementResults, iterationResults, experimentResults):
-        #every measurement, update a big array of all the ROI sums, then histogram only the requested shot/site
-        d = measurementResults['analysis/squareROIsums']
-        if self.all_shots_array is None:
-            self.all_shots_array = numpy.array([d])
-        else:
-            self.all_shots_array = numpy.append(self.all_shots_array, numpy.array([d]), axis=0)
-        self.updateFigure()
+        if self.enable:
+            #every measurement, update a big array of all the ROI sums, then histogram only the requested shot/site
+            d = measurementResults['analysis/squareROIsums']
+            if self.all_shots_array is None:
+                self.all_shots_array = numpy.array([d])
+            else:
+                self.all_shots_array = numpy.append(self.all_shots_array, numpy.array([d]), axis=0)
+            self.updateFigure()
 
-    @observe('shot', 'roi')
+    @observe('list_of_what_to_plot')
     def reload(self, change):
         self.updateFigure()
 
@@ -592,11 +594,29 @@ class HistogramAnalysis(AnalysisWithFigure):
                 fig.clf()
 
                 if self.all_shots_array is not None:
+
+                    #parse the list of what to plot from a string to a list of numbers
+                    try:
+                        plotlist = eval(self.list_of_what_to_plot)
+                    except Exception as e:
+                        logger.warning('Could not eval plotlist in MeasurementsGraph:\n{}\n'.format(e))
+                        return
+
                     ax = fig.add_subplot(111)
-                    data = self.all_shots_array[:, self.shot, self.roi]
-                    #n, bins, patches =
-                    ax.hist(data, int(numpy.rint(numpy.sqrt(len(data)))), alpha=0.75)
-                    #ax.add_patch(patches)
+                    #for i in plotlist:
+                    #    try:
+                    #        data = self.all_shots_array[:, i[0], i[1]]
+                    #    except:
+                    #        logger.warning('Trying to plot data that does not exist in MeasurementsGraph: shot {} roi {}'.format(i[0], i[1]))
+                    #        continue
+                    #    bins = int(numpy.rint(numpy.sqrt(len(data))))
+                    #    ax.hist(data, bins, histtype='step')
+                    shots = [i[0] for i in plotlist]
+                    rois = [i[1] for i in plotlist]
+                    data = self.all_shots_array[:, shots, rois]
+                    bins = int(1.2*numpy.rint(numpy.sqrt(len(data))))
+                    ax.hist(data, bins, histtype='step', label=self.list_of_what_to_plot[1:-1].split(','))
+                    ax.legend()
                 super(HistogramAnalysis, self).updateFigure()
             except Exception as e:
                 logger.warning('Problem in HistogramAnalysis.updateFigure()\n:{}'.format(e))
@@ -605,23 +625,25 @@ class HistogramAnalysis(AnalysisWithFigure):
 
 class MeasurementsGraph(AnalysisWithFigure):
     """Plots a region of interest sum after every measurement"""
+    enable = Bool()
     data = Member()
     update_lock = Bool(False)
     list_of_what_to_plot = Str()
 
     def __init__(self, name, experiment, description=''):
         super(MeasurementsGraph, self).__init__(name, experiment, description)
-        self.properties += ['list_of_what_to_plot']
+        self.properties += ['enable', 'list_of_what_to_plot']
         self.data = None
 
     def analyzeMeasurement(self, measurementResults, iterationResults, experimentResults):
-        #every measurement, update a big array of all the ROI sums, then histogram only the requested shot/site
-        d = measurementResults['analysis/squareROIsums']
-        if self.data is None:
-            self.data = numpy.array([d])
-        else:
-            self.data = numpy.append(self.data, numpy.array([d]), axis=0)
-        self.updateFigure()
+        if self.enable:
+            #every measurement, update a big array of all the ROI sums, then histogram only the requested shot/site
+            d = measurementResults['analysis/squareROIsums']
+            if self.data is None:
+                self.data = numpy.array([d])
+            else:
+                self.data = numpy.append(self.data, numpy.array([d]), axis=0)
+            self.updateFigure()
 
     @observe('list_of_what_to_plot')
     def reload(self, change):
@@ -640,12 +662,19 @@ class MeasurementsGraph(AnalysisWithFigure):
 
                 if self.data is not None:
                     #parse the list of what to plot from a string to a list of numbers
-                    plotlist = eval(self.list_of_what_to_plot)
-
+                    try:
+                        plotlist = eval(self.list_of_what_to_plot)
+                    except Exception as e:
+                        logger.warning('Could not eval plotlist in MeasurementsGraph:\n{}\n'.format(e))
+                        return
                     #make one plot
                     ax = fig.add_subplot(111)
                     for i in plotlist:
-                        data = self.data[:, i[0], i[1]]
+                        try:
+                            data = self.data[:, i[0], i[1]]
+                        except:
+                            logger.warning('Trying to plot data that does not exist in MeasurementsGraph: shot {} roi {}'.format(i[0], i[1]))
+                            continue
                         label = '({},{})'.format(i[0], i[1])
                         ax.plot(data, 'o', label=label)
                     #add legend using the labels assigned during ax.plot()
@@ -659,6 +688,7 @@ class MeasurementsGraph(AnalysisWithFigure):
 
 class IterationsGraph(AnalysisWithFigure):
     """Plots the average of a region of interest sum for an iteration, after each iteration"""
+    enable = Bool()
     mean = Member()
     sigma = Member()
     current_iteration_data = Member()
@@ -672,7 +702,7 @@ class IterationsGraph(AnalysisWithFigure):
 
     def __init__(self, name, experiment, description=''):
         super(IterationsGraph, self).__init__(name, experiment, description)
-        self.properties += ['list_of_what_to_plot', 'draw_connecting_lines', 'draw_error_bars', 'ymin', 'ymax']
+        self.properties += ['enable', 'list_of_what_to_plot', 'draw_connecting_lines', 'draw_error_bars', 'ymin', 'ymax']
 
     def preExperiment(self, experimentResults):
         #erase the old data at the start of the experiment
@@ -685,39 +715,40 @@ class IterationsGraph(AnalysisWithFigure):
     def analyzeMeasurement(self, measurementResults, iterationResults, experimentResults):
         # Check to see if we want to do anything with this data, based on the LoadingFilters.
         # Careful here to use .value, otherwise it will always be True if the dataset exists.
-        if (not self.add_only_filtered_data) or (('analysis/loading_filter' in measurementResults) and measurementResults['analysis/loading_filter'].value):
+        if self.enable:
+            if (not self.add_only_filtered_data) or (('analysis/loading_filter' in measurementResults) and measurementResults['analysis/loading_filter'].value):
 
-            d = numpy.array([measurementResults['analysis/squareROIsums']])
+                d = numpy.array([measurementResults['analysis/squareROIsums']])
 
-            if self.current_iteration_data is None:
-                #on first measurement of an iteration, start anew
-                new_iteration = True
-                self.current_iteration_data = d
-            else:
-                #else append
-                new_iteration = False
-                self.current_iteration_data = numpy.append(self.current_iteration_data, d, axis=0)
-
-            # average across measurements
-            # keepdims gives result with size (1 x shots X rois)
-            mean = numpy.mean(self.current_iteration_data, axis=0, keepdims=True)
-            #find standard deviation
-            sigma = numpy.std(self.current_iteration_data, axis=0, keepdims=True)/numpy.sqrt(len(self.current_iteration_data))
-
-            if self.mean is None:
-                #on first iteration start anew
-                self.mean = mean
-                self.sigma = sigma
-            else:
-                if new_iteration:
-                    #append
-                    self.mean = numpy.append(self.mean, mean, axis=0)
-                    self.sigma = numpy.append(self.sigma, sigma, axis=0)
+                if self.current_iteration_data is None:
+                    #on first measurement of an iteration, start anew
+                    new_iteration = True
+                    self.current_iteration_data = d
                 else:
-                    #replace last entry
-                    self.mean[-1] = mean
-                    self.sigma[-1] = sigma
-            self.updateFigure()
+                    #else append
+                    new_iteration = False
+                    self.current_iteration_data = numpy.append(self.current_iteration_data, d, axis=0)
+
+                # average across measurements
+                # keepdims gives result with size (1 x shots X rois)
+                mean = numpy.mean(self.current_iteration_data, axis=0, keepdims=True)
+                #find standard deviation
+                sigma = numpy.std(self.current_iteration_data, axis=0, keepdims=True)/numpy.sqrt(len(self.current_iteration_data))
+
+                if self.mean is None:
+                    #on first iteration start anew
+                    self.mean = mean
+                    self.sigma = sigma
+                else:
+                    if new_iteration:
+                        #append
+                        self.mean = numpy.append(self.mean, mean, axis=0)
+                        self.sigma = numpy.append(self.sigma, sigma, axis=0)
+                    else:
+                        #replace last entry
+                        self.mean[-1] = mean
+                        self.sigma[-1] = sigma
+                self.updateFigure()
 
     @observe('list_of_what_to_plot', 'draw_connecting_lines', 'ymin', 'ymax')
     def reload(self, change):
@@ -732,13 +763,20 @@ class IterationsGraph(AnalysisWithFigure):
 
                 if self.mean is not None:
                     #parse the list of what to plot from a string to a list of numbers
-                    plotlist = eval(self.list_of_what_to_plot)
-
+                    try:
+                        plotlist = eval(self.list_of_what_to_plot)
+                    except Exception as e:
+                        logger.warning('Could not eval plotlist in IterationsGraph:\n{}\n'.format(e))
+                        return
                     #make one plot
                     ax = fig.add_subplot(111)
                     for i in plotlist:
-                        mean = self.mean[:, i[0], i[1]]
-                        sigma = self.sigma[:, i[0], i[1]]
+                        try:
+                            mean = self.mean[:, i[0], i[1]]
+                            sigma = self.sigma[:, i[0], i[1]]
+                        except:
+                            logger.warning('Trying to plot data that does not exist in IterationsGraph: shot {} roi {}'.format(i[0], i[1]))
+                            continue
                         label = '({},{})'.format(i[0], i[1])
                         linestyle = '-o' if self.draw_connecting_lines else 'o'
                         if self.draw_error_bars:
@@ -762,6 +800,7 @@ class IterationsGraph(AnalysisWithFigure):
 
 class RetentionGraph(AnalysisWithFigure):
     """Plots the average of a region of interest sum for an iteration, after each iteration"""
+    enable = Bool()
     mean = Member()
     sigma = Member()
     current_iteration_data = Member()
@@ -775,7 +814,7 @@ class RetentionGraph(AnalysisWithFigure):
 
     def __init__(self, name, experiment, description=''):
         super(RetentionGraph, self).__init__(name, experiment, description)
-        self.properties += ['list_of_what_to_plot', 'draw_connecting_lines', 'draw_error_bars', 'ymin', 'ymax']
+        self.properties += ['enable', 'list_of_what_to_plot', 'draw_connecting_lines', 'draw_error_bars', 'ymin', 'ymax']
 
     def preExperiment(self, experimentResults):
         #erase the old data at the start of the experiment
@@ -786,45 +825,46 @@ class RetentionGraph(AnalysisWithFigure):
         self.current_iteration_data = None
 
     def analyzeMeasurement(self, measurementResults, iterationResults, experimentResults):
-        """Every measurement, update the results.  Plot the """
+        """Every measurement, update the results.  Plot the ratio of shots with an atom to shots without."""
         # Check to see if we want to do anything with this data, based on the LoadingFilters.
         # Careful here to use .value, otherwise it will always be True if the dataset exists.
-        if (not self.add_only_filtered_data) or (('analysis/loading_filter' in measurementResults) and measurementResults['analysis/loading_filter'].value):
+        if self.enable:
+            if (not self.add_only_filtered_data) or (('analysis/loading_filter' in measurementResults) and measurementResults['analysis/loading_filter'].value):
 
-            # grab already thresholded data from SquareROIAnalysis
-            a = measurementResults['analysis/squareROIthresholded']
-            # add one dimension to the data to help with appending
-            d = numpy.reshape(a, (1, a.shape[0], a.shape[1]))
+                # grab already thresholded data from SquareROIAnalysis
+                a = measurementResults['analysis/squareROIthresholded']
+                # add one dimension to the data to help with appending
+                d = numpy.reshape(a, (1, a.shape[0], a.shape[1]))
 
-            if self.current_iteration_data is None:
-                #on first measurement of an iteration, start anew
-                new_iteration = True
-                self.current_iteration_data = d
-            else:
-                #else append
-                new_iteration = False
-                self.current_iteration_data = numpy.append(self.current_iteration_data, d, axis=0)
-
-            # average across measurements
-            # keepdims gives result with size (1 x shots X rois)
-            mean = numpy.mean(self.current_iteration_data, axis=0, keepdims=True)
-            #find the 1 sigma confidence interval using the normal approximation: http://en.wikipedia.org/wiki/Binomial_proportion_confidence_interval
-            sigma = numpy.sqrt(mean*(1-mean)/len(self.current_iteration_data))
-
-            if self.mean is None:
-                #on first iteration start anew
-                self.mean = mean
-                self.sigma = sigma
-            else:
-                if new_iteration:
-                    #append
-                    self.mean = numpy.append(self.mean, mean, axis=0)
-                    self.sigma = numpy.append(self.sigma, sigma, axis=0)
+                if self.current_iteration_data is None:
+                    #on first measurement of an iteration, start anew
+                    new_iteration = True
+                    self.current_iteration_data = d
                 else:
-                    #replace last entry
-                    self.mean[-1] = mean
-                    self.sigma[-1] = sigma
-            self.updateFigure()
+                    #else append
+                    new_iteration = False
+                    self.current_iteration_data = numpy.append(self.current_iteration_data, d, axis=0)
+
+                # average across measurements
+                # keepdims gives result with size (1 x shots X rois)
+                mean = numpy.mean(self.current_iteration_data, axis=0, keepdims=True)
+                #find the 1 sigma confidence interval using the normal approximation: http://en.wikipedia.org/wiki/Binomial_proportion_confidence_interval
+                sigma = numpy.sqrt(mean*(1-mean)/len(self.current_iteration_data))
+
+                if self.mean is None:
+                    #on first iteration start anew
+                    self.mean = mean
+                    self.sigma = sigma
+                else:
+                    if new_iteration:
+                        #append
+                        self.mean = numpy.append(self.mean, mean, axis=0)
+                        self.sigma = numpy.append(self.sigma, sigma, axis=0)
+                    else:
+                        #replace last entry
+                        self.mean[-1] = mean
+                        self.sigma[-1] = sigma
+                self.updateFigure()
 
     @observe('list_of_what_to_plot', 'draw_connecting_lines', 'draw_error_bars', 'ymin', 'ymax')
     def reload(self, change):
@@ -839,13 +879,20 @@ class RetentionGraph(AnalysisWithFigure):
 
                 if self.mean is not None:
                     #parse the list of what to plot from a string to a list of numbers
-                    plotlist = eval(self.list_of_what_to_plot)
-
+                    try:
+                        plotlist = eval(self.list_of_what_to_plot)
+                    except Exception as e:
+                        logger.warning('Could not eval plotlist in RetentionGraph:\n{}\n'.format(e))
+                        return
                     #make one plot
                     ax = fig.add_subplot(111)
                     for i in plotlist:
-                        mean = self.mean[:, i[0], i[1]]
-                        sigma = self.sigma[:, i[0], i[1]]
+                        try:
+                            mean = self.mean[:, i[0], i[1]]
+                            sigma = self.sigma[:, i[0], i[1]]
+                        except:
+                            logger.warning('Trying to plot data that does not exist in RetentionGraph: shot {} roi {}'.format(i[0], i[1]))
+                            continue
                         label = '({},{})'.format(i[0], i[1])
                         linestyle = '-o' if self.draw_connecting_lines else 'o'
                         if self.draw_error_bars:
@@ -868,7 +915,181 @@ class RetentionGraph(AnalysisWithFigure):
 
 
 class OptimizerAnalysis(AnalysisWithFigure):
-    costfunction = Str('')
-    
+    #cost_function = Str()
+    cost_history = Member()  # stores the evaluation of the cost function for each iteration
+    cost_function_handle = Member()
+
     def __init__(self, experiment):
         super(OptimizerAnalysis, self).__init__('OptimizerAnalysis', experiment, 'updates independent variables to minimize cost function')
+
+    def preExperiment(self, experimentResults):
+        super(OptimizerAnalysis, self).preExperiment(experimentResults)
+        self.costfunction_handle = eval(costfunction)
+
+    def postIteration(self, iterationResults, experimentResults):
+        """Evaluate the average of the cost function, and use that info to update independent variables."""
+        costfunction_handle = eval(costfunction)
+
+
+class LoadingOptimization(AnalysisWithFigure):
+    version = '2014.05.07'
+    enable = Bool()  # whether or not to activate this optimization
+    axes = Member()
+    xi = Member()  # the current settings (len=axes)
+    yi = Member()  # the current cost
+    xlist = Member()  # a history of the settings (shape=(iterations,axes))
+    ylist = Member()  # a history of the costs (shape=(iterations))
+    generator = Member()
+
+    def __init__(self, name, experiment, description=''):
+        super(LoadingOptimization, self).__init__(name, experiment, description)
+        self.properties += ['version', 'enable']
+
+    def preExperiment(self, experimentResults):
+        if self.enable:
+
+            #start all the independent variables at the value given for the 0th iteration
+            x0 = numpy.array([i.valueList[0] for i in self.experiment.independentVariables])
+            self.axes = len(x0)
+            self.xi = x0
+
+            #create a new generator to choose optimization points
+            self.generator = self.simplex(x0)
+
+            self.xlist = []
+            self.ylist = []
+
+    def postIteration(self, iterationResults, experimentResults):
+        if self.enable:
+
+            # evaluate cost of iteration just finished
+            # sum up all the loaded atoms from shot 0 in all regions in all measurements
+            # (negative because cost will be minimized, must convert to float otherwise negative wraps around)
+            self.yi = -numpy.sum(numpy.array([i['analysis/squareROIsums'][0] for i in iterationResults['measurements'].itervalues()]),dtype=numpy.float64)
+            self.xlist.append(self.xi)
+            self.ylist.append(self.yi)
+
+            # let the simplex generator decide on the next point to look at
+            self.xi = self.generator.next()
+            self.setVars(self.xi)
+            self.updateFigure()
+
+    def updateFigure(self):
+        fig = self.backFigure
+        fig.clf()
+
+        # plot cost
+        ax = fig.add_subplot(self.axes+2, 1, 1)
+        ax.plot(self.ylist)
+        ax.set_ylabel('cost')
+
+        # plot settings
+        d = numpy.array(self.xlist).T
+        for i in range(self.axes):
+            ax = fig.add_subplot(self.axes+2, 1, i+2)
+            ax.plot(d[i])
+            ax.set_ylabel(self.experiment.independentVariables[i].name)
+
+        super(LoadingOptimization, self).updateFigure()
+
+    def setVars(self, xi):
+        for i, x in zip(self.experiment.independentVariables, xi):
+            i.currentValue = x
+            i.set_gui({'currentValueStr': str(x)})
+
+    #Nelder-Mead downhill simplex method
+    def simplex(self, x0):
+        """Perform the simplex algorithm.  x is 2D array of settings.  y is a 1D array of costs at each of those settings.
+        When comparisons are made, lower is better."""
+
+        #x0 is assigned when this generator is created, but nothing else is done until the first time next() is called
+
+        axes = len(x0)
+        n = axes + 1
+        x = numpy.zeros((n, axes))
+        y = numpy.zeros(n)
+        x[0] = self.xi
+        y[0] = self.yi
+
+        # for the first several measurements, we just explore the cardinal axes to create the simplex
+        for i in range(axes):
+            print 'exploring axis', i
+            # for the new settings, start with the inital settings and then modify them by unit vectors
+            xi = x0.copy()
+            if xi[i] == 0:
+                xi[i] = .1
+            else:
+                xi[i] *= .95  # TODO: allow this jump to be specified
+            yield xi
+            x[i+1] = self.xi
+            y[i+1] = self.yi
+
+        while True:  # TODO: some exit condition?
+
+            # order the values
+            order = numpy.argsort(y)
+            x[:] = x[order]
+            y[:] = y[order]
+
+            #find the mean of all except the worst point
+            x0 = numpy.mean(x[:-1], axis=0)
+
+            #reflection
+            logger.info('reflecting')
+            # reflect the worst point in the mean of the other points, to try and find a better point on the other side
+            a = 1
+            xr = x0+a*(x0-x[-1])
+            #yr = datapoint(xr)
+            yield xr
+            yr = self.yi
+
+            if y[0] <= yr < y[-2]:
+                #if the new point is no longer the worst, but not the best, use it to replace the worst point
+                logger.info('keeping reflection')
+                x[-1, :] = xr[:]
+                y[-1] = yr
+
+            #expansion
+            elif yr < y[0]:
+                logger.info('expanding')
+                #if the new point is the best, keep going in that direction
+                b = 2
+                xe = x0+b*(x0-x[-1])
+                #ye = datapoint(xe)
+                yield xe
+                ye = self.yi
+                if ye < yr:
+                    #if this expanded point is even better than the initial reflection, keep it
+                    logger.info('keeping expansion')
+                    x[-1, :] = xe[:]
+                    y[-1] = ye
+                else:
+                    #if the expanded point is not any better than the reflection, use the reflection
+                    logger.info('keeping reflection (after expansion)')
+                    x[-1, :] = xr[:]
+                    y[-1] = yr
+
+            #contraction
+            else:
+                print 'contracting'
+                # The reflected point is still worse than all other points, so try not crossing over the mean, but instead
+                # go halfway between the original worst point and the mean.
+                c = -0.5
+                xc = x0+c*(x0-x[-1])
+                #yc = datapoint(xc)
+                yield xc
+                yc = self.yi
+                if yc < y[-1]:
+                    #if the contracted point is better than the original worst point, keep it
+                    print 'keeping contraction'
+                    x[-1, :] = xc[:]
+                    y[-1] = yc
+
+                #reduction
+                else:
+                    # the contracted point is the worst of all points considered.  So reduce the size of the whole simplex,
+                    # bringing each point in halfway towards the best point
+                    print 'reducing'
+                    d = 0.5
+                    for i in range(1, len(x)):
+                        x[i] = x[0]+d*(x[i]-x[0])
