@@ -615,7 +615,7 @@ class HistogramAnalysis(AnalysisWithFigure):
                     rois = [i[1] for i in plotlist]
                     data = self.all_shots_array[:, shots, rois]
                     bins = int(1.2*numpy.rint(numpy.sqrt(len(data))))
-                    ax.hist(data, bins, histtype='step', label=self.list_of_what_to_plot[1:-1].split(','))
+                    ax.hist(data, bins, histtype='step', label=['({},{})'.format(i[0], i[1]) for i in plotlist])
                     ax.legend()
                 super(HistogramAnalysis, self).updateFigure()
             except Exception as e:
