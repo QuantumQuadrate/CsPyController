@@ -165,6 +165,7 @@ class Experiment(Prop):
     log = Member()
     log_handler = Member()
     gui = Member() #a reference to the gui Main, for use in Prop.set_gui
+    experiment_type = Str()
 
     def __init__(self):
         """Defines a set of instruments, and a sequence of what to do with them."""
@@ -453,7 +454,14 @@ class Experiment(Prop):
         self.set_status('paused before experiment')
 
     def goThread(self):
-        thread = threading.Thread(target=self.go)
+        if self.experiment_type == 'iterations':
+            target = self.go
+        elif self.experiment_type == 'optimization':
+            target = self.optimize_go
+        else:
+            logger.warning('Unknown experiment type in experiment.goThread.  You need to have started an experiment before trying to continue it.')
+            return
+        thread = threading.Thread(target=target)
         thread.daemon = True
         thread.start()
     
@@ -464,6 +472,7 @@ class Experiment(Prop):
         if not self.status.startswith('paused'):
             logger.info('Current status is {}. Cannot continue an experiment unless status is paused.'.format(self.status))
             return  # exit
+        self.experiment_type = 'iterations'
         self.set_status('running')  # prevent another experiment from being started at the same time
         self.set_gui({'valid': True})
         logger.info('running experiment')
@@ -544,6 +553,7 @@ class Experiment(Prop):
         if not self.status.startswith('paused'):
             logger.info('Current status is {}. Cannot continue an experiment unless status is paused.'.format(self.status))
             return  # exit
+        self.experiment_type = 'optimization'
         self.set_status('running')  # prevent another experiment from being started at the same time
         self.set_gui({'valid': True})
         logger.info('running optimization')

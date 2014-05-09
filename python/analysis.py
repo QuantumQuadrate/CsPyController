@@ -28,11 +28,11 @@ def mpl_rectangle(ax, ROI):
     right = ROI[2] - 0.5
     bottom = ROI[3] - 0.5
     verts = [
-        (left, bottom), # left, bottom
-        (left, top), # left, top
-        (right, top), # right, top
-        (right, bottom), # right, bottom
-        (0., 0.), # ignored
+        (left, bottom),  # left, bottom
+        (left, top),  # left, top
+        (right, top),  # right, top
+        (right, bottom),  # right, bottom
+        (0., 0.),  # ignored
         ]
 
     codes = [Path.MOVETO,
@@ -49,14 +49,17 @@ def mpl_rectangle(ax, ROI):
 
 class Analysis(Prop):
     """This is the parent class for all data analyses.  New analyses should subclass off this,
-    and redefine at least one of preExperiment(), preIteration(), postMeasurement(), postIteration() or postExperiment().
-    You can enable multi-threading of analyses using queueAfterMeasurement and queueAfterIteration, but only if those results are not needed for other things (filtering, other analyses, optimization).
-    If multi-threading, you can also chose to dropMeasurementIfSlow or dropIterationIfSlow, which will not delete the data but will just not process it.
-    An analysis can return a success code after analyzeMesurement, which can be used to filter results.  The highest returned code dominates others:
+    and redefine at least one of preExperiment(), preIteration(), postMeasurement(), postIteration() or
+    postExperiment().  You can enable multi-threading of analyses using queueAfterMeasurement and queueAfterIteration,
+    but only if those results are not needed for other things (filtering, other analyses, optimization).  If
+    multi-threading, you can also chose to dropMeasurementIfSlow or dropIterationIfSlow, which will not delete the data
+    but will just not process it.  An analysis can return a success code after analyzeMesurement, which can be used to
+    filter results.  The highest returned code dominates others:
         0 or None: good measurement, increment measurement total
         1: soft fail, continue with other analyses, but do not increment measurement total
         2: med fail, continue with other analyses, do not increment measurement total, and delete measurement data after all analyses
-        3: hard fail, do not continue with other analyses, do not increment measurement total, delete measurement data"""
+        3: hard fail, do not continue with other analyses, do not increment measurement total, delete measurement data
+    """
     
     queueAfterMeasurement = Bool()  # Set to True to allow multi-threading on this analysis.  Only do this if you are NOT filtering on this analysis, and if you do NOT depend on the results of this analysis later. Default is False.
     dropMeasurementIfSlow = Bool()  # Set to True to skip measurements when slow.  Applies only to multi-threading.  Raw data can still be used post-iteration and post-experiment. Default is False.
@@ -146,24 +149,24 @@ class Analysis(Prop):
 class AnalysisWithFigure(Analysis):
     
     #matplotlib figures
-    figure=Typed(Figure)
-    backFigure=Typed(Figure)
-    figure1=Typed(Figure)
-    figure2=Typed(Figure)
+    figure = Typed(Figure)
+    backFigure = Typed(Figure)
+    figure1 = Typed(Figure)
+    figure2 = Typed(Figure)
     
-    def __init__(self,name,experiment,description=''):
-        super(AnalysisWithFigure,self).__init__(name,experiment,description)
+    def __init__(self, name, experiment, description=''):
+        super(AnalysisWithFigure, self).__init__(name, experiment, description)
         
         #set up the matplotlib figures
-        self.figure1=Figure()
-        self.figure2=Figure()
-        self.backFigure=self.figure2
-        self.figure=self.figure1
+        self.figure1 = Figure()
+        self.figure2 = Figure()
+        self.backFigure = self.figure2
+        self.figure = self.figure1
     
     def swapFigures(self):
-        temp=self.backFigure
-        self.backFigure=self.figure
-        self.figure=temp
+        temp = self.backFigure
+        self.backFigure = self.figure
+        self.figure = temp
     
     def updateFigure(self):
         #signal the GUI to redraw figure
@@ -173,21 +176,23 @@ class AnalysisWithFigure(Analysis):
             self.swapFigures()
 
     def blankFigure(self):
-        fig=self.backFigure
+        fig = self.backFigure
         fig.clf()
-        super(AnalysisWithFigure,self).updateFigure()
+        super(AnalysisWithFigure, self).updateFigure()
 
 class TextAnalysis(Analysis):
     #Text output that can be updated back to the GUI
     text = Str()
 
     def __init__(self, name, experiment, description=''):
-        super(TextAnalysis,self).__init__(name, experiment, description)
+        super(TextAnalysis, self).__init__(name, experiment, description)
         self.properties += ['text']
 
     def analyzeMeasurement(self, measurementResults, iterationResults, experimentResults):
         try:
-            text = 'iteration {} measurement {}\nCamera temperature: {} C'.format(iterationResults.attrs['iteration'],measurementResults.name.split('/')[-1],measurementResults['data/Hamamatsu/temperature'].value)
+            text = 'iteration {} measurement {}\nCamera temperature: {} C'.format(iterationResults.attrs['iteration'],
+                                                              measurementResults.name.split('/')[-1],
+                                                              measurementResults['data/Hamamatsu/temperature'].value)
         except KeyError as e:
             logger.warning('HDF5 text does not exist in TextAnalysis\n{}\n'.format(e))
             return
@@ -756,14 +761,14 @@ class HistogramGrid(AnalysisWithFigure):
                         #plot histogram
                         x = numpy.zeros(bins+2)
                         x[1:] = bin_edges_list[n]
-                        y = numpy.zeros(bins+2,dtype=int)
+                        y = numpy.zeros(bins+2, dtype=int)
                         y[1:-1] = hists[n]
                         ax.step(x, y, where='post')
                         ax.set_xlim([overall_min, overall_max])
                         ax.set_ylim([0, overall_maxcount])
                         ax.set_title('site '+str(n), size=font)
                         ax.set_xticks([best_mean1s[n], best_cutoffs[n], best_mean2s[n], overall_max])
-                        ax.set_xticklabels([str(int(best_mean1s[n]/1000)), str(int(best_cutoffs[n]/1000)),str(int(best_mean2s[n]/1000)), 'e3'], size=font)
+                        ax.set_xticklabels([str(int(best_mean1s[n]/1000)), str(int(best_cutoffs[n]/1000)), str(int(best_mean2s[n]/1000)), 'e3'], size=font)
                         ax.set_yticks([0, max(best_g1s[n]), max(best_g2s[n])])
                         ax.set_yticklabels([str(0), str(int(max(best_g1s[n]))), str(int(max(best_g2s[n])))], size=font)
                         #plot gaussians
@@ -1096,6 +1101,8 @@ class LoadingOptimization(AnalysisWithFigure):
     yi = Member()  # the current cost
     xlist = Member()  # a history of the settings (shape=(iterations,axes))
     ylist = Member()  # a history of the costs (shape=(iterations))
+    best_xi = Member()
+    best_yi = Member()
     generator = Member()
 
     def __init__(self, name, experiment, description=''):
@@ -1115,6 +1122,8 @@ class LoadingOptimization(AnalysisWithFigure):
 
             self.xlist = []
             self.ylist = []
+            self.best_xi = None
+            self.best_yi = float(inf)
 
     def postIteration(self, iterationResults, experimentResults):
         if self.enable:
@@ -1125,6 +1134,9 @@ class LoadingOptimization(AnalysisWithFigure):
             self.yi = -numpy.sum(numpy.array([i['analysis/squareROIsums'][0] for i in iterationResults['measurements'].itervalues()]),dtype=numpy.float64)
             iterationResults['analysis/optimization_xi'] = self.xi
             iterationResults['analysis/optimization_yi'] = self.yi
+            if self.yi < self.best_yi:
+                self.best_xi = self.xi
+                self.best_yi = self.yi
             self.xlist.append(self.xi)
             self.ylist.append(self.yi)
 
