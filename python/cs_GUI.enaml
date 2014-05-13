@@ -1464,6 +1464,18 @@ enamldef AnalogOutputPage(Page):
             EvalProp: e12:
                 prop<<AO.exportStartTriggerDestination
 
+enamldef AnalogInput(Container):
+    attr AI
+
+    hug_height = 'strong'
+    hug_width = 'strong'
+
+enamldef Arroyo(Container):
+    attr Arroyo
+
+    hug_height = 'strong'
+    hug_width = 'strong'
+
 enamldef PiezoChannel(Container):
     attr channel
     
@@ -2008,6 +2020,16 @@ enamldef Main(MainWindow): main:
                     AnalogOutputPage:
                         style_class << 'valid' if experiment.valid else 'invalid'
                         AO=main.experiment.LabView.AnalogOutput
+                    #Page:
+                    #    style_class << 'valid' if experiment.valid else 'invalid'
+                    #    title = 'Analog Input'
+                    #    AnalogInput:
+                    #        AI = main.experiment.LabView.AnalogInput
+                    #Page:
+                    #    style_class << 'valid' if experiment.valid else 'invalid'
+                    #    title = 'Arroyo'
+                    #    Arroyo:
+                    #        Arroyo = main.experiment.Arroyo
                     PI_PiezoPage:
                         style_class << 'valid' if experiment.valid else 'invalid'
                         piezo=main.experiment.LabView.piezo
