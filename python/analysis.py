@@ -1123,7 +1123,7 @@ class LoadingOptimization(AnalysisWithFigure):
             self.xlist = []
             self.ylist = []
             self.best_xi = None
-            self.best_yi = float(inf)
+            self.best_yi = float('inf')
 
     def postIteration(self, iterationResults, experimentResults):
         if self.enable:
