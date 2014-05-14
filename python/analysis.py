@@ -1114,7 +1114,7 @@ class LoadingOptimization(AnalysisWithFigure):
 
             #start all the independent variables at the value given for the 0th iteration
             x0 = numpy.array([i.valueList[0] for i in self.experiment.independentVariables])
-            self.axes = len(x0)
+            self.axes = len(self.experiment.independentVariables)
             self.xi = x0
 
             #create a new generator to choose optimization points
@@ -1131,7 +1131,7 @@ class LoadingOptimization(AnalysisWithFigure):
             # evaluate cost of iteration just finished
             # sum up all the loaded atoms from shot 0 in region 24
             # (negative because cost will be minimized, must convert to float otherwise negative wraps around)
-            self.yi = -(2*numpy.sum(numpy.array([m['analysis/squareROIsums'][0][24] for m in iterationResults['measurements'].itervalues()]), dtype=numpy.float64) - numpy.sum(numpy.array([m['data/Hamamatsu/shots/0'] for m in iterationResults['measurements'].itervalues()]), dtype=numpy.float64))
+            self.yi = -numpy.sum(numpy.array([m['analysis/squareROIsums'][0][24] for m in iterationResults['measurements'].itervalues()]), dtype=numpy.float64)
 
             iterationResults['analysis/optimization_xi'] = self.xi
             iterationResults['analysis/optimization_yi'] = self.yi
