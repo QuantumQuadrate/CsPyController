@@ -1131,7 +1131,8 @@ class LoadingOptimization(AnalysisWithFigure):
             # evaluate cost of iteration just finished
             # sum up all the loaded atoms from shot 0 in region 24
             # (negative because cost will be minimized, must convert to float otherwise negative wraps around)
-            self.yi = -numpy.sum(numpy.array([m['analysis/squareROIsums'][0][24] for m in iterationResults['measurements'].itervalues()]), dtype=numpy.float64)
+            #self.yi = -numpy.sum(numpy.array([m['analysis/squareROIsums'][0][24] for m in iterationResults['measurements'].itervalues()]), dtype=numpy.float64)
+            self.yi = numpy.sum(numpy.array([m['analysis/squareROIthresholded'][1] for m in iterationResults['measurements'].itervalues()]))
 
             iterationResults['analysis/optimization_xi'] = self.xi
             iterationResults['analysis/optimization_yi'] = self.yi
