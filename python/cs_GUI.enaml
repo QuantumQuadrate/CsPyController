@@ -1926,9 +1926,9 @@ enamldef Optimizer(Form):
         index = 0
         enabled = False
     Label:
-        text='Initial Step (%)'
+        text='Initial Step (fraction)'
     FloatField:
-        value := analysis.inital_step
+        value := analysis.initial_step
 
     MPLCanvas: canvas:
         constraints=[(height==1000)|'strong',(width==1000)|'strong']
