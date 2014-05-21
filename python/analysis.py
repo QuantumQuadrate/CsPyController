@@ -1152,7 +1152,7 @@ class LoadingOptimization(AnalysisWithFigure):
 
             #normalize by pixels
             signal = region_sum*1.0/region_pixels
-            noise = background_sum*1.0/image_pixels
+            noise = background_sum*1.0/background_pixels
 
             self.yi = -signal/noise
 
