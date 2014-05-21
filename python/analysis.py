@@ -1214,7 +1214,7 @@ class LoadingOptimization(AnalysisWithFigure):
             if xi[i] == 0:
                 xi[i] = .1
             else:
-                xi[i] *= 1.05  # TODO: allow this jump to be specified
+                xi[i] *= 1.01  # TODO: allow this jump to be specified
             yield xi
             x[i+1] = self.xi
             y[i+1] = self.yi
