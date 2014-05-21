@@ -1129,10 +1129,32 @@ class LoadingOptimization(AnalysisWithFigure):
         if self.enable:
 
             # evaluate cost of iteration just finished
+
             # sum up all the loaded atoms from shot 0 in region 24
             # (negative because cost will be minimized, must convert to float otherwise negative wraps around)
             #self.yi = -numpy.sum(numpy.array([m['analysis/squareROIsums'][0][24] for m in iterationResults['measurements'].itervalues()]), dtype=numpy.float64)
-            self.yi = numpy.sum(numpy.array([m['analysis/squareROIthresholded'][1] for m in iterationResults['measurements'].itervalues()]))
+
+            # take the retention in shot 1
+            #self.yi = numpy.sum(numpy.array([m['analysis/squareROIthresholded'][1] for m in iterationResults['measurements'].itervalues()]))
+
+            # take the signal-to-noise in shot 1 for all regions
+            region_sum = numpy.sum(numpy.array([m['analysis/squareROIsums'][1] for m in iterationResults['measurements'].itervalues()]))
+
+            # background is the whole shot 1, except the regions
+            all_sum = numpy.sum(numpy.array([m['data/Hamamatsu/shots/1'] for m in iterationResults['measurements'].itervalues()]))
+            background_sum = all_sum - region_sum
+
+            # get the size of an image
+            region_pixels = 49*9  # 49 regions, 3x3 pixels each
+            image_shape = numpy.shape(iterationResults['measurements/0/data/Hamamatsu/shots/1'])
+            image_pixels = image_shape[0]*image_shape[1]
+            background_pixels = image_pixels - region_pixels
+
+            #normalize by pixels
+            signal = region_sum*1.0/region_pixels
+            noise = background_sum*1.0/image_pixels
+
+            self.yi = -signal/noise
 
             iterationResults['analysis/optimization_xi'] = self.xi
             iterationResults['analysis/optimization_yi'] = self.yi
@@ -1192,7 +1214,7 @@ class LoadingOptimization(AnalysisWithFigure):
             if xi[i] == 0:
                 xi[i] = .1
             else:
-                xi[i] *= 1.5  # TODO: allow this jump to be specified
+                xi[i] *= 1.05  # TODO: allow this jump to be specified
             yield xi
             x[i+1] = self.xi
             y[i+1] = self.yi
