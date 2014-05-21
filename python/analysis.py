@@ -1185,7 +1185,7 @@ class LoadingOptimization(AnalysisWithFigure):
         y[0] = self.yi
 
         # for the first several measurements, we just explore the cardinal axes to create the simplex
-        for i in range(axes):
+        for i in xrange(axes):
             print 'exploring axis', i
             # for the new settings, start with the inital settings and then modify them by unit vectors
             xi = x0.copy()
