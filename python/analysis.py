@@ -5,7 +5,7 @@ logger = logging.getLogger(__name__)
 
 from cs_errors import PauseError
 
-from atom.api import Bool, Typed, Str, Member, List, Int, observe
+from atom.api import Bool, Typed, Str, Member, List, Int, observe, Float
 from instrument_property import Prop
 import cs_evaluate
 
@@ -1104,10 +1104,11 @@ class LoadingOptimization(AnalysisWithFigure):
     best_xi = Member()
     best_yi = Member()
     generator = Member()
+    initial_step = Float(.01)
 
     def __init__(self, name, experiment, description=''):
         super(LoadingOptimization, self).__init__(name, experiment, description)
-        self.properties += ['version', 'enable']
+        self.properties += ['version', 'enable', 'initial_step']
 
     def preExperiment(self, experimentResults):
         if self.enable:
@@ -1210,7 +1211,7 @@ class LoadingOptimization(AnalysisWithFigure):
             if xi[i] == 0:
                 xi[i] = .1
             else:
-                xi[i] *= 1.01  # TODO: allow this jump to be specified
+                xi[i] *= 1 + self.initial_step
             yield xi
             x[i+1] = self.xi
             y[i+1] = self.yi
