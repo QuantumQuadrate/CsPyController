@@ -1135,7 +1135,7 @@ class LoadingOptimization(AnalysisWithFigure):
             # self.yi = -numpy.sum(numpy.array([m['analysis/squareROIsums'][0][24] for m in iterationResults['measurements'].itervalues()]), dtype=numpy.float64)
 
             # take the retention in shot 1
-            self.yi = numpy.sum(numpy.array([m['analysis/squareROIthresholded'][1] for m in iterationResults['measurements'].itervalues()]))
+            self.yi = -numpy.sum(numpy.array([m['analysis/squareROIthresholded'][1] for m in iterationResults['measurements'].itervalues()]))
 
             # # take the signal-to-noise in shot 1 for all regions
             # region_sum = numpy.sum(numpy.array([m['analysis/squareROIsums'][1] for m in iterationResults['measurements'].itervalues()]))
