@@ -1105,6 +1105,7 @@ class LoadingOptimization(AnalysisWithFigure):
     best_yi = Member()
     generator = Member()
     initial_step = Float(.01)
+    optimization_method = Int(0)
 
     def __init__(self, name, experiment, description=''):
         super(LoadingOptimization, self).__init__(name, experiment, description)
@@ -1119,7 +1120,8 @@ class LoadingOptimization(AnalysisWithFigure):
             self.xi = x0
 
             #create a new generator to choose optimization points
-            self.generator = self.simplex(x0)
+            methods = [self.simplex, self.genetic, self.gradient]
+            self.generator = methods[self.optimization_method](x0)
 
             self.xlist = []
             self.ylist = []
@@ -1166,6 +1168,11 @@ class LoadingOptimization(AnalysisWithFigure):
             self.setVars(self.xi)
             self.updateFigure()
 
+    def postExperiment(self, experimentResults):
+        # store the best point
+        experimentResults['analysis/best_xi'] = self.best_xi
+        experimentResults['analysis/best_yi'] = self.best_yi
+
     def updateFigure(self):
         fig = self.backFigure
         fig.clf()
@@ -1189,6 +1196,46 @@ class LoadingOptimization(AnalysisWithFigure):
             i.currentValue = x
             i.set_gui({'currentValueStr': str(x)})
 
+    def genetic(self, x0):
+        yi = self.yi
+        xi = x0
+        while True:  # TODO: some exit condition?
+
+            # take random step on each axis, gaussian distribution with mean=0 and variance=initial_step
+            x_test = xi * self.initial_step * numpy.random.randn(len(xi))
+
+            # test the new point
+            yield x_test
+
+            # if the new point is better, keep it
+            if self.yi < yi:
+                xi = x_test
+                yi = self.yi
+
+    def gradient(self, x0):
+        axes = len(x0)
+        while True:  # TODO: exit when step size is sufficiently small
+            y0 = self.yi
+
+            # find gradient at the current point by making a small move on each axis
+            dx = numpy.zeros(axes)
+            dy = numpy.zeros(axes)
+            for i in xrange(axes):
+                logger.info('testing gradient on axis' + str(i))
+                x_test = x0.copy()
+                if x_test[i] == 0:
+                    x_test[i] = self.initial_step
+                else:
+                    x_test[i] *= 1 + self.initial_step
+                yield x_test
+                dx[i] = x_test[i]-x0[i]
+                dy[i] = self.yi-y0
+            gradient = dy / dx
+
+            
+
+
+
     #Nelder-Mead downhill simplex method
     def simplex(self, x0):
         """Perform the simplex algorithm.  x is 2D array of settings.  y is a 1D array of costs at each of those settings.
@@ -1205,8 +1252,8 @@ class LoadingOptimization(AnalysisWithFigure):
 
         # for the first several measurements, we just explore the cardinal axes to create the simplex
         for i in xrange(axes):
-            print 'exploring axis', i
-            # for the new settings, start with the inital settings and then modify them by unit vectors
+            logger.info('exploring axis' + str(i))
+            # for the new settings, start with the initial settings and then modify them by unit vectors
             xi = x0.copy()
             if xi[i] == 0:
                 xi[i] = .1
@@ -1263,7 +1310,7 @@ class LoadingOptimization(AnalysisWithFigure):
 
             #contraction
             else:
-                print 'contracting'
+                logger.info('contracting')
                 # The reflected point is still worse than all other points, so try not crossing over the mean, but instead
                 # go halfway between the original worst point and the mean.
                 c = -0.5
@@ -1273,7 +1320,7 @@ class LoadingOptimization(AnalysisWithFigure):
                 yc = self.yi
                 if yc < y[-1]:
                     #if the contracted point is better than the original worst point, keep it
-                    print 'keeping contraction'
+                    logger.info('keeping contraction')
                     x[-1, :] = xc[:]
                     y[-1] = yc
 
@@ -1281,7 +1328,7 @@ class LoadingOptimization(AnalysisWithFigure):
                 else:
                     # the contracted point is the worst of all points considered.  So reduce the size of the whole simplex,
                     # bringing each point in halfway towards the best point
-                    print 'reducing'
+                    logger.info('reducing')
                     d = 0.5
                     for i in range(1, len(x)):
                         x[i] = x[0]+d*(x[i]-x[0])
