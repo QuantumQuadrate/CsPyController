@@ -1914,11 +1914,7 @@ enamldef Optimizer(Form):
         text = 'enable'
     CheckBox:
         checked := analysis.enable
-    #Label:
-    #    text='cost function'
-    #MultilineField:
-    #    constraints=[height==300]
-    #    text:=experiment.optimizer.cost_function
+
     Label:
         text='update method'
     ComboBox:
@@ -1935,6 +1931,13 @@ enamldef Optimizer(Form):
         text='End when step size is less than (fraction) on all axes'
     FloatField:
         value := analysis.end_condition_step_size
+
+    Label:
+        text='cost function'
+    MultilineField:
+        constraints=[height==300]
+        text:=experiment.optimizer.cost_function
+
 
     MPLCanvas: canvas:
         constraints = [(height==1000)|'strong',(width==1000)|'strong']

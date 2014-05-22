@@ -1093,7 +1093,7 @@ class OptimizerAnalysis(AnalysisWithFigure):
         costfunction_handle = eval(costfunction)
 
 
-class LoadingOptimization(AnalysisWithFigure):
+class Optimization(AnalysisWithFigure):
     version = '2014.05.07'
     enable = Bool()  # whether or not to activate this optimization
     axes = Member()
@@ -1107,10 +1107,11 @@ class LoadingOptimization(AnalysisWithFigure):
     initial_step = Float(.01)
     optimization_method = Int(0)
     end_condition_step_size = Float(.0001)
+    cost_function = Str()
 
     def __init__(self, name, experiment, description=''):
-        super(LoadingOptimization, self).__init__(name, experiment, description)
-        self.properties += ['version', 'enable', 'initial_step', 'end_condition_step_size']
+        super(Optimization, self).__init__(name, experiment, description)
+        self.properties += ['version', 'enable', 'initial_step', 'end_condition_step_size', 'cost_function']
 
     def preExperiment(self, experimentResults):
         if self.enable:
@@ -1139,7 +1140,7 @@ class LoadingOptimization(AnalysisWithFigure):
             # self.yi = -numpy.sum(numpy.array([m['analysis/squareROIsums'][0][24] for m in iterationResults['measurements'].itervalues()]), dtype=numpy.float64)
 
             # take the retention in shot 1
-            self.yi = -numpy.sum(numpy.array([m['analysis/squareROIthresholded'][1] for m in iterationResults['measurements'].itervalues()]))
+            #self.yi = -numpy.sum(numpy.array([m['analysis/squareROIthresholded'][1] for m in iterationResults['measurements'].itervalues()]))
 
             # # take the signal-to-noise in shot 1 for all regions
             # region_sum = numpy.sum(numpy.array([m['analysis/squareROIsums'][1] for m in iterationResults['measurements'].itervalues()]))
@@ -1155,6 +1156,12 @@ class LoadingOptimization(AnalysisWithFigure):
             # signal = region_sum*1.0/region_pixels
             # noise = background_sum*1.0/background_pixels
             # self.yi = -signal/noise
+
+            # evaluate the cost function, with access to all backend variables
+            # The cost function must define 'self.yi ='
+            # For example:
+            # self.yi = -numpy.sum(numpy.array([m['analysis/squareROIthresholded'][1] for m in iterationResults['measurements'].itervalues()]))
+            exec(self.cost_function, globals(), locals())
 
             iterationResults['analysis/optimization_xi'] = self.xi
             iterationResults['analysis/optimization_yi'] = self.yi
@@ -1196,7 +1203,7 @@ class LoadingOptimization(AnalysisWithFigure):
             ax.plot(d[i])
             ax.set_ylabel(self.experiment.independentVariables[i].name)
 
-        super(LoadingOptimization, self).updateFigure()
+        super(Optimization, self).updateFigure()
 
     def setVars(self, xi):
         for i, x in zip(self.experiment.independentVariables, xi):

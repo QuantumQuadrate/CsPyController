@@ -1035,7 +1035,7 @@ class AQuA(Experiment):
         self.iterations_graph = analysis.IterationsGraph('iterations_graph', self, 'plot the average of ROI sums vs iterations')
         self.retention_graph = analysis.RetentionGraph('retention_graph', self, 'plot occurence of binary result (i.e. whether or not atoms are there in the 2nd shot)')
         self.save2013Analysis = save2013style.Save2013Analysis(self)
-        self.optimizer = analysis.LoadingOptimization('optimizer', self, 'updates independent variables to maximize shot 0 loading')
+        self.optimizer = analysis.Optimization('optimizer', self, 'updates independent variables to minimize cost function')
         self.analyses += [self.TTL_filters, self.squareROIAnalysis, self.loading_filters, self.text_analysis,
                           self.imageSumAnalysis, self.recent_shot_analysis, self.shotBrowserAnalysis,
                           self.histogramAnalysis, self.histogram_grid, self.measurements_graph, self.iterations_graph,
