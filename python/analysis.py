@@ -1309,7 +1309,8 @@ class Optimization(AnalysisWithFigure):
             x[i+1] = self.xi
             y[i+1] = self.yi
 
-        while True:  # TODO: some exit condition?
+        # loop until all sides of the simplex are smaller than the end_condition
+        while numpy.amax([numpy.sqrt(numpy.sum((x[i]-x[0])**2)) for i in xrange(1, n)]) >= self.end_condition_step_size:
 
             # order the values
             order = numpy.argsort(y)
