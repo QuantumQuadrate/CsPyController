@@ -13,6 +13,7 @@ import cs_evaluate
 from matplotlib.figure import Figure
 from matplotlib.path import Path
 import matplotlib.patches as patches
+from matplotlib.gridspec import GridSpec
 from enaml.application import deferred_call
 
 import threading, numpy, traceback
@@ -753,11 +754,14 @@ class HistogramGrid(AnalysisWithFigure):
                     best_cutoffs.append(cutoff)
 
                 #plot
+                gs1 = gridspec.GridSpec(self.experiment.ROI_rows, self.experiment.ROI_columns)
+                gs1.update(wspace=0.05)
                 font = 9
                 for i in xrange(self.experiment.ROI_rows):
                     for j in xrange(self.experiment.ROI_columns):
                         n = self.experiment.ROI_columns*i+j
-                        ax = fig.add_subplot(7, 7, n+1)
+                        #ax = fig.add_subplot(7, 7, n+1)
+                        ax = fig.add_subplot(gs1[i, j])
                         #plot histogram
                         x = numpy.zeros(bins+2)
                         x[1:] = bin_edges_list[n]
@@ -780,6 +784,8 @@ class HistogramGrid(AnalysisWithFigure):
                         #plot cutoff line
                         ax.vlines(best_cutoffs[n], 0, overall_maxcount)
 
+            # TODO: Use GridSpec so subplots don't overlap?
+            # fig.tight_layout()
             super(HistogramGrid, self).updateFigure()
         except Exception as e:
             logger.warning('Problem in HistogramGrid.updateFigure()\n:{}'.format(e))
