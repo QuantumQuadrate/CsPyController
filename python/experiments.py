@@ -18,7 +18,7 @@ numpy.set_printoptions(formatter=dict(float=lambda t: "%.2e" % t))
 from atom.api import Int, Float, Str, Member, Bool
 
 # Bring in other files in this package
-import cs_evaluate, analysis, save2013style, TTL, LabView, sound
+import cs_evaluate, analysis, save2013style, TTL, LabView, sound, optimization
 from cs_errors import PauseError
 from instrument_property import Prop, EvalProp, ListProp, StrProp
 
@@ -503,15 +503,24 @@ class Experiment(Prop):
                     self.measure()  # tell all instruments to do the experiment sequence and acquire data
                     self.updateTime()  # update the countdown/countup clocks
                     logger.debug('updating measurement count')
-                    self.measurement += 1  # update the measurement count
+
+                    #make sure results are written to disk
+                    logger.debug('flushing hdf5')
+                    self.hdf5.flush()
+
+                    # increment the measurement counter, except at the end
+                    if self.goodMeasurements < self.measurementsPerIteration-1:
+                        self.measurement += 1
+                    else:
+                        break
+
+                    # pause after measurement
                     if self.status == 'running' and self.pauseAfterMeasurement:
                         self.set_status('paused after measurement')
                         self.set_gui({'valid': False})
                         sound.error_sound()
+
                     self.update_gui()
-                    #make sure results are written to disk
-                    logger.debug('flushing hdf5')
-                    self.hdf5.flush()
 
                 # Measurement loop exited, but that might mean we are pause, or an error.
                 # So check to see if we completed the iteration.
@@ -583,15 +592,24 @@ class Experiment(Prop):
                     self.measure()  # tell all instruments to do the experiment sequence and acquire data
                     self.updateTime()  # update the countdown/countup clocks
                     logger.debug('updating measurement count')
-                    self.measurement += 1  # update the measurement count
+
+                    #make sure results are written to disk
+                    logger.debug('flushing hdf5')
+                    self.hdf5.flush()
+
+                    # increment the measurement counter, except at the end
+                    if self.goodMeasurements < self.measurementsPerIteration-1:
+                        self.measurement += 1
+                    else:
+                        break
+
+                    # pause after measurement
                     if self.status == 'running' and self.pauseAfterMeasurement:
                         self.set_status('paused after measurement')
                         self.set_gui({'valid': False})
                         sound.error_sound()
+
                     self.update_gui()
-                    #make sure results are written to disk
-                    logger.debug('flushing hdf5')
-                    self.hdf5.flush()
 
                 # Measurement loop exited, but that could mean either the iteration was completed, or it might mean we
                 # are paused, or that there was error, so check to see if we completed the iteration.
@@ -599,13 +617,20 @@ class Experiment(Prop):
                     logger.debug("Finished iteration")
                     # We have completed this iteration, move on to the next one
                     self.postIteration()  # run analysis
+
+                    # check to see if the optimizer reached an end condition
+                    if self.status == 'end':
+                        self.postExperiment()
+
                     self.iteration += 1
                     self.measurement = 0
                     self.goodMeasurements = 0
+
                     if (self.status == 'running' or self.status == 'paused after measurement') and self.pauseAfterIteration:
                         self.set_status('paused after iteration')
                         self.set_gui({'valid': False})
                         sound.error_sound()
+
         except PauseError:
             #This should be the only place that PauseError is explicitly handed.
             #All other non-fatal error caught higher up in the experiment chain should
@@ -1010,7 +1035,7 @@ class AQuA(Experiment):
         self.iterations_graph = analysis.IterationsGraph('iterations_graph', self, 'plot the average of ROI sums vs iterations')
         self.retention_graph = analysis.RetentionGraph('retention_graph', self, 'plot occurence of binary result (i.e. whether or not atoms are there in the 2nd shot)')
         self.save2013Analysis = save2013style.Save2013Analysis(self)
-        self.optimizer = analysis.LoadingOptimization('optimizer', self, 'updates independent variables to maximize shot 0 loading')
+        self.optimizer = optimization.Optimization('optimizer', self, 'updates independent variables to minimize cost function')
         self.analyses += [self.TTL_filters, self.squareROIAnalysis, self.loading_filters, self.text_analysis,
                           self.imageSumAnalysis, self.recent_shot_analysis, self.shotBrowserAnalysis,
                           self.histogramAnalysis, self.histogram_grid, self.measurements_graph, self.iterations_graph,

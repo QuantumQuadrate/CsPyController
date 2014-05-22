@@ -1914,26 +1914,35 @@ enamldef Optimizer(Form):
         text = 'enable'
     CheckBox:
         checked := analysis.enable
-    #Label:
-    #    text='cost function'
-    #MultilineField:
-    #    constraints=[height==300]
-    #    text:=experiment.optimizer.cost_function
+
     Label:
         text='update method'
     ComboBox:
         items = ['Nelder-Mead','genetic','gradient descent']
-        index = 0
+        index := analysis.optimization_method
         enabled = False
+
     Label:
         text='Initial Step (fraction)'
     FloatField:
         value := analysis.initial_step
 
+    Label:
+        text='End when step size is less than (fraction) on all axes'
+    FloatField:
+        value := analysis.end_condition_step_size
+
+    Label:
+        text='cost function'
+    MultilineField:
+        constraints=[height==300]
+        text:=experiment.optimizer.cost_function
+
+
     MPLCanvas: canvas:
-        constraints=[(height==1000)|'strong',(width==1000)|'strong']
-        hug_width='ignore'
-        figure<<analysis.figure
+        constraints = [(height==1000)|'strong',(width==1000)|'strong']
+        hug_width = 'ignore'
+        figure << analysis.figure
 
 def loadIcon():
     #create icon
