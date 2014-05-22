@@ -1106,10 +1106,11 @@ class LoadingOptimization(AnalysisWithFigure):
     generator = Member()
     initial_step = Float(.01)
     optimization_method = Int(0)
+    end_condition_step_size = Float(.0001)
 
     def __init__(self, name, experiment, description=''):
         super(LoadingOptimization, self).__init__(name, experiment, description)
-        self.properties += ['version', 'enable', 'initial_step']
+        self.properties += ['version', 'enable', 'initial_step', 'end_condition_step_size']
 
     def preExperiment(self, experimentResults):
         if self.enable:
@@ -1164,7 +1165,13 @@ class LoadingOptimization(AnalysisWithFigure):
             self.ylist.append(self.yi)
 
             # let the simplex generator decide on the next point to look at
-            self.xi = self.generator.next()
+            try:
+                self.xi = self.generator.next()
+            except StopIteration:
+                # the optimizer has reached an end condition
+                logger.info('optimizer reached end condition')
+                self.experiment.set_status('end')
+                return
             self.setVars(self.xi)
             self.updateFigure()
 
@@ -1214,9 +1221,9 @@ class LoadingOptimization(AnalysisWithFigure):
 
     def gradient(self, x0):
         axes = len(x0)
-        while True:  # TODO: exit when step size is sufficiently small
-            y0 = self.yi
-
+        step_size = self.initial_step
+        y0 = self.yi
+        while True:
             # find gradient at the current point by making a small move on each axis
             dx = numpy.zeros(axes)
             dy = numpy.zeros(axes)
@@ -1232,8 +1239,40 @@ class LoadingOptimization(AnalysisWithFigure):
                 dy[i] = self.yi-y0
             gradient = dy / dx
 
-            
+            # try a point in this new direction
+            yield x0 + step_size * gradient
 
+            # compare the new point to the old one
+            x_best = x0
+            y_best = y0
+            if self.yi < y_best:
+                # the new point is better, but there may be more room for improvement,
+                # do a line search by doubling the step size as many times as we can,
+                # until there is no more improvement
+                # the loop will enter at least once
+                while self.yi < y_best:
+                    x_best = self.xi
+                    y_best = self.yi
+                    step_size *= 2  # double the step size
+                    yield x0 + step_size * gradient
+                # the line search loop has exited because no more improvement is being found
+                # keep the second to last point and use that as a starting point
+                x0 = x_best
+                y0 = y_best
+            else:
+                # the new point was no improvement, so halve the step size until we find something better
+                while self.yi >= y_best:
+
+                    # or end the optimization if the step size gets sufficiently small
+                    if step_size < self.end_condition_step_size:
+                        raise StopIteration
+
+                    step_size *= 0.5
+                    yield x0 + step_size * gradient
+                # the line search loop has exited because we found a better point
+                # keep the last point and use that as a starting point
+                x0 = self.xi
+                y0 = self.yi
 
 
     #Nelder-Mead downhill simplex method

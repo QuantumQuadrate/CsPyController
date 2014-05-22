@@ -1931,6 +1931,11 @@ enamldef Optimizer(Form):
     FloatField:
         value := analysis.initial_step
 
+    Label:
+        text='End when step size is less than (fraction) on all axes'
+    FloatField:
+        value := analysis.end_condition_step_size
+
     MPLCanvas: canvas:
         constraints = [(height==1000)|'strong',(width==1000)|'strong']
         hug_width = 'ignore'
