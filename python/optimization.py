@@ -116,9 +116,10 @@ class Optimization(AnalysisWithFigure):
             self.updateFigure()
 
     def postExperiment(self, experimentResults):
-        # store the best point
-        experimentResults['analysis/best_xi'] = self.best_xi
-        experimentResults['analysis/best_yi'] = self.best_yi
+        if self.enable:
+            # store the best point
+            experimentResults['analysis/best_xi'] = self.best_xi
+            experimentResults['analysis/best_yi'] = self.best_yi
 
     def updateFigure(self):
         fig = self.backFigure
