@@ -662,7 +662,7 @@ class HistogramGrid(AnalysisWithFigure):
 
             if self.all_shots_array is not None:
                 # take shot 0
-                roidata = self.all_shots_array[:,0,:]
+                roidata = self.all_shots_array[:, 0, :]
                 N = roidata.shape[1]
 
                 #first numerically take histograms
@@ -673,7 +673,7 @@ class HistogramGrid(AnalysisWithFigure):
                 maxs = []
                 maxcounts = []
                 for i in xrange(N):
-                    ROI_sums = roidata[:,i]
+                    ROI_sums = roidata[:, i]
                     hist, bin_edges = numpy.histogram(ROI_sums, bins=bins)
                     hists.append(hist)
                     bin_edges_list.append(bin_edges)
@@ -754,7 +754,7 @@ class HistogramGrid(AnalysisWithFigure):
                     best_cutoffs.append(cutoff)
 
                 #plot
-                gs1 = GridSpec(self.experiment.ROI_rows, self.experiment.ROI_columns,wspace=0.05)
+                gs1 = GridSpec(self.experiment.ROI_rows, self.experiment.ROI_columns, wspace=0.1)
                 font = 9
                 for i in xrange(self.experiment.ROI_rows):
                     for j in xrange(self.experiment.ROI_columns):
