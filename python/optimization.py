@@ -22,6 +22,7 @@ import logging
 logger = logging.getLogger(__name__)
 
 from cs_errors import PauseError
+from Analysis import AnalysisWithFigure
 
 class Optimization(AnalysisWithFigure):
     version = '2014.05.07'
@@ -47,7 +48,7 @@ class Optimization(AnalysisWithFigure):
         if self.enable:
 
             #start all the independent variables at the value given for the 0th iteration
-            x0 = numpy.array([i.valueList[0] for i in self.experiment.independentVariables])
+            x0 = numpy.array([i.valueList[0] for i in self.experiment.independentVariables], dtype=float)
             self.axes = len(self.experiment.independentVariables)
             self.xi = x0
 
