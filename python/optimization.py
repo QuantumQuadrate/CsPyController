@@ -21,8 +21,10 @@ __author__ = 'Martin Lichtman'
 import logging
 logger = logging.getLogger(__name__)
 
-from cs_errors import PauseError
-from Analysis import AnalysisWithFigure
+import numpy
+from atom.api import Bool, Member, Float, Int, Str
+from analysis import AnalysisWithFigure
+
 
 class Optimization(AnalysisWithFigure):
     version = '2014.05.07'
@@ -289,8 +291,8 @@ class Optimization(AnalysisWithFigure):
             #contraction
             else:
                 logger.info('contracting')
-                # The reflected point is still worse than all other points, so try not crossing over the mean, but instead
-                # go halfway between the original worst point and the mean.
+                # The reflected point is still worse than all other points, so try not crossing over the mean,
+                # but instead go halfway between the original worst point and the mean.
                 c = -0.5
                 xc = x0+c*(x0-x[-1])
                 #yc = datapoint(xc)
@@ -304,8 +306,8 @@ class Optimization(AnalysisWithFigure):
 
                 #reduction
                 else:
-                    # the contracted point is the worst of all points considered.  So reduce the size of the whole simplex,
-                    # bringing each point in halfway towards the best point
+                    # the contracted point is the worst of all points considered.  So reduce the size of the whole
+                    # simplex, bringing each point in halfway towards the best point
                     logger.info('reducing')
                     d = 0.5
                     for i in range(1, len(x)):
