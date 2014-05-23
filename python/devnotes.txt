@@ -25,7 +25,6 @@ TODO:
     make dependent variables a fixed-width (courier) font
     add 2nd HSDIO card, and combine them so it looks like 1 card with 64 channels
     a lot of the things that I have done using lists of Prop in ListProp would be better done using a separate numpy array for each property of the Prop (or one array of compound dtype)
-    check analysis
     DAQmxDO grid generation is obtuse (simplify it)
     waveform values are not saved if Validation fails (they erase if a channel is added)
     Ability to send a reset signal to various instruments
@@ -36,11 +35,11 @@ TODO:
     Make ctrl+Q halt
     Blank middle image on bad selector
     Make sure to use deferred_call everywhere necessary
-
+    make histogram grid filled gaussians go down to the bottom, even if they get cut off on the end
     retention graph as difference between shot 0 and 1
 
-
 Done:
+    check analysis
     retention graph
     convert histogram to multiline
     error bars on iteration graph
