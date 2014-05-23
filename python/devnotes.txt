@@ -36,10 +36,13 @@ TODO:
     Make ctrl+Q halt
     Blank middle image on bad selector
     Make sure to use deferred_call everywhere necessary
-    convert histogram to multiline
-    retention graph
+
+    retention graph as difference between shot 0 and 1
+
 
 Done:
+    retention graph
+    convert histogram to multiline
     error bars on iteration graph
     Updating of evaluated numbers for waveform grid
     make sure waveform names updates
