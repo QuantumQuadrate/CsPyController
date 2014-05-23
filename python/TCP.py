@@ -105,7 +105,7 @@ class CsClientSock(CsSock):
     def __init__(self, addressString, portNumber, parent=None):
         self.parent = parent
         super(CsClientSock, self).__init__()
-        print 'connecting to {} port {}'.format(addressString, portNumber)
+        logger.info('connecting to {} port {}'.format(addressString, portNumber))
         try:
             self.connect((addressString, portNumber))
             #TODO: make it non-blocking on send, but blocking on receive?  or make receive a separate thread?  Would need a timeout timer.
@@ -228,7 +228,7 @@ class CsServerSock(CsSock):
                             self.closeConnection()
                             raise PauseError
                     elif data.startswith('<LabView><command>measure</command></LabView>'):
-                        print 'got measure command'
+                        logger.info('got measure command')
                         ##create some dummy data 16-bit 512x512
                         #rows=512; columns=512; bytes=1; signed=''; highbit=2**(8*bytes);
                         #testdata=numpy.random.randint(0,highbit,(rows,columns))
