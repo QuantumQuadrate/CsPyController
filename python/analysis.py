@@ -754,7 +754,7 @@ class HistogramGrid(AnalysisWithFigure):
                     best_cutoffs.append(cutoff)
 
                 #plot
-                gs1 = GridSpec.GridSpec(self.experiment.ROI_rows, self.experiment.ROI_columns,wspace=0.05)
+                gs1 = GridSpec(self.experiment.ROI_rows, self.experiment.ROI_columns,wspace=0.05)
                 font = 9
                 for i in xrange(self.experiment.ROI_rows):
                     for j in xrange(self.experiment.ROI_columns):
