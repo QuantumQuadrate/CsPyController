@@ -754,7 +754,7 @@ class HistogramGrid(AnalysisWithFigure):
                     best_cutoffs.append(cutoff)
 
                 #plot
-                gs1 = gridspec.GridSpec(self.experiment.ROI_rows, self.experiment.ROI_columns)
+                gs1 = GridSpec.GridSpec(self.experiment.ROI_rows, self.experiment.ROI_columns)
                 gs1.update(wspace=0.05)
                 font = 9
                 for i in xrange(self.experiment.ROI_rows):
@@ -784,8 +784,6 @@ class HistogramGrid(AnalysisWithFigure):
                         #plot cutoff line
                         ax.vlines(best_cutoffs[n], 0, overall_maxcount)
 
-            # TODO: Use GridSpec so subplots don't overlap?
-            # fig.tight_layout()
             super(HistogramGrid, self).updateFigure()
         except Exception as e:
             logger.warning('Problem in HistogramGrid.updateFigure()\n:{}'.format(e))
