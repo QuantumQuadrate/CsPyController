@@ -754,7 +754,7 @@ class HistogramGrid(AnalysisWithFigure):
                     best_cutoffs.append(cutoff)
 
                 #plot
-                gs1 = GridSpec(self.experiment.ROI_rows, self.experiment.ROI_columns, wspace=0.25)
+                gs1 = GridSpec(self.experiment.ROI_rows, self.experiment.ROI_columns, wspace=0.1, hspace=0.1)
                 font = 9
                 for i in xrange(self.experiment.ROI_rows):
                     for j in xrange(self.experiment.ROI_columns):
@@ -778,7 +778,7 @@ class HistogramGrid(AnalysisWithFigure):
                         x = numpy.linspace(overall_min, overall_max, 100)
                         y1 = numpy.concatenate([[0], self.gaussian1D(x, best_mean1s[n], best_amplitude1s[n], best_width1s[n]), [0]]) #pad with zeros so that matplotlib fill shows up correctly
                         y2 = numpy.concatenate([[0], self.gaussian1D(x, best_mean2s[n], best_amplitude2s[n], best_width2s[n]), [0]])
-                        x = numpy.concatenate([[0], x, [0]])
+                        x = numpy.concatenate([[0], x, [x[-1]]])
                         ax.fill(x, y1, 'b', x, y2, 'r', alpha=0.5)
                         #plot cutoff line
                         ax.vlines(best_cutoffs[n], 0, overall_maxcount)
