@@ -599,7 +599,7 @@ class HistogramAnalysis(AnalysisWithFigure):
                 fig = self.backFigure
                 fig.clf()
 
-                if self.all_shots_array is not None:
+                if (self.all_shots_array is not None) and (len(self.all_shots_array) > 1):
 
                     #parse the list of what to plot from a string to a list of numbers
                     try:
