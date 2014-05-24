@@ -1920,7 +1920,6 @@ enamldef Optimizer(Form):
     ComboBox:
         items = ['Nelder-Mead','genetic','gradient descent']
         index := analysis.optimization_method
-        enabled = False
 
     Label:
         text='Initial Step (fraction)'
@@ -1937,7 +1936,6 @@ enamldef Optimizer(Form):
     MultilineField:
         constraints=[height==300]
         text:=experiment.optimizer.cost_function
-
 
     MPLCanvas: canvas:
         constraints = [(height==1000)|'strong',(width==1000)|'strong']
