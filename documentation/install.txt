@@ -1,0 +1,8 @@
+install:
+    
+enthought canopy 64-bit
+sign in with academic license
+update all packages
+packages: h5py, pypng, scikit-learn
+
+run with: python python\cs.py
