@@ -634,10 +634,11 @@ class HistogramGrid(AnalysisWithFigure):
     """This class gives a big histogram grid with 0 and 1 atom cutoffs after every iteration."""
     enable = Bool()
     all_shots_array = Member()
+    shot = Int()
 
     def __init__(self, name, experiment, description=''):
         super(HistogramGrid, self).__init__(name, experiment, description)
-        self.properties += ['enable']
+        self.properties += ['enable', 'shot']
 
     def preIteration(self, iterationResults, experimentResults):
         #reset the histogram data
@@ -655,6 +656,11 @@ class HistogramGrid(AnalysisWithFigure):
         g[numpy.isnan(g)] = 0  # eliminate bad elements
         return g
 
+    @observe('shot')
+    def refresh(self, change):
+        if self.enable:
+            self.updateFigure()
+
     def updateFigure(self):
         try:
             fig = self.backFigure
@@ -662,7 +668,7 @@ class HistogramGrid(AnalysisWithFigure):
 
             if self.all_shots_array is not None:
                 # take shot 0
-                roidata = self.all_shots_array[:, 0, :]
+                roidata = self.all_shots_array[:, self.shot, :]
                 N = roidata.shape[1]
 
                 #first numerically take histograms

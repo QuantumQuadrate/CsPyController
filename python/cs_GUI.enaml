@@ -1764,6 +1764,10 @@ enamldef HistogramGrid(Container):
             text = 'enable'
         CheckBox:
             checked := analysis.enable
+        Label:
+            text = 'shot'
+        SpinBox:
+            value := analysis.shot
     MPLCanvas:
         constraints=[(height==900)|'strong',(width==1700)|'strong']
         figure<<analysis.figure

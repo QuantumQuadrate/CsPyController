@@ -598,7 +598,7 @@ class Experiment(Prop):
                     self.hdf5.flush()
 
                     # increment the measurement counter, except at the end
-                    if self.goodMeasurements < self.measurementsPerIteration-1:
+                    if self.goodMeasurements < self.measurementsPerIteration:
                         self.measurement += 1
                     else:
                         break

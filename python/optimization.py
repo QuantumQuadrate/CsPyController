@@ -44,7 +44,7 @@ class Optimization(AnalysisWithFigure):
 
     def __init__(self, name, experiment, description=''):
         super(Optimization, self).__init__(name, experiment, description)
-        self.properties += ['version', 'enable', 'initial_step', 'end_condition_step_size', 'cost_function']
+        self.properties += ['version', 'enable', 'initial_step', 'end_condition_step_size', 'cost_function', 'optimization_method']
 
     def preExperiment(self, experimentResults):
         if self.enable:
@@ -172,16 +172,16 @@ class Optimization(AnalysisWithFigure):
                 logger.info('testing gradient on axis' + str(i))
                 x_test = x0.copy()
                 if x_test[i] == 0:
-                    x_test[i] = self.initial_step
+                    x_test[i] = step_size
                 else:
-                    x_test[i] *= 1 + self.initial_step
+                    x_test[i] *= 1 + step_size
                 yield x_test
                 dx[i] = x_test[i]-x0[i]
                 dy[i] = self.yi-y0
             gradient = dy / dx
 
             # try a point in this new direction
-            yield x0 + step_size * gradient
+            yield x0 - step_size * gradient
 
             # compare the new point to the old one
             x_best = x0
@@ -195,7 +195,7 @@ class Optimization(AnalysisWithFigure):
                     x_best = self.xi
                     y_best = self.yi
                     step_size *= 2  # double the step size
-                    yield x0 + step_size * gradient
+                    yield x0 - step_size * gradient
                 # the line search loop has exited because no more improvement is being found
                 # keep the second to last point and use that as a starting point
                 x0 = x_best
@@ -209,7 +209,7 @@ class Optimization(AnalysisWithFigure):
                         raise StopIteration
 
                     step_size *= 0.5
-                    yield x0 + step_size * gradient
+                    yield x0 - step_size * gradient
                 # the line search loop has exited because we found a better point
                 # keep the last point and use that as a starting point
                 x0 = self.xi
