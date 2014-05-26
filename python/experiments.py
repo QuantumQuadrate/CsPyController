@@ -448,6 +448,8 @@ class Experiment(Prop):
 
         # setup data directory and files
         self.create_data_files()
+        #make sure the independent variables are processed
+        self.evaluateIndependentVariables()
         # run analyses preExperiment
         self.preExperiment()
 
@@ -478,16 +480,13 @@ class Experiment(Prop):
         logger.info('running experiment')
 
         try:  # if there is an error we exit the inner loops and respond appropriately
-            #make sure the independent variables are processed
-            self.evaluateIndependentVariables()
-            
+
             #loop until iteration are complete
             while (self.iteration < self.totalIterations) and (self.status == 'running'):
                 logger.debug("starting new iteration")
                 
                 #at the start of a new iteration, or if we are continuing
                 self.evaluateAll()  # re-calculate all variables
-                
                 self.update()  # send current values to hardware
                 
                 #only at the start of a new iteration
@@ -568,8 +567,6 @@ class Experiment(Prop):
         logger.info('running optimization')
 
         try:  # if there is an error we exit the inner loops and respond appropriately
-            #make sure the independent variables are processed
-            self.evaluateIndependentVariables()
 
             #loop until the OptimizerAnalysis stops us
             while self.status == 'running':
@@ -708,6 +705,7 @@ class Experiment(Prop):
         #set up the results container
         self.measurementResults = self.hdf5.create_group('iterations/'+str(self.iteration)+'/measurements/'+str(self.measurement))
         self.measurementResults.attrs['start_time'] = start_time
+        self.measurementResults.attrs['start_time_str'] = self.date2str(start_time)
         self.measurementResults.attrs['measurement'] = self.measurement
         self.measurementResults.create_group('data') #for storing data
         for i in self.instruments:
@@ -878,7 +876,9 @@ class Experiment(Prop):
                 logger.debug('Autosave closed')
         
         #store independent variable data for experiment
-        self.hdf5.attrs['start_time'] = self.date2str(time.time())
+        t = time.time()
+        self.hdf5.attrs['start_time'] = t
+        self.hdf5.attrs['start_time_str'] = self.date2str(t)
         self.hdf5.attrs['ivarNames'] = self.ivarNames
         #self.hdf5.attrs['ivarValueLists'] = self.ivarValueLists  # temporarily disabled because HDF5 cannot handle arbitrary length lists of lists
         self.hdf5.attrs['ivarSteps'] = self.ivarSteps
@@ -894,7 +894,9 @@ class Experiment(Prop):
     def create_hdf5_iteration(self):
         #write the iteration settings to the hdf5 file
         self.iterationResults = self.hdf5.create_group('iterations/'+str(self.iteration))
-        self.iterationResults.attrs['start_time'] = self.date2str(time.time())
+        t = time.time()
+        self.iterationResults.attrs['start_time'] = t
+        self.iterationResults.attrs['start_time_str'] = self.date2str(t)
         self.iterationResults.attrs['iteration'] = self.iteration
         self.iterationResults.attrs['ivarNames'] = self.ivarNames
         self.iterationResults.attrs['ivarValues'] = [i.currentValue for i in self.independentVariables]

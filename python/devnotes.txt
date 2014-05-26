@@ -37,6 +37,7 @@ TODO:
     Make sure to use deferred_call everywhere necessary
     make histogram grid filled gaussians go down to the bottom, even if they get cut off on the end
     retention graph as difference between shot 0 and 1
+    make sure ivars do not reset when optimization is Continued
 
 Done:
     check analysis

@@ -174,7 +174,7 @@ class Optimization(AnalysisWithFigure):
                 if x_test[i] == 0:
                     x_test[i] = step_size
                 else:
-                    x_test[i] *= 1 + step_size
+                    x_test[i] *= (1 + step_size)
                 yield x_test
                 dx[i] = x_test[i]-x0[i]
                 dy[i] = self.yi-y0
@@ -238,7 +238,7 @@ class Optimization(AnalysisWithFigure):
             if xi[i] == 0:
                 xi[i] = .1
             else:
-                xi[i] *= 1 + self.initial_step
+                xi[i] *= (1 + self.initial_step)
             yield xi
             x[i+1] = self.xi
             y[i+1] = self.yi
