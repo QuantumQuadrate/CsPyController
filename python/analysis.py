@@ -17,6 +17,7 @@ from matplotlib.gridspec import GridSpec
 from enaml.application import deferred_call
 
 import threading, numpy, traceback
+from scipy.optimize import curve_fit
 
 from colors import my_cmap, green_cmap
 
@@ -673,6 +674,9 @@ def gaussian1D(x, x0, a, w):
     g = a/(w*numpy.sqrt(2*numpy.pi))*numpy.exp(-0.5*(x-x0)**2/w**2)  # normalize
     g[numpy.isnan(g)] = 0  # eliminate bad elements
     return g
+    
+def two_gaussians(x,x0,a0,w0,x1,a1,w1):
+    return gaussian1D(x,x0,a0,w0)+gaussian1D(x,x1,a1,w1)
 
 def histogram_grid_plot(fig, roidata, ROI_rows, ROI_columns):
     #takes in a blank figure to work with, and roidata which is size (measurements, num_regions)
@@ -711,6 +715,7 @@ def histogram_grid_plot(fig, roidata, ROI_rows, ROI_columns):
     loading = []
     overlap = []
     xs = []
+    popts=[]
     for i in xrange(N):
         cutoffs = bin_edges_list[i]  # use bin edges as possible cutoff locations
         bin_size = (bin_edges_list[i][1:]-bin_edges_list[i][:-1])
@@ -763,11 +768,11 @@ def histogram_grid_plot(fig, roidata, ROI_rows, ROI_columns):
         #to find a better cutoff:
         #find the lowest point on the sum of the two gaussians
         #go in steps on 1 from peak to peak
-        x = numpy.arange(best_mean1, best_mean2)
-        y1 = gaussian1D(x, best_mean1, best_amplitude1, best_width1)
-        y2 = gaussian1D(x, best_mean2, best_amplitude2, best_width2)
-        y = y1 + y2
-        cutoff = x[numpy.argmin(y)]
+        xc = numpy.arange(best_mean1, best_mean2)
+        y1 = gaussian1D(xc, best_mean1, best_amplitude1, best_width1)
+        y2 = gaussian1D(xc, best_mean2, best_amplitude2, best_width2)
+        yc = y1 + y2
+        cutoff = xc[numpy.argmin(yc)]
         best_cutoffs.append(cutoff)
         
         # calculate the loading
@@ -776,6 +781,11 @@ def histogram_grid_plot(fig, roidata, ROI_rows, ROI_columns):
         #calculalate the overlap
         mins=numpy.amin([y1,y2],axis=0)
         overlap.append(numpy.sum(mins) / (numpy.sum(y1) + numpy.sum(y2)))
+    
+        #now do it using scipy curvefit
+        initial_guess = (best_mean1, best_amplitude1, best_width1, best_mean2, best_amplitude2, best_width2)
+        popt, pcov = curve_fit(two_gaussians, x, y, p0=initial_guess)
+        popts.append(popt)
     
     #plot
     gs1 = GridSpec(ROI_rows+1, ROI_columns+1,
@@ -803,9 +813,10 @@ def histogram_grid_plot(fig, roidata, ROI_rows, ROI_columns):
             ax.set_yticklabels([str(0), str(int(max(best_g1s[n]))), str(int(max(best_g2s[n])))], size=font)
             #plot gaussians
             x = numpy.linspace(overall_min, overall_max, 100)
+            ax.plot(x,two_gaussians(x,*popts[n]),'g--')
             y1 = numpy.concatenate([[0], gaussian1D(x, best_mean1s[n], best_amplitude1s[n], best_width1s[n]), [0]]) #pad with zeros so that matplotlib fill shows up correctly
             y2 = numpy.concatenate([[0], gaussian1D(x, best_mean2s[n], best_amplitude2s[n], best_width2s[n]), [0]])
-            x = numpy.concatenate([[0], x, [x[-1]]])
+            x = numpy.concatenate([[x[0]], x, [x[-1]]])
             ax.fill(x, y1, 'b', x, y2, 'r', alpha=0.5)
             #plot cutoff line
             ax.vlines(best_cutoffs[n], 0, overall_maxcount)

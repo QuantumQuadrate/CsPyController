@@ -1769,7 +1769,7 @@ enamldef HistogramGrid(Container):
         SpinBox:
             value := analysis.shot
     MPLCanvas:
-        constraints=[(height==900)|'strong',(width==1700)|'strong']
+        constraints=[(height==1700)|'strong',(width==1700)|'strong']
         figure<<analysis.figure
 
 enamldef MeasurementsGraph(Container):
