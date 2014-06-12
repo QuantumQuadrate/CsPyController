@@ -36,7 +36,7 @@ end script'''
     return header+middle+wait+footer
 
 def script_from_file(n):
-    with open(r'C:\Users\Saffmanlab\Documents\AQuA_settings\RB\script'+str(n)+'.txt') as f:
+    with open(r'E:\AQuA_settings\RB\script'+str(n)+'.txt') as f:
         return f.read()
 
 def parse_script_wait(script, k8, l5):
