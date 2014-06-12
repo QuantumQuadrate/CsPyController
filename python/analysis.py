@@ -564,6 +564,31 @@ class LoadingFilters(Analysis):
                       'valid': True})
 
 
+class DropFirstMeasurementsFilter(Analysis):
+    """This analysis allows the user to drop the first N measurements in an 
+    iteration, to ensure that all measurements are done at equivalent conditions
+    ."""
+    version = '2014.06.12'
+
+    enable = Bool()
+    filter_level = Int()
+    N = Int()
+    valid = Bool(True)
+
+    def __init__(self, name, experiment, description=''):
+        super(DropFirstMeasurementsFilter, self).__init__(name, experiment, description)
+        self.properties += ['version', 'enable', 'filter_level', 'N']
+
+    def analyzeMeasurement(self, measurementResults, iterationResults, experimentResults):
+        if self.enable:
+            i = measurementResults.attrs['measurement']
+            if i < self.N:
+                if self.filter_expression != '':
+                    # User chooses whether or not to delete data.
+                    # max takes care of ComboBox returning -1 for no selection
+                    logger.info('dropping measurement {} of {}'.format(i,N))
+                    return max(0, self.filter_level)
+
 class HistogramAnalysis(AnalysisWithFigure):
     """This class live updates a histogram as data comes in."""
     enable = Bool()

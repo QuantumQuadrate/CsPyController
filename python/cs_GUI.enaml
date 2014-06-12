@@ -1733,6 +1733,31 @@ enamldef LoadingFilters(GroupBox):
         Label:
             text := filters.text
 
+enamldef FirstMeasurementsFilter(GroupBox):
+    attr filters
+    title = 'Drop First N Measurements Filter'
+
+    Form:
+        Label:
+            text = 'enable'
+        CheckBox:
+            checked := filters.enable
+
+        Label:
+            text = 'How many measurements should we drop at the beginning of each iteration?'
+        SpinBox:
+            minimum = 0
+            value := filters.N
+
+        Label:
+            text = 'filter level'
+        ComboBox:
+            items = ['None: increment measurement total',
+                     'soft: continue with other analyses, but do not increment measurement total',
+                     'med: continue with other analyses, do not increment measurement total, and delete measurement data after all analyses',
+                     'hard: do not continue with other analyses, do not increment measurement total, delete measurement data']
+            index := filters.filter_level
+
 enamldef Histogram(Container):
     attr experiment
     attr analysis
@@ -2099,6 +2124,8 @@ enamldef Main(MainWindow): main:
                                 filters = main.experiment.TTL_filters
                             LoadingFilters:
                                 filters = main.experiment.loading_filters
+                            FirstMeasurementsFilter:
+                                filters = main.experiment.first_measurements_filter
                     Page:
                         title='Optimization'
                         style_class << 'valid' if experiment.valid else 'invalid'
