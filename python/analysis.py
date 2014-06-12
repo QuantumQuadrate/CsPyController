@@ -783,9 +783,9 @@ def histogram_grid_plot(fig, roidata, ROI_rows, ROI_columns):
         overlap.append(numpy.sum(mins) / (numpy.sum(y1) + numpy.sum(y2)))
     
         #now do it using scipy curvefit
-        initial_guess = (best_mean1, best_amplitude1, best_width1, best_mean2, best_amplitude2, best_width2)
-        popt, pcov = curve_fit(two_gaussians, x, y, p0=initial_guess)
-        popts.append(popt)
+        #initial_guess = (best_mean1, best_amplitude1, best_width1, best_mean2, best_amplitude2, best_width2)
+        #popt, pcov = curve_fit(two_gaussians, x, y, p0=initial_guess)
+        #popts.append(popt)
     
     #plot
     gs1 = GridSpec(ROI_rows+1, ROI_columns+1,
@@ -813,7 +813,7 @@ def histogram_grid_plot(fig, roidata, ROI_rows, ROI_columns):
             ax.set_yticklabels([str(0), str(int(max(best_g1s[n]))), str(int(max(best_g2s[n])))], size=font)
             #plot gaussians
             x = numpy.linspace(overall_min, overall_max, 100)
-            ax.plot(x,two_gaussians(x,*popts[n]),'g',lw=3)
+            #ax.plot(x,two_gaussians(x,*popts[n]),'g',lw=3)
             y1 = numpy.concatenate([[0], gaussian1D(x, best_mean1s[n], best_amplitude1s[n], best_width1s[n]), [0]]) #pad with zeros so that matplotlib fill shows up correctly
             y2 = numpy.concatenate([[0], gaussian1D(x, best_mean2s[n], best_amplitude2s[n], best_width2s[n]), [0]])
             x = numpy.concatenate([[x[0]], x, [x[-1]]])
