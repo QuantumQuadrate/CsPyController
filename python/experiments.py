@@ -1001,6 +1001,7 @@ class AQuA(Experiment):
     TTL_filters = Member()
     squareROIAnalysis = Member()
     loading_filters = Member()
+    first_measurements_filter = Member()
     text_analysis = Member()
     recent_shot_analysis = Member()
     shotBrowserAnalysis = Member()
@@ -1026,6 +1027,7 @@ class AQuA(Experiment):
         #analyses
         self.TTL_filters = TTL.TTL_filters('TTL_filters', self)
         self.loading_filters = analysis.LoadingFilters('loading_filters', self, 'drop measurements with no atom loaded')
+        self.first_measurements_filter = analysis.DropFirstMeasurementsFilter('first_measurements_filter', self, 'drop the first N measurements')
         self.squareROIAnalysis = analysis.SquareROIAnalysis(self, ROI_rows=self.ROI_rows, ROI_columns=self.ROI_columns)
         self.text_analysis = analysis.TextAnalysis('text_analysis', self, 'text results from the measurement')
         self.imageSumAnalysis = analysis.ImageSumAnalysis(self)
@@ -1038,12 +1040,12 @@ class AQuA(Experiment):
         self.retention_graph = analysis.RetentionGraph('retention_graph', self, 'plot occurence of binary result (i.e. whether or not atoms are there in the 2nd shot)')
         self.save2013Analysis = save2013style.Save2013Analysis(self)
         self.optimizer = optimization.Optimization('optimizer', self, 'updates independent variables to minimize cost function')
-        self.analyses += [self.TTL_filters, self.squareROIAnalysis, self.loading_filters, self.text_analysis,
+        self.analyses += [self.TTL_filters, self.squareROIAnalysis, self.loading_filters, self.first_measurements_filter, self.text_analysis,
                           self.imageSumAnalysis, self.recent_shot_analysis, self.shotBrowserAnalysis,
                           self.histogramAnalysis, self.histogram_grid, self.measurements_graph, self.iterations_graph,
                           self.retention_graph, self.save2013Analysis, self.optimizer]
 
-        self.properties += ['LabView', 'squareROIAnalysis', 'TTL_filters', 'loading_filters', 'imageSumAnalysis',
+        self.properties += ['LabView', 'squareROIAnalysis', 'TTL_filters', 'loading_filters', 'first_measurements_filter', 'imageSumAnalysis',
                             'recent_shot_analysis', 'shotBrowserAnalysis', 'histogramAnalysis', 'histogram_grid', 'measurements_graph',
                             'iterations_graph', 'retention_graph', 'optimizer']
 
