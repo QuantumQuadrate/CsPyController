@@ -605,7 +605,7 @@
 			<Item Name="PI Open Interface of one system.vi" Type="VI" URL="../PI_piezo/GCS_LabVIEW_digital/Low Level/Communication.llb/PI Open Interface of one system.vi"/>
 			<Item Name="E816_Configuration_Setup.vi" Type="VI" URL="../PI_piezo/GCS_LabVIEW_digital/E816_Configuration_Setup.vi"/>
 			<Item Name="continue.vi" Type="VI" URL="../Experiment/continue.vi"/>
-			<Item Name="niHSDIO_64.dll" Type="Document" URL="niHSDIO_64.dll">
+			<Item Name="niHSDIO.dll" Type="Document" URL="niHSDIO.dll">
 				<Property Name="NI.PreserveRelativePath" Type="Bool">true</Property>
 			</Item>
 			<Item Name="XDNodeRunTimeDep.lvlib" Type="Library" URL="/&lt;vilib&gt;/Platform/TimedLoop/XDataNode/XDNodeRunTimeDep.lvlib"/>
