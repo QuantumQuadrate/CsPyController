@@ -64,7 +64,7 @@ class StartTrigger(Prop):
 class npHSDIO(Instrument):
     """version of HSDIO that uses numpy based waveforms"""
     version = '2014.04.05'
-    numChannels = 32
+    numChannels = 64
 
     enable = Member()
     script = Member()

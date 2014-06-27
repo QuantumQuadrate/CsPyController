@@ -1,7 +1,9 @@
 E-816 GCS LabVIEW Driver Set
 
-Version: 5.7.1
+Version: 6.0.2
 Manual file: E816_GCSLabVIEW_ PZ121E _571.pdf
+
+PI-Software Module ID: 26
 
 © Physik Instrumente (PI) GmbH & Co. KG
 76228 Karlsruhe, Germany      
