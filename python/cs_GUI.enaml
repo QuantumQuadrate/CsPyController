@@ -955,7 +955,7 @@ enamldef Waveforms(Container):
                     padding=0
                     constraints=[vbox(canvas,stack),align('left',canvas,stack)]
                     MPLCanvas: canvas:
-                        constraints=[(height==500)|'strong',(width==1500)|'strong']
+                        constraints=[(height==1000)|'strong',(width==1500)|'strong']
                         figure << HSDIO.waveforms.listProperty[combo.index].figure
                     Container: stack:
                         padding=0

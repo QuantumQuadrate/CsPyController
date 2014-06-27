@@ -84,13 +84,13 @@ class NumpyChannels(Numpy1DProp):
         #create a list of active channel numbers
         active_channels_strs = []
         x_states = []
-        for i in xrange(0,len(self.array),32):
+        for i in xrange(0, len(self.array), 32):
             a = self.array[i:i+32]
             active_channels = numpy.arange(len(a))[a['value']]
-            active_channels_strs += ','.join(map(str, active_channels))
+            active_channels_strs.append(','.join(map(str, active_channels)))
             #The actual IdleState and InitialState are all set to all X's, for continuity.
             #We just need the right number of X's corresponding to the number of channels
-            x_states += 'X'*len(active_channels)
+            x_states.append('X'*len(active_channels))
         active_channels_str = '\n'.join(active_channels_strs)
         x_state = ','.join(x_states)
 
