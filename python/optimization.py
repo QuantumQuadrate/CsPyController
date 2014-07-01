@@ -66,30 +66,6 @@ class Optimization(AnalysisWithFigure):
     def postIteration(self, iterationResults, experimentResults):
         if self.enable:
 
-            # evaluate cost of iteration just finished
-
-            # sum up all the loaded atoms from shot 0 in region 24
-            # (negative because cost will be minimized, must convert to float otherwise negative wraps around)
-            # self.yi = -numpy.sum(numpy.array([m['analysis/squareROIsums'][0][24] for m in iterationResults['measurements'].itervalues()]), dtype=numpy.float64)
-
-            # take the retention in shot 1
-            #self.yi = -numpy.sum(numpy.array([m['analysis/squareROIthresholded'][1] for m in iterationResults['measurements'].itervalues()]))
-
-            # # take the signal-to-noise in shot 1 for all regions
-            # region_sum = numpy.sum(numpy.array([m['analysis/squareROIsums'][1] for m in iterationResults['measurements'].itervalues()]))
-            # # background is the whole shot 1, except the regions
-            # all_sum = numpy.sum(numpy.array([m['data/Hamamatsu/shots/1'] for m in iterationResults['measurements'].itervalues()]))
-            # background_sum = all_sum - region_sum
-            # # get the size of an image
-            # region_pixels = 49*9  # 49 regions, 3x3 pixels each
-            # image_shape = numpy.shape(iterationResults['measurements/0/data/Hamamatsu/shots/1'])
-            # image_pixels = image_shape[0]*image_shape[1]
-            # background_pixels = image_pixels - region_pixels
-            # #normalize by pixels
-            # signal = region_sum*1.0/region_pixels
-            # noise = background_sum*1.0/background_pixels
-            # self.yi = -signal/noise
-
             # evaluate the cost function, with access to all backend variables
             # The cost function must define 'self.yi ='
             # For example:
@@ -215,7 +191,6 @@ class Optimization(AnalysisWithFigure):
                 x0 = self.xi
                 y0 = self.yi
 
-
     #Nelder-Mead downhill simplex method
     def simplex(self, x0):
         """Perform the simplex algorithm.  x is 2D array of settings.  y is a 1D array of costs at each of those settings.
@@ -227,7 +202,7 @@ class Optimization(AnalysisWithFigure):
         n = axes + 1
         x = numpy.zeros((n, axes))
         y = numpy.zeros(n)
-        x[0] = self.xi
+        x[0] = x0
         y[0] = self.yi
 
         # for the first several measurements, we just explore the cardinal axes to create the simplex
@@ -235,12 +210,13 @@ class Optimization(AnalysisWithFigure):
             logger.info('exploring axis' + str(i))
             # for the new settings, start with the initial settings and then modify them by unit vectors
             xi = x0.copy()
+            # if the element is zero, add an offset.  If it is non-zero, multiply the offset
             if xi[i] == 0:
-                xi[i] = .1
+                xi[i] = self.initial_step
             else:
                 xi[i] *= (1 + self.initial_step)
             yield xi
-            x[i+1] = self.xi
+            x[i+1] = xi
             y[i+1] = self.yi
 
         # loop until all sides of the simplex are smaller than the end_condition
@@ -251,7 +227,7 @@ class Optimization(AnalysisWithFigure):
             x[:] = x[order]
             y[:] = y[order]
 
-            #find the mean of all except the worst point
+            # find the mean of all except the worst point
             x0 = numpy.mean(x[:-1], axis=0)
 
             #reflection
@@ -259,34 +235,34 @@ class Optimization(AnalysisWithFigure):
             # reflect the worst point in the mean of the other points, to try and find a better point on the other side
             a = 1
             xr = x0+a*(x0-x[-1])
-            #yr = datapoint(xr)
+            # yield so we can take a datapoint
             yield xr
             yr = self.yi
 
             if y[0] <= yr < y[-2]:
                 #if the new point is no longer the worst, but not the best, use it to replace the worst point
                 logger.info('keeping reflection')
-                x[-1, :] = xr[:]
+                x[-1] = xr
                 y[-1] = yr
 
             #expansion
             elif yr < y[0]:
                 logger.info('expanding')
-                #if the new point is the best, keep going in that direction
+                # if the new point is the best, keep going in that direction
                 b = 2
                 xe = x0+b*(x0-x[-1])
-                #ye = datapoint(xe)
+                # yield so we can take a datapoint
                 yield xe
                 ye = self.yi
                 if ye < yr:
                     #if this expanded point is even better than the initial reflection, keep it
                     logger.info('keeping expansion')
-                    x[-1, :] = xe[:]
+                    x[-1] = xe
                     y[-1] = ye
                 else:
                     #if the expanded point is not any better than the reflection, use the reflection
                     logger.info('keeping reflection (after expansion)')
-                    x[-1, :] = xr[:]
+                    x[-1] = xr
                     y[-1] = yr
 
             #contraction
@@ -296,13 +272,13 @@ class Optimization(AnalysisWithFigure):
                 # but instead go halfway between the original worst point and the mean.
                 c = -0.5
                 xc = x0+c*(x0-x[-1])
-                #yc = datapoint(xc)
+                # yield so we can take a datapoint
                 yield xc
                 yc = self.yi
                 if yc < y[-1]:
                     #if the contracted point is better than the original worst point, keep it
                     logger.info('keeping contraction')
-                    x[-1, :] = xc[:]
+                    x[-1] = xc
                     y[-1] = yc
 
                 #reduction
@@ -311,5 +287,11 @@ class Optimization(AnalysisWithFigure):
                     # simplex, bringing each point in halfway towards the best point
                     logger.info('reducing')
                     d = 0.5
-                    for i in range(1, len(x)):
+                    # we don't technically need to re-evaluate x[0] here, as it does not change
+                    # however, due to noise in the system it is preferable to re-evaluate x[0] occasionally,
+                    # and now is a good time to do it
+                    for i in range(0, len(x)):
                         x[i] = x[0]+d*(x[i]-x[0])
+                        # yield so we can take a datapoint
+                        yield x[i]
+                        y[i] = self.yi
