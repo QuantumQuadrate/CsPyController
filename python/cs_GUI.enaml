@@ -1703,6 +1703,43 @@ enamldef SquareROIContainer(Container):
         hug_width='ignore'
         figure<<analysis.figure
 
+enamldef GaussianROI(Container):
+    attr analysis
+
+    hug_height='ignore'
+    hug_width='ignore'
+    HGroup:
+        Label:
+            text = 'enable'
+        CheckBox:
+            checked := analysis.enable
+        Label:
+            text = 'shot'
+        SpinBox:
+            value := analysis.shot
+    Label:
+        text = 'initial guess'
+    HGroup:
+        Label:
+            text = 'top'
+        FloatField:
+            value := analysis.top
+        Label:
+            text = 'left'
+        FloatField:
+            value := analysis.left
+        Label:
+            text = 'bottom'
+        FloatField:
+            value := analysis.bottom
+        Label:
+            text = 'right'
+        FloatField:
+            value := analysis.right
+    MPLCanvas:
+        constraints=[(height==1000)|'strong',(width==1700)|'strong']
+        figure<<analysis.figure
+
 enamldef LoadingFilters(GroupBox):
     attr filters
     title = 'Region of Interest Sum (Loading) Filters'
@@ -1947,7 +1984,7 @@ enamldef Optimizer(Form):
     Label:
         text='update method'
     ComboBox:
-        items = ['Nelder-Mead','genetic','gradient descent']
+        items = ['Nelder-Mead','genetic','gradient descent','weighted Nelder-Mead']
         index := analysis.optimization_method
 
     Label:
