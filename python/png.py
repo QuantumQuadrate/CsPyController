@@ -731,7 +731,9 @@ class Writer:
             # Decompose into bytes
             def extend(sl):
                 fmt = '!%dH' % len(sl)
-                data.extend(array('B', struct.pack(fmt, *sl)))
+                temp1 = struct.pack(fmt, *map(int, sl))
+                temp2 = array('B', temp1)
+                data.extend(temp2)
         else:
             # Pack into bytes
             assert self.bitdepth < 8

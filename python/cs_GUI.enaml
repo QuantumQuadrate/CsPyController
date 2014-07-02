@@ -21,7 +21,7 @@ from enaml.widgets.api import (MainWindow, MenuBar, Menu, Action,
                                 Form, Label, CheckBox, SpinBox, PushButton, MPLCanvas,
                                 MultilineField, ProgressBar, ScrollArea, Separator,
                                 FileDialog,Window, StatusBar, StatusItem,
-                                Stack, StackItem, ComboBox
+                                Stack, StackItem, ComboBox, HGroup
 )
 from enaml.icon import Icon, IconImage
 from enaml.image import Image
@@ -1717,9 +1717,8 @@ enamldef GaussianROI(Container):
             text = 'shot'
         SpinBox:
             value := analysis.shot
-    Label:
-        text = 'initial guess'
-    HGroup:
+        Label:
+            text = 'initial guess'
         Label:
             text = 'top'
         FloatField:
@@ -2004,7 +2003,7 @@ enamldef Optimizer(Form):
         text:=experiment.optimizer.cost_function
 
     MPLCanvas: canvas:
-        constraints = [(height==2000)|'strong',(width==1000)|'strong']
+        constraints = [(height==3000)|'strong',(width==1000)|'strong']
         hug_width = 'ignore'
         figure << analysis.figure
 
@@ -2117,11 +2116,16 @@ enamldef Main(MainWindow): main:
                         analysis2=main.experiment.imageSumAnalysis
                         analysis3=main.experiment.text_analysis
                     Page:
-                        title = 'ROI'
+                        title = 'Square ROI'
                         style_class << 'valid' if experiment.valid else 'invalid'
                         SquareROIContainer:
                             experiment=main.experiment
                             analysis=main.experiment.squareROIAnalysis
+                    Page:
+                        title = 'Gaussian ROI'
+                        style_class << 'valid' if experiment.valid else 'invalid'
+                        GaussianROI:
+                            analysis=main.experiment.gaussian_roi
                     Page:
                         title = 'Histogram'
                         style_class << 'valid' if experiment.valid else 'invalid'

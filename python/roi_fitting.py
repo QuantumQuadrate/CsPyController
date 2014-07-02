@@ -14,16 +14,12 @@ __author__ = 'Martin Lichtman'
 import logging
 logger = logging.getLogger(__name__)
 
-import numpy
-np = numpy
+import numpy as np
 from matplotlib.patches import Ellipse
-from matplotlib.collections import PatchCollection
 from matplotlib.gridspec import GridSpec
 from sklearn.decomposition import FastICA
-from scipy.optimize import curve_fit, leastsq
-import matplotlib.pyplot as plt
-
-from atom import Bool, Float, Member
+from scipy.optimize import curve_fit
+from atom.api import Bool, Float, Member, Int
 from analysis import AnalysisWithFigure
 
 class GaussianROI(AnalysisWithFigure):
@@ -37,16 +33,16 @@ class GaussianROI(AnalysisWithFigure):
     rows = Int(7)
     columns = Int(7)
 
-    def __init__(self, experiment, rows=7, columns=7):
-        super(ROI_fit, self).__init__(name, experiment, "a gaussian fit to the regions of interest")
+    def __init__(self, name, experiment, rows=7, columns=7):
+        super(GaussianROI, self).__init__(name, experiment, "a gaussian fit to the regions of interest")
         self.rows = rows
         self.columns = columns
-        self.properties += ['version', 'enable', 'top', 'left', 'bottom', 'right']
+        self.properties += ['version', 'enable', 'shot', 'top', 'left', 'bottom', 'right']
 
     # define functions for a gaussian with various degrees of freedom
 
     def normal_gaussian(self, a, xy):
-        return a*numpy.exp(-0.5*(np.sum(xy**2, axis=0)))
+        return a*np.exp(-0.5*(np.sum(xy**2, axis=0)))
 
     def elliptical_gaussian(self, a, w, xy):
         return self.normal_gaussian(a, xy/w)
@@ -73,11 +69,11 @@ class GaussianROI(AnalysisWithFigure):
         xy0 = np.array([[[x0]], [[y0]]])
         width = np.array([[[wx]], [[wy]]])
         spots = []
-        for r in xrange(rows):
-            for c in xrange(columns):
-                xy0i = xy0 + np.tensordot(rotation(grid_angle), np.array([[[r]], [[c]]]), axes=1)*spacing
+        for r in xrange(self.rows):
+            for c in xrange(self.columns):
+                xy0i = xy0 + np.tensordot(self.rotation(grid_angle), np.array([[[r]], [[c]]]), axes=1)*spacing
                 spots.append(self.gaussian(amplitude, width, spot_angle, xy0i, xy))
-        out = numpy.sum(spots, axis=0)+blacklevel
+        out = np.sum(spots, axis=0)+blacklevel
         return out.ravel()
 
     def postIteration(self, iterationResults, experimentResults):
@@ -86,36 +82,36 @@ class GaussianROI(AnalysisWithFigure):
             # --- image cleanup ---
 
             # compile all shot 1 images from iteration
-            images = np.array([m['data/Hamamatsu/shots/'+str(self.shot)] for m in iterationResults])
+            images = np.array([m['data/Hamamatsu/shots/'+str(self.shot)] for m in iterationResults['measurements'].itervalues()])
             raw_sum = np.sum(images, axis=0)
 
-            # clean up using independent component analysis
-            X = images.reshape(images.shape[1], images.shape[2]*images.shape[3]).astype(float)
-            ica = FastICA(n_components=49, max_iter=2000)
-            ica.fit(X)
-            A_ica = ica.components_  # Get estimated mixing matrix
-            image_sum = np.sum(np.abs(A_ica), axis=0).reshape(images.shape[2], images.shape[3])
+            # Use ICA if we have enough pictures:
+            if images.shape[0] > self.rows*self.columns:
+                # clean up using independent component analysis
+                X = images.reshape(images.shape[0], images.shape[1]*images.shape[2]).astype(float)
+                ica = FastICA(n_components=self.rows*self.columns, max_iter=2000)
+                ica.fit(X)
+                A_ica = ica.components_  # Get estimated mixing matrix
+                image_sum = np.sum(np.abs(A_ica), axis=0).reshape(images.shape[1], images.shape[2])
+            else:
+                image_sum = raw_sum
 
             # --- initial guess ---
 
             # guess the top-left and bottom-right corners of the array as (row,column) = (top,left), (bottom,right)
             #use the input from the GUI
 
-            #specify the size of the array
-            rows = self.rows
-            columns = self.columns
-
             #find the width and height of the whole array
             span = np.array([self.bottom-self.top, self.right-self.left])
             #find the proper diagonal angle for the array
-            proper_angle = np.arctan2(columns-1, rows-1)
+            proper_angle = np.arctan2(self.columns-1, self.rows-1)
 
             # find the tilt angle deviation
             angle = np.arctan2(span[1], span[0]) - proper_angle
 
             # find the spacing by using the diagonal distance
-            diagonal_distance = np.sqrt(numpy.sum(span**2))
-            diagonal_units = np.sqrt((rows-1)**2+(columns-1)**2)
+            diagonal_distance = np.sqrt(np.sum(span**2))
+            diagonal_units = np.sqrt((self.rows-1)**2+(self.columns-1)**2)
             spacing = diagonal_distance / diagonal_units
 
             #guess the gaussian width
@@ -136,9 +132,9 @@ class GaussianROI(AnalysisWithFigure):
             y = image_sum.ravel()
 
             fitParams, fitCovariances = curve_fit(self.fitFunc, xy, y, p0=initial_guess)
-            print ' initial guess: top {}, left {}, spacing {}, angle {}, amplitude {}, width {}, blacklevel {}\n'.format(*initial_guess)
-            print ' fit coefficients: top {}, left {}, spacing {}, angle {}, amplitude {}, width {}, blacklevel {}\n'.format(*fitParams)
-            print ' Covariance matrix:\n', fitCovariances
+            #print ' initial guess: top {}, left {}, spacing {}, angle {}, amplitude {}, width {}, blacklevel {}\n'.format(*initial_guess)
+            #print ' fit coefficients: top {}, left {}, spacing {}, angle {}, amplitude {}, width {}, blacklevel {}\n'.format(*fitParams)
+            #print ' Covariance matrix:\n', fitCovariances
 
             # --- save analysis ---
             iterationResults['analysis/gaussian_roi/fit_params'] = fitParams
@@ -149,7 +145,7 @@ class GaussianROI(AnalysisWithFigure):
             fig = self.backFigure
             fig.clf()
 
-            gs = GridSpec(2, 3)
+            gs = GridSpec(2, 3, left=0.02, bottom=0.02, top=.98, right=.98, hspace=0.2)
 
             # plot the original data
             ax = fig.add_subplot(gs[0, 0])
@@ -181,12 +177,12 @@ class GaussianROI(AnalysisWithFigure):
             ax = fig.add_subplot(gs[1, 1])
             ax.matshow(image_sum)
             ax.set_title('1 sigma contour on data')
-            for r in xrange(rows):
-                for c in xrange(columns):
-                    xy0i = xy0 + np.tensordot(rotation(grid_angle), np.array([[[r]], [[c]]]), axes=1)*spacing
-                    patch = Ellipse(xy0i[::-1], width=2*wx, height=2*wy, angle=spot_angle, edgecolor='white',
+            for r in xrange(self.rows):
+                for c in xrange(self.columns):
+                    xy0i = xy0 + np.tensordot(self.rotation(grid_angle), np.array([[[r]], [[c]]]), axes=1)*spacing
+                    patch = Ellipse(xy0i[::-1], width=2*wx, height=2*wy, angle=-spot_angle, edgecolor='white',
                                     facecolor='none', lw=1)
                     ax.add_patch(patch)
-                    ax.text(xy0i[1], xy0i[0], str(rows*r+c))
+                    ax.text(xy0i[1], xy0i[0], str(self.rows*r+c))
 
-            super(Optimization, self).updateFigure()
+            super(GaussianROI, self).updateFigure()

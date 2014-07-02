@@ -295,9 +295,7 @@ class NumpyWaveform(Prop):
             stateList=self.sequence.array['value']
             
             #convert to integral samples
-            #TODO: round to int, instead of floor to int
-            temp=numpy.empty_like(timeList, dtype=numpy.uint64)
-            timeList=numpy.rint(timeList*self.digitalout.clockRate.value*self.digitalout.units.value,out=temp)
+            timeList = numpy.rint(timeList*self.digitalout.clockRate.value*self.digitalout.units.value).astype(numpy.uint64)
             #timeList=(timeList*self.digitalout.clockRate.value*self.digitalout.units.value).astype(numpy.uint64)
             
             #put the transition list in order
