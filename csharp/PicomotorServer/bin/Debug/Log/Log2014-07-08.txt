@@ -1,0 +1,86 @@
+2014-07-08 18:16:25.987, 8036, 8, ********** Entry Path = C:\Users\Saffmanlab\Documents\git\CsPyController\csharp\PicomotorServer\bin\Debug\PicomotorServer.EXE **********
+2014-07-08 18:16:25.987, 8036, 8, OS: Windows 7 Version: 6.1.7601.65536
+2014-07-08 18:16:25.988, 8036, 8, 64-bit OS, 32-bit mode.
+2014-07-08 18:16:25.989, 8036, 8, System Folder: C:\Windows\SysWOW64
+2014-07-08 18:16:25.989, 8036, 8, The USB driver is not installed.  C:\Windows\SysWOW64\UsbDll.dll does not exist.
+2014-07-08 18:16:25.994, 8036, 8, OpenDevices (By Key): Open devices with ProductID '16384' (0x4000).
+2014-07-08 18:16:26.003, 8036, 8, OpenDevices (By Key) exception.  Unable to load DLL 'usbdll.dll': The specified module could not be found. (Exception from HRESULT: 0x8007007E)
+2014-07-08 18:16:26.021, 8036, 9, CreateUDPSockets: Host Address = 2607:f388:101c:0:61f2:420e:5037:70db
+2014-07-08 18:16:26.026, 8036, 9, CreateUDPSockets: Host Address = 2607:f388:101c:0:98e7:bc70:9f6f:6aa8
+2014-07-08 18:16:26.029, 8036, 9, CreateUDPSockets: Host Address = 128.104.160.40
+2014-07-08 18:16:26.029, 8036, 9, CreateUDPSockets: Host Address = 2001:0:9d38:6abd:28b8:236a:7f97:5fd7
+2014-07-08 18:16:26.032, 8036, 9, SendDiscoveryMessage: Socket[0] = 128.104.160.40:23
+2014-07-08 18:16:26.034, 8036, 9, ReadDiscoveryResponse: Socket[0] = 128.104.160.40:23
+2014-07-08 18:16:26.034, 8036, 9, ReadDiscoveryResponse: Socket[0] = 128.104.160.40:23
+2014-07-08 18:16:27.034, 8036, 9,    Number of devices discovered: 0
+2014-07-08 18:16:32.037, 8036, 9, CreateUDPSockets: Host Address = 2607:f388:101c:0:61f2:420e:5037:70db
+2014-07-08 18:16:32.041, 8036, 9, CreateUDPSockets: Host Address = 2607:f388:101c:0:98e7:bc70:9f6f:6aa8
+2014-07-08 18:16:32.044, 8036, 9, CreateUDPSockets: Host Address = 128.104.160.40
+2014-07-08 18:16:32.044, 8036, 9, CreateUDPSockets: Host Address = 2001:0:9d38:6abd:28b8:236a:7f97:5fd7
+2014-07-08 18:16:32.047, 8036, 9, SendDiscoveryMessage: Socket[0] = 128.104.160.40:23
+2014-07-08 18:16:32.047, 8036, 9, ReadDiscoveryResponse: Socket[0] = 128.104.160.40:23
+2014-07-08 18:16:32.047, 8036, 9, ReadDiscoveryResponse: Socket[0] = 128.104.160.40:23
+2014-07-08 18:16:33.048, 8036, 9,    Number of devices discovered: 0
+2014-07-08 18:21:15.710, 5832, 8, ********** Entry Path = C:\Users\Saffmanlab\Documents\git\CsPyController\csharp\PicomotorServer\bin\Debug\PicomotorServer.EXE **********
+2014-07-08 18:21:15.712, 5832, 8, OS: Windows 7 Version: 6.1.7601.65536
+2014-07-08 18:21:15.714, 5832, 8, 64-bit OS, 32-bit mode.
+2014-07-08 18:21:15.715, 5832, 8, System Folder: C:\Windows\SysWOW64
+2014-07-08 18:21:15.716, 5832, 8, The USB driver is not installed.  C:\Windows\SysWOW64\UsbDll.dll does not exist.
+2014-07-08 18:21:15.722, 5832, 8, OpenDevices (By Key): Open devices with ProductID '16384' (0x4000).
+2014-07-08 18:21:15.732, 5832, 8, OpenDevices (By Key) exception.  Unable to load DLL 'usbdll.dll': The specified module could not be found. (Exception from HRESULT: 0x8007007E)
+2014-07-08 18:21:15.751, 5832, 9, CreateUDPSockets: Host Address = 2607:f388:101c:0:61f2:420e:5037:70db
+2014-07-08 18:21:15.756, 5832, 9, CreateUDPSockets: Host Address = 2607:f388:101c:0:98e7:bc70:9f6f:6aa8
+2014-07-08 18:21:15.760, 5832, 9, CreateUDPSockets: Host Address = 128.104.160.40
+2014-07-08 18:21:15.761, 5832, 9, CreateUDPSockets: Host Address = 2001:0:9d38:6abd:28b8:236a:7f97:5fd7
+2014-07-08 18:21:15.765, 5832, 9, SendDiscoveryMessage: Socket[0] = 128.104.160.40:23
+2014-07-08 18:21:15.767, 5832, 9, ReadDiscoveryResponse: Socket[0] = 128.104.160.40:23
+2014-07-08 18:21:15.768, 5832, 9, ReadDiscoveryResponse: Socket[0] = 128.104.160.40:23
+2014-07-08 18:21:16.768, 5832, 9,    Number of devices discovered: 0
+2014-07-08 18:21:21.772, 5832, 9, CreateUDPSockets: Host Address = 2607:f388:101c:0:61f2:420e:5037:70db
+2014-07-08 18:21:21.777, 5832, 9, CreateUDPSockets: Host Address = 2607:f388:101c:0:98e7:bc70:9f6f:6aa8
+2014-07-08 18:21:21.780, 5832, 9, CreateUDPSockets: Host Address = 128.104.160.40
+2014-07-08 18:21:21.782, 5832, 9, CreateUDPSockets: Host Address = 2001:0:9d38:6abd:28b8:236a:7f97:5fd7
+2014-07-08 18:21:21.785, 5832, 9, SendDiscoveryMessage: Socket[0] = 128.104.160.40:23
+2014-07-08 18:21:21.786, 5832, 9, ReadDiscoveryResponse: Socket[0] = 128.104.160.40:23
+2014-07-08 18:21:21.788, 5832, 9, ReadDiscoveryResponse: Socket[0] = 128.104.160.40:23
+2014-07-08 18:21:22.788, 5832, 9,    Number of devices discovered: 0
+2014-07-08 18:21:27.790, 5832, 9, CreateUDPSockets: Host Address = 2607:f388:101c:0:61f2:420e:5037:70db
+2014-07-08 18:21:27.794, 5832, 9, CreateUDPSockets: Host Address = 2607:f388:101c:0:98e7:bc70:9f6f:6aa8
+2014-07-08 18:21:27.798, 5832, 9, CreateUDPSockets: Host Address = 128.104.160.40
+2014-07-08 18:21:27.800, 5832, 9, CreateUDPSockets: Host Address = 2001:0:9d38:6abd:28b8:236a:7f97:5fd7
+2014-07-08 18:21:27.803, 5832, 9, SendDiscoveryMessage: Socket[0] = 128.104.160.40:23
+2014-07-08 18:21:27.805, 5832, 9, ReadDiscoveryResponse: Socket[0] = 128.104.160.40:23
+2014-07-08 18:21:27.806, 5832, 9, ReadDiscoveryResponse: Socket[0] = 128.104.160.40:23
+2014-07-08 18:21:28.806, 5832, 9,    Number of devices discovered: 0
+2014-07-08 18:21:33.807, 5832, 9, CreateUDPSockets: Host Address = 2607:f388:101c:0:61f2:420e:5037:70db
+2014-07-08 18:21:33.812, 5832, 9, CreateUDPSockets: Host Address = 2607:f388:101c:0:98e7:bc70:9f6f:6aa8
+2014-07-08 18:21:33.816, 5832, 9, CreateUDPSockets: Host Address = 128.104.160.40
+2014-07-08 18:21:33.817, 5832, 9, CreateUDPSockets: Host Address = 2001:0:9d38:6abd:28b8:236a:7f97:5fd7
+2014-07-08 18:21:33.821, 5832, 9, SendDiscoveryMessage: Socket[0] = 128.104.160.40:23
+2014-07-08 18:21:33.822, 5832, 9, ReadDiscoveryResponse: Socket[0] = 128.104.160.40:23
+2014-07-08 18:21:33.823, 5832, 9, ReadDiscoveryResponse: Socket[0] = 128.104.160.40:23
+2014-07-08 18:21:34.823, 5832, 9,    Number of devices discovered: 0
+2014-07-08 18:21:39.825, 5832, 9, CreateUDPSockets: Host Address = 2607:f388:101c:0:61f2:420e:5037:70db
+2014-07-08 18:21:39.830, 5832, 9, CreateUDPSockets: Host Address = 2607:f388:101c:0:98e7:bc70:9f6f:6aa8
+2014-07-08 18:21:39.834, 5832, 9, CreateUDPSockets: Host Address = 128.104.160.40
+2014-07-08 18:21:39.835, 5832, 9, CreateUDPSockets: Host Address = 2001:0:9d38:6abd:28b8:236a:7f97:5fd7
+2014-07-08 18:21:39.839, 5832, 9, SendDiscoveryMessage: Socket[0] = 128.104.160.40:23
+2014-07-08 18:21:39.840, 5832, 9, ReadDiscoveryResponse: Socket[0] = 128.104.160.40:23
+2014-07-08 18:21:39.844, 5832, 9, ReadDiscoveryResponse: Socket[0] = 128.104.160.40:23
+2014-07-08 18:21:40.844, 5832, 9,    Number of devices discovered: 0
+2014-07-08 18:21:45.845, 5832, 9, CreateUDPSockets: Host Address = 2607:f388:101c:0:61f2:420e:5037:70db
+2014-07-08 18:21:45.850, 5832, 9, CreateUDPSockets: Host Address = 2607:f388:101c:0:98e7:bc70:9f6f:6aa8
+2014-07-08 18:21:45.854, 5832, 9, CreateUDPSockets: Host Address = 128.104.160.40
+2014-07-08 18:21:45.858, 5832, 9, CreateUDPSockets: Host Address = 2001:0:9d38:6abd:28b8:236a:7f97:5fd7
+2014-07-08 18:21:45.862, 5832, 9, SendDiscoveryMessage: Socket[0] = 128.104.160.40:23
+2014-07-08 18:21:45.863, 5832, 9, ReadDiscoveryResponse: Socket[0] = 128.104.160.40:23
+2014-07-08 18:21:45.864, 5832, 9, ReadDiscoveryResponse: Socket[0] = 128.104.160.40:23
+2014-07-08 18:21:46.864, 5832, 9,    Number of devices discovered: 0
+2014-07-08 18:21:51.866, 5832, 9, CreateUDPSockets: Host Address = 2607:f388:101c:0:61f2:420e:5037:70db
+2014-07-08 18:21:51.870, 5832, 9, CreateUDPSockets: Host Address = 2607:f388:101c:0:98e7:bc70:9f6f:6aa8
+2014-07-08 18:21:51.874, 5832, 9, CreateUDPSockets: Host Address = 128.104.160.40
+2014-07-08 18:21:51.875, 5832, 9, CreateUDPSockets: Host Address = 2001:0:9d38:6abd:28b8:236a:7f97:5fd7
+2014-07-08 18:21:51.879, 5832, 9, SendDiscoveryMessage: Socket[0] = 128.104.160.40:23
+2014-07-08 18:21:51.880, 5832, 9, ReadDiscoveryResponse: Socket[0] = 128.104.160.40:23
+2014-07-08 18:21:51.881, 5832, 9, ReadDiscoveryResponse: Socket[0] = 128.104.160.40:23
+2014-07-08 18:21:52.881, 5832, 9,    Number of devices discovered: 0
