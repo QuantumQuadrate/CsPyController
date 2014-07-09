@@ -9,9 +9,11 @@
 // Based on RelativeMove.cs example from Newport, and on the Synchronous Socket Server Example 
 // from Microsoft at http://msdn.microsoft.com/en-us/library/6y0e13d3(v=vs.110).aspx
 
+// Note this project must be set to compile with .NET 4, not .NET 4.5, otherwise it will not find any devices.
+
 // author = Martin Lichtman
 // created = 2014.06.26
-// modified >= 2014.06.30
+// modified >= 2014.07.09
 
 using System;
 using System.Collections.Generic;
@@ -21,7 +23,7 @@ using System.Net;
 using System.Net.Sockets;
 using NewFocus.Picomotor;
 
-class Picomotor_server
+class PicomotorServer
 {
 
 
@@ -49,7 +51,7 @@ class Picomotor_server
                 {
                     // If no devices were discovered
                     Console.WriteLine("No devices discovered.");
-                    break;
+                    continue;
                 }
                 // For each device key in the list
                 for (int i = 0; i < strDeviceKeys.Length; i++)
@@ -94,7 +96,8 @@ class Picomotor_server
                 handler = listener.Accept();
 
                 // set timeout to 10 seconds
-                handler.ReceiveTimeout = 10000;
+                handler.Blocking = true;
+                //handler.ReceiveTimeout = 10000;
 
                 // Incoming data from the client.
                 string data = null;

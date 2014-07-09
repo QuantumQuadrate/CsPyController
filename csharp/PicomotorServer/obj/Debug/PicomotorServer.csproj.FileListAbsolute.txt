@@ -1,3 +1,4 @@
+C:\Users\Saffmanlab\Documents\git\CsPyController\csharp\PicomotorServer\bin\Debug\PicomotorServer.exe.config
 C:\Users\Saffmanlab\Documents\git\CsPyController\csharp\PicomotorServer\bin\Debug\PicomotorServer.exe
 C:\Users\Saffmanlab\Documents\git\CsPyController\csharp\PicomotorServer\bin\Debug\PicomotorServer.pdb
 C:\Users\Saffmanlab\Documents\git\CsPyController\csharp\PicomotorServer\bin\Debug\CmdLib.dll
