@@ -2007,6 +2007,11 @@ enamldef Optimizer(Form):
         hug_width = 'ignore'
         figure << analysis.figure
 
+def Picomotors(Container):
+    attr picomotors
+    Looper:
+        iterable << picomotors.motors
+
 def loadIcon():
     #create icon
     with open(os.path.join('icons','2013_11_14_15_18_54_retention_PCA_filtered_image_rotated_smoothed.png'), 'rb') as f:
@@ -2108,6 +2113,11 @@ enamldef Main(MainWindow): main:
                     PI_PiezoPage:
                         style_class << 'valid' if experiment.valid else 'invalid'
                         piezo=main.experiment.LabView.piezo
+                    Page:
+                        title = 'Picomotors'
+                        style_class << 'valid' if experiment.valid else 'invalid'
+                        Picomotors:
+                            picomotors=main.experiment.picomotors
                     MultiImagePage:
                         style_class << 'valid' if experiment.valid else 'invalid'
                         experiment=main.experiment

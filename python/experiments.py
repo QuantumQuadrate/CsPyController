@@ -18,7 +18,7 @@ numpy.set_printoptions(formatter=dict(float=lambda t: "%.2e" % t))
 from atom.api import Int, Float, Str, Member, Bool
 
 # Bring in other files in this package
-import cs_evaluate, analysis, save2013style, TTL, LabView, sound, optimization, roi_fitting
+import cs_evaluate, analysis, save2013style, TTL, LabView, sound, optimization, roi_fitting, picomotors
 from cs_errors import PauseError
 from instrument_property import Prop, EvalProp, ListProp, StrProp
 
@@ -998,6 +998,7 @@ class AQuA(Experiment):
     """A subclass of Experiment which knows about all our particular hardware"""
     
     LabView = Member()
+    picomotors = Member()
     TTL_filters = Member()
     squareROIAnalysis = Member()
     gaussian_roi = Member()
@@ -1023,7 +1024,8 @@ class AQuA(Experiment):
         
         #add instruments
         self.LabView = LabView.LabView(experiment=self)
-        self.instruments += [self.LabView]
+        self.picomotors = picomotors.Picomotors('picomotors', self, 'Newport Picomotors')
+        self.instruments += [self.LabView, self.picomotors]
         
         #analyses
         self.TTL_filters = TTL.TTL_filters('TTL_filters', self)
