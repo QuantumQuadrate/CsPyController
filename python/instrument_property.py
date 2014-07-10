@@ -393,8 +393,8 @@ class StrProp(EvalProp):
 
 
 class IntProp(EvalProp):
-    value=Int()
-    placeholder='integer'
+    value = Int()
+    placeholder = 'integer'
 
 
 class RangeProp(EvalProp):

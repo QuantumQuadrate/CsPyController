@@ -27,8 +27,14 @@ class Picomotor(Prop):
     # must keep track of position changes and send only difference
     serial_number = Str()
     motor_number = Str()
-    desired_position = IntProp()
+    desired_position = Member()
     current_position = Int()
+
+    def __init__(self, name, experiment, description=''):
+        super(Picomotor, self).__init__(name, experiment, description)
+        self.desired_position = IntProp('desired_position', experiment, 'the desired position')
+        self.properties += ['serial_number', 'motor_number', 'desired_position']
+        self.current_position = self.desired_position.value
 
     def update(self):
         # calculate relative move necessary
@@ -45,7 +51,7 @@ class Picomotors(Instrument):
     socket = Member()
 
     def __init__(self, name, experiment, description=''):
-        super(Picomotors).__init__(name, experiment, description)
+        super(Picomotors, self).__init__(name, experiment, description)
         self.motors = ListProp('motors', experiment, 'A list of individual picomotors', listElementType=Picomotor,
                                listElementName='motor')
         self.properties += ['version', 'enable', 'IP', 'port', 'motors']

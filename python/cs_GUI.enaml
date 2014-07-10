@@ -163,8 +163,10 @@ enamldef IndexedStack(GroupBox): indexedStack:
             Include:
                 objects=[viewType(item=loop_item)]
 
-enamldef IndexedContainer(GroupBox): indexedStack:
-    attr iterable=Typed(ListProp)
+enamldef IndexedContainer(GroupBox):
+    # This is like an IndexedStack, but instead of using a stack, we just have only one object to display and we
+    # change what that one object is using an Include
+    attr iterable = Typed(ListProp)
     attr viewType #=Class(StackItem)  #do we really have to declare what type? I suppose this was so that we would be okay with creating an instance
     hug_height = 'strong'
     hug_width = 'strong'
@@ -190,18 +192,15 @@ enamldef IndexedContainer(GroupBox): indexedStack:
                         combo.value=i-1
                     else:
                         combo.value=0
-        # RefreshableComboBox: combo:
-            # items<<[str(i)+' '+n.description for i,n in enumerate(iterable)]
         SpinBox: combo:
             constraints=[width==50,height==20]
             maximum<<len(iterable)-1
             minimum=0
-     Stack: stack:
-        index<<combo.value
-        RefreshableLooper:
-            iterable<<indexedStack.iterable
-            Include:
-                objects=[viewType(item=loop_item)]
+    # the actual thing to display
+    Conditional:
+        condition << ((iterable.length>0) and (combo.value >=0))
+        Include:
+           objects << [viewType(item=iterable[combo.value])]
 
 def get_load_file_callback(experiment):
     def load_file_callback(dlg):
@@ -2043,42 +2042,51 @@ enamldef Optimizer(Form):
         hug_width = 'ignore'
         figure << analysis.figure
 
-def Picomotor(HGroup):
-    attr motor
+enamldef Picomotor(Container):
+    attr item
 
-    Label:
-        text = 'serial number'
-    Field:
-        text := motor.serial_number
-    Label:
-        text = 'motor number'
-    Field:
-        text := motor.motor_number
-    Label:
-        text := position
-    EvalProp:
-        prop << motor.desired_position
-
-def Picomotors(Container):
-    attr picomotors
+    hug_width = 'strong'
+    hug_height = 'strong'
 
     HGroup:
         Label:
-            text = 'enable'
-        CheckBox:
-            checked := picomotors.enable
-        Label:
-            text = 'IP Address'
+            text = 'serial number'
         Field:
-            text := picomotors.IP
+            text := item.serial_number
         Label:
-            text = 'port'
-        IntField:
-            value := picomotors.port
-    Looper:
-        iterable << picomotors.motors
-        Picomotor:
-            motor << loop_item
+            text = 'motor number'
+        Field:
+            text := item.motor_number
+        Label:
+            text = 'position'
+        EvalProp:
+            prop << item.desired_position
+
+enamldef Picomotors(Container):
+    attr picomotors
+
+    Container:
+        hug_width = 'strong'
+        hug_height = 'strong'
+        HGroup:
+            hug_width = 'strong'
+            hug_height = 'strong'
+            Label:
+                text = 'enable'
+            CheckBox:
+                checked := picomotors.enable
+            Label:
+                text = 'IP Address'
+            Field:
+                text := picomotors.IP
+            Label:
+                text = 'port'
+            IntField:
+                value := picomotors.port
+
+        IndexedContainer:
+            iterable << picomotors.motors
+            viewType = Picomotor
 
 def loadIcon():
     #create icon
