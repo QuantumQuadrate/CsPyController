@@ -43535,3 +43535,35 @@
 2014-07-09 17:34:12.798, 1112, 10, ReadDiscoveryResponse: Socket[0] = 128.104.160.40:23
 2014-07-09 17:34:12.799, 1112, 10, ReadDiscoveryResponse: Socket[0] = 128.104.160.40:23
 2014-07-09 17:34:13.799, 1112, 10,    Number of devices discovered: 0
+2014-07-09 17:34:18.799, 1112, 10, CreateUDPSockets: Host Address = 2607:f388:101c:0:61f2:420e:5037:70db
+2014-07-09 17:34:18.806, 1112, 10, CreateUDPSockets: Host Address = 2607:f388:101c:0:9b9:3ebc:71b3:1c73
+2014-07-09 17:34:18.811, 1112, 10, CreateUDPSockets: Host Address = 128.104.160.40
+2014-07-09 17:34:18.812, 1112, 10, CreateUDPSockets: Host Address = 2001:0:9d38:6abd:c40:96b:7f97:5fd7
+2014-07-09 17:34:18.817, 1112, 10, SendDiscoveryMessage: Socket[0] = 128.104.160.40:23
+2014-07-09 17:34:18.818, 1112, 10, ReadDiscoveryResponse: Socket[0] = 128.104.160.40:23
+2014-07-09 17:34:18.818, 1112, 10, ReadDiscoveryResponse: Socket[0] = 128.104.160.40:23
+2014-07-09 17:34:19.818, 1112, 10,    Number of devices discovered: 0
+2014-07-09 17:34:24.819, 1112, 10, CreateUDPSockets: Host Address = 2607:f388:101c:0:61f2:420e:5037:70db
+2014-07-09 17:34:24.825, 1112, 10, CreateUDPSockets: Host Address = 2607:f388:101c:0:9b9:3ebc:71b3:1c73
+2014-07-09 17:34:24.831, 1112, 10, CreateUDPSockets: Host Address = 128.104.160.40
+2014-07-09 17:34:24.832, 1112, 10, CreateUDPSockets: Host Address = 2001:0:9d38:6abd:c40:96b:7f97:5fd7
+2014-07-09 17:34:24.837, 1112, 10, SendDiscoveryMessage: Socket[0] = 128.104.160.40:23
+2014-07-09 17:34:24.838, 1112, 10, ReadDiscoveryResponse: Socket[0] = 128.104.160.40:23
+2014-07-09 17:34:24.838, 1112, 10, ReadDiscoveryResponse: Socket[0] = 128.104.160.40:23
+2014-07-09 17:34:25.838, 1112, 10,    Number of devices discovered: 0
+2014-07-09 17:34:30.838, 1112, 10, CreateUDPSockets: Host Address = 2607:f388:101c:0:61f2:420e:5037:70db
+2014-07-09 17:34:30.844, 1112, 10, CreateUDPSockets: Host Address = 2607:f388:101c:0:9b9:3ebc:71b3:1c73
+2014-07-09 17:34:30.850, 1112, 10, CreateUDPSockets: Host Address = 128.104.160.40
+2014-07-09 17:34:30.850, 1112, 10, CreateUDPSockets: Host Address = 2001:0:9d38:6abd:c40:96b:7f97:5fd7
+2014-07-09 17:34:30.856, 1112, 10, SendDiscoveryMessage: Socket[0] = 128.104.160.40:23
+2014-07-09 17:34:30.856, 1112, 10, ReadDiscoveryResponse: Socket[0] = 128.104.160.40:23
+2014-07-09 17:34:30.856, 1112, 10, ReadDiscoveryResponse: Socket[0] = 128.104.160.40:23
+2014-07-09 17:34:31.857, 1112, 10,    Number of devices discovered: 0
+2014-07-09 17:34:36.857, 1112, 10, CreateUDPSockets: Host Address = 2607:f388:101c:0:61f2:420e:5037:70db
+2014-07-09 17:34:36.863, 1112, 10, CreateUDPSockets: Host Address = 2607:f388:101c:0:9b9:3ebc:71b3:1c73
+2014-07-09 17:34:36.869, 1112, 10, CreateUDPSockets: Host Address = 128.104.160.40
+2014-07-09 17:34:36.869, 1112, 10, CreateUDPSockets: Host Address = 2001:0:9d38:6abd:c40:96b:7f97:5fd7
+2014-07-09 17:34:36.875, 1112, 10, SendDiscoveryMessage: Socket[0] = 128.104.160.40:23
+2014-07-09 17:34:36.876, 1112, 10, ReadDiscoveryResponse: Socket[0] = 128.104.160.40:23
+2014-07-09 17:34:36.876, 1112, 10, ReadDiscoveryResponse: Socket[0] = 128.104.160.40:23
+2014-07-09 17:34:37.876, 1112, 10,    Number of devices discovered: 0
