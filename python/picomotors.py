@@ -32,7 +32,7 @@ class Picomotor(Prop):
 
     def __init__(self, name, experiment, description=''):
         super(Picomotor, self).__init__(name, experiment, description)
-        self.desired_position = IntProp('desired_position', experiment, 'the desired position')
+        self.desired_position = IntProp('desired_position', experiment, 'the desired position','0')
         self.properties += ['serial_number', 'motor_number', 'desired_position']
         self.current_position = self.desired_position.value
 

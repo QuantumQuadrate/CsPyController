@@ -246,9 +246,10 @@ class RecentShotAnalysis(AnalysisWithFigure):
 
     def analyzeMeasurement(self,measurementResults,iterationResults,experimentResults):
         self.data = []
-        #for each image
-        for shot in measurementResults['data/Hamamatsu/shots'].values():
-            self.data.append(shot)
+        if 'data/Hamamatsu/shots' in measurementResults:
+            #for each image
+            for shot in measurementResults['data/Hamamatsu/shots'].values():
+                self.data.append(shot)
         self.updateFigure()  # only update figure if image was loaded
 
     @observe('shot', 'showROIs')
@@ -295,8 +296,9 @@ class SampleXYAnalysis(XYPlotAnalysis):
     
     '''This analysis plots the sum of the whole camera image every measurement.'''
     def analyzeMeasurement(self,measurementResults,iterationResults,experimentResults):
-        self.Y = numpy.append(self.Y,numpy.sum(measurementResults['data/Hamamatsu/shots/0']))
-        self.X = numpy.arange(len(self.Y))
+        if 'data/Hamamatsu/shots' in measurementResults:
+            self.Y = numpy.append(self.Y,numpy.sum(measurementResults['data/Hamamatsu/shots/0']))
+            self.X = numpy.arange(len(self.Y))
         self.updateFigure()
 
 class ShotsBrowserAnalysis(AnalysisWithFigure):
@@ -474,27 +476,28 @@ class SquareROIAnalysis(AnalysisWithFigure):
         return numpy.array([self.sum(roi, shot) for roi in rois], dtype=numpy.uint32)
 
     def analyzeMeasurement(self, measurementResults, iterationResults, experimentResults):
-        #here we want to live update a digital plot of atom loading as it happens
-        numROIs=len(self.ROIs)
-        numShots = len(measurementResults['data/Hamamatsu/shots'])
-        sum_array = numpy.zeros((numShots, numROIs), dtype=numpy.uint32)  # uint32 allows for summing ~65535 regions
-        thresholdArray = numpy.zeros((numShots, numROIs), dtype=numpy.bool_)
-        #loadingArray = numpy.zeros((numShots, self.ROI_rows, self.ROI_columns), dtype=numpy.bool_)
+        if 'data/Hamamatsu/shots' in measurementResults:
+            #here we want to live update a digital plot of atom loading as it happens
+            numROIs=len(self.ROIs)
+            numShots = len(measurementResults['data/Hamamatsu/shots'])
+            sum_array = numpy.zeros((numShots, numROIs), dtype=numpy.uint32)  # uint32 allows for summing ~65535 regions
+            thresholdArray = numpy.zeros((numShots, numROIs), dtype=numpy.bool_)
+            #loadingArray = numpy.zeros((numShots, self.ROI_rows, self.ROI_columns), dtype=numpy.bool_)
 
-        #for each image
-        for i, (name, shot) in enumerate(measurementResults['data/Hamamatsu/shots'].items()):
-            #calculate sum of pixels in each ROI
-            shot_sums = self.sums(self.ROIs, shot)
-            sum_array[i] = shot_sums
+            #for each image
+            for i, (name, shot) in enumerate(measurementResults['data/Hamamatsu/shots'].items()):
+                #calculate sum of pixels in each ROI
+                shot_sums = self.sums(self.ROIs, shot)
+                sum_array[i] = shot_sums
 
-            #compare each roi to threshold
-            thresholdArray[i] = (shot_sums >= self.ROIs['threshold'])
+                #compare each roi to threshold
+                thresholdArray[i] = (shot_sums >= self.ROIs['threshold'])
 
-        self.loadingArray = thresholdArray.reshape((numShots, self.ROI_rows, self.ROI_columns))
-        #data will be stored in hdf5 so that save2013style can then append to Camera Data Iteration0 (signal).txt
-        measurementResults['analysis/squareROIsums'] = sum_array
-        measurementResults['analysis/squareROIthresholded'] = thresholdArray
-        self.updateFigure()
+            self.loadingArray = thresholdArray.reshape((numShots, self.ROI_rows, self.ROI_columns))
+            #data will be stored in hdf5 so that save2013style can then append to Camera Data Iteration0 (signal).txt
+            measurementResults['analysis/squareROIsums'] = sum_array
+            measurementResults['analysis/squareROIthresholded'] = thresholdArray
+            self.updateFigure()
 
     def updateFigure(self):
         fig = self.backFigure

@@ -355,9 +355,14 @@ class EvalProp(Prop):
                 vars = {}
 
             # evaluate the 'function'
-            value, valid = cs_evaluate.evalWithDict(self.function, varDict=vars)
+            try:
+                value, valid = cs_evaluate.evalWithDict(self.function, varDict=vars)
+            except Exception as e:
+                logger.error('Error in EvalProp.evaluate() while evaluating property {}, {}, {}\n{}\n'.format(self.name, self.description, self.function, e))
+                self.set_gui({'valid': False, 'valueStr': ''})
+                raise PauseError
             if not valid:
-                logger.error('Error in EvalProp.evaluate() while evaluating property {}, {}, {}\n{}'.format(self.name, self.description, self.function, e))
+                logger.error('Error in EvalProp.evaluate() while evaluating property {}, {}, {}\n'.format(self.name, self.description, self.function))
                 self.set_gui({'valid': False, 'valueStr': ''})
                 raise PauseError
 
@@ -380,7 +385,7 @@ class EvalProp(Prop):
 
     def toHardware(self):
         try:
-            valueStr=str(self.value)
+            valueStr = str(self.value)
         except Exception as e:
             logger.warning('Exception in str(self.value) in EvalProp.toHardware() in '+self.name+' .\n'+str(e))
             raise PauseError
@@ -388,8 +393,8 @@ class EvalProp(Prop):
 
 
 class StrProp(EvalProp):
-    value=Str()
-    placeholder='string'
+    value = Str()
+    placeholder = 'string'
 
 
 class IntProp(EvalProp):
