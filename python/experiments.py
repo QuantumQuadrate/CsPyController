@@ -184,7 +184,7 @@ class Experiment(Prop):
         self.completedMeasurementsByIteration = []
         self.independentVariables = ListProp('independentVariables', self, listElementType=IndependentVariable,
                                              listElementName='independentVariable')
-        self.ivarIndex=[]
+        self.ivarIndex = []
         self.vars = {}
         self.analyses = []
 
@@ -992,6 +992,33 @@ class Experiment(Prop):
         self.set_status('idle')
         logger.info('Finished Experiment.')
         sound.complete_sound()
+
+    def iteration_updater(self):
+        """takes the iteration number and figures out which index number each independent variable should have"""
+        n = len(self.independentVariables)
+        index = numpy.zeros(n, dtype=int)
+        # calculate the base for each variable place
+        base = [1]
+        for i in range(1, n):
+            base.append(self.ivarSteps[i-1]*base[i-1])
+        #build up the list
+        seq = range(n)
+        seq.reverse()  # go from largest place to smallest
+
+        iter = self.iteration
+        for i in seq:
+            index[i] = int(iter/base[i])
+            iter -= index[i]*base[i]
+            index[i] = self.independentVariables[i].setIndex(index[i])  # update each variable object
+        self.ivarIndex = index  # store the list
+
+        # we don't know the number of variables ahead of time, so instead of making nested for loops, do a while
+        iteration = 0
+        self.set_gui({'iterationStr': iteration})
+        while not end_condition:
+
+            # build a dictionary
+            yield ivar_dict
 
 
 class AQuA(Experiment):
