@@ -702,7 +702,7 @@ class HistogramGrid(AnalysisWithFigure):
                 roidata = self.all_shots_array[:, self.shot, :]
                 histogram_grid_plot(fig, roidata, self.experiment.ROI_rows, self.experiment.ROI_columns)
                 if self.enable and self.experiment.saveData:
-                    self.pdf.savefig(fig)
+                    self.pdf.savefig(fig, transparent=True)
             super(HistogramGrid, self).updateFigure()
         except Exception as e:
             logger.warning('Problem in HistogramGrid.updateFigure()\n:{}'.format(e))
