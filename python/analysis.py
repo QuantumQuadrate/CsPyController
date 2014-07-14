@@ -670,10 +670,12 @@ class HistogramGrid(AnalysisWithFigure):
         self.properties += ['enable', 'shot']
 
     def preExperiment(self, experimentResults):
-        self.pdf = PdfPages('histogram_grid.pdf')
+        if self.enable and self.experiment.saveData:
+            self.pdf = PdfPages('histogram_grid.pdf')
 
     def postExperiment(self, experimentResults):
-        self.pdf.close()
+        if self.enable and self.experiment.saveData:
+            self.pdf.close()
 
     def preIteration(self, iterationResults, experimentResults):
         #reset the histogram data
@@ -699,7 +701,8 @@ class HistogramGrid(AnalysisWithFigure):
                 # take shot 0
                 roidata = self.all_shots_array[:, self.shot, :]
                 histogram_grid_plot(fig, roidata, self.experiment.ROI_rows, self.experiment.ROI_columns)
-                self.pdf.savefig(fig)
+                if self.enable and self.experiment.saveData:
+                    self.pdf.savefig(fig)
             super(HistogramGrid, self).updateFigure()
         except Exception as e:
             logger.warning('Problem in HistogramGrid.updateFigure()\n:{}'.format(e))
