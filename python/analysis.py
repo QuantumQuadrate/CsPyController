@@ -14,6 +14,7 @@ from matplotlib.figure import Figure
 from matplotlib.path import Path
 import matplotlib.patches as patches
 from matplotlib.gridspec import GridSpec
+from matplotlib.backends.backend_pdf import PdfPages
 from enaml.application import deferred_call
 
 import threading, numpy, traceback
@@ -662,10 +663,19 @@ class HistogramGrid(AnalysisWithFigure):
     enable = Bool()
     all_shots_array = Member()
     shot = Int()
+    pdf = Member()
 
     def __init__(self, name, experiment, description=''):
         super(HistogramGrid, self).__init__(name, experiment, description)
         self.properties += ['enable', 'shot']
+
+    def preExperiment(self, experimentResults):
+        if self.enable and self.experiment.saveData:
+            self.pdf = PdfPages('histogram_grid.pdf')
+
+    def postExperiment(self, experimentResults):
+        if self.enable and self.experiment.saveData:
+            self.pdf.close()
 
     def preIteration(self, iterationResults, experimentResults):
         #reset the histogram data
@@ -691,6 +701,8 @@ class HistogramGrid(AnalysisWithFigure):
                 # take shot 0
                 roidata = self.all_shots_array[:, self.shot, :]
                 histogram_grid_plot(fig, roidata, self.experiment.ROI_rows, self.experiment.ROI_columns)
+                if self.enable and self.experiment.saveData:
+                    self.pdf.savefig(fig)
             super(HistogramGrid, self).updateFigure()
         except Exception as e:
             logger.warning('Problem in HistogramGrid.updateFigure()\n:{}'.format(e))
