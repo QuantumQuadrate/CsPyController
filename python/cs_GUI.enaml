@@ -484,7 +484,7 @@ enamldef VariableEntry(GroupBox):
 
 enamldef IndependentVariablesGroupBox(GroupBox):
     attr independentVariables
-    title='Independent Variables'
+    title='Independent Variables (2)'
     
     GroupBox:
         hug_height='strong'
@@ -507,54 +507,72 @@ enamldef IndependentVariablesGroupBox(GroupBox):
         VariableEntry:
             indepVar << loop_item
 
-enamldef VariablesPage(Page): main:
+enamldef Variables(Container): main:
     attr experiment
     title = 'Variables'
-    Container:
-        Container:
+    Container: settings:
+        hug_height='strong'
+        hug_width='strong'
+
+        PushButton: updateButton:
+            text='Update variables throughout experiment'
+            clicked::
+                experiment.evaluateAll()
+        GroupBox: variablesNotToSave:
             hug_height='strong'
-            hug_width='strong'
+            title='Variables Not To Save to HDF5 (comma separated)'
+            Field:
+                text:=experiment.variablesNotToSave
+                placeholder='scipy,numpy,x'
 
-            Container: settings:
-                padding=0
-                hug_height='strong'
-                hug_width='strong'
+        HGroup:
 
-                PushButton: updateButton:
-                    text='Update variables throughout experiment'
-                    clicked::
-                        experiment.evaluateAll()
-                IndependentVariablesGroupBox: independent:
-                    independentVariables<<experiment.independentVariables
+            GroupBox:
+                title='Constants (1)'
+                VGroup:
+                    Label:
+                        text='Define constants using python code below.'
+                    MultilineField:
+                        constraints=[height==1000]
+                        text:=experiment.constantsStr
 
-                GroupBox: dependent:
-                    title='Dependent Variables'
-                    constraints=[vbox(lb1,field,variablesNotToSave)]
-                    Label: lb1:
+            IndependentVariablesGroupBox:
+                independentVariables<<experiment.independentVariables
+
+            GroupBox:
+                title='Dependent Variables (3)'
+                VGroup:
+                    Label:
                         text='Define dependent variables using python code below.'
-                    MultilineField: field:
-                        constraints=[height==600]
+                    MultilineField:
+                        constraints=[height==1000]
                         text:=experiment.dependentVariablesStr
-                    GroupBox: variablesNotToSave:
-                        hug_height='strong'
-                        title='Variables Not To Save to HDF5 (comma separated)'
-                        Field:
-                            text:=experiment.variablesNotToSave
-                            placeholder='scipy,numpy,x'
 
 enamldef Reports(Container):
     attr experiment
-    GroupBox: report:
-        title = 'Variable Report'
-        hug_height = 'strong'
-        hug_width = 'strong'
-        constraints = [hbox(f1,lb2),align('top',f1,lb2)]
-        MultilineField: f1:
-            constraints = [height==600, width==600]
-            text := experiment.variableReport.function
-            style_class << 'valid' if experiment.variableReport.valid else 'invalid'
-        Label: lb2:
-            text << experiment.variableReport.valueStr
+    HGroup:
+        GroupBox:
+            title = 'Constant Report'
+            hug_height = 'strong'
+            hug_width = 'strong'
+            constraints = [hbox(f1,lb1),align('top',f1,lb1)]
+            MultilineField: f1:
+                constraints = [height==1000, width==600]
+                text := experiment.constantReport.function
+                style_class << 'valid' if experiment.constantReport.valid else 'invalid'
+            Label: lb2:
+                text << experiment.variableReport.valueStr
+        GroupBox:
+            title = 'Variable Report'
+            hug_height = 'strong'
+            hug_width = 'strong'
+            constraints = [hbox(f2,lb2),align('top',f2,lb2)]
+            MultilineField: f2:
+                constraints = [height==1000, width==600]
+                text := experiment.variableReport.function
+                style_class << 'valid' if experiment.variableReport.valid else 'invalid'
+            Label: lb2:
+                text << experiment.variableReport.valueStr
 
 enamldef LabViewPage(Page):
     attr LabView
@@ -2140,9 +2158,11 @@ enamldef Main(MainWindow): main:
                     ExperimentPage:
                         style_class << 'valid' if experiment.valid else 'invalid'
                         experiment = main.experiment
-                    VariablesPage:
+                    Page:
+                        title = 'Variables'
                         style_class << 'valid' if experiment.valid else 'invalid'
-                        experiment = main.experiment
+                        Variables:
+                            experiment = main.experiment
                     Page:
                         title = 'Report'
                         style_class << 'valid' if experiment.valid else 'invalid'

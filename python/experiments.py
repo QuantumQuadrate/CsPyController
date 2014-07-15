@@ -59,7 +59,7 @@ class IndependentVariable(EvalProp):
                 #Pass in a dictionary with numpy as the keyword np, for the user to create array variables using
                 #linspace, arange, etc.
 
-                a = cs_evaluate.evalIvar('array('+self.function+').flatten()')
+                a = cs_evaluate.evalIvar('array('+self.function+').flatten()', self.experiment.constants)
             if a is None:
                 a = numpy.array([]).flatten()
             self.valueList = a
@@ -138,6 +138,7 @@ class Experiment(Prop):
     
     #variables traits
     dependentVariablesStr = Str()
+    constantsStr = Str()
     constantReport = Member()
     variableReport = Member()
     variablesNotToSave = Str()
@@ -157,6 +158,7 @@ class Experiment(Prop):
     ivarIndex = Member()
     ivarValueLists = Member()
     ivarSteps = Member()
+    constants = Member()
     vars = Member()
     hdf5 = Member()
     measurementResults = Member()
@@ -164,7 +166,7 @@ class Experiment(Prop):
     allow_evaluation = Member()
     log = Member()
     log_handler = Member()
-    gui = Member() #a reference to the gui Main, for use in Prop.set_gui
+    gui = Member()  # a reference to the gui Main, for use in Prop.set_gui
     experiment_type = Str()
 
     def __init__(self):
@@ -188,14 +190,14 @@ class Experiment(Prop):
         self.vars = {}
         self.analyses = []
 
-        self.properties += ['version', 'independentVariables', 'dependentVariablesStr', 'pauseAfterIteration',
-                            'pauseAfterMeasurement', 'pauseAfterError', 'saveData', 'saveSettings', 'settings_path',
-                            'save2013styleFiles', 'localDataPath', 'networkDataPath', 'copyDataToNetwork',
-                            'experimentDescriptionFilenameSuffix', 'measurementTimeout', 'measurementsPerIteration',
-                            'willSendEmail', 'emailAddresses', 'progress', 'progressGUI', 'iteration', 'measurement',
-                            'goodMeasurements', 'totalIterations', 'timeStarted', 'currentTime',
-                            'timeElapsed', 'timeRemaining', 'totalTime', 'completionTime', 'constantReport',
-                            'variableReport', 'variablesNotToSave', 'notes', 'max_iterations']
+        self.properties += ['version', 'constantsStr', 'independentVariables', 'dependentVariablesStr',
+                            'pauseAfterIteration', 'pauseAfterMeasurement', 'pauseAfterError', 'saveData',
+                            'saveSettings', 'settings_path', 'save2013styleFiles', 'localDataPath', 'networkDataPath',
+                            'copyDataToNetwork', 'experimentDescriptionFilenameSuffix', 'measurementTimeout',
+                            'measurementsPerIteration', 'willSendEmail', 'emailAddresses', 'progress', 'progressGUI',
+                            'iteration', 'measurement', 'goodMeasurements', 'totalIterations', 'timeStarted',
+                            'currentTime', 'timeElapsed', 'timeRemaining', 'totalTime', 'completionTime',
+                            'constantReport', 'variableReport', 'variablesNotToSave', 'notes', 'max_iterations']
         #we do not load in status as a variable, to allow old settings to be loaded without bringing in the status of
         #the saved experiments
 
@@ -269,19 +271,15 @@ class Experiment(Prop):
     
     def evaluateAll(self):
         if self.allow_evaluation:
+            self.evaluate_constants()
             self.evaluateIndependentVariables()
             self.evaluate()
-    
-    def evaluateDependentVariables(self):
-        """Update variables dictionary."""
 
-        logger.debug('Evaluating dependent variables ...')
+    def evaluate_constants(self):
+        # create a new dictionary and evaluate the constants into it
+        self.constants = {}
+        cs_evaluate.execWithDict(self.constantsStr, self.constants)
 
-        #build a dictionary of the independent variables
-        self.vars = dict([(i.name, i.currentValue) for i in self.independentVariables])
-
-        #evaluate the dependent variable multi-line string
-        cs_evaluate.execWithDict(self.dependentVariablesStr, self.vars)
 
     #overwrite from Prop()
     def evaluate(self):
@@ -289,8 +287,15 @@ class Experiment(Prop):
         if self.allow_evaluation:
             logger.debug('Experiment.evaluate() ...')
 
-            #resolve independent variables for correct iteration, and evaluate dependent variables
-            self.evaluateDependentVariables()
+            # start with the constants
+            self.vars = self.constants.copy()
+
+            # add the independent variables current values to the dict
+            ivars = dict([(i.name, i.currentValue) for i in self.independentVariables])
+            self.vars.update(ivars)
+
+            #evaluate the dependent variable multi-line string
+            cs_evaluate.execWithDict(self.dependentVariablesStr, self.vars)
 
             #evaluate variable report
             #at this time the properties are not all evaluated, so, we must do this one manually

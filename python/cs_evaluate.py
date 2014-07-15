@@ -20,12 +20,24 @@ from cs_errors import PauseError
 
 import traceback
 
-def evalIvar(string):
+def evalIvar(string, constants=None):
+    """
+    This function is used for the evaluation of independent variables.
+    It uses a dictionary containing builtins and all numpy imports, and adds to that the previously evaluated constants.
+    :param string: the independent variable function
+    :param constants: the dictionary of previously evaluated constants.
+    :return: the evaluated 1D numpy array
+    """
+
     if string == '':
         return None
     else:
+        if constants is None:
+            constants = {}
+        vars = myGlobalSetup.copy()
+        vars.update(constants)
         try:
-            return eval(string, myGlobalSetup.copy())
+            return eval(string, vars)
         except Exception as e:
             logger.warning('Could not evaluate independent variable: '+string+'\n'+str(e)+'\n'+str(traceback.format_exc())+'\n')
             raise PauseError
