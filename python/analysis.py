@@ -14,6 +14,7 @@ from matplotlib.figure import Figure
 from matplotlib.path import Path
 import matplotlib.patches as patches
 from matplotlib.gridspec import GridSpec
+from matplotlib.backends.backend_pdf import PdfPages
 from enaml.application import deferred_call
 
 import threading, numpy, traceback
@@ -246,9 +247,10 @@ class RecentShotAnalysis(AnalysisWithFigure):
 
     def analyzeMeasurement(self,measurementResults,iterationResults,experimentResults):
         self.data = []
-        #for each image
-        for shot in measurementResults['data/Hamamatsu/shots'].values():
-            self.data.append(shot)
+        if 'data/Hamamatsu/shots' in measurementResults:
+            #for each image
+            for shot in measurementResults['data/Hamamatsu/shots'].values():
+                self.data.append(shot)
         self.updateFigure()  # only update figure if image was loaded
 
     @observe('shot', 'showROIs')
@@ -295,8 +297,9 @@ class SampleXYAnalysis(XYPlotAnalysis):
     
     '''This analysis plots the sum of the whole camera image every measurement.'''
     def analyzeMeasurement(self,measurementResults,iterationResults,experimentResults):
-        self.Y = numpy.append(self.Y,numpy.sum(measurementResults['data/Hamamatsu/shots/0']))
-        self.X = numpy.arange(len(self.Y))
+        if 'data/Hamamatsu/shots' in measurementResults:
+            self.Y = numpy.append(self.Y,numpy.sum(measurementResults['data/Hamamatsu/shots/0']))
+            self.X = numpy.arange(len(self.Y))
         self.updateFigure()
 
 class ShotsBrowserAnalysis(AnalysisWithFigure):
@@ -369,6 +372,7 @@ class ShotsBrowserAnalysis(AnalysisWithFigure):
     
 class ImageSumAnalysis(AnalysisWithFigure):
     data = Member()
+    enable = Bool()
     sum_array = Member()  # holds the sum of each shot
     count_array = Member()  # holds the number of measurements summed
     mean_array = Member()  # holds the mean image for each shot
@@ -377,12 +381,17 @@ class ImageSumAnalysis(AnalysisWithFigure):
     update_lock = Bool(False)
     min = Member()
     max = Member()
+    pdf = Member()
 
     def __init__(self, experiment):
         super(ImageSumAnalysis, self).__init__('ImageSumAnalysis', experiment, 'Sums shot0 images as they come in')
-        self.properties += ['showROIs', 'shot']
+        self.properties += ['enable', 'showROIs', 'shot']
         self.min = 0
         self.max = 1
+
+    def preExperiment(self, experimentResults):
+        if self.enable and self.experiment.saveData:
+            self.pdf = PdfPages('image_mean.pdf')
 
     def preIteration(self, iterationResults, experimentResults):
         #clear old data
@@ -411,7 +420,38 @@ class ImageSumAnalysis(AnalysisWithFigure):
             self.updateFigure()  # only update figure if image was loaded
 
     def analyzeIteration(self, iterationResults,experimentResults):
-        iterationResults['sum_array'] = self.sum_array
+        if self.enable:
+            iterationResults['sum_array'] = self.sum_array
+            iterationResults['mean_array'] = self.mean_array
+
+            # create image of all shots for pdf
+            if self.experiment.saveData:
+                fig = Figure()
+                n = len(self.mean_array)
+                # one row, show all shots for this iteration, plus colorbar
+                # colorbar is 1/5 width of plots
+                gs = GridSpec([1, n+1], width_ratios=n*[5]+[1])
+                vmin = amin(self.mean_array)
+                vmax = amax(self.mean_array)
+                for i in xrange(n):
+                    # plot
+                    ax = fig.add_subplot(gs[0, i])
+                    im = ax.imshow(self.mean_array[i], vmin=vmin, vmax=vmax)
+
+                    # label plot
+                    ax.set_title('shot {} mean'.format(self.shot))
+
+                    # make ROI boxes
+                    if self.showROIs:
+                        for ROI in self.experiment.squareROIAnalysis.ROIs:
+                            mpl_rectangle(ax, ROI)
+
+                # make colorbar
+                ax = fig.add_subplot(gs[0,n])
+                ax.colorbar(im, cax=ax)
+
+                # save to pdf
+                self.pdf.savefig(fig, transparent=True)
 
     @observe('shot', 'showROIs')
     def reload(self, change):
@@ -447,6 +487,11 @@ class ImageSumAnalysis(AnalysisWithFigure):
             finally:
                 self.update_lock = False
 
+    def postExperiment(self, experimentResults):
+        if self.enable and self.experiment.saveData:
+            self.pdf.close()
+
+
 class SquareROIAnalysis(AnalysisWithFigure):
     """Add up the sums of pixels in a region, and evaluate whether or not an atom is present based on the totals."""
 
@@ -474,27 +519,28 @@ class SquareROIAnalysis(AnalysisWithFigure):
         return numpy.array([self.sum(roi, shot) for roi in rois], dtype=numpy.uint32)
 
     def analyzeMeasurement(self, measurementResults, iterationResults, experimentResults):
-        #here we want to live update a digital plot of atom loading as it happens
-        numROIs=len(self.ROIs)
-        numShots = len(measurementResults['data/Hamamatsu/shots'])
-        sum_array = numpy.zeros((numShots, numROIs), dtype=numpy.uint32)  # uint32 allows for summing ~65535 regions
-        thresholdArray = numpy.zeros((numShots, numROIs), dtype=numpy.bool_)
-        #loadingArray = numpy.zeros((numShots, self.ROI_rows, self.ROI_columns), dtype=numpy.bool_)
+        if 'data/Hamamatsu/shots' in measurementResults:
+            #here we want to live update a digital plot of atom loading as it happens
+            numROIs=len(self.ROIs)
+            numShots = len(measurementResults['data/Hamamatsu/shots'])
+            sum_array = numpy.zeros((numShots, numROIs), dtype=numpy.uint32)  # uint32 allows for summing ~65535 regions
+            thresholdArray = numpy.zeros((numShots, numROIs), dtype=numpy.bool_)
+            #loadingArray = numpy.zeros((numShots, self.ROI_rows, self.ROI_columns), dtype=numpy.bool_)
 
-        #for each image
-        for i, (name, shot) in enumerate(measurementResults['data/Hamamatsu/shots'].items()):
-            #calculate sum of pixels in each ROI
-            shot_sums = self.sums(self.ROIs, shot)
-            sum_array[i] = shot_sums
+            #for each image
+            for i, (name, shot) in enumerate(measurementResults['data/Hamamatsu/shots'].items()):
+                #calculate sum of pixels in each ROI
+                shot_sums = self.sums(self.ROIs, shot)
+                sum_array[i] = shot_sums
 
-            #compare each roi to threshold
-            thresholdArray[i] = (shot_sums >= self.ROIs['threshold'])
+                #compare each roi to threshold
+                thresholdArray[i] = (shot_sums >= self.ROIs['threshold'])
 
-        self.loadingArray = thresholdArray.reshape((numShots, self.ROI_rows, self.ROI_columns))
-        #data will be stored in hdf5 so that save2013style can then append to Camera Data Iteration0 (signal).txt
-        measurementResults['analysis/squareROIsums'] = sum_array
-        measurementResults['analysis/squareROIthresholded'] = thresholdArray
-        self.updateFigure()
+            self.loadingArray = thresholdArray.reshape((numShots, self.ROI_rows, self.ROI_columns))
+            #data will be stored in hdf5 so that save2013style can then append to Camera Data Iteration0 (signal).txt
+            measurementResults['analysis/squareROIsums'] = sum_array
+            measurementResults['analysis/squareROIthresholded'] = thresholdArray
+            self.updateFigure()
 
     def updateFigure(self):
         fig = self.backFigure
@@ -659,10 +705,19 @@ class HistogramGrid(AnalysisWithFigure):
     enable = Bool()
     all_shots_array = Member()
     shot = Int()
+    pdf = Member()
 
     def __init__(self, name, experiment, description=''):
         super(HistogramGrid, self).__init__(name, experiment, description)
         self.properties += ['enable', 'shot']
+
+    def preExperiment(self, experimentResults):
+        if self.enable and self.experiment.saveData:
+            self.pdf = PdfPages('histogram_grid.pdf')
+
+    def postExperiment(self, experimentResults):
+        if self.enable and self.experiment.saveData:
+            self.pdf.close()
 
     def preIteration(self, iterationResults, experimentResults):
         #reset the histogram data
@@ -688,6 +743,8 @@ class HistogramGrid(AnalysisWithFigure):
                 # take shot 0
                 roidata = self.all_shots_array[:, self.shot, :]
                 histogram_grid_plot(fig, roidata, self.experiment.ROI_rows, self.experiment.ROI_columns)
+                if self.enable and self.experiment.saveData:
+                    self.pdf.savefig(fig, transparent=True)
             super(HistogramGrid, self).updateFigure()
         except Exception as e:
             logger.warning('Problem in HistogramGrid.updateFigure()\n:{}'.format(e))

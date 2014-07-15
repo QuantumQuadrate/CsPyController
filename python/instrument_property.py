@@ -355,9 +355,14 @@ class EvalProp(Prop):
                 vars = {}
 
             # evaluate the 'function'
-            value, valid = cs_evaluate.evalWithDict(self.function, varDict=vars)
+            try:
+                value, valid = cs_evaluate.evalWithDict(self.function, varDict=vars)
+            except Exception as e:
+                logger.error('Error in EvalProp.evaluate() while evaluating property {}, {}, {}\n{}\n'.format(self.name, self.description, self.function, e))
+                self.set_gui({'valid': False, 'valueStr': ''})
+                raise PauseError
             if not valid:
-                logger.error('Error in EvalProp.evaluate() while evaluating property {}, {}, {}\n{}'.format(self.name, self.description, self.function, e))
+                logger.error('Error in EvalProp.evaluate() while evaluating property {}, {}, {}\n'.format(self.name, self.description, self.function))
                 self.set_gui({'valid': False, 'valueStr': ''})
                 raise PauseError
 
@@ -380,7 +385,7 @@ class EvalProp(Prop):
 
     def toHardware(self):
         try:
-            valueStr=str(self.value)
+            valueStr = str(self.value)
         except Exception as e:
             logger.warning('Exception in str(self.value) in EvalProp.toHardware() in '+self.name+' .\n'+str(e))
             raise PauseError
@@ -388,13 +393,13 @@ class EvalProp(Prop):
 
 
 class StrProp(EvalProp):
-    value=Str()
-    placeholder='string'
+    value = Str()
+    placeholder = 'string'
 
 
 class IntProp(EvalProp):
-    value=Int()
-    placeholder='integer'
+    value = Int()
+    placeholder = 'integer'
 
 
 class RangeProp(EvalProp):
@@ -499,8 +504,19 @@ class ListProp(Prop):
     
     def __init__(self, name, experiment, description='', listProperty=None, listElementType=None,
                  listElementName='element', listElementKwargs=None):
+        """
+        :param name: A unique name for this Prop, used in saving.
+        :param experiment: The main instance of Experiment that controls experiment flow.
+        :param description: An explanation of what this is for.
+        :param listProperty: A list that is used for initialization.  Otherwise a blank list is used.
+        :param listElementType: The type that will be used when an element is appended.
+        :param listElementName: What to call each new element, used in saving.
+        :param listElementKwargs: A dictionary of keyword arguments to pass to __init__ of listElementType.
+        :return:
+        """
+
         super(ListProp, self).__init__(name, experiment, description)
-        
+
         #we need the following if statement, because otherwise the listProperty of different instances of ListProp
         #are all set to point to the SAME default empty list []
         #default arguments are evaluated during definition, not during a call
@@ -673,12 +689,13 @@ class ListProp(Prop):
     
     def toHardware(self):
         #go through the listProperty and toXML each item
-        output=''
+        output = ''
         
-        for i,o in enumerate(self.listProperty):
-            output+=self.HardwareProtocol(o,self.listElementName+str(i)) #give the index number as the XML tag, this will only be used if the item does not have its own toHardware()
+        for i, o in enumerate(self.listProperty):
+            #give the index number as the XML tag, this will only be used if the item does not have its own toHardware()
+            output += self.HardwareProtocol(o, self.listElementName+str(i))
         
-        return '<{}>{}</{}>\n'.format(self.name,output,self.name)
+        return '<{}>{}</{}>\n'.format(self.name, output, self.name)
 
 
 class Numpy1DProp(Prop):
@@ -688,22 +705,22 @@ class Numpy1DProp(Prop):
     zero = Member()
     
     def __init__(self, name, experiment, description='', dtype=float, hdf_dtype=float, zero=None):
-        super(Numpy1DProp,self).__init__(name, experiment, description)
+        super(Numpy1DProp, self).__init__(name, experiment, description)
         self.dtype = dtype
         self.hdf_dtype = hdf_dtype
         self.zero = zero
         #create zero length array
-        self.array = numpy.zeros(0,dtype=dtype)
+        self.array = numpy.zeros(0, dtype=dtype)
         self.properties += ['array']
 
-    def add(self,index):
-        zero=numpy.zeros(1,dtype=self.dtype)
+    def add(self, index):
+        zero = numpy.zeros(1, dtype=self.dtype)
         if self.zero is not None:
             zero.fill(self.zero)
-        self.array=numpy.insert(self.array,index,zero)            
+        self.array = numpy.insert(self.array, index, zero)
     
-    def remove(self,index):
-        self.array=numpy.delete(self.array,index)
+    def remove(self, index):
+        self.array = numpy.delete(self.array, index)
 
     def toHDF5(self, hdf, name=None):
         try:
@@ -711,7 +728,7 @@ class Numpy1DProp(Prop):
         except Exception as e:
             logger.warning('While trying to create dataset in Numpy1DProp.toHDF5() in '+self.name+'.\n'+str(e)+'\n'+str(traceback.format_exc())+'\n')
             raise PauseError
-        
+
     def fromHDF5(self, hdf):
         try:
             self.array = hdf.value.astype(self.dtype)
@@ -721,37 +738,37 @@ class Numpy1DProp(Prop):
 
 
 class Numpy2DProp(Prop):
-    array=Member()
-    dtype=Member()
-    hdf_dtype=Member()
-    zero=Member()
+    array = Member()
+    dtype = Member()
+    hdf_dtype = Member()
+    zero = Member()
     
-    def __init__(self,name,experiment,description='',dtype=float,hdf_dtype=float,zero=None):
-        super(Numpy2DProp,self).__init__(name,experiment,description)
-        self.dtype=dtype
-        self.hdf_dtype=hdf_dtype
-        self.zero=zero
+    def __init__(self, name, experiment, description='', dtype=float, hdf_dtype=float, zero=None):
+        super(Numpy2DProp, self).__init__(name, experiment, description)
+        self.dtype = dtype
+        self.hdf_dtype = hdf_dtype
+        self.zero = zero
         #create zero by zero size array
-        self.array=numpy.zeros((0,0),dtype=dtype)
-        self.properties+=['array']
-        
-    def addRow(self,index):
-        zero=numpy.zeros(self.array.shape[1],dtype=self.dtype)
+        self.array = numpy.zeros((0, 0), dtype=dtype)
+        self.properties += ['array']
+
+    def addRow(self, index):
+        zero=numpy.zeros(self.array.shape[1], dtype=self.dtype)
         if self.zero is not None:
             zero.fill(self.zero)
-        self.array=numpy.insert(self.array,index,zero,axis=0)
+        self.array=numpy.insert(self.array, index, zero, axis=0)
     
-    def addColumn(self,index):
-        zero=numpy.zeros(self.array.shape[0],dtype=self.dtype)
+    def addColumn(self, index):
+        zero=numpy.zeros(self.array.shape[0], dtype=self.dtype)
         if self.zero is not None:
             zero.fill(self.zero)
-        self.array=numpy.insert(self.array,index,zero,axis=1)
+        self.array = numpy.insert(self.array, index, zero, axis=1)
     
-    def removeRow(self,index):
-        self.array=numpy.delete(self.array,index,axis=0)
+    def removeRow(self, index):
+        self.array = numpy.delete(self.array, index, axis=0)
     
-    def removeColumn(self,index):
-        self.array=numpy.delete(self.array,index,axis=1)
+    def removeColumn(self, index):
+        self.array = numpy.delete(self.array, index, axis=1)
     
     def toHDF5(self, hdf, name=None):
         try:
@@ -760,5 +777,5 @@ class Numpy2DProp(Prop):
             logger.warning('While trying to create dataset in Numpy2DProp.toHDF5() in '+self.name+'.\n'+str(e)+'\n'+str(traceback.format_exc())+'\n')
             raise PauseError
 
-    def fromHDF5(self,hdf):
-        self.array=hdf.value.astype(self.dtype)
+    def fromHDF5(self, hdf):
+        self.array = hdf.value.astype(self.dtype)

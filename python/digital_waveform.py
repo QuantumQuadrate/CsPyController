@@ -15,63 +15,6 @@ import numpy, h5py
 defaultState = 5
 
 
-class Channel(Prop):
-    active = Typed(BoolProp)
-    
-    def __init__(self, name, experiment, description=''):
-        super(Channel, self).__init__(name, experiment, description)
-        self.active = BoolProp('active', experiment, '', 'True')
-        self.properties += ['active']
-
-
-class Channels(ListProp):
-    digitalout = Member()
-    
-    def __init__(self, experiment, digitalout, description='A list of HSDIO output channels'):
-        super(Channels, self).__init__('channels', experiment, description,
-            listProperty=[Channel('channel'+str(i), experiment, '') for i in xrange(digitalout.numChannels)],
-            listElementType=Channel, listElementName='channel')
-        self.digitalout = digitalout
-    
-    def toHardware(self):
-        #The actual IdleState and InitialState are all set to all X's, for continuity.
-        activeChannels = [str(i) for i, c in enumerate(self.listProperty) if c.active.value]
-        xState = 'X'*len(activeChannels)
-        return '<InitialState>'+xState+'</InitialState>\n<IdleState>'+xState+'</IdleState>\n<ActiveChannels>'+','.join(activeChannels)+'</ActiveChannels>\n'
-
-
-class State(ListProp):
-    digitalout = Member()
-    allowedValues = [0, 1, 5]
-    
-    def __init__(self,experiment,digitalout):
-        super(State,self).__init__('state',experiment,
-            listProperty=[EnumProp('channel'+str(i),experiment,function=str(defaultState),allowedValues=self.allowedValues) for i in range(digitalout.numChannels)], #defaultState is a global at the top of the module
-            listElementType=EnumProp,listElementName='channel',listElementKwargs={'function':str(defaultState),'allowedValues':self.allowedValues})
-        self.digitalout=digitalout
-
-
-class Transition(Prop):
-    time=Typed(FloatProp) #when does this transition happen
-    digitalout=Member()
-    state=Member()
-    
-    def __init__(self,name,experiment,digitalout=None,description=''):
-        super(Transition,self).__init__(name,experiment,description)
-        self.digitalout=digitalout
-        self.time=FloatProp('time',self.experiment,'when this transition happens','0')
-        self.state=State(self.experiment,self.digitalout)
-        self.properties+=['time','state']
-
-
-class Sequence(ListProp):
-    digitalout=Member()
-    
-    def __init__(self,experiment,digitalout):
-        super(Sequence,self).__init__('sequence',experiment,listElementType=Transition,listElementName='transition',listElementKwargs={'digitalout':digitalout})
-        self.digitalout=digitalout
-
-
 class NumpyChannels(Numpy1DProp):
     digitalout = Member()
     
@@ -215,16 +158,16 @@ class NumpyWaveform(Prop):
     def __init__(self, name, experiment, description='', digitalout=None, waveforms=None):
         super(NumpyWaveform, self).__init__(name, experiment, description)
         
-        self.digitalout=digitalout
-        self.waveforms=waveforms
-        self.channelList=numpy.zeros(0,dtype=numpy.uint8)
-        self.transitions=NumpyTransitions(self.experiment)
-        self.sequence=NumpySequence(self.experiment)
-        self.plotmin=-1
-        self.plotmax=-1
-        self.isEmpty=True
-        self.properties+=['isEmpty','transitions','sequence','plotmin','plotmax','channelList']
-        self.doNotSendToHardware+=['plotmin','plotmax']
+        self.digitalout = digitalout
+        self.waveforms = waveforms
+        self.channelList = numpy.zeros(0,dtype=numpy.uint8)
+        self.transitions = NumpyTransitions(self.experiment)
+        self.sequence = NumpySequence(self.experiment)
+        self.plotmin = -1
+        self.plotmax = -1
+        self.isEmpty = True
+        self.properties += ['isEmpty', 'transitions', 'sequence', 'plotmin', 'plotmax', 'channelList']
+        self.doNotSendToHardware += ['plotmin', 'plotmax']
         
         self.figure1=Figure(figsize=(5,5))
         self.figure2=Figure(figsize=(5,5))
@@ -275,7 +218,7 @@ class NumpyWaveform(Prop):
         self.sequence.addColumn(index)
         self.evaluate()
     
-    def removeChannel(self,index):
+    def removeChannel(self, index):
         self.channelList=numpy.delete(self.channelList,index,axis=0)
         self.sequence.removeColumn(index)
         self.evaluate()
@@ -482,3 +425,25 @@ class NumpyWaveform(Prop):
                 '<transitions>'+' '.join([str(time) for time in self.timeList])+'</transitions>'+
                 '<states>'+'\n'.join([' '.join([str(sample) for sample in state]) for state in self.stateList])+'</states>\n'+
                 '</waveform>\n')
+
+
+import cs_evaluate
+
+class TextWaveformBook(Prop):
+    waveforms = []
+    # each waveform is a page of python code, that returns it's total length
+    # these can be digital or analog or both
+    # labels are allow at discrete times or over continuous times
+
+    def evaluate(self):
+        # here we go through the pages and build the waveform for each instrument
+
+        #each waveform should take in the start time and return the end time
+
+        #each waveform needs to have access to the experiment so that instruments can be set up
+
+        # variables need to work within these contexts
+
+        for i in waveforms:
+            # parse all the definitions and add them to the namespace
+            cs_evaluate.evalWithDict(i)

@@ -63,6 +63,7 @@ class Optimization(AnalysisWithFigure):
             self.best_xi = None
             self.best_yi = float('inf')
 
+
     def postIteration(self, iterationResults, experimentResults):
         if self.enable:
 
@@ -96,6 +97,12 @@ class Optimization(AnalysisWithFigure):
             # store the best point
             experimentResults['analysis/best_xi'] = self.best_xi
             experimentResults['analysis/best_yi'] = self.best_yi
+
+            # store the cost graph to a pdf
+            if self.experiment.saveData:
+                pdf = PdfPages('optimizer.pdf')
+                pdf.savefig(self.figure, transparent=True)
+                pdf.close()
 
     def updateFigure(self):
         fig = self.backFigure

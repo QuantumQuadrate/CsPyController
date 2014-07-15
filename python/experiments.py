@@ -18,7 +18,7 @@ numpy.set_printoptions(formatter=dict(float=lambda t: "%.2e" % t))
 from atom.api import Int, Float, Str, Member, Bool
 
 # Bring in other files in this package
-import cs_evaluate, analysis, save2013style, TTL, LabView, sound, optimization, roi_fitting
+import cs_evaluate, analysis, save2013style, TTL, LabView, sound, optimization, roi_fitting, picomotors
 from cs_errors import PauseError
 from instrument_property import Prop, EvalProp, ListProp, StrProp
 
@@ -59,7 +59,7 @@ class IndependentVariable(EvalProp):
                 #Pass in a dictionary with numpy as the keyword np, for the user to create array variables using
                 #linspace, arange, etc.
 
-                a = cs_evaluate.evalIvar('array('+self.function+').flatten()')
+                a = cs_evaluate.evalIvar('array('+self.function+').flatten()', self.experiment.constants)
             if a is None:
                 a = numpy.array([]).flatten()
             self.valueList = a
@@ -138,6 +138,7 @@ class Experiment(Prop):
     
     #variables traits
     dependentVariablesStr = Str()
+    constantsStr = Str()
     constantReport = Member()
     variableReport = Member()
     variablesNotToSave = Str()
@@ -157,6 +158,7 @@ class Experiment(Prop):
     ivarIndex = Member()
     ivarValueLists = Member()
     ivarSteps = Member()
+    constants = Member()
     vars = Member()
     hdf5 = Member()
     measurementResults = Member()
@@ -164,7 +166,7 @@ class Experiment(Prop):
     allow_evaluation = Member()
     log = Member()
     log_handler = Member()
-    gui = Member() #a reference to the gui Main, for use in Prop.set_gui
+    gui = Member()  # a reference to the gui Main, for use in Prop.set_gui
     experiment_type = Str()
 
     def __init__(self):
@@ -184,18 +186,18 @@ class Experiment(Prop):
         self.completedMeasurementsByIteration = []
         self.independentVariables = ListProp('independentVariables', self, listElementType=IndependentVariable,
                                              listElementName='independentVariable')
-        self.ivarIndex=[]
+        self.ivarIndex = []
         self.vars = {}
         self.analyses = []
 
-        self.properties += ['version', 'independentVariables', 'dependentVariablesStr', 'pauseAfterIteration',
-                            'pauseAfterMeasurement', 'pauseAfterError', 'saveData', 'saveSettings', 'settings_path',
-                            'save2013styleFiles', 'localDataPath', 'networkDataPath', 'copyDataToNetwork',
-                            'experimentDescriptionFilenameSuffix', 'measurementTimeout', 'measurementsPerIteration',
-                            'willSendEmail', 'emailAddresses', 'progress', 'progressGUI', 'iteration', 'measurement',
-                            'goodMeasurements', 'totalIterations', 'timeStarted', 'currentTime',
-                            'timeElapsed', 'timeRemaining', 'totalTime', 'completionTime', 'constantReport',
-                            'variableReport', 'variablesNotToSave', 'notes', 'max_iterations']
+        self.properties += ['version', 'constantsStr', 'independentVariables', 'dependentVariablesStr',
+                            'pauseAfterIteration', 'pauseAfterMeasurement', 'pauseAfterError', 'saveData',
+                            'saveSettings', 'settings_path', 'save2013styleFiles', 'localDataPath', 'networkDataPath',
+                            'copyDataToNetwork', 'experimentDescriptionFilenameSuffix', 'measurementTimeout',
+                            'measurementsPerIteration', 'willSendEmail', 'emailAddresses', 'progress', 'progressGUI',
+                            'iteration', 'measurement', 'goodMeasurements', 'totalIterations', 'timeStarted',
+                            'currentTime', 'timeElapsed', 'timeRemaining', 'totalTime', 'completionTime',
+                            'constantReport', 'variableReport', 'variablesNotToSave', 'notes', 'max_iterations']
         #we do not load in status as a variable, to allow old settings to be loaded without bringing in the status of
         #the saved experiments
 
@@ -266,22 +268,30 @@ class Experiment(Prop):
             if not i.isInitialized:
                 i.initialize()  # reinitialize
             i.update()  # put the settings to where they should be at this iteration
-    
+
     def evaluateAll(self):
         if self.allow_evaluation:
-            self.evaluateIndependentVariables()
+            self.evaluate_static()
             self.evaluate()
-    
-    def evaluateDependentVariables(self):
-        """Update variables dictionary."""
 
-        logger.debug('Evaluating dependent variables ...')
+    def evaluate_static(self):
+        if self.allow_evaluation:
+            self.evaluate_constants()
+            self.evaluateIndependentVariables()
 
-        #build a dictionary of the independent variables
-        self.vars = dict([(i.name, i.currentValue) for i in self.independentVariables])
+    def evaluate_constants(self):
 
-        #evaluate the dependent variable multi-line string
-        cs_evaluate.execWithDict(self.dependentVariablesStr, self.vars)
+        # create a new dictionary and evaluate the constants into it
+        self.constants = {}
+        cs_evaluate.execWithDict(self.constantsStr, self.constants)
+
+        # reset self.vars so it can be used in evaluating the constantReport
+        self.vars = self.constants.copy()
+
+        # evaluate constant report
+        #at this time the properties are not all evaluated, so, we must do this one manually
+        self.constantReport.evaluate()
+
 
     #overwrite from Prop()
     def evaluate(self):
@@ -289,8 +299,15 @@ class Experiment(Prop):
         if self.allow_evaluation:
             logger.debug('Experiment.evaluate() ...')
 
-            #resolve independent variables for correct iteration, and evaluate dependent variables
-            self.evaluateDependentVariables()
+            # start with the constants
+            self.vars = self.constants.copy()
+
+            # add the independent variables current values to the dict
+            ivars = dict([(i.name, i.currentValue) for i in self.independentVariables])
+            self.vars.update(ivars)
+
+            #evaluate the dependent variable multi-line string
+            cs_evaluate.execWithDict(self.dependentVariablesStr, self.vars)
 
             #evaluate variable report
             #at this time the properties are not all evaluated, so, we must do this one manually
@@ -448,8 +465,11 @@ class Experiment(Prop):
 
         # setup data directory and files
         self.create_data_files()
-        #make sure the independent variables are processed
-        self.evaluateIndependentVariables()
+
+        # evaluate the constants and independent variables
+        self.evaluatestatic()
+        self.hdf5['constant_report'] = self.constantReport.value
+
         # run analyses preExperiment
         self.preExperiment()
 
@@ -486,7 +506,7 @@ class Experiment(Prop):
                 logger.debug("starting new iteration")
                 
                 #at the start of a new iteration, or if we are continuing
-                self.evaluateAll()  # re-calculate all variables
+                self.evaluate()  # re-calculate dependent variables
                 self.update()  # send current values to hardware
                 
                 #only at the start of a new iteration
@@ -993,11 +1013,39 @@ class Experiment(Prop):
         logger.info('Finished Experiment.')
         sound.complete_sound()
 
+    def iteration_updater(self):
+        """takes the iteration number and figures out which index number each independent variable should have"""
+        n = len(self.independentVariables)
+        index = numpy.zeros(n, dtype=int)
+        # calculate the base for each variable place
+        base = [1]
+        for i in range(1, n):
+            base.append(self.ivarSteps[i-1]*base[i-1])
+        #build up the list
+        seq = range(n)
+        seq.reverse()  # go from largest place to smallest
+
+        iter = self.iteration
+        for i in seq:
+            index[i] = int(iter/base[i])
+            iter -= index[i]*base[i]
+            index[i] = self.independentVariables[i].setIndex(index[i])  # update each variable object
+        self.ivarIndex = index  # store the list
+
+        # we don't know the number of variables ahead of time, so instead of making nested for loops, do a while
+        iteration = 0
+        self.set_gui({'iterationStr': iteration})
+        while not end_condition:
+
+            # build a dictionary
+            yield ivar_dict
+
 
 class AQuA(Experiment):
     """A subclass of Experiment which knows about all our particular hardware"""
     
     LabView = Member()
+    picomotors = Member()
     TTL_filters = Member()
     squareROIAnalysis = Member()
     gaussian_roi = Member()
@@ -1023,7 +1071,8 @@ class AQuA(Experiment):
         
         #add instruments
         self.LabView = LabView.LabView(experiment=self)
-        self.instruments += [self.LabView]
+        self.picomotors = picomotors.Picomotors('picomotors', self, 'Newport Picomotors')
+        self.instruments += [self.LabView, self.picomotors]
         
         #analyses
         self.TTL_filters = TTL.TTL_filters('TTL_filters', self)

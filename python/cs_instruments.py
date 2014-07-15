@@ -33,14 +33,14 @@ class Instrument(Prop):
         """Sends current settings to the instrument.  This function is run at the beginning of every new iteration.
         Does not explicitly call evaluate, to avoid duplication of effort.
         All calls to evaluate should already have been accomplished."""
-       
+
         for i in self.instruments:
-            i.update() #call update for any sub-instrument
+            i.update()  # call update for any sub-instrument
 
         #the details of sending to each instrument must be handled in a subclass
         #first call super(subclass,self).update() to call this method
         #then do the hardware update, probably involving sending the toXML string via TCP/IP
-    
+
     def start(self):
         """Enables the instrument to begin a measurement.  Sent at the beginning of every measurement.
         Actual output or input from the measurement may yet wait for a signal from another device."""

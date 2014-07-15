@@ -95,7 +95,9 @@ class LabView(Instrument):
         thread.start()
 
     def open(self):
+
         if self.enabled:
+
             logger.debug('Opening LabView TCP.')
             #check for an old socket and delete it
             if self.sock is not None:
