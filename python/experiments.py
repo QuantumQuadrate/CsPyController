@@ -268,17 +268,29 @@ class Experiment(Prop):
             if not i.isInitialized:
                 i.initialize()  # reinitialize
             i.update()  # put the settings to where they should be at this iteration
-    
+
     def evaluateAll(self):
+        if self.allow_evaluation:
+            self.evaluate_static()
+            self.evaluate()
+
+    def evaluate_static(self):
         if self.allow_evaluation:
             self.evaluate_constants()
             self.evaluateIndependentVariables()
-            self.evaluate()
 
     def evaluate_constants(self):
+
         # create a new dictionary and evaluate the constants into it
         self.constants = {}
         cs_evaluate.execWithDict(self.constantsStr, self.constants)
+
+        # reset self.vars so it can be used in evaluating the constantReport
+        self.vars = self.constants.copy()
+
+        # evaluate constant report
+        #at this time the properties are not all evaluated, so, we must do this one manually
+        self.constantReport.evaluate()
 
 
     #overwrite from Prop()
@@ -453,8 +465,11 @@ class Experiment(Prop):
 
         # setup data directory and files
         self.create_data_files()
-        #make sure the independent variables are processed
-        self.evaluateIndependentVariables()
+
+        # evaluate the constants and independent variables
+        self.evaluatestatic()
+        self.hdf5['constant_report'] = self.constantReport.value
+
         # run analyses preExperiment
         self.preExperiment()
 
@@ -491,7 +506,7 @@ class Experiment(Prop):
                 logger.debug("starting new iteration")
                 
                 #at the start of a new iteration, or if we are continuing
-                self.evaluateAll()  # re-calculate all variables
+                self.evaluate()  # re-calculate dependent variables
                 self.update()  # send current values to hardware
                 
                 #only at the start of a new iteration
