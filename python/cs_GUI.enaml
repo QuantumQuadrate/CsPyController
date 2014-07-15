@@ -1662,7 +1662,11 @@ enamldef MultiImagePage(Page): page:
                 analysis<<analysis2
             Form:
                 Label:
-                   text='Show ROIs?'
+                    text = 'enable'
+                CheckBox:
+                    checked := analysis2.enable
+                Label:
+                    text='Show ROIs?'
                 CheckBox:
                     checked:=analysis2.showROIs
                 Label:

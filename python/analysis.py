@@ -372,6 +372,7 @@ class ShotsBrowserAnalysis(AnalysisWithFigure):
     
 class ImageSumAnalysis(AnalysisWithFigure):
     data = Member()
+    enable = Bool()
     sum_array = Member()  # holds the sum of each shot
     count_array = Member()  # holds the number of measurements summed
     mean_array = Member()  # holds the mean image for each shot
@@ -380,12 +381,17 @@ class ImageSumAnalysis(AnalysisWithFigure):
     update_lock = Bool(False)
     min = Member()
     max = Member()
+    pdf = Member()
 
     def __init__(self, experiment):
         super(ImageSumAnalysis, self).__init__('ImageSumAnalysis', experiment, 'Sums shot0 images as they come in')
-        self.properties += ['showROIs', 'shot']
+        self.properties += ['enable', 'showROIs', 'shot']
         self.min = 0
         self.max = 1
+
+    def preExperiment(self, experimentResults):
+        if self.enable and self.experiment.saveData:
+            self.pdf = PdfPages('image_mean.pdf')
 
     def preIteration(self, iterationResults, experimentResults):
         #clear old data
@@ -414,7 +420,38 @@ class ImageSumAnalysis(AnalysisWithFigure):
             self.updateFigure()  # only update figure if image was loaded
 
     def analyzeIteration(self, iterationResults,experimentResults):
-        iterationResults['sum_array'] = self.sum_array
+        if self.enable:
+            iterationResults['sum_array'] = self.sum_array
+            iterationResults['mean_array'] = self.mean_array
+
+            # create image of all shots for pdf
+            if self.experiment.saveData:
+                fig = Figure()
+                n = len(self.mean_array)
+                # one row, show all shots for this iteration, plus colorbar
+                # colorbar is 1/5 width of plots
+                gs = GridSpec([1, n+1], width_ratios=n*[5]+[1])
+                vmin = amin(self.mean_array)
+                vmax = amax(self.mean_array)
+                for i in xrange(n):
+                    # plot
+                    ax = fig.add_subplot(gs[0, i])
+                    im = ax.imshow(self.mean_array[i], vmin=vmin, vmax=vmax)
+
+                    # label plot
+                    ax.set_title('shot {} mean'.format(self.shot))
+
+                    # make ROI boxes
+                    if self.showROIs:
+                        for ROI in self.experiment.squareROIAnalysis.ROIs:
+                            mpl_rectangle(ax, ROI)
+
+                # make colorbar
+                ax = fig.add_subplot(gs[0,n])
+                ax.colorbar(im, cax=ax)
+
+                # save to pdf
+                self.pdf.savefig(fig, transparent=True)
 
     @observe('shot', 'showROIs')
     def reload(self, change):
@@ -449,6 +486,11 @@ class ImageSumAnalysis(AnalysisWithFigure):
                 logger.warning('Problem in ImageSumAnalysish.updateFigure()\n:{}'.format(e))
             finally:
                 self.update_lock = False
+
+    def postExperiment(self, experimentResults):
+        if self.enable and self.experiment.saveData:
+            self.pdf.close()
+
 
 class SquareROIAnalysis(AnalysisWithFigure):
     """Add up the sums of pixels in a region, and evaluate whether or not an atom is present based on the totals."""

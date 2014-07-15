@@ -426,25 +426,3 @@ class NumpyWaveform(Prop):
                 '<states>'+'\n'.join([' '.join([str(sample) for sample in state]) for state in self.stateList])+'</states>\n'+
                 '</waveform>\n')
 
-
-import cs_evaluate
-
-class TextWaveformBook(Prop):
-    waveforms = []
-    # each waveform is a page of python code, that returns it's total length
-    # these can be digital or analog or both
-    # labels are allow at discrete times or over continuous times
-
-    def evaluate(self):
-        # here we go through the pages and build the waveform for each instrument
-
-        #each waveform should take in the start time and return the end time
-
-        #each waveform needs to have access to the experiment so that instruments can be set up
-
-        # variables need to work within these contexts
-
-        for i in waveforms:
-            # parse all the definitions and add them to the namespace
-            cs_evaluate.evalWithDict(i)
-
