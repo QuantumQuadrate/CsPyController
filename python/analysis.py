@@ -16,6 +16,7 @@ import matplotlib.patches as patches
 from matplotlib.gridspec import GridSpec
 from matplotlib.backends.backend_pdf import PdfPages
 from enaml.application import deferred_call
+import matplotlib.pyplot as plt
 
 import threading, numpy, traceback, os
 from scipy.optimize import curve_fit
@@ -419,7 +420,7 @@ class ImageSumAnalysis(AnalysisWithFigure):
 
             self.updateFigure()  # only update figure if image was loaded
 
-    def analyzeIteration(self, iterationResults,experimentResults):
+    def analyzeIteration(self, iterationResults, experimentResults):
         if self.enable:
             iterationResults['sum_array'] = self.sum_array
             iterationResults['mean_array'] = self.mean_array
@@ -705,16 +706,17 @@ class HistogramGrid(AnalysisWithFigure):
             # all_shots_array will be shape (measurements,shots,rois)
             self.all_shots_array = numpy.array([m['analysis/squareROIsums'] for m in iterationResults['measurements'].itervalues()])
 
+            self.updateFigure()
+
             # save to PDF
             if self.experiment.saveData:
-                shots = self.all_shots_array.shape[1]
-                for i in xrange(shots):
-                    fig = Figure()
-                    roidata = self.all_shots_array[:, self.shot, :]
-                    histogram_grid_plot(fig, roidata, self.experiment.ROI_rows, self.experiment.ROI_columns)
-                    self.pdf.savefig(fig, transparent=True)
+                # take shot 0
+                fig = Figure()
+                roidata = self.all_shots_array[:, self.shot, :]
+                histogram_grid_plot(fig, roidata, self.experiment.ROI_rows, self.experiment.ROI_columns)
+                plt.savefig('histogram{}.pdf'.format(self.experiment.iteration))
+                plt.close(fig)
 
-            self.updateFigure()
 
     @observe('shot')
     def refresh(self, change):
@@ -730,7 +732,15 @@ class HistogramGrid(AnalysisWithFigure):
                 # take shot 0
                 roidata = self.all_shots_array[:, self.shot, :]
                 histogram_grid_plot(fig, roidata, self.experiment.ROI_rows, self.experiment.ROI_columns)
+
             super(HistogramGrid, self).updateFigure()
+
+            # save to PDF
+            if self.experiment.saveData:
+                plt.figure(fig.number)
+                plt.savefig(os.path.join(self.experiment.path,'histogram{}.png'.format(self.experiment.iteration)))
+                #self.pdf.savefig(self.figure) #, dpi=self.figure.dpi)
+
         except Exception as e:
             logger.warning('Problem in HistogramGrid.updateFigure():\n{}\n{}\n'.format(e, traceback.format_exc()))
 
@@ -871,11 +881,11 @@ def histogram_grid_plot(fig, roidata, ROI_rows, ROI_columns):
             ax.step(x, y, where='post')
             ax.set_xlim([overall_min, overall_max])
             ax.set_ylim([0, overall_maxcount])
-            ax.set_title('site {}, {:.0f}$\pm${:.1f}%'.format(n,loading[n]*100,overlap[n]*100), size=font)
+            ax.set_title('site {}, {:.0f}$\pm${:.1f}%'.format(n,loading[n]*100,overlap[n]*100))  # , size=font)
             ax.set_xticks([best_mean1s[n], best_cutoffs[n], best_mean2s[n], overall_max])
             ax.set_xticklabels(['{}$\pm${:.1f}'.format(int(best_mean1s[n]/1000),best_width1s[n]/1000), str(int(best_cutoffs[n]/1000)), '{}$\pm${:.1f}'.format(int(best_mean2s[n]/1000),best_width2s[n]/1000), 'e3'], size=font, rotation=90)
             ax.set_yticks([0, max(best_g1s[n]), max(best_g2s[n])])
-            ax.set_yticklabels([str(0), str(int(max(best_g1s[n]))), str(int(max(best_g2s[n])))], size=font)
+            ax.set_yticklabels([str(0), str(int(max(best_g1s[n]))), str(int(max(best_g2s[n])))])  # , size=font)
             #plot gaussians
             x = numpy.linspace(overall_min, overall_max, 100)
             #ax.plot(x,two_gaussians(x,*popts[n]),'g',lw=3)
@@ -895,8 +905,8 @@ def histogram_grid_plot(fig, roidata, ROI_rows, ROI_columns):
         ax.text(0.5,0.5,'row {}\navg loading\n{:.0f}%'.format(i,100*numpy.mean(loading[i*ROI_columns:(i+1)*ROI_columns])),
             horizontalalignment='center',
             verticalalignment='center',
-            transform=ax.transAxes,
-            fontsize=font)
+            transform=ax.transAxes)  # ,
+            #fontsize=font)
 
     #make stats for each column
     for i in xrange(ROI_columns):
@@ -905,8 +915,8 @@ def histogram_grid_plot(fig, roidata, ROI_rows, ROI_columns):
         ax.text(0.5,0.5,'column {}\navg loading\n{:.0f}%'.format(i,100*numpy.mean(loading[i:i+(ROI_rows-1)*ROI_columns:ROI_columns])),
             horizontalalignment='center',
             verticalalignment='center',
-            transform=ax.transAxes,
-            fontsize=font)
+            transform=ax.transAxes)  # ,
+            #fontsize=font)
 
     #make stats for whole array
     ax = fig.add_subplot(gs1[ROI_rows,ROI_columns])
@@ -914,8 +924,8 @@ def histogram_grid_plot(fig, roidata, ROI_rows, ROI_columns):
     ax.text(0.5,0.5,'array\navg loading\n{:.0f}%'.format(100*numpy.mean(loading)),
         horizontalalignment='center',
         verticalalignment='center',
-        transform=ax.transAxes,
-        fontsize=font)
+        transform=ax.transAxes)  # ,
+        #fontsize=font)
 
 class MeasurementsGraph(AnalysisWithFigure):
     """Plots a region of interest sum after every measurement"""
