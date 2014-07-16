@@ -181,7 +181,7 @@ class AnalysisWithFigure(Analysis):
     def blankFigure(self):
         fig = self.backFigure
         fig.clf()
-        super(AnalysisWithFigure, self).updateFigure()
+        self.updateFigure()
 
 class TextAnalysis(Analysis):
     #Text output that can be updated back to the GUI
@@ -704,6 +704,16 @@ class HistogramGrid(AnalysisWithFigure):
         if self.enable:
             # all_shots_array will be shape (measurements,shots,rois)
             self.all_shots_array = numpy.array([m['analysis/squareROIsums'] for m in iterationResults['measurements'].itervalues()])
+
+            # save to PDF
+            if self.experiment.saveData:
+                shots = self.all_shots_array.shape[1]
+                for i in xrange(shots):
+                    fig = Figure()
+                    roidata = self.all_shots_array[:, self.shot, :]
+                    histogram_grid_plot(fig, roidata, self.experiment.ROI_rows, self.experiment.ROI_columns)
+                    self.pdf.savefig(fig, transparent=True)
+
             self.updateFigure()
 
     @observe('shot')
@@ -720,11 +730,9 @@ class HistogramGrid(AnalysisWithFigure):
                 # take shot 0
                 roidata = self.all_shots_array[:, self.shot, :]
                 histogram_grid_plot(fig, roidata, self.experiment.ROI_rows, self.experiment.ROI_columns)
-                if self.enable and self.experiment.saveData:
-                    self.pdf.savefig(fig, transparent=True)
             super(HistogramGrid, self).updateFigure()
         except Exception as e:
-            logger.warning('Problem in HistogramGrid.updateFigure()\n:{}'.format(e))
+            logger.warning('Problem in HistogramGrid.updateFigure():\n{}\n{}\n'.format(e, traceback.format_exc()))
 
 def gaussian1D(x, x0, a, w):
     """returns the height of a gaussian (with mean x0, amplitude, a and width w) at the value(s) x"""
@@ -1079,7 +1087,7 @@ class IterationsGraph(AnalysisWithFigure):
                     ax.legend()
                 super(IterationsGraph, self).updateFigure()
             except Exception as e:
-                logger.warning('Problem in IterationsGraph.updateFigure()\n{}\n{}\n'.format(e,traceback.format_exc()))
+                logger.warning('Problem in IterationsGraph.updateFigure()\n{}\n{}\n'.format(e, traceback.format_exc()))
             finally:
                 self.update_lock = False
 

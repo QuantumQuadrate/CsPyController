@@ -31,7 +31,7 @@ class Camera(Instrument):
         self.doNotSendToHardware+=['saveAsPNG','saveAsASCII']
 
 class HamamatsuC9100_13(Camera):
-    version='2014.01.17'
+    version='2014.07.16'
     forceImagesToU16=Typed(BoolProp)
     EMGain=Typed(IntRangeProp)
     analogGain=Typed(IntRangeProp)
