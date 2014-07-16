@@ -23,12 +23,11 @@ import sound
 
 class TTL(Instrument):
     version = '2014.04.24'
-    enable = Bool(False)
     lines = Str('PXI1Slot6/port0/lines1:2')
 
     def __init__(self, experiment):
         super(TTL, self).__init__('TTL', experiment)
-        self.properties += ['version', 'enable', 'lines']
+        self.properties += ['version', 'lines']
 
     def evaluate(self):
         if self.experiment.allow_evaluation:

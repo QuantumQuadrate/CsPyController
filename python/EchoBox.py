@@ -26,9 +26,7 @@ class EchoBox(Instrument):
     
     def __init__(self,experiment):
         super(EchoBox,self).__init__('EchoBox',experiment,'creates fake test data to be parroted back to the client')
-        self.enable=BoolProp('enable',experiment,'enable fake EchoBox data','False')
-        self.properties+=['enable']
-    
+
     #intensity, for incoherent beams
     def gaussian(self,A,w,x,y):
         return A*numpy.exp(-(x**2+y**2)/(2*(w**2)))

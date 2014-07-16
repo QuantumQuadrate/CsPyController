@@ -44,7 +44,6 @@ class Picomotor(Prop):
 
 class Picomotors(Instrument):
     version = '2014.07.09'
-    enable = Bool()
     IP = Str()
     port = Int()
     motors = Member()
@@ -54,7 +53,7 @@ class Picomotors(Instrument):
         super(Picomotors, self).__init__(name, experiment, description)
         self.motors = ListProp('motors', experiment, 'A list of individual picomotors', listElementType=Picomotor,
                                listElementName='motor')
-        self.properties += ['version', 'enable', 'IP', 'port', 'motors']
+        self.properties += ['version', 'IP', 'port', 'motors']
 
     def initialize(self):
         """Open the TCP socket"""

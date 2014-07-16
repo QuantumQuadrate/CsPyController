@@ -47,15 +47,13 @@ class PiezoController(Prop):
 
 class Piezo(Instrument):
     version = '2014.04.06'
-    enable = Member()
     channels = Typed(ListProp)
     controllers = Member()
     
     def __init__(self, experiment):
         super(Piezo, self).__init__('piezo', experiment)
-        self.enable = False
         self.controllers = ListProp('controllers', self.experiment, listProperty=[PiezoController('controller'+str(i), self.experiment) for i in range(2)], listElementType=PiezoController, listElementName='controller')
-        self.properties += ['version', 'enable', 'controllers']
+        self.properties += ['version', 'controllers']
 
     def evaluate(self):
         if self.experiment.allow_evaluation:

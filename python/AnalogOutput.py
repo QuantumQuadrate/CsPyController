@@ -71,7 +71,6 @@ class AOEquation(EvalProp):
 
 
 class AnalogOutput(Instrument):
-    enable = Member()
     physicalChannels = Typed(StrProp)
     minimum = Typed(FloatProp)
     maximum = Typed(FloatProp)
@@ -111,7 +110,7 @@ class AnalogOutput(Instrument):
                             listElementName='equation',listElementKwargs={'AO':self})
         self.exportStartTrigger=BoolProp('exportStartTrigger',self.experiment,'Should we trigger all other cards off the AO card?','True')
         self.exportStartTriggerDestination=StrProp('exportStartTriggerDestination',self.experiment,'What line to send the AO StartTrigger out to?','"/PXISlot2/PXI_Trig0"')
-        self.properties+=['version','enable','physicalChannels','minimum','maximum','clockRate','totalAOTime','units','waitForStartTrigger','triggerSource','triggerEdge','exportStartTrigger','exportStartTriggerDestination','equations'] #make sure equations are evaluated last
+        self.properties+=['version', 'physicalChannels','minimum','maximum','clockRate','totalAOTime','units','waitForStartTrigger','triggerSource','triggerEdge','exportStartTrigger','exportStartTriggerDestination','equations'] #make sure equations are evaluated last
         self.doNotSendToHardware+=['units','totalAOTime']
         
         self.figure1=Figure()

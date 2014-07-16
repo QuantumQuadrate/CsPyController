@@ -66,7 +66,6 @@ class npHSDIO(Instrument):
     version = '2014.06.27'
     numChannels = 64
 
-    enable = Member()
     script = Member()
     resourceName = Member()
     clockRate = Member()
@@ -80,7 +79,6 @@ class npHSDIO(Instrument):
 
     def __init__(self, name, experiment):
         super(npHSDIO, self).__init__(name, experiment)
-        self.enable = BoolProp('enable', experiment, 'enable HSDIO output', 'False')
         self.script = StrProp('script', experiment, 'HSDIO script that says what waveforms to generate', "'script script1\\n  wait 1\\nend script'")
         self.resourceName = StrProp('resourceName', experiment, 'the hardware location of the HSDIO card', "'Dev1'")
         self.clockRate = FloatProp('clockRate', experiment, 'samples/channel/sec', '1000')
@@ -91,7 +89,7 @@ class npHSDIO(Instrument):
         self.triggers = ListProp('triggers', self.experiment, listElementType=ScriptTrigger, listElementName='trigger')
         self.startTrigger = StartTrigger(experiment)
         self.import_path = ''
-        self.properties += ['version', 'enable', 'resourceName', 'clockRate', 'units', 'hardwareAlignmentQuantum', 'waveforms', 'triggers', 'channels', 'startTrigger', 'script']
+        self.properties += ['version', 'resourceName', 'clockRate', 'units', 'hardwareAlignmentQuantum', 'waveforms', 'triggers', 'channels', 'startTrigger', 'script']
         self.doNotSendToHardware += ['units', 'script', 'waveforms']  # script and waveforms are handled specially in HSDIO.toHardware()
 
     def evaluate(self):
