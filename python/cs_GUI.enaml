@@ -21,7 +21,7 @@ from enaml.widgets.api import (MainWindow, MenuBar, Menu, Action,
                                 Form, Label, CheckBox, SpinBox, PushButton, MPLCanvas,
                                 MultilineField, ProgressBar, ScrollArea, Separator,
                                 FileDialog,Window, StatusBar, StatusItem,
-                                Stack, StackItem, ComboBox, HGroup
+                                Stack, StackItem, ComboBox, HGroup, VGroup
 )
 from enaml.icon import Icon, IconImage
 from enaml.image import Image
@@ -509,7 +509,7 @@ enamldef IndependentVariablesGroupBox(GroupBox):
 
 enamldef Variables(Container): main:
     attr experiment
-    title = 'Variables'
+
     Container: settings:
         hug_height='strong'
         hug_width='strong'
@@ -560,7 +560,7 @@ enamldef Reports(Container):
                 constraints = [height==1000, width==600]
                 text := experiment.constantReport.function
                 style_class << 'valid' if experiment.constantReport.valid else 'invalid'
-            Label: lb2:
+            Label: lb1:
                 text << experiment.variableReport.valueStr
         GroupBox:
             title = 'Variable Report'
@@ -600,7 +600,7 @@ enamldef LabViewPage(Page):
                 Label:
                     text='enable communication with LabView system?'
                 CheckBox:
-                    checked:=LabView.enabled
+                    checked:=LabView.enable
                 Label:
                     text='IP address of LabView system'
                 Field:
@@ -1030,8 +1030,11 @@ enamldef HSDIO_DigitalOutPage(Page):
                 constraints=[hbox(vbox(p1,p9,p2,p4,p5,p6,p7,p8),p3),align('left',p1,p9,p2,p4,p5,p6,p7),align('top',p1,p3)]
                 hug_height='strong'
                 hug_width='strong'
-                EvalProp: p1:
-                    prop<<HSDIO.enable
+                Form: p1:
+                    Label:
+                        text = 'enable'
+                    CheckBox:
+                        checked := HSDIO.enable
                 StartTrigger: p9:
                     trigger<<HSDIO.startTrigger
                 IndexedStack: p2:
@@ -1060,8 +1063,11 @@ enamldef DAQmxDigitalOutPage(Page):
                 constraints=[vbox(canvas,p6,hbox(vbox(p0,p1,p2,p3,p4),p5)),align('top',p0,p5)]
                 hug_height='strong'
                 hug_width='strong'
-                EvalProp: p0:
-                    prop<<DAQmx.enable
+                Form: p0:
+                    Label:
+                        text = 'enable'
+                    CheckBox:
+                        checked := DAQmx.enable
                 EvalProp: p1:
                     prop<<DAQmx.resourceName
                 EvalProp: p2:
@@ -1250,8 +1256,11 @@ enamldef DDS_Page(Container): page:
         hug_width='strong'
         hug_height='strong'
         constraints=[vbox(hbox(enable,isInit,getDevicesButton,initButton,loadButton),stackGroup),align('v_center',getDevicesButton,initButton,loadButton,enable,isInit),enable.width==500,getDevicesButton.width==200,initButton.width==200,loadButton.width==200]
-        EvalProp: enable:
-                    prop<<DDS.enable
+        Form:
+            Label:
+                text = 'enable'
+            CheckBox: enable:
+                checked := DDS.enable
         PushButton: getDevicesButton:
             text='Get DDS Device List'
             clicked::DDS.getDDSDeviceListThread()
@@ -1366,8 +1375,11 @@ enamldef RFGenPage(Page):
     attr LabView
     title = 'RF Generators'
     Container:
-        EvalProp:
-            prop<<LabView.RF_generators.enable
+        Form:
+            Label:
+                text = 'enable'
+            CheckBox:
+                checked :=  LabView.RF_generators.enable
         IndexedStack: i1:
             title='HP83623A'
             iterable=LabView.RF_generators.HP83623A_list
@@ -1388,8 +1400,11 @@ enamldef CameraPage(Page):
         Container:
             hug_height='strong'
             hug_width='strong'
-            EvalProp:
-                prop<<camera.enable
+            Form:
+                Label:
+                    text = 'enable'
+                CheckBox:
+                    checked := camera.enable
             EvalProp:
                 prop<<camera.saveAsPNG
             EvalProp:
@@ -2092,7 +2107,7 @@ enamldef Picomotors(Container):
     Container:
         hug_width = 'strong'
         hug_height = 'strong'
-        Container:
+        Form:
             hug_width = 'strong'
             hug_height = 'strong'
             Label:

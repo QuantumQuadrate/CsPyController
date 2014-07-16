@@ -467,7 +467,7 @@ class Experiment(Prop):
         self.create_data_files()
 
         # evaluate the constants and independent variables
-        self.evaluatestatic()
+        self.evaluate_static()
         self.hdf5['constant_report'] = self.constantReport.value
 
         # run analyses preExperiment
@@ -694,22 +694,23 @@ class Experiment(Prop):
         #for all instruments
         for i in self.instruments:
             #check that the instruments are initalized
-            if not i.isInitialized:
-                print 'experiment.measure() initializing '+i.name
-                i.initialize()  # reinitialize
-                i.update()  # put the settings to where they should be at this iteration
-            else:
-                #check that the instrument is not already occupied
-                if not i.isDone:
-                    logger.warning('Instrument '+i.name+' is already busy.')
+            if i.enable:
+                if not i.isInitialized:
+                    print 'experiment.measure() initializing '+i.name
+                    i.initialize()  # reinitialize
+                    i.update()  # put the settings to where they should be at this iteration
                 else:
-                    #set a flag to indicate each instrument is now busy
-                    i.isDone = False
-                    #let each instrument begin measurement
-                    #put each in a different thread, so they can proceed simultaneously
-                    #TODO: enable threading?
-                    #threading.Thread(target=i.start).start()
-                    i.start()
+                    #check that the instrument is not already occupied
+                    if not i.isDone:
+                        logger.warning('Instrument '+i.name+' is already busy.')
+                    else:
+                        #set a flag to indicate each instrument is now busy
+                        i.isDone = False
+                        #let each instrument begin measurement
+                        #put each in a different thread, so they can proceed simultaneously
+                        #TODO: enable threading?
+                        #threading.Thread(target=i.start).start()
+                        i.start()
         logger.debug('all instruments started')
 
         #loop until all instruments are done

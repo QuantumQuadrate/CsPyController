@@ -17,6 +17,7 @@ from atom.api import Bool, Member
 from instrument_property import Prop
     
 class Instrument(Prop):
+    enable = Bool()
     isInitialized = Bool()
     isDone = Bool()
     instruments = Member()
@@ -28,6 +29,7 @@ class Instrument(Prop):
         self.isInitialized = False
         self.isDone = True
         self.data = []
+        self.properties += ['enable']
 
     def update(self):
         """Sends current settings to the instrument.  This function is run at the beginning of every new iteration.
@@ -55,3 +57,7 @@ class Instrument(Prop):
         for i in self.instruments:
             i.initialize()
         self.isInitialized = True
+
+    def writeResults(self, hdf5):
+        """Write results to the hdf5 file.  Must be overwritten in subclass to do anything."""
+        pass

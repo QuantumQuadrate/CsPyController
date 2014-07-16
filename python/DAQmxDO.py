@@ -40,7 +40,6 @@ class StartTrigger(Prop):
 
 class DAQmxDO(Instrument):
     version = '2014.03.25'
-    enable = Typed(BoolProp)
     script = Typed(StrProp)
     resourceName = Typed(StrProp)
     clockRate = Typed(FloatProp)
@@ -54,14 +53,13 @@ class DAQmxDO(Instrument):
     
     def __init__(self, experiment):
         super(DAQmxDO, self).__init__('DAQmxDO', experiment)
-        self.enable = BoolProp('enable', experiment, 'enable output','False')
         self.resourceName = StrProp('resourceName', experiment, 'the hardware location of the card', "'Dev1'")
         self.clockRate = FloatProp('clockRate', experiment, 'samples/channel/sec', '1000')
         self.units = FloatProp('units', experiment, 'multiplier for timing values (milli=.001)', '1')
         self.channels = NumpyChannels(experiment, self)
         self.waveform = NumpyWaveform('waveform', experiment, digitalout=self)
         self.startTrigger = StartTrigger(experiment)
-        self.properties += ['version', 'enable', 'resourceName', 'clockRate', 'units', 'channels', 'waveform', 'startTrigger']
+        self.properties += ['version', 'resourceName', 'clockRate', 'units', 'channels', 'waveform', 'startTrigger']
         # the number of channels is defined by the resourceName (and the waveform which must agree), so
         # channels need not be send to hardware
         self.doNotSendToHardware += ['units', 'channels']

@@ -17,7 +17,7 @@ from matplotlib.gridspec import GridSpec
 from matplotlib.backends.backend_pdf import PdfPages
 from enaml.application import deferred_call
 
-import threading, numpy, traceback
+import threading, numpy, traceback, os
 from scipy.optimize import curve_fit
 
 from colors import my_cmap, green_cmap
@@ -391,7 +391,7 @@ class ImageSumAnalysis(AnalysisWithFigure):
 
     def preExperiment(self, experimentResults):
         if self.enable and self.experiment.saveData:
-            self.pdf = PdfPages('image_mean.pdf')
+            self.pdf = PdfPages(os.path.join(self.experiment.path, 'image_mean.pdf'))
 
     def preIteration(self, iterationResults, experimentResults):
         #clear old data
@@ -426,32 +426,9 @@ class ImageSumAnalysis(AnalysisWithFigure):
 
             # create image of all shots for pdf
             if self.experiment.saveData:
-                fig = Figure()
-                n = len(self.mean_array)
-                # one row, show all shots for this iteration, plus colorbar
-                # colorbar is 1/5 width of plots
-                gs = GridSpec([1, n+1], width_ratios=n*[5]+[1])
-                vmin = amin(self.mean_array)
-                vmax = amax(self.mean_array)
-                for i in xrange(n):
-                    # plot
-                    ax = fig.add_subplot(gs[0, i])
-                    im = ax.imshow(self.mean_array[i], vmin=vmin, vmax=vmax)
-
-                    # label plot
-                    ax.set_title('shot {} mean'.format(self.shot))
-
-                    # make ROI boxes
-                    if self.showROIs:
-                        for ROI in self.experiment.squareROIAnalysis.ROIs:
-                            mpl_rectangle(ax, ROI)
-
-                # make colorbar
-                ax = fig.add_subplot(gs[0,n])
-                ax.colorbar(im, cax=ax)
 
                 # save to pdf
-                self.pdf.savefig(fig, transparent=True)
+                self.pdf.savefig(self.figure, transparent=True)
 
     @observe('shot', 'showROIs')
     def reload(self, change):
@@ -713,7 +690,7 @@ class HistogramGrid(AnalysisWithFigure):
 
     def preExperiment(self, experimentResults):
         if self.enable and self.experiment.saveData:
-            self.pdf = PdfPages('histogram_grid.pdf')
+            self.pdf = PdfPages(os.path.join(self.experiment.path, 'histogram_grid.pdf'))
 
     def postExperiment(self, experimentResults):
         if self.enable and self.experiment.saveData:

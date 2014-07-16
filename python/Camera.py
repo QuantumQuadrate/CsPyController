@@ -20,16 +20,14 @@ from cs_instruments import Instrument
 #---- instrument ----
 
 class Camera(Instrument):
-    enable=Typed(BoolProp)
     saveAsPNG=Typed(BoolProp)
     saveAsASCII=Typed(BoolProp)
     
-    def __init__(self,experiment):
-        super(Camera,self).__init__('camera',experiment)
-        self.enable=BoolProp('enable',experiment,'enable camera','False')
+    def __init__(self, experiment):
+        super(Camera, self).__init__('camera',experiment)
         self.saveAsPNG=BoolProp('saveAsPNG',experiment,'save pictures as PNG','False')
         self.saveAsASCII=BoolProp('saveAsASCII',experiment,'save pictures as ASCII','False')
-        self.properties+=['enable','saveAsPNG','saveAsASCII']
+        self.properties+=['saveAsPNG', 'saveAsASCII']
         self.doNotSendToHardware+=['saveAsPNG','saveAsASCII']
 
 class HamamatsuC9100_13(Camera):

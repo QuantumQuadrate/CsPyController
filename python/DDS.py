@@ -27,7 +27,6 @@ class DDS_gui(Atom):
 
 class DDS(Instrument):
     version='2014.01.22'
-    enable=Typed(BoolProp)
     boxes=Typed(ListProp)
     communicator=Member() #holds the reference to the thing that sends DDS commands, usually the LabView object
     #deviceListStr=Str()
@@ -37,11 +36,10 @@ class DDS(Instrument):
     def __init__(self,experiment,communicator):
         super(DDS,self).__init__('DDS',experiment)
         self.communicator=communicator
-        self.enable=BoolProp('enable',self.experiment,'enable DDS output','False')
         self.boxes=ListProp('boxes',experiment,listElementType=DDSbox,listElementName='box',listElementKwargs={'DDS':self})
         self.deviceList=[]
         self.boxDescriptionList=[]
-        self.properties+=['version','enable','boxes','deviceList','boxDescriptionList']
+        self.properties+=['version', 'boxes','deviceList','boxDescriptionList']
         self.doNotSendToHardware+=['deviceList','boxDescriptionList']
 
     def evaluate(self):

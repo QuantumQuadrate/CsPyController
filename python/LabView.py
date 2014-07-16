@@ -35,7 +35,6 @@ class LabView(Instrument):
     """This is a meta instrument which encapsulates the capability of the HEXQC2 PXI system.
     It knows about several subsystems (HSDIO, DAQmx, Counters, Camera), and can send settings and commands to a
     corresponding Labview client."""
-    enabled = Member()
     port = Member()
     IP = Str()
     connected = Member()
@@ -59,7 +58,6 @@ class LabView(Instrument):
         super(LabView, self).__init__('LabView', experiment, 'for communicating with a LabView system')
 
         #defaults
-        self.enabled = False
         self.port = 0
         self.connected = False
         self.error = False
@@ -85,9 +83,9 @@ class LabView(Instrument):
         
         self.timeout = FloatProp('timeout', experiment, 'how long before LabView gives up and returns [s]', '1.0')
         
-        self.properties += ['IP', 'port', 'enabled', 'connected', 'timeout', 'AnalogOutput', 'HSDIO', 'DDS', 'piezo', 'RF_generators',
+        self.properties += ['IP', 'port', 'connected', 'timeout', 'AnalogOutput', 'HSDIO', 'DDS', 'piezo', 'RF_generators',
                             'DAQmxDO', 'camera', 'TTL', 'cycleContinuously']
-        self.doNotSendToHardware += ['IP', 'port', 'enabled', 'connected']
+        self.doNotSendToHardware += ['IP', 'port', 'enable', 'connected']
 
     def openThread(self):
         thread = threading.Thread(target=self.initialize)
@@ -96,7 +94,7 @@ class LabView(Instrument):
 
     def open(self):
 
-        if self.enabled:
+        if self.enable:
 
             logger.debug('Opening LabView TCP.')
             #check for an old socket and delete it
@@ -195,7 +193,7 @@ class LabView(Instrument):
 
     def send(self, msg):
         results = {}
-        if self.enabled:
+        if self.enable:
             if not (self.isInitialized and self.connected):
                 logger.debug("TCP is not both initialized and connected.  Reinitializing TCP in LabView.send().")
                 self.initialize()
