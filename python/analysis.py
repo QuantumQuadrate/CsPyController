@@ -444,12 +444,12 @@ class ImageSumAnalysis(AnalysisWithFigure):
                 fig.clf()
 
                 if (self.mean_array is not None) and (self.shot < len(self.mean_array)):
-                    gs = GridSpec(1, 2, width_ratios=[5,1])
+                    gs = GridSpec(1, 2, width_ratios=[10, 1])
                     ax = fig.add_subplot(gs[0,0])
                     im = ax.matshow(self.mean_array[self.shot], cmap=my_cmap)
 
                     #label plot
-                    ax.set_title('{} shot {} mean'.format(self.experiment.experimentPath, self.shot))
+                    fig.suptitle('{} shot {} mean'.format(self.experiment.experimentPath, self.shot))
 
                     # make a colorbar
                     cax = fig.add_subplot(gs[0,1])
@@ -873,7 +873,7 @@ def histogram_grid_plot(fig, roidata, ROI_rows, ROI_columns):
             ax.set_ylim([0, overall_maxcount])
             ax.set_title('site {}, {:.0f}$\pm${:.1f}%'.format(n,loading[n]*100,overlap[n]*100))  # , size=font)
             ax.set_xticks([best_mean1s[n], best_cutoffs[n], best_mean2s[n], overall_max])
-            ax.set_xticklabels(['{}$\pm${:.0f}'.format(int(best_mean1s[n]/1000),best_width1s[n]/1000), str(int(best_cutoffs[n]/1000)), '{}$\pm${:.1f}'.format(int(best_mean2s[n]/1000),best_width2s[n]/1000), 'e3'], size=font, rotation=90, verticalalignment='baseline')
+            ax.set_xticklabels(['{}$\pm${:.0f}'.format(int(best_mean1s[n]/1000),best_width1s[n]/1000), str(int(best_cutoffs[n]/1000)), '{}$\pm${:.1f}'.format(int(best_mean2s[n]/1000), best_width2s[n]/1000), 'e3'], size=font, rotation=90, verticalalignment='bottom')
             ax.set_yticks([0, max(best_g1s[n]), max(best_g2s[n])])
             ax.set_yticklabels([str(0), str(int(max(best_g1s[n]))), str(int(max(best_g2s[n])))])  # , size=font)
             #plot gaussians
