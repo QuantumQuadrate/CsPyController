@@ -237,6 +237,10 @@ class Experiment(Prop):
             self.ivarSteps = [i.steps for i in self.independentVariables]
             self.totalIterations = int(numpy.product(self.ivarSteps))
 
+            # update the current value of the independent variables
+            self.iterationToIndexArray()
+
+
     def iterationToIndexArray(self):
         """takes the iteration number and figures out which index number each independent variable should have"""
         n = len(self.independentVariables)
@@ -298,9 +302,6 @@ class Experiment(Prop):
 
             # start with the constants
             self.vars = self.constants.copy()
-
-            # update the current value of the independent variables
-            self.iterationToIndexArray()
 
             # add the independent variables current values to the dict
             ivars = dict([(i.name, i.currentValue) for i in self.independentVariables])
@@ -506,7 +507,7 @@ class Experiment(Prop):
                 logger.debug("starting new iteration")
                 
                 #at the start of a new iteration, or if we are continuing
-                self.evaluate()  # re-calculate dependent variables
+                self.evaluateAll()  # update ivars to current iteration and re-calculate dependent variables
                 self.update()  # send current values to hardware
                 
                 #only at the start of a new iteration
