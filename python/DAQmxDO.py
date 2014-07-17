@@ -39,7 +39,7 @@ class StartTrigger(Prop):
 
 
 class DAQmxDO(Instrument):
-    version = '2014.03.25'
+    version = '2014.07.16'
     script = Typed(StrProp)
     resourceName = Typed(StrProp)
     clockRate = Typed(FloatProp)

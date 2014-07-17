@@ -26,7 +26,7 @@ class DDS_gui(Atom):
     boxDescriptionList=Member()
 
 class DDS(Instrument):
-    version='2014.01.22'
+    version='2014.07.16'
     boxes=Typed(ListProp)
     communicator=Member() #holds the reference to the thing that sends DDS commands, usually the LabView object
     #deviceListStr=Str()

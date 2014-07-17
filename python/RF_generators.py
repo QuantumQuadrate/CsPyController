@@ -29,7 +29,7 @@ class RFGenList(ListProp):
 
 
 class RF_generators(Instrument):
-    version = '2014.04.08'
+    version = '2014.07.16'
     HP83623A_list = Typed(RFGenList)
     HP8662A_list = Typed(RFGenList)
     HP83712B_list = Typed(RFGenList)

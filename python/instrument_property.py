@@ -174,10 +174,13 @@ class Prop(Atom):
                         try:
                             var.fromHDF5(hdf.attrs[i])
                         except PauseError:
-                            raise PauseError
+                            # a subclass has raised an error
+                            # this is an error, but we will not pass it on, in order to finish loading
+                            continue
                         except Exception as e:
                             logger.warning('While trying attribute'+i+'.fromHDF5() in Prop.fromHDF5() in '+self.name+'.\n'+str(e)+'\n'+str(traceback.format_exc())+'\n')
-                            raise PauseError
+                            # this is an error, but we will not pass it on, in order to finish loading
+                            continue
                     else:
                         try:
                             #try to unpickle it
@@ -194,13 +197,16 @@ class Prop(Atom):
                                         x = int(x)
                             except:
                                 logger.warning('Exception trying to load value for HDF5 attribute {} in {}.fromHDF5()'.format(i,self.name))
-                                raise PauseError
+                                # this is an error, but we will not pass it on, in order to finish loading
+                                continue
                         try:
+                            # use the unpickled value
                             setattr(self, i, x)
                         except Exception as e:
                             logger.warning('in ' + self.name + ' in Prop.fromHDF5() while setting variable ' + i + ' in ' + self.name + '\n' + str(e) + '\n')
-                            raise PauseError
-        
+                            # this is an error, but we will not pass it on, in order to finish loading
+                            continue
+
         #go through all names in hdf node (group) and try to load them
         for i in hdf:
             #check to see if this is one of the properties we care to load
@@ -221,10 +227,13 @@ class Prop(Atom):
                     try:
                         var.fromHDF5(hdf[i])
                     except PauseError:
+                        # a subclass has raised an error
+                        # must be important so we will pass it on
                         raise PauseError
                     except Exception as e:
                         logger.warning('While trying '+i+'.fromHDF5() in Prop.fromHDF5() in '+self.name+'.\n'+str(e)+'\n'+str(traceback.format_exc())+'\n')
-                        raise PauseError
+                        # this is an error, but we will not pass it on, in order to finish loading
+                        continue
                 else:
                     #check to see if it is stored as a dataset
                     if isinstance(hdf[i],h5py._hl.dataset.Dataset):
@@ -243,18 +252,22 @@ class Prop(Atom):
                                         x = int(x)
                             except:
                                 logger.warning('Exception trying to load value for HDF5 node {} in {}.fromHDF5()'.format(i,self.name))
-                                raise PauseError
+                                # this is an error, but we will not pass it on, in order to finish loading
+                                continue
                         try:
                             setattr(self, i, x)
                         except Exception as e:
                             logger.warning('in '+self.name+' in Prop.fromHDF5() while setting variable '+i+' in '+self.name+'\n'+str(e)+'\n')
-                            raise PauseError
+                            # this is an error, but we will not pass it on, in order to finish loading
+                            continue
                     elif isinstance(hdf[i],h5py._hl.group.Group):
                         logger.warning('Cannot load HDF5 Group '+i+' without an fromHDF5() method in '+self.name)
-                        raise PauseError
+                        # this is an error, but we will not pass it on, in order to finish loading
+                        continue
                     else:
                         logger.warning('Cannot load HDF5 node {} which is of type {} in {}.fromHDF5()'.format(i,type(i),self.name))
-                        raise PauseError
+                        # this is an error, but we will not pass it on, in order to finish loading
+                        continue
         return self
 
     def toHardware(self):

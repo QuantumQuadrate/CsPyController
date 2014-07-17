@@ -237,9 +237,6 @@ class Experiment(Prop):
             self.ivarSteps = [i.steps for i in self.independentVariables]
             self.totalIterations = int(numpy.product(self.ivarSteps))
 
-            #set the current value of the independent variables
-            self.iterationToIndexArray()
-    
     def iterationToIndexArray(self):
         """takes the iteration number and figures out which index number each independent variable should have"""
         n = len(self.independentVariables)
@@ -301,6 +298,9 @@ class Experiment(Prop):
 
             # start with the constants
             self.vars = self.constants.copy()
+
+            # update the current value of the independent variables
+            self.iterationToIndexArray()
 
             # add the independent variables current values to the dict
             ivars = dict([(i.name, i.currentValue) for i in self.independentVariables])
@@ -778,17 +778,17 @@ class Experiment(Prop):
 
         try:
             self.fromHDF5(settings)
-        except PauseError:
-            raise PauseError
         except Exception as e:
             logger.warning('in experiment.load()\n'+str(e)+'\n'+str(traceback.format_exc()))
+            # this is an error, but we will not pass it on, in order to finish loading
+
 
         f.close()
         logger.debug('File load done.')
 
         if allow_evaluation_was_toggled:
             self.allow_evaluation = True
-        
+
         #now re-evaluate everything
         self.evaluateAll()
 
