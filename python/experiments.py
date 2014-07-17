@@ -778,17 +778,17 @@ class Experiment(Prop):
 
         try:
             self.fromHDF5(settings)
-        except PauseError:
-            raise PauseError
         except Exception as e:
             logger.warning('in experiment.load()\n'+str(e)+'\n'+str(traceback.format_exc()))
+            # this is an error, but we will not pass it on, in order to finish loading
+
 
         f.close()
         logger.debug('File load done.')
 
         if allow_evaluation_was_toggled:
             self.allow_evaluation = True
-        
+
         #now re-evaluate everything
         self.evaluateAll()
 

@@ -461,7 +461,7 @@ class ImageSumAnalysis(AnalysisWithFigure):
 
                 super(ImageSumAnalysis, self).updateFigure()
             except Exception as e:
-                logger.warning('Problem in ImageSumAnalysish.updateFigure()\n:{}'.format(e))
+                logger.warning('Problem in ImageSumAnalysis.updateFigure()\n:{}'.format(e))
             finally:
                 self.update_lock = False
 
@@ -489,7 +489,7 @@ class SquareROIAnalysis(AnalysisWithFigure):
         dtype = [('left', numpy.uint16), ('top', numpy.uint16), ('right', numpy.uint16), ('bottom', numpy.uint16), ('threshold', numpy.uint32)]
         self.ROIs = numpy.zeros(ROI_rows*ROI_columns, dtype=dtype)  # initialize with a blank array
         self.properties += ['version', 'ROIs', 'filter_level']
-    
+
     def sum(self, roi, shot):
         return numpy.sum(shot[roi['top']:roi['bottom'], roi['left']:roi['right']])
 
@@ -710,12 +710,14 @@ class HistogramGrid(AnalysisWithFigure):
 
             # save to PDF
             if self.experiment.saveData:
-                # take shot 0
-                fig = Figure()
-                roidata = self.all_shots_array[:, self.shot, :]
-                histogram_grid_plot(fig, roidata, self.experiment.ROI_rows, self.experiment.ROI_columns)
-                plt.savefig('histogram{}.pdf'.format(self.experiment.iteration))
-                plt.close(fig)
+                self.pdf.savefig(self.figure, transparent=True)
+
+                # # take shot 0
+                # fig = Figure()
+                # roidata = self.all_shots_array[:, self.shot, :]
+                # histogram_grid_plot(fig, roidata, self.experiment.ROI_rows, self.experiment.ROI_columns)
+                # plt.savefig('histogram{}.pdf'.format(self.experiment.iteration))
+                # plt.close(fig)
 
 
     @observe('shot')
