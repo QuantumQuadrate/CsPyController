@@ -392,7 +392,7 @@ class ImageSumAnalysis(AnalysisWithFigure):
 
     def preExperiment(self, experimentResults):
         if self.enable and self.experiment.saveData:
-            self.pdf = PdfPages(os.path.join(self.experiment.path, 'image_mean.pdf'))
+            self.pdf = PdfPages(os.path.join(self.experiment.path, 'image_mean_{}.pdf'.format(self.experiment.experimentPath)))
 
     def preIteration(self, iterationResults, experimentResults):
         #clear old data
@@ -429,7 +429,7 @@ class ImageSumAnalysis(AnalysisWithFigure):
             if self.experiment.saveData:
 
                 # save to pdf
-                self.pdf.savefig(self.figure, transparent=True)
+                self.pdf.savefig(self.figure, transparent=True, dpi=80)
 
     @observe('shot', 'showROIs')
     def reload(self, change):
@@ -444,14 +444,15 @@ class ImageSumAnalysis(AnalysisWithFigure):
                 fig.clf()
 
                 if (self.mean_array is not None) and (self.shot < len(self.mean_array)):
-                    ax = fig.add_subplot(111)
+                    gs = GridSpec(1, 2, width_ratios=[5,1])
+                    ax = fig.add_subplot(gs[0,0])
                     im = ax.matshow(self.mean_array[self.shot], cmap=my_cmap)
 
                     #label plot
-                    ax.set_title('shot {} mean'.format(self.shot))
+                    ax.set_title('{} shot {} mean'.format(self.experiment.experimentPath, self.shot))
 
                     # make a colorbar
-                    cax = fig.add_axes([0.9, 0.1, .03, .8])
+                    cax = fig.add_subplot(gs[0,1])
                     fig.colorbar(im, cax=cax)
 
                     if self.showROIs:
@@ -691,7 +692,7 @@ class HistogramGrid(AnalysisWithFigure):
 
     def preExperiment(self, experimentResults):
         if self.enable and self.experiment.saveData:
-            self.pdf = PdfPages(os.path.join(self.experiment.path, 'histogram_grid.pdf'))
+            self.pdf = PdfPages(os.path.join(self.experiment.path, 'histogram_grid_{}.pdf'.format(self.experiment.experimentPath)))
 
     def postExperiment(self, experimentResults):
         if self.enable and self.experiment.saveData:
@@ -710,14 +711,7 @@ class HistogramGrid(AnalysisWithFigure):
 
             # save to PDF
             if self.experiment.saveData:
-                self.pdf.savefig(self.figure, transparent=True)
-
-                # # take shot 0
-                # fig = Figure()
-                # roidata = self.all_shots_array[:, self.shot, :]
-                # histogram_grid_plot(fig, roidata, self.experiment.ROI_rows, self.experiment.ROI_columns)
-                # plt.savefig('histogram{}.pdf'.format(self.experiment.iteration))
-                # plt.close(fig)
+                self.pdf.savefig(self.figure, transparent=True, dpi=80)
 
     @observe('shot')
     def refresh(self, change):
@@ -732,18 +726,10 @@ class HistogramGrid(AnalysisWithFigure):
             if self.all_shots_array is not None:
                 # take shot 0
                 roidata = self.all_shots_array[:, self.shot, :]
+                fig.suptitle('{} shot {}'.format(self.experiment.experimentPath, self.shot))
                 histogram_grid_plot(fig, roidata, self.experiment.ROI_rows, self.experiment.ROI_columns)
 
             super(HistogramGrid, self).updateFigure()
-
-            # save to PDF
-            if self.experiment.saveData:
-                plt.figure(fig.number)
-                plt.savefig(os.path.join(
-                    self.experiment.path,
-                    'histogram{}{}.png'.format(self.experiment.iteration, self.experiment.experimentPath)),
-                    dpi=80)
-                #self.pdf.savefig(self.figure) #, dpi=self.figure.dpi)
 
         except Exception as e:
             logger.warning('Problem in HistogramGrid.updateFigure():\n{}\n{}\n'.format(e, traceback.format_exc()))
@@ -887,7 +873,7 @@ def histogram_grid_plot(fig, roidata, ROI_rows, ROI_columns):
             ax.set_ylim([0, overall_maxcount])
             ax.set_title('site {}, {:.0f}$\pm${:.1f}%'.format(n,loading[n]*100,overlap[n]*100))  # , size=font)
             ax.set_xticks([best_mean1s[n], best_cutoffs[n], best_mean2s[n], overall_max])
-            ax.set_xticklabels(['{}$\pm${:.0f}'.format(int(best_mean1s[n]/1000),best_width1s[n]/1000), str(int(best_cutoffs[n]/1000)), '{}$\pm${:.1f}'.format(int(best_mean2s[n]/1000),best_width2s[n]/1000), 'e3'], size=font, rotation=90)
+            ax.set_xticklabels(['{}$\pm${:.0f}'.format(int(best_mean1s[n]/1000),best_width1s[n]/1000), str(int(best_cutoffs[n]/1000)), '{}$\pm${:.1f}'.format(int(best_mean2s[n]/1000),best_width2s[n]/1000), 'e3'], size=font, rotation=90, verticalalignment='baseline')
             ax.set_yticks([0, max(best_g1s[n]), max(best_g2s[n])])
             ax.set_yticklabels([str(0), str(int(max(best_g1s[n]))), str(int(max(best_g2s[n])))])  # , size=font)
             #plot gaussians
