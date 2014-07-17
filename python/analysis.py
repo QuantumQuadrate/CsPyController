@@ -429,7 +429,10 @@ class ImageSumAnalysis(AnalysisWithFigure):
             if self.experiment.saveData:
 
                 # save to pdf
-                self.pdf.savefig(self.figure, transparent=True, dpi=80)
+                try:
+                    self.pdf.savefig(self.figure, transparent=True, dpi=80)
+                except Exception as e:
+                    logger.warning('Problem saving image sum to pdf:\n{}\n'.format(e))
 
     @observe('shot', 'showROIs')
     def reload(self, change):
@@ -444,7 +447,7 @@ class ImageSumAnalysis(AnalysisWithFigure):
                 fig.clf()
 
                 if (self.mean_array is not None) and (self.shot < len(self.mean_array)):
-                    gs = GridSpec(1, 2, width_ratios=[10, 1])
+                    gs = GridSpec(1, 2, width_ratios=[20, 1])
                     ax = fig.add_subplot(gs[0,0])
                     im = ax.matshow(self.mean_array[self.shot], cmap=my_cmap)
 
@@ -709,10 +712,6 @@ class HistogramGrid(AnalysisWithFigure):
 
             self.updateFigure()
 
-            # save to PDF
-            if self.experiment.saveData:
-                self.pdf.savefig(self.figure, transparent=True, dpi=80)
-
     @observe('shot')
     def refresh(self, change):
         if self.enable:
@@ -730,6 +729,13 @@ class HistogramGrid(AnalysisWithFigure):
                 histogram_grid_plot(fig, roidata, self.experiment.ROI_rows, self.experiment.ROI_columns)
 
             super(HistogramGrid, self).updateFigure()
+
+            # save to PDF
+            if self.experiment.saveData:
+                try:
+                    self.pdf.savefig(fig, transparent=True, dpi=80)
+                except Exception as e:
+                    logger.warning('Problem saving histogramGrid to pdf:\n{}\n'.format(e))
 
         except Exception as e:
             logger.warning('Problem in HistogramGrid.updateFigure():\n{}\n{}\n'.format(e, traceback.format_exc()))
@@ -855,7 +861,7 @@ def histogram_grid_plot(fig, roidata, ROI_rows, ROI_columns):
     #plot
     gs1 = GridSpec(ROI_rows+1, ROI_columns+1,
                     left=0.02, bottom=0.05, top=.95, right=.98, wspace=0.2, hspace=0.5)
-    font = 12
+    font = 10
     
     #make histograms for each site
     for i in xrange(ROI_rows):
@@ -871,9 +877,9 @@ def histogram_grid_plot(fig, roidata, ROI_rows, ROI_columns):
             ax.step(x, y, where='post')
             ax.set_xlim([overall_min, overall_max])
             ax.set_ylim([0, overall_maxcount])
-            ax.set_title('site {}, {:.0f}$\pm${:.1f}%'.format(n,loading[n]*100,overlap[n]*100))  # , size=font)
+            ax.set_title(u'site {}, {:.0f}\u00B1{:.1f}%'.format(n,loading[n]*100,overlap[n]*100), size=font)
             ax.set_xticks([best_mean1s[n], best_cutoffs[n], best_mean2s[n], overall_max])
-            ax.set_xticklabels(['{}$\pm${:.0f}'.format(int(best_mean1s[n]/1000),best_width1s[n]/1000), str(int(best_cutoffs[n]/1000)), '{}$\pm${:.1f}'.format(int(best_mean2s[n]/1000), best_width2s[n]/1000), 'e3'], size=font, rotation=90, verticalalignment='bottom')
+            ax.set_xticklabels([u'{}\u00B1{:.1f}'.format(int(best_mean1s[n]/1000),best_width1s[n]/1000), str(int(best_cutoffs[n]/1000)), u'{}\u00B1{:.1f}'.format(int(best_mean2s[n]/1000), best_width2s[n]/1000), 'e3'], size=font, rotation=90)
             ax.set_yticks([0, max(best_g1s[n]), max(best_g2s[n])])
             ax.set_yticklabels([str(0), str(int(max(best_g1s[n]))), str(int(max(best_g2s[n])))])  # , size=font)
             #plot gaussians
