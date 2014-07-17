@@ -719,7 +719,6 @@ class HistogramGrid(AnalysisWithFigure):
                 # plt.savefig('histogram{}.pdf'.format(self.experiment.iteration))
                 # plt.close(fig)
 
-
     @observe('shot')
     def refresh(self, change):
         if self.enable:
@@ -740,7 +739,10 @@ class HistogramGrid(AnalysisWithFigure):
             # save to PDF
             if self.experiment.saveData:
                 plt.figure(fig.number)
-                plt.savefig(os.path.join(self.experiment.path,'histogram{}.png'.format(self.experiment.iteration)))
+                plt.savefig(os.path.join(
+                    self.experiment.path,
+                    'histogram{}{}.png'.format(self.experiment.iteration, self.experiment.experimentPath)),
+                    dpi=80)
                 #self.pdf.savefig(self.figure) #, dpi=self.figure.dpi)
 
         except Exception as e:
@@ -866,7 +868,7 @@ def histogram_grid_plot(fig, roidata, ROI_rows, ROI_columns):
     
     #plot
     gs1 = GridSpec(ROI_rows+1, ROI_columns+1,
-                    left=0.02, bottom=0.05, top=.95, right=.98, wspace=0.2, hspace=0.4)
+                    left=0.02, bottom=0.05, top=.95, right=.98, wspace=0.2, hspace=0.5)
     font = 12
     
     #make histograms for each site
@@ -885,7 +887,7 @@ def histogram_grid_plot(fig, roidata, ROI_rows, ROI_columns):
             ax.set_ylim([0, overall_maxcount])
             ax.set_title('site {}, {:.0f}$\pm${:.1f}%'.format(n,loading[n]*100,overlap[n]*100))  # , size=font)
             ax.set_xticks([best_mean1s[n], best_cutoffs[n], best_mean2s[n], overall_max])
-            ax.set_xticklabels(['{}$\pm${:.1f}'.format(int(best_mean1s[n]/1000),best_width1s[n]/1000), str(int(best_cutoffs[n]/1000)), '{}$\pm${:.1f}'.format(int(best_mean2s[n]/1000),best_width2s[n]/1000), 'e3'], size=font, rotation=90)
+            ax.set_xticklabels(['{}$\pm${:.0f}'.format(int(best_mean1s[n]/1000),best_width1s[n]/1000), str(int(best_cutoffs[n]/1000)), '{}$\pm${:.1f}'.format(int(best_mean2s[n]/1000),best_width2s[n]/1000), 'e3'], size=font, rotation=90)
             ax.set_yticks([0, max(best_g1s[n]), max(best_g2s[n])])
             ax.set_yticklabels([str(0), str(int(max(best_g1s[n]))), str(int(max(best_g2s[n])))])  # , size=font)
             #plot gaussians
