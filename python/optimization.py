@@ -22,8 +22,11 @@ import logging
 logger = logging.getLogger(__name__)
 
 import numpy
+from math import isnan
+from matplotlib.backends.backend_pdf import PdfPages
 from atom.api import Bool, Member, Float, Int, Str
 from analysis import AnalysisWithFigure
+
 
 
 class Optimization(AnalysisWithFigure):
@@ -71,7 +74,15 @@ class Optimization(AnalysisWithFigure):
             # The cost function must define 'self.yi ='
             # For example:
             # self.yi = -numpy.sum(numpy.array([m['analysis/squareROIthresholded'][1] for m in iterationResults['measurements'].itervalues()]))
-            exec(self.cost_function, globals(), locals())
+
+            try:
+                exec(self.cost_function, globals(), locals())
+            except Exception as e:
+                logger.error('Exception evaluating cost function:\n{}\n{}')
+                self.yi = float('inf')
+            # if the evaluated value is nan, set it to inf so it will always be the worst point
+            if isnan(self.yi):
+                self.yi = float('inf')
 
             iterationResults['analysis/optimization_xi'] = self.xi
             iterationResults['analysis/optimization_yi'] = self.yi
@@ -100,9 +111,12 @@ class Optimization(AnalysisWithFigure):
 
             # store the cost graph to a pdf
             if self.experiment.saveData:
-                pdf = PdfPages('optimizer.pdf')
-                pdf.savefig(self.figure, transparent=True)
-                pdf.close()
+                try:
+                    pdf = PdfPages('optimizer.pdf')
+                    pdf.savefig(self.figure, transparent=True)
+                    pdf.close()
+                except Exception as e:
+                    logger.warning('Problem saving optimizer pdf:\n{}\n'.format(e))
 
     def updateFigure(self):
         fig = self.backFigure
