@@ -1790,6 +1790,10 @@ enamldef GaussianROI(Container):
         SpinBox:
             value := analysis.shot
         Label:
+            text = 'clean up image with ICA?'
+        CheckBox:
+            checked := analysis.useICA
+        Label:
             text = 'initial guess'
         Label:
             text = 'top'

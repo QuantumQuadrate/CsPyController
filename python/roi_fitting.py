@@ -25,6 +25,7 @@ from analysis import AnalysisWithFigure
 class GaussianROI(AnalysisWithFigure):
     version = '2014.07.01'
     enable = Bool()  # whether or not to activate this optimization
+    useICA = Bool()  # whetheror not to clean up the image
     shot = Int()
     top = Float(7)
     left = Float(21)
@@ -37,7 +38,7 @@ class GaussianROI(AnalysisWithFigure):
         super(GaussianROI, self).__init__(name, experiment, "a gaussian fit to the regions of interest")
         self.rows = rows
         self.columns = columns
-        self.properties += ['version', 'enable', 'shot', 'top', 'left', 'bottom', 'right']
+        self.properties += ['version', 'enable', 'useICA', 'shot', 'top', 'left', 'bottom', 'right']
 
     # define functions for a gaussian with various degrees of freedom
 
@@ -86,18 +87,21 @@ class GaussianROI(AnalysisWithFigure):
                 images = np.array([m['data/Hamamatsu/shots/'+str(self.shot)] for m in iterationResults['measurements'].itervalues()])
                 raw_sum = np.sum(images, axis=0)
 
-                # Use ICA if we have enough pictures:
-                if images.shape[0] > self.rows*self.columns:
-                    try:
-                        # clean up using independent component analysis
-                        X = images.reshape(images.shape[0], images.shape[1]*images.shape[2]).astype(float)
-                        ica = FastICA(n_components=self.rows*self.columns, max_iter=2000)
-                        ica.fit(X)
-                        A_ica = ica.components_  # Get estimated mixing matrix
-                        image_sum = np.sum(np.abs(A_ica), axis=0).reshape(images.shape[1], images.shape[2])
-                    except Exception as e:
-                        # ICA failed, but just note the error in the log and move on
-                        logger.warning("ICA failed with exception:\n{}\n".format(e))
+                if self.useICA:
+                    # Only use ICA if we have enough pictures:
+                    if images.shape[0] > self.rows*self.columns:
+                        try:
+                            # clean up using independent component analysis
+                            X = images.reshape(images.shape[0], images.shape[1]*images.shape[2]).astype(float)
+                            ica = FastICA(n_components=self.rows*self.columns, max_iter=2000)
+                            ica.fit(X)
+                            A_ica = ica.components_  # Get estimated mixing matrix
+                            image_sum = np.sum(np.abs(A_ica), axis=0).reshape(images.shape[1], images.shape[2])
+                        except Exception as e:
+                            # ICA failed, but just note the error in the log and move on
+                            logger.warning("ICA failed with exception:\n{}\n".format(e))
+                            image_sum = raw_sum
+                    else:
                         image_sum = raw_sum
                 else:
                     image_sum = raw_sum
@@ -169,11 +173,12 @@ class GaussianROI(AnalysisWithFigure):
                 ax.matshow(raw_sum)
                 ax.set_title('raw data')
 
-                # plot the ICA cleaned up version
-                ax = fig.add_subplot(gs[0, 1])
-                p1 = ax.matshow(image_sum)
-                #fig.colorbar(p1)
-                ax.set_title('cleaned up with ICA')
+                if self.useICA:
+                    # plot the ICA cleaned up version
+                    ax = fig.add_subplot(gs[0, 1])
+                    p1 = ax.matshow(image_sum)
+                    #fig.colorbar(p1)
+                    ax.set_title('cleaned up with ICA')
 
                 #plot the guess
                 ax = fig.add_subplot(gs[0, 2])

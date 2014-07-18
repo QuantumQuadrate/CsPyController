@@ -18,7 +18,7 @@ from matplotlib.backends.backend_pdf import PdfPages
 from enaml.application import deferred_call
 import matplotlib.pyplot as plt
 
-import threading, numpy, traceback, os
+import threading, numpy, traceback, os, time
 from scipy.optimize import curve_fit
 
 from colors import my_cmap, green_cmap
@@ -730,12 +730,15 @@ class HistogramGrid(AnalysisWithFigure):
 
             super(HistogramGrid, self).updateFigure()
 
+            time.sleep(.01)
+
             # save to PDF
             if self.experiment.saveData:
                 try:
                     self.pdf.savefig(fig, transparent=True, dpi=80)
                 except Exception as e:
                     logger.warning('Problem saving histogramGrid to pdf:\n{}\n'.format(e))
+
 
         except Exception as e:
             logger.warning('Problem in HistogramGrid.updateFigure():\n{}\n{}\n'.format(e, traceback.format_exc()))
