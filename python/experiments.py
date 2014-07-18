@@ -679,7 +679,7 @@ class Experiment(Prop):
             except PauseError:
                 self.set_status('paused after error')
             except Exception as e:
-                logger.warning('Uncaught Exception in experiment.end')
+                logger.warning('Uncaught Exception in experiment.end:\n{}\n{}'.format(e, traceback.format_exc()))
                 self.set_status('paused after error')
         else:
             logger.info('You cannot manually finish an experiment unless it is paused first.')
