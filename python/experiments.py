@@ -36,6 +36,12 @@ class IndependentVariable(EvalProp):
     currentValueStr = Str()
     valueList = Member()
     currentValue = Member()
+
+    # optimizer variables
+    optimize = Bool()
+    optimizer_initial_step = Float()
+    optimizer_min = Float()
+    optimizer_max = Float()
     
     def __init__(self, name, experiment, description='', function=''):
         super(IndependentVariable, self).__init__(name, experiment, description, function)
@@ -43,6 +49,7 @@ class IndependentVariable(EvalProp):
         self.index = 0
         self.valueList = numpy.array([]).flatten()
         self.currentValue = None
+        self.properties += ['optimize', 'optimizer_initial_step', 'optimizer_min', 'optimizer_max']
 
     def evaluate(self):
         """This function evaluates just the independent variables.  We do not update the rest of the experiment,
@@ -105,6 +112,7 @@ class Experiment(Prop):
     willSendEmail = Bool()
     emailAddresses = Str()
     notes = Str()
+    enable_sounds = Bool()
 
     
     #iteration traits
@@ -167,7 +175,7 @@ class Experiment(Prop):
     log = Member()
     log_handler = Member()
     gui = Member()  # a reference to the gui Main, for use in Prop.set_gui
-    experiment_type = Str()
+    optimizer = Member()
 
     def __init__(self):
         """Defines a set of instruments, and a sequence of what to do with them."""
@@ -181,6 +189,8 @@ class Experiment(Prop):
         #default values
         self.constantReport = StrProp('constantReport', self, 'Important output that does not change with iterations', '""')
         self.variableReport = StrProp('variableReport', self, 'Important output that might change with iterations', '""')
+        self.optimizer = optimization.Optimization('optimizer', self, 'updates independent variables to minimize cost function')
+
 
         self.instruments = []  # a list of the instruments this experiment has defined
         self.completedMeasurementsByIteration = []
@@ -197,7 +207,8 @@ class Experiment(Prop):
                             'measurementsPerIteration', 'willSendEmail', 'emailAddresses', 'progress', 'progressGUI',
                             'iteration', 'measurement', 'goodMeasurements', 'totalIterations', 'timeStarted',
                             'currentTime', 'timeElapsed', 'timeRemaining', 'totalTime', 'completionTime',
-                            'constantReport', 'variableReport', 'variablesNotToSave', 'notes', 'max_iterations']
+                            'constantReport', 'variableReport', 'variablesNotToSave', 'notes', 'max_iterations',
+                            'enable_sounds', 'optimizer']
         #we do not load in status as a variable, to allow old settings to be loaded without bringing in the status of
         #the saved experiments
 
@@ -419,20 +430,10 @@ class Experiment(Prop):
         thread.daemon = True
         thread.start()
 
-    def optimize_resetAndGoThread(self):
-        thread = threading.Thread(target=self.optimize_resetAndGo)
-        thread.daemon = True
-        thread.start()
-
     def resetAndGo(self):
         """Reset the iteration variables and timing, then proceed with an experiment."""
         self.reset()
         self.go()
-
-    def optimize_resetAndGo(self):
-        """Reset the iteration variables and timing, then proceed with an experiment."""
-        self.reset()
-        self.optimize_go()
 
     def resetThread(self):
         thread = threading.Thread(target=self.reset)
@@ -474,17 +475,13 @@ class Experiment(Prop):
         # run analyses preExperiment
         self.preExperiment()
 
+        # setup optimizer
+        self.optimizer.setup()
+
         self.set_status('paused before experiment')
 
     def goThread(self):
-        if self.experiment_type == 'iterations':
-            target = self.go
-        elif self.experiment_type == 'optimization':
-            target = self.optimize_go
-        else:
-            logger.warning('Unknown experiment type in experiment.goThread.  You need to have started an experiment before trying to continue it.')
-            return
-        thread = threading.Thread(target=target)
+        thread = threading.Thread(target=self.go)
         thread.daemon = True
         thread.start()
     
@@ -495,12 +492,14 @@ class Experiment(Prop):
         if not self.status.startswith('paused'):
             logger.info('Current status is {}. Cannot continue an experiment unless status is paused.'.format(self.status))
             return  # exit
-        self.experiment_type = 'iterations'
         self.set_status('running')  # prevent another experiment from being started at the same time
         self.set_gui({'valid': True})
         logger.info('running experiment')
 
         try:  # if there is an error we exit the inner loops and respond appropriately
+
+            # optimization loop
+            while not self.optimizer.isDone:
 
             #loop until iteration are complete
             while (self.iteration < self.totalIterations) and (self.status == 'running'):
@@ -538,7 +537,8 @@ class Experiment(Prop):
                     if self.status == 'running' and self.pauseAfterMeasurement:
                         self.set_status('paused after measurement')
                         self.set_gui({'valid': False})
-                        sound.error_sound()
+                        if self.enable_sounds:
+                            sound.error_sound()
 
                     self.update_gui()
 
@@ -555,7 +555,8 @@ class Experiment(Prop):
                         if (self.status == 'running' or self.status == 'paused after measurement') and self.pauseAfterIteration:
                             self.set_status('paused after iteration')
                             self.set_gui({'valid': False})
-                            sound.error_sound()
+                            if self.enable_sounds:
+                                sound.error_sound()
                     else:
                         logger.debug("Finished all iterations")
                         self.postExperiment()
@@ -567,13 +568,15 @@ class Experiment(Prop):
             if self.pauseAfterError:
                 self.set_status('paused after error')
             self.set_gui({'valid': False})
-            sound.error_sound()
+            if self.enable_sounds:
+                sound.error_sound()
         except Exception as e:
             logger.error('Exception during experiment:\n'+str(e)+'\n'+str(traceback.format_exc())+'\n')
             if self.pauseAfterError:
                 self.set_status('paused after error')
             self.set_gui({'valid': False})
-            sound.error_sound()
+            if self.enable_sounds:
+                sound.error_sound()
 
     def optimize_go(self):
         """Pick up the experiment wherever it was left off."""
@@ -625,7 +628,8 @@ class Experiment(Prop):
                     if self.status == 'running' and self.pauseAfterMeasurement:
                         self.set_status('paused after measurement')
                         self.set_gui({'valid': False})
-                        sound.error_sound()
+                        if self.enable_sounds:
+                            sound.error_sound()
 
                     self.update_gui()
 
@@ -647,7 +651,8 @@ class Experiment(Prop):
                     if (self.status == 'running' or self.status == 'paused after measurement') and self.pauseAfterIteration:
                         self.set_status('paused after iteration')
                         self.set_gui({'valid': False})
-                        sound.error_sound()
+                        if self.enable_sounds:
+                            sound.error_sound()
 
         except PauseError:
             #This should be the only place that PauseError is explicitly handed.
@@ -657,13 +662,15 @@ class Experiment(Prop):
             if self.pauseAfterError:
                 self.set_status('paused after error')
             self.set_gui({'valid': False})
-            sound.error_sound()
+            if self.enable_sounds:
+                sound.error_sound()
         except Exception as e:
             logger.error('Exception during experiment:\n'+str(e)+'\n'+str(traceback.format_exc())+'\n')
             if self.pauseAfterError:
                 self.set_status('paused after error')
             self.set_gui({'valid': False})
-            sound.error_sound()
+            if self.enable_sounds:
+                sound.error_sound()
 
     def endThread(self):
         """Launches end() in a new thread, to keep GUI free"""
@@ -1013,7 +1020,8 @@ class Experiment(Prop):
 
         self.set_status('idle')
         logger.info('Finished Experiment.')
-        sound.complete_sound()
+        if self.enable_sounds:
+            sound.complete_sound()
 
     def iteration_updater(self):
         """takes the iteration number and figures out which index number each independent variable should have"""
@@ -1064,7 +1072,6 @@ class AQuA(Experiment):
     iterations_graph = Member()
     retention_graph = Member()
     save2013Analysis = Member()
-    optimizer = Member()
     ROI_rows = 7
     ROI_columns = 7
 
@@ -1092,12 +1099,11 @@ class AQuA(Experiment):
         self.iterations_graph = analysis.IterationsGraph('iterations_graph', self, 'plot the average of ROI sums vs iterations')
         self.retention_graph = analysis.RetentionGraph('retention_graph', self, 'plot occurence of binary result (i.e. whether or not atoms are there in the 2nd shot)')
         self.save2013Analysis = save2013style.Save2013Analysis(self)
-        self.optimizer = optimization.Optimization('optimizer', self, 'updates independent variables to minimize cost function')
         self.analyses += [self.TTL_filters, self.squareROIAnalysis, self.gaussian_roi, self.loading_filters,
                           self.first_measurements_filter, self.text_analysis, self.imageSumAnalysis,
                           self.recent_shot_analysis, self.shotBrowserAnalysis, self.histogramAnalysis,
                           self.histogram_grid, self.measurements_graph, self.iterations_graph, self.retention_graph,
-                          self.save2013Analysis, self.optimizer]
+                          self.save2013Analysis]
 
         self.properties += ['LabView', 'squareROIAnalysis', 'gaussian_roi', 'TTL_filters', 'loading_filters',
                             'first_measurements_filter', 'imageSumAnalysis', 'recent_shot_analysis',

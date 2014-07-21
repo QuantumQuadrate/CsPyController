@@ -60,7 +60,8 @@ class TTL_filters(Analysis):
                 logger.warning(text)
                 self.set_gui({'text': text})
                 self.experiment.set_gui({'valid': False})
-                sound.warning_sound()
+                if self.experiment.enable_sounds:
+                    sound.warning_sound()
 
                 # User chooses whether or not to delete data.
                 # max takes care of ComboBox returning -1 for no selection

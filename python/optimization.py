@@ -44,30 +44,51 @@ class Optimization(AnalysisWithFigure):
     optimization_method = Int(0)
     end_condition_step_size = Float(.0001)
     cost_function = Str()
+    optimization_variables = []
+
+    # optimizer variables
+    # optimize = Bool()
+    # optimizer_initial_step = Float()
+    # optimizer_min = Float()
+    # optimizer_max = Float()
 
     def __init__(self, name, experiment, description=''):
         super(Optimization, self).__init__(name, experiment, description)
-        self.properties += ['version', 'enable', 'initial_step', 'end_condition_step_size', 'cost_function', 'optimization_method']
+        self.properties += ['version', 'initial_step', 'end_condition_step_size', 'cost_function', 'optimization_method']
 
-    def preExperiment(self, experimentResults):
+    def setup(self, experimentResults):
+        self.optimization_variables = []
+        enable = False  # don't enable unless there are some optimization variables
+        for i, x in enumerate(self.experiment.independentVariables):
+            if x.optimize:
+                enable = True  # there is at least one optimization variable
+                self.optimization_variables += x
+        self.set_gui({'enable': enable})
+
         if self.enable:
 
             #start all the independent variables at the value given for the 0th iteration
-            x0 = numpy.array([i.valueList[0] for i in self.experiment.independentVariables], dtype=float)
-            self.axes = len(self.experiment.independentVariables)
-            self.xi = x0
+            self.xi = numpy.array([i.valueList[0] for i in self.optimization_variables], dtype=float)
+            self.axes = len(self.optimization_variables)
+
+
+            # save the optimizer data
+            experimentResults['analysis/optimizer/names'] = [i.name for i in self.optimization_variables]
+            experimentResults['analysis/optimizer'].create_dataset('values', [0, self.axes], maxshape=[None, self.axes])
+            experimentResults['analysis/optimizer'].create_dataset('costs', [0], maxshape=[None])
+            experimentResults['analysis/optimizer/best_values'] = numpy.zeros(self.axes, dtype=float)
+            experimentResults['analysis/optimizer/best_cost'] = float('inf')
 
             #create a new generator to choose optimization points
             methods = [self.simplex, self.genetic, self.gradient_descent, self.weighted_simplex]
-            self.generator = methods[self.optimization_method](x0)
+            self.generator = methods[self.optimization_method](self.xi)
 
             self.xlist = []
             self.ylist = []
             self.best_xi = None
             self.best_yi = float('inf')
 
-
-    def postIteration(self, iterationResults, experimentResults):
+    def update(self, experimentResults):
         if self.enable:
 
             # evaluate the cost function, with access to all backend variables
@@ -84,15 +105,29 @@ class Optimization(AnalysisWithFigure):
             if isnan(self.yi):
                 self.yi = float('inf')
 
-            iterationResults['analysis/optimization_xi'] = self.xi
-            iterationResults['analysis/optimization_yi'] = self.yi
-            if self.yi < self.best_yi:
-                self.best_xi = self.xi
-                self.best_yi = self.yi
+            # store this data point
             self.xlist.append(self.xi)
             self.ylist.append(self.yi)
+            a = experimentResults['analysis/optimizer/values']
+            a.resize(a.len()+1, axis=0)
+            a[-1] = self.xi
+            b = experimentResults['analysis/optimizer/costs']
+            b.resize(b.len()+1, axis=0)
+            b[-1] = self.yi
 
-            # let the simplex generator decide on the next point to look at
+            # check to see if this is the best point
+            if self.yi < self.best_yi:
+                # update instance variables
+                self.best_xi = self.xi
+                self.best_yi = self.yi
+                # update hdf5
+                experimentResults['analysis/optimizer/best_values'][...] = self.xi
+                experimentResults['analysis/optimizer/best_cost'][...] = self.yi
+                # update experiment independent variables
+                for i, j in zip(self.optimization_variables, self.xi):
+                    i.set_gui({'function': str(j)})
+
+            # let the generator decide on the next point to look at
             try:
                 self.xi = self.generator.next()
             except StopIteration:
@@ -102,6 +137,8 @@ class Optimization(AnalysisWithFigure):
                 return
             self.setVars(self.xi)
             self.updateFigure()
+        else:
+            self.experiment.set_status('end')
 
     def postExperiment(self, experimentResults):
         if self.enable:

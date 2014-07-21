@@ -41,9 +41,8 @@ def guiThread(exp):
     #give the experiment a reference to the gui
     exp.gui = main
 
-    logger.debug('starting QtApplication')
+    logger.info('starting QtApplication')
     app.start()
-    logger.info('Application active')
 
 def new():
     logger.info('Started CsPyController')

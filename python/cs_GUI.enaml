@@ -284,11 +284,6 @@ enamldef CsMenuBar(MenuBar): menuBar:
         Action:
             text = 'Halt\tCtrl+H'
             triggered::experiment.halt()
-    Menu:
-        title = '&Optimize'
-        Action:
-            text = 'Reset and Run'
-            triggered::experiment.optimize_resetAndGoThread()
 
 enamldef EvalProp(GroupBox):
     attr prop
@@ -367,125 +362,166 @@ enamldef LabelField(Container):
 #class RefreshableComboBox(ComboBox):
 #    refresh = EnamlEvent
 
-enamldef ExperimentPage(Page):
+enamldef ExperimentPage(Container):
     attr experiment
-    title='Experiment'
 
-    Container:
-        Form: form:
-            Label:
-                text="Status:"
-            Label:
-                text<<experiment.statusStr
+    Form: form:
+        Label:
+            text="Status:"
+        Label:
+            text<<experiment.statusStr
 
-            Label:
-                text='Pause after iteration'
-            CheckBox:
-                checked:=experiment.pauseAfterIteration
+        Label:
+            text='Pause after iteration'
+        CheckBox:
+            checked:=experiment.pauseAfterIteration
 
-            Label:
-                text='Pause after measurement'
-            CheckBox:
-                checked:=experiment.pauseAfterMeasurement
-            
-            Label:
-                text='Pause after error'
-            CheckBox:
-                checked:=experiment.pauseAfterError
-            
-            Label: text='Save Data?'
-            CheckField:
-                checked:=experiment.saveData
-                text:=experiment.localDataPath
-                placeholder='local data path'
-            
-            Label: text='Save Settings?'
-            CheckBox:
-                checked:=experiment.saveSettings
-            
-            Label: text='Save 2013 style files?'
-            CheckBox:
-                checked:=experiment.save2013styleFiles
+        Label:
+            text='Pause after measurement'
+        CheckBox:
+            checked:=experiment.pauseAfterMeasurement
 
-            Label: text='Copy Data to Network?'
-            CheckField:
-                checked:=experiment.copyDataToNetwork
-                text:=experiment.networkDataPath
-                placeholder='network data path'
+        Label:
+            text='Pause after error'
+        CheckBox:
+            checked:=experiment.pauseAfterError
 
-            Label: text='Experiment description suffix for filename'
-            Field: text:=experiment.experimentDescriptionFilenameSuffix
+        Label:
+            text = 'enable sounds'
+        CheckBox:
+            checked := experiment.enable_sounds
 
-            Label: text='Measurement Timeout [s]'
-            FloatField: value:=experiment.measurementTimeout
+        Label: text='Save Data?'
+        CheckField:
+            checked:=experiment.saveData
+            text:=experiment.localDataPath
+            placeholder='local data path'
 
-            Label: text='Measurements per Iteration'
-            IntField: value:=experiment.measurementsPerIteration
-        
-            Label: text='E-mail on error/completion?'
-            CheckField:
-                checked:=experiment.willSendEmail
-                text:=experiment.emailAddresses
-            
-            Label: text='Progress'
-            Label: text<<'{}%'.format(experiment.progressGUI)
-            
-            Label: text='Iteration'
-            Label: text<<experiment.iterationStr
-            
-            Label: text='Measurement'
-            Label: text<<experiment.measurementStr
-            
-            Label: text='Good Measurements'
-            Label: text<<experiment.goodMeasurementsStr
-            
-            Label: text='Time started'
-            Label: text<<experiment.timeStartedStr
-            
-            Label: text='Time after last measurement'
-            Label: text<<experiment.currentTimeStr
-            
-            Label: text='Time elapsed'
-            Label: text<<experiment.timeElapsedStr
+        Label: text='Save Settings?'
+        CheckBox:
+            checked:=experiment.saveSettings
 
-            Label: text='Estimated total time'
-            Label: text<<experiment.totalTimeStr
+        Label: text='Save 2013 style files?'
+        CheckBox:
+            checked:=experiment.save2013styleFiles
 
-            Label: text='Estimated time remaining'
-            Label: text<<experiment.timeRemainingStr
+        Label: text='Copy Data to Network?'
+        CheckField:
+            checked:=experiment.copyDataToNetwork
+            text:=experiment.networkDataPath
+            placeholder='network data path'
 
-            Label: text='Estimated completion time'
-            Label: text<<experiment.completionTimeStr
-            
-            Label: text='Notes'
-            MultilineField:
-                text:=experiment.notes
+        Label: text='Experiment description suffix for filename'
+        Field: text:=experiment.experimentDescriptionFilenameSuffix
+
+        Label: text='Measurement Timeout [s]'
+        FloatField: value:=experiment.measurementTimeout
+
+        Label: text='Measurements per Iteration'
+        IntField: value:=experiment.measurementsPerIteration
+
+        Label: text='E-mail on error/completion?'
+        CheckField:
+            checked:=experiment.willSendEmail
+            text:=experiment.emailAddresses
+
+        Label: text='Progress'
+        Label: text<<'{}%'.format(experiment.progressGUI)
+
+        Label: text='Iteration'
+        Label: text<<experiment.iterationStr
+
+        Label: text='Measurement'
+        Label: text<<experiment.measurementStr
+
+        Label: text='Good Measurements'
+        Label: text<<experiment.goodMeasurementsStr
+
+        Label: text='Time started'
+        Label: text<<experiment.timeStartedStr
+
+        Label: text='Time after last measurement'
+        Label: text<<experiment.currentTimeStr
+
+        Label: text='Time elapsed'
+        Label: text<<experiment.timeElapsedStr
+
+        Label: text='Estimated total time'
+        Label: text<<experiment.totalTimeStr
+
+        Label: text='Estimated time remaining'
+        Label: text<<experiment.timeRemainingStr
+
+        Label: text='Estimated completion time'
+        Label: text<<experiment.completionTimeStr
+
+        Label: text='Notes'
+        MultilineField:
+            text:=experiment.notes
 
 enamldef VariableEntry(GroupBox):
     attr indepVar
 
-    constraints=[nameCont.width==0.5*descCont.width,descCont.width==funcCont.width,currentValueLabel.right==funcCont.right,vbox(hbox(nameCont,descCont,funcCont),valueListLabel,hbox(stepsLabel,currentValueLabel)),align('v_center',nameCont,descCont,funcCont),align('v_center',stepsLabel,currentValueLabel)]
-    
-    Field: nameCont:
-        text:=indepVar.name
-        placeholder='name'
-    Field: descCont:
-        text:=indepVar.description
-        placeholder='description'
-    Field: funcCont:
-        text:=indepVar.function
-        placeholder='function'
-    Label: valueListLabel:
-        text<<'values: '+indepVar.valueListStr
-    Label: stepsLabel:
-        text<<'step: '+str(indepVar.index)+' of '+str(indepVar.steps)
-    Label: currentValueLabel:
-        text<<'current value: '+indepVar.currentValueStr
+    hug_height = 'strong'
+    hug_width = 'strong'
+    constraints = [vbox(variable,optimizer,values,status), align('left',variable,optimizer,values,status)]  # currentValueLabel.right==funcCont.right
+
+    HGroup: variable:
+        align_widths = False
+        constraints = [nameCont.width==0.5*descCont.width, descCont.width==funcCont.width]
+        Field: nameCont:
+            text := indepVar.name
+            placeholder = 'name'
+        Field: descCont:
+            text := indepVar.description
+            placeholder = 'description'
+        Field: funcCont:
+            text := indepVar.function
+            placeholder = 'function'
+    HGroup: optimizer:
+        padding = 0
+        align_widths = False
+        hug_width = 'strong'
+        hug_height = 'strong'
+        Form:
+            Label:
+                text = 'optimize?'
+            CheckBox:
+                checked := indepVar.optimize
+        Form:
+            Label:
+                text = 'initial step'
+            FloatField:
+                value := indepVar.optimizer_initial_step
+        Form:
+            Label:
+                text = 'min'
+            FloatField:
+                value := indepVar.optimizer_min
+        Form:
+            Label:
+                text = 'max'
+            FloatField:
+                value := indepVar.optimizer_max
+    HGroup: values:
+        Label:
+            text << 'values: '+indepVar.valueListStr
+    HGroup: status:
+        hug_width = 'strong'
+        hug_height = 'strong'
+        # constraints = [align('v_center',stepsLabel,currentValueLabel)]
+        Label: stepsLabel:
+            text << 'step: '+str(indepVar.index)+' of '+str(indepVar.steps)
+        Label: currentValueLabel:
+            text << 'current value: '+indepVar.currentValueStr
 
 enamldef IndependentVariablesGroupBox(GroupBox):
     attr independentVariables
     title='Independent Variables (2)'
-    
+
+    hug_height='strong'
+    hug_width='strong'
+
     GroupBox:
         hug_height='strong'
         hug_width='strong'
@@ -511,8 +547,8 @@ enamldef Variables(Container): main:
     attr experiment
 
     Container: settings:
-        hug_height='strong'
         hug_width='strong'
+        hug_height='strong'
 
         PushButton: updateButton:
             text='Update variables throughout experiment'
@@ -525,27 +561,30 @@ enamldef Variables(Container): main:
                 text:=experiment.variablesNotToSave
                 placeholder='scipy,numpy,x'
 
-        HGroup:
+        Container:
+            padding = 0
+            hug_height = 'strong'
+            constraints = [hbox(constants, independents, dependents), align('top', constants, independents, dependents), width==1850, constants.width==dependents.width]
 
-            GroupBox:
+            GroupBox: constants:
                 title='Constants (1)'
                 VGroup:
                     Label:
                         text='Define constants using python code below.'
                     MultilineField:
-                        constraints=[height==1000]
+                        constraints=[height==900]
                         text:=experiment.constantsStr
 
-            IndependentVariablesGroupBox:
+            IndependentVariablesGroupBox: independents:
                 independentVariables<<experiment.independentVariables
 
-            GroupBox:
+            GroupBox: dependents:
                 title='Dependent Variables (3)'
                 VGroup:
                     Label:
                         text='Define dependent variables using python code below.'
                     MultilineField:
-                        constraints=[height==1000]
+                        constraints=[height==900]
                         text:=experiment.dependentVariablesStr
 
 enamldef Reports(Container):
@@ -2055,17 +2094,13 @@ enamldef Optimizer(Form):
         text = 'enable'
     CheckBox:
         checked := analysis.enable
+        enabled = False
 
     Label:
         text='update method'
     ComboBox:
-        items = ['Nelder-Mead','genetic','gradient descent','weighted Nelder-Mead']
+        items = ['Nelder-Mead', 'genetic', 'gradient descent', 'weighted Nelder-Mead']
         index := analysis.optimization_method
-
-    Label:
-        text='Initial Step (fraction)'
-    FloatField:
-        value := analysis.initial_step
 
     Label:
         text='End when step size is less than (fraction) on all axes'
@@ -2165,142 +2200,140 @@ enamldef Main(MainWindow): main:
                 value<<int(experiment.progressGUI)
     Container:
         padding = 0
-        ScrollArea:
-            Container:
+        style_class << 'valid' if experiment.valid else 'invalid'
+        Notebook: notebook:
+            tabs_closable=False
+            tabs_movable=False
+            tab_style = 'preferences'
+            Page:
+                title = 'Experiment'
                 style_class << 'valid' if experiment.valid else 'invalid'
-                hug_height='strong'
-                hug_width='strong'
-                Notebook: notebook:
-                    tabs_closable=False
-                    tabs_movable=False
-                    tab_style = 'preferences'
-                    ExperimentPage:
-                        style_class << 'valid' if experiment.valid else 'invalid'
-                        experiment = main.experiment
-                    Page:
-                        title = 'Variables'
-                        style_class << 'valid' if experiment.valid else 'invalid'
-                        Variables:
-                            experiment = main.experiment
-                    Page:
-                        title = 'Report'
-                        style_class << 'valid' if experiment.valid else 'invalid'
-                        Reports:
-                            experiment = main.experiment
-                    LabViewPage:
-                        style_class << 'valid' if experiment.valid else 'invalid'
-                        LabView=main.experiment.LabView
-                    HSDIO_DigitalOutPage:
-                        style_class << 'valid' if experiment.valid else 'invalid'
-                        HSDIO=main.experiment.LabView.HSDIO
-                    #HSDIO_DigitalOutPage:
-                    #    style_class << 'valid' if experiment.valid else 'invalid'
-                    #    HSDIO=main.experiment.LabView.HSDIO2
-                    Page:
-                        title='Waveforms'
-                        style_class << 'valid' if experiment.valid else 'invalid'
-                        Waveforms:
-                            HSDIO=main.experiment.LabView.HSDIO
-                    DAQmxDigitalOutPage:
-                        style_class << 'valid' if experiment.valid else 'invalid'
-                        DAQmx=main.experiment.LabView.DAQmxDO
-                    Page:
-                        title = 'DDS'
-                        style_class << 'valid' if experiment.valid else 'invalid'
-                        DDS_Page:
-                            DDS=main.experiment.LabView.DDS
-                    RFGenPage:
-                        style_class << 'valid' if experiment.valid else 'invalid'
-                        LabView=main.experiment.LabView
-                    CameraPage:
-                        style_class << 'valid' if experiment.valid else 'invalid'
-                        camera=main.experiment.LabView.camera
-                    #CounterPage:
-                    #    style_class << 'valid' if experiment.valid else 'invalid'
-                    #    pass
-                    AnalogOutputPage:
-                        style_class << 'valid' if experiment.valid else 'invalid'
-                        AO=main.experiment.LabView.AnalogOutput
-                    #Page:
-                    #    style_class << 'valid' if experiment.valid else 'invalid'
-                    #    title = 'Analog Input'
-                    #    AnalogInput:
-                    #        AI = main.experiment.LabView.AnalogInput
-                    #Page:
-                    #    style_class << 'valid' if experiment.valid else 'invalid'
-                    #    title = 'Arroyo'
-                    #    Arroyo:
-                    #        Arroyo = main.experiment.Arroyo
-                    PI_PiezoPage:
-                        style_class << 'valid' if experiment.valid else 'invalid'
-                        piezo=main.experiment.LabView.piezo
-                    Page:
-                        title = 'Picomotors'
-                        style_class << 'valid' if experiment.valid else 'invalid'
-                        Picomotors:
-                            picomotors=main.experiment.picomotors
-                    MultiImagePage:
-                        style_class << 'valid' if experiment.valid else 'invalid'
-                        experiment=main.experiment
-                        analysis0=main.experiment.recent_shot_analysis
-                        analysis1=main.experiment.shotBrowserAnalysis
-                        analysis2=main.experiment.imageSumAnalysis
-                        analysis3=main.experiment.text_analysis
-                    Page:
-                        title = 'Square ROI'
-                        style_class << 'valid' if experiment.valid else 'invalid'
-                        SquareROIContainer:
-                            experiment=main.experiment
-                            analysis=main.experiment.squareROIAnalysis
-                    Page:
-                        title = 'Gaussian ROI'
-                        style_class << 'valid' if experiment.valid else 'invalid'
-                        GaussianROI:
-                            analysis=main.experiment.gaussian_roi
-                    Page:
-                        title = 'Histogram'
-                        style_class << 'valid' if experiment.valid else 'invalid'
-                        Histogram:
-                            experiment=main.experiment
-                            analysis=main.experiment.histogramAnalysis
-                    Page:
-                        title = 'Histogram Grid'
-                        style_class << 'valid' if experiment.valid else 'invalid'
-                        HistogramGrid:
-                            experiment=main.experiment
-                            analysis=main.experiment.histogram_grid
-                    Page:
-                        title = 'Measurements Graph'
-                        style_class << 'valid' if experiment.valid else 'invalid'
-                        MeasurementsGraph:
-                           experiment=main.experiment
-                           analysis=main.experiment.measurements_graph
-                    Page:
-                        title = 'Iterations Graph'
-                        style_class << 'valid' if experiment.valid else 'invalid'
-                        IterationsGraph:
-                            experiment=main.experiment
-                            analysis=main.experiment.iterations_graph
-                    Page:
-                        title = 'Retention Graph'
-                        style_class << 'valid' if experiment.valid else 'invalid'
-                        RetentionGraph:
-                            experiment=main.experiment
-                            analysis=main.experiment.retention_graph
-                    Page:
-                        title='Filters'
-                        style_class << 'valid' if experiment.valid else 'invalid'
-                        Container:
-                            TTL_filters:
-                                instrument = main.experiment.LabView.TTL
-                                filters = main.experiment.TTL_filters
-                            LoadingFilters:
-                                filters = main.experiment.loading_filters
-                            FirstMeasurementsFilter:
-                                filters = main.experiment.first_measurements_filter
-                    Page:
-                        title='Optimization'
-                        style_class << 'valid' if experiment.valid else 'invalid'
-                        Optimizer:
-                            experiment=main.experiment
-                            analysis=main.experiment.optimizer
+                ScrollArea:
+                    experiment = main.experiment
+            Page:
+                title = 'Variables'
+                style_class << 'valid' if experiment.valid else 'invalid'
+                Variables:
+                    experiment = main.experiment
+            Page:
+                title = 'Report'
+                style_class << 'valid' if experiment.valid else 'invalid'
+                Reports:
+                    experiment = main.experiment
+            LabViewPage:
+                style_class << 'valid' if experiment.valid else 'invalid'
+                LabView=main.experiment.LabView
+            HSDIO_DigitalOutPage:
+                style_class << 'valid' if experiment.valid else 'invalid'
+                HSDIO=main.experiment.LabView.HSDIO
+            #HSDIO_DigitalOutPage:
+            #    style_class << 'valid' if experiment.valid else 'invalid'
+            #    HSDIO=main.experiment.LabView.HSDIO2
+            Page:
+                title='Waveforms'
+                style_class << 'valid' if experiment.valid else 'invalid'
+                Waveforms:
+                    HSDIO=main.experiment.LabView.HSDIO
+            DAQmxDigitalOutPage:
+                style_class << 'valid' if experiment.valid else 'invalid'
+                DAQmx=main.experiment.LabView.DAQmxDO
+            Page:
+                title = 'DDS'
+                style_class << 'valid' if experiment.valid else 'invalid'
+                DDS_Page:
+                    DDS=main.experiment.LabView.DDS
+            RFGenPage:
+                style_class << 'valid' if experiment.valid else 'invalid'
+                LabView=main.experiment.LabView
+            CameraPage:
+                style_class << 'valid' if experiment.valid else 'invalid'
+                camera=main.experiment.LabView.camera
+            #CounterPage:
+            #    style_class << 'valid' if experiment.valid else 'invalid'
+            #    pass
+            AnalogOutputPage:
+                style_class << 'valid' if experiment.valid else 'invalid'
+                AO=main.experiment.LabView.AnalogOutput
+            #Page:
+            #    style_class << 'valid' if experiment.valid else 'invalid'
+            #    title = 'Analog Input'
+            #    AnalogInput:
+            #        AI = main.experiment.LabView.AnalogInput
+            #Page:
+            #    style_class << 'valid' if experiment.valid else 'invalid'
+            #    title = 'Arroyo'
+            #    Arroyo:
+            #        Arroyo = main.experiment.Arroyo
+            PI_PiezoPage:
+                style_class << 'valid' if experiment.valid else 'invalid'
+                piezo=main.experiment.LabView.piezo
+            Page:
+                title = 'Picomotors'
+                style_class << 'valid' if experiment.valid else 'invalid'
+                Picomotors:
+                    picomotors=main.experiment.picomotors
+            MultiImagePage:
+                style_class << 'valid' if experiment.valid else 'invalid'
+                experiment=main.experiment
+                analysis0=main.experiment.recent_shot_analysis
+                analysis1=main.experiment.shotBrowserAnalysis
+                analysis2=main.experiment.imageSumAnalysis
+                analysis3=main.experiment.text_analysis
+            Page:
+                title = 'Square ROI'
+                style_class << 'valid' if experiment.valid else 'invalid'
+                SquareROIContainer:
+                    experiment=main.experiment
+                    analysis=main.experiment.squareROIAnalysis
+            Page:
+                title = 'Gaussian ROI'
+                style_class << 'valid' if experiment.valid else 'invalid'
+                GaussianROI:
+                    analysis=main.experiment.gaussian_roi
+            Page:
+                title = 'Histogram'
+                style_class << 'valid' if experiment.valid else 'invalid'
+                Histogram:
+                    experiment=main.experiment
+                    analysis=main.experiment.histogramAnalysis
+            Page:
+                title = 'Histogram Grid'
+                style_class << 'valid' if experiment.valid else 'invalid'
+                HistogramGrid:
+                    experiment=main.experiment
+                    analysis=main.experiment.histogram_grid
+            Page:
+                title = 'Measurements Graph'
+                style_class << 'valid' if experiment.valid else 'invalid'
+                MeasurementsGraph:
+                   experiment=main.experiment
+                   analysis=main.experiment.measurements_graph
+            Page:
+                title = 'Iterations Graph'
+                style_class << 'valid' if experiment.valid else 'invalid'
+                IterationsGraph:
+                    experiment=main.experiment
+                    analysis=main.experiment.iterations_graph
+            Page:
+                title = 'Retention Graph'
+                style_class << 'valid' if experiment.valid else 'invalid'
+                RetentionGraph:
+                    experiment=main.experiment
+                    analysis=main.experiment.retention_graph
+            Page:
+                title='Filters'
+                style_class << 'valid' if experiment.valid else 'invalid'
+                Container:
+                    TTL_filters:
+                        instrument = main.experiment.LabView.TTL
+                        filters = main.experiment.TTL_filters
+                    LoadingFilters:
+                        filters = main.experiment.loading_filters
+                    FirstMeasurementsFilter:
+                        filters = main.experiment.first_measurements_filter
+            Page:
+                title='Optimization'
+                style_class << 'valid' if experiment.valid else 'invalid'
+                Optimizer:
+                    experiment=main.experiment
+                    analysis=main.experiment.optimizer
