@@ -258,7 +258,7 @@ class Experiment(Prop):
         index = numpy.zeros(n, dtype=int)
         # calculate the base for each variable place
         base = [1]
-        for i in range(1, n):
+        for i in xrange(1, n):
             base.append(self.ivarSteps[i-1]*base[i-1])
         #build up the list
         seq = range(n)
@@ -501,65 +501,66 @@ class Experiment(Prop):
             # optimization loop
             while not self.optimizer.isDone:
 
-            #loop until iteration are complete
-            while (self.iteration < self.totalIterations) and (self.status == 'running'):
-                logger.debug("starting new iteration")
-                
-                #at the start of a new iteration, or if we are continuing
-                self.evaluateAll()  # update ivars to current iteration and re-calculate dependent variables
-                self.update()  # send current values to hardware
-                
-                #only at the start of a new iteration
-                if self.measurement == 0:
-                    self.completedMeasurementsByIteration.append(0)  # start a new counter for this iteration
-                    self.create_hdf5_iteration()
-                    self.preIteration()
-                
-                #loop until the desired number of measurements are taken
-                while (self.goodMeasurements < self.measurementsPerIteration) and (self.status == 'running'):
-                    self.set_gui({'valid': True})
-                    logger.info('iteration {} measurement {}'.format(self.iteration, self.measurement))
-                    self.measure()  # tell all instruments to do the experiment sequence and acquire data
-                    self.updateTime()  # update the countdown/countup clocks
-                    logger.debug('updating measurement count')
+                #loop until iteration are complete
+                while (self.iteration < self.totalIterations) and (self.status == 'running'):
+                    logger.debug("starting new iteration")
 
-                    #make sure results are written to disk
-                    logger.debug('flushing hdf5')
-                    self.hdf5.flush()
+                    #at the start of a new iteration, or if we are continuing
+                    self.evaluateAll()  # update ivars to current iteration and re-calculate dependent variables
+                    self.update()  # send current values to hardware
 
-                    # increment the measurement counter, except at the end
-                    if self.goodMeasurements < self.measurementsPerIteration:
-                        self.measurement += 1
-                    else:
-                        break
+                    #only at the start of a new iteration
+                    if self.measurement == 0:
+                        self.completedMeasurementsByIteration.append(0)  # start a new counter for this iteration
+                        self.create_hdf5_iteration()
+                        self.preIteration()
 
-                    # pause after measurement
-                    if self.status == 'running' and self.pauseAfterMeasurement:
-                        self.set_status('paused after measurement')
-                        self.set_gui({'valid': False})
-                        if self.enable_sounds:
-                            sound.error_sound()
+                    #loop until the desired number of measurements are taken
+                    while (self.goodMeasurements < self.measurementsPerIteration) and (self.status == 'running'):
+                        self.set_gui({'valid': True})
+                        logger.info('iteration {} measurement {}'.format(self.iteration, self.measurement))
+                        self.measure()  # tell all instruments to do the experiment sequence and acquire data
+                        self.updateTime()  # update the countdown/countup clocks
+                        logger.debug('updating measurement count')
 
-                    self.update_gui()
+                        #make sure results are written to disk
+                        logger.debug('flushing hdf5')
+                        self.hdf5.flush()
 
-                # Measurement loop exited, but that might mean we are pause, or an error.
-                # So check to see if we completed the iteration.
-                if self.goodMeasurements >= self.measurementsPerIteration:
-                    logger.debug("Finished iteration")
-                    # We have completed this iteration, move on to the next one
-                    self.postIteration()  # run analysis
-                    if self.iteration < self.totalIterations-1:
-                        self.iteration += 1
-                        self.measurement = 0
-                        self.goodMeasurements = 0
-                        if (self.status == 'running' or self.status == 'paused after measurement') and self.pauseAfterIteration:
-                            self.set_status('paused after iteration')
+                        # increment the measurement counter, except at the end
+                        if self.goodMeasurements < self.measurementsPerIteration:
+                            self.measurement += 1
+                        else:
+                            break
+
+                        # pause after measurement
+                        if self.status == 'running' and self.pauseAfterMeasurement:
+                            self.set_status('paused after measurement')
                             self.set_gui({'valid': False})
                             if self.enable_sounds:
                                 sound.error_sound()
-                    else:
-                        logger.debug("Finished all iterations")
-                        self.postExperiment()
+
+                        self.update_gui()
+
+                    # Measurement loop exited, but that might mean we are pause, or an error.
+                    # So check to see if we completed the iteration.
+                    if self.goodMeasurements >= self.measurementsPerIteration:
+                        logger.debug("Finished iteration")
+                        # We have completed this iteration, move on to the next one
+                        self.postIteration()  # run analysis
+                        if self.iteration < self.totalIterations-1:
+                            self.iteration += 1
+                            self.measurement = 0
+                            self.goodMeasurements = 0
+                            if (self.status == 'running' or self.status == 'paused after measurement') and self.pauseAfterIteration:
+                                self.set_status('paused after iteration')
+                                self.set_gui({'valid': False})
+                                if self.enable_sounds:
+                                    sound.error_sound()
+                        else:
+                            logger.debug("Finished all iterations")
+                            self.postExperiment()
+
         except PauseError:
             #This should be the only place that PauseError is explicitly handed.
             #All other non-fatal error caught higher up in the experiment chain should
