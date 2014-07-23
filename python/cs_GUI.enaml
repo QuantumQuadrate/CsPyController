@@ -2199,141 +2199,142 @@ enamldef Main(MainWindow): main:
                 maximum=100
                 value<<int(experiment.progressGUI)
     Container:
-        padding = 0
-        style_class << 'valid' if experiment.valid else 'invalid'
-        Notebook: notebook:
-            tabs_closable=False
-            tabs_movable=False
-            tab_style = 'preferences'
-            Page:
-                title = 'Experiment'
+        ScrollArea:
+            Container:
                 style_class << 'valid' if experiment.valid else 'invalid'
-                ScrollArea:
-                    experiment = main.experiment
-            Page:
-                title = 'Variables'
-                style_class << 'valid' if experiment.valid else 'invalid'
-                Variables:
-                    experiment = main.experiment
-            Page:
-                title = 'Report'
-                style_class << 'valid' if experiment.valid else 'invalid'
-                Reports:
-                    experiment = main.experiment
-            LabViewPage:
-                style_class << 'valid' if experiment.valid else 'invalid'
-                LabView=main.experiment.LabView
-            HSDIO_DigitalOutPage:
-                style_class << 'valid' if experiment.valid else 'invalid'
-                HSDIO=main.experiment.LabView.HSDIO
-            #HSDIO_DigitalOutPage:
-            #    style_class << 'valid' if experiment.valid else 'invalid'
-            #    HSDIO=main.experiment.LabView.HSDIO2
-            Page:
-                title='Waveforms'
-                style_class << 'valid' if experiment.valid else 'invalid'
-                Waveforms:
-                    HSDIO=main.experiment.LabView.HSDIO
-            DAQmxDigitalOutPage:
-                style_class << 'valid' if experiment.valid else 'invalid'
-                DAQmx=main.experiment.LabView.DAQmxDO
-            Page:
-                title = 'DDS'
-                style_class << 'valid' if experiment.valid else 'invalid'
-                DDS_Page:
-                    DDS=main.experiment.LabView.DDS
-            RFGenPage:
-                style_class << 'valid' if experiment.valid else 'invalid'
-                LabView=main.experiment.LabView
-            CameraPage:
-                style_class << 'valid' if experiment.valid else 'invalid'
-                camera=main.experiment.LabView.camera
-            #CounterPage:
-            #    style_class << 'valid' if experiment.valid else 'invalid'
-            #    pass
-            AnalogOutputPage:
-                style_class << 'valid' if experiment.valid else 'invalid'
-                AO=main.experiment.LabView.AnalogOutput
-            #Page:
-            #    style_class << 'valid' if experiment.valid else 'invalid'
-            #    title = 'Analog Input'
-            #    AnalogInput:
-            #        AI = main.experiment.LabView.AnalogInput
-            #Page:
-            #    style_class << 'valid' if experiment.valid else 'invalid'
-            #    title = 'Arroyo'
-            #    Arroyo:
-            #        Arroyo = main.experiment.Arroyo
-            PI_PiezoPage:
-                style_class << 'valid' if experiment.valid else 'invalid'
-                piezo=main.experiment.LabView.piezo
-            Page:
-                title = 'Picomotors'
-                style_class << 'valid' if experiment.valid else 'invalid'
-                Picomotors:
-                    picomotors=main.experiment.picomotors
-            MultiImagePage:
-                style_class << 'valid' if experiment.valid else 'invalid'
-                experiment=main.experiment
-                analysis0=main.experiment.recent_shot_analysis
-                analysis1=main.experiment.shotBrowserAnalysis
-                analysis2=main.experiment.imageSumAnalysis
-                analysis3=main.experiment.text_analysis
-            Page:
-                title = 'Square ROI'
-                style_class << 'valid' if experiment.valid else 'invalid'
-                SquareROIContainer:
-                    experiment=main.experiment
-                    analysis=main.experiment.squareROIAnalysis
-            Page:
-                title = 'Gaussian ROI'
-                style_class << 'valid' if experiment.valid else 'invalid'
-                GaussianROI:
-                    analysis=main.experiment.gaussian_roi
-            Page:
-                title = 'Histogram'
-                style_class << 'valid' if experiment.valid else 'invalid'
-                Histogram:
-                    experiment=main.experiment
-                    analysis=main.experiment.histogramAnalysis
-            Page:
-                title = 'Histogram Grid'
-                style_class << 'valid' if experiment.valid else 'invalid'
-                HistogramGrid:
-                    experiment=main.experiment
-                    analysis=main.experiment.histogram_grid
-            Page:
-                title = 'Measurements Graph'
-                style_class << 'valid' if experiment.valid else 'invalid'
-                MeasurementsGraph:
-                   experiment=main.experiment
-                   analysis=main.experiment.measurements_graph
-            Page:
-                title = 'Iterations Graph'
-                style_class << 'valid' if experiment.valid else 'invalid'
-                IterationsGraph:
-                    experiment=main.experiment
-                    analysis=main.experiment.iterations_graph
-            Page:
-                title = 'Retention Graph'
-                style_class << 'valid' if experiment.valid else 'invalid'
-                RetentionGraph:
-                    experiment=main.experiment
-                    analysis=main.experiment.retention_graph
-            Page:
-                title='Filters'
-                style_class << 'valid' if experiment.valid else 'invalid'
-                Container:
-                    TTL_filters:
-                        instrument = main.experiment.LabView.TTL
-                        filters = main.experiment.TTL_filters
-                    LoadingFilters:
-                        filters = main.experiment.loading_filters
-                    FirstMeasurementsFilter:
-                        filters = main.experiment.first_measurements_filter
-            Page:
-                title='Optimization'
-                style_class << 'valid' if experiment.valid else 'invalid'
-                Optimizer:
-                    experiment=main.experiment
-                    analysis=main.experiment.optimizer
+                Notebook: notebook:
+                    tabs_closable=False
+                    tabs_movable=False
+                    tab_style = 'preferences'
+                    Page:
+                        title = 'Experiment'
+                        style_class << 'valid' if experiment.valid else 'invalid'
+                        ExperimentPage:
+                            experiment = main.experiment
+                    Page:
+                        title = 'Variables'
+                        style_class << 'valid' if experiment.valid else 'invalid'
+                        Variables:
+                            experiment = main.experiment
+                    Page:
+                        title = 'Report'
+                        style_class << 'valid' if experiment.valid else 'invalid'
+                        Reports:
+                            experiment = main.experiment
+                    LabViewPage:
+                        style_class << 'valid' if experiment.valid else 'invalid'
+                        LabView=main.experiment.LabView
+                    HSDIO_DigitalOutPage:
+                        style_class << 'valid' if experiment.valid else 'invalid'
+                        HSDIO=main.experiment.LabView.HSDIO
+                    #HSDIO_DigitalOutPage:
+                    #    style_class << 'valid' if experiment.valid else 'invalid'
+                    #    HSDIO=main.experiment.LabView.HSDIO2
+                    Page:
+                        title='Waveforms'
+                        style_class << 'valid' if experiment.valid else 'invalid'
+                        Waveforms:
+                            HSDIO=main.experiment.LabView.HSDIO
+                    DAQmxDigitalOutPage:
+                        style_class << 'valid' if experiment.valid else 'invalid'
+                        DAQmx=main.experiment.LabView.DAQmxDO
+                    Page:
+                        title = 'DDS'
+                        style_class << 'valid' if experiment.valid else 'invalid'
+                        DDS_Page:
+                            DDS=main.experiment.LabView.DDS
+                    RFGenPage:
+                        style_class << 'valid' if experiment.valid else 'invalid'
+                        LabView=main.experiment.LabView
+                    CameraPage:
+                        style_class << 'valid' if experiment.valid else 'invalid'
+                        camera=main.experiment.LabView.camera
+                    #CounterPage:
+                    #    style_class << 'valid' if experiment.valid else 'invalid'
+                    #    pass
+                    AnalogOutputPage:
+                        style_class << 'valid' if experiment.valid else 'invalid'
+                        AO=main.experiment.LabView.AnalogOutput
+                    #Page:
+                    #    style_class << 'valid' if experiment.valid else 'invalid'
+                    #    title = 'Analog Input'
+                    #    AnalogInput:
+                    #        AI = main.experiment.LabView.AnalogInput
+                    #Page:
+                    #    style_class << 'valid' if experiment.valid else 'invalid'
+                    #    title = 'Arroyo'
+                    #    Arroyo:
+                    #        Arroyo = main.experiment.Arroyo
+                    PI_PiezoPage:
+                        style_class << 'valid' if experiment.valid else 'invalid'
+                        piezo=main.experiment.LabView.piezo
+                    Page:
+                        title = 'Picomotors'
+                        style_class << 'valid' if experiment.valid else 'invalid'
+                        Picomotors:
+                            picomotors=main.experiment.picomotors
+                    MultiImagePage:
+                        style_class << 'valid' if experiment.valid else 'invalid'
+                        experiment=main.experiment
+                        analysis0=main.experiment.recent_shot_analysis
+                        analysis1=main.experiment.shotBrowserAnalysis
+                        analysis2=main.experiment.imageSumAnalysis
+                        analysis3=main.experiment.text_analysis
+                    Page:
+                        title = 'Square ROI'
+                        style_class << 'valid' if experiment.valid else 'invalid'
+                        SquareROIContainer:
+                            experiment=main.experiment
+                            analysis=main.experiment.squareROIAnalysis
+                    Page:
+                        title = 'Gaussian ROI'
+                        style_class << 'valid' if experiment.valid else 'invalid'
+                        GaussianROI:
+                            analysis=main.experiment.gaussian_roi
+                    Page:
+                        title = 'Histogram'
+                        style_class << 'valid' if experiment.valid else 'invalid'
+                        Histogram:
+                            experiment=main.experiment
+                            analysis=main.experiment.histogramAnalysis
+                    Page:
+                        title = 'Histogram Grid'
+                        style_class << 'valid' if experiment.valid else 'invalid'
+                        HistogramGrid:
+                            experiment=main.experiment
+                            analysis=main.experiment.histogram_grid
+                    Page:
+                        title = 'Measurements Graph'
+                        style_class << 'valid' if experiment.valid else 'invalid'
+                        MeasurementsGraph:
+                           experiment=main.experiment
+                           analysis=main.experiment.measurements_graph
+                    Page:
+                        title = 'Iterations Graph'
+                        style_class << 'valid' if experiment.valid else 'invalid'
+                        IterationsGraph:
+                            experiment=main.experiment
+                            analysis=main.experiment.iterations_graph
+                    Page:
+                        title = 'Retention Graph'
+                        style_class << 'valid' if experiment.valid else 'invalid'
+                        RetentionGraph:
+                            experiment=main.experiment
+                            analysis=main.experiment.retention_graph
+                    Page:
+                        title='Filters'
+                        style_class << 'valid' if experiment.valid else 'invalid'
+                        Container:
+                            TTL_filters:
+                                instrument = main.experiment.LabView.TTL
+                                filters = main.experiment.TTL_filters
+                            LoadingFilters:
+                                filters = main.experiment.loading_filters
+                            FirstMeasurementsFilter:
+                                filters = main.experiment.first_measurements_filter
+                    Page:
+                        title='Optimization'
+                        style_class << 'valid' if experiment.valid else 'invalid'
+                        Optimizer:
+                            experiment=main.experiment
+                            analysis=main.experiment.optimizer

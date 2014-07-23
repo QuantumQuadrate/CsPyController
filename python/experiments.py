@@ -176,6 +176,7 @@ class Experiment(Prop):
     log_handler = Member()
     gui = Member()  # a reference to the gui Main, for use in Prop.set_gui
     optimizer = Member()
+    ivarBases = Member()
 
     def __init__(self):
         """Defines a set of instruments, and a sequence of what to do with them."""
@@ -248,28 +249,22 @@ class Experiment(Prop):
             self.ivarSteps = [i.steps for i in self.independentVariables]
             self.totalIterations = int(numpy.product(self.ivarSteps))
 
-            # update the current value of the independent variables
-            self.iterationToIndexArray()
+            # figure out how often each ivar will update with iterations (the "base")
+            self.ivarBases = numpy.roll(numpy.cumprod(self.ivarSteps), 1)
+            if len(self.ivarBases>0):
+                self.ivarBases[0] = 1
 
-
-    def iterationToIndexArray(self):
+    def updateIndependentVariables(self):
         """takes the iteration number and figures out which index number each independent variable should have"""
-        n = len(self.independentVariables)
-        index = numpy.zeros(n, dtype=int)
-        # calculate the base for each variable place
-        base = [1]
-        for i in xrange(1, n):
-            base.append(self.ivarSteps[i-1]*base[i-1])
-        #build up the list
-        seq = range(n)
-        seq.reverse()  # go from largest place to smallest
-        iter = self.iteration
-        for i in seq:
-            index[i] = int(iter/base[i])
-            iter -= index[i]*base[i]
-            index[i] = self.independentVariables[i].setIndex(index[i])  # update each variable object
-        self.ivarIndex = index  # store the list
-    
+
+        # find the current index for each
+        index = (self.iteration//self.ivarBases) % self.ivarSteps
+
+        for i, x in enumerate(self.independentVariables):
+           if not x.optimize:
+                index[i] = x.setIndex(index[i])  # update each variable object
+        self.ivarIndex = index
+
     def update(self):
         """Sends updated settings to all instruments.  This function is run at the beginning of every new iteration."""
         logger.debug("updating instruments")
@@ -283,31 +278,25 @@ class Experiment(Prop):
 
     def evaluateAll(self):
         if self.allow_evaluation:
-            self.evaluate_static()
-            self.evaluate()
-
-    def evaluate_static(self):
-        if self.allow_evaluation:
             self.evaluate_constants()
             self.evaluateIndependentVariables()
+            self.evaluate()
 
     def evaluate_constants(self):
+        if self.allow_evaluation:
+            # create a new dictionary and evaluate the constants into it
+            self.constants = {}
+            cs_evaluate.execWithDict(self.constantsStr, self.constants)
 
-        # create a new dictionary and evaluate the constants into it
-        self.constants = {}
-        cs_evaluate.execWithDict(self.constantsStr, self.constants)
+            # reset self.vars so it can be used in evaluating the constantReport
+            self.vars = self.constants.copy()
 
-        # reset self.vars so it can be used in evaluating the constantReport
-        self.vars = self.constants.copy()
+            # evaluate constant report
+            #at this time the properties are not all evaluated, so, we must do this one manually
+            self.constantReport.evaluate()
 
-        # evaluate constant report
-        #at this time the properties are not all evaluated, so, we must do this one manually
-        self.constantReport.evaluate()
-
-
-    #overwrite from Prop()
     def evaluate(self):
-        """Resolve all equation in instruments."""
+        """Resolve all equation in instruments.  This is overwritten from Prop."""
         if self.allow_evaluation:
             logger.debug('Experiment.evaluate() ...')
 
@@ -315,6 +304,7 @@ class Experiment(Prop):
             self.vars = self.constants.copy()
 
             # add the independent variables current values to the dict
+            self.updateIndependentVariables()
             ivars = dict([(i.name, i.currentValue) for i in self.independentVariables])
             self.vars.update(ivars)
 
@@ -469,7 +459,9 @@ class Experiment(Prop):
         self.create_data_files()
 
         # evaluate the constants and independent variables
-        self.evaluate_static()
+        self.evaluate_constants()
+        self.evaluateIndependentVariables()
+        self.updateIndependentVariables()
         self.hdf5['constant_report'] = self.constantReport.value
 
         # run analyses preExperiment
@@ -499,14 +491,14 @@ class Experiment(Prop):
         try:  # if there is an error we exit the inner loops and respond appropriately
 
             # optimization loop
-            while not self.optimizer.isDone:
+            while self.status == 'running' and (not self.optimizer.is_done):
 
                 #loop until iteration are complete
                 while (self.iteration < self.totalIterations) and (self.status == 'running'):
                     logger.debug("starting new iteration")
 
                     #at the start of a new iteration, or if we are continuing
-                    self.evaluateAll()  # update ivars to current iteration and re-calculate dependent variables
+                    self.evaluate()  # update ivars to current iteration and re-calculate dependent variables
                     self.update()  # send current values to hardware
 
                     #only at the start of a new iteration

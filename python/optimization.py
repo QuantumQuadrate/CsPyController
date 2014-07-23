@@ -45,6 +45,7 @@ class Optimization(AnalysisWithFigure):
     end_condition_step_size = Float(.0001)
     cost_function = Str()
     optimization_variables = []
+    is_done = Bool()
 
     # optimizer variables
     # optimize = Bool()
@@ -58,14 +59,18 @@ class Optimization(AnalysisWithFigure):
 
     def setup(self, experimentResults):
         self.optimization_variables = []
+        self.is_done = False
         enable = False  # don't enable unless there are some optimization variables
         for i, x in enumerate(self.experiment.independentVariables):
             if x.optimize:
                 enable = True  # there is at least one optimization variable
-                self.optimization_variables += x
+                self.optimization_variables.append += x
+                x.setIndex(0)
         self.set_gui({'enable': enable})
 
         if self.enable:
+
+            self.is_done = False
 
             #start all the independent variables at the value given for the 0th iteration
             self.xi = numpy.array([i.valueList[0] for i in self.optimization_variables], dtype=float)
@@ -87,6 +92,8 @@ class Optimization(AnalysisWithFigure):
             self.ylist = []
             self.best_xi = None
             self.best_yi = float('inf')
+        else:
+            self.is_done = True
 
     def update(self, experimentResults):
         if self.enable:
@@ -133,12 +140,13 @@ class Optimization(AnalysisWithFigure):
             except StopIteration:
                 # the optimizer has reached an end condition
                 logger.info('optimizer reached end condition')
+                self.is_done = True
                 self.experiment.set_status('end')
                 return
             self.setVars(self.xi)
             self.updateFigure()
         else:
-            self.experiment.set_status('end')
+            self.is_done = True
 
     def postExperiment(self, experimentResults):
         if self.enable:
