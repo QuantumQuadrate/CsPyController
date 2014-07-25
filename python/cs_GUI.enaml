@@ -320,44 +320,48 @@ enamldef MultilineProp(GroupBox):
     Label: val:
         text << prop.valueStr
 
-enamldef LabelBox(Container):
-    attr checked #=False
-    attr text #=''
+enamldef LabelBox(HGroup):
+    alias checked: box.checked
+    alias text: label.text
     
     padding=0
-    constraints=[hbox(label,box),align('v_center',label,box)]
     hug_height='strong'
     hug_width='strong'
+    align_widths = False
+
     Label: label:
-        text<<parent.text
+        pass
     CheckBox: box:
-        checked:=parent.checked
+        pass
 
-enamldef CheckField(Container):
-    attr checked=False
-    attr text=''
-    attr placeholder=''
-    
-    constraints=[hbox(box,field),align('v_center',box,field)]
-    CheckBox: box:
-        checked:=parent.checked
-    Field: field:
-        text:=parent.text
-        placeholder:=parent.placeholder
+enamldef CheckField(HGroup):
+    alias checked: box.checked
+    alias text: field.text
+    alias placeholder: field.placeholder
 
-enamldef LabelField(Container):
-    attr label=''
-    attr text=''
-    attr placeholder=''
-    
+    padding = 0
     hug_height='strong'
     hug_width='strong'
-    constraints=[vbox(l1,f1),l1.left==f1.left]
+    align_widths = False
+
+    CheckBox: box:
+        pass
+    Field: field:
+        pass
+
+enamldef LabelField(VGroup):
+    alias label: l1.text
+    alias text: f1.text
+    alias placeholder: f1.placeholder
+
+    padding = 0
+    hug_height='strong'
+    hug_width='strong'
+
     Label: l1:
-        text:=parent.label
+        pass
     Field: f1:
-        text:=parent.text
-        placeholder:=parent.placeholder
+        pass
 
 #class RefreshableComboBox(ComboBox):
 #    refresh = EnamlEvent
@@ -366,6 +370,7 @@ enamldef ExperimentPage(Container):
     attr experiment
 
     Form: form:
+        constraints = [(midline==left)|'medium',right==parent.contents_right]
         Label:
             text="Status:"
         Label:
@@ -543,49 +548,45 @@ enamldef IndependentVariablesGroupBox(GroupBox):
         VariableEntry:
             indepVar << loop_item
 
-enamldef Variables(Container): main:
+enamldef Variables(Container): page:
     attr experiment
 
-    Container: settings:
-        hug_width='strong'
+    PushButton: updateButton:
+        text='Update variables throughout experiment'
+        clicked::
+            experiment.evaluateAll()
+    GroupBox: variablesNotToSave:
         hug_height='strong'
+        title='Variables Not To Save to HDF5 (comma separated)'
+        Field:
+            text:=experiment.variablesNotToSave
+            placeholder='scipy,numpy,x'
 
-        PushButton: updateButton:
-            text='Update variables throughout experiment'
-            clicked::
-                experiment.evaluateAll()
-        GroupBox: variablesNotToSave:
-            hug_height='strong'
-            title='Variables Not To Save to HDF5 (comma separated)'
-            Field:
-                text:=experiment.variablesNotToSave
-                placeholder='scipy,numpy,x'
+    Container:
+        padding = 0
+        hug_height = 'ignore'
+        constraints = [hbox(constants, independents, dependents), align('top', constants, independents, dependents), constants.width==dependents.width]
 
-        Container:
-            padding = 0
-            hug_height = 'strong'
-            constraints = [hbox(constants, independents, dependents), align('top', constants, independents, dependents), width==1850, constants.width==dependents.width]
+        GroupBox: constants:
+            title='Constants (1)'
 
-            GroupBox: constants:
-                title='Constants (1)'
-                VGroup:
-                    Label:
-                        text='Define constants using python code below.'
-                    MultilineField:
-                        constraints=[height==900]
-                        text:=experiment.constantsStr
+            Label:
+                text='Define constants using python code below.'
+            MultilineField:
+                constraints = [bottom==page.contents_bottom]
+                text:=experiment.constantsStr
 
-            IndependentVariablesGroupBox: independents:
-                independentVariables<<experiment.independentVariables
+        IndependentVariablesGroupBox: independents:
+            independentVariables<<experiment.independentVariables
 
-            GroupBox: dependents:
-                title='Dependent Variables (3)'
-                VGroup:
-                    Label:
-                        text='Define dependent variables using python code below.'
-                    MultilineField:
-                        constraints=[height==900]
-                        text:=experiment.dependentVariablesStr
+        GroupBox: dependents:
+            title='Dependent Variables (3)'
+
+            Label:
+                text='Define dependent variables using python code below.'
+            MultilineField:
+                constraints = [bottom==page.contents_bottom]
+                text:=experiment.dependentVariablesStr
 
 enamldef Reports(Container):
     attr experiment
@@ -613,81 +614,78 @@ enamldef Reports(Container):
             Label: lb2:
                 text << experiment.variableReport.valueStr
 
-enamldef LabViewPage(Page):
+enamldef LabViewPage(Container):
     attr LabView
-    title = 'LabView'
-    
+
+    hug_height='strong'
     Container:
-        Container:
-            hug_height='strong'
+        constraints=[hbox(b1,b3,b4),b1.width==100,b3.width==100,b4.width==100]
+        PushButton: b1:
+            text='open connection'
+            clicked::
+                LabView.openThread()
+        PushButton: b3:
+            text='update settings'
+            clicked::
+                LabView.update()
+        PushButton: b4:
+            text='close connection'
+            clicked::
+                LabView.close()
+
+    Form:
+        Label:
+            text='enable communication with LabView system?'
+        CheckBox:
+            checked:=LabView.enable
+        Label:
+            text='IP address of LabView system'
+        Field:
+            text:=LabView.IP
+        Label:
+            text='communications port'
+        IntField:
+            value:=LabView.port
+        Label:
+            text='cycle experiment continuously even when not taking data?'
+        CheckBox:
+            checked:=LabView.cycleContinuously
+    EvalProp:
+        prop<<LabView.timeout
+    Form:
+        Label:
+            text='connected'
+        CheckBox:
+            checked:=LabView.connected
+            enabled=False
+        Label: text='LabView error'
+        Label: text<<str(LabView.error)
+
+    GroupBox:
+        title='TCP output message'
+        constraints = [vbox(scroller1),(height==500)|'strong']
+        hug_width='ignore'
+        ScrollArea:scroller1:
             Container:
-                constraints=[hbox(b1,b3,b4),b1.width==100,b3.width==100,b4.width==100]
-                PushButton: b1:
-                    text='open connection'
-                    clicked::
-                        LabView.openThread()
-                PushButton: b3:
-                    text='update settings'
-                    clicked::
-                        LabView.update()
-                PushButton: b4:
-                    text='close connection'
-                    clicked::
-                        LabView.close()
-
-            Form:
-                Label:
-                    text='enable communication with LabView system?'
-                CheckBox:
-                    checked:=LabView.enable
-                Label:
-                    text='IP address of LabView system'
-                Field:
-                    text:=LabView.IP
-                Label:
-                    text='communications port'
-                IntField:
-                    value:=LabView.port
-                Label:
-                    text='cycle experiment continuously even when not taking data?'
-                CheckBox:
-                    checked:=LabView.cycleContinuously
-            EvalProp:
-                prop<<LabView.timeout
-            Form:
-                Label:
-                    text='connected'
-                CheckBox:
-                    checked:=LabView.connected
-                    enabled=False
-                Label: text='LabView error'
-                Label: text<<str(LabView.error)
-            
-            GroupBox:
-                title='TCP output message'
-                constraints = [vbox(scroller1),(height==500)|'strong']
+                hug_height='ignore'
                 hug_width='ignore'
-                ScrollArea:scroller1:
-                    Container:
-                        hug_height='ignore'
-                        hug_width='ignore'
-                        Label:
-                            hug_height='ignore'
-                            hug_width='ignore'
-                            text<<LabView.msg
+                Label:
+                    hug_height='ignore'
+                    hug_width='ignore'
+                    text<<LabView.msg
 
-            GroupBox:
-                title='LabView log'
-                constraints = [vbox(scroller2),(height==500)|'strong']
+    GroupBox:
+        title='LabView log'
+        constraints = [vbox(scroller2),(height==500)|'strong']
+        hug_width='ignore'
+        ScrollArea: scroller2:
+            Container:
+                hug_height='ignore'
                 hug_width='ignore'
-                ScrollArea: scroller2:
-                    Container:
-                        hug_height='ignore'
-                        hug_width='ignore'
-                        Label:
-                            hug_height='ignore'
-                            hug_width='ignore'
-                            text<<LabView.log
+                Label:
+                    hug_height='ignore'
+                    hug_width='ignore'
+                    text<<LabView.log
 
 enamldef DOchannel(Container):
     attr channel
@@ -1060,68 +1058,62 @@ enamldef Waveforms(Container):
                         NumpyWaveform:
                             waveform << HSDIO.waveforms.listProperty[combo.index]
 
-enamldef HSDIO_DigitalOutPage(Page):
+enamldef HSDIO_DigitalOutPage(Container):
     attr HSDIO
-    title = 'HSDIO Pulses'
 
-    Container:
-        Container:
-                constraints=[hbox(vbox(p1,p9,p2,p4,p5,p6,p7,p8),p3),align('left',p1,p9,p2,p4,p5,p6,p7),align('top',p1,p3)]
-                hug_height='strong'
-                hug_width='strong'
-                Form: p1:
-                    Label:
-                        text = 'enable'
-                    CheckBox:
-                        checked := HSDIO.enable
-                StartTrigger: p9:
-                    trigger<<HSDIO.startTrigger
-                IndexedStack: p2:
-                    title='Script Triggers'
-                    iterable<<HSDIO.triggers
-                    viewType=HSDIOScriptTrigger
-                MultilineProp: p3:
-                    prop<<HSDIO.script
-                EvalProp: p4:
-                    prop<<HSDIO.resourceName
-                EvalProp: p5:
-                    prop<<HSDIO.clockRate
-                EvalProp: p6:
-                    prop<<HSDIO.units
-                EvalProp: p7:
-                    prop<<HSDIO.hardwareAlignmentQuantum
-                NumpyDOchannels: p8:
-                    channels<<HSDIO.channels
+    constraints=[hbox(vbox(p1,p9,p2,p4,p5,p6,p7,p8),p3),align('left',p1,p9,p2,p4,p5,p6,p7),align('top',p1,p3)]
+    hug_height='strong'
+    hug_width='strong'
+    Form: p1:
+        Label:
+            text = 'enable'
+        CheckBox:
+            checked := HSDIO.enable
+    StartTrigger: p9:
+        trigger<<HSDIO.startTrigger
+    IndexedStack: p2:
+        title='Script Triggers'
+        iterable<<HSDIO.triggers
+        viewType=HSDIOScriptTrigger
+    MultilineProp: p3:
+        prop<<HSDIO.script
+    EvalProp: p4:
+        prop<<HSDIO.resourceName
+    EvalProp: p5:
+        prop<<HSDIO.clockRate
+    EvalProp: p6:
+        prop<<HSDIO.units
+    EvalProp: p7:
+        prop<<HSDIO.hardwareAlignmentQuantum
+    NumpyDOchannels: p8:
+        channels<<HSDIO.channels
 
-enamldef DAQmxDigitalOutPage(Page):
-    title = 'DAQmx DO'    
+enamldef DAQmxDigitalOutPage(Container):
     attr DAQmx
     
-    Container:
-        Container:
-                constraints=[vbox(canvas,p6,hbox(vbox(p0,p1,p2,p3,p4),p5)),align('top',p0,p5)]
-                hug_height='strong'
-                hug_width='strong'
-                Form: p0:
-                    Label:
-                        text = 'enable'
-                    CheckBox:
-                        checked := DAQmx.enable
-                EvalProp: p1:
-                    prop<<DAQmx.resourceName
-                EvalProp: p2:
-                    prop<<DAQmx.clockRate
-                EvalProp: p3:
-                    prop<<DAQmx.units
-                StartTrigger: p4:
-                    trigger<<DAQmx.startTrigger
-                NumpyDOchannels: p5:
-                    channels<<DAQmx.channels
-                NumpyWaveform: p6:
-                    waveform<<DAQmx.waveform
-                MPLCanvas: canvas:
-                    constraints=[(height==500)|'strong',(width==1500)|'strong']
-                    figure << DAQmx.waveform.figure
+    constraints=[vbox(canvas,p6,hbox(vbox(p0,p1,p2,p3,p4),p5)),align('top',p0,p5)]
+    hug_height='strong'
+    hug_width='strong'
+    Form: p0:
+        Label:
+            text = 'enable'
+        CheckBox:
+            checked := DAQmx.enable
+    EvalProp: p1:
+        prop<<DAQmx.resourceName
+    EvalProp: p2:
+        prop<<DAQmx.clockRate
+    EvalProp: p3:
+        prop<<DAQmx.units
+    StartTrigger: p4:
+        trigger<<DAQmx.startTrigger
+    NumpyDOchannels: p5:
+        channels<<DAQmx.channels
+    NumpyWaveform: p6:
+        waveform<<DAQmx.waveform
+    MPLCanvas: canvas:
+        constraints=[(height==500)|'strong',(width==1500)|'strong']
+        figure << DAQmx.waveform.figure
 
 enamldef DDS_profile(Container):
     attr profile
@@ -1410,92 +1402,89 @@ enamldef HP83623A(StackItem):
         EvalProp:
             prop<<item.externalTrigger
 
-enamldef RFGenPage(Page):
+enamldef RFGenPage(Container):
     attr LabView
-    title = 'RF Generators'
-    Container:
-        Form:
-            Label:
-                text = 'enable'
-            CheckBox:
-                checked :=  LabView.RF_generators.enable
-        IndexedStack: i1:
-            title='HP83623A'
-            iterable=LabView.RF_generators.HP83623A_list
-            viewType=HP83623A
-        IndexedStack: i2:
-            title='HP8662A'
-            iterable=LabView.RF_generators.HP8662A_list
-            viewType=RF_gen
-        IndexedStack: i3:
-            title='HP83712B'
-            iterable=LabView.RF_generators.HP83712B_list
-            viewType=RF_gen
 
-enamldef CameraPage(Page):
+    Form:
+        Label:
+            text = 'enable'
+        CheckBox:
+            checked :=  LabView.RF_generators.enable
+    IndexedStack: i1:
+        title='HP83623A'
+        iterable=LabView.RF_generators.HP83623A_list
+        viewType=HP83623A
+    IndexedStack: i2:
+        title='HP8662A'
+        iterable=LabView.RF_generators.HP8662A_list
+        viewType=RF_gen
+    IndexedStack: i3:
+        title='HP83712B'
+        iterable=LabView.RF_generators.HP83712B_list
+        viewType=RF_gen
+
+enamldef CameraPage(Container):
     attr camera
-    title = 'Camera'
-    Container:
-        Container:
-            hug_height='strong'
-            hug_width='strong'
-            Form:
-                Label:
-                    text = 'enable'
-                CheckBox:
-                    checked := camera.enable
-            EvalProp:
-                prop<<camera.saveAsPNG
-            EvalProp:
-                prop<<camera.saveAsASCII
-            EvalProp:
-                prop<<camera.forceImagesToU16
-            EvalProp:
-                prop<<camera.EMGain
-            EvalProp:
-                prop<<camera.analogGain
-            EvalProp:
-                prop<<camera.exposureTime
-            EvalProp:
-                prop<<camera.scanSpeed
-            EvalProp:
-                prop<<camera.lowLightSensitivity
-            EvalProp:
-                prop<<camera.externalTriggerMode
-            EvalProp:
-                prop<<camera.triggerPolarity
-            EvalProp:
-                prop<<camera.externalTriggerSource
-            EvalProp:
-                prop<<camera.cooling
-            EvalProp:
-                prop<<camera.fan
-            EvalProp:
-                prop<<camera.scanMode
-            EvalProp:
-                prop<<camera.photoelectronScaling
-            EvalProp:
-                prop<<camera.subArrayLeft
-            EvalProp:
-                prop<<camera.subArrayTop
-            EvalProp:
-                prop<<camera.subArrayWidth
-            EvalProp:
-                prop<<camera.subArrayHeight
-            EvalProp:
-                prop<<camera.superPixelBinning
-            EvalProp:
-                prop<<camera.frameGrabberAcquisitionRegionLeft
-            EvalProp:
-                prop<<camera.frameGrabberAcquisitionRegionTop
-            EvalProp:
-                prop<<camera.frameGrabberAcquisitionRegionRight
-            EvalProp:
-                prop<<camera.frameGrabberAcquisitionRegionBottom
-            EvalProp:
-                prop<<camera.numImageBuffers
-            EvalProp:
-                prop<<camera.shotsPerMeasurement
+
+    hug_height='strong'
+    hug_width='strong'
+    Form:
+        Label:
+            text = 'enable'
+        CheckBox:
+            checked := camera.enable
+    EvalProp:
+        prop<<camera.saveAsPNG
+    EvalProp:
+        prop<<camera.saveAsASCII
+    EvalProp:
+        prop<<camera.forceImagesToU16
+    EvalProp:
+        prop<<camera.EMGain
+    EvalProp:
+        prop<<camera.analogGain
+    EvalProp:
+        prop<<camera.exposureTime
+    EvalProp:
+        prop<<camera.scanSpeed
+    EvalProp:
+        prop<<camera.lowLightSensitivity
+    EvalProp:
+        prop<<camera.externalTriggerMode
+    EvalProp:
+        prop<<camera.triggerPolarity
+    EvalProp:
+        prop<<camera.externalTriggerSource
+    EvalProp:
+        prop<<camera.cooling
+    EvalProp:
+        prop<<camera.fan
+    EvalProp:
+        prop<<camera.scanMode
+    EvalProp:
+        prop<<camera.photoelectronScaling
+    EvalProp:
+        prop<<camera.subArrayLeft
+    EvalProp:
+        prop<<camera.subArrayTop
+    EvalProp:
+        prop<<camera.subArrayWidth
+    EvalProp:
+        prop<<camera.subArrayHeight
+    EvalProp:
+        prop<<camera.superPixelBinning
+    EvalProp:
+        prop<<camera.frameGrabberAcquisitionRegionLeft
+    EvalProp:
+        prop<<camera.frameGrabberAcquisitionRegionTop
+    EvalProp:
+        prop<<camera.frameGrabberAcquisitionRegionRight
+    EvalProp:
+        prop<<camera.frameGrabberAcquisitionRegionBottom
+    EvalProp:
+        prop<<camera.numImageBuffers
+    EvalProp:
+        prop<<camera.shotsPerMeasurement
 
 enamldef CounterPage(Page):
     title = 'Counter'
@@ -1640,17 +1629,16 @@ enamldef PiezoController(StackItem):
             PiezoChannel:
                 channel<<loop_item
 
-enamldef PI_PiezoPage(Page):
+enamldef PI_Piezo(Container):
     attr piezo
-    title = 'PI Piezo'
-    Container:
-        LabelBox:
-            text='enable'
-            checked:=piezo.enable
-        IndexedStack:
-            title='Piezo Controllers'
-            iterable<<piezo.controllers
-            viewType=PiezoController
+
+    LabelBox:
+        text='enable'
+        checked:=piezo.enable
+    IndexedStack:
+        title='Piezo Controllers'
+        iterable<<piezo.controllers
+        viewType=PiezoController
 
 enamldef AnalysisImage(Container):
     attr analysis
@@ -1661,25 +1649,29 @@ enamldef AnalysisImage(Container):
         constraints=[(height==550)|'strong',(width==550)|'strong']
         figure<<analysis.figure
 
-enamldef MultiImagePage(Page): page:
-    title='Images'
+enamldef MultiImage(Container):
     attr experiment
     attr analysis0
     attr analysis1
     attr analysis2
     attr analysis3
 
+    Label:
+        text<<analysis3.text
+
+
     Container:
-        constraints=[vbox(l0,hbox(a0,a1,a2)),align('top',a0,a1,a2)]
-        
-        Label: l0:
-            text<<analysis3.text
+        padding = 0
+        constraints = [hbox(a0,a1,a2), align('top',a0,a1,a2), a0.width==a1.width, a0.width==a2.width]
 
         Container: a0:
-            hug_height = 'strong'
-            hug_width = 'strong'
-            AnalysisImage:
-                analysis<<analysis0
+            #hug_height = 'strong'
+            #hug_width = 'strong'
+            MPLCanvas:
+                #constraints=[(width==parent.width)|'strong',(height==width)|'strong']
+                figure << analysis0.figure
+            #AnalysisImage:
+            #    analysis<<analysis0
             Form:
                 Label:
                     text = 'Show ROIs?'
@@ -1692,10 +1684,13 @@ enamldef MultiImagePage(Page): page:
                     value := analysis0.shot
 
         Container: a1:
-            hug_height='strong'
-            hug_width='strong'
-            AnalysisImage:
-                analysis<<analysis1
+            #hug_height='strong'
+            #hug_width='strong'
+            MPLCanvas:
+                #constraints=[(width==parent.width)|'strong',(height==width)|'strong']
+                figure << analysis1.figure
+            #AnalysisImage:
+            #    analysis<<analysis1
             Form:
                 Label:
                    text='Show ROIs?'
@@ -1728,10 +1723,13 @@ enamldef MultiImagePage(Page): page:
                         maximum=9999999 #a big number
                         value:=analysis1.shot
         Container: a2:
-            hug_height = 'strong'
-            hug_width = 'strong'
-            AnalysisImage:
-                analysis<<analysis2
+            #hug_height = 'strong'
+            #hug_width = 'strong'
+            #AnalysisImage:
+            #    analysis<<analysis2
+            MPLCanvas:
+                #constraints=[(width==parent.width)|'strong',(height==width)|'strong']
+                figure << analysis2.figure
             Form:
                 Label:
                     text = 'enable'
@@ -1832,6 +1830,7 @@ enamldef GaussianROI(Container):
             text = 'clean up image with ICA?'
         CheckBox:
             checked := analysis.useICA
+    HGroup:
         Label:
             text = 'initial guess'
         Label:
@@ -2166,6 +2165,17 @@ enamldef Picomotors(Container):
             iterable << picomotors.motors
             viewType = Picomotor
 
+enamldef Filters(Container):
+    attr experiment
+
+    TTL_filters:
+        instrument = experiment.LabView.TTL
+        filters = experiment.TTL_filters
+    LoadingFilters:
+        filters = experiment.loading_filters
+    FirstMeasurementsFilter:
+        filters = experiment.first_measurements_filter
+
 def loadIcon():
     #create icon
     with open(os.path.join('icons','2013_11_14_15_18_54_retention_PCA_filtered_image_rotated_smoothed.png'), 'rb') as f:
@@ -2174,12 +2184,24 @@ def loadIcon():
     icon = Icon(images=[IconImage(image=image)])
     return icon
 
+enamldef ScrollPage(Page):
+    attr content
+
+    style_class << 'valid' if experiment.valid else 'invalid'
+    Container:
+        padding = 0
+        style_class << 'valid' if experiment.valid else 'invalid'
+        ScrollArea:
+            style_class << 'valid' if experiment.valid else 'invalid'
+            Include: include:
+                objects << [content]
+
 enamldef Main(MainWindow): main:
     attr experiment
     
     title='Saffmanlab experiment controller'
-    initial_position=(0,0)
-    initial_size=(1500,1100)
+    #initial_position=(0,0)
+    #initial_size=(1500,1100)
     icon = loadIcon()
 
     MyStyleSheet:
@@ -2199,142 +2221,97 @@ enamldef Main(MainWindow): main:
                 maximum=100
                 value<<int(experiment.progressGUI)
     Container:
-        ScrollArea:
-            Container:
-                style_class << 'valid' if experiment.valid else 'invalid'
-                Notebook: notebook:
-                    tabs_closable=False
-                    tabs_movable=False
-                    tab_style = 'preferences'
-                    Page:
-                        title = 'Experiment'
-                        style_class << 'valid' if experiment.valid else 'invalid'
-                        ExperimentPage:
-                            experiment = main.experiment
-                    Page:
-                        title = 'Variables'
-                        style_class << 'valid' if experiment.valid else 'invalid'
-                        Variables:
-                            experiment = main.experiment
-                    Page:
-                        title = 'Report'
-                        style_class << 'valid' if experiment.valid else 'invalid'
-                        Reports:
-                            experiment = main.experiment
-                    LabViewPage:
-                        style_class << 'valid' if experiment.valid else 'invalid'
-                        LabView=main.experiment.LabView
-                    HSDIO_DigitalOutPage:
-                        style_class << 'valid' if experiment.valid else 'invalid'
-                        HSDIO=main.experiment.LabView.HSDIO
-                    #HSDIO_DigitalOutPage:
-                    #    style_class << 'valid' if experiment.valid else 'invalid'
-                    #    HSDIO=main.experiment.LabView.HSDIO2
-                    Page:
-                        title='Waveforms'
-                        style_class << 'valid' if experiment.valid else 'invalid'
-                        Waveforms:
-                            HSDIO=main.experiment.LabView.HSDIO
-                    DAQmxDigitalOutPage:
-                        style_class << 'valid' if experiment.valid else 'invalid'
-                        DAQmx=main.experiment.LabView.DAQmxDO
-                    Page:
-                        title = 'DDS'
-                        style_class << 'valid' if experiment.valid else 'invalid'
-                        DDS_Page:
-                            DDS=main.experiment.LabView.DDS
-                    RFGenPage:
-                        style_class << 'valid' if experiment.valid else 'invalid'
-                        LabView=main.experiment.LabView
-                    CameraPage:
-                        style_class << 'valid' if experiment.valid else 'invalid'
-                        camera=main.experiment.LabView.camera
-                    #CounterPage:
-                    #    style_class << 'valid' if experiment.valid else 'invalid'
-                    #    pass
-                    AnalogOutputPage:
-                        style_class << 'valid' if experiment.valid else 'invalid'
-                        AO=main.experiment.LabView.AnalogOutput
-                    #Page:
-                    #    style_class << 'valid' if experiment.valid else 'invalid'
-                    #    title = 'Analog Input'
-                    #    AnalogInput:
-                    #        AI = main.experiment.LabView.AnalogInput
-                    #Page:
-                    #    style_class << 'valid' if experiment.valid else 'invalid'
-                    #    title = 'Arroyo'
-                    #    Arroyo:
-                    #        Arroyo = main.experiment.Arroyo
-                    PI_PiezoPage:
-                        style_class << 'valid' if experiment.valid else 'invalid'
-                        piezo=main.experiment.LabView.piezo
-                    Page:
-                        title = 'Picomotors'
-                        style_class << 'valid' if experiment.valid else 'invalid'
-                        Picomotors:
-                            picomotors=main.experiment.picomotors
-                    MultiImagePage:
-                        style_class << 'valid' if experiment.valid else 'invalid'
-                        experiment=main.experiment
-                        analysis0=main.experiment.recent_shot_analysis
-                        analysis1=main.experiment.shotBrowserAnalysis
-                        analysis2=main.experiment.imageSumAnalysis
-                        analysis3=main.experiment.text_analysis
-                    Page:
-                        title = 'Square ROI'
-                        style_class << 'valid' if experiment.valid else 'invalid'
-                        SquareROIContainer:
-                            experiment=main.experiment
-                            analysis=main.experiment.squareROIAnalysis
-                    Page:
-                        title = 'Gaussian ROI'
-                        style_class << 'valid' if experiment.valid else 'invalid'
-                        GaussianROI:
-                            analysis=main.experiment.gaussian_roi
-                    Page:
-                        title = 'Histogram'
-                        style_class << 'valid' if experiment.valid else 'invalid'
-                        Histogram:
-                            experiment=main.experiment
-                            analysis=main.experiment.histogramAnalysis
-                    Page:
-                        title = 'Histogram Grid'
-                        style_class << 'valid' if experiment.valid else 'invalid'
-                        HistogramGrid:
-                            experiment=main.experiment
-                            analysis=main.experiment.histogram_grid
-                    Page:
-                        title = 'Measurements Graph'
-                        style_class << 'valid' if experiment.valid else 'invalid'
-                        MeasurementsGraph:
-                           experiment=main.experiment
-                           analysis=main.experiment.measurements_graph
-                    Page:
-                        title = 'Iterations Graph'
-                        style_class << 'valid' if experiment.valid else 'invalid'
-                        IterationsGraph:
-                            experiment=main.experiment
-                            analysis=main.experiment.iterations_graph
-                    Page:
-                        title = 'Retention Graph'
-                        style_class << 'valid' if experiment.valid else 'invalid'
-                        RetentionGraph:
-                            experiment=main.experiment
-                            analysis=main.experiment.retention_graph
-                    Page:
-                        title='Filters'
-                        style_class << 'valid' if experiment.valid else 'invalid'
-                        Container:
-                            TTL_filters:
-                                instrument = main.experiment.LabView.TTL
-                                filters = main.experiment.TTL_filters
-                            LoadingFilters:
-                                filters = main.experiment.loading_filters
-                            FirstMeasurementsFilter:
-                                filters = main.experiment.first_measurements_filter
-                    Page:
-                        title='Optimization'
-                        style_class << 'valid' if experiment.valid else 'invalid'
-                        Optimizer:
-                            experiment=main.experiment
-                            analysis=main.experiment.optimizer
+        padding = 0
+        Notebook: notebook:
+            tabs_closable=False
+            tabs_movable=False
+            tab_style = 'preferences'
+            size_hint_mode = 'current'
+
+            ScrollPage:
+                title = 'Experiment'
+                content = ExperimentPage(experiment = main.experiment)
+            ScrollPage:
+                title = 'Variables'
+                content = Variables(experiment = main.experiment)
+            ScrollPage:
+                title = 'Report'
+                content = Reports(experiment = main.experiment)
+            ScrollPage:
+                title = 'LabView'
+                content = LabViewPage(LabView=main.experiment.LabView)
+            ScrollPage:
+                title = 'HSDIO'
+                content = HSDIO_DigitalOutPage(HSDIO=main.experiment.LabView.HSDIO)
+            ScrollPage:
+                title='Waveforms'
+                content = Waveforms(HSDIO=main.experiment.LabView.HSDIO)
+            ScrollPage:
+                title = 'DAQmx'
+                content = DAQmxDigitalOutPage(DAQmx=main.experiment.LabView.DAQmxDO)
+            ScrollPage:
+                title = 'DDS'
+                content = DDS_Page(DDS = main.experiment.LabView.DDS)
+            ScrollPage:
+                title = 'RF Generators'
+                content = RFGenPage(LabView=main.experiment.LabView)
+            ScrollPage:
+                title = 'Camera'
+                content = CameraPage(camera=main.experiment.LabView.camera)
+            #CounterPage:
+            #    style_class << 'valid' if experiment.valid else 'invalid'
+            #    pass
+            ScrollPage:
+                title = 'Analog Output'
+                content = AnalogOutputPage(AO=main.experiment.LabView.AnalogOutput)
+            #Page:
+            #    style_class << 'valid' if experiment.valid else 'invalid'
+            #    title = 'Analog Input'
+            #    AnalogInput:
+            #        AI = main.experiment.LabView.AnalogInput
+            #Page:
+            #    style_class << 'valid' if experiment.valid else 'invalid'
+            #    title = 'Arroyo'
+            #    Arroyo:
+            #        Arroyo = main.experiment.Arroyo
+            ScrollPage:
+                title = 'PI Piezo'
+                content = PI_Piezo(piezo=main.experiment.LabView.piezo)
+            ScrollPage:
+                title = 'Picomotors'
+                content = Picomotors(picomotors=main.experiment.picomotors)
+            ScrollPage:
+                title = 'Images'
+                content = MultiImage(
+                    experiment=main.experiment,
+                    analysis0=main.experiment.recent_shot_analysis,
+                    analysis1=main.experiment.shotBrowserAnalysis,
+                    analysis2=main.experiment.imageSumAnalysis,
+                    analysis3=main.experiment.text_analysis )
+            ScrollPage:
+                title = 'Square ROI'
+                content = SquareROIContainer(experiment=main.experiment, analysis=main.experiment.squareROIAnalysis)
+            ScrollPage:
+                title = 'Gaussian ROI'
+                content = GaussianROI(analysis=main.experiment.gaussian_roi)
+            ScrollPage:
+                title = 'Histogram'
+                content = Histogram(experiment=main.experiment, analysis=main.experiment.histogramAnalysis)
+            ScrollPage:
+                title = 'Histogram Grid'
+                content = HistogramGrid(experiment=main.experiment, analysis=main.experiment.histogram_grid)
+            ScrollPage:
+                title = 'Measurements Graph'
+                content = MeasurementsGraph(experiment=main.experiment, analysis=main.experiment.measurements_graph)
+            ScrollPage:
+                title = 'Iterations Graph'
+                content = IterationsGraph(experiment=main.experiment, analysis=main.experiment.iterations_graph)
+            ScrollPage:
+                title = 'Retention Graph'
+                content = RetentionGraph(experiment=main.experiment, analysis=main.experiment.retention_graph)
+            ScrollPage:
+                title='Filters'
+                content = Filters(experiment=main.experiment)
+            ScrollPage:
+                title='Optimization'
+                content = Optimizer(experiment=main.experiment, analysis=main.experiment.optimizer)
