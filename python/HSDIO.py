@@ -1,4 +1,3 @@
-
 """HSDIO.py
 Part of the AQuA Cesium Controller software package
 
@@ -38,6 +37,7 @@ class ScriptTrigger(Prop):
         self.edge = StrProp('edge', experiment, '', '"rising"')
         self.level = StrProp('level', experiment, '', '"high"')
         self.properties += ['id', 'source', 'type', 'edge', 'level']
+
 
 class Waveforms(ListProp):
     '''We can't use an unmodified ListProp for this because the added children must be passed waveforms=self, which is not possible to describe in a one-line definintion.'''

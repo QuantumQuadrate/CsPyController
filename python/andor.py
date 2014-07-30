@@ -1,143 +1,173 @@
-#   pyAndor - A Python wrapper for Andor's scientific cameras
-#   Copyright (C) 2009  Hamid Ohadi
-#
-#   This program is free software: you can redistribute it and/or modify
-#   it under the terms of the GNU General Public License as published by
-#   the Free Software Foundation, either version 3 of the License, or
-#   (at your option) any later version.
-#
-#   This program is distributed in the hope that it will be useful,
-#   but WITHOUT ANY WARRANTY; without even the implied warranty of
-#   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-#   GNU General Public License for more details.
-#
-#   You should have received a copy of the GNU General Public License
-#   along with this program.  If not, see <http://www.gnu.org/licenses/>.
+"""andor.py
+   Part of the AQuA Cesium Controller software package
 
-from ctypes import *
-import time
-from PIL import Image
-import sys
-import numpy
-from numpy.core.multiarray import int_asbuffer
+   author=Martin Lichtman
+   created=2014-07-28
+   modified>=2014-07-30
 
-"""Andor class which is meant to provide the Python version of the same
+   This code communicates with the Andor Luca camera.  It can both get and set
+   the settings of the camera, and read images.  Single shot and video modes are
+   supported.
+
+   The dll interface in this code is based on:
+   pyAndor - A Python wrapper for Andor's scientific cameras
+   Copyright (C) 2009  Hamid Ohadi
+
+   Andor class which is meant to provide the Python version of the same
    functions that are defined in the Andor's SDK. Since Python does not
    have pass by reference for immutable variables, some of these variables
    are actually stored in the class instance. For example the temperature,
-   gain, gainRange, status etc. are stored in the class. """
+   gain, gainRange, status etc. are stored in the class.
 
-class Andor:
-    def __init__(self):
-        self.verbosity   = True
+   """
 
-        #cdll.LoadLibrary("/usr/local/lib/libandor.so")
-        self.dll = CDLL("atmcd64d.dll")
-        error = self.dll.Initialize(".")
-        self.verbose(ERROR_CODE[error], sys._getframe().f_code.co_name)
+__author__ = 'Martin Lichtman'
+import logging
+logger = logging.getLogger(__name__)
+from cs_errors import PauseError
 
-        cw = c_int()
-        ch = c_int()
-        error = self.dll.GetDetector(byref(cw), byref(ch))
-        self.verbose(ERROR_CODE[error], sys._getframe().f_code.co_name)
+from ctypes import CDLL, c_int, c_float, c_long, c_char_p, byref
+import sys
+import os
+import numpy
+from atom.api import Int, Member
+from cs_instruments import Instrument
 
-        self.width       = cw.value
-        self.height      = cw.value
-        self.temperature = None
-        self.set_T       = None
-        self.gain        = None
-        self.gainRange   = None
-        self.status      = ERROR_CODE[error]
-        self.preampgain  = None
-        self.channel     = None
-        self.outamp      = None
-        self.hsspeed     = None
-        self.vsspeed     = None
-        self.serial      = None
-        self.exposure    = None
-        self.accumulate  = None
-        self.kinetic     = None
-        
-        self.dim = self.width*self.height
-        self.cimage = None
-        
+
+class Andor(Instrument):
+
+    width = Int()  # the number of columns
+    height = Int()  # the number of rows
+    dim = Int()  # the total number of pixels
+    serial = Int()  # the serial number of the camera
+    cimage = Member()  # a c_int array to store incoming image data
+
+    temperature = None
+    set_T       = None
+    gain        = None
+    gainRange   = None
+    status      = None
+    preampgain  = None
+    channel     = None
+    outamp      = None
+    hsspeed     = None
+    vsspeed     = None
+    exposure    = None
+    accumulate  = None
+    kinetic     = None
+
     def __del__(self):
-        error = self.dll.ShutDown()
-    
-    def verbose(self, error, function=''):
-        if self.verbosity is True:
-            print "[%s]: %s" %(function, error)
+        if self.isInitialized:
+            self.ShutDown()
 
-    def SetVerbose(self, state=True):
-        self.verbosity = state
+    def initialize(self):
+        """Starts the dll and finds the camera."""
+
+        self.InitializeCamera()
+        self.GetCameraSerialNumber()
+        self.isInitialized = True
+
+    def InitializeCamera(self):
+        self.dll = CDLL(os.path.join("andor", "atmcd64d.dll"))
+        error = self.dll.Initialize(".")
+        if ERROR_CODE[error] != 'DRV_SUCCESS':
+            logger.error('Error initializing Andor camera:\n{}'.format(ERROR_CODE[error]))
+            raise PauseError
+
+    def GetDetector(self):
+        width = c_int()
+        height = c_int()
+
+        error = self.dll.GetDetector(byref(width), byref(height))
+        if ERROR_CODE[error] != 'DRV_SUCCESS':
+            logger.error('Error getting Andor camera sensor size:\n{}'.format(ERROR_CODE[error]))
+            raise PauseError
+
+        self.width = width.value
+        self.height = height.value
+        self.dim = self.width * self.height
+
+        return self.width, self.value
 
     def AbortAcquisition(self):
         error = self.dll.AbortAcquisition()
-        self.verbose(ERROR_CODE[error], sys._getframe().f_code.co_name)
-        return ERROR_CODE[error]
+        if ERROR_CODE[error] != 'DRV_SUCCESS':
+            logger.error('Error:\n{}'.format(ERROR_CODE[error]))
+            raise PauseError
 
     def ShutDown(self):
         error = self.dll.ShutDown()
-        self.verbose(ERROR_CODE[error], sys._getframe().f_code.co_name)
-        return ERROR_CODE[error]
-        
+        if ERROR_CODE[error] != 'DRV_SUCCESS':
+            logger.error('Error:\n{}'.format(ERROR_CODE[error]))
+
     def GetCameraSerialNumber(self):
         serial = c_int()
         error = self.dll.GetCameraSerialNumber(byref(serial))
+        if ERROR_CODE[error] != 'DRV_SUCCESS':
+            logger.error('Error:\n{}'.format(ERROR_CODE[error]))
+            raise PauseError
         self.serial = serial.value
-        self.verbose(ERROR_CODE[error], sys._getframe().f_code.co_name)
-        return ERROR_CODE[error]
+        return self.serial
 
     def SetReadMode(self, mode):
         error = self.dll.SetReadMode(mode)
-        self.verbose(ERROR_CODE[error], sys._getframe().f_code.co_name)
-        return ERROR_CODE[error]
+        if ERROR_CODE[error] != 'DRV_SUCCESS':
+            logger.error('Error:\n{}'.format(ERROR_CODE[error]))
+            raise PauseError
 
     def SetAcquisitionMode(self, mode):
         error = self.dll.SetAcquisitionMode(mode)
-        self.verbose(ERROR_CODE[error], sys._getframe().f_code.co_name)
-        return ERROR_CODE[error]
+        if ERROR_CODE[error] != 'DRV_SUCCESS':
+            logger.error('Error:\n{}'.format(ERROR_CODE[error]))
+            raise PauseError
         
-    def SetNumberKinetics(self,numKin):
-        error = self.dll.SetNumberKinetics(numKin)
-        self.verbose(ERROR_CODE[error], sys._getframe().f_code.co_name)
-        return ERROR_CODE[error]
+    def SetNumberKinetics(self, number):
+        error = self.dll.SetNumberKinetics(number)
+        if ERROR_CODE[error] != 'DRV_SUCCESS':
+            logger.error('Error:\n{}'.format(ERROR_CODE[error]))
+            raise PauseError
         
-    def SetNumberAccumulations(self,number):
+    def SetNumberAccumulations(self, number):
         error = self.dll.SetNumberAccumulations(number)
-        self.verbose(ERROR_CODE[error], sys._getframe().f_code.co_name)
-        return ERROR_CODE[error]
+        if ERROR_CODE[error] != 'DRV_SUCCESS':
+            logger.error('Error:\n{}'.format(ERROR_CODE[error]))
+            raise PauseError
         
-    def SetAccumulationCycleTime(self,time):
+    def SetAccumulationCycleTime(self, time):
         error = self.dll.SetAccumulationCycleTime(c_float(time))
-        self.verbose(ERROR_CODE[error], sys._getframe().f_code.co_name)
-        return ERROR_CODE[error]
+        if ERROR_CODE[error] != 'DRV_SUCCESS':
+            logger.error('Error:\n{}'.format(ERROR_CODE[error]))
+            raise PauseError
         
-    def SetKineticCycleTime(self,time):
+    def SetKineticCycleTime(self, time):
         error = self.dll.SetKineticCycleTime(c_float(time))
-        self.verbose(ERROR_CODE[error], sys._getframe().f_code.co_name)
-        return ERROR_CODE[error]
+        if ERROR_CODE[error] != 'DRV_SUCCESS':
+            logger.error('Error:\n{}'.format(ERROR_CODE[error]))
+            raise PauseError
 
-    def SetShutter(self,typ,mode,closingtime,openingtime):
-        error = self.dll.SetShutter(typ,mode,closingtime,openingtime)
-        self.verbose(ERROR_CODE[error], sys._getframe().f_code.co_name)
-        return ERROR_CODE[error]
+    def SetShutter(self, typ, mode, closingtime, openingtime):
+        error = self.dll.SetShutter(typ, mode, closingtime, openingtime)
+        if ERROR_CODE[error] != 'DRV_SUCCESS':
+            logger.error('Error:\n{}'.format(ERROR_CODE[error]))
+            raise PauseError
 
-    def SetImage(self,hbin,vbin,hstart,hend,vstart,vend):
-        error = self.dll.SetImage(hbin,vbin,hstart,hend,vstart,vend)
-        self.verbose(ERROR_CODE[error], sys._getframe().f_code.co_name)
-        return ERROR_CODE[error]
+    def SetImage(self, hbin, vbin, hstart, hend, vstart, vend):
+        error = self.dll.SetImage(hbin, vbin, hstart, hend, vstart, vend)
+        if ERROR_CODE[error] != 'DRV_SUCCESS':
+            logger.error('Error:\n{}'.format(ERROR_CODE[error]))
+            raise PauseError
 
     def StartAcquisition(self):
         error = self.dll.StartAcquisition()
-        #self.dll.WaitForAcquisition()
-        self.verbose(ERROR_CODE[error], sys._getframe().f_code.co_name)
-        return ERROR_CODE[error]
+        if ERROR_CODE[error] != 'DRV_SUCCESS':
+            logger.error('Error:\n{}'.format(ERROR_CODE[error]))
+            raise PauseError
 
     def WaitForAcquisition(self):
         error = self.dll.WaitForAcquisition()
-        self.verbose(ERROR_CODE[error], sys._getframe().f_code.co_name)
-        return ERROR_CODE[error]
+        if ERROR_CODE[error] != 'DRV_SUCCESS':
+            logger.error('Error:\n{}'.format(ERROR_CODE[error]))
+            raise PauseError
     
     def GetAcquiredData(self):
         dim = self.width * self.height
@@ -149,138 +179,127 @@ class Andor:
         if ERROR_CODE[error] == 'DRV_SUCCESS':
             #copy to numpy array
             imageArray = numpy.array([i for i in cimage])
-            imageArray = numpy.reshape(imageArray,(self.width,self.height))
+            imageArray = numpy.reshape(imageArray, (self.width, self.height))
             self.imageArray = imageArray
         else:
             if self.imageArray is not None:
+                # there is no new image, use the old one
                 imageArray = self.imageArray
             else:
+                # there is no old image, use a blank one
                 imageArray = numpy.zeros((self.width, self.height))
         return imageArray
 
     def CreateAcquisitionBuffer(self):
+        """This function creates an image buffer to be used for video display.
+        The buffer will be updated by the GetMostRecentImage method, to give the fastest
+        possible update.  A numpy array that uses the same memory space as the c array is returned.
+        That way plotting functions like matplotlib can be used and the plot data can be
+        automatically updated whenever new data is available.  All that needs to be done is for the
+        plot to be redrawn whenever a new image is captured."""
+
         self.dim = self.width * self.height
         cimageArray = c_int * self.dim
         self.cimage = cimageArray()
-        #return self.cimage
-        
-        data = numpy.ctypeslib.as_array(self.cimage)
-        data = numpy.reshape(data,(self.width,self.height))
-        #data = numpy.zeros((self.width, self.height), dtype='int32')
-        #self.cimage = data.ctypes.data
-        #self.cimage = numpy.ctypeslib.as_ctypes(data)
-        return data
-        
-        
-    def GetMostRecentImage(self):
-        
-        error = self.dll.GetMostRecentImage(byref(self.cimage), self.dim)
-        #self.verbose(ERROR_CODE[error], sys._getframe().f_code.co_name)
-        #print self.cimage[0]
-        # if ERROR_CODE[error] == 'DRV_SUCCESS':
-            # #convert to numpy array
-            # data = numpy.ctypeslib.as_array(self.cimage) #, shape=(self.width, self.height))
-            
-            # #data = numpy.frombuffer(int_asbuffer(addressof(cimage), dim*4)) #ctypes.addressof, dim*4 is for 4 byte integers 
 
-            # data = numpy.reshape(data,(self.width,self.height))
+        data = numpy.ctypeslib.as_array(self.cimage)
+        data = numpy.reshape(data, (self.width, self.height))
+        return data
+
+    def GetMostRecentImage(self):
+        """This function gets the most recent image, for video display.
+        It must be preceded by a call to CreateAcquisitionBuffer() and StartAcquisition().
+        The image data is put into self.cimage, which must already be allocated (by Create AcquisitionBuffer)."""
+
+        error = self.dll.GetMostRecentImage(byref(self.cimage), self.dim)
         if ERROR_CODE[error] != 'DRV_SUCCESS':
-            self.verbose(ERROR_CODE[error], sys._getframe().f_code.co_name)
-            # data = numpy.zeros((self.width,self.height))
-        # return data
+            logger.error('Error:\n{}'.format(ERROR_CODE[error]))
+            raise PauseError
 
     def SetExposureTime(self, time):
         error = self.dll.SetExposureTime(c_float(time))
-        self.verbose(ERROR_CODE[error], sys._getframe().f_code.co_name)
-        return ERROR_CODE[error]
+        if ERROR_CODE[error] != 'DRV_SUCCESS':
+            logger.error('Error:\n{}'.format(ERROR_CODE[error]))
+            raise PauseError
         
     def GetAcquisitionTimings(self):
-        exposure   = c_float()
+        exposure = c_float()
         accumulate = c_float()
-        kinetic    = c_float()
-        error = self.dll.GetAcquisitionTimings(byref(exposure),byref(accumulate),byref(kinetic))
+        kinetic = c_float()
+        error = self.dll.GetAcquisitionTimings(byref(exposure), byref(accumulate), byref(kinetic))
+        if ERROR_CODE[error] != 'DRV_SUCCESS':
+            logger.error('Error:\n{}'.format(ERROR_CODE[error]))
+            raise PauseError
+
         self.exposure = exposure.value
         self.accumulate = accumulate.value
         self.kinetic = kinetic.value
-        self.verbose(ERROR_CODE[error], sys._getframe().f_code.co_name)
-        return ERROR_CODE[error]
+
+        return self.exposure, self.accumulate, self.kinetic
 
     def SetSingleScan(self):
         self.SetReadMode(4)
+        self.SetImage(1, 1, 1, self.width, 1, self.height)
         self.SetAcquisitionMode(1)
-        self.SetImage(1,1,1,self.width,1,self.height)
+
+    def SetVideoMode(self):
+        self.SetReadMode(4)
+        self.SetImage(1, 1, 1, self.width, 1, self.height)
+        self.SetAcquisitionMode(5)
+        self.SetKineticCycleTime(0)  # for run till abort mode
+        self.SetTriggerMode(0)  # internal trigger
 
     def SetCoolerMode(self, mode):
         error = self.dll.SetCoolerMode(mode)
-        self.verbose(ERROR_CODE[error], sys._getframe().f_code.co_name)
-        return ERROR_CODE[error]
-
-    def SaveAsBmp(self, path):
-        im=Image.new("RGB",(512,512),"white")
-        pix = im.load()
-
-        for i in range(len(self.imageArray)):
-            (row, col) = divmod(i,self.width)
-            picvalue = int(round(self.imageArray[i]*255.0/65535))
-            pix[row,col] = (picvalue,picvalue,picvalue)
-
-        im.save(path,"BMP")
-
-    def SaveAsTxt(self, path):
-        file = open(path, 'w')
-
-        for line in self.imageArray:
-            file.write(' '.join([str(i) for i in line])+'\n')
-            
-        file.close()
+        if ERROR_CODE[error] != 'DRV_SUCCESS':
+            logger.error('Error:\n{}'.format(ERROR_CODE[error]))
+            raise PauseError
 
     def SetImageRotate(self, iRotate):
         error = self.dll.SetImageRotate(iRotate)
-        self.verbose(ERROR_CODE[error], sys._getframe().f_code.co_name)
+        if ERROR_CODE[error] != 'DRV_SUCCESS':
+            logger.error('Error:\n{}'.format(ERROR_CODE[error]))
+            raise PauseError
 
-    def SaveAsBmpNormalised(self, path):
-
-        im=Image.new("RGB",(512,512),"white")
-        pix = im.load()
-
-        maxIntensity = max(self.imageArray)
-
-        for i in range(len(self.imageArray)):
-            (row, col) = divmod(i,self.width)
-            picvalue = int(round(self.imageArray[i]*255.0/maxIntensity))
-            pix[row,col] = (picvalue,picvalue,picvalue)
-
-        im.save(path,"BMP")
-        
-    def SaveAsFITS(self, filename, type):
-        error = self.dll.SaveAsFITS(filename, type)
-        self.verbose(ERROR_CODE[error], sys._getframe().f_code.co_name)
-        return ERROR_CODE[error]
+    def SaveAsFITS(self, filename, typ):
+        error = self.dll.SaveAsFITS(filename, typ)
+        if ERROR_CODE[error] != 'DRV_SUCCESS':
+            logger.error('Error:\n{}'.format(ERROR_CODE[error]))
+            raise PauseError
 
     def CoolerON(self):
         error = self.dll.CoolerON()
-        self.verbose(ERROR_CODE[error], sys._getframe().f_code.co_name)
-        return ERROR_CODE[error]
+        if ERROR_CODE[error] != 'DRV_SUCCESS':
+            logger.error('Error:\n{}'.format(ERROR_CODE[error]))
+            raise PauseError
 
     def CoolerOFF(self):
         error = self.dll.CoolerOFF()
-        self.verbose(ERROR_CODE[error], sys._getframe().f_code.co_name)
-        return ERROR_CODE[error]
+        if ERROR_CODE[error] != 'DRV_SUCCESS':
+            logger.error('Error:\n{}'.format(ERROR_CODE[error]))
+            raise PauseError
 
     def IsCoolerOn(self):
         iCoolerStatus = c_int()
         error = self.dll.IsCoolerOn(byref(iCoolerStatus))
-        self.verbose(ERROR_CODE[error], sys._getframe().f_code.co_name)
-        return iCoolerStatus.value
+        if ERROR_CODE[error] != 'DRV_SUCCESS':
+            logger.error('Error:\n{}'.format(ERROR_CODE[error]))
+            raise PauseError
+        if iCoolerStatus.value == 0:
+            return False
+        else:
+            return True
 
     def GetTemperature(self):
         ctemperature = c_int()
         error = self.dll.GetTemperature(byref(ctemperature))
+        if ERROR_CODE[error] != 'DRV_SUCCESS':
+            logger.error('Error:\n{}'.format(ERROR_CODE[error]))
+            raise PauseError
         self.temperature = ctemperature.value
-        self.verbose(ERROR_CODE[error], sys._getframe().f_code.co_name)
-        return ERROR_CODE[error]
+        return self.temperature
 
-    def SetTemperature(self,temperature):
+    def SetTemperature(self, temperature):
         #ctemperature = c_int(temperature)
         #error = self.dll.SetTemperature(byref(ctemperature))
         error = self.dll.SetTemperature(temperature)
@@ -479,7 +498,6 @@ ERROR_CODE = {
     20020: "DRV_PROC_UNKNOWN_INSTRUCTION",
     20021: "DRV_ILLEGAL_OP_CODE",
     20022: "DRV_KINETIC_TIME_NOT_MET",
-    20022: "DRV_KINETIC_TIME_NOT_MET",
     20023: "DRV_ACCUM_TIME_NOT_MET",
     20024: "DRV_NO_NEW_DATA",
     20026: "DRV_SPOOLERROR",
@@ -528,9 +546,8 @@ ERROR_CODE = {
     20097: "DRV_DIVIDE_BY_ZERO_ERROR",
     20098: "DRV_INVALID_RINGEXPOSURES",
     20099: "DRV_BINNING_ERROR",
-    20990: "DRV_ERROR_NOCAMERA",
-    20991: "DRV_NOT_SUPPORTED",
-    20992: "DRV_NOT_AVAILABLE",
+    20100: "DRV_INVALID_AMPLIFIER",
+    20101: "DRV_INVALID_COUNTCONVERT_MODE",
     20115: "DRV_ERROR_MAP",
     20116: "DRV_ERROR_UNMAP",
     20117: "DRV_ERROR_MDL",
@@ -539,7 +556,7 @@ ERROR_CODE = {
     20121: "DRV_ERROR_NOHANDLE",
     20130: "DRV_GATING_NOT_AVAILABLE",
     20131: "DRV_FPGA_VOLTAGE_ERROR",
-    20099: "DRV_BINNING_ERROR",
-    20100: "DRV_INVALID_AMPLIFIER",
-    20101: "DRV_INVALID_COUNTCONVERT_MODE"
+    20990: "DRV_ERROR_NOCAMERA",
+    20991: "DRV_NOT_SUPPORTED",
+    20992: "DRV_NOT_AVAILABLE"
 }

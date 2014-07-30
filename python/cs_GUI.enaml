@@ -370,7 +370,7 @@ enamldef ExperimentPage(Container):
     attr experiment
 
     Form: form:
-        constraints = [(midline==left)|'medium',right==parent.contents_right]
+        constraints = [(midline==left)|'strong',(width==parent.contents_width)|'strong']
         Label:
             text="Status:"
         Label:
