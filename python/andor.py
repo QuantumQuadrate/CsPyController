@@ -30,7 +30,7 @@ from ctypes import CDLL, c_int, c_float, c_long, c_char_p, byref
 import sys
 import os
 import numpy
-from atom.api import Int, Member
+from atom.api import Int, Member, Tuple, List, Str
 from cs_instruments import Instrument
 
 
@@ -40,18 +40,26 @@ class Andor(Instrument):
     height = Int()  # the number of rows
     dim = Int()  # the total number of pixels
     serial = Int()  # the serial number of the camera
-    cimage = Member()  # a c_int array to store incoming image data
+    c_image_array = Member()  # a c_int array to store incoming image data
+    set_T       = Int()
+    temperature = Int()
+    gain        = Int()
+    gainRange   = Tuple()
+    number_AD_channels = Int()
+    bit_depths = List()
+    channel = Int()
+    outamp      = Int()
+    noHSSpeeds = Int()
+    HSSpeeds = List()
+    HSSpeed = Int()
+    noVSSpeeds = Int()
+    VSSpeeds = List()
+    VSSpeed = Int()
+    noGains = Int()
+    preampgain  = Int()
+    preAmpGains = List[]
+    status      = Str()
 
-    temperature = None
-    set_T       = None
-    gain        = None
-    gainRange   = None
-    status      = None
-    preampgain  = None
-    channel     = None
-    outamp      = None
-    hsspeed     = None
-    vsspeed     = None
     exposure    = None
     accumulate  = None
     kinetic     = None
@@ -171,24 +179,16 @@ class Andor(Instrument):
     
     def GetAcquiredData(self):
         dim = self.width * self.height
-        cimageArray = c_int * dim
-        cimage = cimageArray()
-        error = self.dll.GetAcquiredData(byref(cimage),dim)
-        self.verbose(ERROR_CODE[error], sys._getframe().f_code.co_name)
-
-        if ERROR_CODE[error] == 'DRV_SUCCESS':
-            #copy to numpy array
-            imageArray = numpy.array([i for i in cimage])
-            imageArray = numpy.reshape(imageArray, (self.width, self.height))
-            self.imageArray = imageArray
+        c_image_array_type = c_int * dim
+        c_image_array = c_image_array_type()
+        error = self.dll.GetAcquiredData(byref(c_image_array), dim)
+        if ERROR_CODE[error] != 'DRV_SUCCESS':
+            logger.error('Error:\n{}'.format(ERROR_CODE[error]))
+            raise PauseError
         else:
-            if self.imageArray is not None:
-                # there is no new image, use the old one
-                imageArray = self.imageArray
-            else:
-                # there is no old image, use a blank one
-                imageArray = numpy.zeros((self.width, self.height))
-        return imageArray
+            data = numpy.ctypeslib.as_array(self.cimage)
+            data = numpy.reshape(data, (self.width, self.height))
+            return data
 
     def CreateAcquisitionBuffer(self):
         """This function creates an image buffer to be used for video display.
@@ -198,9 +198,8 @@ class Andor(Instrument):
         automatically updated whenever new data is available.  All that needs to be done is for the
         plot to be redrawn whenever a new image is captured."""
 
-        self.dim = self.width * self.height
-        cimageArray = c_int * self.dim
-        self.cimage = cimageArray()
+        c_image_array_type = c_int * self.dim
+        self.c_image_array = c_image_array_type()
 
         data = numpy.ctypeslib.as_array(self.cimage)
         data = numpy.reshape(data, (self.width, self.height))
@@ -211,7 +210,7 @@ class Andor(Instrument):
         It must be preceded by a call to CreateAcquisitionBuffer() and StartAcquisition().
         The image data is put into self.cimage, which must already be allocated (by Create AcquisitionBuffer)."""
 
-        error = self.dll.GetMostRecentImage(byref(self.cimage), self.dim)
+        error = self.dll.GetMostRecentImage(byref(self.c_image_array), self.dim)
         if ERROR_CODE[error] != 'DRV_SUCCESS':
             logger.error('Error:\n{}'.format(ERROR_CODE[error]))
             raise PauseError
@@ -300,181 +299,196 @@ class Andor(Instrument):
         return self.temperature
 
     def SetTemperature(self, temperature):
-        #ctemperature = c_int(temperature)
-        #error = self.dll.SetTemperature(byref(ctemperature))
         error = self.dll.SetTemperature(temperature)
+        if ERROR_CODE[error] != 'DRV_SUCCESS':
+            logger.error('Error:\n{}'.format(ERROR_CODE[error]))
+            raise PauseError
         self.set_T = temperature
-        self.verbose(ERROR_CODE[error], sys._getframe().f_code.co_name)
-        return ERROR_CODE[error]
 
     def GetEMCCDGain(self):
         gain = c_int()
         error = self.dll.GetEMCCDGain(byref(gain))
+        if ERROR_CODE[error] != 'DRV_SUCCESS':
+            logger.error('Error:\n{}'.format(ERROR_CODE[error]))
+            raise PauseError
         self.gain = gain.value
-        self.verbose(ERROR_CODE[error], sys._getframe().f_code.co_name)
-        return ERROR_CODE[error]
-     
-    def SetEMCCDGainMode(self, gainMode):
-        error = self.dll.SetEMCCDGainMode(gainMode)
-        self.verbose(ERROR_CODE[error], sys._getframe().f_code.co_name)
-        return ERROR_CODE[error]   
+
+    def SetEMGainMode(self, mode):
+        error = self.dll.SetEMGainMode(mode)
+        if ERROR_CODE[error] != 'DRV_SUCCESS':
+            logger.error('Error:\n{}'.format(ERROR_CODE[error]))
+            raise PauseError
         
     def SetEMCCDGain(self, gain):
         error = self.dll.SetEMCCDGain(gain)
-        self.verbose(ERROR_CODE[error], sys._getframe().f_code.co_name)
-        return ERROR_CODE[error]
+        if ERROR_CODE[error] != 'DRV_SUCCESS':
+            logger.error('Error:\n{}'.format(ERROR_CODE[error]))
+            raise PauseError
         
-    def SetEMAdvanced(self, gainAdvanced):
-        error = self.dll.SetEMAdvanced(gainAdvanced)
-        self.verbose(ERROR_CODE[error], sys._getframe().f_code.co_name)
-        return ERROR_CODE[error]
+    def SetEMAdvanced(self, state):
+        error = self.dll.SetEMAdvanced(state)
+        if ERROR_CODE[error] != 'DRV_SUCCESS':
+            logger.error('Error:\n{}'.format(ERROR_CODE[error]))
+            raise PauseError
 
     def GetEMGainRange(self):
         low = c_int()
         high = c_int()
-        error = self.dll.GetEMGainRange(byref(low),byref(high))
-        self.gainRange = (low.value, high.value)
-        self.verbose(ERROR_CODE[error], sys._getframe().f_code.co_name)
-        return ERROR_CODE[error]
-      
+        error = self.dll.GetEMGainRange(byref(low), byref(high))
+        self.gain_range = (low.value, high.value)
+        if ERROR_CODE[error] != 'DRV_SUCCESS':
+            logger.error('Error:\n{}'.format(ERROR_CODE[error]))
+            raise PauseError
+
     def GetNumberADChannels(self):
-        noADChannels = c_int()
-        error = self.dll.GetNumberADChannels(byref(noADChannels))
-        self.noADChannels = noADChannels.value
-        self.verbose(ERROR_CODE[error], sys._getframe().f_code.co_name)
-        return ERROR_CODE[error]
+        number_AD_channels = c_int()
+        error = self.dll.GetNumberADChannels(byref(number_AD_channels))
+        if ERROR_CODE[error] != 'DRV_SUCCESS':
+            logger.error('Error:\n{}'.format(ERROR_CODE[error]))
+            raise PauseError
+        self.number_AD_channels = number_AD_channels.value
 
     def GetBitDepth(self):
-        bitDepth = c_int()
+        bit_depth = c_int()
+        self.bit_depths = []
 
-        self.bitDepths = []
-
-        for i in range(self.noADChannels):
-            self.dll.GetBitDepth(i,byref(bitDepth))
-            self.bitDepths.append(bitDepth.value)
+        for i in range(self.number_AD_channels):
+            error = self.dll.GetBitDepth(i, byref(bit_depth))
+            if ERROR_CODE[error] != 'DRV_SUCCESS':
+                logger.error('Error:\n{}'.format(ERROR_CODE[error]))
+                raise PauseError
+            self.bit_depths.append(bit_depth.value)
 
     def SetADChannel(self, index):
         error = self.dll.SetADChannel(index)
-        self.verbose(ERROR_CODE[error], sys._getframe().f_code.co_name)
+        if ERROR_CODE[error] != 'DRV_SUCCESS':
+            logger.error('Error:\n{}'.format(ERROR_CODE[error]))
+            raise PauseError
         self.channel = index
-        return ERROR_CODE[error]  
-        
-    def SetOutputAmplifier(self, index):
-        error = self.dll.SetOutputAmplifier(index)
-        self.verbose(ERROR_CODE[error], sys._getframe().f_code.co_name)
-        self.outamp = index
-        return ERROR_CODE[error]
-        
+
+    def SetOutputAmplifier(self, typ):
+        error = self.dll.SetOutputAmplifier(typ)
+        if ERROR_CODE[error] != 'DRV_SUCCESS':
+            logger.error('Error:\n{}'.format(ERROR_CODE[error]))
+            raise PauseError
+        self.outamp = typ
+
     def GetNumberHSSpeeds(self):
         noHSSpeeds = c_int()
         error = self.dll.GetNumberHSSpeeds(self.channel, self.outamp, byref(noHSSpeeds))
+        if ERROR_CODE[error] != 'DRV_SUCCESS':
+            logger.error('Error:\n{}'.format(ERROR_CODE[error]))
+            raise PauseError
         self.noHSSpeeds = noHSSpeeds.value
-        self.verbose(ERROR_CODE[error], sys._getframe().f_code.co_name)
-        return ERROR_CODE[error]
 
     def GetHSSpeed(self):
         HSSpeed = c_float()
-
         self.HSSpeeds = []
 
         for i in range(self.noHSSpeeds):
-            self.dll.GetHSSpeed(self.channel, self.outamp, i, byref(HSSpeed))
+            error = self.dll.GetHSSpeed(self.channel, self.outamp, i, byref(HSSpeed))
+            if ERROR_CODE[error] != 'DRV_SUCCESS':
+                logger.error('Error:\n{}'.format(ERROR_CODE[error]))
+                raise PauseError
             self.HSSpeeds.append(HSSpeed.value)
             
     def SetHSSpeed(self, index):
         error = self.dll.SetHSSpeed(index)
-        self.verbose(ERROR_CODE[error], sys._getframe().f_code.co_name)
-        self.hsspeed = index
-        return ERROR_CODE[error]
-        
+        if ERROR_CODE[error] != 'DRV_SUCCESS':
+            logger.error('Error:\n{}'.format(ERROR_CODE[error]))
+            raise PauseError
+        self.HSSpeed = index
+
     def GetNumberVSSpeeds(self):
         noVSSpeeds = c_int()
         error = self.dll.GetNumberVSSpeeds(byref(noVSSpeeds))
+        if ERROR_CODE[error] != 'DRV_SUCCESS':
+            logger.error('Error:\n{}'.format(ERROR_CODE[error]))
+            raise PauseError
         self.noVSSpeeds = noVSSpeeds.value
-        self.verbose(ERROR_CODE[error], sys._getframe().f_code.co_name)
-        return ERROR_CODE[error]
 
     def GetVSSpeed(self):
         VSSpeed = c_float()
-
         self.VSSpeeds = []
 
         for i in range(self.noVSSpeeds):
-            self.dll.GetVSSpeed(i,byref(VSSpeed))
-            self.preVSpeeds.append(VSSpeed.value)
+            error = self.dll.GetVSSpeed(i, byref(VSSpeed))
+            if ERROR_CODE[error] != 'DRV_SUCCESS':
+                logger.error('Error:\n{}'.format(ERROR_CODE[error]))
+                raise PauseError
+            self.VSSpeeds.append(VSSpeed.value)
 
     def SetVSSpeed(self, index):
         error = self.dll.SetVSSpeed(index)
-        self.verbose(ERROR_CODE[error], sys._getframe().f_code.co_name)
-        self.vsspeed = index
-        return ERROR_CODE[error] 
-    
+        if ERROR_CODE[error] != 'DRV_SUCCESS':
+            logger.error('Error:\n{}'.format(ERROR_CODE[error]))
+            raise PauseError
+        self.VSSpeed = index
+
     def GetNumberPreAmpGains(self):
         noGains = c_int()
         error = self.dll.GetNumberPreAmpGains(byref(noGains))
+        if ERROR_CODE[error] != 'DRV_SUCCESS':
+            logger.error('Error:\n{}'.format(ERROR_CODE[error]))
+            raise PauseError
         self.noGains = noGains.value
-        self.verbose(ERROR_CODE[error], sys._getframe().f_code.co_name)
-        return ERROR_CODE[error]
 
     def GetPreAmpGain(self):
         gain = c_float()
-
-        self.preAmpGain = []
+        self.preAmpGains = []
 
         for i in range(self.noGains):
-            self.dll.GetPreAmpGain(i,byref(gain))
-            self.preAmpGain.append(gain.value)
+            self.dll.GetPreAmpGain(i, byref(gain))
+            self.preAmpGains.append(gain.value)
 
     def SetPreAmpGain(self, index):
         error = self.dll.SetPreAmpGain(index)
-        self.verbose(ERROR_CODE[error], sys._getframe().f_code.co_name)
+        if ERROR_CODE[error] != 'DRV_SUCCESS':
+            logger.error('Error:\n{}'.format(ERROR_CODE[error]))
+            raise PauseError
         self.preampgain = index
-        return ERROR_CODE[error]
 
     def SetTriggerMode(self, mode):
         error = self.dll.SetTriggerMode(mode)
-        self.verbose(ERROR_CODE[error], sys._getframe().f_code.co_name)
-        return ERROR_CODE[error]
+        if ERROR_CODE[error] != 'DRV_SUCCESS':
+            logger.error('Error:\n{}'.format(ERROR_CODE[error]))
+            raise PauseError
 
     def GetStatus(self):
         status = c_int()
         error = self.dll.GetStatus(byref(status))
+        if ERROR_CODE[error] != 'DRV_SUCCESS':
+            logger.error('Error:\n{}'.format(ERROR_CODE[error]))
+            raise PauseError
         self.status = ERROR_CODE[status.value]
-        self.verbose(ERROR_CODE[error], sys._getframe().f_code.co_name)
-        return ERROR_CODE[error]
-        
-    def GetSeriesProgress(self):
+        return self.status
+
+    def GetAcquisitionProgress(self):
         acc = c_long()
         series = c_long()
-        error = self.dll.GetAcquisitionProgress(byref(acc),byref(series))
-        if ERROR_CODE[error] == "DRV_SUCCESS":
-            return series.value
-        else:
-            return None
-             
-    def GetAccumulationProgress(self):
-        acc = c_long()
-        series = c_long()
-        error = self.dll.GetAcquisitionProgress(byref(acc),byref(series))
-        if ERROR_CODE[error] == "DRV_SUCCESS":
-            return acc.value
-        else:
-            return None
-        
+        error = self.dll.GetAcquisitionProgress(byref(acc), byref(series))
+        if ERROR_CODE[error] != 'DRV_SUCCESS':
+            logger.error('Error:\n{}'.format(ERROR_CODE[error]))
+            raise PauseError
+        return acc.value, series.value
+
     def SetFrameTransferMode(self, frameTransfer):
         error = self.dll.SetFrameTransferMode(frameTransfer)
-        self.verbose(ERROR_CODE[error], sys._getframe().f_code.co_name)
-        return ERROR_CODE[error]
+        if ERROR_CODE[error] != 'DRV_SUCCESS':
+            logger.error('Error:\n{}'.format(ERROR_CODE[error]))
+            raise PauseError
         
     def SetShutterEx(self, typ, mode, closingtime, openingtime, extmode):
         error = self.dll.SetShutterEx(typ, mode, closingtime, openingtime, extmode)
-        self.verbose(ERROR_CODE[error], sys._getframe().f_code.co_name)
-        return ERROR_CODE[error]
-        
+        if ERROR_CODE[error] != 'DRV_SUCCESS':
+            logger.error('Error:\n{}'.format(ERROR_CODE[error]))
+            raise PauseError
+
     def SetSpool(self, active, method, path, framebuffersize):
         error = self.dll.SetSpool(active, method, c_char_p(path), framebuffersize)
-        self.verbose(ERROR_CODE[error], sys._getframe().f_code.co_name)
-        return ERROR_CODE[error]
+        if ERROR_CODE[error] != 'DRV_SUCCESS':
+            logger.error('Error:\n{}'.format(ERROR_CODE[error]))
+            raise PauseError
 
 ERROR_CODE = {
     20001: "DRV_ERROR_CODES",
