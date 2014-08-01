@@ -30,25 +30,29 @@ from ctypes import CDLL, c_int, c_float, c_long, c_char_p, byref
 import sys
 import os
 import numpy
-from atom.api import Int, Member, Tuple, List, Str
+from atom.api import Int, Member, Tuple, List, Str, Float
 from cs_instruments import Instrument
 
 
 class Andor(Instrument):
+
+    EMCCDGain = Int()
+    preAmpGain = Int()
+    exposureTime = Float()
 
     width = Int()  # the number of columns
     height = Int()  # the number of rows
     dim = Int()  # the total number of pixels
     serial = Int()  # the serial number of the camera
     c_image_array = Member()  # a c_int array to store incoming image data
-    set_T       = Int()
+    set_T = Int()
     temperature = Int()
-    gain        = Int()
-    gainRange   = Tuple()
+    gain = Int()
+    gainRange = Tuple()
     number_AD_channels = Int()
     bit_depths = List()
     channel = Int()
-    outamp      = Int()
+    outamp = Int()
     noHSSpeeds = Int()
     HSSpeeds = List()
     HSSpeed = Int()
@@ -56,13 +60,14 @@ class Andor(Instrument):
     VSSpeeds = List()
     VSSpeed = Int()
     noGains = Int()
-    preampgain  = Int()
     preAmpGains = List[]
-    status      = Str()
+    status = Str()
+    accumulate = Float()
+    kinetic = Float()
 
-    exposure    = None
-    accumulate  = None
-    kinetic     = None
+    def __init__(self, name, experiment, description=''):
+        super(Andor, self).__init__(name, experiment, description)
+        properties += ['EMCCDGain', 'preAmpGain', 'exposureTime']
 
     def __del__(self):
         if self.isInitialized:
@@ -73,7 +78,37 @@ class Andor(Instrument):
 
         self.InitializeCamera()
         self.GetCameraSerialNumber()
+        self.SetCoolerMode(1)
+        self.CoolerON()
+
         self.isInitialized = True
+
+    def update(self):
+        self.SetPreAmpGain(self.preAmpGain)
+        self.SetEMCCDGain(self.EMCCDGain)
+        self.SetExposureTime(self.exposureTime)
+        if self.camera.triggerMode == 0:
+            # set edge trigger
+            self.SetTriggerMode(6)
+        else:
+            # set level trigger
+            self.SetTriggerMode(7)
+        self.SetReadMode(4)
+        self.SetImage(1, 1, 1, self.width, 1, self.height)
+        self.SetAcquisitionMode(1)
+
+    def SetSingleScan(self):
+        self.SetReadMode(4)
+        self.SetImage(1, 1, 1, self.width, 1, self.height)
+        self.SetAcquisitionMode(1)
+        self.SetTriggerMode(0)
+
+    def SetVideoMode(self):
+        self.SetReadMode(4)
+        self.SetImage(1, 1, 1, self.width, 1, self.height)
+        self.SetAcquisitionMode(5)
+        self.SetKineticCycleTime(0)  # for run till abort mode
+        self.SetTriggerMode(0)  # internal trigger
 
     def InitializeCamera(self):
         self.dll = CDLL(os.path.join("andor", "atmcd64d.dll"))
@@ -92,7 +127,7 @@ class Andor(Instrument):
             raise PauseError
 
         self.width = width.value
-        self.height = height.value
+        self.height = height.value - 2  # -2 because height gets reported as 1004 instead of 1002 for Luca
         self.dim = self.width * self.height
 
         return self.width, self.value
@@ -235,18 +270,6 @@ class Andor(Instrument):
         self.kinetic = kinetic.value
 
         return self.exposure, self.accumulate, self.kinetic
-
-    def SetSingleScan(self):
-        self.SetReadMode(4)
-        self.SetImage(1, 1, 1, self.width, 1, self.height)
-        self.SetAcquisitionMode(1)
-
-    def SetVideoMode(self):
-        self.SetReadMode(4)
-        self.SetImage(1, 1, 1, self.width, 1, self.height)
-        self.SetAcquisitionMode(5)
-        self.SetKineticCycleTime(0)  # for run till abort mode
-        self.SetTriggerMode(0)  # internal trigger
 
     def SetCoolerMode(self, mode):
         error = self.dll.SetCoolerMode(mode)
@@ -446,7 +469,6 @@ class Andor(Instrument):
         if ERROR_CODE[error] != 'DRV_SUCCESS':
             logger.error('Error:\n{}'.format(ERROR_CODE[error]))
             raise PauseError
-        self.preampgain = index
 
     def SetTriggerMode(self, mode):
         error = self.dll.SetTriggerMode(mode)
