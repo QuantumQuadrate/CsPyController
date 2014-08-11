@@ -1488,60 +1488,35 @@ enamldef CameraPage(Container):
 
 enamldef Andor(Container):
     attr camera
+    attr analysis
 
-    LabelBox:
-        text = 'enable'
-        checked := camera.enable
-    EvalProp:
-        prop << camera.EMCCDGain
-    EvalProp:
-        prop << camera.preAmpGain
-    EvalProp:
-        prop << camera.exposureTime
-    ComboBox:
-        items = ['Edge', 'Level']
-        index := camera.triggerMode
-
-    EvalProp:
-        prop<<camera.scanSpeed
-    EvalProp:
-        prop<<camera.lowLightSensitivity
-    EvalProp:
-        prop<<camera.externalTriggerMode
-    EvalProp:
-        prop<<camera.triggerPolarity
-    EvalProp:
-        prop<<camera.externalTriggerSource
-    EvalProp:
-        prop<<camera.cooling
-    EvalProp:
-        prop<<camera.fan
-    EvalProp:
-        prop<<camera.scanMode
-    EvalProp:
-        prop<<camera.photoelectronScaling
-    EvalProp:
-        prop<<camera.subArrayLeft
-    EvalProp:
-        prop<<camera.subArrayTop
-    EvalProp:
-        prop<<camera.subArrayWidth
-    EvalProp:
-        prop<<camera.subArrayHeight
-    EvalProp:
-        prop<<camera.superPixelBinning
-    EvalProp:
-        prop<<camera.frameGrabberAcquisitionRegionLeft
-    EvalProp:
-        prop<<camera.frameGrabberAcquisitionRegionTop
-    EvalProp:
-        prop<<camera.frameGrabberAcquisitionRegionRight
-    EvalProp:
-        prop<<camera.frameGrabberAcquisitionRegionBottom
-    EvalProp:
-        prop<<camera.numImageBuffers
-    EvalProp:
-        prop<<camera.shotsPerMeasurement
+    HGroup:
+        Container:
+            hug_height = 'strong'
+            hug_width = 'strong'
+            LabelBox:
+                text = 'enable'
+                checked := camera.enable
+            EvalProp:
+                prop << camera.EMCCDGain
+            EvalProp:
+                prop << camera.preAmpGain
+            EvalProp:
+                prop << camera.exposureTime
+            ComboBox:
+                items = ['Edge', 'Level']
+                index := camera.triggerMode
+            EvalProp:
+                prop<<camera.shotsPerMeasurement
+        Container:
+            MPLCanvas:
+                figure << analysis.figure
+            Form:
+                Label:
+                    text = 'shot'
+                SpinBox: shot:
+                    minimum=0
+                    index := analysis.shot
 
 enamldef CounterPage(Page):
     title = 'Counter'
@@ -2313,8 +2288,11 @@ enamldef Main(MainWindow): main:
                 title = 'RF Generators'
                 content = RFGenPage(LabView=main.experiment.LabView)
             ScrollPage:
-                title = 'Camera'
+                title = 'Hamamatsu'
                 content = CameraPage(camera=main.experiment.LabView.camera)
+            ScrollPage:
+                title = 'Andor'
+                content = Andor(camera=main.andor, analysis=main.andor_viewer)
             #CounterPage:
             #    style_class << 'valid' if experiment.valid else 'invalid'
             #    pass

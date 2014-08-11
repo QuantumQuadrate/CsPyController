@@ -27,12 +27,14 @@ logger = logging.getLogger(__name__)
 from cs_errors import PauseError
 
 from ctypes import CDLL, c_int, c_float, c_long, c_char_p, byref
-import sys
 import os
 import numpy
 from atom.api import Int, Member, Tuple, List, Str, Float
 from cs_instruments import Instrument
 
+# imports for viewer
+from analysis import AnalysisWithFigure
+from colors import my_cmap
 
 class Andor(Instrument):
 
@@ -65,6 +67,8 @@ class Andor(Instrument):
     accumulate = Float()
     kinetic = Float()
 
+    data = Member()  # holds acquired images until they are written
+
     def __init__(self, name, experiment, description=''):
         super(Andor, self).__init__(name, experiment, description)
         properties += ['EMCCDGain', 'preAmpGain', 'exposureTime']
@@ -84,18 +88,33 @@ class Andor(Instrument):
         self.isInitialized = True
 
     def update(self):
-        self.SetPreAmpGain(self.preAmpGain)
-        self.SetEMCCDGain(self.EMCCDGain)
-        self.SetExposureTime(self.exposureTime)
+        if self.GetStatus() == 'DRV_ACQUIRING':
+            self.AbortAcquisition()
+        self.SetPreAmpGain(self.preAmpGain.value)
+        self.SetEMCCDGain(self.EMCCDGain.value)
+        self.SetExposureTime(self.exposureTime.value)
         if self.camera.triggerMode == 0:
             # set edge trigger
             self.SetTriggerMode(6)
         else:
             # set level trigger
             self.SetTriggerMode(7)
-        self.SetReadMode(4)
-        self.SetImage(1, 1, 1, self.width, 1, self.height)
-        self.SetAcquisitionMode(1)
+        self.SetReadMode(4)  # image mode
+        self.SetImage(1, 1, 1, self.width, 1, self.height)  # full sensor, no binning
+        self.SetAcquisitionMode(5)  # run till abort
+        self.SetKineticCycleTime(0)  # no delay
+        self.StartAcquisition()
+
+    def acquire_data(self):
+        self.data = self.GetImages()
+
+    def writeResults(self, hdf5):
+        """Write the obtained images to hdf5 file"""
+        try:
+            hdf5['Andor'] = data
+        except Exception as e:
+            logger.error('in Andor.writeResults:\n{}'.format(e))
+            raise PauseError
 
     def SetSingleScan(self):
         self.SetReadMode(4)
@@ -116,6 +135,36 @@ class Andor(Instrument):
         if ERROR_CODE[error] != 'DRV_SUCCESS':
             logger.error('Error initializing Andor camera:\n{}'.format(ERROR_CODE[error]))
             raise PauseError
+
+    def GetNumberNewImages(self):
+        first = c_long()
+        last = c_long()
+        error = self.dll.GetNumberNewImages(byref(first), byref(last))
+        if ERROR_CODE[error] != 'DRV_SUCCESS':
+            logger.error('Error:\n{}'.format(ERROR_CODE[error]))
+            raise PauseError
+        n = (last-first)
+        if n != self.shotsPerMeasurement.value:
+            logger.warning('Andor camera acquired {} images, but was expecting {}.'.format(n, self.shotsPerMeasurement))
+            raise PauseError
+        return first.value, last.value
+
+    def GetImages(self):
+        first, last = self.GetNumberNewImages()
+        n = (last-first)
+        size = self.dim * n
+        c_image_array_type = c_int * size
+        c_image_array = c_image_array_type()
+        validfirst = c_long()
+        validlast = c_long()
+        error = self.dll.GetImages(first, last, c_image_array, size, validfirst, validlast)
+        if ERROR_CODE[error] != 'DRV_SUCCESS':
+            logger.error('Error in Andor.GetImages:\n{}'.format(ERROR_CODE[error]))
+            raise PauseError
+        else:
+            data = numpy.ctypeslib.as_array(self.cimage)
+            data = numpy.reshape(data, (n, self.width, self.height))
+            return data
 
     def GetDetector(self):
         width = c_int()
@@ -213,8 +262,7 @@ class Andor(Instrument):
             raise PauseError
     
     def GetAcquiredData(self):
-        dim = self.width * self.height
-        c_image_array_type = c_int * dim
+        c_image_array_type = c_int * self.dim
         c_image_array = c_image_array_type()
         error = self.dll.GetAcquiredData(byref(c_image_array), dim)
         if ERROR_CODE[error] != 'DRV_SUCCESS':
@@ -596,3 +644,42 @@ ERROR_CODE = {
     20991: "DRV_NOT_SUPPORTED",
     20992: "DRV_NOT_AVAILABLE"
 }
+
+
+class AndorViewer(AnalysisWithFigure):
+    """Plots the currently incoming shot"""
+    data = Member()
+    shot = Int(0)
+    update_lock = Bool(False)
+
+    def __init__(self, name, experiment, description=''):
+        super(AndorViewer, self).__init__(name, experiment, description)
+        self.properties += ['shot']
+
+    def analyzeMeasurement(self, measurementResults, iterationResults, experimentResults):
+        self.data = []
+        if 'data/Andor' in measurementResults:
+            #for each image
+            self.data = measurementResults['data/Andor']
+        self.updateFigure()  # only update figure if image was loaded
+
+    @observe('shot')
+    def reload(self, change):
+        self.updateFigure()
+
+    def updateFigure(self):
+        if not self.update_lock:
+            try:
+                self.update_lock = True
+                fig = self.backFigure
+                fig.clf()
+
+                if (self.data is not None) and (self.shot < len(self.data)):
+                    ax = fig.add_subplot(111)
+                    ax.matshow(self.data[self.shot], cmap=my_cmap)
+                    ax.set_title('most recent shot '+str(self.shot))
+                super(RecentShotAnalysis, self).updateFigure()
+            except Exception as e:
+                logger.warning('Problem in AndorViewer.updateFigure()\n:{}'.format(e))
+            finally:
+                self.update_lock = False

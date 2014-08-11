@@ -37,7 +37,11 @@ class Instrument(Prop):
         All calls to evaluate should already have been accomplished."""
 
         for i in self.instruments:
-            i.update()  # call update for any sub-instrument
+            if i.enable:
+                #check that the instruments are initialized
+                if not i.isInitialized:
+                    i.initialize()  # reinitialize
+                i.update()  # put the settings to where they should be at this iteration
 
         #the details of sending to each instrument must be handled in a subclass
         #first call super(subclass,self).update() to call this method
@@ -57,6 +61,15 @@ class Instrument(Prop):
         for i in self.instruments:
             i.initialize()
         self.isInitialized = True
+
+    def acquire_data(self):
+        """Instruments that are not aware of the experiment timing can not be programmed to acquire
+        data during start().  Instead they can be programmed to get data in this method, which is
+        called after start() has completed."""
+
+        for i in self.instruments:
+            if i.enable:
+                i.acquire_data()
 
     def writeResults(self, hdf5):
         """Write results to the hdf5 file.  Must be overwritten in subclass to do anything."""
