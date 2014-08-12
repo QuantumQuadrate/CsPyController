@@ -597,7 +597,7 @@ enamldef Reports(Container):
             hug_width = 'strong'
             constraints = [hbox(f1,lb1),align('top',f1,lb1)]
             MultilineField: f1:
-                constraints = [height==1000, width==600]
+                constraints = [height==950, width==600]
                 text := experiment.constantReport.function
                 style_class << 'valid' if experiment.constantReport.valid else 'invalid'
             Label: lb1:
@@ -608,7 +608,7 @@ enamldef Reports(Container):
             hug_width = 'strong'
             constraints = [hbox(f2,lb2),align('top',f2,lb2)]
             MultilineField: f2:
-                constraints = [height==1000, width==600]
+                constraints = [height==950, width==600]
                 text := experiment.variableReport.function
                 style_class << 'valid' if experiment.variableReport.valid else 'invalid'
             Label: lb2:
@@ -1690,7 +1690,6 @@ enamldef MultiImage(Container):
 
     Label:
         text<<analysis3.text
-
 
     Container:
         padding = 0
