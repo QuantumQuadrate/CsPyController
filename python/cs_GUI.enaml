@@ -1516,7 +1516,7 @@ enamldef Andor(Container):
                     text = 'shot'
                 SpinBox: shot:
                     minimum=0
-                    index := analysis.shot
+                    value := analysis.shot
 
 enamldef CounterPage(Page):
     title = 'Counter'
@@ -2292,7 +2292,7 @@ enamldef Main(MainWindow): main:
                 content = CameraPage(camera=main.experiment.LabView.camera)
             ScrollPage:
                 title = 'Andor'
-                content = Andor(camera=main.andor, analysis=main.andor_viewer)
+                content = Andor(camera=main.experiment.Andor, analysis=main.experiment.andor_viewer)
             #CounterPage:
             #    style_class << 'valid' if experiment.valid else 'invalid'
             #    pass

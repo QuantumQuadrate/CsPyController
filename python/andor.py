@@ -29,7 +29,8 @@ from cs_errors import PauseError
 from ctypes import CDLL, c_int, c_float, c_long, c_char_p, byref
 import os
 import numpy
-from atom.api import Int, Member, Tuple, List, Str, Float
+from atom.api import Int, Tuple, List, Str, Float, Bool, Member, observe
+from instrument_property import IntProp, FloatProp
 from cs_instruments import Instrument
 
 # imports for viewer
@@ -38,9 +39,11 @@ from colors import my_cmap
 
 class Andor(Instrument):
 
-    EMCCDGain = Int()
-    preAmpGain = Int()
-    exposureTime = Float()
+    EMCCDGain = Member()
+    preAmpGain = Member()
+    exposureTime = Member()
+    triggerMode = Int()
+    shotsPerMeasurement = Member()
 
     width = Int()  # the number of columns
     height = Int()  # the number of rows
@@ -62,7 +65,7 @@ class Andor(Instrument):
     VSSpeeds = List()
     VSSpeed = Int()
     noGains = Int()
-    preAmpGains = List[]
+    preAmpGains = List()
     status = Str()
     accumulate = Float()
     kinetic = Float()
@@ -71,7 +74,11 @@ class Andor(Instrument):
 
     def __init__(self, name, experiment, description=''):
         super(Andor, self).__init__(name, experiment, description)
-        properties += ['EMCCDGain', 'preAmpGain', 'exposureTime']
+        self.EMCCDGain = IntProp('EMCCDGain', experiment, 'Andor EM gain', '0')
+        self.preAmpGain = IntProp('preAmpGain', experiment, 'Andor analog gain', '0')
+        self.exposureTime = FloatProp('exposureTime', experiment, 'exposure time for edge trigger', '0')
+        self.shotsPerMeasurement = IntProp('shotsPerMeasurement', experiment, 'number of expected shots', '0')
+        self.properties += ['EMCCDGain', 'preAmpGain', 'exposureTime', 'triggerMode']
 
     def __del__(self):
         if self.isInitialized:
@@ -93,7 +100,7 @@ class Andor(Instrument):
         self.SetPreAmpGain(self.preAmpGain.value)
         self.SetEMCCDGain(self.EMCCDGain.value)
         self.SetExposureTime(self.exposureTime.value)
-        if self.camera.triggerMode == 0:
+        if self.triggerMode == 0:
             # set edge trigger
             self.SetTriggerMode(6)
         else:
@@ -111,7 +118,7 @@ class Andor(Instrument):
     def writeResults(self, hdf5):
         """Write the obtained images to hdf5 file"""
         try:
-            hdf5['Andor'] = data
+            hdf5['Andor'] = self.data
         except Exception as e:
             logger.error('in Andor.writeResults:\n{}'.format(e))
             raise PauseError
@@ -264,7 +271,7 @@ class Andor(Instrument):
     def GetAcquiredData(self):
         c_image_array_type = c_int * self.dim
         c_image_array = c_image_array_type()
-        error = self.dll.GetAcquiredData(byref(c_image_array), dim)
+        error = self.dll.GetAcquiredData(byref(c_image_array), self.dim)
         if ERROR_CODE[error] != 'DRV_SUCCESS':
             logger.error('Error:\n{}'.format(ERROR_CODE[error]))
             raise PauseError
@@ -678,7 +685,7 @@ class AndorViewer(AnalysisWithFigure):
                     ax = fig.add_subplot(111)
                     ax.matshow(self.data[self.shot], cmap=my_cmap)
                     ax.set_title('most recent shot '+str(self.shot))
-                super(RecentShotAnalysis, self).updateFigure()
+                super(AndorViewer, self).updateFigure()
             except Exception as e:
                 logger.warning('Problem in AndorViewer.updateFigure()\n:{}'.format(e))
             finally:
