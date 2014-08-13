@@ -1497,6 +1497,13 @@ enamldef Andor(Container):
             LabelBox:
                 text = 'enable'
                 checked := camera.enable
+            HGroup:
+                PushButton:
+                    text = 'video mode'
+                    clicked :: camera.start_video()
+                PushButton:
+                    text = 'stop'
+                    clicked :: camera.stop_video()
             EvalProp:
                 prop << camera.EMCCDGain
             EvalProp:
@@ -2217,15 +2224,14 @@ def loadIcon():
 
 enamldef ScrollPage(Page):
     attr content
-
     style_class << 'valid' if experiment.valid else 'invalid'
     Container:
         padding = 0
         style_class << 'valid' if experiment.valid else 'invalid'
         ScrollArea:
             style_class << 'valid' if experiment.valid else 'invalid'
-            Include: include:
-                objects << [content]
+            Include:
+                objects = [content]
 
 enamldef Main(MainWindow): main:
     attr experiment

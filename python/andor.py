@@ -112,6 +112,36 @@ class Andor(Instrument):
         self.SetKineticCycleTime(0)  # no delay
         self.StartAcquisition()
 
+    def start_video(self):
+        # run the video loop in a new thread
+        thread = threading.Thread(target=self.start_video_thread)
+        thread.daemon = True
+        thread.start()
+
+    def start_video_thread(self):
+        self.mode = 'video'
+        if self.GetStatus() == 'DRV_ACQUIRING':
+            self.AbortAcquisition()
+        self.SetPreAmpGain(self.preAmpGain.value)
+        self.SetEMCCDGain(self.EMCCDGain.value)
+        self.SetExposureTime(self.exposureTime.value)
+        self.SetTriggerMode(0)
+        self.SetReadMode(4)  # image mode
+        self.SetImage(1, 1, 1, self.width, 1, self.height)  # full sensor, no binning
+        self.SetAcquisitionMode(5)  # run till abort
+        self.SetKineticCycleTime(0)  # no delay
+
+        self.CreateAcquisitionBuffer()
+
+        self.StartAcquisition()
+        while self.mode == 'video':
+            self.GetMostRecentImage()
+            # then redraw image
+
+    def stop_video(self):
+        # somehow stop the video thread
+        self.mode = 'idle'
+
     def acquire_data(self):
         self.data = self.GetImages()
 
