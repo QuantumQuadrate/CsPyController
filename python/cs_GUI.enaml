@@ -1500,9 +1500,9 @@ enamldef Andor(Container):
             HGroup:
                 PushButton:
                     text = 'video mode'
-                    clicked :: camera.start_video()
+                    clicked :: camera.setup_video(analysis)
                 PushButton:
-                    text = 'stop'
+                    text = 'stop video'
                     clicked :: camera.stop_video()
             EvalProp:
                 prop << camera.EMCCDGain

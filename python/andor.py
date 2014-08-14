@@ -27,7 +27,7 @@ logger = logging.getLogger(__name__)
 from cs_errors import PauseError
 
 from ctypes import CDLL, c_int, c_float, c_long, c_char_p, byref
-import os
+import os, threading, time
 import numpy
 from atom.api import Int, Tuple, List, Str, Float, Bool, Member, observe
 from instrument_property import IntProp, FloatProp
@@ -71,6 +71,8 @@ class Andor(Instrument):
     kinetic = Float()
 
     data = Member()  # holds acquired images until they are written
+    mode = Str('experiment')  # experiment vs. video
+    analysis = Member()  # holds a link to the GUI display
 
     def __init__(self, name, experiment, description=''):
         super(Andor, self).__init__(name, experiment, description)
@@ -95,6 +97,7 @@ class Andor(Instrument):
         self.isInitialized = True
 
     def update(self):
+        self.mode = 'experiment'
         if self.GetStatus() == 'DRV_ACQUIRING':
             self.AbortAcquisition()
         self.SetPreAmpGain(self.preAmpGain.value)
@@ -112,14 +115,15 @@ class Andor(Instrument):
         self.SetKineticCycleTime(0)  # no delay
         self.StartAcquisition()
 
-    def start_video(self):
-        # run the video loop in a new thread
-        thread = threading.Thread(target=self.start_video_thread)
-        thread.daemon = True
-        thread.start()
-
-    def start_video_thread(self):
+    def setup_video(self, analysis):
+        if self.experiment.status != 'idle':
+            logger.warning('Cannot start video mode unless experiment is idle.')
+            return
         self.mode = 'video'
+        self.analysis = analysis
+
+        if not self.isInitialized:
+            self.initialize()
         if self.GetStatus() == 'DRV_ACQUIRING':
             self.AbortAcquisition()
         self.SetPreAmpGain(self.preAmpGain.value)
@@ -131,22 +135,36 @@ class Andor(Instrument):
         self.SetAcquisitionMode(5)  # run till abort
         self.SetKineticCycleTime(0)  # no delay
 
-        self.CreateAcquisitionBuffer()
+        self.data = self.CreateAcquisitionBuffer()
+        analysis.setup_video(self.data)
 
         self.StartAcquisition()
+
+        # run the video loop in a new thread
+        thread = threading.Thread(target=self.start_video_thread)
+        thread.daemon = True
+        thread.start()
+
+    def start_video_thread(self):
         while self.mode == 'video':
             self.GetMostRecentImage()
             # then redraw image
+            self.analysis.redraw_video()
 
     def stop_video(self):
-        # somehow stop the video thread
+        # stop the video thread from looping
         self.mode = 'idle'
+        time.sleep(.01)
+        self.AbortAcquisition()
 
     def acquire_data(self):
+        """Overwritten from Instrument, this function is called by the experiment after
+        each measurement run to make sure all pictures have been acquired."""
         self.data = self.GetImages()
 
     def writeResults(self, hdf5):
-        """Write the obtained images to hdf5 file"""
+        """Overwritten from Instrument.  This function is called by the experiment after
+        data acquisition to write the obtained images to hdf5 file."""
         try:
             hdf5['Andor'] = self.data
         except Exception as e:
@@ -323,6 +341,7 @@ class Andor(Instrument):
 
         data = numpy.ctypeslib.as_array(self.cimage)
         data = numpy.reshape(data, (self.width, self.height))
+        self.data = data
         return data
 
     def GetMostRecentImage(self):
@@ -688,6 +707,7 @@ class AndorViewer(AnalysisWithFigure):
     data = Member()
     shot = Int(0)
     update_lock = Bool(False)
+    artist = Member()
 
     def __init__(self, name, experiment, description=''):
         super(AndorViewer, self).__init__(name, experiment, description)
@@ -705,7 +725,7 @@ class AndorViewer(AnalysisWithFigure):
         self.updateFigure()
 
     def updateFigure(self):
-        if not self.update_lock:
+        if not self.update_lock and (self.experiment.Andor.mode != 'video'):
             try:
                 self.update_lock = True
                 fig = self.backFigure
@@ -720,3 +740,18 @@ class AndorViewer(AnalysisWithFigure):
                 logger.warning('Problem in AndorViewer.updateFigure()\n:{}'.format(e))
             finally:
                 self.update_lock = False
+
+    def setup_video(self, data):
+        """Use this method to connect the analysis figure to an array that will be rapidly updated
+        in video mode."""
+        self.data = data
+        fig = self.backFigure
+        fig.clf()
+        ax = fig.add_subplot(111)
+        self.artist = ax.imshow(data)
+        super(AndorViewer, self).updateFigure(self)
+
+    def redraw_video(self):
+        """First update self.data using Andor methods, then redraw screen using this."""
+        self.artist.autoscale()
+        self.figure.canvas.draw()
