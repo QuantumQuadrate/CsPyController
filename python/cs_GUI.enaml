@@ -1525,9 +1525,6 @@ enamldef Andor(Container):
                     minimum=0
                     value := analysis.shot
 
-enamldef CounterPage(Page):
-    title = 'Counter'
-
 enamldef FiltersPage(Page):
     title = 'Filters'
 
@@ -2222,16 +2219,18 @@ def loadIcon():
     icon = Icon(images=[IconImage(image=image)])
     return icon
 
-enamldef ScrollPage(Page):
-    attr content
-    style_class << 'valid' if experiment.valid else 'invalid'
-    Container:
-        padding = 0
+template ScrollPage(Title, Content):
+    Page:
+        alias content
+        title = Title
         style_class << 'valid' if experiment.valid else 'invalid'
-        ScrollArea:
+        Container:
+            padding = 0
             style_class << 'valid' if experiment.valid else 'invalid'
-            Include:
-                objects = [content]
+            ScrollArea:
+                style_class << 'valid' if experiment.valid else 'invalid'
+                Content: content:
+                    pass
 
 enamldef Main(MainWindow): main:
     attr experiment
@@ -2265,93 +2264,67 @@ enamldef Main(MainWindow): main:
             tab_style = 'preferences'
             size_hint_mode = 'current'
 
-            ScrollPage:
-                title = 'Experiment'
-                content = ExperimentPage(experiment = main.experiment)
-            ScrollPage:
-                title = 'Variables'
-                content = Variables(experiment = main.experiment)
-            ScrollPage:
-                title = 'Report'
-                content = Reports(experiment = main.experiment)
-            ScrollPage:
-                title = 'LabView'
-                content = LabViewPage(LabView=main.experiment.LabView)
-            ScrollPage:
-                title = 'HSDIO'
-                content = HSDIO_DigitalOutPage(HSDIO=main.experiment.LabView.HSDIO)
-            ScrollPage:
-                title='Waveforms'
-                content = Waveforms(HSDIO=main.experiment.LabView.HSDIO)
-            ScrollPage:
-                title = 'DAQmx'
-                content = DAQmxDigitalOutPage(DAQmx=main.experiment.LabView.DAQmxDO)
-            ScrollPage:
-                title = 'DDS'
-                content = DDS_Page(DDS = main.experiment.LabView.DDS)
-            ScrollPage:
-                title = 'RF Generators'
-                content = RFGenPage(LabView=main.experiment.LabView)
-            ScrollPage:
-                title = 'Hamamatsu'
-                content = CameraPage(camera=main.experiment.LabView.camera)
-            ScrollPage:
-                title = 'Andor'
-                content = Andor(camera=main.experiment.Andor, analysis=main.experiment.andor_viewer)
-            #CounterPage:
-            #    style_class << 'valid' if experiment.valid else 'invalid'
-            #    pass
-            ScrollPage:
-                title = 'Analog Output'
-                content = AnalogOutputPage(AO=main.experiment.LabView.AnalogOutput)
-            #Page:
-            #    style_class << 'valid' if experiment.valid else 'invalid'
-            #    title = 'Analog Input'
-            #    AnalogInput:
-            #        AI = main.experiment.LabView.AnalogInput
-            #Page:
-            #    style_class << 'valid' if experiment.valid else 'invalid'
-            #    title = 'Arroyo'
-            #    Arroyo:
-            #        Arroyo = main.experiment.Arroyo
-            ScrollPage:
-                title = 'PI Piezo'
-                content = PI_Piezo(piezo=main.experiment.LabView.piezo)
-            ScrollPage:
-                title = 'Picomotors'
-                content = Picomotors(picomotors=main.experiment.picomotors)
-            ScrollPage:
-                title = 'Images'
-                content = MultiImage(
-                    experiment=main.experiment,
-                    analysis0=main.experiment.recent_shot_analysis,
-                    analysis1=main.experiment.shotBrowserAnalysis,
-                    analysis2=main.experiment.imageSumAnalysis,
-                    analysis3=main.experiment.text_analysis )
-            ScrollPage:
-                title = 'Square ROI'
-                content = SquareROIContainer(experiment=main.experiment, analysis=main.experiment.squareROIAnalysis)
-            ScrollPage:
-                title = 'Gaussian ROI'
-                content = GaussianROI(analysis=main.experiment.gaussian_roi)
-            ScrollPage:
-                title = 'Histogram'
-                content = Histogram(experiment=main.experiment, analysis=main.experiment.histogramAnalysis)
-            ScrollPage:
-                title = 'Histogram Grid'
-                content = HistogramGrid(experiment=main.experiment, analysis=main.experiment.histogram_grid)
-            ScrollPage:
-                title = 'Measurements Graph'
-                content = MeasurementsGraph(experiment=main.experiment, analysis=main.experiment.measurements_graph)
-            ScrollPage:
-                title = 'Iterations Graph'
-                content = IterationsGraph(experiment=main.experiment, analysis=main.experiment.iterations_graph)
-            ScrollPage:
-                title = 'Retention Graph'
-                content = RetentionGraph(experiment=main.experiment, analysis=main.experiment.retention_graph)
-            ScrollPage:
-                title='Filters'
-                content = Filters(experiment=main.experiment)
-            ScrollPage:
-                title='Optimization'
-                content = Optimizer(experiment=main.experiment, analysis=main.experiment.optimizer)
+            ScrollPage('Experiment', ExperimentPage): p1:
+                p1.content.experiment = main.experiment
+            ScrollPage('Variables', Variables): p2:
+                p2.content.experiment = main.experiment
+            ScrollPage('Report', Reports): p3:
+                p3.content.experiment = main.experiment
+            ScrollPage('LabView', LabViewPage): p4:
+                p4.content.LabView = main.experiment.LabView
+            ScrollPage('HSDIO', HSDIO_DigitalOutPage): p5:
+                p5.content.HSDIO = main.experiment.LabView.HSDIO
+            ScrollPage('Waveforms', Waveforms): p6:
+                p6.content.HSDIO = main.experiment.LabView.HSDIO
+            ScrollPage('DAQmx', DAQmxDigitalOutPage): p7:
+                p7.content.DAQmx = main.experiment.LabView.DAQmxDO
+            ScrollPage('DDS', DDS_Page): p8:
+                p8.content.DDS = main.experiment.LabView.DDS
+            ScrollPage('RF Generators', RFGenPage): p9:
+                p9.content.LabView = main.experiment.LabView
+            ScrollPage('Hamamatsu', CameraPage): p10:
+                p10.content.camera = main.experiment.LabView.camera
+            ScrollPage('Andor', Andor): p11:
+                p11.content.camera = main.experiment.Andor
+                p11.content.analysis=main.experiment.andor_viewer
+            ScrollPage('Analog Output', AnalogOutputPage): p12:
+                p12.content.AO = main.experiment.LabView.AnalogOutput
+            #ScrollPage('Analog Input', AnalogInput): p13:
+            #    p13.content.AI = main.experiment.LabView.AnalogInput
+            #ScrollPage('Arroyo', Arroyo): p14:
+            #    p14.content.arroyo = main.experiment.Arroyo
+            ScrollPage('PI Piezo', PI_Piezo): p15:
+                p15.content.piezo = main.experiment.LabView.piezo
+            ScrollPage('Picomotors', Picomotors): p16:
+                p16.content.picomotors = main.experiment.picomotors
+            ScrollPage('Images', MultiImage): p17:
+                p17.content.experiment = main.experiment
+                p17.content.analysis0 = main.experiment.recent_shot_analysis
+                p17.content.analysis1 = main.experiment.shotBrowserAnalysis
+                p17.content.analysis2 = main.experiment.imageSumAnalysis
+                p17.content.analysis3 = main.experiment.text_analysis
+            ScrollPage('Square ROI',  SquareROIContainer): p18:
+                p18.content.experiment = main.experiment
+                p18.content.analysis = main.experiment.squareROIAnalysis
+            ScrollPage('Gaussian ROI', GaussianROI): p19:
+                p19.content.analysis = main.experiment.gaussian_roi
+            ScrollPage('Histogram', Histogram): p20:
+                p20.content.experiment = main.experiment
+                p20.content.analysis = main.experiment.histogramAnalysis
+            ScrollPage('Histogram Grid', HistogramGrid): p21:
+                p21.content.experiment = main.experiment
+                p21.content.analysis = main.experiment.histogram_grid
+            ScrollPage('Measurements Graph', MeasurementsGraph): p22:
+                p22.content.experiment = main.experiment
+                p22.content.analysis = main.experiment.measurements_graph
+            ScrollPage('Iterations Graph', IterationsGraph): p23:
+                p23.content.experiment = main.experiment
+                p23.content.analysis = main.experiment.iterations_graph
+            ScrollPage('Retention Graph', RetentionGraph): p24:
+                p24.content.experiment = main.experiment
+                p24.content.analysis = main.experiment.retention_graph
+            ScrollPage('Filters', Filters): p25:
+                p25.content.experiment = main.experiment
+            ScrollPage('Optimization', Optimizer): p26:
+                p26.content.experiment = main.experiment
+                p26.content.analysis = main.experiment.optimizer
