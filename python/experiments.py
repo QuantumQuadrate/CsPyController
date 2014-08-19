@@ -8,7 +8,9 @@ from __future__ import division
 __author__ = 'Martin Lichtman'
 import logging
 logger = logging.getLogger(__name__)
+from cs_errors import PauseError
 
+# import core python modules
 import threading, time, datetime, traceback, os, shutil, cStringIO, numpy, h5py
 
 #set numpy print options to limit to 2 digits
@@ -18,8 +20,7 @@ numpy.set_printoptions(formatter=dict(float=lambda t: "%.2e" % t))
 from atom.api import Int, Float, Str, Member, Bool
 
 # Bring in other files in this package
-import cs_evaluate, analysis, save2013style, TTL, LabView, sound, optimization, roi_fitting, picomotors
-from cs_errors import PauseError
+import cs_evaluate, sound, optimization
 from instrument_property import Prop, EvalProp, ListProp, StrProp
 
 class IndependentVariable(EvalProp):
@@ -176,6 +177,7 @@ class Experiment(Prop):
     log_handler = Member()
     gui = Member()  # a reference to the gui Main, for use in Prop.set_gui
     optimizer = Member()
+    ivarBases = Member()
 
     def __init__(self):
         """Defines a set of instruments, and a sequence of what to do with them."""
@@ -248,66 +250,43 @@ class Experiment(Prop):
             self.ivarSteps = [i.steps for i in self.independentVariables]
             self.totalIterations = int(numpy.product(self.ivarSteps))
 
-            # update the current value of the independent variables
-            self.iterationToIndexArray()
+            # figure out how often each ivar will update with iterations (the "base")
+            self.ivarBases = numpy.roll(numpy.cumprod(self.ivarSteps), 1)
+            if len(self.ivarBases>0):
+                self.ivarBases[0] = 1
 
-
-    def iterationToIndexArray(self):
+    def updateIndependentVariables(self):
         """takes the iteration number and figures out which index number each independent variable should have"""
-        n = len(self.independentVariables)
-        index = numpy.zeros(n, dtype=int)
-        # calculate the base for each variable place
-        base = [1]
-        for i in xrange(1, n):
-            base.append(self.ivarSteps[i-1]*base[i-1])
-        #build up the list
-        seq = range(n)
-        seq.reverse()  # go from largest place to smallest
-        iter = self.iteration
-        for i in seq:
-            index[i] = int(iter/base[i])
-            iter -= index[i]*base[i]
-            index[i] = self.independentVariables[i].setIndex(index[i])  # update each variable object
-        self.ivarIndex = index  # store the list
-    
-    def update(self):
-        """Sends updated settings to all instruments.  This function is run at the beginning of every new iteration."""
-        logger.debug("updating instruments")
-        #update the instruments with new settings
-        
-        for i in self.instruments:
-            #check that the instruments are initialized
-            if not i.isInitialized:
-                i.initialize()  # reinitialize
-            i.update()  # put the settings to where they should be at this iteration
+
+        # find the current index for each
+        index = (self.iteration//self.ivarBases) % self.ivarSteps
+
+        for i, x in enumerate(self.independentVariables):
+           if not x.optimize:
+                index[i] = x.setIndex(index[i])  # update each variable object
+        self.ivarIndex = index
 
     def evaluateAll(self):
         if self.allow_evaluation:
-            self.evaluate_static()
-            self.evaluate()
-
-    def evaluate_static(self):
-        if self.allow_evaluation:
             self.evaluate_constants()
             self.evaluateIndependentVariables()
+            self.evaluate()
 
     def evaluate_constants(self):
+        if self.allow_evaluation:
+            # create a new dictionary and evaluate the constants into it
+            self.constants = {}
+            cs_evaluate.execWithDict(self.constantsStr, self.constants)
 
-        # create a new dictionary and evaluate the constants into it
-        self.constants = {}
-        cs_evaluate.execWithDict(self.constantsStr, self.constants)
+            # reset self.vars so it can be used in evaluating the constantReport
+            self.vars = self.constants.copy()
 
-        # reset self.vars so it can be used in evaluating the constantReport
-        self.vars = self.constants.copy()
+            # evaluate constant report
+            #at this time the properties are not all evaluated, so, we must do this one manually
+            self.constantReport.evaluate()
 
-        # evaluate constant report
-        #at this time the properties are not all evaluated, so, we must do this one manually
-        self.constantReport.evaluate()
-
-
-    #overwrite from Prop()
     def evaluate(self):
-        """Resolve all equation in instruments."""
+        """Resolve all equation in instruments.  This is overwritten from Prop."""
         if self.allow_evaluation:
             logger.debug('Experiment.evaluate() ...')
 
@@ -315,6 +294,7 @@ class Experiment(Prop):
             self.vars = self.constants.copy()
 
             # add the independent variables current values to the dict
+            self.updateIndependentVariables()
             ivars = dict([(i.name, i.currentValue) for i in self.independentVariables])
             self.vars.update(ivars)
 
@@ -369,7 +349,19 @@ class Experiment(Prop):
     
     def time2str(self, time):
         return str(datetime.timedelta(seconds=time))
-    
+
+    def update(self):
+        """Sends current settings to the instrument.  This function is run at the beginning of every new iteration.
+        Does not explicitly call evaluate, to avoid duplication of effort.
+        All calls to evaluate should already have been accomplished."""
+
+        for i in self.instruments:
+            if i.enable:
+                #check that the instruments are initialized
+                if not i.isInitialized:
+                    i.initialize()  # reinitialize
+                i.update()  # put the settings to where they should be at this iteration
+
     def updateTime(self):
         """Updates the GUI clock and recalculates the time-to-completion predictions."""
 
@@ -469,7 +461,9 @@ class Experiment(Prop):
         self.create_data_files()
 
         # evaluate the constants and independent variables
-        self.evaluate_static()
+        self.evaluate_constants()
+        self.evaluateIndependentVariables()
+        self.updateIndependentVariables()
         self.hdf5['constant_report'] = self.constantReport.value
 
         # run analyses preExperiment
@@ -499,21 +493,24 @@ class Experiment(Prop):
         try:  # if there is an error we exit the inner loops and respond appropriately
 
             # optimization loop
-            while not self.optimizer.isDone:
+            while self.status == 'running' and (not self.optimizer.is_done):
 
                 #loop until iteration are complete
                 while (self.iteration < self.totalIterations) and (self.status == 'running'):
                     logger.debug("starting new iteration")
 
                     #at the start of a new iteration, or if we are continuing
-                    self.evaluateAll()  # update ivars to current iteration and re-calculate dependent variables
+                    logger.debug("evaluating")
+                    self.evaluate()  # update ivars to current iteration and re-calculate dependent variables
+                    logger.debug("updating instruments")
                     self.update()  # send current values to hardware
 
                     #only at the start of a new iteration
-                    if self.measurement == 0:
+                    if len(completedMeasurementsByIteration) <= self.iteration:
                         self.completedMeasurementsByIteration.append(0)  # start a new counter for this iteration
+                    if not (str(self.iteration) in self.hdf5['iterations']):
                         self.create_hdf5_iteration()
-                        self.preIteration()
+                    self.preIteration()  # reset the analyses
 
                     #loop until the desired number of measurements are taken
                     while (self.goodMeasurements < self.measurementsPerIteration) and (self.status == 'running'):
@@ -700,10 +697,10 @@ class Experiment(Prop):
         start_time = time.time()  # record start time of measurement
         self.timeOutExpired = False
 
-        #for all instruments
+        # start each instrument
         for i in self.instruments:
-            #check that the instruments are initalized
             if i.enable:
+                #check that the instruments are initalized
                 if not i.isInitialized:
                     print 'experiment.measure() initializing '+i.name
                     i.initialize()  # reinitialize
@@ -732,7 +729,11 @@ class Experiment(Prop):
             time.sleep(.01)  # wait a bit, then check again
         logger.debug('all instruments done')
 
-        #set up the results container
+        # give each instrument a chance to acquire final data
+        for i in self.instruments:
+            i.acquire_data()
+
+        # record results to hdf5
         self.measurementResults = self.hdf5.create_group('iterations/'+str(self.iteration)+'/measurements/'+str(self.measurement))
         self.measurementResults.attrs['start_time'] = start_time
         self.measurementResults.attrs['start_time_str'] = self.date2str(start_time)
@@ -1050,78 +1051,3 @@ class Experiment(Prop):
 
             # build a dictionary
             yield ivar_dict
-
-
-class AQuA(Experiment):
-    """A subclass of Experiment which knows about all our particular hardware"""
-    
-    LabView = Member()
-    picomotors = Member()
-    TTL_filters = Member()
-    squareROIAnalysis = Member()
-    gaussian_roi = Member()
-    loading_filters = Member()
-    first_measurements_filter = Member()
-    text_analysis = Member()
-    recent_shot_analysis = Member()
-    shotBrowserAnalysis = Member()
-    imageSumAnalysis = Member()
-    imageWithROIAnalysis = Member()
-    histogramAnalysis = Member()
-    histogram_grid = Member()
-    measurements_graph = Member()
-    iterations_graph = Member()
-    retention_graph = Member()
-    save2013Analysis = Member()
-    ROI_rows = 7
-    ROI_columns = 7
-
-    def __init__(self):
-        super(AQuA, self).__init__()
-        
-        #add instruments
-        self.LabView = LabView.LabView(experiment=self)
-        self.picomotors = picomotors.Picomotors('picomotors', self, 'Newport Picomotors')
-        self.instruments += [self.LabView, self.picomotors]
-        
-        #analyses
-        self.TTL_filters = TTL.TTL_filters('TTL_filters', self)
-        self.loading_filters = analysis.LoadingFilters('loading_filters', self, 'drop measurements with no atom loaded')
-        self.first_measurements_filter = analysis.DropFirstMeasurementsFilter('first_measurements_filter', self, 'drop the first N measurements')
-        self.squareROIAnalysis = analysis.SquareROIAnalysis(self, ROI_rows=self.ROI_rows, ROI_columns=self.ROI_columns)
-        self.gaussian_roi = roi_fitting.GaussianROI('gaussian_roi', self, rows=self.ROI_rows, columns=self.ROI_columns)
-        self.text_analysis = analysis.TextAnalysis('text_analysis', self, 'text results from the measurement')
-        self.imageSumAnalysis = analysis.ImageSumAnalysis(self)
-        self.recent_shot_analysis = analysis.RecentShotAnalysis('recent_shot_analysis', self, description='just show the most recent shot')
-        self.shotBrowserAnalysis = analysis.ShotsBrowserAnalysis(self)
-        self.histogramAnalysis = analysis.HistogramAnalysis('histogramAnalysis', self, 'plot the histogram of any shot and roi')
-        self.histogram_grid = analysis.HistogramGrid('histogram_grid', self, 'all 49 histograms for shot 0 at the same time')
-        self.measurements_graph = analysis.MeasurementsGraph('measurements_graph', self, 'plot the ROI sum vs all measurements')
-        self.iterations_graph = analysis.IterationsGraph('iterations_graph', self, 'plot the average of ROI sums vs iterations')
-        self.retention_graph = analysis.RetentionGraph('retention_graph', self, 'plot occurence of binary result (i.e. whether or not atoms are there in the 2nd shot)')
-        self.save2013Analysis = save2013style.Save2013Analysis(self)
-        self.analyses += [self.TTL_filters, self.squareROIAnalysis, self.gaussian_roi, self.loading_filters,
-                          self.first_measurements_filter, self.text_analysis, self.imageSumAnalysis,
-                          self.recent_shot_analysis, self.shotBrowserAnalysis, self.histogramAnalysis,
-                          self.histogram_grid, self.measurements_graph, self.iterations_graph, self.retention_graph,
-                          self.save2013Analysis]
-
-        self.properties += ['LabView', 'squareROIAnalysis', 'gaussian_roi', 'TTL_filters', 'loading_filters',
-                            'first_measurements_filter', 'imageSumAnalysis', 'recent_shot_analysis',
-                            'shotBrowserAnalysis', 'histogramAnalysis', 'histogram_grid', 'measurements_graph',
-                            'iterations_graph', 'retention_graph', 'optimizer']
-
-        try:
-            self.allow_evaluation = False
-            self.loadDefaultSettings()
-
-            #update variables
-            self.allow_evaluation = True
-            self.evaluateAll()
-        except PauseError:
-            logger.warning('Loading default settings aborted in AQuA.__init__().  PauseError')
-        except Exception as e:
-            logger.warning('Loading default settings aborted in AQuA.__init__().\n{}\n{}\n'.format(e, traceback.format_exc()))
-
-        #make sure evaluation is allowed now
-        self.allow_evaluation = True

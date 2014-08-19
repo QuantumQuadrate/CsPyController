@@ -1,0 +1,27 @@
+from enaml.widgets.api import Window, Container, Notebook, Page, ScrollArea, Label
+from enaml.core.include import Include
+
+enamldef ScrollPage(Page):
+    attr content
+    Container:
+        ScrollArea:
+            Include:
+                objects = [content]
+
+enamldef Andor(Container):
+    Label:
+        text = 'Andorrrr'
+
+enamldef Hamamatsu(Container):
+    Label:
+        text = 'Hamamatsuuu'
+
+enamldef Main(Window): main:
+    Container:
+        Notebook:
+            ScrollPage:
+                title = 'Andor'
+                content = Andor()
+            ScrollPage:
+                title = 'Hamamatsu'
+                content = Hamamatsu()

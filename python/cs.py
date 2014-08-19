@@ -23,7 +23,7 @@ import cs_errors
 import logging
 cs_errors.setup_log()
 logger = logging.getLogger(__name__)
-import experiments
+import aqua
 
 def guiThread(exp):
     logger.debug('importing GUI')
@@ -46,14 +46,14 @@ def guiThread(exp):
 
 def new():
     logger.info('Started CsPyController')
-    exp = experiments.AQuA()
+    exp = aqua.AQuA()
     #start in a new thread so you can continue to use the shell
     threading.Thread(target=guiThread,args=[exp]).start()
     return exp
 
 if __name__ == '__main__':
     logger.info('Started CsPyController')
-    exp = experiments.AQuA()
+    exp = aqua.AQuA()
 
     #start without creating a new thread
     guiThread(exp)
