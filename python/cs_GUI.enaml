@@ -1548,63 +1548,70 @@ enamldef AOequation(StackItem):
                 text:=item.function
                 placeholder='function that evaluates to a 1D array, where t will be replaced with AO.timesteps'
 
-enamldef AnalogOutputPage(Page):
+enamldef AnalogOutput(Container):
     attr AO
-    title = 'Analog output'
-    Container:
+
+    hug_height='strong'
+    #hug_width='strong'
+    constraints=[vbox(e1,canvas,equations,c1),align('left',e1,canvas,equations,c1)]
+    LabelBox: e1:
+        text='enable'
+        checked:=AO.enable
+    MPLCanvas: canvas:
+        constraints=[(height==500)|'strong']
+        hug_width='ignore'
+        figure << AO.figure
+    IndexedStack: equations:
+        title='equations'
+        iterable<<AO.equations
+        viewType=AOequation
+    Container: c1:
         hug_height='strong'
-        #hug_width='strong'
-        constraints=[vbox(e1,canvas,equations,c1),align('left',e1,canvas,equations,c1)]
-        #constraints=[vbox(e1,equations,c1),align('left',e1,equations,c1)]
-        LabelBox: e1:
-            text='enable'
-            checked:=AO.enable
-        #the following 4 lines are for chaco plotting
-        #EnableCanvas: canvas:
-        #    #TODO: make this expand and shrink nicely while filling the width
-        #    constraints=[height==500,width==1500]
-        #    component<<AO.plot
-        #the following lines are for MPL plotting
-        MPLCanvas: canvas:
-            constraints=[(height==500)|'strong']
-            hug_width='ignore'
-            figure << AO.figure
-        IndexedStack: equations:
-            title='equations'
-            iterable<<AO.equations
-            viewType=AOequation
-        Container: c1:
-            hug_height='strong'
-            hug_width='strong'
-            constraints=[grid([e2,e3,e4],[e5,e6,e7],[e8,e9,e10],[e11,e12])]
-            EvalProp: e2:
-                prop<<AO.physicalChannels
-            EvalProp: e3:
-                prop<<AO.minimum
-            EvalProp: e4:
-                prop<<AO.maximum
-            EvalProp: e5:
-                prop<<AO.clockRate
-            EvalProp: e6:
-                prop<<AO.units
-            EvalProp: e7:
-                prop<<AO.totalAOTime
-            EvalProp: e8:
-                prop<<AO.waitForStartTrigger
-            EvalProp: e9:
-                prop<<AO.triggerSource
-            EvalProp: e10:
-                prop<<AO.triggerEdge
-            EvalProp: e11:
-                prop<<AO.exportStartTrigger
-            EvalProp: e12:
-                prop<<AO.exportStartTriggerDestination
+        hug_width='strong'
+        constraints=[grid([e2,e3,e4],[e5,e6,e7],[e8,e9,e10],[e11,e12])]
+        EvalProp: e2:
+            prop<<AO.physicalChannels
+        EvalProp: e3:
+            prop<<AO.minimum
+        EvalProp: e4:
+            prop<<AO.maximum
+        EvalProp: e5:
+            prop<<AO.clockRate
+        EvalProp: e6:
+            prop<<AO.units
+        EvalProp: e7:
+            prop<<AO.totalAOTime
+        EvalProp: e8:
+            prop<<AO.waitForStartTrigger
+        EvalProp: e9:
+            prop<<AO.triggerSource
+        EvalProp: e10:
+            prop<<AO.triggerEdge
+        EvalProp: e11:
+            prop<<AO.exportStartTrigger
+        EvalProp: e12:
+            prop<<AO.exportStartTriggerDestination
 
 enamldef AnalogInput(Container):
     attr AI
 
-    hug_height = 'strong'
-    hug_width = 'strong'
+    hug_height='strong'
+    hug_width='strong'
+    LabelBox:
+        text='enable'
+        checked := AI.enable
+    EvalProp:
+        prop << AI.sample_rate
+    EvalProp:
+        prop << AI.source
+    EvalProp:
+        prop << AI.samples_per_measurement
+    EvalProp:
+        prop << AI.waitForStartTrigger
+    EvalProp:
+        prop << AI.triggerSource
+    EvalProp:
+        prop << AI.triggerEdge
 
 enamldef Arroyo(Container):
     attr Arroyo
@@ -2287,10 +2294,10 @@ enamldef Main(MainWindow): main:
             ScrollPage('Andor', Andor): p11:
                 p11.content.camera = main.experiment.Andor
                 p11.content.analysis=main.experiment.andor_viewer
-            ScrollPage('Analog Output', AnalogOutputPage): p12:
+            ScrollPage('Analog Output', AnalogOutput): p12:
                 p12.content.AO = main.experiment.LabView.AnalogOutput
-            #ScrollPage('Analog Input', AnalogInput): p13:
-            #    p13.content.AI = main.experiment.LabView.AnalogInput
+            ScrollPage('Analog Input', AnalogInput): p13:
+                p13.content.AI = main.experiment.LabView.AnalogInput
             #ScrollPage('Arroyo', Arroyo): p14:
             #    p14.content.arroyo = main.experiment.Arroyo
             ScrollPage('PI Piezo', PI_Piezo): p15:

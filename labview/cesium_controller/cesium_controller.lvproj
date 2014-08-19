@@ -20,6 +20,7 @@
 		</Item>
 		<Item Name="config" Type="Folder">
 			<Item Name="string_to_boolean.vi" Type="VI" URL="../config_file_io/string_to_boolean.vi"/>
+			<Item Name="parse_config_string.vi" Type="VI" URL="../config_file_io/parse_config_string.vi"/>
 		</Item>
 		<Item Name="Arroyo" Type="Folder">
 			<Item Name="TempScan.vi" Type="VI" URL="../Arroyo/TempScan.vi"/>
@@ -626,7 +627,7 @@
 				<Property Name="Bld_localDestDirType" Type="Str">relativeToCommon</Property>
 				<Property Name="Bld_modifyLibraryFile" Type="Bool">true</Property>
 				<Property Name="Bld_previewCacheID" Type="Str">{574B9F9D-241F-4A68-8892-A5E401941744}</Property>
-				<Property Name="Bld_version.build" Type="Int">24</Property>
+				<Property Name="Bld_version.build" Type="Int">25</Property>
 				<Property Name="Bld_version.major" Type="Int">1</Property>
 				<Property Name="Destination[0].destName" Type="Str">cs_server.exe</Property>
 				<Property Name="Destination[0].path" Type="Path">../cs_server.exe</Property>

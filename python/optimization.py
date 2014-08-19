@@ -56,7 +56,7 @@ class Optimization(AnalysisWithFigure):
 
     def __init__(self, name, experiment, description=''):
         super(Optimization, self).__init__(name, experiment, description)
-        self.properties += ['version', 'initial_step', 'end_condition_step_size', 'cost_function', 'optimization_method']
+        self.properties += ['version', 'enable', 'initial_step', 'end_condition_step_size', 'cost_function', 'optimization_method']
 
     def setup(self, experimentResults):
         self.optimization_variables = []
