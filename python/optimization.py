@@ -21,6 +21,7 @@ __author__ = 'Martin Lichtman'
 import logging
 logger = logging.getLogger(__name__)
 
+import traceback
 import numpy
 from math import isnan
 from matplotlib.backends.backend_pdf import PdfPages
@@ -99,7 +100,7 @@ class Optimization(AnalysisWithFigure):
             try:
                 exec(self.cost_function, globals(), locals())
             except Exception as e:
-                logger.error('Exception evaluating cost function:\n{}\n{}')
+                logger.error('Exception evaluating cost function:\n{}\n{}'.format(e, traceback.format_exc()))
                 self.yi = float('inf')
             # if the evaluated value is nan, set it to inf so it will always be the worst point
             if isnan(self.yi):

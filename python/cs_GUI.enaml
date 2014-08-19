@@ -600,7 +600,7 @@ enamldef Reports(Container):
                 text := experiment.constantReport.function
                 style_class << 'valid' if experiment.constantReport.valid else 'invalid'
             Label: lb1:
-                text << experiment.variableReport.valueStr
+                text << experiment.constantReport.valueStr
         GroupBox:
             title = 'Variable Report'
             hug_height = 'strong'
