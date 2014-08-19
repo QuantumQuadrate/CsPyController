@@ -51,13 +51,13 @@ def setup_log():
     #set up logging to console for INFO and worse
     sh = logging.StreamHandler()
     sh.setLevel(logging.INFO)
-    sh_formatter = logging.Formatter(fmt='%(asctime)s\n%(message)s\n', datefmt='%H:%M:%S')
+    sh_formatter = logging.Formatter(fmt='%(asctime)s\n%(message)s\n\n', datefmt='%H:%M:%S')
     sh.setFormatter(sh_formatter)
 
     #set up logging to file for ALL messages
     fh = logging.FileHandler('log.txt')
     fh.setLevel(logging.DEBUG)
-    fh_formatter = logging.Formatter(fmt='%(asctime)s - %(threadName)s - %(filename)s.%(funcName)s.%(lineno)s - %(levelname)s\n%(message)s\n', datefmt='%Y/%m/%d %H:%M:%S')
+    fh_formatter = logging.Formatter(fmt='%(asctime)s - %(threadName)s - %(filename)s.%(funcName)s.%(lineno)s - %(levelname)s\n%(message)s\n\n', datefmt='%Y/%m/%d %H:%M:%S')
     fh.setFormatter(fh_formatter)
 
     #put the handlers to use

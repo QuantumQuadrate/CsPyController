@@ -45,30 +45,58 @@ class Optimization(AnalysisWithFigure):
     optimization_method = Int(0)
     end_condition_step_size = Float(.0001)
     cost_function = Str()
+    optimization_variables = []
+    is_done = Bool()
+
+    # optimizer variables
+    # optimize = Bool()
+    # optimizer_initial_step = Float()
+    # optimizer_min = Float()
+    # optimizer_max = Float()
 
     def __init__(self, name, experiment, description=''):
         super(Optimization, self).__init__(name, experiment, description)
         self.properties += ['version', 'enable', 'initial_step', 'end_condition_step_size', 'cost_function', 'optimization_method']
 
-    def preExperiment(self, experimentResults):
+    def setup(self, experimentResults):
+        self.optimization_variables = []
+        self.is_done = False
+        enable = False  # don't enable unless there are some optimization variables
+        for i, x in enumerate(self.experiment.independentVariables):
+            if x.optimize:
+                enable = True  # there is at least one optimization variable
+                self.optimization_variables.append += x
+                x.setIndex(0)
+        self.set_gui({'enable': enable})
+
         if self.enable:
 
+            self.is_done = False
+
             #start all the independent variables at the value given for the 0th iteration
-            x0 = numpy.array([i.valueList[0] for i in self.experiment.independentVariables], dtype=float)
-            self.axes = len(self.experiment.independentVariables)
-            self.xi = x0
+            self.xi = numpy.array([i.valueList[0] for i in self.optimization_variables], dtype=float)
+            self.axes = len(self.optimization_variables)
+
+
+            # save the optimizer data
+            experimentResults['analysis/optimizer/names'] = [i.name for i in self.optimization_variables]
+            experimentResults['analysis/optimizer'].create_dataset('values', [0, self.axes], maxshape=[None, self.axes])
+            experimentResults['analysis/optimizer'].create_dataset('costs', [0], maxshape=[None])
+            experimentResults['analysis/optimizer/best_values'] = numpy.zeros(self.axes, dtype=float)
+            experimentResults['analysis/optimizer/best_cost'] = float('inf')
 
             #create a new generator to choose optimization points
             methods = [self.simplex, self.genetic, self.gradient_descent, self.weighted_simplex]
-            self.generator = methods[self.optimization_method](x0)
+            self.generator = methods[self.optimization_method](self.xi)
 
             self.xlist = []
             self.ylist = []
             self.best_xi = None
             self.best_yi = float('inf')
+        else:
+            self.is_done = True
 
-
-    def postIteration(self, iterationResults, experimentResults):
+    def update(self, experimentResults):
         if self.enable:
 
             # evaluate the cost function, with access to all backend variables
@@ -85,37 +113,50 @@ class Optimization(AnalysisWithFigure):
             if isnan(self.yi):
                 self.yi = float('inf')
 
-            iterationResults['analysis/optimization_xi'] = self.xi
-            iterationResults['analysis/optimization_yi'] = self.yi
-            if self.yi < self.best_yi:
-                self.best_xi = self.xi
-                self.best_yi = self.yi
+            # store this data point
             self.xlist.append(self.xi)
             self.ylist.append(self.yi)
+            a = experimentResults['analysis/optimizer/values']
+            a.resize(a.len()+1, axis=0)
+            a[-1] = self.xi
+            b = experimentResults['analysis/optimizer/costs']
+            b.resize(b.len()+1, axis=0)
+            b[-1] = self.yi
 
-            # let the simplex generator decide on the next point to look at
+            # check to see if this is the best point
+            if self.yi < self.best_yi:
+                # update instance variables
+                self.best_xi = self.xi
+                self.best_yi = self.yi
+                # update hdf5
+                experimentResults['analysis/optimizer/best_values'][...] = self.xi
+                experimentResults['analysis/optimizer/best_cost'][...] = self.yi
+                # update experiment independent variables
+                for i, j in zip(self.optimization_variables, self.xi):
+                    i.set_gui({'function': str(j)})
+
+            # let the generator decide on the next point to look at
             try:
                 self.xi = self.generator.next()
             except StopIteration:
                 # the optimizer has reached an end condition
                 logger.info('optimizer reached end condition')
+                self.is_done = True
                 self.experiment.set_status('end')
                 return
             self.setVars(self.xi)
             self.updateFigure()
+        else:
+            self.is_done = True
 
     def postExperiment(self, experimentResults):
         if self.enable:
-            # store the best point
-            experimentResults['analysis/best_xi'] = self.best_xi
-            experimentResults['analysis/best_yi'] = self.best_yi
 
             # store the cost graph to a pdf
             if self.experiment.saveData:
                 try:
-                    pdf = PdfPages(os.path.join(self.experiment.path, 'optimizer.pdf'))
-                    pdf.savefig(self.figure, transparent=True)
-                    pdf.close()
+                    with PdfPages(os.path.join(self.experiment.path, 'optimizer.pdf')) as pdf:
+                        pdf.savefig(self.figure, transparent=True)
                 except Exception as e:
                     logger.warning('Problem saving optimizer pdf:\n{}\n'.format(e))
 
@@ -229,7 +270,7 @@ class Optimization(AnalysisWithFigure):
 
         # for the first several measurements, we just explore the cardinal axes to create the simplex
         for i in xrange(axes):
-            logger.info('exploring axis' + str(i))
+            logger.info('simplex: exploring axis' + str(i))
             # for the new settings, start with the initial settings and then modify them by unit vectors
             xi = x0.copy()
             # if the element is zero, add an offset.  If it is non-zero, multiply the offset
@@ -253,7 +294,7 @@ class Optimization(AnalysisWithFigure):
             x0 = numpy.mean(x[:-1], axis=0)
 
             #reflection
-            logger.info('reflecting')
+            logger.info('simplex: reflecting')
             # reflect the worst point in the mean of the other points, to try and find a better point on the other side
             a = 1
             xr = x0+a*(x0-x[-1])
@@ -263,13 +304,13 @@ class Optimization(AnalysisWithFigure):
 
             if y[0] <= yr < y[-2]:
                 #if the new point is no longer the worst, but not the best, use it to replace the worst point
-                logger.info('keeping reflection')
+                logger.info('simplex: keeping reflection')
                 x[-1] = xr
                 y[-1] = yr
 
             #expansion
             elif yr < y[0]:
-                logger.info('expanding')
+                logger.info('simplex: expanding')
                 # if the new point is the best, keep going in that direction
                 b = 2
                 xe = x0+b*(x0-x[-1])
@@ -278,18 +319,18 @@ class Optimization(AnalysisWithFigure):
                 ye = self.yi
                 if ye < yr:
                     #if this expanded point is even better than the initial reflection, keep it
-                    logger.info('keeping expansion')
+                    logger.info('simplex: keeping expansion')
                     x[-1] = xe
                     y[-1] = ye
                 else:
                     #if the expanded point is not any better than the reflection, use the reflection
-                    logger.info('keeping reflection (after expansion)')
+                    logger.info('simplex: keeping reflection (after expansion)')
                     x[-1] = xr
                     y[-1] = yr
 
             #contraction
             else:
-                logger.info('contracting')
+                logger.info('simplex: contracting')
                 # The reflected point is still worse than all other points, so try not crossing over the mean,
                 # but instead go halfway between the original worst point and the mean.
                 c = -0.5
@@ -299,7 +340,7 @@ class Optimization(AnalysisWithFigure):
                 yc = self.yi
                 if yc < y[-1]:
                     #if the contracted point is better than the original worst point, keep it
-                    logger.info('keeping contraction')
+                    logger.info('simplex: keeping contraction')
                     x[-1] = xc
                     y[-1] = yc
 
@@ -307,12 +348,12 @@ class Optimization(AnalysisWithFigure):
                 else:
                     # the contracted point is the worst of all points considered.  So reduce the size of the whole
                     # simplex, bringing each point in halfway towards the best point
-                    logger.info('reducing')
+                    logger.info('simplex: reducing')
                     d = 0.9
                     # we don't technically need to re-evaluate x[0] here, as it does not change
                     # however, due to noise in the system it is preferable to re-evaluate x[0] occasionally,
                     # and now is a good time to do it
-                    for i in range(0, len(x)):
+                    for i in xrange(axes):
                         x[i] = x[0]+d*(x[i]-x[0])
                         # yield so we can take a datapoint
                         yield x[i]
@@ -334,7 +375,7 @@ class Optimization(AnalysisWithFigure):
 
         # for the first several measurements, we just explore the cardinal axes to create the simplex
         for i in xrange(axes):
-            logger.info('exploring axis' + str(i))
+            logger.info('weighted simplex: exploring axis' + str(i))
             # for the new settings, start with the initial settings and then modify them by unit vectors
             xi = x0.copy()
             # if the element is zero, add an offset.  If it is non-zero, multiply the offset
@@ -359,7 +400,7 @@ class Optimization(AnalysisWithFigure):
             x0 = numpy.average(x[:-1], axis=0, weights=-y[:-1])
 
             #reflection
-            logger.info('reflecting')
+            logger.info('weighted simplex: reflecting')
             # reflect the worst point in the mean of the other points, to try and find a better point on the other side
             a = 1
             xr = x0+a*(x0-x[-1])
@@ -369,13 +410,13 @@ class Optimization(AnalysisWithFigure):
 
             if y[0] <= yr < y[-2]:
                 #if the new point is no longer the worst, but not the best, use it to replace the worst point
-                logger.info('keeping reflection')
+                logger.info('weighted simplex: keeping reflection')
                 x[-1] = xr
                 y[-1] = yr
 
             #expansion
             elif yr < y[0]:
-                logger.info('expanding')
+                logger.info('weighted simplex: expanding')
                 # if the new point is the best, keep going in that direction
                 b = 2
                 xe = x0+b*(x0-x[-1])
@@ -384,7 +425,7 @@ class Optimization(AnalysisWithFigure):
                 ye = self.yi
                 if ye < yr:
                     #if this expanded point is even better than the initial reflection, keep it
-                    logger.info('keeping expansion')
+                    logger.info('weighted simplex: keeping expansion')
                     x[-1] = xe
                     y[-1] = ye
                 else:
@@ -395,7 +436,7 @@ class Optimization(AnalysisWithFigure):
 
             #contraction
             else:
-                logger.info('contracting')
+                logger.info('weighted simplex: contracting')
                 # The reflected point is still worse than all other points, so try not crossing over the mean,
                 # but instead go halfway between the original worst point and the mean.
                 c = -0.5
@@ -405,7 +446,7 @@ class Optimization(AnalysisWithFigure):
                 yc = self.yi
                 if yc < y[-1]:
                     #if the contracted point is better than the original worst point, keep it
-                    logger.info('keeping contraction')
+                    logger.info('weighted simplex: keeping contraction')
                     x[-1] = xc
                     y[-1] = yc
 
@@ -413,8 +454,8 @@ class Optimization(AnalysisWithFigure):
                 else:
                     # the contracted point is the worst of all points considered.  So reduce the size of the whole
                     # simplex, bringing each point in halfway towards the best point
-                    logger.info('reducing')
-                    d = 0.5
+                    logger.info('weighted simplex: reducing')
+                    d = 0.9
                     # we don't technically need to re-evaluate x[0] here, as it does not change
                     # however, due to noise in the system it is preferable to re-evaluate x[0] occasionally,
                     # and now is a good time to do it
