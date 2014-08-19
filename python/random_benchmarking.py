@@ -1,4 +1,5 @@
 __author__ = 'Martin Lichtman'
+import os
 
 def script(n, delay_before_excitation_pulse, microwave_pi_by_2, clockRate):
     
@@ -35,8 +36,8 @@ end script'''
     
     return header+middle+wait+footer
 
-def script_from_file(n):
-    with open(r'E:\AQuA_settings\RB\script'+str(n)+'.txt') as f:
+def script_from_file(n, path):
+    with open(os.path.join(path, 'script{}.txt'.format(n))) as f:
         return f.read()
 
 def parse_script_wait(script, k8, l5):

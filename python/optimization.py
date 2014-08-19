@@ -21,6 +21,7 @@ __author__ = 'Martin Lichtman'
 import logging
 logger = logging.getLogger(__name__)
 
+import traceback, os
 import numpy
 from math import isnan
 from matplotlib.backends.backend_pdf import PdfPages
@@ -78,7 +79,7 @@ class Optimization(AnalysisWithFigure):
             try:
                 exec(self.cost_function, globals(), locals())
             except Exception as e:
-                logger.error('Exception evaluating cost function:\n{}\n{}')
+                logger.error('Exception evaluating cost function:\n{}\n{}'.format(e, traceback.format_exc()))
                 self.yi = float('inf')
             # if the evaluated value is nan, set it to inf so it will always be the worst point
             if isnan(self.yi):
@@ -112,7 +113,7 @@ class Optimization(AnalysisWithFigure):
             # store the cost graph to a pdf
             if self.experiment.saveData:
                 try:
-                    pdf = PdfPages('optimizer.pdf')
+                    pdf = PdfPages(os.path.join(self.experiment.path, 'optimizer.pdf'))
                     pdf.savefig(self.figure, transparent=True)
                     pdf.close()
                 except Exception as e:
@@ -307,7 +308,7 @@ class Optimization(AnalysisWithFigure):
                     # the contracted point is the worst of all points considered.  So reduce the size of the whole
                     # simplex, bringing each point in halfway towards the best point
                     logger.info('reducing')
-                    d = 0.5
+                    d = 0.9
                     # we don't technically need to re-evaluate x[0] here, as it does not change
                     # however, due to noise in the system it is preferable to re-evaluate x[0] occasionally,
                     # and now is a good time to do it
