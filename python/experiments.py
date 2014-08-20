@@ -470,7 +470,7 @@ class Experiment(Prop):
         self.preExperiment()
 
         # setup optimizer
-        self.optimizer.setup()
+        self.optimizer.setup(self.hdf5)
 
         self.set_status('paused before experiment')
 

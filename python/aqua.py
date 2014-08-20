@@ -74,7 +74,7 @@ class AQuA(Experiment):
         self.properties += ['LabView', 'squareROIAnalysis', 'gaussian_roi', 'TTL_filters', 'loading_filters',
                             'first_measurements_filter', 'imageSumAnalysis', 'recent_shot_analysis',
                             'shotBrowserAnalysis', 'histogramAnalysis', 'histogram_grid', 'measurements_graph',
-                            'iterations_graph', 'retention_graph', 'andor_viewer', 'optimizer']
+                            'iterations_graph', 'retention_graph', 'andor_viewer']
 
         try:
             self.allow_evaluation = False

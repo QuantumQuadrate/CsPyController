@@ -45,7 +45,7 @@ class Optimization(AnalysisWithFigure):
     optimization_method = Int(0)
     end_condition_step_size = Float(.0001)
     cost_function = Str()
-    optimization_variables = []
+    optimization_variables = Member()
     is_done = Bool()
 
     # optimizer variables
@@ -65,7 +65,7 @@ class Optimization(AnalysisWithFigure):
         for i, x in enumerate(self.experiment.independentVariables):
             if x.optimize:
                 enable = True  # there is at least one optimization variable
-                self.optimization_variables.append += x
+                self.optimization_variables += [x]
                 x.setIndex(0)
         self.set_gui({'enable': enable})
 
