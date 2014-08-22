@@ -8,7 +8,7 @@ import traceback
 from atom.api import Member
 
 # Bring in other files in this package
-import analysis, save2013style, TTL, LabView, roi_fitting, picomotors, andor
+import analysis, save2013style, TTL, LabView, roi_fitting, picomotors, andor, DCNoiseEater
 from experiments import Experiment
 
 
@@ -18,6 +18,7 @@ class AQuA(Experiment):
     picomotors = Member()
     Andor = Member()
     LabView = Member()
+    DC_noise_eater = Member()
 
     TTL_filters = Member()
     squareROIAnalysis = Member()
@@ -46,6 +47,7 @@ class AQuA(Experiment):
         self.picomotors = picomotors.Picomotors('picomotors', self, 'Newport Picomotors')
         self.Andor = andor.Andor('Andor', self, 'Andor Luca Camera')
         self.LabView = LabView.LabView(experiment=self)
+        self.DC_noise_eater = DCNoiseEater.DCNoiseEater('DC_noise_eater', self, 'DC Noise Eater')
         self.instruments += [self.picomotors, self.Andor, self.LabView]
 
         #analyses
@@ -64,17 +66,18 @@ class AQuA(Experiment):
         self.iterations_graph = analysis.IterationsGraph('iterations_graph', self, 'plot the average of ROI sums vs iterations')
         self.retention_graph = analysis.RetentionGraph('retention_graph', self, 'plot occurence of binary result (i.e. whether or not atoms are there in the 2nd shot)')
         self.andor_viewer = andor.AndorViewer('andor_viewer', self, 'show the most recent Andor image')
+        self.DC_noise_eater_graph = DCNoiseEater.DCNoiseEaterGraph('DC_noise_eater_graph', self, 'DC Noise Eater graph')
         self.save2013Analysis = save2013style.Save2013Analysis(self)
         self.analyses += [self.TTL_filters, self.squareROIAnalysis, self.gaussian_roi, self.loading_filters,
                           self.first_measurements_filter, self.text_analysis, self.imageSumAnalysis,
                           self.recent_shot_analysis, self.shotBrowserAnalysis, self.histogramAnalysis,
                           self.histogram_grid, self.measurements_graph, self.iterations_graph, self.retention_graph,
-                          self.andor_viewer, self.save2013Analysis]
+                          self.andor_viewer, self.DC_noise_eater_graph, self.save2013Analysis]
 
-        self.properties += ['LabView', 'squareROIAnalysis', 'gaussian_roi', 'TTL_filters', 'loading_filters',
+        self.properties += ['LabView', 'picomotors', 'Andor', 'DC_noise_eater', 'squareROIAnalysis', 'gaussian_roi', 'TTL_filters', 'loading_filters',
                             'first_measurements_filter', 'imageSumAnalysis', 'recent_shot_analysis',
                             'shotBrowserAnalysis', 'histogramAnalysis', 'histogram_grid', 'measurements_graph',
-                            'iterations_graph', 'retention_graph', 'andor_viewer']
+                            'iterations_graph', 'retention_graph', 'andor_viewer', 'DC_noise_eater_graph']
 
         try:
             self.allow_evaluation = False

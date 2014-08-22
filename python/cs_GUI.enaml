@@ -1613,6 +1613,33 @@ enamldef AnalogInput(Container):
     EvalProp:
         prop << AI.triggerEdge
 
+enamldef DCNoiseEater(Container):
+    attr noise_eater
+    attr analysis
+
+    hug_height='strong'
+    hug_width='strong'
+    Form:
+        Label:
+            text = 'enable'
+        CheckBox:
+            checked := noise_eater.enable
+        Label:
+            text = 'IP'
+        Field:
+            value := noise_eater.IP
+        Label:
+            text = 'port'
+        Field:
+            value = noise_eater.port
+    PushButton:
+        text = 'clear'
+        clicked :: analysis.clear()
+    MPLCanvas: canvas:
+        constraints=[(height==500)|'strong']
+        hug_width='ignore'
+        figure << analysis.figure
+
 enamldef Arroyo(Container):
     attr Arroyo
 
@@ -2335,3 +2362,6 @@ enamldef Main(MainWindow): main:
             ScrollPage('Optimization', Optimizer): p26:
                 p26.content.experiment = main.experiment
                 p26.content.analysis = main.experiment.optimizer
+            ScrollPage('DC Noise Eater', DCNoiseEater): p27:
+                p27.content.noise_eater = main.experiment.DC_noise_eater
+                p27.content.analysis = main.experiment.DC_noise_eater_graph
