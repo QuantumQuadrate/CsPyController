@@ -18,7 +18,7 @@ class AQuA(Experiment):
     picomotors = Member()
     Andor = Member()
     LabView = Member()
-    DC_noise_eater = Member()
+    DC_noise_eaters = Member()
 
     TTL_filters = Member()
     squareROIAnalysis = Member()
@@ -47,7 +47,7 @@ class AQuA(Experiment):
         self.picomotors = picomotors.Picomotors('picomotors', self, 'Newport Picomotors')
         self.Andor = andor.Andor('Andor', self, 'Andor Luca Camera')
         self.LabView = LabView.LabView(experiment=self)
-        self.DC_noise_eater = DCNoiseEater.DCNoiseEater('DC_noise_eater', self, 'DC Noise Eater')
+        self.DC_noise_eaters = DCNoiseEater.DCNoiseEaters('DC_noise_eaters', self, 'DC Noise Eaters')
         self.instruments += [self.picomotors, self.Andor, self.LabView]
 
         #analyses
@@ -74,7 +74,7 @@ class AQuA(Experiment):
                           self.histogram_grid, self.measurements_graph, self.iterations_graph, self.retention_graph,
                           self.andor_viewer, self.DC_noise_eater_graph, self.save2013Analysis]
 
-        self.properties += ['LabView', 'picomotors', 'Andor', 'DC_noise_eater', 'squareROIAnalysis', 'gaussian_roi', 'TTL_filters', 'loading_filters',
+        self.properties += ['LabView', 'picomotors', 'Andor', 'DC_noise_eaters', 'squareROIAnalysis', 'gaussian_roi', 'TTL_filters', 'loading_filters',
                             'first_measurements_filter', 'imageSumAnalysis', 'recent_shot_analysis',
                             'shotBrowserAnalysis', 'histogramAnalysis', 'histogram_grid', 'measurements_graph',
                             'iterations_graph', 'retention_graph', 'andor_viewer', 'DC_noise_eater_graph']

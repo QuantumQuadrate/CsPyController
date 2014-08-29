@@ -166,8 +166,12 @@ enamldef IndexedStack(GroupBox): indexedStack:
 enamldef IndexedContainer(GroupBox):
     # This is like an IndexedStack, but instead of using a stack, we just have only one object to display and we
     # change what that one object is using an Include
+    # The attribute 'iterable' must be a ListProp.  This container then provides controls to add and remove elements.
+
     attr iterable = Typed(ListProp)
-    attr viewType #=Class(StackItem)  #do we really have to declare what type? I suppose this was so that we would be okay with creating an instance
+    # Below is commented out because we don't actually have to declare the type.
+    # This was so that we would be okay with creating an instance, but it's not necessary
+    attr viewType  # = Class(StackItem)
     hug_height = 'strong'
     hug_width = 'strong'
 
@@ -1614,6 +1618,7 @@ enamldef AnalogInput(Container):
         prop << AI.triggerEdge
 
 enamldef DCNoiseEater(Container):
+    # represents an individual noise eater
     attr noise_eater
     attr analysis
 
@@ -1632,13 +1637,33 @@ enamldef DCNoiseEater(Container):
             text = 'port'
         Field:
             value = noise_eater.port
-    PushButton:
-        text = 'clear'
-        clicked :: analysis.clear()
-    MPLCanvas: canvas:
-        constraints=[(height==500)|'strong']
-        hug_width='ignore'
-        figure << analysis.figure
+        Label:
+            text = 'number of channels'
+        Field:
+            value = noise_eater.numChannels
+
+enamldef DCNoiseEaters(Container):
+    # creates an indexed display of the noise eater list
+    attr DC_noise_eaters
+    attr analysis
+
+    Container:
+        hug_width = 'strong'
+        hug_height = 'strong'
+        LabelBox:
+            text = 'enable'
+            checked := DC_noise_eaters.enable
+
+        IndexedContainer:
+            iterable << DC_noise_eaters.noise_eaters
+            viewType = DCNoiseEater
+        PushButton:
+            text = 'clear'
+            clicked :: analysis.clear()
+        MPLCanvas: canvas:
+            constraints=[(height==500)|'strong']
+            hug_width='ignore'
+            figure << analysis.figure
 
 enamldef Arroyo(Container):
     attr Arroyo
@@ -2362,6 +2387,6 @@ enamldef Main(MainWindow): main:
             ScrollPage('Optimization', Optimizer): p26:
                 p26.content.experiment = main.experiment
                 p26.content.analysis = main.experiment.optimizer
-            ScrollPage('DC Noise Eater', DCNoiseEater): p27:
-                p27.content.noise_eater = main.experiment.DC_noise_eater
+            ScrollPage('DC Noise Eaters', DCNoiseEaters): p27:
+                p27.content.DC_noise_eaters = main.experiment.DC_noise_eaters
                 p27.content.analysis = main.experiment.DC_noise_eater_graph

@@ -26,12 +26,12 @@ class DDS_gui(Atom):
     boxDescriptionList=Member()
 
 class DDS(Instrument):
-    version='2014.07.16'
-    boxes=Typed(ListProp)
-    communicator=Member() #holds the reference to the thing that sends DDS commands, usually the LabView object
+    version = '2014.07.16'
+    boxes = Typed(ListProp)
+    communicator = Member() #holds the reference to the thing that sends DDS commands, usually the LabView object
     #deviceListStr=Str()
-    deviceList=Member()
-    boxDescriptionList=Member()
+    deviceList = Member()
+    boxDescriptionList = Member()
 
     def __init__(self,experiment,communicator):
         super(DDS,self).__init__('DDS',experiment)
