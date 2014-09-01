@@ -400,6 +400,11 @@ enamldef ExperimentPage(Container):
         CheckBox:
             checked := experiment.enable_sounds
 
+        Label:
+            text = 'start each instrument in a separate thread'
+        CheckBox:
+            checked := experiment.enable_instrument_threads
+
         Label: text='Save Data?'
         CheckField:
             checked:=experiment.saveData
@@ -1630,17 +1635,9 @@ enamldef DCNoiseEater(Container):
         CheckBox:
             checked := noise_eater.enable
         Label:
-            text = 'IP'
+            text = 'COM port'
         Field:
-            value := noise_eater.IP
-        Label:
-            text = 'port'
-        Field:
-            value = noise_eater.port
-        Label:
-            text = 'number of channels'
-        Field:
-            value = noise_eater.numChannels
+            text := noise_eater.port
 
 enamldef DCNoiseEaters(Container):
     # creates an indexed display of the noise eater list

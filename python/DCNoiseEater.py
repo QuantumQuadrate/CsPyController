@@ -35,16 +35,31 @@ class DCNoiseEaters(Instrument):
     # computer via USB-to-serial Parallax Prop Plugs.  These present themselves to python as simple
     # COM ports.
 
-    version = '2014.08.28'
+    version = '2014.09.01'
     boxes = Typed(ListProp)
     deviceList = Member()
     deviceListStr = Str()
     boxDescriptionList = Member()
 
-    def __init__(self, experiment):
-        super(DCNoiseEater, self).__init__('DCNoiseEater', experiment)
+    def __init__(self, name, experiment, description='DC Noise Eaters'):
+        super(DCNoiseEaters, self).__init__(name, experiment, description)
         self.boxes = ListProp('boxes', experiment, listElementType=DCNoiseEater, listElementName='box', listElementKwargs={'DCNoiseEater': self})
         self.properties += ['version', 'boxes', 'deviceList']
+
+    def initialize(self):
+        if self.enable:
+            for box in self.boxes:
+                box.initialize()
+
+    def start(self):
+        if self.enable:
+            for box in self.boxes:
+                box.start()
+
+    def writeResults(self, hdf5):
+        if self.enable:
+            for box in self.boxes:
+                box.writeResults(hdf5)
 
     def evaluate(self):
         if self.experiment.allow_evaluation:
@@ -127,11 +142,12 @@ class channel(object):
 
 
 class DCNoiseEater(Instrument):
-    version = '2014.08.28'
+    version = '2014.09.01'
 
     comport = Str()
     data = Member()
-    channels = Typed(ListProp)
+    channels = Member() #Typed(ListProp)
+    numChannels = 3
 
     def __init__(self, experiment):
         super(DCNoiseEater, self).__init__('DCNoiseEater', experiment, 'DC NoiseEater')
@@ -142,48 +158,75 @@ class DCNoiseEater(Instrument):
         if self.enable:
 
             # open the serial port
-            ser = serial.Serial(comport, 38400, timeout=1, writeTimeout=1)
-            logger.debug('opened: {}'.format(ser.name))  # checks which port was really used
+            self.ser = serial.Serial(comport, 38400, timeout=1, writeTimeout=1)
+            logger.debug('opened: {}'.format(self.ser.name))  # checks which port was really used
 
             # create a channel object for each noise eater channel
-            self.channels = ListProp('channels', experiment, listElementType=channel, listElementName='channel')
+            #self.channels = ListProp('channels', experiment, listElementType=channel, listElementName='channel')
+            self.channels = [channel(i) for i in xrange(3)]
 
             self.isInitialized = True
 
-    def update(self):
-        """
-        Every iteration, send the motors updated positions.
-        """
-        if self.enable:
-            msg = ''
-            try:
-                for i in motors:
-                    # get the serial number, motor, and position from each motor
-                    msg = i.update()
-                    # send it to the picomotor server
-                    self.socket.sendmsg(msg)
-            except Exception as e:
-                logger.error('Problem setting Picomotor position, closing socket:\n{}\n{}\n'.format(msg, e))
-                self.socket.close()
-                self.isInitialized = False
-                raise PauseError
+    # specify how to create output data from the channel objects
+    def format_output(self, channels):
+        # create a byte which encodes whether or not to update each channel
+        data = chr(sum([2**c.channelNum for c in channels if c.update]))
 
-    def acquire_data(self):
-        """Send a message to the C# program requesting data, and then receive it."""
-        if self.enable:
-            try:
-                self.socket.sendmsg('get')
-            except Exception as e:
-                logger.error('Problem getting DC Noise Eater data, closing socket:\n{}\n{}\n'.format(msg, e))
-                self.socket.close()
-                self.isInitialized = False
-                raise PauseError
+        #turn off future updates until re-enabled
+        for c in channels:
+            c.update = False
 
-            # TODO: now receive the data, and parse it into self.data
+        # append 15 bytes for each channel, encoding the settings
+        for c in channels:
+            data += c.settings_out_to_hardware()
+
+        return data
+
+    def start(self):
+        if self.enable:
+            # every measurement, we write settings to the Noise Eater, and then read back the setting and vin/vout values
+
+            data = format_output(self.channels)
+
+            # clear old data
+            self.ser.flushOutput()  # Flush output buffer, discarding all its contents.
+            self.ser.flushInput()   # Flush input buffer, discarding all its contents.
+
+            # write
+            self.ser.write('!VB\n')  # write a string to the noise eater, which tells it to accept settings and return dat'
+            self.ser.write(data)  # follow this with the settings
+
+            # read
+            time.sleep(.02) # wait 20 milliseconds for data to be returned
+            header = self.ser.readline()
+            #print len(header)
+            #print header
+            if header == '!P1\n':
+                data_in = self.ser.read(96)  # read 96 bits
+                # update the settings of each channel
+                for c in self.channels:
+                    d = data_in[24*c.channelNum:24*(c.channelNum+1)]
+                    c.settings_in_from_hardware(d)
+                    c.print_settings()
+
+    def resultsArray(self):
+        results = [[c.mode, c.warnSetting, c.limitRange, c.invert, c.integrationTime, c.trigNum, c.measNum,
+            c.kp, c.ki, c.setpoint, c.average, c.error, c.vin, c.vout, c.warning] for c in channels]
+
+        # variables from DC noise eater
+        # read only
+        self.average = 0  # int16
+        self.error = 0  # int16
+        self.vin = 0  # int16
+        self.vout = 0  # int16
+        self.warning = False  # bool
+        return
 
     def writeResults(self, hdf5):
-        """Write results to the hdf5 file.  Must be overwritten in subclass to do anything."""
-        hdf5['DC_noise_eater'] = self.data
+        """Write results to the hdf5 file.  At this point we will already have updated Must be overwritten in subclass to do anything."""
+        if self.enable:
+            for c in channels:
+                hdf5['DC_noise_eater/{}/{}'] = self.data
 
     # specify how to create output data from the channel objects
     def format_output(channels):
@@ -200,9 +243,10 @@ class DCNoiseEater(Instrument):
 
         return data
 
+
 class DCNoiseEaterGraph(AnalysisWithFigure):
     """Plots a region of interest sum after every measurement"""
-    version = '2014.08.28'
+    version = '2014.09.01'
     enable = Bool()
     data = Member()
 

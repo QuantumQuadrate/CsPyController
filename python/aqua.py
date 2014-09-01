@@ -36,6 +36,7 @@ class AQuA(Experiment):
     iterations_graph = Member()
     retention_graph = Member()
     andor_viewer = Member()
+    DC_noise_eater_graph = Member()
     save2013Analysis = Member()
     ROI_rows = 7
     ROI_columns = 7
@@ -47,7 +48,7 @@ class AQuA(Experiment):
         self.picomotors = picomotors.Picomotors('picomotors', self, 'Newport Picomotors')
         self.Andor = andor.Andor('Andor', self, 'Andor Luca Camera')
         self.LabView = LabView.LabView(experiment=self)
-        self.DC_noise_eaters = DCNoiseEater.DCNoiseEaters('DC_noise_eaters', self, 'DC Noise Eaters')
+        self.DC_noise_eaters = DCNoiseEater.DCNoiseEaters('DC_noise_eaters', self)
         self.instruments += [self.picomotors, self.Andor, self.LabView]
 
         #analyses
