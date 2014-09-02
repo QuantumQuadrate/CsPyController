@@ -23,9 +23,9 @@ import time, struct
 import numpy
 import serial
 import serial.tools.list_ports
-from atom.api import Str, Typed, Member, Bool
+from atom.api import Str, Typed, Member, Bool, observe
 from enaml.application import deferred_call
-from instrument_property import ListProp
+from instrument_property import ListProp, Prop
 from cs_instruments import Instrument
 from analysis import AnalysisWithFigure
 
@@ -43,7 +43,7 @@ class DCNoiseEaters(Instrument):
 
     def __init__(self, name, experiment, description='DC Noise Eaters'):
         super(DCNoiseEaters, self).__init__(name, experiment, description)
-        self.boxes = ListProp('boxes', experiment, listElementType=DCNoiseEater, listElementName='box', listElementKwargs={'DCNoiseEater': self})
+        self.boxes = ListProp('boxes', experiment, listElementType=DCNoiseEater, listElementName='box')
         self.properties += ['version', 'boxes', 'deviceList']
 
     def initialize(self):
@@ -58,8 +58,7 @@ class DCNoiseEaters(Instrument):
 
     def writeResults(self, hdf5):
         if self.enable:
-            for box in self.boxes:
-                box.writeResults(hdf5)
+            hdf5['DC_noise_eater'] = numpy.array([box.resultsArray() for box in boxes], dtype=numpy.int16)
 
     def evaluate(self):
         if self.experiment.allow_evaluation:
@@ -67,12 +66,14 @@ class DCNoiseEaters(Instrument):
             super(DCNoiseEaters, self).evaluate()
             self.updateBoxDescriptionList()
 
+    # currently unused, this will be for when we want to provide a combo box of the available serial ports
     def getDeviceListThread(self):
         # calls getDeviceList() in a separate thread to leave the GUI free
         thread = threading.Thread(target=self.getDeviceList)
         thread.daemon = True
         thread.start()
 
+    # currently unused, this will be for when we want to provide a combo box of the available serial ports
     def getDeviceList(self):
         # list the available COM ports.  The port we want is usually:
         # [('COM17', 'USB Serial Port (COM17)', 'FTDIBUS\\VID_0403+PID_6001+A700AC57A\\0000')]
@@ -81,6 +82,7 @@ class DCNoiseEaters(Instrument):
         deviceStrList = ['{}, {}, {}'.format(*i) for i in result]  # a list of all the info about each com port
         deferred_call(setattr, self, 'deviceList', deviceListStr.split('\n'))
 
+    # currently unused, this will be for when we want to provide a combo box of the available serial ports
     def updateBoxDescriptionList(self):
         #sets the descriptions shown in the combo box in the GUI
         try:
@@ -107,7 +109,7 @@ class channel(object):
         self.measNum = 0  # int8
         self.kp = 2560  # int16
         self.ki = 64  # int16
-        self.setpoint = .9823
+        self.setpoint = 9823  # int16
 
         # variables from DC noise eater
         # read only
@@ -148,9 +150,10 @@ class DCNoiseEater(Instrument):
     data = Member()
     channels = Member() #Typed(ListProp)
     numChannels = 3
+    ser = Member()
 
-    def __init__(self, experiment):
-        super(DCNoiseEater, self).__init__('DCNoiseEater', experiment, 'DC NoiseEater')
+    def __init__(self, name, experiment, description='DC Noise Eater'):
+        super(DCNoiseEater, self).__init__(name, experiment, description)
         self.properties += ['version', 'comport', 'channels']
 
     def initialize(self):
@@ -158,12 +161,13 @@ class DCNoiseEater(Instrument):
         if self.enable:
 
             # open the serial port
-            self.ser = serial.Serial(comport, 38400, timeout=1, writeTimeout=1)
+            self.ser = serial.Serial(self.comport, 38400, timeout=1, writeTimeout=1)
             logger.debug('opened: {}'.format(self.ser.name))  # checks which port was really used
 
             # create a channel object for each noise eater channel
-            #self.channels = ListProp('channels', experiment, listElementType=channel, listElementName='channel')
-            self.channels = [channel(i) for i in xrange(3)]
+            #self.channels = ListProp('channels', experiment, listProperty=[channel(i) for i in xrange(3)],
+            #                         listElementType=channel, listElementName='channel', listElementKwargs=None)
+            self.channels = [channel(i) for i in xrange(3)]  # TODO: make this a ListProp and channel a Prop
 
             self.isInitialized = True
 
@@ -186,7 +190,7 @@ class DCNoiseEater(Instrument):
         if self.enable:
             # every measurement, we write settings to the Noise Eater, and then read back the setting and vin/vout values
 
-            data = format_output(self.channels)
+            data = self.format_output(self.channels)
 
             # clear old data
             self.ser.flushOutput()  # Flush output buffer, discarding all its contents.
@@ -197,7 +201,7 @@ class DCNoiseEater(Instrument):
             self.ser.write(data)  # follow this with the settings
 
             # read
-            time.sleep(.02) # wait 20 milliseconds for data to be returned
+            time.sleep(.02)  # wait 20 milliseconds for data to be returned
             header = self.ser.readline()
             #print len(header)
             #print header
@@ -210,23 +214,11 @@ class DCNoiseEater(Instrument):
                     c.print_settings()
 
     def resultsArray(self):
-        results = [[c.mode, c.warnSetting, c.limitRange, c.invert, c.integrationTime, c.trigNum, c.measNum,
-            c.kp, c.ki, c.setpoint, c.average, c.error, c.vin, c.vout, c.warning] for c in channels]
-
-        # variables from DC noise eater
-        # read only
-        self.average = 0  # int16
-        self.error = 0  # int16
-        self.vin = 0  # int16
-        self.vout = 0  # int16
-        self.warning = False  # bool
-        return
-
-    def writeResults(self, hdf5):
-        """Write results to the hdf5 file.  At this point we will already have updated Must be overwritten in subclass to do anything."""
-        if self.enable:
-            for c in channels:
-                hdf5['DC_noise_eater/{}/{}'] = self.data
+        # return an array of all the variables, with an entry for each channel in this box
+        # this function is used to store the info in the hdf5 file
+        return numpy.array([[c.mode, c.warnSetting, c.limitRange, c.invert, c.integrationTime, c.trigNum, c.measNum,
+            c.kp, c.ki, c.setpoint, c.average, c.error, c.vin, c.vout, c.warning] for c in self.channels],
+            dtype=numpy.int16)
 
     # specify how to create output data from the channel objects
     def format_output(channels):
@@ -249,10 +241,12 @@ class DCNoiseEaterGraph(AnalysisWithFigure):
     version = '2014.09.01'
     enable = Bool()
     data = Member()
+    update_lock = Bool(False)
+    list_of_what_to_plot = Str()
 
     def __init__(self, name, experiment, description=''):
         super(DCNoiseEaterGraph, self).__init__(name, experiment, description)
-        self.properties += ['enable']
+        self.properties += ['version', 'enable']
         self.data = None
 
     def analyzeMeasurement(self, measurementResults, iterationResults, experimentResults):
@@ -265,21 +259,42 @@ class DCNoiseEaterGraph(AnalysisWithFigure):
                 self.data = numpy.append(self.data, numpy.array([d]), axis=0)
             self.updateFigure()
 
+    @observe('list_of_what_to_plot')
+    def reload(self, change):
+        self.updateFigure()
+
     def clear(self):
         self.data = None
         self.updateFigure()
 
     def updateFigure(self):
-        try:
-            fig = self.backFigure
-            fig.clf()
+        if self.enable and (not self.update_lock):
+            try:
+                self.update_lock = True
+                fig = self.backFigure
+                fig.clf()
 
-            if self.data is not None:
-                #make one plot
-                ax = fig.add_subplot(111)
-                ax.plot(self.data)
-                #add legend using the labels assigned during ax.plot()
-                ax.legend()
-            super(DCNoiseEaterGraph, self).updateFigure()
-        except Exception as e:
-            logger.warning('Problem in DCNoiseEaterGraph.updateFigure()\n:{}'.format(e))
+                if self.data is not None:
+                    #parse the list of what to plot from a string to a list of numbers
+                    try:
+                        plotlist = eval(self.list_of_what_to_plot)
+                    except Exception as e:
+                        logger.warning('Could not eval plotlist in DCNoiseEaterGraph:\n{}\n'.format(e))
+                        return
+                    #make one plot
+                    ax = fig.add_subplot(111)
+                    for i in plotlist:
+                        try:
+                            data = self.data[:, i[0], i[1], i[2]]  # All measurements. Selected box, channel, and var.
+                        except:
+                            logger.warning('Trying to plot data that does not exist in MeasurementsGraph: shot {} roi {}'.format(i[0], i[1]))
+                            continue
+                        label = '({},{},{})'.format(i[0], i[1], i[2])
+                        ax.plot(data, 'o', label=label)
+                    #add legend using the labels assigned during ax.plot()
+                    ax.legend()
+                super(DCNoiseEaterGraph, self).updateFigure()
+            except Exception as e:
+                logger.warning('Problem in DCNoiseEaterGraph.updateFigure()\n:{}'.format(e))
+            finally:
+                self.update_lock = False

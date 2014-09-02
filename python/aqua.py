@@ -49,7 +49,7 @@ class AQuA(Experiment):
         self.Andor = andor.Andor('Andor', self, 'Andor Luca Camera')
         self.LabView = LabView.LabView(experiment=self)
         self.DC_noise_eaters = DCNoiseEater.DCNoiseEaters('DC_noise_eaters', self)
-        self.instruments += [self.picomotors, self.Andor, self.LabView]
+        self.instruments += [self.picomotors, self.Andor, self.DC_noise_eaters, self.LabView]
 
         #analyses
         self.TTL_filters = TTL.TTL_filters('TTL_filters', self)

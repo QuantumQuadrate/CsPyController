@@ -167,6 +167,7 @@ enamldef IndexedContainer(GroupBox):
     # This is like an IndexedStack, but instead of using a stack, we just have only one object to display and we
     # change what that one object is using an Include
     # The attribute 'iterable' must be a ListProp.  This container then provides controls to add and remove elements.
+    # The GUI element viewType must define 'item' which is the element of the ListProp that will be passed to it
 
     attr iterable = Typed(ListProp)
     # Below is commented out because we don't actually have to declare the type.
@@ -1624,8 +1625,7 @@ enamldef AnalogInput(Container):
 
 enamldef DCNoiseEater(Container):
     # represents an individual noise eater
-    attr noise_eater
-    attr analysis
+    attr item
 
     hug_height='strong'
     hug_width='strong'
@@ -1633,11 +1633,11 @@ enamldef DCNoiseEater(Container):
         Label:
             text = 'enable'
         CheckBox:
-            checked := noise_eater.enable
+            checked := item.enable
         Label:
             text = 'COM port'
         Field:
-            text := noise_eater.port
+            text := item.comport
 
 enamldef DCNoiseEaters(Container):
     # creates an indexed display of the noise eater list
@@ -1652,15 +1652,26 @@ enamldef DCNoiseEaters(Container):
             checked := DC_noise_eaters.enable
 
         IndexedContainer:
-            iterable << DC_noise_eaters.noise_eaters
+            iterable << DC_noise_eaters.boxes
             viewType = DCNoiseEater
-        PushButton:
-            text = 'clear'
-            clicked :: analysis.clear()
-        MPLCanvas: canvas:
-            constraints=[(height==500)|'strong']
-            hug_width='ignore'
-            figure << analysis.figure
+
+        # cumulative plot of noise eater data
+    Form:
+        Label:
+            text = 'enable'
+        CheckBox:
+            checked := analysis.enable
+        Label:
+            text = 'specify box,channel and variable (see code for indices) to graph with a list of tuples: [(shot,region,variable),(shot,region,variable)]'
+        Field:
+            text := analysis.list_of_what_to_plot
+    PushButton:
+        text = 'clear'
+        clicked :: analysis.clear()
+    MPLCanvas: canvas:
+        constraints=[(height==500)|'strong']
+        hug_width='ignore'
+        figure << analysis.figure
 
 enamldef Arroyo(Container):
     attr Arroyo
