@@ -23,7 +23,7 @@ import time, struct
 import numpy
 import serial
 import serial.tools.list_ports
-from atom.api import Str, Typed, Member, Bool, observe
+from atom.api import Str, Typed, Member, Bool, observe, Int
 from enaml.application import deferred_call
 from instrument_property import ListProp, Prop
 from cs_instruments import Instrument
@@ -151,6 +151,7 @@ class DCNoiseEater(Instrument):
     channels = Member() #Typed(ListProp)
     numChannels = 3
     ser = Member()
+    num_inits = Int(0)
 
     def __init__(self, name, experiment, description='DC Noise Eater'):
         super(DCNoiseEater, self).__init__(name, experiment, description)
@@ -160,9 +161,15 @@ class DCNoiseEater(Instrument):
         """Open the serial port"""
         if self.enable:
 
+            num_inits += 1
+            print 'number of DCNoiseEater inits', num_inits
+
             # open the serial port
-            self.ser = serial.Serial(self.comport, 38400, timeout=1, writeTimeout=1)
-            logger.debug('opened: {}'.format(self.ser.name))  # checks which port was really used
+            if (self.ser is not None) and (not self.ser.isOpen()):
+                self.ser = serial.Serial(self.comport, 38400, timeout=1, writeTimeout=1)
+                logger.debug('opened: {}'.format(self.ser.name))  # checks which port was really used
+            else:
+                logger.debug('trying to reopen already open serial port')
 
             # create a channel object for each noise eater channel
             #self.channels = ListProp('channels', experiment, listProperty=[channel(i) for i in xrange(3)],
@@ -287,7 +294,7 @@ class DCNoiseEaterGraph(AnalysisWithFigure):
                         try:
                             data = self.data[:, i[0], i[1], i[2]]  # All measurements. Selected box, channel, and var.
                         except:
-                            logger.warning('Trying to plot data that does not exist in MeasurementsGraph: shot {} roi {}'.format(i[0], i[1]))
+                            logger.warning('Trying to plot data that does not exist in MeasurementsGraph: box {} channel {} var {}'.format(i[0], i[1], i[2]))
                             continue
                         label = '({},{},{})'.format(i[0], i[1], i[2])
                         ax.plot(data, 'o', label=label)
