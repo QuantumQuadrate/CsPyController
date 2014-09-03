@@ -1662,7 +1662,7 @@ enamldef DCNoiseEaters(Container):
         CheckBox:
             checked := analysis.enable
         Label:
-            text = 'specify box, channel and variable (see indices below) to graph with a list of tuples: [(box,channel,variable),(box,channel,variable)]\n 1:mode, 2:warnSetting, 3:limitRange, 4:invert, 5:integrationTime, 6:trigNum, 7:measNum, 8:kp, 9:ki, 10:setpoint, 11:average, 12:error, 13:vin, 14:vout, 15:warning'
+            text = 'specify box, channel and variable (see indices below) to graph with a list of tuples: [(box,channel,variable),(box,channel,variable)]\n 0:mode, 1:warnSetting, 2:limitRange, 3:invert, 4:integrationTime, 5:trigNum, 6:measNum, 7:kp, 8:ki, 9:setpoint, 10:average, 11:error, 12:vin, 13:vout, 14:warning'
         Field:
             text := analysis.list_of_what_to_plot
     PushButton:
