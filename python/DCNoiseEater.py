@@ -223,9 +223,8 @@ class DCNoiseEater(Instrument):
     def resultsArray(self):
         # return an array of all the variables, with an entry for each channel in this box
         # this function is used to store the info in the hdf5 file
-        return numpy.array([[c.mode, c.warnSetting, c.limitRange, c.invert, c.integrationTime, c.trigNum, c.measNum,
-            c.kp, c.ki, c.setpoint, c.average, c.error, c.vin, c.vout, c.warning] for c in self.channels],
-            dtype=numpy.int16)
+        return [[c.mode, c.warnSetting, c.limitRange, c.invert, c.integrationTime, c.trigNum, c.measNum,
+            c.kp, c.ki, c.setpoint, c.average, c.error, c.vin, c.vout, c.warning] for c in self.channels]
 
 
 class DCNoiseEaterGraph(AnalysisWithFigure):
