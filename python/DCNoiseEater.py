@@ -50,15 +50,17 @@ class DCNoiseEaters(Instrument):
         if self.enable:
             for box in self.boxes:
                 box.initialize()
+            self.isInitialized = True
 
     def start(self):
         if self.enable:
             for box in self.boxes:
                 box.start()
+        self.isDone = True
 
     def writeResults(self, hdf5):
         if self.enable:
-            hdf5['DC_noise_eater'] = numpy.array([box.resultsArray() for box in boxes], dtype=numpy.int16)
+            hdf5['DC_noise_eater'] = numpy.array([box.resultsArray() for box in self.boxes], dtype=numpy.int16)
 
     def evaluate(self):
         if self.experiment.allow_evaluation:
@@ -161,15 +163,12 @@ class DCNoiseEater(Instrument):
         """Open the serial port"""
         if self.enable:
 
-            num_inits += 1
-            print 'number of DCNoiseEater inits', num_inits
+            if (self.ser is not None) and self.ser.isOpen():
+                self.ser.close()
 
             # open the serial port
-            if (self.ser is not None) and (not self.ser.isOpen()):
-                self.ser = serial.Serial(self.comport, 38400, timeout=1, writeTimeout=1)
-                logger.debug('opened: {}'.format(self.ser.name))  # checks which port was really used
-            else:
-                logger.debug('trying to reopen already open serial port')
+            self.ser = serial.Serial(self.comport, 38400, timeout=1, writeTimeout=1)
+            logger.debug('opened: {}'.format(self.ser.name))  # checks which port was really used
 
             # create a channel object for each noise eater channel
             #self.channels = ListProp('channels', experiment, listProperty=[channel(i) for i in xrange(3)],
@@ -218,7 +217,8 @@ class DCNoiseEater(Instrument):
                 for c in self.channels:
                     d = data_in[24*c.channelNum:24*(c.channelNum+1)]
                     c.settings_in_from_hardware(d)
-                    c.print_settings()
+                    #c.print_settings()
+        self.isDone = True
 
     def resultsArray(self):
         # return an array of all the variables, with an entry for each channel in this box
@@ -226,21 +226,6 @@ class DCNoiseEater(Instrument):
         return numpy.array([[c.mode, c.warnSetting, c.limitRange, c.invert, c.integrationTime, c.trigNum, c.measNum,
             c.kp, c.ki, c.setpoint, c.average, c.error, c.vin, c.vout, c.warning] for c in self.channels],
             dtype=numpy.int16)
-
-    # specify how to create output data from the channel objects
-    def format_output(channels):
-        # create a byte which encodes whether or not to update each channel
-        data = chr(sum([2**c.channelNum for c in channels if c.update]))
-
-        #turn off future updates until re-enabled
-        for c in channels:
-            c.update = False
-
-        # append 15 bytes for each channel, encoding the settings
-        for c in channels:
-            data += c.settings_out_to_hardware()
-
-        return data
 
 
 class DCNoiseEaterGraph(AnalysisWithFigure):
@@ -253,7 +238,7 @@ class DCNoiseEaterGraph(AnalysisWithFigure):
 
     def __init__(self, name, experiment, description=''):
         super(DCNoiseEaterGraph, self).__init__(name, experiment, description)
-        self.properties += ['version', 'enable']
+        self.properties += ['version', 'enable', 'list_of_what_to_plot']
         self.data = None
 
     def analyzeMeasurement(self, measurementResults, iterationResults, experimentResults):

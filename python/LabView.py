@@ -131,7 +131,7 @@ class LabView(Instrument):
             self.sock.close()
         self.connected = False
         self.isInitialized = False
-    
+
     def update(self):
         """Send the current values to hardware."""
 
