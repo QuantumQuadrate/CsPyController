@@ -642,7 +642,8 @@ class HistogramAnalysis(AnalysisWithFigure):
 
     @observe('list_of_what_to_plot')
     def reload(self, change):
-        self.updateFigure()
+        if self.enable:
+            self.updateFigure()
 
     def updateFigure(self):
         if not self.update_lock:
