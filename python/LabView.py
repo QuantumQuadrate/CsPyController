@@ -216,7 +216,7 @@ class LabView(Instrument):
                 self.initialize()
 
             #display message on GUI
-            self.msg = msg
+            self.set_dict({'msg': msg})
 
             #send message
             logger.debug('LabView sending message ...')

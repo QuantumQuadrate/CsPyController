@@ -138,28 +138,30 @@ class CsClientSock(CsSock):
     def parsemsg(self, msg):
         """Take apart an incoming message that is composed of a sequence of (namelength,name,datalength,data) sets.
         These are then stored in a dictionary under name:data."""
-        l=len(msg)
-        i=0
-        result={}
-        while i<l:
-            try:
-                L=struct.unpack('!L',msg[i:i+4])[0]
-            except Exception as e:
-                logger.warning('Problem unpacking in TCP.parsemsg().\n'+str(e)+'\n'+traceback.format_exc()+'\npartial message: '+msg[i:i+4]+'\nfull message:\n'+msg)
-                raise PauseError
-            i+=4
-            name=msg[i:i+L]
-            i+=L
-            try:
-                L=struct.unpack('!L',msg[i:i+4])[0]
-            except Exception as e:
-                logger.warning('Problem unpacking in TCP.parsemsg().\n'+str(e)+'\n'+traceback.format_exc()+'\npartial message: '+msg[i:i+4]+'\nfull message:\n'+msg)
-                raise PauseError
-            i+=4
-            data=msg[i:i+L]
-            i+=L
-            result.update([(name,data)])
-            #print "name: {} length: {}".format(name,str(L))
+        result = {}
+        if msg is not None:
+            l=len(msg)
+            i=0
+            result={}
+            while i<l:
+                try:
+                    L=struct.unpack('!L',msg[i:i+4])[0]
+                except Exception as e:
+                    logger.warning('Problem unpacking in TCP.parsemsg().\n'+str(e)+'\n'+traceback.format_exc()+'\npartial message: '+msg[i:i+4]+'\nfull message:\n'+msg)
+                    raise PauseError
+                i+=4
+                name=msg[i:i+L]
+                i+=L
+                try:
+                    L=struct.unpack('!L',msg[i:i+4])[0]
+                except Exception as e:
+                    logger.warning('Problem unpacking in TCP.parsemsg().\n'+str(e)+'\n'+traceback.format_exc()+'\npartial message: '+msg[i:i+4]+'\nfull message:\n'+msg)
+                    raise PauseError
+                i+=4
+                data=msg[i:i+L]
+                i+=L
+                result.update([(name,data)])
+                #print "name: {} length: {}".format(name,str(L))
         return result
 
 class CsServerSock(CsSock):
@@ -180,7 +182,7 @@ class CsServerSock(CsSock):
             self.bind(server_address)
         except Exception as e:
             logger.warning('error on CsServerSock.bind({}):\n{}'.format(server_address,str(e)))
-            raise PauseError
+            exit()
         logger.info('server starting up on %s port %s' % self.getsockname())
         threading.Thread(target=self.readLoop).start()
 
@@ -192,7 +194,7 @@ class CsServerSock(CsSock):
     
     def sendmsg(self,msgtxt):
         #reference the common message format
-        super(CsServerSock,self).sendmsg(self.connection,msgtxt)
+        super(CsServerSock, self).sendmsg(self.connection, msgtxt)
     
     def receive(self):
         #reference the common message format
@@ -216,7 +218,7 @@ class CsServerSock(CsSock):
                 except:
                     logger.warning('error in CsServerSock receive')
                     self.closeConnection()
-                    raise PauseError
+                    break
                 #print 'received: {}'.format(data[:40])
                 if (data is not None):
                     msg = self.parsemsg(data)
@@ -225,7 +227,7 @@ class CsServerSock(CsSock):
                     except Exception as e:
                         logger.warning('error in CsServerSock sendmsg\n{}'.format(e))
                         self.closeConnection()
-                        raise PauseError
+                        break
 
     def parsemsg(self, data):
         msg = ''

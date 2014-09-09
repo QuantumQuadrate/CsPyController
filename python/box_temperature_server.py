@@ -14,6 +14,20 @@ modified >= '2014.09.08'
 
 __author__ = 'Martin Lichtman'
 
+import logging
+#get the root logger
+logger = logging.getLogger()
+logger.setLevel(logging.DEBUG)
+
+#set up logging to console for INFO and worse
+sh = logging.StreamHandler()
+sh.setLevel(logging.INFO)
+sh_formatter = logging.Formatter(fmt='%(asctime)s\n%(message)s\n\n', datefmt='%H:%M:%S')
+sh.setFormatter(sh_formatter)
+
+#put the handlers to use
+logger.addHandler(sh)
+
 import serial, os, datetime, time, struct
 import numpy as np
 import TCP  # import from our package
@@ -43,7 +57,7 @@ class Controller(object):
         self.name = name
 
         # open the serial port to communicate with the controller
-        self.ser = serial.Serial(port, 115200, timeout=.02, writeTimeout=.02)
+        self.ser = serial.Serial(port, 115200, timeout=.05, writeTimeout=.05)
 
         # open the file to log the results
         filename = r'X:\{}.txt'.format(self.name)
@@ -70,7 +84,7 @@ class Controller(object):
         data2 = [x.strip() for x in data1]  # remove newlines
         # Remove echoed commands, keeping the data which is in every other word.  Cast data to float.
         self.data[:] = map(float, [data2[j] for j in xrange(1, 16, 2)])
-        print self.name, ' '.join(*self.data)
+        print self.name, ' '.join(map(str, self.data))
 
         # write data to file
         datestring = datetime.datetime.now().strftime('%Y/%m/%d %H:%M:%S')
@@ -91,15 +105,17 @@ class BoxTempServer(TCP.CsServerSock):
         msg = ''
         if data.startswith('get'):
             for i in self.controllers:
-                msg += TCP.makemsg('Laird/'+i.name, i.get_data)
+                msg += TCP.makemsg('Laird/'+i.name, i.get_data())
         return msg
 
 if __name__ == '__main__':
+    print ' '.join(labels)
+
     # open all controllers
     controllers = [Controller(i['name'], i['port']) for i in ports]
 
     # start TCP/IP server in a different thread
-    server = BoxTempServer(9001, controllers)
+    BoxTempServer(9001, controllers)
 
     # enter a loop of continual data taking
     while True:

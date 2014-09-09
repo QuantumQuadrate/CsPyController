@@ -8,7 +8,7 @@ import traceback
 from atom.api import Member
 
 # Bring in other files in this package
-import analysis, save2013style, TTL, LabView, roi_fitting, picomotors, andor, DCNoiseEater
+import analysis, save2013style, TTL, LabView, roi_fitting, picomotors, andor, DCNoiseEater, Laird_temperature
 from experiments import Experiment
 
 
@@ -19,6 +19,7 @@ class AQuA(Experiment):
     Andor = Member()
     LabView = Member()
     DC_noise_eaters = Member()
+    box_temperature = Member()
 
     TTL_filters = Member()
     squareROIAnalysis = Member()
@@ -49,7 +50,8 @@ class AQuA(Experiment):
         self.Andor = andor.Andor('Andor', self, 'Andor Luca Camera')
         self.LabView = LabView.LabView(experiment=self)
         self.DC_noise_eaters = DCNoiseEater.DCNoiseEaters('DC_noise_eaters', self)
-        self.instruments += [self.picomotors, self.Andor, self.DC_noise_eaters, self.LabView]
+        self.box_temperature = Laird_temperature.LairdTemperature('box_temperature', self)
+        self.instruments += [self.box_temperature, self.picomotors, self.Andor, self.DC_noise_eaters, self.LabView]
 
         #analyses
         self.TTL_filters = TTL.TTL_filters('TTL_filters', self)
@@ -75,7 +77,8 @@ class AQuA(Experiment):
                           self.histogram_grid, self.measurements_graph, self.iterations_graph, self.retention_graph,
                           self.andor_viewer, self.DC_noise_eater_graph, self.save2013Analysis]
 
-        self.properties += ['LabView', 'picomotors', 'Andor', 'DC_noise_eaters', 'squareROIAnalysis', 'gaussian_roi', 'TTL_filters', 'loading_filters',
+        self.properties += ['LabView', 'picomotors', 'Andor', 'DC_noise_eaters', 'box_temperature',
+                            'squareROIAnalysis', 'gaussian_roi', 'TTL_filters', 'loading_filters',
                             'first_measurements_filter', 'imageSumAnalysis', 'recent_shot_analysis',
                             'shotBrowserAnalysis', 'histogramAnalysis', 'histogram_grid', 'measurements_graph',
                             'iterations_graph', 'retention_graph', 'andor_viewer', 'DC_noise_eater_graph']

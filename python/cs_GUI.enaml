@@ -2278,6 +2278,27 @@ enamldef Filters(Container):
     FirstMeasurementsFilter:
         filters = experiment.first_measurements_filter
 
+enamldef BoxTemperature(Container):
+    attr box_temperature
+    Form:
+        Label:
+            text = 'enable'
+        CheckBox:
+            checked := box_temperature.enable
+        Label:
+            text = 'IP address'
+        Field:
+            text := box_temperature.IP
+        Label:
+            text = 'port'
+        IntField:
+            value := box_temperature.port
+        Label:
+            text = 'connected'
+        CheckBox:
+            checked << box_temperature.connected
+            enabled = False
+
 def loadIcon():
     #create icon
     with open(os.path.join('icons','2013_11_14_15_18_54_retention_PCA_filtered_image_rotated_smoothed.png'), 'rb') as f:
@@ -2398,3 +2419,5 @@ enamldef Main(MainWindow): main:
             ScrollPage('DC Noise Eaters', DCNoiseEaters): p27:
                 p27.content.DC_noise_eaters = main.experiment.DC_noise_eaters
                 p27.content.analysis = main.experiment.DC_noise_eater_graph
+            ScrollPage('Box Temperature', BoxTemperature): p28:
+                p28.content.box_temperature = main.experiment.box_temperature
