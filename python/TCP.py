@@ -7,8 +7,8 @@ modified >= 2013.08.02
 This module bundles the TCP message passing protocol defined for the Cesium project.
 
 Messages begin with 'MESG' followed by a 4 byte unsigned long int that gives the length of the remainder of the message.
-The class CsSock inherets from socket.socket, and makes it easier to open up the type of socket we use, and then send or receive
-a message with the correct format.
+The class CsSock inherets from socket.socket, and makes it easier to open up the type of socket we use, and then send or
+receive a message with the correct format.
 """
 
 from __future__ import division
@@ -20,15 +20,16 @@ from cs_errors import PauseError
 
 import socket, struct, threading, traceback
 
-
 def prefixLength(txt):
+    """Append the byte length to some text."""
     length=len(txt)
     if length>=4294967296: #2**32
         logger.error('message is too long, size = '+str(length)+' bytes')
         raise PauseError
     return struct.pack("!L",length)+txt
 
-def makemsg(name,data):
+def makemsg(name, data):
+    """Append the byte length info to a name and data field."""
     return prefixLength(name)+prefixLength(data)
 
 class CsSock(socket.socket):
@@ -100,7 +101,7 @@ class CsSock(socket.socket):
         #do something like this for data packets, but not here:  data=struct.unpack("!{}d".format(datalen/8),rawdata)
 
 class CsClientSock(CsSock):
-    
+    """Generally this is run by the experiment code, while CsServerSock is run by each instrument."""
     #if provided, parent is used as a callback to set parent.connected
     def __init__(self, addressString, portNumber, parent=None):
         self.parent = parent
@@ -162,12 +163,16 @@ class CsClientSock(CsSock):
         return result
 
 class CsServerSock(CsSock):
-    
-    def __init__(self,portNumber):
-        super(CsServerSock,self).__init__()
+    """Generally this is run by each instrument, while CsClientSock is run by the experiment code.
+    This particular example just sets up a command echo for testing purposes.
+    So in general parsemsg() will have to be overridden for this class to be useful for a particular instrument.
+    """
+
+    def __init__(self, portNumber):
+        super(CsServerSock, self).__init__()
         
         self.echo=''
-        
+
         self.portNumber=portNumber
         # Bind the socket to the port given
         server_address = ('', portNumber)
@@ -191,7 +196,7 @@ class CsServerSock(CsSock):
     
     def receive(self):
         #reference the common message format
-        return super(CsServerSock,self).receive(self.connection)
+        return super(CsServerSock, self).receive(self.connection)
     
     def readLoop(self):
         self.listen(0) #the 0 means do not listen to any backlogged connections
@@ -207,47 +212,41 @@ class CsServerSock(CsSock):
                 continue
             while True:
                 try:
-                    data=self.receive()
+                    data = self.receive()
                 except:
                     logger.warning('error in CsServerSock receive')
                     self.closeConnection()
                     raise PauseError
                 #print 'received: {}'.format(data[:40])
                 if (data is not None):
-                    a=data.find('<EchoBox>')
-                    b=data.find('</EchoBox>')
-                    if (a!=-1) and (b!=-1) and (b>a):
-                        #load echo data into echoBox
-                        self.echo=data[a+9:b]
-                        #print 'echoBox settings loaded'
-                        
-                        try:
-                            self.sendmsg(makemsg('log','Okay'))
-                        except Exception as e:
-                            logger.warning('error in CsServerSock sendmsg\n{}'.format(e))
-                            self.closeConnection()
-                            raise PauseError
-                    elif data.startswith('<LabView><command>measure</command></LabView>'):
-                        logger.info('got measure command')
-                        ##create some dummy data 16-bit 512x512
-                        #rows=512; columns=512; bytes=1; signed=''; highbit=2**(8*bytes);
-                        #testdata=numpy.random.randint(0,highbit,(rows,columns))
-                        #turn the image array into a long string composed of 2 bytes for each number
-                        #first create a struct object, because reusing the same object is more efficient
-                        #myStruct=struct.Struct('!H') #'!H' indicates unsigned short (2 byte) integers
-                        #testdatamsg=''.join([myStruct.pack(t) for t in testdata.flatten()])
-                        #msg=makemsg('Hamamatsu/rows',str(rows))+makemsg('Hamamatsu/columns',str(columns))+makemsg('Hamamatsu/bytes',str(bytes))+makemsg('Hamamatsu/signed',str(signed))+makemsg('Hamamatsu/shots/0',testdatamsg)
-                        
-                        msg=self.echo
-                        
-                        try:
-                            self.sendmsg(msg)
-                        except:
-                            logger.warning('error in CsServerSock sendmsg')
-                            self.closeConnection()
-                            raise PauseError
-                    else:
-                        logger.warning('unknown command received: {}'.format(data[:40]))
+                    msg = self.parsemsg(data)
+                    try:
+                        self.sendmsg(msg)
+                    except Exception as e:
+                        logger.warning('error in CsServerSock sendmsg\n{}'.format(e))
+                        self.closeConnection()
+                        raise PauseError
+
+    def parsemsg(self, data):
+        msg = ''
+        a=data.find('<EchoBox>')
+        b=data.find('</EchoBox>')
+
+        if (a!=-1) and (b!=-1) and (b>a):
+            #load echo data into echoBox
+            self.echo=data[a+9:b]
+            #print 'echoBox settings loaded'
+            msg = makemsg('log','Okay')
+
+        elif data.startswith('<LabView><command>measure</command></LabView>'):
+            logger.info('got measure command')
+            msg = self.echo
+
+        else:
+            logger.warning('unknown command received: {}'.format(data[:40]))
+            msg = makemsg('error', 'unknown command received')
+
+        return msg
 
 if __name__ == '__main__':
     CsServerSock(9000)
