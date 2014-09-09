@@ -14,12 +14,9 @@ modified >= '2014.09.08'
 
 __author__ = 'Martin Lichtman'
 
-import serial
-import os
-import datetime
-import time
+import serial, os, datetime, time, struct
 import numpy as np
-from TCP import CsServerSock
+import TCP  # import from our package
 
 # define which COM ports have which Laird controllers
 ports = np.array([('COM6', 'frontS'),
@@ -36,7 +33,8 @@ request_string = '$R0?\r$R100?\r$R101?\r$R102?\r$R103?\r$R150?\r$R152?\r$R106?\r
 # label columns of expected data
 labels = ['Set point', 'Main sensor', 'Coldplate', 'Extra sensor', 'Controller', 'Current', 'Voltage', 'Power']
 
-class controller(object):
+
+class Controller(object):
     """Define an individual channel controller"""
 
     def __init__(self, name, port):
@@ -61,32 +59,32 @@ class controller(object):
             self.file.write('Date and time\t'+'\t'.join(labels)+'\n')
 
         # create an array to hold returned data
-        data = np.zeros(8, dtype=np.float64)
+        self.data = np.zeros(8, dtype=np.float64)
 
         # load initial data
         self.read_port()
 
     def read_port(self):
         self.ser.write(request_string)  # send a request for the cold plate controller state
-        data1 = ser.readlines()  # read the returned data (will wait for 20 ms timeout)
+        data1 = self.ser.readlines()  # read the returned data (will wait for 20 ms timeout)
         data2 = [x.strip() for x in data1]  # remove newlines
         # Remove echoed commands, keeping the data which is in every other word.  Cast data to float.
         self.data[:] = map(float, [data2[j] for j in xrange(1, 16, 2)])
-        print self.name, data
+        print self.name, ' '.join(*self.data)
 
         # write data to file
         datestring = datetime.datetime.now().strftime('%Y/%m/%d %H:%M:%S')
-        self.file.write(datestring + '\t' + '\t'.join(map(str, data)) + '\n')
+        self.file.write(datestring + '\t' + '\t'.join(map((lambda x: '{:.6f}'.format(x)), self.data)) + '\n')
 
     def get_data(self):
         return struct.pack('!8d', *self.data)
 
-class BoxTempServer(CsServerSock):
+class BoxTempServer(TCP.CsServerSock):
     """A subclass of CsServerSock which handles incoming TCP requests for data"""
 
     def __init__(self, portNumber, controllers):
         self.controllers = controllers
-        super(CsServerSock, self).__init__(portNumber)
+        super(BoxTempServer, self).__init__(portNumber)
 
     # override parsemsg to define what this CsServerSock will do with incoming messages
     def parsemsg(self, data):
@@ -98,7 +96,7 @@ class BoxTempServer(CsServerSock):
 
 if __name__ == '__main__':
     # open all controllers
-    controllers = [controller(i['name'], i['port']) for i in controllers]
+    controllers = [Controller(i['name'], i['port']) for i in ports]
 
     # start TCP/IP server in a different thread
     server = BoxTempServer(9001, controllers)
@@ -106,5 +104,6 @@ if __name__ == '__main__':
     # enter a loop of continual data taking
     while True:
         time.sleep(300)  # wait 5 minutes between data points
+        print ' '.join(labels)
         for controller in controllers:
             controller.read_port()
