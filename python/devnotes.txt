@@ -38,6 +38,7 @@ TODO:
     make histogram grid filled gaussians go down to the bottom, even if they get cut off on the end
     retention graph as difference between shot 0 and 1
     make sure ivars do not reset when optimization is Continued
+    Use Atom ContainerList instead of List to put listeners on append and delete
 
 Done:
     check analysis
