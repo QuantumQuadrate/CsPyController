@@ -1,5 +1,7 @@
 CsPyController notes:
 
+TCP ports: 9000 LabView, 9001 Laird box temp
+
 current question:
 
 TODO:

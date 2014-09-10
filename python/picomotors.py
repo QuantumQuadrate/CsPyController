@@ -58,7 +58,7 @@ class Picomotors(Instrument):
     def initialize(self):
         """Open the TCP socket"""
         if self.enable:
-            self.socket = TCP.CsClientSock(IP, port)
+            self.socket = TCP.CsClientSock(self.IP, self.port)
 
             # TODO: add here some sort of communications check to see if it worked
 

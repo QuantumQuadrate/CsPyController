@@ -114,8 +114,8 @@ class Experiment(Prop):
     emailAddresses = Str()
     notes = Str()
     enable_sounds = Bool()
+    enable_instrument_threads = Bool()
 
-    
     #iteration traits
     progress = Int()
     progressGUI = Int()
@@ -210,7 +210,7 @@ class Experiment(Prop):
                             'iteration', 'measurement', 'goodMeasurements', 'totalIterations', 'timeStarted',
                             'currentTime', 'timeElapsed', 'timeRemaining', 'totalTime', 'completionTime',
                             'constantReport', 'variableReport', 'variablesNotToSave', 'notes', 'max_iterations',
-                            'enable_sounds', 'optimizer']
+                            'enable_sounds', 'enable_instrument_threads', 'optimizer']
         #we do not load in status as a variable, to allow old settings to be loaded without bringing in the status of
         #the saved experiments
 
@@ -493,7 +493,7 @@ class Experiment(Prop):
         try:  # if there is an error we exit the inner loops and respond appropriately
 
             # optimization loop
-            while self.status == 'running' and (not self.optimizer.is_done):
+            while self.status == 'running' and ((not self.optimizer.enable) or (not self.optimizer.is_done)):
 
                 #loop until iteration are complete
                 while (self.iteration < self.totalIterations) and (self.status == 'running'):
@@ -506,7 +506,7 @@ class Experiment(Prop):
                     self.update()  # send current values to hardware
 
                     #only at the start of a new iteration
-                    if len(completedMeasurementsByIteration) <= self.iteration:
+                    if len(self.completedMeasurementsByIteration) <= self.iteration:
                         self.completedMeasurementsByIteration.append(0)  # start a new counter for this iteration
                     if not (str(self.iteration) in self.hdf5['iterations']):
                         self.create_hdf5_iteration()
@@ -620,9 +620,10 @@ class Experiment(Prop):
                         i.isDone = False
                         #let each instrument begin measurement
                         #put each in a different thread, so they can proceed simultaneously
-                        #TODO: enable threading?
-                        #threading.Thread(target=i.start).start()
-                        i.start()
+                        if self.enable_instrument_threads:
+                            threading.Thread(target=i.start).start()
+                        else:
+                            i.start()
         logger.debug('all instruments started')
 
         #loop until all instruments are done
@@ -648,7 +649,8 @@ class Experiment(Prop):
         for i in self.instruments:
             #Pass the hdf5 group to each instrument so they can write results to it.  We do it here because h5py is not
             # thread safe, and also this way we avoid saving results for aborted measurements.
-            i.writeResults(self.measurementResults['data'])
+            if i.enable:
+                i.writeResults(self.measurementResults['data'])
 
         self.postMeasurement()
         logger.debug('finished measurement')

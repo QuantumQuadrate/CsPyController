@@ -166,8 +166,13 @@ enamldef IndexedStack(GroupBox): indexedStack:
 enamldef IndexedContainer(GroupBox):
     # This is like an IndexedStack, but instead of using a stack, we just have only one object to display and we
     # change what that one object is using an Include
+    # The attribute 'iterable' must be a ListProp.  This container then provides controls to add and remove elements.
+    # The GUI element viewType must define 'item' which is the element of the ListProp that will be passed to it
+
     attr iterable = Typed(ListProp)
-    attr viewType #=Class(StackItem)  #do we really have to declare what type? I suppose this was so that we would be okay with creating an instance
+    # Below is commented out because we don't actually have to declare the type.
+    # This was so that we would be okay with creating an instance, but it's not necessary
+    attr viewType  # = Class(StackItem)
     hug_height = 'strong'
     hug_width = 'strong'
 
@@ -395,6 +400,11 @@ enamldef ExperimentPage(Container):
             text = 'enable sounds'
         CheckBox:
             checked := experiment.enable_sounds
+
+        Label:
+            text = 'start each instrument in a separate thread'
+        CheckBox:
+            checked := experiment.enable_instrument_threads
 
         Label: text='Save Data?'
         CheckField:
@@ -1613,6 +1623,56 @@ enamldef AnalogInput(Container):
     EvalProp:
         prop << AI.triggerEdge
 
+enamldef DCNoiseEater(Container):
+    # represents an individual noise eater
+    attr item
+
+    hug_height='strong'
+    hug_width='strong'
+    Form:
+        Label:
+            text = 'enable'
+        CheckBox:
+            checked := item.enable
+        Label:
+            text = 'COM port'
+        Field:
+            text := item.comport
+
+enamldef DCNoiseEaters(Container):
+    # creates an indexed display of the noise eater list
+    attr DC_noise_eaters
+    attr analysis
+
+    Container:
+        hug_width = 'strong'
+        hug_height = 'strong'
+        LabelBox:
+            text = 'enable'
+            checked := DC_noise_eaters.enable
+
+        IndexedContainer:
+            iterable << DC_noise_eaters.boxes
+            viewType = DCNoiseEater
+
+        # cumulative plot of noise eater data
+    Form:
+        Label:
+            text = 'enable'
+        CheckBox:
+            checked := analysis.enable
+        Label:
+            text = 'specify box, channel and variable (see indices below) to graph with a list of tuples: [(box,channel,variable),(box,channel,variable)]\n 0:mode, 1:warnSetting, 2:limitRange, 3:invert, 4:integrationTime, 5:trigNum, 6:measNum, 7:kp, 8:ki, 9:setpoint, 10:average, 11:error, 12:vin, 13:vout, 14:warning'
+        Field:
+            text := analysis.list_of_what_to_plot
+    PushButton:
+        text = 'clear'
+        clicked :: analysis.clear()
+    MPLCanvas: canvas:
+        constraints=[(height==500)|'strong']
+        hug_width='ignore'
+        figure << analysis.figure
+
 enamldef Arroyo(Container):
     attr Arroyo
 
@@ -2218,6 +2278,27 @@ enamldef Filters(Container):
     FirstMeasurementsFilter:
         filters = experiment.first_measurements_filter
 
+enamldef BoxTemperature(Container):
+    attr box_temperature
+    Form:
+        Label:
+            text = 'enable'
+        CheckBox:
+            checked := box_temperature.enable
+        Label:
+            text = 'IP address'
+        Field:
+            text := box_temperature.IP
+        Label:
+            text = 'port'
+        IntField:
+            value := box_temperature.port
+        Label:
+            text = 'connected'
+        CheckBox:
+            checked << box_temperature.connected
+            enabled = False
+
 def loadIcon():
     #create icon
     with open(os.path.join('icons','2013_11_14_15_18_54_retention_PCA_filtered_image_rotated_smoothed.png'), 'rb') as f:
@@ -2335,3 +2416,8 @@ enamldef Main(MainWindow): main:
             ScrollPage('Optimization', Optimizer): p26:
                 p26.content.experiment = main.experiment
                 p26.content.analysis = main.experiment.optimizer
+            ScrollPage('DC Noise Eaters', DCNoiseEaters): p27:
+                p27.content.DC_noise_eaters = main.experiment.DC_noise_eaters
+                p27.content.analysis = main.experiment.DC_noise_eater_graph
+            ScrollPage('Box Temperature', BoxTemperature): p28:
+                p28.content.box_temperature = main.experiment.box_temperature

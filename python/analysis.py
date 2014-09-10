@@ -642,7 +642,8 @@ class HistogramAnalysis(AnalysisWithFigure):
 
     @observe('list_of_what_to_plot')
     def reload(self, change):
-        self.updateFigure()
+        if self.enable:
+            self.updateFigure()
 
     def updateFigure(self):
         if not self.update_lock:
@@ -657,7 +658,7 @@ class HistogramAnalysis(AnalysisWithFigure):
                     try:
                         plotlist = eval(self.list_of_what_to_plot)
                     except Exception as e:
-                        logger.warning('Could not eval plotlist in MeasurementsGraph:\n{}\n'.format(e))
+                        logger.warning('Could not eval plotlist in HistogramAnalysis:\n{}\n'.format(e))
                         return
 
                     ax = fig.add_subplot(111)

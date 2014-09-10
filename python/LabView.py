@@ -131,7 +131,7 @@ class LabView(Instrument):
             self.sock.close()
         self.connected = False
         self.isInitialized = False
-    
+
     def update(self):
         """Send the current values to hardware."""
 
@@ -182,7 +182,22 @@ class LabView(Instrument):
                 try:
                     hdf5[key] = array
                 except Exception as e:
-                    logger.error('in LabView.writeResults() doing hdf5[{}]\n{}'.format(key,e))
+                    logger.error('in LabView.writeResults() doing hdf5[{}]\n{}'.format(key, e))
+                    raise PauseError
+
+            elif key == 'AI/data':
+                #boolean data was stored as 8 byte doubles
+                array = numpy.array(struct.unpack('!'+str(int(len(value)/8))+'d', value), dtype=numpy.float64)
+                try:
+                    dims = map(int, self.results['AI/dimensions'].split(','))
+                    array.resize(dims)
+                except Exception as e:
+                    logger.error('unable to resize AI data, check for AI/dimensions in returned data:\n'+str(e))
+                    raise PauseError
+                try:
+                    hdf5[key] = array
+                except Exception as e:
+                    logger.error('in LabView.writeResults() doing hdf5[{}]\n{}'.format(key, e))
                     raise PauseError
 
             else:
@@ -201,7 +216,7 @@ class LabView(Instrument):
                 self.initialize()
 
             #display message on GUI
-            self.msg = msg
+            self.set_dict({'msg': msg})
 
             #send message
             logger.debug('LabView sending message ...')

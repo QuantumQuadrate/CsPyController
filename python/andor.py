@@ -97,23 +97,24 @@ class Andor(Instrument):
         self.isInitialized = True
 
     def update(self):
-        self.mode = 'experiment'
-        if self.GetStatus() == 'DRV_ACQUIRING':
-            self.AbortAcquisition()
-        self.SetPreAmpGain(self.preAmpGain.value)
-        self.SetEMCCDGain(self.EMCCDGain.value)
-        self.SetExposureTime(self.exposureTime.value)
-        if self.triggerMode == 0:
-            # set edge trigger
-            self.SetTriggerMode(6)
-        else:
-            # set level trigger
-            self.SetTriggerMode(7)
-        self.SetReadMode(4)  # image mode
-        self.SetImage(1, 1, 1, self.width, 1, self.height)  # full sensor, no binning
-        self.SetAcquisitionMode(5)  # run till abort
-        self.SetKineticCycleTime(0)  # no delay
-        self.StartAcquisition()
+        if self.enable:
+            self.mode = 'experiment'
+            if self.GetStatus() == 'DRV_ACQUIRING':
+                self.AbortAcquisition()
+            self.SetPreAmpGain(self.preAmpGain.value)
+            self.SetEMCCDGain(self.EMCCDGain.value)
+            self.SetExposureTime(self.exposureTime.value)
+            if self.triggerMode == 0:
+                # set edge trigger
+                self.SetTriggerMode(6)
+            else:
+                # set level trigger
+                self.SetTriggerMode(7)
+            self.SetReadMode(4)  # image mode
+            self.SetImage(1, 1, 1, self.width, 1, self.height)  # full sensor, no binning
+            self.SetAcquisitionMode(5)  # run till abort
+            self.SetKineticCycleTime(0)  # no delay
+            self.StartAcquisition()
 
     def setup_video(self, analysis):
         if self.experiment.status != 'idle':
@@ -160,16 +161,18 @@ class Andor(Instrument):
     def acquire_data(self):
         """Overwritten from Instrument, this function is called by the experiment after
         each measurement run to make sure all pictures have been acquired."""
-        self.data = self.GetImages()
+        if self.enable:
+            self.data = self.GetImages()
 
     def writeResults(self, hdf5):
         """Overwritten from Instrument.  This function is called by the experiment after
         data acquisition to write the obtained images to hdf5 file."""
-        try:
-            hdf5['Andor'] = self.data
-        except Exception as e:
-            logger.error('in Andor.writeResults:\n{}'.format(e))
-            raise PauseError
+        if self.enable:
+            try:
+                hdf5['Andor'] = self.data
+            except Exception as e:
+                logger.error('in Andor.writeResults:\n{}'.format(e))
+                raise PauseError
 
     def SetSingleScan(self):
         self.SetReadMode(4)
