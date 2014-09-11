@@ -168,35 +168,41 @@ enamldef IndexedContainer(GroupBox):
     # change what that one object is using an Include
     # The attribute 'iterable' must be a ListProp.  This container then provides controls to add and remove elements.
     # The GUI element viewType must define 'item' which is the element of the ListProp that will be passed to it
+    # The attribute static disables the buttons to dynamically add or remove list items
 
     attr iterable = Typed(ListProp)
     # Below is commented out because we don't actually have to declare the type.
     # This was so that we would be okay with creating an instance, but it's not necessary
     attr viewType  # = Class(StackItem)
+    # The attribute static disables the buttons to dynamically add or remove list items
+    attr dynamic = True
+
     hug_height = 'strong'
     hug_width = 'strong'
 
-    Container: controls:
-        constraints=[hbox(addButton,removeButton,combo)]
-        PushButton: addButton:
-            text='+'
-            constraints=[width==50,height==20]
-            clicked::
-                iterable.add()
-                combo.maximum=len(iterable)-1
-                combo.value=combo.maximum
-        PushButton: removeButton:
-            text='-'
-            constraints=[width==50,height==20]
-            clicked::
-                i=combo.value
-                if i>=0:
-                    iterable.pop(i)
+    HGroup:
+        #constraints=[hbox(addButton,removeButton,combo)]
+        Conditional:
+            condition = dynamic
+            PushButton: addButton:
+                text='+'
+                constraints=[width==50,height==20]
+                clicked::
+                    iterable.add()
                     combo.maximum=len(iterable)-1
-                    if i>1:
-                        combo.value=i-1
-                    else:
-                        combo.value=0
+                    combo.value=combo.maximum
+            PushButton: removeButton:
+                text='-'
+                constraints=[width==50,height==20]
+                clicked::
+                    i=combo.value
+                    if i>=0:
+                        iterable.pop(i)
+                        combo.maximum=len(iterable)-1
+                        if i>1:
+                            combo.value=i-1
+                        else:
+                            combo.value=0
         SpinBox: combo:
             constraints=[width==50,height==20]
             maximum<<len(iterable)-1
@@ -1623,8 +1629,94 @@ enamldef AnalogInput(Container):
     EvalProp:
         prop << AI.triggerEdge
 
+enamldef DCNoiseEaterChannel(Container):
+    attr item
+
+    Form:
+        Label:
+            text = 'Set: Allow settings on computer overwrite those on noise eater'
+        CheckBox:
+            checked := item.update
+        Label:
+            text = 'Get: Allow settings on noise eater to overwrite those on computer'
+        CheckBox:
+            checked := item.allow_get
+
+        # variables from DC noise eater
+        # read/write variables
+        Label:
+            text = 'mode'
+        ComboBox:
+            items = ['off', 'run', 'idle-hi', 'idle-med', 'idle-lo', 'ramp']
+            index := item.mode
+        Label:
+            text = 'trigger warning?'
+        CheckBox:
+            checked := item.warnSetting
+        Label:
+            text = 'limit range'
+        IntField:
+            value := item.limitRange
+        Label:
+            text = 'invert'
+        CheckBox:
+            checked := item.invert
+        Label:
+            text = 'integration time'
+        IntField:
+            value := item.integrationTime
+        Label:
+            text = 'trigger number'
+        SpinBox:
+            minimum = 0
+            maximum = 3
+            value := item.trigNum
+        Label:
+            text = 'measurements to average'
+        IntField:
+            value := item.measNum
+        Label:
+            text = 'Kp'
+        EvalProp:
+            prop << item.kp
+        Label:
+            text = 'Ki'
+        EvalProp:
+            prop << item.ki
+        Label:
+            text = 'setpoint'
+        IntField:
+            value := item.setpoint
+
+        # read only
+        Label:
+            text = 'average'
+        IntField:
+            value << item.average
+            enabled = False
+        Label:
+            text = 'error'
+        IntField:
+            value << item.error
+            enabled = False
+        Label:
+            text = 'V in'
+        IntField:
+            value << item.vin
+            enabled = False
+        Label:
+            text = 'V out'
+        IntField:
+            value << item.vout
+            enabled = False
+        Label:
+            text = 'warning'
+        CheckBox:
+            checked << item.warning
+            enabled = False
+
 enamldef DCNoiseEater(Container):
-    # represents an individual noise eater
+    # represents an individual noise eater box
     attr item
 
     hug_height='strong'
@@ -1638,6 +1730,10 @@ enamldef DCNoiseEater(Container):
             text = 'COM port'
         Field:
             text := item.comport
+    IndexedContainer:
+        dynamic = False
+        iterable << item.channels
+        viewType = DCNoiseEaterChannel
 
 enamldef DCNoiseEaters(Container):
     # creates an indexed display of the noise eater list
