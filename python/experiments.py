@@ -493,7 +493,7 @@ class Experiment(Prop):
         try:  # if there is an error we exit the inner loops and respond appropriately
 
             # optimization loop
-            while self.status == 'running' and ((not self.optimizer.enable) or (not self.optimizer.is_done)):
+            while (self.status == 'running') and ((not self.optimizer.enable) or (not self.optimizer.is_done)):
 
                 #loop until iteration are complete
                 while (self.iteration < self.totalIterations) and (self.status == 'running'):
