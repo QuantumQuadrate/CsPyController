@@ -84,14 +84,17 @@ class Controller(object):
         data2 = [x.strip() for x in data1]  # remove newlines
         # Remove echoed commands, keeping the data which is in every other word.  Cast data to float.
         self.data[:] = map(float, [data2[j] for j in xrange(1, 16, 2)])
+
+    def write_to_file(self):
+        # write data to file
         print self.name, ' '.join(map(str, self.data))
 
-        # write data to file
         datestring = datetime.datetime.now().strftime('%Y/%m/%d %H:%M:%S')
         self.file.write(datestring + '\t' + '\t'.join(map((lambda x: '{:.6f}'.format(x)), self.data)) + '\n')
 
     def get_data(self):
         return struct.pack('!8d', *self.data)
+
 
 class BoxTempServer(TCP.CsServerSock):
     """A subclass of CsServerSock which handles incoming TCP requests for data"""
@@ -118,8 +121,20 @@ if __name__ == '__main__':
     BoxTempServer(9001, controllers)
 
     # enter a loop of continual data taking
+    i = 0
     while True:
-        time.sleep(300)  # wait 5 minutes between data points
-        print ' '.join(labels)
+
+        # every second, poll the temperatures
+        time.sleep(1)  # wait 1 second between data points
         for controller in controllers:
             controller.read_port()
+
+        # keep track of the number of reads
+        i += 1
+
+        # every 5 minutes, write to file
+        if i>=300:
+            print '\n' + ' '.join(labels)
+            for controller in controllers:
+                controller.write_to_file()
+            i=0  # reset the counter
