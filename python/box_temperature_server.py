@@ -79,24 +79,34 @@ class Controller(object):
         self.read_port()
 
     def read_port(self):
-        self.ser.flushOutput()
-        self.ser.flushInput()
-        self.ser.write(request_string)  # send a request for the cold plate controller state
-        time.sleep(.02)
-        data1 = self.ser.readlines()  # read the returned data (will wait for 20 ms timeout)
-        data2 = [x.strip() for x in data1]  # remove newlines
-        # Remove echoed commands, keeping the data which is in every other word.  Cast data to float.
-        self.data[:] = map(float, [data2[j] for j in xrange(1, 16, 2)])
+        try:
+            self.ser.flushOutput()
+            self.ser.flushInput()
+            self.ser.write(request_string)  # send a request for the cold plate controller state
+            time.sleep(.02)
+            data1 = self.ser.readlines()  # read the returned data (will wait for 20 ms timeout)
+            data2 = [x.strip() for x in data1]  # remove newlines
+            # Remove echoed commands, keeping the data which is in every other word.  Cast data to float.
+            self.data[:] = map(float, [data2[j] for j in xrange(1, 16, 2)])
+        except Exception as e:
+            print 'Error in read_port() for controller {}:\n{}\n'.format(self.name, e)
 
     def write_to_file(self):
-        # write data to file
-        print self.name, ' '.join(map(str, self.data))
-
-        datestring = datetime.datetime.now().strftime('%Y/%m/%d %H:%M:%S')
-        self.file.write(datestring + '\t' + '\t'.join(map((lambda x: '{:.6f}'.format(x)), self.data)) + '\n')
+        try:
+            # write data to file
+            print self.name, ' '.join(map(str, self.data))
+    
+            datestring = datetime.datetime.now().strftime('%Y/%m/%d %H:%M:%S')
+            self.file.write(datestring + '\t' + '\t'.join(map((lambda x: '{:.6f}'.format(x)), self.data)) + '\n')
+        except Exception as e:
+            print 'Error in write_to_file() for controller {}:\n{}\n'.format(self.name, e)
 
     def get_data(self):
-        return struct.pack('!8d', *self.data)
+        try:
+            return struct.pack('!8d', *self.data)
+        except Exception as e:
+            print 'Error in get_data() for controller {}:\n{}\n'.format(self.name, e)
+
 
 
 class BoxTempServer(TCP.CsServerSock):
@@ -124,7 +134,7 @@ if __name__ == '__main__':
     BoxTempServer(9001, controllers)
 
     # enter a loop of continual data taking
-    i = 300
+    i = 300 # write to file on 1st read
     while True:
 
         # every second, poll the temperatures
