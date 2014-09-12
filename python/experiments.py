@@ -934,7 +934,13 @@ class Experiment(Prop):
             sound.complete_sound()
 
     def iteration_updater(self):
-        """takes the iteration number and figures out which index number each independent variable should have"""
+        """
+        Takes the iteration number and figures out which index number each independent variable should have.
+        This is currently unused.  The necessary calculation is currently done in updateIndependentVariables.
+        This is a compartmentalized version of older code that was used before two_level_optimization was implemented.
+        This function will be removed in the future when I am certain that it is no longer needed.
+        """
+
         n = len(self.independentVariables)
         index = numpy.zeros(n, dtype=int)
         # calculate the base for each variable place
@@ -952,7 +958,8 @@ class Experiment(Prop):
             index[i] = self.independentVariables[i].setIndex(index[i])  # update each variable object
         self.ivarIndex = index  # store the list
 
-        # we don't know the number of variables ahead of time, so instead of making nested for loops, do a while
+        # We don't know the number of variables ahead of time, so instead of making nested for loops, use a while loop
+        # with a single iterator.
         iteration = 0
         self.set_gui({'iterationStr': iteration})
         while not end_condition:

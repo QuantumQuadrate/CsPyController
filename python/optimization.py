@@ -77,7 +77,6 @@ class Optimization(AnalysisWithFigure):
             self.xi = numpy.array([i.valueList[0] for i in self.optimization_variables], dtype=float)
             self.axes = len(self.optimization_variables)
 
-
             # save the optimizer data
             experimentResults['analysis/optimizer/names'] = [i.name for i in self.optimization_variables]
             experimentResults['analysis/optimizer'].create_dataset('values', [0, self.axes], maxshape=[None, self.axes])
