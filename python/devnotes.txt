@@ -3,6 +3,7 @@ CsPyController notes:
 TCP ports: 9000 LabView, 9001 Laird box temp
 
 current question:
+    optimizer exits after 1st iteration.  Does not continue.
 
 TODO:
     piezo numpy array
