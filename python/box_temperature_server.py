@@ -124,7 +124,7 @@ if __name__ == '__main__':
     BoxTempServer(9001, controllers)
 
     # enter a loop of continual data taking
-    i = 0
+    i = 300
     while True:
 
         # every second, poll the temperatures
