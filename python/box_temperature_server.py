@@ -89,7 +89,7 @@ class Controller(object):
             # Remove echoed commands, keeping the data which is in every other word.  Cast data to float.
             self.data[:] = map(float, [data2[j] for j in xrange(1, 16, 2)])
         except Exception as e:
-            print 'Error in read_port() for controller {}:\n{}\n'.format(self.name, e)
+            logger.error('Error in read_port() for controller {}:\n{}\n'.format(self.name, e))
 
     def write_to_file(self):
         try:
@@ -99,13 +99,13 @@ class Controller(object):
             datestring = datetime.datetime.now().strftime('%Y/%m/%d %H:%M:%S')
             self.file.write(datestring + '\t' + '\t'.join(map((lambda x: '{:.6f}'.format(x)), self.data)) + '\n')
         except Exception as e:
-            print 'Error in write_to_file() for controller {}:\n{}\n'.format(self.name, e)
+            logger.error('Error in write_to_file() for controller {}:\n{}\n'.format(self.name, e))
 
     def get_data(self):
         try:
             return struct.pack('!8d', *self.data)
         except Exception as e:
-            print 'Error in get_data() for controller {}:\n{}\n'.format(self.name, e)
+            logger.error('Error in get_data() for controller {}:\n{}\n'.format(self.name, e))
 
 
 
@@ -125,8 +125,6 @@ class BoxTempServer(TCP.CsServerSock):
         return msg
 
 if __name__ == '__main__':
-    print ' '.join(labels)
-
     # open all controllers
     controllers = [Controller(i['name'], i['port']) for i in ports]
 
