@@ -25,7 +25,7 @@ import serial
 import serial.tools.list_ports
 from atom.api import Str, Typed, Member, Bool, observe, Int
 from enaml.application import deferred_call
-from instrument_property import ListProp, Prop
+from instrument_property import Prop, IntProp, ListProp
 from cs_instruments import Instrument
 from analysis import AnalysisWithFigure
 
@@ -94,52 +94,77 @@ class DCNoiseEaters(Instrument):
             self.boxDescriptionList = [str(i)+' '+n.description for i, n in enumerate(self.boxes)]
 
 
-class channel(object):
+class Channel(Prop):
 
-    def __init__(self, channelNum):
+    allow_get = Bool(False)  # enables settings on noise eater to overwrite settings on computer
 
-        self.channelNum = channelNum
+    # read/write variables
+    update = Bool(False)  # bool
+    mode = Int(0)  # int8
+    warnSetting = Bool(False)  # bool
+    limitRange = Int(0)  # int16
+    invert = Bool(False)  # bool
+    integrationTime = Int(100)  # int16
+    trigNum = Int(0)  # int8
+    measNum = Int(0)  # int8
+    #kp = Int(2560)  # int16
+    kp = Typed(IntProp)
+    #ki = Int(64)  # int16
+    ki = Typed(IntProp)
+    setpoint = Int(9823)  # int16
 
-        # read/write variables
-        self.update = False  # bool
-        self.mode = 0  # int8
-        self.warnSetting = False  # bool
-        self.limitRange = 0  # int16
-        self.invert = False  # bool
-        self.integrationTime = 100  # int16
-        self.trigNum = 0  # int8
-        self.measNum = 0  # int8
-        self.kp = 2560  # int16
-        self.ki = 64  # int16
-        self.setpoint = 9823  # int16
+    # variables from DC noise eater
+    # read only
+    average = Int(0)  # int16
+    error = Int(0)  # int16
+    vin = Int(0)  # int16
+    vout = Int(0)  # int16
+    warning = Bool(False)  # bool
 
-        # variables from DC noise eater
-        # read only
-        self.average = 0  # int16
-        self.error = 0  # int16
-        self.vin = 0  # int16
-        self.vout = 0  # int16
-        self.warning = False  # bool
+    def __init__(self, name, experiment, description='a DC Noise Eater channel'):
+        super(Channel, self).__init__(name, experiment, description)
+        self.kp = IntProp('kp', self.experiment, 'kp', '2560')
+        self.ki = IntProp('ki', self.experiment, 'ki', '64')
+        self.properties += ['allow_get', 'update', 'mode', 'warnSetting', 'limitRange', 'invert',
+                            'integrationTime', 'trigNum', 'measNum', 'kp', 'ki', 'setpoint', 'average', 'error', 'vin',
+                            'vout', 'warning']
 
     def settings_in_from_hardware(self, data):
         # format the data returned by the noise eater
         # the code 'b?h?hbbhhhhhhh?' specifies b: signed int8, ?: binary stored as 8 bits, h: uint16
         # '<' is because the propeller chip is little-endian
-        self.mode, self.warnSetting, self.limitRange, self.invert, self.integrationTime, self.trigNum, self.measNum, self.kp, self.ki, self.setpoint, self.average, self.error, self.vin, self.vout, self.warning = struct.unpack('<b?h?hbbhhhhhhh?', data)
+        # status variables are written to immediately, but use intermediate variables for the settings
+        mode, warnSetting, limitRange, invert, integrationTime, trigNum, measNum, kp, ki, setpoint, self.average, self.error, self.vin, self.vout, self.warning = struct.unpack('<b?h?hbbhhhhhhh?', data)
+        if self.allow_get:
+            deferred_call(self.gui_write, mode, warnSetting, limitRange, invert, integrationTime, trigNum, measNum, kp, ki, setpoint)
+
+    def gui_write(self, mode, warnSetting, limitRange, invert, integrationTime, trigNum, measNum, kp, ki, setpoint):
+        # This is implemented as a separate method so it can be called from the GUI thread.
+        # overwrite the settings on the computer with those loaded from the noise eater
+        self.mode = mode
+        self.warnSetting = warnSetting
+        self.limitRange = limitRange
+        self.invert = invert
+        self.integrationTime = integrationTime
+        self.trigNum = trigNum
+        self.measNum = measNum
+        self.kp.function = str(kp)
+        self.ki.function = str(ki)
+        self.setpoint = setpoint
 
     def settings_out_to_hardware(self):
         # return a 15 byte array that will be what is sent to the hardware for this channel
         # the code 'b?h?hbbhhh' specifies the 15 bytes as b: signed int8, ?: binary stored as 8 bits, h: uint16
         # '<' is because the propeller chip is little-endian
-        data = struct.pack('<b?h?hbbhhh', self.mode, self.warnSetting, self.limitRange, self.invert, self.integrationTime, self.trigNum, self.measNum, self.kp, self.ki, self.setpoint)
+        data = struct.pack('<b?h?hbbhhh', self.mode, self.warnSetting, self.limitRange, self.invert, self.integrationTime, self.trigNum, self.measNum, self.kp.value, self.ki.value, self.setpoint)
         return data
 
     def print_settings(self):
         # print all the settings for this channel
 
         print 'channel {} mode {} warnSetting {} limitRange {} invert {} integrationTime {} trigNum {} measNum {} kp {} ki {} setpoint {}'.format(
-            self.channelNum, self.mode, self.warnSetting, self.limitRange, self.invert, self.integrationTime,
-            self.trigNum, self.measNum, self.kp, self.ki, self.setpoint)
+            self.mode, self.warnSetting, self.limitRange, self.invert, self.integrationTime,
+            self.trigNum, self.measNum, self.kp.value, self.ki.value, self.setpoint)
         print 'average {} error {} vin {} vout {} warning {}'.format(
             self.average, self.error, self.vin, self.vout, self.warning)
         print '\n'
@@ -150,13 +175,19 @@ class DCNoiseEater(Instrument):
 
     comport = Str()
     data = Member()
-    channels = Member() #Typed(ListProp)
+    channels = Typed(ListProp)
     numChannels = 3
     ser = Member()
     num_inits = Int(0)
 
     def __init__(self, name, experiment, description='DC Noise Eater'):
         super(DCNoiseEater, self).__init__(name, experiment, description)
+        # create a channel object for each noise eater channel
+        # we won't dynamic add or remove channels, always 3 per box
+        # if we did dynamically add, they would need to get the channel number passed to their __init__
+        self.channels = ListProp('channels', experiment, listProperty=[Channel('channel'+str(i), self.experiment) for i in xrange(3)],
+                                 listElementType=Channel, listElementName='channel', listElementKwargs=None)
+        #self.channels = [Channel(i) for i in xrange(3)]  # TODO: make this a ListProp
         self.properties += ['version', 'comport', 'channels']
 
     def initialize(self):
@@ -170,21 +201,17 @@ class DCNoiseEater(Instrument):
             self.ser = serial.Serial(self.comport, 38400, timeout=1, writeTimeout=1)
             logger.debug('opened: {}'.format(self.ser.name))  # checks which port was really used
 
-            # create a channel object for each noise eater channel
-            #self.channels = ListProp('channels', experiment, listProperty=[channel(i) for i in xrange(3)],
-            #                         listElementType=channel, listElementName='channel', listElementKwargs=None)
-            self.channels = [channel(i) for i in xrange(3)]  # TODO: make this a ListProp and channel a Prop
-
             self.isInitialized = True
 
     # specify how to create output data from the channel objects
     def format_output(self, channels):
         # create a byte which encodes whether or not to update each channel
-        data = chr(sum([2**c.channelNum for c in channels if c.update]))
+        data = chr(sum([2**i for i, c in enumerate(channels) if c.update]))
 
+        # TODO: make this happen only on changed flag
         #turn off future updates until re-enabled
-        for c in channels:
-            c.update = False
+        #for c in channels:
+        #    c.update = False
 
         # append 15 bytes for each channel, encoding the settings
         for c in channels:
@@ -214,8 +241,8 @@ class DCNoiseEater(Instrument):
             if header == '!P1\n':
                 data_in = self.ser.read(96)  # read 96 bits
                 # update the settings of each channel
-                for c in self.channels:
-                    d = data_in[24*c.channelNum:24*(c.channelNum+1)]
+                for i, c in enumerate(self.channels):
+                    d = data_in[24*i:24*(i+1)]
                     c.settings_in_from_hardware(d)
                     #c.print_settings()
         self.isDone = True
@@ -224,7 +251,7 @@ class DCNoiseEater(Instrument):
         # return an array of all the variables, with an entry for each channel in this box
         # this function is used to store the info in the hdf5 file
         return [[c.mode, c.warnSetting, c.limitRange, c.invert, c.integrationTime, c.trigNum, c.measNum,
-            c.kp, c.ki, c.setpoint, c.average, c.error, c.vin, c.vout, c.warning] for c in self.channels]
+            c.kp.value, c.ki.value, c.setpoint, c.average, c.error, c.vin, c.vout, c.warning] for c in self.channels]
 
 
 class DCNoiseEaterGraph(AnalysisWithFigure):
