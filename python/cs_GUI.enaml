@@ -1763,7 +1763,7 @@ enamldef DCNoiseEaters(Container):
                 checked := filters.enable
 
             Label:
-                text = 'What to filter: a string representing a list of [(box,channel,variable,high,low), ...]'
+                text = 'What to filter: a string representing a list of [(box,channel,variable,low,high), ...]'
             Field:
                 text := filters.what_to_filter
 
