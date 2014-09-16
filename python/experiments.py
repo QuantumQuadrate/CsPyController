@@ -341,9 +341,13 @@ class Experiment(Prop):
 
     def stop(self):
         """Stops output as soon as possible.  This is not run during the course of a normal experiment."""
-        [i.__setattr__('isDone', True) for i in self.instruments]
-        [i.stop() for i in self.instruments]
-    
+        # Manually force the status to idle, to cause the experiment to end
+        self.status = 'idle'
+        # stop each instrument
+        for i in self.instruments:
+            i.isDone = True
+            i.stop()
+
     def date2str(self, time):
         return datetime.datetime.fromtimestamp(time).strftime('%Y-%m-%d %H:%M:%S')
     
@@ -492,71 +496,85 @@ class Experiment(Prop):
 
         try:  # if there is an error we exit the inner loops and respond appropriately
 
-            # optimization loop
-            while (self.status == 'running') and ((not self.optimizer.enable) or (not self.optimizer.is_done)):
+            # optimization and iteration loop
+            while (self.status == 'running') and (not self.optimizer.is_done):
+                logger.debug("starting new iteration")
 
-                #loop until iteration are complete
-                while (self.iteration < self.totalIterations) and (self.status == 'running'):
-                    logger.debug("starting new iteration")
+                #at the start of a new iteration, or if we are continuing
+                logger.debug("evaluating")
+                self.evaluate()  # update ivars to current iteration and re-calculate dependent variables
+                logger.debug("updating instruments")
+                self.update()  # send current values to hardware
 
-                    #at the start of a new iteration, or if we are continuing
-                    logger.debug("evaluating")
-                    self.evaluate()  # update ivars to current iteration and re-calculate dependent variables
-                    logger.debug("updating instruments")
-                    self.update()  # send current values to hardware
+                #only at the start of a new iteration
+                if len(self.completedMeasurementsByIteration) <= self.iteration:
+                    self.completedMeasurementsByIteration.append(0)  # start a new counter for this iteration
+                if not (str(self.iteration) in self.hdf5['iterations']):
+                    self.create_hdf5_iteration()  # create an entry in the in hdf5 file
+                self.preIteration()  # reset the analyses
 
-                    #only at the start of a new iteration
-                    if len(self.completedMeasurementsByIteration) <= self.iteration:
-                        self.completedMeasurementsByIteration.append(0)  # start a new counter for this iteration
-                    if not (str(self.iteration) in self.hdf5['iterations']):
-                        self.create_hdf5_iteration()
-                    self.preIteration()  # reset the analyses
+                #loop until the desired number of measurements are taken
+                while (self.goodMeasurements < self.measurementsPerIteration) and (self.status == 'running'):
+                    self.set_gui({'valid': True})  # reset all the red error background graphics to show no-error
+                    logger.info('iteration {} measurement {}'.format(self.iteration, self.measurement))
+                    self.measure()  # tell all instruments to do the experiment sequence and acquire data
+                    self.updateTime()  # update the countdown/countup clocks
+                    logger.debug('updating measurement count')
 
-                    #loop until the desired number of measurements are taken
-                    while (self.goodMeasurements < self.measurementsPerIteration) and (self.status == 'running'):
-                        self.set_gui({'valid': True})
-                        logger.info('iteration {} measurement {}'.format(self.iteration, self.measurement))
-                        self.measure()  # tell all instruments to do the experiment sequence and acquire data
-                        self.updateTime()  # update the countdown/countup clocks
-                        logger.debug('updating measurement count')
+                    #make sure results are written to disk
+                    logger.debug('flushing hdf5')
+                    self.hdf5.flush()
 
-                        #make sure results are written to disk
-                        logger.debug('flushing hdf5')
-                        self.hdf5.flush()
+                    # increment the measurement counter, except at the end
+                    if self.goodMeasurements < self.measurementsPerIteration:
+                        self.measurement += 1
+                    else:
+                        break
 
-                        # increment the measurement counter, except at the end
-                        if self.goodMeasurements < self.measurementsPerIteration:
-                            self.measurement += 1
-                        else:
+                    # pause after measurement
+                    if self.status == 'running' and self.pauseAfterMeasurement:
+                        self.set_status('paused after measurement')
+                        self.set_gui({'valid': False})
+                        if self.enable_sounds:
+                            sound.error_sound()
+
+                    self.update_gui()
+
+                # Measurement loop exited, but that might mean we are paused, or an error.
+                # So check to see if we completed the iteration.
+                if self.goodMeasurements >= self.measurementsPerIteration:
+
+                    # We have completed this iteration, move on to the next one
+                    logger.debug("Finished iteration")
+                    self.postIteration()  # run analysis
+
+                    # if this was the last iteration in this optimization loop, then run analysis and run optimizer
+                    if (self.iteration % self.totalIterations) == self.totalIterations-1:
+
+                        logger.debug("Finished all iterations")
+                        self.postExperiment()  # run analyses
+                        self.optimizer.update()  # update optimizer variables
+                        if self.optimizer.isDone:
+                            self.upload()
                             break
 
-                        # pause after measurement
-                        if self.status == 'running' and self.pauseAfterMeasurement:
-                            self.set_status('paused after measurement')
-                            self.set_gui({'valid': False})
-                            if self.enable_sounds:
-                                sound.error_sound()
+                    # otherwise we should advance to the next iteration
+                    else:
+                        self.iteration += 1  # increase iteration number
+                        self.measurement = 0  # reset measurement count
+                        self.goodMeasurements = 0  # reset good measurement count
 
-                        self.update_gui()
-
-                    # Measurement loop exited, but that might mean we are pause, or an error.
-                    # So check to see if we completed the iteration.
-                    if self.goodMeasurements >= self.measurementsPerIteration:
-                        logger.debug("Finished iteration")
-                        # We have completed this iteration, move on to the next one
-                        self.postIteration()  # run analysis
-                        if self.iteration < self.totalIterations-1:
-                            self.iteration += 1
-                            self.measurement = 0
-                            self.goodMeasurements = 0
-                            if (self.status == 'running' or self.status == 'paused after measurement') and self.pauseAfterIteration:
+                        # pause after iteration
+                        if self.pauseAfterIteration:
+                            if self.status == 'running':
                                 self.set_status('paused after iteration')
                                 self.set_gui({'valid': False})
                                 if self.enable_sounds:
                                     sound.error_sound()
-                        else:
-                            logger.debug("Finished all iterations")
-                            self.postExperiment()
+                            elif self.status == 'paused after measurement':
+                                self.set_status('paused after iteration')
+                                self.set_gui({'valid': False})
+                                # don't play the sounds
 
         except PauseError:
             #This should be the only place that PauseError is explicitly handed.
@@ -578,22 +596,45 @@ class Experiment(Prop):
 
     def endThread(self):
         """Launches end() in a new thread, to keep GUI free"""
-        thread = threading.Thread(target=self.end)
-        thread.daemon = True
-        thread.start()
+        if self.status == 'running':
+            logger.warning('You cannot manually finish an experiment that is still running.  Pause first.')
+        else:
+            thread = threading.Thread(target=self.end)
+            thread.daemon = True
+            thread.start()
 
     def end(self):
-        """Finished the current experiment, and then uploads data"""
-        if self.status.startswith('paused'):
-            try:
-                self.postExperiment()
-            except PauseError:
-                self.set_status('paused after error')
-            except Exception as e:
-                logger.warning('Uncaught Exception in experiment.end:\n{}\n{}'.format(e, traceback.format_exc()))
-                self.set_status('paused after error')
+        """Finishes the current experiment, and then uploads data"""
+
+        try:
+            self.postExperiment()
+            self.upload()
+        except PauseError:
+            self.set_status('paused after error')
+        except Exception as e:
+            logger.warning('Uncaught Exception in experiment.end:\n{}\n{}'.format(e, traceback.format_exc()))
+            self.set_status('paused after error')
+
+    def uploadNowThread(self):
+        """Launches upload() in a new thread, to keep GUI free"""
+        if self.status == 'running':
+            logger.warning('You cannot manually finish an experiment that is still running.  Pause first.')
         else:
-            logger.info('You cannot manually finish an experiment unless it is paused first.')
+            thread = threading.Thread(target=self.upload)
+            thread.daemon = True
+            thread.start()
+
+    def uploadNow(self):
+        """Skip straight to uploading the current data."""
+
+        try:
+            self.upload()
+        except PauseError:
+            self.set_status('paused after error')
+        except Exception as e:
+            logger.warning('Uncaught Exception in experiment.upload:\n{}\n{}'.format(e, traceback.format_exc()))
+            self.set_status('paused after error')
+
 
     def measure(self):
         """Enables all instruments to begin a measurement.  Sent at the beginning of every measurement.
@@ -614,16 +655,16 @@ class Experiment(Prop):
                 else:
                     #check that the instrument is not already occupied
                     if not i.isDone:
-                        logger.warning('Instrument '+i.name+' is already busy.')
+                        logger.warning('Instrument '+i.name+' is already busy, and will be stopped and restarted.')
+                        i.stop()
+                    #set a flag to indicate each instrument is now busy
+                    i.isDone = False
+                    #let each instrument begin measurement
+                    #put each in a different thread, so they can proceed simultaneously
+                    if self.enable_instrument_threads:
+                        threading.Thread(target=i.start).start()
                     else:
-                        #set a flag to indicate each instrument is now busy
-                        i.isDone = False
-                        #let each instrument begin measurement
-                        #put each in a different thread, so they can proceed simultaneously
-                        if self.enable_instrument_threads:
-                            threading.Thread(target=i.start).start()
-                        else:
-                            i.start()
+                        i.start()
         logger.debug('all instruments started')
 
         #loop until all instruments are done
@@ -655,9 +696,7 @@ class Experiment(Prop):
         self.postMeasurement()
         logger.debug('finished measurement')
     
-    def halt(self):
-        """Manually force the status to idle, to cause the experiment to end"""
-        self.set_status('idle')
+
     
     def loadDefaultSettings(self):
         """Look for settings.hdf5 in this directory, and if it exists, load it."""
@@ -903,15 +942,14 @@ class Experiment(Prop):
         # run analysis
         for i in self.analyses:
             i.postIteration(self.iterationResults, self.hdf5)
-    
-    def postExperiment(self):
-        self.set_status('finishing experiment')
 
-        logger.info('Running analyses ...')
+    def postExperiment(self):
+        logger.info('Running postExperiment analyses ...')
         # run analysis
         for i in self.analyses:
             i.postExperiment(self.hdf5)
 
+    def upload(self):
         #store the notes again
         logger.info('Storing notes ...')
         del self.hdf5['notes']
@@ -932,37 +970,3 @@ class Experiment(Prop):
         logger.info('Finished Experiment.')
         if self.enable_sounds:
             sound.complete_sound()
-
-    def iteration_updater(self):
-        """
-        Takes the iteration number and figures out which index number each independent variable should have.
-        This is currently unused.  The necessary calculation is currently done in updateIndependentVariables.
-        This is a compartmentalized version of older code that was used before two_level_optimization was implemented.
-        This function will be removed in the future when I am certain that it is no longer needed.
-        """
-
-        n = len(self.independentVariables)
-        index = numpy.zeros(n, dtype=int)
-        # calculate the base for each variable place
-        base = [1]
-        for i in range(1, n):
-            base.append(self.ivarSteps[i-1]*base[i-1])
-        #build up the list
-        seq = range(n)
-        seq.reverse()  # go from largest place to smallest
-
-        iter = self.iteration
-        for i in seq:
-            index[i] = int(iter/base[i])
-            iter -= index[i]*base[i]
-            index[i] = self.independentVariables[i].setIndex(index[i])  # update each variable object
-        self.ivarIndex = index  # store the list
-
-        # We don't know the number of variables ahead of time, so instead of making nested for loops, use a while loop
-        # with a single iterator.
-        iteration = 0
-        self.set_gui({'iterationStr': iteration})
-        while not end_condition:
-
-            # build a dictionary
-            yield ivar_dict

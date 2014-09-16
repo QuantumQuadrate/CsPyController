@@ -77,7 +77,7 @@ class AQuA(Experiment):
                           self.first_measurements_filter, self.text_analysis, self.imageSumAnalysis,
                           self.recent_shot_analysis, self.shotBrowserAnalysis, self.histogramAnalysis,
                           self.histogram_grid, self.measurements_graph, self.iterations_graph, self.retention_graph,
-                          self.andor_viewer, self.DC_noise_eater_graph, self.DC_noise_eater_filter,
+                          self.andor_viewer, self.DC_noise_eater_filter, self.DC_noise_eater_graph,
                           self.save2013Analysis]
 
         self.properties += ['LabView', 'picomotors', 'Andor', 'DC_noise_eaters', 'box_temperature',

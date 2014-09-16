@@ -60,7 +60,6 @@ class Optimization(AnalysisWithFigure):
 
     def setup(self, experimentResults):
         self.optimization_variables = []
-        self.is_done = False
         enable = False  # don't enable unless there are some optimization variables
         for i, x in enumerate(self.experiment.independentVariables):
             if x.optimize:

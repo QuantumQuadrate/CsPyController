@@ -293,8 +293,11 @@ enamldef CsMenuBar(MenuBar): menuBar:
             text = 'End and Upload'
             triggered::experiment.endThread()
         Action:
-            text = 'Halt\tCtrl+H'
-            triggered::experiment.halt()
+            text = 'Upload'
+            triggered::experiment.uploadNowThread()
+        Action:
+            text = 'Stop\tCtrl+H'
+            triggered::experiment.stop()
 
 enamldef EvalProp(GroupBox):
     attr prop
