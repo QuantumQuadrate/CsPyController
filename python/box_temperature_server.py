@@ -79,7 +79,10 @@ class Controller(object):
         self.read_port()
 
     def read_port(self):
+        self.ser.flushOutput()
+        self.ser.flushInput()
         self.ser.write(request_string)  # send a request for the cold plate controller state
+        time.sleep(.02)
         data1 = self.ser.readlines()  # read the returned data (will wait for 20 ms timeout)
         data2 = [x.strip() for x in data1]  # remove newlines
         # Remove echoed commands, keeping the data which is in every other word.  Cast data to float.
@@ -121,7 +124,7 @@ if __name__ == '__main__':
     BoxTempServer(9001, controllers)
 
     # enter a loop of continual data taking
-    i = 0
+    i = 300
     while True:
 
         # every second, poll the temperatures
