@@ -322,13 +322,13 @@ class DCNoiseEaterFilter(Analysis):
     """
     This analysis monitors the Noise Eater inputs and does either hard or soft cuts of the data accordingly.
     The filters are specified by the what_to_filter string, which is a list in the form:
-    [(box,channel,variable,high,low), (box,channel,variable,high,low)]
+    [(box,channel,variable,high,low), (box,channel,variable,low,high)]
     The variable numbers are the indices of the data returned by the DC Noise Eater.  See DCNoiseEater.resultsArray() above.
     Error is variable 11.
     """
 
     enable = Bool()
-    what_to_filter = Str()  # string representing a list of [(box,channel,variable,high,low), (box,channel,variable,high,low)]
+    what_to_filter = Str()  # string representing a list of [(box,channel,variable,low,high), (box,channel,variable,low,high)]
     text = Str()
     filter_level = Int()
 
