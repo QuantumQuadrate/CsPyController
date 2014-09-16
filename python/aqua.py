@@ -38,6 +38,7 @@ class AQuA(Experiment):
     retention_graph = Member()
     andor_viewer = Member()
     DC_noise_eater_graph = Member()
+    DC_noise_eater_filter = Member()
     save2013Analysis = Member()
     ROI_rows = 7
     ROI_columns = 7
@@ -70,18 +71,21 @@ class AQuA(Experiment):
         self.retention_graph = analysis.RetentionGraph('retention_graph', self, 'plot occurence of binary result (i.e. whether or not atoms are there in the 2nd shot)')
         self.andor_viewer = andor.AndorViewer('andor_viewer', self, 'show the most recent Andor image')
         self.DC_noise_eater_graph = DCNoiseEater.DCNoiseEaterGraph('DC_noise_eater_graph', self, 'DC Noise Eater graph')
+        self.DC_noise_eater_filter = DCNoiseEater.DCNoiseEaterFilter('DC_noise_eater_filter', self, 'DC Noise Eater Filter')
         self.save2013Analysis = save2013style.Save2013Analysis(self)
         self.analyses += [self.TTL_filters, self.squareROIAnalysis, self.gaussian_roi, self.loading_filters,
                           self.first_measurements_filter, self.text_analysis, self.imageSumAnalysis,
                           self.recent_shot_analysis, self.shotBrowserAnalysis, self.histogramAnalysis,
                           self.histogram_grid, self.measurements_graph, self.iterations_graph, self.retention_graph,
-                          self.andor_viewer, self.DC_noise_eater_graph, self.save2013Analysis]
+                          self.andor_viewer, self.DC_noise_eater_graph, self.DC_noise_eater_filter,
+                          self.save2013Analysis]
 
         self.properties += ['LabView', 'picomotors', 'Andor', 'DC_noise_eaters', 'box_temperature',
                             'squareROIAnalysis', 'gaussian_roi', 'TTL_filters', 'loading_filters',
                             'first_measurements_filter', 'imageSumAnalysis', 'recent_shot_analysis',
                             'shotBrowserAnalysis', 'histogramAnalysis', 'histogram_grid', 'measurements_graph',
-                            'iterations_graph', 'retention_graph', 'andor_viewer', 'DC_noise_eater_graph']
+                            'iterations_graph', 'retention_graph', 'andor_viewer', 'DC_noise_eater_graph',
+                            'DC_noise_eater_filter']
 
         try:
             self.allow_evaluation = False

@@ -235,6 +235,7 @@ class TTL_filters(Analysis):
                 text = 'okay'
         self.set_gui({'text': text})
 
+
 class RecentShotAnalysis(AnalysisWithFigure):
     """Plots the currently incoming shot"""
     data = Member()

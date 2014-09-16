@@ -1730,6 +1730,7 @@ enamldef DCNoiseEater(Container):
             text = 'COM port'
         Field:
             text := item.comport
+
     IndexedContainer:
         dynamic = False
         iterable << item.channels
@@ -1739,6 +1740,7 @@ enamldef DCNoiseEaters(Container):
     # creates an indexed display of the noise eater list
     attr DC_noise_eaters
     attr analysis
+    attr filters
 
     Container:
         hug_width = 'strong'
@@ -1751,23 +1753,53 @@ enamldef DCNoiseEaters(Container):
             iterable << DC_noise_eaters.boxes
             viewType = DCNoiseEater
 
-        # cumulative plot of noise eater data
-    Form:
-        Label:
-            text = 'enable'
-        CheckBox:
-            checked := analysis.enable
-        Label:
-            text = 'specify box, channel and variable (see indices below) to graph with a list of tuples: [(box,channel,variable),(box,channel,variable)]\n 0:mode, 1:warnSetting, 2:limitRange, 3:invert, 4:integrationTime, 5:trigNum, 6:measNum, 7:kp, 8:ki, 9:setpoint, 10:average, 11:error, 12:vin, 13:vout, 14:warning'
-        Field:
-            text := analysis.list_of_what_to_plot
-    PushButton:
-        text = 'clear'
-        clicked :: analysis.clear()
-    MPLCanvas: canvas:
-        constraints=[(height==500)|'strong']
-        hug_width='ignore'
-        figure << analysis.figure
+    # filter
+    GroupBox:
+        title = 'DC Noise Eater Filter'
+        Form:
+            Label:
+                text = 'enable'
+            CheckBox:
+                checked := filters.enable
+
+            Label:
+                text = 'What to filter: a string representing a list of [(box,channel,variable,high,low), ...]'
+            Field:
+                text := filters.what_to_filter
+
+            Label:
+                text = 'filter level'
+            ComboBox:
+                items = ['None: increment measurement total',
+                         'soft: continue with other analyses, but do not increment measurement total',
+                         'med: continue with other analyses, do not increment measurement total, and delete measurement data after all analyses',
+                         'hard: do not continue with other analyses, do not increment measurement total, delete measurement data']
+                index := filters.filter_level
+
+            Label:
+                text = 'Status'
+            Label:
+                text := filters.text
+
+    # cumulative plot of noise eater data
+    GroupBox:
+        title = 'DC Noise Eater plots'
+        Form:
+            Label:
+                text = 'enable'
+            CheckBox:
+                checked := analysis.enable
+            Label:
+                text = 'specify box, channel and variable (see indices below) to graph with a list of tuples: [(box,channel,variable),(box,channel,variable)]\n 0:mode, 1:warnSetting, 2:limitRange, 3:invert, 4:integrationTime, 5:trigNum, 6:measNum, 7:kp, 8:ki, 9:setpoint, 10:average, 11:error, 12:vin, 13:vout, 14:warning'
+            Field:
+                text := analysis.list_of_what_to_plot
+        PushButton:
+            text = 'clear'
+            clicked :: analysis.clear()
+        MPLCanvas: canvas:
+            constraints=[(height==500)|'strong']
+            hug_width='ignore'
+            figure << analysis.figure
 
 enamldef Arroyo(Container):
     attr Arroyo
@@ -2515,5 +2547,6 @@ enamldef Main(MainWindow): main:
             ScrollPage('DC Noise Eaters', DCNoiseEaters): p27:
                 p27.content.DC_noise_eaters = main.experiment.DC_noise_eaters
                 p27.content.analysis = main.experiment.DC_noise_eater_graph
+                p27.content.filters = main.experiment.DC_noise_eater_filter
             ScrollPage('Box Temperature', BoxTemperature): p28:
                 p28.content.box_temperature = main.experiment.box_temperature
