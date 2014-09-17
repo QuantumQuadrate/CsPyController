@@ -41,18 +41,12 @@ class Optimization(AnalysisWithFigure):
     best_xi = Member()
     best_yi = Member()
     generator = Member()
-    initial_step = Float(.01)
+    initial_step = Member()
     optimization_method = Int(0)
     end_condition_step_size = Float(.0001)
     cost_function = Str()
     optimization_variables = Member()
     is_done = Bool()
-
-    # optimizer variables
-    # optimize = Bool()
-    # optimizer_initial_step = Float()
-    # optimizer_min = Float()
-    # optimizer_max = Float()
 
     def __init__(self, name, experiment, description=''):
         super(Optimization, self).__init__(name, experiment, description)
@@ -74,6 +68,7 @@ class Optimization(AnalysisWithFigure):
 
             #start all the independent variables at the value given for the 0th iteration
             self.xi = numpy.array([i.valueList[0] for i in self.optimization_variables], dtype=float)
+            self.initial_step = numpy.array([i.optimizer_initial_step for i in self.optimization_variables], dtype=float)
             self.axes = len(self.optimization_variables)
 
             # save the optimizer data
@@ -184,10 +179,10 @@ class Optimization(AnalysisWithFigure):
     def genetic(self, x0):
         yi = self.yi
         xi = x0
-        while True:  # TODO: some exit condition?
+        while True:  # TODO:  Some exit condition?  We don't have any notion of reducing step size for this algorithm.
 
             # take random step on each axis, gaussian distribution with mean=0 and variance=initial_step
-            x_test = xi * self.initial_step * numpy.random.randn(len(xi))
+            x_test = xi + self.initial_step * numpy.random.randn(self.axes)
 
             # test the new point
             yield x_test
@@ -199,7 +194,7 @@ class Optimization(AnalysisWithFigure):
 
     def gradient_descent(self, x0):
         axes = len(x0)
-        step_size = self.initial_step
+        step_size = numpy.average(self.initial_step)
         y0 = self.yi
         while True:
             # find gradient at the current point by making a small move on each axis
@@ -208,10 +203,7 @@ class Optimization(AnalysisWithFigure):
             for i in xrange(axes):
                 logger.info('testing gradient on axis' + str(i))
                 x_test = x0.copy()
-                if x_test[i] == 0:
-                    x_test[i] = step_size
-                else:
-                    x_test[i] *= (1 + step_size)
+                x_test[i] += step_size[i]
                 yield x_test
                 dx[i] = x_test[i]-x0[i]
                 dy[i] = self.yi-y0
@@ -271,11 +263,8 @@ class Optimization(AnalysisWithFigure):
             logger.info('simplex: exploring axis' + str(i))
             # for the new settings, start with the initial settings and then modify them by unit vectors
             xi = x0.copy()
-            # if the element is zero, add an offset.  If it is non-zero, multiply the offset
-            if xi[i] == 0:
-                xi[i] = self.initial_step
-            else:
-                xi[i] *= (1 + self.initial_step)
+            # add the initial step size as the first offset
+            xi[i] += self.initial_step[i]
             yield xi
             x[i+1] = xi
             y[i+1] = self.yi

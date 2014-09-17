@@ -43,6 +43,7 @@ class IndependentVariable(EvalProp):
     optimizer_initial_step = Float()
     optimizer_min = Float()
     optimizer_max = Float()
+    optimizer_end_tolerance = Float()
     
     def __init__(self, name, experiment, description='', function=''):
         super(IndependentVariable, self).__init__(name, experiment, description, function)
@@ -50,7 +51,8 @@ class IndependentVariable(EvalProp):
         self.index = 0
         self.valueList = numpy.array([]).flatten()
         self.currentValue = None
-        self.properties += ['optimize', 'optimizer_initial_step', 'optimizer_min', 'optimizer_max']
+        self.properties += ['optimize', 'optimizer_initial_step', 'optimizer_min', 'optimizer_max',
+                            'optimizer_end_tolerance']
 
     def evaluate(self):
         """This function evaluates just the independent variables.  We do not update the rest of the experiment,
@@ -214,76 +216,176 @@ class Experiment(Prop):
         #we do not load in status as a variable, to allow old settings to be loaded without bringing in the status of
         #the saved experiments
 
-    def set_status(self, s):
-        self.status = s
-        self.set_gui({'statusStr': s})
+    def applyToSelf(self, dict):
+        """Used to apply a bunch of variables at once.  This function is called using an Enaml deferred_call so that the
+         updates are done in the GUI thread."""
 
-    def setup_logger(self):
-        #allow logging to a variable
-        self.log = cStringIO.StringIO()
-        rootlogger = logging.getLogger()
-        self.log_handler = logging.StreamHandler(self.log)
-        self.log_handler.setLevel(logging.DEBUG)
-        formatter = logging.Formatter(fmt='%(asctime)s - %(threadName)s - %(filename)s.%(funcName)s.%(lineno)s - %(levelname)s\n%(message)s\n', datefmt='%Y/%m/%d %H:%M:%S')
-        self.log_handler.setFormatter(formatter)
-        rootlogger.addHandler(self.log_handler)
+        for key, value in dict.iteritems():
+            try:
+                setattr(self, key, value)
+            except Exception as e:
+                logger.warning('Exception applying {} with value {} in experiments.applyToSelf.\n{}'.format(key, value, e))
+                raise PauseError
 
-    def reset_logger(self):
-        #close old stream
-        if self.log is not None:
-            self.log.flush()
-            self.log.close()
-        #create a new one
-        self.log = cStringIO.StringIO()
-        self.log_handler.stream = self.log
+    def autosave(self):
+        logger.debug('Saving settings to default settings.hdf5 ...')
+        #remove old autosave file
+        try:
+            os.remove('previous_settings.hdf5')
+        except Exception as e:
+            logger.debug('Could not delete previous_settings.hdf5:\n'+str(e))
+        try:
+            os.rename('settings.hdf5','previous_settings.hdf5')
+        except Exception as e:
+            logger.error('Could not rename old settings.hdf5 to previous_settings.hdf5:\n'+str(e))
 
-    def evaluateIndependentVariables(self):
-        if self.allow_evaluation:
-            logger.debug('Evaluating independent variables ...')
+        #create file
+        f = h5py.File('settings.hdf5', 'w')
+        #recursively add all properties
+        x = f.create_group('settings')
+        self.toHDF5(x)
+        f.flush()
+        return f
+        #you will need to do autosave().close() wherever this is called
 
-            #make sure ivar functions have been parsed
-            self.independentVariables.evaluate()
+    def create_data_files(self):
+        """Create a new HDF5 file to store results.  This is done at the beginning of
+        every experiment."""
 
-            #set up independent variables
-            self.ivarNames = [i.name for i in self.independentVariables]  # names of independent variables
-            self.ivarValueLists = [i.valueList for i in self.independentVariables]
-            self.ivarSteps = [i.steps for i in self.independentVariables]
-            self.totalIterations = int(numpy.product(self.ivarSteps))
+        #if a prior HDF5 results file is open, then close it
+        if hasattr(self, 'hdf5') and (self.hdf5 is not None):
+            try:
+                self.hdf5.flush()
+                self.hdf5.close()
+            except Exception as e:
+                logger.warning('Exception closing hdf5 file.\n'+str(e))
+                raise PauseError
 
-            # figure out how often each ivar will update with iterations (the "base")
-            self.ivarBases = numpy.roll(numpy.cumprod(self.ivarSteps), 1)
-            if len(self.ivarBases>0):
-                self.ivarBases[0] = 1
+        if self.saveData:
+            #create a new directory for experiment
 
-    def updateIndependentVariables(self):
-        """takes the iteration number and figures out which index number each independent variable should have"""
+            #build the path
+            self.dailyPath = datetime.datetime.fromtimestamp(self.timeStarted).strftime('%Y_%m_%d')
+            self.experimentPath = datetime.datetime.fromtimestamp(self.timeStarted).strftime('%Y_%m_%d_%H_%M_%S_')+self.experimentDescriptionFilenameSuffix
+            self.path = os.path.join(self.localDataPath, self.dailyPath, self.experimentPath)
 
-        # find the current index for each
-        index = (self.iteration//self.ivarBases) % self.ivarSteps
+            #check that it doesn't exist first
+            if not os.path.isdir(self.path):
+                #create the directory
+                #use os.makedirs instead of os.mkdir to create the intermediate dailyPath directory if it does not exist
+                os.makedirs(self.path)
 
-        for i, x in enumerate(self.independentVariables):
-           if not x.optimize:
-                index[i] = x.setIndex(index[i])  # update each variable object
-        self.ivarIndex = index
+            #save to a real file
+            self.hdf5 = h5py.File(os.path.join(self.path, 'results.hdf5'), 'a')
 
-    def evaluateAll(self):
-        if self.allow_evaluation:
-            self.evaluate_constants()
-            self.evaluateIndependentVariables()
-            self.evaluate()
+        else:
+            #hold results only in memory
+            self.hdf5 = h5py.File('results.hdf5', 'a', driver='core', backing_store=False)
 
-    def evaluate_constants(self):
-        if self.allow_evaluation:
-            # create a new dictionary and evaluate the constants into it
-            self.constants = {}
-            cs_evaluate.execWithDict(self.constantsStr, self.constants)
+        #add settings
+        if self.saveSettings:
 
-            # reset self.vars so it can be used in evaluating the constantReport
-            self.vars = self.constants.copy()
+            #start by saving settings
+            logger.debug('Autosaving')
+            autosave_file = self.autosave()
+            logger.debug('Done autosaving')
 
-            # evaluate constant report
-            #at this time the properties are not all evaluated, so, we must do this one manually
-            self.constantReport.evaluate()
+            try:
+                logger.debug('Copying autosave data to current HDF5')
+                autosave_file['settings'].copy(autosave_file['settings'], self.hdf5)
+            except:
+                logger.warning('Problem trying to copy autosave settings to HDF5 results file.')
+                raise PauseError
+            finally:
+                autosave_file.close()
+                logger.debug('Autosave closed')
+
+        #store independent variable data for experiment
+        t = time.time()
+        self.hdf5.attrs['start_time'] = t
+        self.hdf5.attrs['start_time_str'] = self.date2str(t)
+        self.hdf5.attrs['ivarNames'] = self.ivarNames
+        #self.hdf5.attrs['ivarValueLists'] = self.ivarValueLists  # temporarily disabled because HDF5 cannot handle arbitrary length lists of lists
+        self.hdf5.attrs['ivarSteps'] = self.ivarSteps
+
+        #create a group to hold iterations in the hdf5 file
+        self.hdf5.create_group('iterations')
+
+        #store notes.  They will be stored again at the end of the experiment.
+        self.hdf5['notes'] = self.notes
+
+        logger.debug('Finished create_data_files()')
+
+    def create_hdf5_iteration(self):
+        #write the iteration settings to the hdf5 file
+        self.iterationResults = self.hdf5.create_group('iterations/'+str(self.iteration))
+        t = time.time()
+        self.iterationResults.attrs['start_time'] = t
+        self.iterationResults.attrs['start_time_str'] = self.date2str(t)
+        self.iterationResults.attrs['iteration'] = self.iteration
+        self.iterationResults.attrs['ivarNames'] = self.ivarNames
+        self.iterationResults.attrs['ivarValues'] = [i.currentValue for i in self.independentVariables]
+        self.iterationResults.attrs['ivarIndex'] = self.ivarIndex
+        self.iterationResults['report'] = self.variableReport.value
+
+        #store the independent and dependent variable space
+        v = self.iterationResults.create_group('variables')
+        ignoreList = self.variablesNotToSave.split(',')
+        for key, value in self.vars.iteritems():
+            if key not in ignoreList:
+                try:
+                    v[key] = value
+                except Exception as e:
+                    logger.warning('Could not save variable '+key+' as an hdf5 dataset with value: '+str(value)+'\n'+str(e))
+
+    def date2str(self, time):
+        return datetime.datetime.fromtimestamp(time).strftime('%Y-%m-%d %H:%M:%S')
+
+    def endThread(self):
+        """Launches end() in a new thread, to keep GUI free"""
+        if self.status == 'running':
+            logger.warning('You cannot manually finish an experiment that is still running.  Pause first.')
+        else:
+            thread = threading.Thread(target=self.end)
+            thread.daemon = True
+            thread.start()
+
+    def end(self):
+        """Finishes the current experiment, and then uploads data"""
+
+        try:
+            self.postExperiment()
+            self.upload()
+        except PauseError:
+            self.set_status('paused after error')
+        except Exception as e:
+            logger.warning('Uncaught Exception in experiment.end:\n{}\n{}'.format(e, traceback.format_exc()))
+            self.set_status('paused after error')
+
+    def eval_general(self, string):
+        return cs_evaluate.evalWithDict(string, self.vars)
+
+    def eval_bool(self, string):
+        value, valid = self.eval_general(string)
+        if value is None:
+            return value, valid
+        else:
+            try:
+                return bool(value), valid
+            except Exception as e:
+                logger.warning('Unable to convert string to bool: {}, {}\n{}\n'.format(string, value, e))
+                return None, False
+
+    def eval_float(self, string):
+        value, valid = self.eval_general(string)
+        if value is None:
+            return value, valid
+        else:
+            try:
+                return float(value), valid
+            except Exception as e:
+                logger.warning('Unable to convert string to bool: {}, {}\n{}\n'.format(string, value, e))
+                return None, False
 
     def evaluate(self):
         """Resolve all equation in instruments.  This is overwritten from Prop."""
@@ -314,178 +416,51 @@ class Experiment(Prop):
 
             logger.debug('Finished evaluate().')
 
-    def eval_general(self, string):
-        return cs_evaluate.evalWithDict(string, self.vars)
-    
-    def eval_bool(self, string):
-        value, valid = self.eval_general(string)
-        if value is None:
-            return value, valid
-        else:
-            try:
-                return bool(value), valid
-            except Exception as e:
-                logger.warning('Unable to convert string to bool: {}, {}\n{}\n'.format(string, value, e))
-                return None, False
+    def evaluate_constants(self):
+        if self.allow_evaluation:
+            # create a new dictionary and evaluate the constants into it
+            self.constants = {}
+            cs_evaluate.execWithDict(self.constantsStr, self.constants)
 
-    def eval_float(self, string):
-        value, valid = self.eval_general(string)
-        if value is None:
-            return value, valid
-        else:
-            try:
-                return float(value), valid
-            except Exception as e:
-                logger.warning('Unable to convert string to bool: {}, {}\n{}\n'.format(string, value, e))
-                return None, False
+            # reset self.vars so it can be used in evaluating the constantReport
+            self.vars = self.constants.copy()
 
-    def stop(self):
-        """Stops output as soon as possible.  This is not run during the course of a normal experiment."""
-        # Manually force the status to idle, to cause the experiment to end
-        self.status = 'idle'
-        # stop each instrument
-        for i in self.instruments:
-            i.isDone = True
-            i.stop()
+            # evaluate constant report
+            #at this time the properties are not all evaluated, so, we must do this one manually
+            self.constantReport.evaluate()
 
-    def date2str(self, time):
-        return datetime.datetime.fromtimestamp(time).strftime('%Y-%m-%d %H:%M:%S')
-    
-    def time2str(self, time):
-        return str(datetime.timedelta(seconds=time))
+    def evaluateAll(self):
+        if self.allow_evaluation:
+            self.evaluate_constants()
+            self.evaluateIndependentVariables()
+            self.evaluate()
 
-    def update(self):
-        """Sends current settings to the instrument.  This function is run at the beginning of every new iteration.
-        Does not explicitly call evaluate, to avoid duplication of effort.
-        All calls to evaluate should already have been accomplished."""
+    def evaluateIndependentVariables(self):
+        if self.allow_evaluation:
+            logger.debug('Evaluating independent variables ...')
 
-        for i in self.instruments:
-            if i.enable:
-                #check that the instruments are initialized
-                if not i.isInitialized:
-                    i.initialize()  # reinitialize
-                i.update()  # put the settings to where they should be at this iteration
+            #make sure ivar functions have been parsed
+            self.independentVariables.evaluate()
 
-    def updateTime(self):
-        """Updates the GUI clock and recalculates the time-to-completion predictions."""
+            #set up independent variables
+            self.ivarNames = [i.name for i in self.independentVariables]  # names of independent variables
+            self.ivarValueLists = [i.valueList for i in self.independentVariables]
+            self.ivarSteps = [i.steps for i in self.independentVariables]
+            self.totalIterations = int(numpy.product(self.ivarSteps))
 
-        logger.debug('experiment.updateTime()')
-        self.currentTime = time.time()
-        
-        self.timeElapsed = self.currentTime-self.timeStarted
-
-        #calculate time per measurement
-        completedMeasurements = sum(self.completedMeasurementsByIteration)
-        if self.timeElapsed != 0:
-            timePerMeasurement = completedMeasurements/self.timeElapsed
-        else:
-            timePerMeasurement = 1
-        if len(self.completedMeasurementsByIteration) <= 1:
-            #if we're still in the first iteration, use the intended number of measurements
-            estTotalMeasurements = self.measurementsPerIteration*self.totalIterations
-        else:
-            #if we're after the first iteration, we have more information to work with, use the actual average number of measurements per iteration
-            estTotalMeasurements = numpy.mean(self.completedMeasurementsByIteration[:-1])*self.totalIterations
-        if estTotalMeasurements > 0:
-            self.progress = int(100*completedMeasurements/estTotalMeasurements)
-        else:
-            self.progress = 0
-
-        self.timeRemaining = timePerMeasurement*(estTotalMeasurements-completedMeasurements)
-        self.totalTime = self.timeElapsed+self.timeRemaining
-        self.completionTime = self.timeStarted+self.totalTime
-
-    def update_gui(self):
-        logger.debug('experiment.update_gui()')
-        self.set_gui({'measurementStr': str(self.measurement),
-                    'iterationStr': '{} of {}'.format(self.iteration, self.totalIterations-1),
-                    'goodMeasurementsStr': '{} of {}'.format(self.goodMeasurements, self.measurementsPerIteration-1),
-                    'statusStr': self.status,
-                    'timeStartedStr': self.date2str(self.timeStarted),
-                    'currentTimeStr': self.date2str(self.currentTime),
-                    'timeElapsedStr': self.time2str(self.timeElapsed),
-                    'timeRemainingStr': self.time2str(self.timeRemaining),
-                    'totalTimeStr': self.time2str(self.totalTime),
-                    'completionTimeStr': self.date2str(self.completionTime),
-                    'progressGUI': self.progress
-        })
-
-    def applyToSelf(self, dict):
-        """Used to apply a bunch of variables at once.  This function is called using an Enaml deferred_call so that the
-         updates are done in the GUI thread."""
-        
-        for key, value in dict.iteritems():
-            try:
-                setattr(self, key, value)
-            except Exception as e:
-                logger.warning('Exception applying {} with value {} in experiments.applyToSelf.\n{}'.format(key, value, e))
-                raise PauseError
-    
-    def resetAndGoThread(self):
-        thread = threading.Thread(target=self.resetAndGo)
-        thread.daemon = True
-        thread.start()
-
-    def resetAndGo(self):
-        """Reset the iteration variables and timing, then proceed with an experiment."""
-        self.reset()
-        self.go()
-
-    def resetThread(self):
-        thread = threading.Thread(target=self.reset)
-        thread.daemon = True
-        thread.start()
-
-    def reset(self):
-        """Reset the iteration variables and timing."""
-        
-        #check if we are ready to do an experiment
-        if self.status != 'idle':
-            logger.info('Current status is {}. Cannot reset experiment unless status is idle.  Try halting first.'.format(self.status))
-            return  # exit
-
-        #reset the log
-        self.reset_logger()
-        logger.info('resetting experiment')
-        self.set_gui({'valid': True})
-
-        self.set_status('beginning experiment')
-
-        #reset experiment variables
-        self.timeStarted = time.time()
-        self.iteration = 0
-        self.measurement = 0
-        self.goodMeasurements = 0
-        self.completedMeasurementsByIteration = []
-        self.progress = 0
-
-        self.update_gui()
-
-        # setup data directory and files
-        self.create_data_files()
-
-        # evaluate the constants and independent variables
-        self.evaluate_constants()
-        self.evaluateIndependentVariables()
-        self.updateIndependentVariables()
-        self.hdf5['constant_report'] = self.constantReport.value
-
-        # run analyses preExperiment
-        self.preExperiment()
-
-        # setup optimizer
-        self.optimizer.setup(self.hdf5)
-
-        self.set_status('paused before experiment')
+            # figure out how often each ivar will update with iterations (the "base")
+            self.ivarBases = numpy.roll(numpy.cumprod(self.ivarSteps), 1)
+            if len(self.ivarBases>0):
+                self.ivarBases[0] = 1
 
     def goThread(self):
         thread = threading.Thread(target=self.go)
         thread.daemon = True
         thread.start()
-    
+
     def go(self):
         """Pick up the experiment wherever it was left off."""
-        
+
         #check if we are ready to do an experiment
         if not self.status.startswith('paused'):
             logger.info('Current status is {}. Cannot continue an experiment unless status is paused.'.format(self.status))
@@ -546,6 +521,7 @@ class Experiment(Prop):
 
                     # We have completed this iteration, move on to the next one
                     logger.debug("Finished iteration")
+
                     self.postIteration()  # run analysis
 
                     # if this was the last iteration in this optimization loop, then run analysis and run optimizer
@@ -553,28 +529,29 @@ class Experiment(Prop):
 
                         logger.debug("Finished all iterations")
                         self.postExperiment()  # run analyses
-                        self.optimizer.update()  # update optimizer variables
+                        self.optimizer.update(self.hdf5)  # update optimizer variables
                         if self.optimizer.isDone:
+                            self.optimizer.postExperiment(self.hdf5)
                             self.upload()
                             break
 
-                    # otherwise we should advance to the next iteration
-                    else:
-                        self.iteration += 1  # increase iteration number
-                        self.measurement = 0  # reset measurement count
-                        self.goodMeasurements = 0  # reset good measurement count
+                    # if we didn't end the optimization above, we should advance to the next iteration
+                    self.iteration += 1  # increase iteration number
+                    self.measurement = 0  # reset measurement count
+                    self.goodMeasurements = 0  # reset good measurement count
 
-                        # pause after iteration
-                        if self.pauseAfterIteration:
-                            if self.status == 'running':
-                                self.set_status('paused after iteration')
-                                self.set_gui({'valid': False})
-                                if self.enable_sounds:
-                                    sound.error_sound()
-                            elif self.status == 'paused after measurement':
-                                self.set_status('paused after iteration')
-                                self.set_gui({'valid': False})
-                                # don't play the sounds
+                    # pause after iteration
+                    if self.pauseAfterIteration:
+                        if self.status == 'running':
+                            self.set_status('paused after iteration')
+                            self.set_gui({'valid': False})
+                            # play sounds
+                            if self.enable_sounds:
+                                sound.error_sound()
+                        elif self.status == 'paused after measurement':
+                            self.set_status('paused after iteration')
+                            self.set_gui({'valid': False})
+                            # we already played the sounds after the measurement.  Don't play the sounds again.
 
         except PauseError:
             #This should be the only place that PauseError is explicitly handed.
@@ -594,47 +571,56 @@ class Experiment(Prop):
             if self.enable_sounds:
                 sound.error_sound()
 
-    def endThread(self):
-        """Launches end() in a new thread, to keep GUI free"""
-        if self.status == 'running':
-            logger.warning('You cannot manually finish an experiment that is still running.  Pause first.')
-        else:
-            thread = threading.Thread(target=self.end)
-            thread.daemon = True
-            thread.start()
+    def loadDefaultSettings(self):
+        """Look for settings.hdf5 in this directory, and if it exists, load it."""
+        logger.debug('Loading default settings ...')
 
-    def end(self):
-        """Finishes the current experiment, and then uploads data"""
+        if os.path.isfile('settings.hdf5'):
+            self.load('settings.hdf5')
+        else:
+            logger.debug('Default settings.hdf5 does not exist.')
+
+    def load(self, path):
+        logger.debug('Loading file: '+path)
+
+        #set path as default
+        self.settings_path = os.path.dirname(path)
+
+        #Disable any equation evaluation while loading.  We will evaluate everything after.
+        if self.allow_evaluation:
+            allow_evaluation_was_toggled = True
+            self.allow_evaluation = False
+        else:
+            allow_evaluation_was_toggled = False
+
+        #load hdf5 from a file
+        if not os.path.isfile(path):
+            logger.debug('Settings file {} does not exist'.format(path))
+            raise PauseError
 
         try:
-            self.postExperiment()
-            self.upload()
-        except PauseError:
-            self.set_status('paused after error')
+            f = h5py.File(path, 'r')
         except Exception as e:
-            logger.warning('Uncaught Exception in experiment.end:\n{}\n{}'.format(e, traceback.format_exc()))
-            self.set_status('paused after error')
+            logger.warning('Problem loading HDF5 settings file in experiment.load().\n{}\n{}\n'.format(e, traceback.format_exc()))
+            raise PauseError
 
-    def uploadNowThread(self):
-        """Launches upload() in a new thread, to keep GUI free"""
-        if self.status == 'running':
-            logger.warning('You cannot manually finish an experiment that is still running.  Pause first.')
-        else:
-            thread = threading.Thread(target=self.upload)
-            thread.daemon = True
-            thread.start()
-
-    def uploadNow(self):
-        """Skip straight to uploading the current data."""
+        settings = f['settings/experiment']
 
         try:
-            self.upload()
-        except PauseError:
-            self.set_status('paused after error')
+            self.fromHDF5(settings)
         except Exception as e:
-            logger.warning('Uncaught Exception in experiment.upload:\n{}\n{}'.format(e, traceback.format_exc()))
-            self.set_status('paused after error')
+            logger.warning('in experiment.load()\n'+str(e)+'\n'+str(traceback.format_exc()))
+            # this is an error, but we will not pass it on, in order to finish loading
 
+
+        f.close()
+        logger.debug('File load done.')
+
+        if allow_evaluation_was_toggled:
+            self.allow_evaluation = True
+
+        #now re-evaluate everything
+        self.evaluateAll()
 
     def measure(self):
         """Enables all instruments to begin a measurement.  Sent at the beginning of every measurement.
@@ -669,7 +655,7 @@ class Experiment(Prop):
 
         #loop until all instruments are done
         #TODO: can we do this with a callback?
-        while not all([i.isDone for i in self.instruments]):
+        while (not all([i.isDone for i in self.instruments])) and (self.status == 'running'):
             if time.time() - start_time > self.measurementTimeout:  # break if timeout exceeded
                 self.timeOutExpired = True
                 logger.warning('The following instruments timed out: '+str([i.name for i in self.instruments if not i.isDone]))
@@ -695,211 +681,28 @@ class Experiment(Prop):
 
         self.postMeasurement()
         logger.debug('finished measurement')
-    
 
-    
-    def loadDefaultSettings(self):
-        """Look for settings.hdf5 in this directory, and if it exists, load it."""
-        logger.debug('Loading default settings ...')
+    def pause_now(self):
+        """Pauses experiment as soon as possible.  It is much safer to use Pause after Measurement instead of this.
+        One use for this is to set the status to 'paused' when halt was previously selected (setting the status to
+        idle).  This will allow for the continuation of an experiment that was accidentally halted."""
+        # Manually force the status to idle, to cause the experiment to end
+        self.status = 'paused immediate'
+        # stop each instrument
+        for i in self.instruments:
+            i.isDone = True
 
-        if os.path.isfile('settings.hdf5'):
-            self.load('settings.hdf5')
-        else:
-            logger.debug('Default settings.hdf5 does not exist.')
-
-    def load(self, path):
-        logger.debug('Loading file: '+path)
-
-        #set path as default
-        self.settings_path = os.path.dirname(path)
-
-        #Disable any equation evaluation while loading.  We will evaluate everything after.
-        if self.allow_evaluation:
-            allow_evaluation_was_toggled = True
-            self.allow_evaluation = False
-        else:
-            allow_evaluation_was_toggled = False
-
-        #load hdf5 from a file
-        if not os.path.isfile(path):
-            logger.debug('Settings file {} does not exist'.format(path))
-            raise PauseError
-            
-        try:
-            f = h5py.File(path, 'r')
-        except Exception as e:
-            logger.warning('Problem loading HDF5 settings file in experiment.load().\n{}\n{}\n'.format(e, traceback.format_exc()))
-            raise PauseError
-        
-        settings = f['settings/experiment']
-
-        try:
-            self.fromHDF5(settings)
-        except Exception as e:
-            logger.warning('in experiment.load()\n'+str(e)+'\n'+str(traceback.format_exc()))
-            # this is an error, but we will not pass it on, in order to finish loading
-
-
-        f.close()
-        logger.debug('File load done.')
-
-        if allow_evaluation_was_toggled:
-            self.allow_evaluation = True
-
-        #now re-evaluate everything
-        self.evaluateAll()
-
-    def autosave(self):
-        logger.debug('Saving settings to default settings.hdf5 ...')
-        #remove old autosave file
-        try:
-            os.remove('previous_settings.hdf5')
-        except Exception as e:
-            logger.debug('Could not delete previous_settings.hdf5:\n'+str(e))
-        try:
-            os.rename('settings.hdf5','previous_settings.hdf5')
-        except Exception as e:
-            logger.error('Could not rename old settings.hdf5 to previous_settings.hdf5:\n'+str(e))
-
-        #create file
-        f = h5py.File('settings.hdf5', 'w')
-        #recursively add all properties
-        x = f.create_group('settings')
-        self.toHDF5(x)
-        f.flush()
-        return f
-        #you will need to do autosave().close() wherever this is called
-
-    def save(self, path):
-        """This function saves all the settings."""
-        
-        logger.info('Saving...')
-
-        #set path as default
-        self.settings_path = os.path.dirname(path)
-
-        #HDF5
-        self.autosave().close()
-
-        #copy to default location
-        logger.debug('Copying HDF5 to save path...')
-        shutil.copy('settings.hdf5', path)
-        
-        #XML
-        #logger.debug('Creating XML...')
-        #x = self.toXML()
-        ##write to the chosen file
-        #logger.debug('Writing XML to save path...')
-        #f = open(path+'.xml', 'w')
-        #f.write(x)
-        #f.close()
-        #logger.debug('Writing default XML...')
-        ##write to the default file
-        #f = open('settings.xml', 'w')
-        #f.write(x)
-        #f.close()
-
-        logger.info('... Save Complete.')
-    
-    def create_data_files(self):
-        """Create a new HDF5 file to store results.  This is done at the beginning of
-        every experiment."""
-        
-        #if a prior HDF5 results file is open, then close it
-        if hasattr(self, 'hdf5') and (self.hdf5 is not None):
-            try:
-                self.hdf5.flush()
-                self.hdf5.close()
-            except Exception as e:
-                logger.warning('Exception closing hdf5 file.\n'+str(e))
-                raise PauseError
-        
-        if self.saveData:
-            #create a new directory for experiment
-            
-            #build the path
-            self.dailyPath = datetime.datetime.fromtimestamp(self.timeStarted).strftime('%Y_%m_%d')
-            self.experimentPath = datetime.datetime.fromtimestamp(self.timeStarted).strftime('%Y_%m_%d_%H_%M_%S_')+self.experimentDescriptionFilenameSuffix
-            self.path = os.path.join(self.localDataPath, self.dailyPath, self.experimentPath)
-            
-            #check that it doesn't exist first
-            if not os.path.isdir(self.path):
-                #create the directory
-                #use os.makedirs instead of os.mkdir to create the intermediate dailyPath directory if it does not exist
-                os.makedirs(self.path)
-            
-            #save to a real file
-            self.hdf5 = h5py.File(os.path.join(self.path, 'results.hdf5'), 'a')
-        
-        else:
-            #hold results only in memory
-            self.hdf5 = h5py.File('results.hdf5', 'a', driver='core', backing_store=False)
-        
-        #add settings
-        if self.saveSettings:
-        
-            #start by saving settings
-            logger.debug('Autosaving')
-            autosave_file = self.autosave()
-            logger.debug('Done autosaving')
-            
-            try:
-                logger.debug('Copying autosave data to current HDF5')
-                autosave_file['settings'].copy(autosave_file['settings'], self.hdf5)
-            except:
-                logger.warning('Problem trying to copy autosave settings to HDF5 results file.')
-                raise PauseError
-            finally:
-                autosave_file.close()
-                logger.debug('Autosave closed')
-        
-        #store independent variable data for experiment
-        t = time.time()
-        self.hdf5.attrs['start_time'] = t
-        self.hdf5.attrs['start_time_str'] = self.date2str(t)
-        self.hdf5.attrs['ivarNames'] = self.ivarNames
-        #self.hdf5.attrs['ivarValueLists'] = self.ivarValueLists  # temporarily disabled because HDF5 cannot handle arbitrary length lists of lists
-        self.hdf5.attrs['ivarSteps'] = self.ivarSteps
-        
-        #create a group to hold iterations in the hdf5 file
-        self.hdf5.create_group('iterations')
-        
-        #store notes.  They will be stored again at the end of the experiment.
-        self.hdf5['notes'] = self.notes
-        
-        logger.debug('Finished create_data_files()')
-    
-    def create_hdf5_iteration(self):
-        #write the iteration settings to the hdf5 file
-        self.iterationResults = self.hdf5.create_group('iterations/'+str(self.iteration))
-        t = time.time()
-        self.iterationResults.attrs['start_time'] = t
-        self.iterationResults.attrs['start_time_str'] = self.date2str(t)
-        self.iterationResults.attrs['iteration'] = self.iteration
-        self.iterationResults.attrs['ivarNames'] = self.ivarNames
-        self.iterationResults.attrs['ivarValues'] = [i.currentValue for i in self.independentVariables]
-        self.iterationResults.attrs['ivarIndex'] = self.ivarIndex
-        self.iterationResults['report'] = self.variableReport.value
-        
-        #store the independent and dependent variable space
-        v = self.iterationResults.create_group('variables')
-        ignoreList = self.variablesNotToSave.split(',')
-        for key, value in self.vars.iteritems():
-            if key not in ignoreList:
-                try:
-                    v[key] = value
-                except Exception as e:
-                    logger.warning('Could not save variable '+key+' as an hdf5 dataset with value: '+str(value)+'\n'+str(e))
-    
-    def preExperiment(self):
-        #run analyses
+    def postExperiment(self):
+        logger.info('Running postExperiment analyses ...')
+        # run analysis
         for i in self.analyses:
-            i.preExperiment(self.hdf5)
+            i.postExperiment(self.hdf5)
 
-    def preIteration(self):
-        #run analyses
+    def postIteration(self):
+        logger.debug('Starting postIteration()')
+        # run analysis
         for i in self.analyses:
-            i.preIteration(self.iterationResults, self.hdf5)
+            i.postIteration(self.iterationResults, self.hdf5)
 
     def postMeasurement(self):
         logger.debug('starting post measurement analyses')
@@ -937,17 +740,206 @@ class Experiment(Prop):
             self.goodMeasurements += 1
             self.completedMeasurementsByIteration[-1] += 1  # add one to the last counter in the list
 
-    def postIteration(self):
-        logger.debug('Starting postIteration()')
-        # run analysis
+    def preExperiment(self):
+        #run analyses
         for i in self.analyses:
-            i.postIteration(self.iterationResults, self.hdf5)
+            i.preExperiment(self.hdf5)
 
-    def postExperiment(self):
-        logger.info('Running postExperiment analyses ...')
-        # run analysis
+    def preIteration(self):
+        #run analyses
         for i in self.analyses:
-            i.postExperiment(self.hdf5)
+            i.preIteration(self.iterationResults, self.hdf5)
+
+    def reset(self):
+        """Reset the iteration variables and timing."""
+
+        #check if we are ready to do an experiment
+        if self.status != 'idle':
+            logger.info('Current status is {}. Cannot reset experiment unless status is idle.  Try halting first.'.format(self.status))
+            return  # exit
+
+        #reset the log
+        self.reset_logger()
+        logger.info('resetting experiment')
+        self.set_gui({'valid': True})
+
+        self.set_status('beginning experiment')
+
+        #reset experiment variables
+        self.timeStarted = time.time()
+        self.iteration = 0
+        self.measurement = 0
+        self.goodMeasurements = 0
+        self.completedMeasurementsByIteration = []
+        self.progress = 0
+
+        self.update_gui()
+
+        # setup data directory and files
+        self.create_data_files()
+
+        # evaluate the constants and independent variables
+        self.evaluate_constants()
+        self.evaluateIndependentVariables()
+        self.updateIndependentVariables()
+        self.hdf5['constant_report'] = self.constantReport.value
+
+        # run analyses preExperiment
+        self.preExperiment()
+
+        # setup optimizer
+        self.optimizer.setup(self.hdf5)
+
+        self.set_status('paused before experiment')
+
+    def reset_logger(self):
+        #close old stream
+        if self.log is not None:
+            self.log.flush()
+            self.log.close()
+        #create a new one
+        self.log = cStringIO.StringIO()
+        self.log_handler.stream = self.log
+
+    def resetAndGo(self):
+        """Reset the iteration variables and timing, then proceed with an experiment."""
+        self.reset()
+        self.go()
+
+    def resetAndGoThread(self):
+        thread = threading.Thread(target=self.resetAndGo)
+        thread.daemon = True
+        thread.start()
+
+    def resetThread(self):
+        thread = threading.Thread(target=self.reset)
+        thread.daemon = True
+        thread.start()
+
+    def save(self, path):
+        """This function saves all the settings."""
+
+        logger.info('Saving...')
+
+        #set path as default
+        self.settings_path = os.path.dirname(path)
+
+        #HDF5
+        self.autosave().close()
+
+        #copy to default location
+        logger.debug('Copying HDF5 to save path...')
+        shutil.copy('settings.hdf5', path)
+
+        #XML
+        #logger.debug('Creating XML...')
+        #x = self.toXML()
+        ##write to the chosen file
+        #logger.debug('Writing XML to save path...')
+        #f = open(path+'.xml', 'w')
+        #f.write(x)
+        #f.close()
+        #logger.debug('Writing default XML...')
+        ##write to the default file
+        #f = open('settings.xml', 'w')
+        #f.write(x)
+        #f.close()
+
+        logger.info('... Save Complete.')
+
+    def set_status(self, s):
+        self.status = s
+        self.set_gui({'statusStr': s})
+
+    def setup_logger(self):
+        #allow logging to a variable
+        self.log = cStringIO.StringIO()
+        rootlogger = logging.getLogger()
+        self.log_handler = logging.StreamHandler(self.log)
+        self.log_handler.setLevel(logging.DEBUG)
+        formatter = logging.Formatter(fmt='%(asctime)s - %(threadName)s - %(filename)s.%(funcName)s.%(lineno)s - %(levelname)s\n%(message)s\n', datefmt='%Y/%m/%d %H:%M:%S')
+        self.log_handler.setFormatter(formatter)
+        rootlogger.addHandler(self.log_handler)
+
+    def stop(self):
+        """Stops output as soon as possible.  This is not run during the course of a normal experiment."""
+        # Manually force the status to idle, to cause the experiment to end
+        self.status = 'idle'
+        # stop each instrument
+        for i in self.instruments:
+            i.isDone = True
+            i.stop()
+            i.isInitialized = False
+
+    def time2str(self, time):
+        return str(datetime.timedelta(seconds=time))
+
+    def update(self):
+        """Sends current settings to the instrument.  This function is run at the beginning of every new iteration.
+        Does not explicitly call evaluate, to avoid duplication of effort.
+        All calls to evaluate should already have been accomplished."""
+
+        for i in self.instruments:
+            if i.enable:
+                #check that the instruments are initialized
+                if not i.isInitialized:
+                    i.initialize()  # reinitialize
+                i.update()  # put the settings to where they should be at this iteration
+
+    def update_gui(self):
+        logger.debug('experiment.update_gui()')
+        self.set_gui({'measurementStr': str(self.measurement),
+                    'iterationStr': '{} of {}'.format(self.iteration, self.totalIterations-1),
+                    'goodMeasurementsStr': '{} of {}'.format(self.goodMeasurements, self.measurementsPerIteration-1),
+                    'statusStr': self.status,
+                    'timeStartedStr': self.date2str(self.timeStarted),
+                    'currentTimeStr': self.date2str(self.currentTime),
+                    'timeElapsedStr': self.time2str(self.timeElapsed),
+                    'timeRemainingStr': self.time2str(self.timeRemaining),
+                    'totalTimeStr': self.time2str(self.totalTime),
+                    'completionTimeStr': self.date2str(self.completionTime),
+                    'progressGUI': self.progress
+        })
+
+    def updateIndependentVariables(self):
+        """takes the iteration number and figures out which index number each independent variable should have"""
+
+        # find the current index for each
+        index = (self.iteration//self.ivarBases) % self.ivarSteps
+
+        for i, x in enumerate(self.independentVariables):
+           if not x.optimize:
+                index[i] = x.setIndex(index[i])  # update each variable object
+        self.ivarIndex = index
+
+    def updateTime(self):
+        """Updates the GUI clock and recalculates the time-to-completion predictions."""
+
+        logger.debug('experiment.updateTime()')
+        self.currentTime = time.time()
+
+        self.timeElapsed = self.currentTime-self.timeStarted
+
+        #calculate time per measurement
+        completedMeasurements = sum(self.completedMeasurementsByIteration)
+        if self.timeElapsed != 0:
+            timePerMeasurement = completedMeasurements/self.timeElapsed
+        else:
+            timePerMeasurement = 1
+        if len(self.completedMeasurementsByIteration) <= 1:
+            #if we're still in the first iteration, use the intended number of measurements
+            estTotalMeasurements = self.measurementsPerIteration*self.totalIterations
+        else:
+            #if we're after the first iteration, we have more information to work with, use the actual average number of measurements per iteration
+            estTotalMeasurements = numpy.mean(self.completedMeasurementsByIteration[:-1])*self.totalIterations
+        if estTotalMeasurements > 0:
+            self.progress = int(100*completedMeasurements/estTotalMeasurements)
+        else:
+            self.progress = 0
+
+        self.timeRemaining = timePerMeasurement*(estTotalMeasurements-completedMeasurements)
+        self.totalTime = self.timeElapsed+self.timeRemaining
+        self.completionTime = self.timeStarted+self.totalTime
 
     def upload(self):
         #store the notes again
@@ -970,3 +962,23 @@ class Experiment(Prop):
         logger.info('Finished Experiment.')
         if self.enable_sounds:
             sound.complete_sound()
+
+    def uploadNowThread(self):
+        """Launches upload() in a new thread, to keep GUI free"""
+        if self.status == 'running':
+            logger.warning('You cannot manually finish an experiment that is still running.  Pause first.')
+        else:
+            thread = threading.Thread(target=self.upload)
+            thread.daemon = True
+            thread.start()
+
+    def uploadNow(self):
+        """Skip straight to uploading the current data."""
+
+        try:
+            self.upload()
+        except PauseError:
+            self.set_status('paused after error')
+        except Exception as e:
+            logger.warning('Uncaught Exception in experiment.upload:\n{}\n{}'.format(e, traceback.format_exc()))
+            self.set_status('paused after error')

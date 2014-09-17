@@ -286,6 +286,9 @@ enamldef CsMenuBar(MenuBar): menuBar:
                 checkable = True
                 text = 'After Error'
                 checked := experiment.pauseAfterError
+            Action:
+                text = 'Now\tCtrl+P'
+                triggered :: experiment.pause_now()
         Action:
             text = 'Continue\tCtrl+G'
             triggered::experiment.goThread()
@@ -514,7 +517,7 @@ enamldef VariableEntry(GroupBox):
                 checked := indepVar.optimize
         Form:
             Label:
-                text = 'initial step'
+                text = 'initial step (abs)'
             FloatField:
                 value := indepVar.optimizer_initial_step
         Form:
@@ -527,6 +530,11 @@ enamldef VariableEntry(GroupBox):
                 text = 'max'
             FloatField:
                 value := indepVar.optimizer_max
+        Form:
+            Label:
+                text = 'end tolerance (abs)'
+            FloatField:
+                value := indepVar.optimizer_end_tolerance
     HGroup: values:
         Label:
             text << 'values: '+indepVar.valueListStr
@@ -2334,6 +2342,9 @@ enamldef Optimizer(Form):
         items = ['Nelder-Mead', 'genetic', 'gradient descent', 'weighted Nelder-Mead']
         index := analysis.optimization_method
 
+    # for the gradient method, the initial step size for each variable is usedwe need a separate step size that multiplies the gradient
+    Conditional:
+        condition << (analysis.optimization_method == 2)
     Label:
         text='End when step size is less than (fraction) on all axes'
     FloatField:
