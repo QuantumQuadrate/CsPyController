@@ -337,39 +337,38 @@ class DCNoiseEaterFilter(Analysis):
         self.properties += ['enable', 'what_to_filter', 'filter_level']
 
     def analyzeMeasurement(self, measurementResults, iterationResults, experimentResults):
-        if self.enable:
+        text = ''
+        if self.enable and ('DC_noise_eater' in measurementResults['data']):
             failed = False  # keep track of if any of the filters fail
-            text = ''
-            if self.experiment.LabView.TTL.enable and ('DC_noise_eater' in measurementResults['data']):
-                # read the DC Noise Eater results
-                data = measurementResults['data/DC_noise_eater']
+            # read the DC Noise Eater results
+            data = measurementResults['data/DC_noise_eater']
 
-                # parse the "what_to_filter" string
-                try:
-                    filter_list = eval(self.what_to_filter)
-                except Exception as e:
-                    logger.warning('Could not eval what_to_filter in NoiseEaterFilter:\n{}\n'.format(e))
-                    return
-                for i in filter_list:
-                    # read the data for the correct box, channel, variable
-                    d = data[i[0], i[1], i[2]]
-                    if  d > i[4]:
-                        # data is above the high limit
-                        text += 'Noise Eater filter failed for box {}, channel {}, variable {}.  Value was {}, above high limit {}.'.format(i[0], i[1], i[2], d, i[4])
-                        failed = True
-                    elif d < i[3]:
-                        # data is below the low limit
-                        text += 'Noise Eater filter failed for box {}, channel {}, variable {}.  Value was {}, below low limit {}.'.format(i[0], i[1], i[2], d, i[3])
-                        failed = True
+            # parse the "what_to_filter" string
+            try:
+                filter_list = eval(self.what_to_filter)
+            except Exception as e:
+                logger.warning('Could not eval what_to_filter in NoiseEaterFilter:\n{}\n'.format(e))
+                return
+            for i in filter_list:
+                # read the data for the correct box, channel, variable
+                d = data[i[0], i[1], i[2]]
+                if  d > i[4]:
+                    # data is above the high limit
+                    text += 'Noise Eater filter failed for box {}, channel {}, variable {}.  Value was {}, above high limit {}.'.format(i[0], i[1], i[2], d, i[4])
+                    failed = True
+                elif d < i[3]:
+                    # data is below the low limit
+                    text += 'Noise Eater filter failed for box {}, channel {}, variable {}.  Value was {}, below low limit {}.'.format(i[0], i[1], i[2], d, i[3])
+                    failed = True
 
-                #check to see if any of the filters failed
-                if failed:
-                    #record to the log and screen
-                    logger.warning(text)
-                    self.set_gui({'text': text})
-                    # User chooses whether or not to delete data.
-                    # max takes care of ComboBox returning -1 for no selection
-                    return max(0, self.filter_level)
-                else:
-                    text = 'okay'
-                    self.set_gui({'text': text})
+            #check to see if any of the filters failed
+            if failed:
+                #record to the log and screen
+                logger.warning(text)
+                self.set_gui({'text': text})
+                # User chooses whether or not to delete data.
+                # max takes care of ComboBox returning -1 for no selection
+                return max(0, self.filter_level)
+            else:
+                text = 'okay'
+        self.set_gui({'text': text})
