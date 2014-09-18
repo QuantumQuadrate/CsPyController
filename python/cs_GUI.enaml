@@ -549,7 +549,7 @@ enamldef VariableEntry(GroupBox):
 
 enamldef IndependentVariablesGroupBox(GroupBox):
     attr independentVariables
-    title='Independent Variables (2)'
+    title='Independent Variables (2, inner loop on top)'
 
     hug_height='strong'
     hug_width='strong'
@@ -2342,13 +2342,18 @@ enamldef Optimizer(Form):
         items = ['Nelder-Mead', 'genetic', 'gradient descent', 'weighted Nelder-Mead']
         index := analysis.optimization_method
 
-    # for the gradient method, the initial step size for each variable is usedwe need a separate step size that multiplies the gradient
+    # For the gradient method, the initial step size for each variable is used for determining the gradient.
+    # We need a separate step size that multiplies the gradient
     Conditional:
         condition << (analysis.optimization_method == 2)
-    Label:
-        text='End when step size is less than (fraction) on all axes'
-    FloatField:
-        value := analysis.end_condition_step_size
+        Label:
+            text = 'Initial gradient step size (fraction)'
+        FloatField:
+            value := analysis.gradient_initial_step
+        Label:
+            text='End when step size is less than (fraction)'
+        FloatField:
+            value := analysis.end_condition_step
 
     Label:
         text='cost function'

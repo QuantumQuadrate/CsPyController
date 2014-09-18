@@ -159,6 +159,9 @@ class Experiment(Prop):
 
     #optimization
     max_iterations = Int()
+    optimizer_count = Int()
+    optimizer_iteration_count = Int()
+    experiment_hdf5 = Member()
 
     #things we would rather not have to make Atom definitions for, but are forced to by Atom
     timeOutExpired = Member()
@@ -212,7 +215,8 @@ class Experiment(Prop):
                             'iteration', 'measurement', 'goodMeasurements', 'totalIterations', 'timeStarted',
                             'currentTime', 'timeElapsed', 'timeRemaining', 'totalTime', 'completionTime',
                             'constantReport', 'variableReport', 'variablesNotToSave', 'notes', 'max_iterations',
-                            'enable_sounds', 'enable_instrument_threads', 'optimizer']
+                            'enable_sounds', 'enable_instrument_threads', 'optimizer', 'optimization_count',
+                            'optimization_iteration_count']
         #we do not load in status as a variable, to allow old settings to be loaded without bringing in the status of
         #the saved experiments
 
@@ -338,6 +342,27 @@ class Experiment(Prop):
                 except Exception as e:
                     logger.warning('Could not save variable '+key+' as an hdf5 dataset with value: '+str(value)+'\n'+str(e))
 
+    def create_optimizer_iteration(self):
+        """
+        This method sets up the hdf5 storage for a new optimization loop.  It is called whenever a new iteration is
+        started, and then checks to see that we really are at the beginning of a whole optimization loop.
+        An hdf5 group is created to store the iterations for only this optimization loop.  Hard links are created so
+        that the iteration results will show up both in this new group, and in the iterations directory that stores
+        the iterations for all loops.  An optimizer_iteration_count resets every loop so that the results can be stored
+        into this new directory counting for zero.
+        """
+
+        if self.optimizer.enable:
+            # if this is a new optimization loop
+            experiment_hdf5_path = 'experiments/{}'.format(self.optimizer_count)
+            if experiment_hdf5_path not in self.hdf5:
+                # create a new group to store all the iterations in this loop
+                self.experiment_hdf5 = hdf5.create_group('experiments/{}'.format(self.optimizer_count))
+                # reset the optimization_iteration number, which tracks how many iterations are in this loop
+                self.optimizer_iteration_count = 0
+            # add this iteration to the group
+            self.experiment_hdf5[str(self.optimizer_iteration_count)] = self.iterationResults
+
     def date2str(self, time):
         return datetime.datetime.fromtimestamp(time).strftime('%Y-%m-%d %H:%M:%S')
 
@@ -449,6 +474,7 @@ class Experiment(Prop):
             self.totalIterations = int(numpy.product(self.ivarSteps))
 
             # figure out how often each ivar will update with iterations (the "base")
+            # the first (i.e. top) ivar becomes the "inner loop"
             self.ivarBases = numpy.roll(numpy.cumprod(self.ivarSteps), 1)
             if len(self.ivarBases>0):
                 self.ivarBases[0] = 1
@@ -475,18 +501,21 @@ class Experiment(Prop):
             while (self.status == 'running') and (not self.optimizer.is_done):
                 logger.debug("starting new iteration")
 
-                #at the start of a new iteration, or if we are continuing
+                # at the start of a new iteration, or if we are continuing
                 logger.debug("evaluating")
                 self.evaluate()  # update ivars to current iteration and re-calculate dependent variables
                 logger.debug("updating instruments")
                 self.update()  # send current values to hardware
 
-                #only at the start of a new iteration
+                # only at the start of a new iteration
                 if len(self.completedMeasurementsByIteration) <= self.iteration:
                     self.completedMeasurementsByIteration.append(0)  # start a new counter for this iteration
                 if not (str(self.iteration) in self.hdf5['iterations']):
                     self.create_hdf5_iteration()  # create an entry in the in hdf5 file
-                self.preIteration()  # reset the analyses
+                    self.preIteration()  # reset the analyses
+
+                    # only at the start of a new optimization experiment loop
+                    self.create_optimizer_iteration()
 
                 #loop until the desired number of measurements are taken
                 while (self.goodMeasurements < self.measurementsPerIteration) and (self.status == 'running'):
@@ -531,12 +560,16 @@ class Experiment(Prop):
                         self.postExperiment()  # run analyses
                         self.optimizer.update(self.hdf5)  # update optimizer variables
                         if self.optimizer.isDone:
-                            self.optimizer.postExperiment(self.hdf5)
+                            # the experiment is finished, run final analysis, upload data, and exit loop
+                            self.optimizer.postExperiment(self.experiment_hdf5)
                             self.upload()
                             break
+                        self.optimizer_count += 1
 
                     # if we didn't end the optimization above, we should advance to the next iteration
                     self.iteration += 1  # increase iteration number
+                    if self.optimizer.enable:
+                        self.optimizer_count += 1
                     self.measurement = 0  # reset measurement count
                     self.goodMeasurements = 0  # reset good measurement count
 
@@ -789,6 +822,7 @@ class Experiment(Prop):
 
         # setup optimizer
         self.optimizer.setup(self.hdf5)
+        self.optimizer_count = 0
 
         self.set_status('paused before experiment')
 

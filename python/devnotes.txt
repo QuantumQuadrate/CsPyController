@@ -3,7 +3,7 @@ CsPyController notes:
 TCP ports: 9000 LabView, 9001 Laird box temp
 
 current question:
-    optimizer exits after 1st iteration.  Does not continue.
+    use hdf5 hard links to create optimization sub-experiments
 
 TODO:
     piezo numpy array
@@ -26,7 +26,6 @@ TODO:
     make shotsBrowser update each measurement if selected index is same as current iteration and measurement
     selectable colors on digital waveform plot
     make dependent variables a fixed-width (courier) font
-    add 2nd HSDIO card, and combine them so it looks like 1 card with 64 channels
     a lot of the things that I have done using lists of Prop in ListProp would be better done using a separate numpy array for each property of the Prop (or one array of compound dtype)
     DAQmxDO grid generation is obtuse (simplify it)
     waveform values are not saved if Validation fails (they erase if a channel is added)
@@ -44,6 +43,8 @@ TODO:
     Use Atom ContainerList instead of List to put listeners on append and delete
 
 Done:
+    optimizer exits after 1st iteration.  Does not continue.
+    add 2nd HSDIO card, and combine them so it looks like 1 card with 64 channels
     check analysis
     retention graph
     convert histogram to multiline

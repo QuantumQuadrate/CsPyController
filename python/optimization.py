@@ -41,16 +41,18 @@ class Optimization(AnalysisWithFigure):
     best_xi = Member()
     best_yi = Member()
     generator = Member()
-    initial_step = Member()
+    initial_step = Member()  # an array of initial steps for each variable
     optimization_method = Int(0)
-    end_condition_step_size = Float(.0001)
+    line_search_initial_step = Float(.01)  # a global initial step for line search algorithms
+    end_condition_step = Float(.0001)
     cost_function = Str()
     optimization_variables = Member()
     is_done = Bool()
 
     def __init__(self, name, experiment, description=''):
         super(Optimization, self).__init__(name, experiment, description)
-        self.properties += ['version', 'enable', 'initial_step', 'end_condition_step_size', 'cost_function', 'optimization_method']
+        self.properties += ['version', 'enable', 'initial_step', 'gradient_initial_step', 'end_condition_step_size',
+                            'cost_function', 'optimization_method']
 
     def setup(self, experimentResults):
         self.optimization_variables = []
@@ -66,8 +68,9 @@ class Optimization(AnalysisWithFigure):
 
             self.is_done = False
 
-            #start all the independent variables at the value given for the 0th iteration
+            # start all the independent variables at the value given for the 0th iteration
             self.xi = numpy.array([i.valueList[0] for i in self.optimization_variables], dtype=float)
+            # create an array to store the separate initial steps for each variable
             self.initial_step = numpy.array([i.optimizer_initial_step for i in self.optimization_variables], dtype=float)
             self.axes = len(self.optimization_variables)
 
@@ -109,9 +112,11 @@ class Optimization(AnalysisWithFigure):
             # store this data point
             self.xlist.append(self.xi)
             self.ylist.append(self.yi)
+            # expand the values array
             a = experimentResults['analysis/optimizer/values']
             a.resize(a.len()+1, axis=0)
             a[-1] = self.xi
+            # expand the costs array
             b = experimentResults['analysis/optimizer/costs']
             b.resize(b.len()+1, axis=0)
             b[-1] = self.yi
@@ -193,8 +198,13 @@ class Optimization(AnalysisWithFigure):
                 yi = self.yi
 
     def gradient_descent(self, x0):
+        """An optimization algorithm that finds the local gradient, then moves in the direction of fastest descent.
+        A line search is done along that direction, then the process repeats."""
+
         axes = len(x0)
-        step_size = numpy.average(self.initial_step)
+        # initial_step is used as the number multiplied by the gradient during the line search.
+        # Separate step_sizes are used for each variable during the gradient evaluation.
+        step_size = self.line_search_initial_step
         y0 = self.yi
         while True:
             # find gradient at the current point by making a small move on each axis
@@ -203,7 +213,7 @@ class Optimization(AnalysisWithFigure):
             for i in xrange(axes):
                 logger.info('testing gradient on axis' + str(i))
                 x_test = x0.copy()
-                x_test[i] += step_size[i]
+                x_test[i] += self.initial_step[i]
                 yield x_test
                 dx[i] = x_test[i]-x0[i]
                 dy[i] = self.yi-y0
@@ -234,7 +244,7 @@ class Optimization(AnalysisWithFigure):
                 while self.yi >= y_best:
 
                     # or end the optimization if the step size gets sufficiently small
-                    if step_size < self.end_condition_step_size:
+                    if step_size < self.end_condition_step:
                         raise StopIteration
 
                     step_size *= 0.5
@@ -249,7 +259,7 @@ class Optimization(AnalysisWithFigure):
         """Perform the simplex algorithm.  x is 2D array of settings.  y is a 1D array of costs at each of those settings.
         When comparisons are made, lower is better."""
 
-        #x0 is assigned when this generator is created, but nothing else is done until the first time next() is called
+        # x0 is assigned when this generator is created, but nothing else is done until the first time next() is called
 
         axes = len(x0)
         n = axes + 1
@@ -269,8 +279,8 @@ class Optimization(AnalysisWithFigure):
             x[i+1] = xi
             y[i+1] = self.yi
 
-        # loop until all sides of the simplex are smaller than the end_condition
-        while numpy.amax([numpy.sqrt(numpy.sum((x[i]-x[0])**2)) for i in xrange(1, n)]) >= self.end_condition_step_size:
+        # loop until the simplex is smaller than the end tolerances on each axis
+        while numpy.all((numpy.amax(x, axis=0)-numpy.amin(x, axis=0)) <= self.end_condition_step):
 
             # order the values
             order = numpy.argsort(y)
@@ -367,15 +377,15 @@ class Optimization(AnalysisWithFigure):
             xi = x0.copy()
             # if the element is zero, add an offset.  If it is non-zero, multiply the offset
             if xi[i] == 0:
-                xi[i] = self.initial_step
+                xi[i] = self.initial_step[i]
             else:
                 xi[i] *= (1 + self.initial_step)
             yield xi
             x[i+1] = xi
             y[i+1] = self.yi
 
-        # loop until all sides of the simplex are smaller than the end_condition
-        while numpy.amax([numpy.sqrt(numpy.sum((x[i]-x[0])**2)) for i in xrange(1, n)]) >= self.end_condition_step_size:
+        # loop until the simplex is smaller than the end tolerances on each axis
+        while numpy.all((numpy.amax(x, axis=0)-numpy.amin(x, axis=0)) <= self.end_condition_step):
 
             # order the values
             order = numpy.argsort(y)
