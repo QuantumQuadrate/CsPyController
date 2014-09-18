@@ -337,10 +337,10 @@ class DCNoiseEaterFilter(Analysis):
         self.properties += ['enable', 'what_to_filter', 'filter_level']
 
     def analyzeMeasurement(self, measurementResults, iterationResults, experimentResults):
+        text = ''
         if self.enable:
             failed = False  # keep track of if any of the filters fail
-            text = ''
-            if self.experiment.LabView.TTL.enable and ('DC_noise_eater' in measurementResults['data']):
+            if 'DC_noise_eater' in measurementResults['data']:
                 # read the DC Noise Eater results
                 data = measurementResults['data/DC_noise_eater']
 
@@ -372,4 +372,4 @@ class DCNoiseEaterFilter(Analysis):
                     return max(0, self.filter_level)
                 else:
                     text = 'okay'
-                    self.set_gui({'text': text})
+        self.set_gui({'text': text})
