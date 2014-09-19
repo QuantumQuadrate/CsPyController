@@ -50,7 +50,7 @@ def setup_log():
 
     #set up logging to console for INFO and worse
     sh = logging.StreamHandler()
-    sh.setLevel(logging.DEBUG)
+    sh.setLevel(logging.INFO)
     sh_formatter = logging.Formatter(fmt='%(asctime)s\n%(message)s\n\n', datefmt='%H:%M:%S')
     sh.setFormatter(sh_formatter)
 
