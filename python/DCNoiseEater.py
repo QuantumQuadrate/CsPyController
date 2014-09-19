@@ -129,28 +129,25 @@ class Channel(Prop):
                             'integrationTime', 'trigNum', 'measNum', 'kp', 'ki', 'setpoint', 'average', 'error', 'vin',
                             'vout', 'warning']
 
+    def read_status_from_hardware(self, data):
+        # format the data returned by the noise eater
+        # the code 'b?h?hbbhhhhhhh?' specifies b: signed int8, ?: binary stored as 8 bits, h: uint16
+        # '<' is because the propeller chip is little-endian
+        # status variables are written to immediately, but use intermediate variables for the settings
+        mode, warnSetting, limitRange, invert, integrationTime, trigNum, measNum, kp, ki, setpoint, average, error, vin, vout, warning = struct.unpack('<b?h?hbbhhhhhhh?', data)
+        self.set_gui({'average': average, 'error': error, 'vin': vin, 'vout': vout, 'warning': warning})
+
     def settings_in_from_hardware(self, data):
         # format the data returned by the noise eater
         # the code 'b?h?hbbhhhhhhh?' specifies b: signed int8, ?: binary stored as 8 bits, h: uint16
         # '<' is because the propeller chip is little-endian
         # status variables are written to immediately, but use intermediate variables for the settings
-        mode, warnSetting, limitRange, invert, integrationTime, trigNum, measNum, kp, ki, setpoint, self.average, self.error, self.vin, self.vout, self.warning = struct.unpack('<b?h?hbbhhhhhhh?', data)
+        mode, warnSetting, limitRange, invert, integrationTime, trigNum, measNum, kp, ki, setpoint, average, error, vin, vout, warning = struct.unpack('<b?h?hbbhhhhhhh?', data)
+        self.set_gui({'average': average, 'error': error, 'vin': vin, 'vout': vout, 'warning': warning})
         if self.allow_get:
-            deferred_call(self.gui_write, mode, warnSetting, limitRange, invert, integrationTime, trigNum, measNum, kp, ki, setpoint)
-
-    def gui_write(self, mode, warnSetting, limitRange, invert, integrationTime, trigNum, measNum, kp, ki, setpoint):
-        # This is implemented as a separate method so it can be called from the GUI thread.
-        # overwrite the settings on the computer with those loaded from the noise eater
-        self.mode = mode
-        self.warnSetting = warnSetting
-        self.limitRange = limitRange
-        self.invert = invert
-        self.integrationTime = integrationTime
-        self.trigNum = trigNum
-        self.measNum = measNum
-        self.kp.function = str(kp)
-        self.ki.function = str(ki)
-        self.setpoint = setpoint
+            self.set_gui({'mode': mode, 'warnSetting': warnSetting, 'limitRange': limitRange, 'invert': invert, 'integrationTime': integrationTime, 'trigNum': trigNum, 'measNum': measNum, 'setpoint': setpoint})
+            self.kp.set_gui({'function': str(kp)})
+            self.ki.set_gui({'function': str(ki)})
 
     def settings_out_to_hardware(self):
         # return a 15 byte array that will be what is sent to the hardware for this channel
@@ -243,9 +240,32 @@ class DCNoiseEater(Instrument):
                 # update the settings of each channel
                 for i, c in enumerate(self.channels):
                     d = data_in[24*i:24*(i+1)]
-                    c.settings_in_from_hardware(d)
-                    #c.print_settings()
+                    c.read_status_from_hardware(d)
         self.isDone = True
+
+    def update(self):
+        if self.enable:
+            # every measurement, we write settings to the Noise Eater, and then read back the setting and vin/vout values
+
+            data = self.format_output(self.channels)
+
+            # clear old data
+            self.ser.flushOutput()  # Flush output buffer, discarding all its contents.
+            self.ser.flushInput()   # Flush input buffer, discarding all its contents.
+
+            # write
+            self.ser.write('!VB\n')  # write a string to the noise eater, which tells it to accept settings and return dat'
+            self.ser.write(data)  # follow this with the settings
+
+            # read
+            time.sleep(.02)  # wait 20 milliseconds for data to be returned
+            header = self.ser.readline()
+            if header == '!P1\n':
+                data_in = self.ser.read(96)  # read 96 bits
+                # update the settings of each channel
+                for i, c in enumerate(self.channels):
+                    d = data_in[24*i:24*(i+1)]
+                    c.settings_in_from_hardware(d)
 
     def resultsArray(self):
         # return an array of all the variables, with an entry for each channel in this box
