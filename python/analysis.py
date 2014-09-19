@@ -150,6 +150,10 @@ class Analysis(Prop):
         Subclass this to update the analysis appropriately."""
         pass
 
+    def finalize(self, hdf5):
+        """To be run after all optimization loops are complete, so as to close files and such."""
+        pass
+
 class AnalysisWithFigure(Analysis):
     
     #matplotlib figures
@@ -470,10 +474,9 @@ class ImageSumAnalysis(AnalysisWithFigure):
             finally:
                 self.update_lock = False
 
-    def postExperiment(self, experimentResults):
+    def finalize(self, experimentResults):
         if self.enable and self.experiment.saveData:
             self.pdf.close()
-
 
 class SquareROIAnalysis(AnalysisWithFigure):
     """Add up the sums of pixels in a region, and evaluate whether or not an atom is present based on the totals."""
@@ -699,7 +702,7 @@ class HistogramGrid(AnalysisWithFigure):
         if self.enable and self.experiment.saveData:
             self.pdf = PdfPages(os.path.join(self.experiment.path, 'histogram_grid_{}.pdf'.format(self.experiment.experimentPath)))
 
-    def postExperiment(self, experimentResults):
+    def finalize(self, experimentResults):
         if self.enable and self.experiment.saveData:
             self.pdf.close()
 

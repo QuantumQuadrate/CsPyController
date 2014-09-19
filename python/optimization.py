@@ -55,7 +55,7 @@ class Optimization(AnalysisWithFigure):
         self.properties += ['version', 'enable', 'initial_step', 'line_search_initial_step', 'end_condition_step',
                             'cost_function', 'optimization_method']
 
-    def setup(self, experimentResults):
+    def setup(self, hdf5):
         self.optimization_variables = []
         enable = False  # don't enable unless there are some optimization variables
         for i, x in enumerate(self.experiment.independentVariables):
@@ -77,11 +77,11 @@ class Optimization(AnalysisWithFigure):
             self.axes = len(self.optimization_variables)
 
             # save the optimizer data
-            experimentResults['analysis/optimizer/names'] = [i.name for i in self.optimization_variables]
-            experimentResults['analysis/optimizer'].create_dataset('values', [0, self.axes], maxshape=[None, self.axes])
-            experimentResults['analysis/optimizer'].create_dataset('costs', [0], maxshape=[None])
-            experimentResults['analysis/optimizer/best_values'] = numpy.zeros(self.axes, dtype=float)
-            experimentResults['analysis/optimizer/best_cost'] = float('inf')
+            hdf5['analysis/optimizer/names'] = [i.name for i in self.optimization_variables]
+            hdf5['analysis/optimizer'].create_dataset('values', [0, self.axes], maxshape=[None, self.axes])
+            hdf5['analysis/optimizer'].create_dataset('costs', [0], maxshape=[None])
+            hdf5['analysis/optimizer/best_values'] = numpy.zeros(self.axes, dtype=float)
+            hdf5['analysis/optimizer/best_cost'] = float('inf')
 
             #create a new generator to choose optimization points
             methods = [self.simplex, self.genetic, self.gradient_descent, self.weighted_simplex]
@@ -94,7 +94,7 @@ class Optimization(AnalysisWithFigure):
         else:
             self.is_done = True
 
-    def update(self, experimentResults):
+    def update(self, hdf5, experimentResults):
         if self.enable:
 
             # evaluate the cost function, with access to all backend variables
@@ -115,11 +115,11 @@ class Optimization(AnalysisWithFigure):
             self.xlist.append(self.xi)
             self.ylist.append(self.yi)
             # expand the values array
-            a = experimentResults['analysis/optimizer/values']
+            a = hdf5['analysis/optimizer/values']
             a.resize(a.len()+1, axis=0)
             a[-1] = self.xi
             # expand the costs array
-            b = experimentResults['analysis/optimizer/costs']
+            b = hdf5['analysis/optimizer/costs']
             b.resize(b.len()+1, axis=0)
             b[-1] = self.yi
 
@@ -129,8 +129,8 @@ class Optimization(AnalysisWithFigure):
                 self.best_xi = self.xi
                 self.best_yi = self.yi
                 # update hdf5
-                experimentResults['analysis/optimizer/best_values'][...] = self.xi
-                experimentResults['analysis/optimizer/best_cost'][...] = self.yi
+                hdf5['analysis/optimizer/best_values'][...] = self.xi
+                hdf5['analysis/optimizer/best_cost'][...] = self.yi
                 # update experiment independent variables
                 for i, j in zip(self.optimization_variables, self.xi):
                     i.set_gui({'function': str(j)})
@@ -149,7 +149,7 @@ class Optimization(AnalysisWithFigure):
         else:
             self.is_done = True
 
-    def postExperiment(self, experimentResults):
+    def finalize(self, hdf5):
         if self.enable:
 
             # store the cost graph to a pdf
@@ -281,8 +281,12 @@ class Optimization(AnalysisWithFigure):
             x[i+1] = xi
             y[i+1] = self.yi
 
+        logger.debug('Finished simplex exploration.')
+
         # loop until the simplex is smaller than the end tolerances on each axis
-        while numpy.all((numpy.amax(x, axis=0)-numpy.amin(x, axis=0)) <= self.end_condition_step):
+        while numpy.all((numpy.amax(x, axis=0)-numpy.amin(x, axis=0)) > self.end_condition_step):
+
+            logger.debug('Starting new round of simplex algorithm.')
 
             # order the values
             order = numpy.argsort(y)
@@ -387,7 +391,7 @@ class Optimization(AnalysisWithFigure):
             y[i+1] = self.yi
 
         # loop until the simplex is smaller than the end tolerances on each axis
-        while numpy.all((numpy.amax(x, axis=0)-numpy.amin(x, axis=0)) <= self.end_condition_step):
+        while numpy.all((numpy.amax(x, axis=0)-numpy.amin(x, axis=0)) > self.end_condition_step):
 
             # order the values
             order = numpy.argsort(y)

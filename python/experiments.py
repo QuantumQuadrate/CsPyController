@@ -560,10 +560,12 @@ class Experiment(Prop):
 
                         logger.debug("Finished all iterations")
                         self.postExperiment()  # run analyses
-                        self.optimizer.update(self.hdf5)  # update optimizer variables
-                        if self.optimizer.isDone:
+                        self.optimizer.update(self.hdf5, self.experiment_hdf5)  # update optimizer variables
+                        if self.optimizer.is_done:
                             # the experiment is finished, run final analysis, upload data, and exit loop
-                            self.optimizer.postExperiment(self.experiment_hdf5)
+                            for i in self.analyses:
+                                i.postExperiment(self.hdf5)
+                            self.optimizer.postExperiment(self.hdf5)
                             self.upload()
                             break
                         self.optimizer_count += 1
@@ -731,7 +733,7 @@ class Experiment(Prop):
         logger.info('Running postExperiment analyses ...')
         # run analysis
         for i in self.analyses:
-            i.postExperiment(self.hdf5)
+            i.postExperiment(self.experiment_hdf5)
 
     def postIteration(self):
         logger.debug('Starting postIteration()')
