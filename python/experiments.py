@@ -498,9 +498,8 @@ class Experiment(Prop):
         try:  # if there is an error we exit the inner loops and respond appropriately
 
             # optimization and iteration loop
-            logger.debug(self.status)
-            logger.debug(self.optimizer.is_done)
-            while (self.status == 'running') and (not self.optimizer.is_done):
+            logger.debug('Before go() loop: status = {}, and optimizer.is_done = {}'.format(self.status, self.optimizer.is_done))
+            while (self.status == 'running') and ((not self.optimizer.enable) or (not self.optimizer.is_done)):
                 logger.debug("starting new iteration")
 
                 # at the start of a new iteration, or if we are continuing
@@ -564,8 +563,8 @@ class Experiment(Prop):
                         if self.optimizer.is_done:
                             # the experiment is finished, run final analysis, upload data, and exit loop
                             for i in self.analyses:
-                                i.postExperiment(self.hdf5)
-                            self.optimizer.postExperiment(self.hdf5)
+                                i.finalize(self.hdf5)
+                            self.optimizer.finalize(self.hdf5)
                             self.upload()
                             break
                         self.optimizer_count += 1
