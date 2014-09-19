@@ -60,17 +60,12 @@ class Controller(object):
         self.ser = serial.Serial(port, 115200, timeout=.05, writeTimeout=.05)
 
         # open the file to log the results
-        filename = r'X:\{}.txt'.format(self.name)
-
-        # check if it already exists
-        exists = os.path.exists(filename)
-
-        # open data file in append mode
-        self.file = open(filename, 'a')
+        self.filename = r'X:\{}.txt'.format(self.name)
 
         # add the header if necessary
-        if not exists:
-            self.file.write('Date and time\t'+'\t'.join(labels)+'\n')
+        if not os.path.exists(self.filename):
+            with open(self.filename, 'w') as f:
+                f.write('Date and time\t'+'\t'.join(labels)+'\n')
 
         # create an array to hold returned data
         self.data = np.zeros(8, dtype=np.float64)
@@ -98,7 +93,8 @@ class Controller(object):
             print self.name, ' '.join(map(str, self.data))
             datestring = datetime.datetime.now().strftime('%Y/%m/%d %H:%M:%S')
             datastring = '\t'.join(map((lambda x: '{:.6f}'.format(x)), self.data))
-            self.file.write(datestring + '\t' + datastring + '\n')
+            with open(self.filename, 'a') as f:
+                f.write(datestring + '\t' + datastring + '\n')
         except Exception as e:
             logger.error('Error in write_to_file() for controller {}:\n{}\n'.format(self.name, e))
 
