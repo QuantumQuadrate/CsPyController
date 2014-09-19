@@ -198,9 +198,10 @@ class TextAnalysis(Analysis):
 
     def analyzeMeasurement(self, measurementResults, iterationResults, experimentResults):
         try:
-            text = 'iteration {} measurement {}\nCamera temperature: {} C'.format(iterationResults.attrs['iteration'],
-                                                              measurementResults.name.split('/')[-1],
-                                                              measurementResults['data/Hamamatsu/temperature'].value)
+            text = 'iteration {} measurement {}'.format(iterationResults.attrs['iteration'],
+                                                              measurementResults.name.split('/')[-1])
+            if 'data/Hamamatsu/temperature' in measurementResults:
+                text += '\nCamera temperature: {} C'.format(measurementResults['data/Hamamatsu/temperature'].value)
         except KeyError as e:
             logger.warning('HDF5 text does not exist in TextAnalysis\n{}\n'.format(e))
             return
