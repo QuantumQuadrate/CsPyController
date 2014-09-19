@@ -33,6 +33,7 @@ from analysis import AnalysisWithFigure
 class Optimization(AnalysisWithFigure):
     version = '2014.05.07'
     enable = Bool()  # whether or not to activate this optimization
+    enable_gui = Bool()  # shows the enable state on the gui checkbox
     axes = Member()
     xi = Member()  # the current settings (len=axes)
     yi = Member()  # the current cost
@@ -51,7 +52,7 @@ class Optimization(AnalysisWithFigure):
 
     def __init__(self, name, experiment, description=''):
         super(Optimization, self).__init__(name, experiment, description)
-        self.properties += ['version', 'enable', 'initial_step', 'gradient_initial_step', 'end_condition_step_size',
+        self.properties += ['version', 'enable', 'initial_step', 'line_search_initial_step', 'end_condition_step',
                             'cost_function', 'optimization_method']
 
     def setup(self, experimentResults):
@@ -62,7 +63,8 @@ class Optimization(AnalysisWithFigure):
                 enable = True  # there is at least one optimization variable
                 self.optimization_variables += [x]
                 x.setIndex(0)
-        self.set_gui({'enable': enable})
+        self.enable = enable
+        self.set_gui({'enable_gui': enable})
 
         if self.enable:
 

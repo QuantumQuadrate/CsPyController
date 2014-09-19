@@ -215,8 +215,8 @@ class Experiment(Prop):
                             'iteration', 'measurement', 'goodMeasurements', 'totalIterations', 'timeStarted',
                             'currentTime', 'timeElapsed', 'timeRemaining', 'totalTime', 'completionTime',
                             'constantReport', 'variableReport', 'variablesNotToSave', 'notes', 'max_iterations',
-                            'enable_sounds', 'enable_instrument_threads', 'optimizer', 'optimization_count',
-                            'optimization_iteration_count']
+                            'enable_sounds', 'enable_instrument_threads', 'optimizer', 'optimizer_count',
+                            'optimizer_iteration_count']
         #we do not load in status as a variable, to allow old settings to be loaded without bringing in the status of
         #the saved experiments
 
@@ -357,7 +357,7 @@ class Experiment(Prop):
             experiment_hdf5_path = 'experiments/{}'.format(self.optimizer_count)
             if experiment_hdf5_path not in self.hdf5:
                 # create a new group to store all the iterations in this loop
-                self.experiment_hdf5 = hdf5.create_group('experiments/{}'.format(self.optimizer_count))
+                self.experiment_hdf5 = self.hdf5.create_group('experiments/{}'.format(self.optimizer_count))
                 # reset the optimization_iteration number, which tracks how many iterations are in this loop
                 self.optimizer_iteration_count = 0
             # add this iteration to the group
@@ -498,6 +498,8 @@ class Experiment(Prop):
         try:  # if there is an error we exit the inner loops and respond appropriately
 
             # optimization and iteration loop
+            logger.debug(self.status)
+            logger.debug(self.optimizer.is_done)
             while (self.status == 'running') and (not self.optimizer.is_done):
                 logger.debug("starting new iteration")
 
@@ -904,6 +906,7 @@ class Experiment(Prop):
             i.isDone = True
             i.stop()
             i.isInitialized = False
+        self.set_gui({'statusStr': self.status})
 
     def time2str(self, time):
         return str(datetime.timedelta(seconds=time))

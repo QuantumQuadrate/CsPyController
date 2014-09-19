@@ -2333,7 +2333,7 @@ enamldef Optimizer(Form):
     Label:
         text = 'enable'
     CheckBox:
-        checked := analysis.enable
+        checked << analysis.enable_gui
         enabled = False
 
     Label:
