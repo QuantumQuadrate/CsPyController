@@ -216,11 +216,16 @@ class DCNoiseEater(Instrument):
 
         return data
 
+    def no_update_output(self):
+        # create a blank output with no data, for when we are just reading status, and not writing settings
+        data = (1+len(channels)*chr(0)
+        return data
+
     def start(self):
         if self.enable:
             # every measurement, we write settings to the Noise Eater, and then read back the setting and vin/vout values
 
-            data = self.format_output(self.channels)
+            data = self.no_update_output()
 
             # clear old data
             self.ser.flushOutput()  # Flush output buffer, discarding all its contents.
