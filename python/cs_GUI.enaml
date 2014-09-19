@@ -541,11 +541,13 @@ enamldef VariableEntry(GroupBox):
     HGroup: status:
         hug_width = 'strong'
         hug_height = 'strong'
-        # constraints = [align('v_center',stepsLabel,currentValueLabel)]
-        Label: stepsLabel:
+        Label:
             text << 'step: '+str(indepVar.index)+' of '+str(indepVar.steps)
-        Label: currentValueLabel:
-            text << 'current value: '+indepVar.currentValueStr
+        Label:
+            text = 'current value'
+        Field:
+            text << indepVar.currentValueStr
+            enabled = False
 
 enamldef IndependentVariablesGroupBox(GroupBox):
     attr independentVariables
