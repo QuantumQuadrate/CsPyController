@@ -218,7 +218,7 @@ class DCNoiseEater(Instrument):
 
     def no_update_output(self):
         # create a blank output with no data, for when we are just reading status, and not writing settings
-        data = (1+len(channels)*chr(0)
+        data = (1+len(self.channels))*chr(0)
         return data
 
     def start(self):
