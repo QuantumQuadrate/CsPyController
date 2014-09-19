@@ -83,11 +83,12 @@ class Controller(object):
             self.ser.flushOutput()
             self.ser.flushInput()
             self.ser.write(request_string)  # send a request for the cold plate controller state
-            time.sleep(.02)
+            time.sleep(.1)
             data1 = self.ser.readlines()  # read the returned data (will wait for 20 ms timeout)
             data2 = [x.strip() for x in data1]  # remove newlines
             # Remove echoed commands, keeping the data which is in every other word.  Cast data to float.
-            self.data[:] = map(float, [data2[j] for j in xrange(1, 16, 2)])
+            data3 = map(float, [data2[j] for j in xrange(1, 16, 2)])
+            self.data[:] = data3
         except Exception as e:
             logger.error('Error in read_port() for controller {}:\n{}\n'.format(self.name, e))
 
@@ -97,7 +98,8 @@ class Controller(object):
             print self.name, ' '.join(map(str, self.data))
     
             datestring = datetime.datetime.now().strftime('%Y/%m/%d %H:%M:%S')
-            self.file.write(datestring + '\t' + '\t'.join(map((lambda x: '{:.6f}'.format(x)), self.data)) + '\n')
+            datastring = '\t'.join(map((lambda x: '{:.6f}'.format(x)), self.data))
+            self.file.write(datestring + '\t' + datastring + '\n')
         except Exception as e:
             logger.error('Error in write_to_file() for controller {}:\n{}\n'.format(self.name, e))
 
