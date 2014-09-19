@@ -62,11 +62,6 @@ class Controller(object):
         # open the file to log the results
         self.filename = r'X:\{}.txt'.format(self.name)
 
-        # add the header if necessary
-        if not os.path.exists(self.filename):
-            with open(self.filename, 'w') as f:
-                f.write('Date and time\t'+'\t'.join(labels)+'\n')
-
         # create an array to hold returned data
         self.data = np.zeros(8, dtype=np.float64)
 
@@ -93,8 +88,17 @@ class Controller(object):
             print self.name, ' '.join(map(str, self.data))
             datestring = datetime.datetime.now().strftime('%Y/%m/%d %H:%M:%S')
             datastring = '\t'.join(map((lambda x: '{:.6f}'.format(x)), self.data))
+
+            # check if the file exits, if not, add header
+            exists = os.path.exists(self.filename)
+            # open file
             with open(self.filename, 'a') as f:
+                if not exists:
+                    # add header
+                    f.write('Date and time\t'+'\t'.join(labels)+'\n')
+                # write recent data
                 f.write(datestring + '\t' + datastring + '\n')
+
         except Exception as e:
             logger.error('Error in write_to_file() for controller {}:\n{}\n'.format(self.name, e))
 
