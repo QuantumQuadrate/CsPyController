@@ -174,13 +174,18 @@ class Optimization(AnalysisWithFigure):
         for i in range(self.axes):
             ax = fig.add_subplot(self.axes+2, 1, i+2)
             ax.plot(d[i])
-            ax.set_ylabel(self.experiment.independentVariables[i].name)
+            ax.set_ylabel(self.optimization_variables[i].name)
 
         super(Optimization, self).updateFigure()
 
     def setVars(self, xi):
-        for i, x in zip(self.experiment.independentVariables, xi):
-            i.currentValue = x
+        for i, x in zip(self.optimization_variables, xi):
+            if x < i.optimizer_min:
+                i.currentValue = i.optimizer_min
+            elif x > i.optimizer_max:
+                i.currentValue = i.optimizer_max
+            else:
+                i.currentValue = x
             i.set_gui({'currentValueStr': str(x)})
 
     def genetic(self, x0):
