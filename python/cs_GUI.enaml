@@ -547,7 +547,7 @@ enamldef VariableEntry(GroupBox):
             text = 'current value'
         Field:
             text << indepVar.currentValueStr
-            enabled = False
+            read_only = True
 
 enamldef IndependentVariablesGroupBox(GroupBox):
     attr independentVariables
