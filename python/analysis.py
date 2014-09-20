@@ -717,11 +717,24 @@ class HistogramGrid(AnalysisWithFigure):
             self.all_shots_array = numpy.array([m['analysis/squareROIsums'] for m in iterationResults['measurements'].itervalues()])
 
             self.updateFigure()
+            time.sleep(.01)
+            deferred_call(self.savefig)
 
     @observe('shot')
     def refresh(self, change):
         if self.enable:
             self.updateFigure()
+
+    def savefig(self):
+        try:
+            # save to PDF
+            if self.experiment.saveData:
+                try:
+                    self.pdf.savefig(fig, transparent=True, dpi=80)
+                except Exception as e:
+                    logger.warning('Problem saving histogramGrid to pdf:\n{}\n'.format(e))
+        except Exception as e:
+            logger.warning('Problem in HistogramGrid.savefig():\n{}\n{}\n'.format(e, traceback.format_exc()))
 
     def updateFigure(self):
         try:
@@ -735,16 +748,6 @@ class HistogramGrid(AnalysisWithFigure):
                 histogram_grid_plot(fig, roidata, self.experiment.ROI_rows, self.experiment.ROI_columns)
 
             super(HistogramGrid, self).updateFigure()
-
-            time.sleep(.01)
-
-            # save to PDF
-            if self.experiment.saveData:
-                try:
-                    self.pdf.savefig(fig, transparent=True, dpi=80)
-                except Exception as e:
-                    logger.warning('Problem saving histogramGrid to pdf:\n{}\n'.format(e))
-
 
         except Exception as e:
             logger.warning('Problem in HistogramGrid.updateFigure():\n{}\n{}\n'.format(e, traceback.format_exc()))
