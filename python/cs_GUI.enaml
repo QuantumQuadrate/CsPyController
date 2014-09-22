@@ -2325,48 +2325,42 @@ enamldef Ramsey(Container):
             Field:
                 text := analysis.time_variable_name
     GroupBox:
-        title = 'guess'
-        Form:
-            Label:
-                text = 'amplitude'
-            FloatField:
-                value := analysis.amplitude_guess
-            Label:
-                text = 'frequency'
-            FloatField:
-                value := analysis.frequency_guess
-            Label:
-                text = 'offset'
-            FloatField:
-                value := analysis.offset_guess
-            Label:
-                text = 'decay'
-            FloatField:
-                value := analysis.decay_guess
-    GroupBox:
         title = 'fit'
-        Form:
-            Label:
-                text = 'amplitude'
-            FloatField:
-                value := analysis.amplitude
-                read_only = True
-            Label:
-                text = 'frequency'
-            FloatField:
-                value := analysis.frequency
-                read_only = True
-            Label:
-                text = 'offset'
-            FloatField:
-                value := analysis.offset
-                read_only = True
-            Label:
-                text = 'decay'
-            FloatField:
-                value := analysis.decay
-                read_only = True
-
+        constraints=[grid([z0,z1,z2],[a0,a1,a2],[b0,b1,b2],[c0,c1,c2],[d0,d1,d2])]
+        Label: z0:
+            text = 'variable'
+        Label: z1:
+            text = 'guess'
+        Label: z2:
+            text = 'fit'
+        Label: a0:
+            text = 'amplitude'
+        FloatField: a1:
+            value := analysis.amplitude_guess
+        FloatField: a2:
+            value := analysis.amplitude
+            read_only = True
+        Label: b0:
+            text = 'frequency'
+        FloatField: b1:
+            value := analysis.frequency_guess
+        FloatField: b2:
+            value := analysis.frequency
+            read_only = True
+        Label: c0:
+            text = 'offset'
+        FloatField: c1:
+            value := analysis.offset_guess
+        FloatField: c2:
+            value := analysis.offset
+            read_only = True
+        Label: d0:
+            text = 'decay'
+        FloatField: d1:
+            value := analysis.decay_guess
+        FloatField: d2:
+            value := analysis.decay
+            read_only = True
     MPLCanvas:
         constraints=[(height==900)|'strong',(width==1700)|'strong']
         figure<<analysis.figure
