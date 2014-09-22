@@ -2309,7 +2309,7 @@ enamldef Ramsey(Container):
                 text = 'enable'
             CheckBox:
                 checked := analysis.enable
-        Form
+        Form:
             Label:
                 text = 'draw error bars (1 sigma binomial std dev of mean using normal approximation)'
             CheckBox:
