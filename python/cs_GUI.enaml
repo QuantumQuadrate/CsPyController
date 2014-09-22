@@ -2298,6 +2298,79 @@ enamldef RetentionGraph(Container):
         constraints=[(height==900)|'strong',(width==1700)|'strong']
         figure<<analysis.figure
 
+enamldef Ramsey(Container):
+    attr analysis
+
+    hug_height='ignore'
+    hug_width='ignore'
+    HGroup:
+        Form:
+            Label:
+                text = 'enable'
+            CheckBox:
+                checked := analysis.enable
+        Form
+            Label:
+                text = 'draw error bars (1 sigma binomial std dev of mean using normal approximation)'
+            CheckBox:
+                checked := analysis.draw_error_bars
+        Form:
+            Label:
+                text = 'roi'
+            SpinBox:
+                value := analysis.roi
+        Form:
+            Label:
+                text = 'time variable name'
+            Field:
+                text := analysis.time_variable_name
+    GroupBox:
+        title = 'guess'
+        Form:
+            Label:
+                text = 'amplitude'
+            FloatField:
+                value := analysis.amplitude_guess
+            Label:
+                text = 'frequency'
+            FloatField:
+                value := analysis.frequency_guess
+            Label:
+                text = 'offset'
+            FloatField:
+                value := analysis.offset_guess
+            Label:
+                text = 'decay'
+            FloatField:
+                value := analysis.decay_guess
+    GroupBox:
+        title = 'fit'
+        Form:
+            Label:
+                text = 'amplitude'
+            FloatField:
+                value := analysis.amplitude
+                read_only = True
+            Label:
+                text = 'frequency'
+            FloatField:
+                value := analysis.frequency
+                read_only = True
+            Label:
+                text = 'offset'
+            FloatField:
+                value := analysis.offset
+                read_only = True
+            Label:
+                text = 'decay'
+            FloatField:
+                value := analysis.decay
+                read_only = True
+
+    MPLCanvas:
+        constraints=[(height==900)|'strong',(width==1700)|'strong']
+        figure<<analysis.figure
+
 enamldef TTL_filters(GroupBox):
     attr instrument
     attr filters
@@ -2571,3 +2644,5 @@ enamldef Main(MainWindow): main:
                 p27.content.filters = main.experiment.DC_noise_eater_filter
             ScrollPage('Box Temperature', BoxTemperature): p28:
                 p28.content.box_temperature = main.experiment.box_temperature
+            ScrollPage('Ramsey', Ramsey): p29:
+                p29.content.analysis = main.experiment.Ramsey

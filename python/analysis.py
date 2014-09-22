@@ -1224,3 +1224,88 @@ class RetentionGraph(AnalysisWithFigure):
                 logger.warning('Problem in RetentionGraph.updateFigure()\n{}\n{}\n'.format(e, traceback.format_exc()))
             finally:
                 self.update_lock = False
+
+class Ramsey(AnalysisWithFigure):
+    """Plots the average of a region of interest sum for an iteration, after each iteration"""
+
+    enable = Bool()
+    draw_error_bars = Bool()
+
+    roi = Int()
+    time_variable_name = Str()
+    amplitude_guess = Float()
+    frequency_guess = Float()
+    offset_guess = Float()
+    decay_guess = Float()
+
+    y = Member()
+    t = Member()
+    sigma = Member()
+
+    amplitude = Float()
+    frequency = Float()
+    offset = Float()
+    decay = Float()
+
+    def __init__(self, name, experiment, description=''):
+        super(Ramsey, self).__init__(name, experiment, description)
+        self.properties += ['enable', 'draw_error_bars', 'roi', 'time_variable_name', 'amplitude_guess', 'frequency_guess', 'offset_guess', 'decay_guess']
+
+    def analyzeExperiment(self, experimentResults):
+        """For all iterations in this experiment, calculate the retention fraction.  This should result in a cosine
+        curve.  Fit a cosine to this, and store the amplitude and frequency."""
+
+        if self.enable:
+
+            num_iterations = len(experimentResults)
+            self.y = numpy.zeros(num_iterations, dtype=numpy.float64)
+            self.t = numpy.zeros(num_iterations, dtype=numpy.float64)
+            self.sigma = numpy.zeros(num_iterations, dtype=numpy.float64)
+            for i in xrange(num_iterations):
+                # pick out the relevant data.  Indices will be (measurement, shot).
+                d1 = numpy.array([m['analysis/squareROIthresholded'][:,roi] for m in experimentResults[str(i)+'/measurements']])
+                # filter for having an atom in the 1st shot.  Give the measurement index a 1D array of the booleans that are shot 0.
+                # d2 will be a 1D array of bool with shorter length, since only the ones with atoms in shot 0 are kept.
+                d2 = d1[d1[:,0],1]
+                total = len(d2)
+                ayes = numpy.sum(d2)
+                mean = ayes/total
+                self.y[i] = mean
+                #find the 1 sigma confidence interval using the normal approximation: http://en.wikipedia.org/wiki/Binomial_proportion_confidence_interval
+                self.sigma[i] = numpy.sqrt(mean*(1-mean)/total)
+                self.t[i] = experimentResults[str(i)+'/variables/'+time_variable_name].value
+
+            # now that we have retention vs. time, do a curve fit
+            def fitFunc(t, amplitude, frequency, offset, decay):
+                return amplitude*numpy.cos(2*numpy.pi*frequency*t)*numpy.exp(decay*t)+offset
+            initial_guess = (amplitude_guess, frequency_guess, offset_guess, decay_guess)
+            fitParams, fitCovariances = curve_fit(fitFunc, self.t, self.y, p0=initial_guess)
+
+            experimentResults['analysis/Ramsey/amplitude'] = fitParams[0]
+            experimentResults['analysis/Ramsey/frequency'] = fitParams[1]
+            experimentResults['analysis/Ramsey/offset'] = fitParams[2]
+            experimentResults['analysis/Ramsey/decay'] = fitParams[3]
+            self.set_gui({'amplitude': fitParams[0], 'frequency': fitParams[1], 'offset': fitParams[2], 'decay': fitParams[3]})
+
+            self.updateFigure()
+
+    def updateFigure(self):
+        try:
+            fig = self.backFigure
+            fig.clf()
+
+
+            #make one plot
+            ax = fig.add_subplot(111)
+
+            linestyle = 'o'
+            if self.draw_error_bars:
+                ax.errorbar(self.t, self.y, yerr=self.sigma, fmt=linestyle, label=label)
+            else:
+                ax.plot(self.t, self.y, linestyle, label=label)
+                #adjust the limits so that the data isn't right on the edge of the graph
+                span = numpy.amax(self.t) - numpy.amin(self.t)
+                ax.set_xlim(numpy.amin(self.t)-.02*span, numpy.amax(self.t)+.02*span)
+            super(Ramsey, self).updateFigure()
+        except Exception as e:
+            logger.warning('Problem in Ramsey.updateFigure()\n{}\n{}\n'.format(e, traceback.format_exc()))

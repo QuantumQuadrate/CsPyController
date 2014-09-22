@@ -39,6 +39,7 @@ class AQuA(Experiment):
     andor_viewer = Member()
     DC_noise_eater_graph = Member()
     DC_noise_eater_filter = Member()
+    Ramsey = Member()
     save2013Analysis = Member()
     ROI_rows = 7
     ROI_columns = 7
@@ -72,12 +73,13 @@ class AQuA(Experiment):
         self.andor_viewer = andor.AndorViewer('andor_viewer', self, 'show the most recent Andor image')
         self.DC_noise_eater_graph = DCNoiseEater.DCNoiseEaterGraph('DC_noise_eater_graph', self, 'DC Noise Eater graph')
         self.DC_noise_eater_filter = DCNoiseEater.DCNoiseEaterFilter('DC_noise_eater_filter', self, 'DC Noise Eater Filter')
+        self.Ramsey = analysis.Ramsey('Ramsey', self, 'Fit a cosine to retention results')
         self.save2013Analysis = save2013style.Save2013Analysis(self)
         self.analyses += [self.TTL_filters, self.squareROIAnalysis, self.gaussian_roi, self.loading_filters,
                           self.first_measurements_filter, self.text_analysis, self.imageSumAnalysis,
                           self.recent_shot_analysis, self.shotBrowserAnalysis, self.histogramAnalysis,
                           self.histogram_grid, self.measurements_graph, self.iterations_graph, self.retention_graph,
-                          self.andor_viewer, self.DC_noise_eater_graph, self.DC_noise_eater_filter,
+                          self.andor_viewer, self.DC_noise_eater_graph, self.DC_noise_eater_filter, self.Ramsey,
                           self.save2013Analysis]
 
         self.properties += ['LabView', 'picomotors', 'Andor', 'DC_noise_eaters', 'box_temperature',
@@ -85,7 +87,7 @@ class AQuA(Experiment):
                             'first_measurements_filter', 'imageSumAnalysis', 'recent_shot_analysis',
                             'shotBrowserAnalysis', 'histogramAnalysis', 'histogram_grid', 'measurements_graph',
                             'iterations_graph', 'retention_graph', 'andor_viewer', 'DC_noise_eater_filter',
-                            'DC_noise_eater_graph']
+                            'DC_noise_eater_graph', 'Ramsey']
 
         try:
             self.allow_evaluation = False
