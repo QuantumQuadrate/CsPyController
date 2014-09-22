@@ -352,7 +352,6 @@ class Experiment(Prop):
         into this new directory counting for zero.
         """
 
-        #if self.optimizer.enable:
         # if this is a new optimization loop
         experiment_hdf5_path = 'experiments/{}'.format(self.optimizer_count)
         if experiment_hdf5_path not in self.hdf5:
@@ -571,8 +570,7 @@ class Experiment(Prop):
 
                     # if we didn't end the optimization above, we should advance to the next iteration
                     self.iteration += 1  # increase iteration number
-                    if self.optimizer.enable:
-                        self.optimizer_count += 1
+                    self.optimizer_iteration_count += 1
                     self.measurement = 0  # reset measurement count
                     self.goodMeasurements = 0  # reset good measurement count
 
