@@ -352,16 +352,16 @@ class Experiment(Prop):
         into this new directory counting for zero.
         """
 
-        if self.optimizer.enable:
-            # if this is a new optimization loop
-            experiment_hdf5_path = 'experiments/{}'.format(self.optimizer_count)
-            if experiment_hdf5_path not in self.hdf5:
-                # create a new group to store all the iterations in this loop
-                self.experiment_hdf5 = self.hdf5.create_group('experiments/{}'.format(self.optimizer_count))
-                # reset the optimization_iteration number, which tracks how many iterations are in this loop
-                self.optimizer_iteration_count = 0
-            # add this iteration to the group
-            self.experiment_hdf5[str(self.optimizer_iteration_count)] = self.iterationResults
+        #if self.optimizer.enable:
+        # if this is a new optimization loop
+        experiment_hdf5_path = 'experiments/{}'.format(self.optimizer_count)
+        if experiment_hdf5_path not in self.hdf5:
+            # create a new group to store all the iterations in this loop
+            self.experiment_hdf5 = self.hdf5.create_group('experiments/{}'.format(self.optimizer_count))
+            # reset the optimization_iteration number, which tracks how many iterations are in this loop
+            self.optimizer_iteration_count = 0
+        # add this iteration to the group
+        self.experiment_hdf5[str(self.optimizer_iteration_count)] = self.iterationResults
 
     def date2str(self, time):
         return datetime.datetime.fromtimestamp(time).strftime('%Y-%m-%d %H:%M:%S')

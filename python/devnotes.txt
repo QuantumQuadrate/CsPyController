@@ -3,9 +3,10 @@ CsPyController notes:
 TCP ports: 9000 LabView, 9001 Laird box temp
 
 current question:
-    use hdf5 hard links to create optimization sub-experiments
 
 TODO:
+    Make software not screw up during save2013style with 0 independent variables
+    make image explorer update indices when a variable is deleted
     piezo numpy array
     AO numpy array
     RF gen numpy aray
@@ -43,6 +44,7 @@ TODO:
     Use Atom ContainerList instead of List to put listeners on append and delete
 
 Done:
+    use hdf5 hard links to create optimization sub-experiments
     optimizer exits after 1st iteration.  Does not continue.
     add 2nd HSDIO card, and combine them so it looks like 1 card with 64 channels
     check analysis
