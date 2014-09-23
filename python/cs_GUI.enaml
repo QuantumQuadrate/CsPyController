@@ -2186,6 +2186,10 @@ enamldef HistogramGrid(Container):
             text = 'shot'
         SpinBox:
             value := analysis.shot
+        PushButton:
+            text = 'Use these cutoffs'
+            clicked :: analysis.use_cutoffs()
+
     MPLCanvas:
         constraints=[(height==1700)|'strong',(width==1700)|'strong']
         figure<<analysis.figure

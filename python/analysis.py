@@ -694,6 +694,7 @@ class HistogramGrid(AnalysisWithFigure):
     all_shots_array = Member()
     shot = Int()
     pdf = Member()
+    cutoffs = Member()
 
     def __init__(self, name, experiment, description=''):
         super(HistogramGrid, self).__init__(name, experiment, description)
@@ -730,7 +731,7 @@ class HistogramGrid(AnalysisWithFigure):
             # save to PDF
             if self.experiment.saveData:
                 try:
-                    self.pdf.savefig(fig, transparent=True, dpi=80)
+                    self.pdf.savefig(self.figure, transparent=True, dpi=80)
                 except Exception as e:
                     logger.warning('Problem saving histogramGrid to pdf:\n{}\n'.format(e))
         except Exception as e:
@@ -745,12 +746,16 @@ class HistogramGrid(AnalysisWithFigure):
                 # take shot 0
                 roidata = self.all_shots_array[:, self.shot, :]
                 fig.suptitle('{} shot {}'.format(self.experiment.experimentPath, self.shot))
-                histogram_grid_plot(fig, roidata, self.experiment.ROI_rows, self.experiment.ROI_columns)
+                self.cutoffs = histogram_grid_plot(fig, roidata, self.experiment.ROI_rows, self.experiment.ROI_columns)
 
             super(HistogramGrid, self).updateFigure()
 
         except Exception as e:
             logger.warning('Problem in HistogramGrid.updateFigure():\n{}\n{}\n'.format(e, traceback.format_exc()))
+
+    def use_cutoffs(self):
+        self.experiment.squareROIAnalysis.ROIs['threshold'] = self.cutoffs
+
 
 def gaussian1D(x, x0, a, w):
     """returns the height of a gaussian (with mean x0, amplitude, a and width w) at the value(s) x"""
@@ -869,7 +874,7 @@ def histogram_grid_plot(fig, roidata, ROI_rows, ROI_columns):
         #initial_guess = (best_mean1, best_amplitude1, best_width1, best_mean2, best_amplitude2, best_width2)
         #popt, pcov = curve_fit(two_gaussians, x, y, p0=initial_guess)
         #popts.append(popt)
-    
+
     #plot
     gs1 = GridSpec(ROI_rows+1, ROI_columns+1,
                     left=0.02, bottom=0.05, top=.95, right=.98, wspace=0.2, hspace=0.5)
@@ -934,6 +939,9 @@ def histogram_grid_plot(fig, roidata, ROI_rows, ROI_columns):
         verticalalignment='center',
         transform=ax.transAxes)  # ,
         #fontsize=font)
+
+    return best_cutoffs
+
 
 class MeasurementsGraph(AnalysisWithFigure):
     """Plots a region of interest sum after every measurement"""
@@ -1311,7 +1319,7 @@ class Ramsey(AnalysisWithFigure):
             ax.set_xlim(xmin, xmax)
 
             # draw the fit
-            ax.plot(numpy.linspace(xmin,xmax,200), self.fitFunc(self.t, *self.fitParams), '-')
+            ax.plot(numpy.linspace(xmin, xmax, 200), self.fitFunc(self.t, *self.fitParams), '-')
             super(Ramsey, self).updateFigure()
         except Exception as e:
             logger.warning('Problem in Ramsey.updateFigure()\n{}\n{}\n'.format(e, traceback.format_exc()))

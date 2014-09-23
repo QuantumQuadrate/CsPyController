@@ -6,7 +6,7 @@ current question:
 
 TODO:
     Make software not screw up during save2013style with 0 independent variables
-    make image explorer update indices when a variable is deleted
+    make image viewer update available variable choices when a variable is deleted, otherwise you get an error.
     piezo numpy array
     AO numpy array
     RF gen numpy aray
