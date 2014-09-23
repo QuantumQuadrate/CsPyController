@@ -135,6 +135,9 @@ class Optimization(AnalysisWithFigure):
                 for i, j in zip(self.optimization_variables, self.xi):
                     i.set_gui({'function': str(j)})
 
+                # update the ramsey fit guess
+                self.experiment.ramsey.optimizer_update_guess()
+
             # let the generator decide on the next point to look at
             try:
                 self.xi = self.generator.next()

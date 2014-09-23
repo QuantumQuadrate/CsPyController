@@ -754,7 +754,9 @@ class HistogramGrid(AnalysisWithFigure):
             logger.warning('Problem in HistogramGrid.updateFigure():\n{}\n{}\n'.format(e, traceback.format_exc()))
 
     def use_cutoffs(self):
-        self.experiment.squareROIAnalysis.ROIs['threshold'] = self.cutoffs
+        a = self.experiment.squareROIAnalysis.ROIs.copy()
+        a['threshold'] = self.cutoffs
+        self.experiment.squareROIAnalysis.set_gui({'ROIs': a})
 
 
 def gaussian1D(x, x0, a, w):
@@ -1234,7 +1236,11 @@ class RetentionGraph(AnalysisWithFigure):
                 self.update_lock = False
 
 class Ramsey(AnalysisWithFigure):
-    """Plots the average of a region of interest sum for an iteration, after each iteration"""
+    """Plots the average of a region of interest sum for an iteration, after each iteration.  Can be used with the
+    optimizer with the cost function:
+    # ramsey experiment optimizer cost function:
+    self.yi = -experimentResults['analysis/Ramsey/frequency']
+    """
 
     enable = Bool()
     draw_error_bars = Bool()
@@ -1268,14 +1274,13 @@ class Ramsey(AnalysisWithFigure):
         curve.  Fit a cosine to this, and store the amplitude and frequency."""
 
         if self.enable:
-
             num_iterations = len(experimentResults)
             self.y = numpy.zeros(num_iterations, dtype=numpy.float64)
             self.t = numpy.zeros(num_iterations, dtype=numpy.float64)
             self.sigma = numpy.zeros(num_iterations, dtype=numpy.float64)
             for i in xrange(num_iterations):
                 # pick out the relevant data.  Indices will be (measurement, shot).
-                d1 = numpy.array([m['analysis/squareROIthresholded'][:, roi] for m in experimentResults[str(i)+'/measurements']])
+                d1 = numpy.array([m['analysis/squareROIthresholded'][:, self.roi] for m in experimentResults[str(i)+'/measurements'].itervalues()])
                 # filter for having an atom in the 1st shot.  Give the measurement index a 1D array of the booleans that are shot 0.
                 # d2 will be a 1D array of bool with shorter length, since only the ones with atoms in shot 0 are kept.
                 d2 = d1[d1[:, 0], 1]
@@ -1285,20 +1290,31 @@ class Ramsey(AnalysisWithFigure):
                 self.y[i] = mean
                 #find the 1 sigma confidence interval using the normal approximation: http://en.wikipedia.org/wiki/Binomial_proportion_confidence_interval
                 self.sigma[i] = numpy.sqrt(mean*(1-mean)/total)
-                self.t[i] = experimentResults[str(i)+'/variables/'+time_variable_name].value
+                self.t[i] = experimentResults[str(i)+'/variables/'+self.time_variable_name].value
 
             # now that we have retention vs. time, do a curve fit
-            initial_guess = (amplitude_guess, frequency_guess, offset_guess, decay_guess)
-            self.fitParams, fitCovariances = curve_fit(self.fitFunc, self.t, self.y, p0=initial_guess)
+            initial_guess = (self.amplitude_guess, self.frequency_guess, self.offset_guess, self.decay_guess)
 
-            experimentResults['analysis/Ramsey/amplitude'] = fitParams[0]
-            experimentResults['analysis/Ramsey/frequency'] = fitParams[1]
-            experimentResults['analysis/Ramsey/offset'] = fitParams[2]
-            experimentResults['analysis/Ramsey/decay'] = fitParams[3]
+            try:
+                self.fitParams, fitCovariances = curve_fit(self.fitFunc, self.t, self.y, p0=initial_guess)
+            except Exception as e:
+                # note the error, set the amplitude to 0 and move on:
+                logger.warning("Exception in Ramsey.postExperiment:\n{}\n".format(e))
+                # set the results to zero
+                self.fitParams = (0, 0, 0, 0)
+                fitCovariances = numpy.zeros((4, 4))
+
+            experimentResults['analysis/Ramsey/amplitude'] = self.fitParams[0]
+            experimentResults['analysis/Ramsey/frequency'] = self.fitParams[1]
+            experimentResults['analysis/Ramsey/offset'] = self.fitParams[2]
+            experimentResults['analysis/Ramsey/decay'] = self.fitParams[3]
             experimentResults['analysis/Ramsey/covar'] = fitCovariances
-            self.set_gui({'amplitude': fitParams[0], 'frequency': fitParams[1], 'offset': fitParams[2], 'decay': fitParams[3]})
-
+            self.set_gui({'amplitude': self.fitParams[0], 'frequency': self.fitParams[1], 'offset': self.fitParams[2], 'decay': self.fitParams[3]})
             self.updateFigure()
+
+    def optimizer_update_guess(self):
+        if self.enable:
+            self.set_gui({'amplitude_guess': self.fitParams[0], 'frequency_guess': self.fitParams[1], 'offset_guess': self.fitParams[2], 'decay_guess': self.fitParams[3]})
 
     def updateFigure(self):
         try:
@@ -1319,10 +1335,8 @@ class Ramsey(AnalysisWithFigure):
             ax.set_xlim(xmin, xmax)
 
             # draw the fit
-            ax.plot(numpy.linspace(xmin, xmax, 200), self.fitFunc(self.t, *self.fitParams), '-')
+            t = numpy.linspace(xmin, xmax, 200)
+            ax.plot(t, self.fitFunc(t, *self.fitParams), '-')
             super(Ramsey, self).updateFigure()
         except Exception as e:
             logger.warning('Problem in Ramsey.updateFigure()\n{}\n{}\n'.format(e, traceback.format_exc()))
-
-    # ramsey experiment optimizer cost function:
-    #self.yi = -experimentResults['analysis/Ramsey/frequency']
