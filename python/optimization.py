@@ -46,6 +46,7 @@ class Optimization(AnalysisWithFigure):
     optimization_method = Int(0)
     line_search_initial_step = Float(.01)  # a global initial step for line search algorithms
     end_condition_step = Float(.0001)
+    end_tolerances = Member()
     cost_function = Str()
     optimization_variables = Member()
     is_done = Bool()
@@ -75,6 +76,8 @@ class Optimization(AnalysisWithFigure):
             # create an array to store the separate initial steps for each variable
             self.initial_step = numpy.array([i.optimizer_initial_step for i in self.optimization_variables], dtype=float)
             self.axes = len(self.optimization_variables)
+            # create an array to store the ivar.optimizer_end_tolerance
+            self.end_tolerances = numpy.array([i.optimizer_end_tolerance for i in self.optimization_variables], dtype=float)
 
             # save the optimizer data
             hdf5['analysis/optimizer/names'] = [i.name for i in self.optimization_variables]
@@ -292,7 +295,7 @@ class Optimization(AnalysisWithFigure):
         logger.debug('Finished simplex exploration.')
 
         # loop until the simplex is smaller than the end tolerances on each axis
-        while numpy.all((numpy.amax(x, axis=0)-numpy.amin(x, axis=0)) > self.end_condition_step):
+        while numpy.all((numpy.amax(x, axis=0)-numpy.amin(x, axis=0)) > self.end_tolerances):
 
             logger.debug('Starting new round of simplex algorithm.')
 
@@ -399,7 +402,7 @@ class Optimization(AnalysisWithFigure):
             y[i+1] = self.yi
 
         # loop until the simplex is smaller than the end tolerances on each axis
-        while numpy.all((numpy.amax(x, axis=0)-numpy.amin(x, axis=0)) > self.end_condition_step):
+        while numpy.all((numpy.amax(x, axis=0)-numpy.amin(x, axis=0)) > self.end_tolerances):
 
             # order the values
             order = numpy.argsort(y)
