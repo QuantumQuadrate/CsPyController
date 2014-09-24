@@ -136,7 +136,7 @@ class Optimization(AnalysisWithFigure):
                     i.set_gui({'function': str(j)})
 
                 # update the ramsey fit guess
-                self.experiment.ramsey.optimizer_update_guess()
+                self.experiment.Ramsey.optimizer_update_guess()
 
             # let the generator decide on the next point to look at
             try:
