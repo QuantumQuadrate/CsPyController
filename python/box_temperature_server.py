@@ -98,6 +98,8 @@ class Controller(object):
                     f.write('Date and time\t'+'\t'.join(labels)+'\n')
                 # write recent data
                 f.write(datestring + '\t' + datastring + '\n')
+                f.flush()
+                os.fsync(f.fileno())
 
         except Exception as e:
             logger.error('Error in write_to_file() for controller {}:\n{}\n'.format(self.name, e))
