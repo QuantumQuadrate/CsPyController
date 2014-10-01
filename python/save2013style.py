@@ -98,7 +98,7 @@ class Save2013Analysis(Analysis):
                     roi_sums = measurement['analysis/squareROIsums'].value
                     f.write('\t'.join(['\t'.join([str(ROI) for ROI in shot]) for shot in roi_sums])+'\n')
 
-    def analyzeExperiment(self, experimentResults):
+    def finalize(self, experimentResults):
         if self.experiment.saveData and self.experiment.save2013styleFiles:
 
             #Data Order Log.txt
@@ -116,7 +116,7 @@ class Save2013Analysis(Analysis):
                                 for s in m['data/Hamamatsu/shots'].itervalues():
                                     sumlist.append(s.value)
             sumarray = numpy.array(sumlist)
-            average_of_images = numpy.mean(sumarray,axis=0)
+            average_of_images = numpy.mean(sumarray, axis=0)
             self.savePNG(average_of_images, os.path.join(self.experiment.path, 'images', 'average_of_all_images_in_experiment.png'))
             
             #error_log.txt
