@@ -708,10 +708,6 @@ class HistogramGrid(AnalysisWithFigure):
         if self.enable and self.experiment.saveData:
             self.pdf.close()
 
-    def preIteration(self, iterationResults, experimentResults):
-        #reset the histogram data
-        self.all_shots_array = None
-
     def analyzeIteration(self, iterationResults, experimentResults):
         if self.enable:
             # all_shots_array will be shape (measurements,shots,rois)
