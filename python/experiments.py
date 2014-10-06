@@ -356,7 +356,7 @@ class Experiment(Prop):
         experiment_hdf5_path = 'experiments/{}'.format(self.optimizer_count)
         if experiment_hdf5_path not in self.hdf5:
             # create a new group to store all the iterations in this loop
-            self.experiment_hdf5 = self.hdf5.create_group('experiments/{}'.format(self.optimizer_count))
+            self.experiment_hdf5 = self.hdf5.create_group(experiment_hdf5_path)
             # reset the optimization_iteration number, which tracks how many iterations are in this loop
             self.optimizer_iteration_count = 0
         # add this iteration to the group
