@@ -51,6 +51,7 @@ def mpl_rectangle(ax, ROI):
     patch = patches.PathPatch(path, edgecolor='orange', facecolor='none', lw=1)
     ax.add_patch(patch)
 
+
 class Analysis(Prop):
     """This is the parent class for all data analyses.  New analyses should subclass off this,
     and redefine at least one of preExperiment(), preIteration(), postMeasurement(), postIteration() or
@@ -154,6 +155,7 @@ class Analysis(Prop):
         """To be run after all optimization loops are complete, so as to close files and such."""
         pass
 
+
 class AnalysisWithFigure(Analysis):
     
     #matplotlib figures
@@ -188,6 +190,7 @@ class AnalysisWithFigure(Analysis):
         fig.clf()
         self.updateFigure()
 
+
 class TextAnalysis(Analysis):
     #Text output that can be updated back to the GUI
     text = Str()
@@ -206,6 +209,7 @@ class TextAnalysis(Analysis):
             logger.warning('HDF5 text does not exist in TextAnalysis\n{}\n'.format(e))
             return
         self.set_gui({'text': text})
+
 
 class TTL_filters(Analysis):
     """This analysis monitors the TTL inputs and does either hard or soft cuts of the data accordingly.
@@ -286,6 +290,7 @@ class RecentShotAnalysis(AnalysisWithFigure):
             finally:
                 self.update_lock = False
 
+
 class XYPlotAnalysis(AnalysisWithFigure):
     #### needs updating
     X=Member()
@@ -299,6 +304,7 @@ class XYPlotAnalysis(AnalysisWithFigure):
             ax.plot(self.X, self.Y)
         super(XYPlotAnalysis, self).updateFigure()
 
+
 class SampleXYAnalysis(XYPlotAnalysis):
     #### needs updating
     
@@ -308,6 +314,7 @@ class SampleXYAnalysis(XYPlotAnalysis):
             self.Y = numpy.append(self.Y,numpy.sum(measurementResults['data/Hamamatsu/shots/0']))
             self.X = numpy.arange(len(self.Y))
         self.updateFigure()
+
 
 class ShotsBrowserAnalysis(AnalysisWithFigure):
     
@@ -376,7 +383,8 @@ class ShotsBrowserAnalysis(AnalysisWithFigure):
                 mpl_rectangle(ax, ROI)
 
         super(ShotsBrowserAnalysis,self).updateFigure() #makes a deferred_call to swap_figures()
-    
+
+
 class ImageSumAnalysis(AnalysisWithFigure):
     data = Member()
     enable = Bool()
@@ -436,7 +444,9 @@ class ImageSumAnalysis(AnalysisWithFigure):
 
                 # save to pdf
                 try:
-                    self.pdf.savefig(self.figure, transparent=True, dpi=80)
+                    self.pdf.savefig(self.figure, dpi=self.figure.get_dpi(), transparent=True, bbox_inches=None,
+                    pad_inches=0, frameon=False)
+
                 except Exception as e:
                     logger.warning('Problem saving image sum to pdf:\n{}\n'.format(e))
 
@@ -692,9 +702,13 @@ class HistogramGrid(AnalysisWithFigure):
     """This class gives a big histogram grid with 0 and 1 atom cutoffs after every iteration."""
     enable = Bool()
     all_shots_array = Member()
+    histogram_results = Member()
     shot = Int()
     pdf = Member()
-    cutoffs = Member()
+    bins = Member()
+    x_min = Member()
+    x_max = Member()
+    y_max = Member()
 
     def __init__(self, name, experiment, description=''):
         super(HistogramGrid, self).__init__(name, experiment, description)
@@ -711,12 +725,19 @@ class HistogramGrid(AnalysisWithFigure):
     def analyzeIteration(self, iterationResults, experimentResults):
         if self.enable:
             # all_shots_array will be shape (measurements,shots,rois)
-            self.all_shots_array = numpy.array([m['analysis/squareROIsums'] for m in iterationResults['measurements'].itervalues()])
+            all_shots_array = numpy.array([m['analysis/squareROIsums'] for m in iterationResults['measurements'].itervalues()])
 
-            self.calculate_all_histograms()
+            # perform histogram calculations and fits on all shots and regions
+            self.calculate_all_histograms(all_shots_array)
 
+            # save data to hdf5
+            iterationResults['analysis/histogram_results'] = self.histogram_results
+
+            # update the figure to show the histograms for the selected shot
             self.updateFigure()
-            time.sleep(.01)
+
+            # save the figure in a deferred_call, so that it will be sure to have updated first
+            #time.sleep(.01)
             deferred_call(self.savefig)
 
     @observe('shot')
@@ -729,7 +750,9 @@ class HistogramGrid(AnalysisWithFigure):
             # save to PDF
             if self.experiment.saveData:
                 try:
-                    self.pdf.savefig(self.figure, transparent=True, dpi=80)
+                    self.pdf.savefig(self.figure, dpi=self.figure.get_dpi(), transparent=True, bbox_inches=None,
+                    pad_inches=0, frameon=False)
+
                 except Exception as e:
                     logger.warning('Problem saving histogramGrid to pdf:\n{}\n'.format(e))
         except Exception as e:
@@ -740,9 +763,9 @@ class HistogramGrid(AnalysisWithFigure):
             fig = self.backFigure
             fig.clf()
 
-            if self.all_shots_array is not None:
+            if self.histogram_results is not None:
                 fig.suptitle('{} shot {}'.format(self.experiment.experimentPath, self.shot))
-                self.errors, mean1s, mean2s, width1s, width2s, amplitude1s, amplitude2s, self.cutoffs = histogram_grid_plot(fig, roidata, self.experiment.ROI_rows, self.experiment.ROI_columns)
+                self.histogram_grid_plot(fig, self.shot, self.bins)
 
             super(HistogramGrid, self).updateFigure()
 
@@ -750,41 +773,44 @@ class HistogramGrid(AnalysisWithFigure):
             logger.warning('Problem in HistogramGrid.updateFigure():\n{}\n{}\n'.format(e, traceback.format_exc()))
 
     def use_cutoffs(self):
+        """Set the cutoffs.  Because they are stored in a numpy field, but we need to set them using a deferred_call,
+        the whole ROI array is first copied, then updated, then written back to the squareROIAnalysis."""
+
         a = self.experiment.squareROIAnalysis.ROIs.copy()
-        a['threshold'] = self.cutoffs
+        a['threshold'] = self.histogram_results[self.shot]['cutoff']
         self.experiment.squareROIAnalysis.set_gui({'ROIs': a})
 
-    def calculate_all_histograms(self):
-        measurements, shots, rois = self.all_shots_array.shape
+    def calculate_all_histograms(self, all_shots_array):
+        measurements, shots, rois = all_shots_array.shape
 
         # Since the number of measurements is the same for each shot and roi, we can compute the number of bins here:
-        bins = int(numpy.rint(1.5*numpy.sqrt(len(roidata))))  # choose 1.5*sqrt(N) as the number of bins
+        self.bins = int(numpy.rint(1.5*numpy.sqrt(measurements)))  # choose 1.5*sqrt(N) as the number of bins
 
         # create arrays to hold results
-        my_dtype = numpy.dtype([('histogram',str(bins)+'i4'),('min_y','i4'), ('max_y','i4'), ('maxcount','i4'),
-                           ('error','f8'), ('mean1','f8'), ('mean2','f8'),  ('width1','f8'), ('width2', 'f8'),
-                           ('amplitude1','f8'), ('amplitude2','f8'), ('cutoff','f8'), ('loading','f8'),
-                           ('overlap','f8')])
-        self.histogram_results = numpy.zeros((shots,rois), dtype=my_dtype)
+        my_dtype = numpy.dtype([('histogram', str(self.bins)+'i4'), ('bin_edges', str(self.bins+1)+'f8'), ('error', 'f8'),
+                                ('mean1', 'f8'), ('mean2', 'f8'),  ('width1', 'f8'), ('width2', 'f8'),
+                                ('amplitude1', 'f8'), ('amplitude2', 'f8'), ('cutoff', 'f8'), ('loading', 'f8'),
+                                ('overlap', 'f8')])
+        self.histogram_results = numpy.zeros((shots, rois), dtype=my_dtype)
 
         # go through each shot and roi and calculate the histograms and guassian fits
         for shot in xrange(shots):
             for roi in xrange(rois):
-                roidata = self.all_shots_array[:, shot, roi]
-                self.histogram_results[i,j] = self.calculate_histogram(roidata, bins)
+                roidata = all_shots_array[:, shot, roi]
+                self.histogram_results[shot, roi] = self.calculate_histogram(roidata, self.bins)
                 # these all have the same number of measurements, so they will all have the same size
 
         # find the min and max
-        x_min = numpy.amin(self.all_shots_array)
-        x_max = numpy.amax(self.all_shots_array)
-        y_max = numpy.amax(self.histogram_results['histogram'])
+        self.x_min = numpy.amin(all_shots_array)
+        self.x_max = numpy.amax(all_shots_array)
+        self.y_max = numpy.amax(self.histogram_results['histogram'])
 
         # an analytic way of doing the cutoff finding
         t1 = time.time()
         r = self.histogram_results
         cutoff_analytic = self.analytic_cutoff(r['mean1'], r['mean2'], r['width1'], r['width2'], r['amplitude1'], r['amplitude2'])
         t2 = time.time()
-        logger.info('analytic cutoff finding: {} in {}s'.format(cutoff_analytic, t2-t1))
+        print 'analytic cutoff finding: {} in {:.10f}s'.format(cutoff_analytic, t2-t1)
 
     def gaussian1D(self, x, x0, a, w):
         """returns the height of a gaussian (with mean x0, amplitude, a and width w) at the value(s) x"""
@@ -792,8 +818,8 @@ class HistogramGrid(AnalysisWithFigure):
         g[numpy.isnan(g)] = 0  # eliminate bad elements
         return g
 
-    def two_gaussians(self, x,x0,a0,w0,x1,a1,w1):
-        return self.gaussian1D(x,x0,a0,w0)+gaussian1D(x,x1,a1,w1)
+    def two_gaussians(self, x, x0, a0, w0, x1, a1, w1):
+        return self.gaussian1D(x, x0, a0, w0) + self.gaussian1D(x, x1, a1, w1)
 
     def calculate_histogram(self, ROI_sums, bins):
         """Takes in ROI_sums which is size (measurements) and contains the data to be histogrammed.
@@ -819,7 +845,7 @@ class HistogramGrid(AnalysisWithFigure):
             amplitude1 = numpy.sum(y[:j]*bin_size[:j])  # area under gaussian is 1, so scale by total volume (i.e. the sum of y)
             g1 = self.gaussian1D(x, mean1, amplitude1, width1)
 
-            #fit a gaussian above the cutoff
+            # fit a gaussian above the cutoff
             mean2 = numpy.sum(x[j:]*y[j:])/numpy.sum(y[j:])
             r2 = numpy.sqrt((x[j:]-mean2)**2) #an array of distances from the mean
             width2 = numpy.sqrt(numpy.abs(numpy.sum((r2**2)*y[j:])/numpy.sum(y[j:]))) #the standard deviation
@@ -843,227 +869,128 @@ class HistogramGrid(AnalysisWithFigure):
         # go in steps of 1 from peak to peak
         t1 = time.time()
         xc = numpy.arange(best_mean1, best_mean2)
-        y1 = gaussian1D(xc, best_mean1, best_amplitude1, best_width1)
-        y2 = gaussian1D(xc, best_mean2, best_amplitude2, best_width2)
+        y1 = self.gaussian1D(xc, best_mean1, best_amplitude1, best_width1)
+        y2 = self.gaussian1D(xc, best_mean2, best_amplitude2, best_width2)
         yc = y1 + y2
         cutoff = xc[numpy.argmin(yc)]
         t2 = time.time()
-        logger.info('array cutoff finding: {} {}'.format(cutoff, t2-t1))
+        print 'array cutoff finding: {}'.format(cutoff, t2-t1),
 
         # calculate the loading
         loading = best_amplitude2/(best_amplitude1+best_amplitude2)
 
         #calculalate the overlap
-        mins = numpy.amin([y1,y2],axis=0)
+        mins = numpy.amin([y1, y2], axis=0)
         overlap = numpy.sum(mins) / (numpy.sum(y1) + numpy.sum(y2))
 
-        return min_sum, max_sum, maxcount, best_error, best_mean1, best_mean2, best_width1, best_width2, best_amplitude1, best_amplitude2, cutoff, loading, overlap
+        return hist, bin_edges, best_error, best_mean1, best_mean2, best_width1, best_width2, best_amplitude1, best_amplitude2, cutoff, loading, overlap
 
     def analytic_cutoff(self, x1, x2, w1, w2, a1, a2):
-        if any(w1==w2):  # if true, we have to do use different equations for each element
+        """Find the cutoffs analytically.  See MTL thesis for derivation."""
+
+        if numpy.any(w1 == w2):  # if true, we have to do use different equations for each element
             out = numpy.zeros(len(x1),dtype='f8')
+            # TODO: eliminate for loop by using numpy.where or numpy.select
             for i in xrange(len(x1)):
                 if w1[i]==w2[i]:
                     if a1[i]==a2[i]:
                         out[i] = (x1[i]+x2[i])/2
                     else:
-                        out[i] = (w1[i]**2/2*numpy.ln(a1[i]/a2[i]) - x1[i]**2 + x2[i]**2)/(2*(x2[i]-x1[i]))
+                        out[i] = (- x1[i]**2 + x2[i]**2 + w1[i]**2/2*numpy.ln(a1[i]/a2[i]))/(2*(x2[i]-x1[i]))
                 else:
                     a = - w2[i]**2*x1[i] + w1[i]**2*x2[i]
-                    b = w1[i]*w2[i]*np.sqrt((x1[i]-x2[i])**2 - (w1[i]**2 - w2[i]**2)*np.log(a1[i]/a2[i])/2.0)
+                    b = w1[i]*w2[i]*numpy.sqrt((x1[i]-x2[i])**2 - (w1[i]**2 - w2[i]**2)*numpy.log(a1[i]/a2[i])/2.0)
                     c = w1[i]**2 - w2[i]**2
                     out[i] = (a-b)/c  # use the negative root, as that will be the one between x1 and x2
             return out
         else:
-            a = - w2**2*x1 + w1**2*x2
-            b = w1*w2*np.sqrt((x1-x2)**2 - (w1**2 - w2**2)*np.log(a1/a2)/2.0)  # TODO: protect against imaginary root
-            c = w1**2 - w2**2
-            return (a-b)/c  # use the negative root, as that will be the one between x1 and x2
+            a = w2**2*x1 - w1**2*x2
+            b = w1*w2*numpy.sqrt((x1-x2)**2 + (w2**2 - w1**2)*numpy.log(a1/a2)/2.0)  # TODO: protect against imaginary root
+            c = w2**2 - w1**2
+            return (a+b)/c  # use the positive root, as that will be the one between x1 and x2
 
-def gaussian1D(x, x0, a, w):
-    """returns the height of a gaussian (with mean x0, amplitude, a and width w) at the value(s) x"""
-    g = a/(w*numpy.sqrt(2*numpy.pi))*numpy.exp(-0.5*(x-x0)**2/w**2)  # normalize
-    g[numpy.isnan(g)] = 0  # eliminate bad elements
-    return g
-    
-def two_gaussians(x,x0,a0,w0,x1,a1,w1):
-    return gaussian1D(x,x0,a0,w0)+gaussian1D(x,x1,a1,w1)
+    def histogram_grid_plot(self, fig, shot, bins):
+        """Plot a grid of histograms in the same shape as the ROIs."""
+        rows = self.experiment.ROI_rows
+        columns = self.experiment.ROI_columns
+        gs1 = GridSpec(rows+1, columns+1, left=0.02, bottom=0.05, top=.95, right=.98, wspace=0.2, hspace=0.5)
+        font = 10
 
-def histogram_grid_plot(fig, roidata, ROI_rows, ROI_columns):
-    #takes in a blank figure to work with, and roidata which is size (measurements, num_regions)
-    N = roidata.shape[1]
-    
-    #first numerically take histograms
-    bins = int(numpy.rint(numpy.sqrt(len(roidata))))
-    hists = []
-    bin_edges_list = []
-    mins = []
-    maxs = []
-    maxcounts = []
-    for i in xrange(N):
-        ROI_sums = roidata[:, i]
-        hist, bin_edges = numpy.histogram(ROI_sums, bins=bins)
-        hists.append(hist)
-        bin_edges_list.append(bin_edges)
-        mins.append(min(ROI_sums))
-        maxs.append(max(ROI_sums))
-        maxcounts.append(max(hist))
-    overall_min = min(mins)
-    overall_max = max(maxs)
-    overall_maxcount = max(maxcounts)
+        #make histograms for each site
+        for i in xrange(rows):
+            for j in xrange(columns):
+                # choose correct saved data
+                n = columns*i+j
+                data = self.histogram_results[shot, n]
 
-    #then calculate cutoffs
-    best_g1s = []
-    best_g2s = []
-    best_errors = []
-    best_mean1s = []
-    best_mean2s = []
-    best_width1s = []
-    best_width2s = []
-    best_amplitude1s = []
-    best_amplitude2s = []
-    best_cutoffs = []
-    loading = []
-    overlap = []
-    xs = []
-    popts=[]
-    for i in xrange(N):
-        cutoffs = bin_edges_list[i]  # use bin edges as possible cutoff locations
-        bin_size = (bin_edges_list[i][1:]-bin_edges_list[i][:-1])
-        x = (bin_edges_list[i][1:]+bin_edges_list[i][:-1])/2  # take center of each bin as test points (same in number as y)
-        xs.append(x)
-        y = hists[i]
-        best_error = float('inf')
-        for j in xrange(1, bins-1):  # leave off 0th and last bin edge to prevent divide by zero on one of the gaussian sums
+                # create new plot
+                ax = fig.add_subplot(gs1[i, j])
 
-            #fit a gaussian below the cutoff
-            mean1 = numpy.sum(x[:j]*y[:j])/numpy.sum(y[:j])
-            r1 = numpy.sqrt((x[:j]-mean1)**2)  # an array of distances from the mean
-            width1 = numpy.sqrt(numpy.abs(numpy.sum((r1**2)*y[:j])/numpy.sum(y[:j])))  # the standard deviation
-            amplitude1 = numpy.sum(y[:j]*bin_size[:j])  # area under gaussian is 1, so scale by total volume (i.e. the sum of y)
-            g1 = gaussian1D(x, mean1, amplitude1, width1)
+                try:
+                    # plot histogram
+                    x = numpy.zeros(bins+2)
+                    x[1:] = data['bin_edges']
+                    # include zero at the beginning and edge, to make the plot range correct
+                    y = numpy.zeros(bins+2, dtype=int)
+                    y[1:-1] = data['histogram']
+                    ax.step(x, y, where='post')
+                    ax.set_xlim([self.x_min, self.x_max])
+                    ax.set_ylim([0, self.y_max])
+                    ax.set_title(u'site {}, {:.0f}\u00B1{:.1f}%'.format(n, data['loading']*100,data['overlap']*100), size=font)
+                    # put x ticks at the center of each gaussian and the cutoff.
+                    # The one at x_max just holds 'e3' to show that the values should be multiplied by 1000
+                    ax.set_xticks([data['mean1'], data['cutoff'], data['mean2'], self.x_max])
+                    ax.set_xticklabels([u'{}\u00B1{:.1f}'.format(int(data['mean1']/1000), data['width1']/1000), str(int(data['cutoff']/1000)), u'{}\u00B1{:.1f}'.format(int(data['mean2']/1000), data['width2']/1000), 'e3'], size=font, rotation=90)
+                    # put y ticks at the peak of each gaussian fit
+                    if (data['width1'] != 0) and (data['width2'] != 0):
+                        y1 = data['amplitude1']/(data['width1']*numpy.sqrt(2*numpy.pi))
+                        y2 = data['amplitude2']/(data['width2']*numpy.sqrt(2*numpy.pi))
+                        ax.set_yticks([0, y1, y2])
+                        ax.set_yticklabels([str(0), str(int(numpy.rint(y1))), str(int(numpy.rint(y2)))])  # , size=font)
+                    # plot gaussians
+                    x = numpy.linspace(self.x_min, self.x_max, 100)
+                    y1 = numpy.concatenate([[0], self.gaussian1D(x, data['mean1'], data['amplitude1'], data['width1']), [0]])  # pad with zeros so that matplotlib fill shows up correctly
+                    y2 = numpy.concatenate([[0], self.gaussian1D(x, data['mean2'], data['amplitude2'], data['width2']), [0]])
+                    x = numpy.concatenate([[x[0]], x, [x[-1]]])
+                    ax.fill(x, y1, 'b', x, y2, 'r', alpha=0.5)
+                    # plot cutoff line
+                    ax.vlines(data['cutoff'], 0, self.y_max)
+                except Exception as e:
+                    logger.warning('Could not plot histogram for shot {} roi {}:\n{}'.format(shot, n, e))
 
-            #fit a gaussian above the cutoff
-            mean2 = numpy.sum(x[j:]*y[j:])/numpy.sum(y[j:])
-            r2 = numpy.sqrt((x[j:]-mean2)**2) #an array of distances from the mean
-            width2 = numpy.sqrt(numpy.abs(numpy.sum((r2**2)*y[j:])/numpy.sum(y[j:]))) #the standard deviation
-            amplitude2 = numpy.sum(y[j:]*bin_size[j:]) #area under gaussian is 1, so scale by total volume (i.e. the sum of y * step size)
-            g2 = gaussian1D(x, mean2, amplitude2, width2)
+        font = 20  # larger font for average stats
 
-            #find the total error
-            error = sum(abs(y-g1-g2))
-            if error < best_error:
-                best_g1 = g1
-                best_g2 = g2
-                best_error = error
-                best_mean1 = mean1
-                best_mean2 = mean2
-                best_width1 = width1
-                best_width2 = width2
-                best_amplitude1 = amplitude1
-                best_amplitude2 = amplitude2
-                best_cutoff = cutoffs[j]
+        #make stats for each row
+        for i in xrange(rows):
+            ax = fig.add_subplot(gs1[i, columns])
+            ax.axis('off')
+            ax.text(0.5, 0.5,
+                'row {}\navg loading\n{:.0f}%'.format(i, 100*numpy.mean(self.histogram_results['loading'][shot, i*columns:(i+1)*columns])),
+                horizontalalignment='center',
+                verticalalignment='center',
+                transform=ax.transAxes)  # ,
+                #fontsize=font)
 
-        #record the best fit
-        best_g1s.append(best_g1)
-        best_g2s.append(best_g2)
-        best_errors.append(best_error)
-        best_mean1s.append(best_mean1)
-        best_mean2s.append(best_mean2)
-        best_width1s.append(best_width1)
-        best_width2s.append(best_width2)
-        best_amplitude1s.append(best_amplitude1)
-        best_amplitude2s.append(best_amplitude2)
+        #make stats for each column
+        for i in xrange(columns):
+            ax = fig.add_subplot(gs1[rows, i])
+            ax.axis('off')
+            ax.text(0.5, 0.5,
+                'column {}\navg loading\n{:.0f}%'.format(i, 100*numpy.mean(self.histogram_results['loading'][shot, i:i+(rows-1)*columns:columns])),
+                horizontalalignment='center',
+                verticalalignment='center',
+                transform=ax.transAxes)  # ,
+                #fontsize=font)
 
-        #the cutoff found is for the digital data, not necessarily the best in terms of the gaussian fits
-        #to find a better cutoff:
-        #find the lowest point on the sum of the two gaussians
-        #go in steps on 1 from peak to peak
-        xc = numpy.arange(best_mean1, best_mean2)
-        y1 = gaussian1D(xc, best_mean1, best_amplitude1, best_width1)
-        y2 = gaussian1D(xc, best_mean2, best_amplitude2, best_width2)
-        yc = y1 + y2
-        cutoff = xc[numpy.argmin(yc)]
-        best_cutoffs.append(cutoff)
-        
-        # calculate the loading
-        loading.append(best_amplitude2/(best_amplitude1+best_amplitude2))
-        
-        #calculalate the overlap
-        mins=numpy.amin([y1,y2],axis=0)
-        overlap.append(numpy.sum(mins) / (numpy.sum(y1) + numpy.sum(y2)))
-    
-        #now do it using scipy curvefit
-        #initial_guess = (best_mean1, best_amplitude1, best_width1, best_mean2, best_amplitude2, best_width2)
-        #popt, pcov = curve_fit(two_gaussians, x, y, p0=initial_guess)
-        #popts.append(popt)
-
-    #plot
-    gs1 = GridSpec(ROI_rows+1, ROI_columns+1,
-                    left=0.02, bottom=0.05, top=.95, right=.98, wspace=0.2, hspace=0.5)
-    font = 10
-    
-    #make histograms for each site
-    for i in xrange(ROI_rows):
-        for j in xrange(ROI_columns):
-            n = ROI_columns*i+j
-            #ax = fig.add_subplot(7, 7, n+1)
-            ax = fig.add_subplot(gs1[i, j])
-            #plot histogram
-            x = numpy.zeros(bins+2)
-            x[1:] = bin_edges_list[n]
-            y = numpy.zeros(bins+2, dtype=int)
-            y[1:-1] = hists[n]
-            ax.step(x, y, where='post')
-            ax.set_xlim([overall_min, overall_max])
-            ax.set_ylim([0, overall_maxcount])
-            ax.set_title(u'site {}, {:.0f}\u00B1{:.1f}%'.format(n,loading[n]*100,overlap[n]*100), size=font)
-            ax.set_xticks([best_mean1s[n], best_cutoffs[n], best_mean2s[n], overall_max])
-            ax.set_xticklabels([u'{}\u00B1{:.1f}'.format(int(best_mean1s[n]/1000),best_width1s[n]/1000), str(int(best_cutoffs[n]/1000)), u'{}\u00B1{:.1f}'.format(int(best_mean2s[n]/1000), best_width2s[n]/1000), 'e3'], size=font, rotation=90)
-            ax.set_yticks([0, max(best_g1s[n]), max(best_g2s[n])])
-            ax.set_yticklabels([str(0), str(int(max(best_g1s[n]))), str(int(max(best_g2s[n])))])  # , size=font)
-            #plot gaussians
-            x = numpy.linspace(overall_min, overall_max, 100)
-            #ax.plot(x,two_gaussians(x,*popts[n]),'g',lw=3)
-            y1 = numpy.concatenate([[0], gaussian1D(x, best_mean1s[n], best_amplitude1s[n], best_width1s[n]), [0]]) #pad with zeros so that matplotlib fill shows up correctly
-            y2 = numpy.concatenate([[0], gaussian1D(x, best_mean2s[n], best_amplitude2s[n], best_width2s[n]), [0]])
-            x = numpy.concatenate([[x[0]], x, [x[-1]]])
-            ax.fill(x, y1, 'b', x, y2, 'r', alpha=0.5)
-            #plot cutoff line
-            ax.vlines(best_cutoffs[n], 0, overall_maxcount)
-    
-    font=20  # larger font for average stats
-    
-    #make stats for each row
-    for i in xrange(ROI_rows):
-        ax = fig.add_subplot(gs1[i,ROI_columns])
+        #make stats for whole array
+        ax = fig.add_subplot(gs1[rows, columns])
         ax.axis('off')
-        ax.text(0.5,0.5,'row {}\navg loading\n{:.0f}%'.format(i,100*numpy.mean(loading[i*ROI_columns:(i+1)*ROI_columns])),
+        ax.text(0.5, 0.5,
+            'array\navg loading\n{:.0f}%'.format(100*numpy.mean(self.histogram_results['loading'][shot])),
             horizontalalignment='center',
             verticalalignment='center',
             transform=ax.transAxes)  # ,
             #fontsize=font)
-
-    #make stats for each column
-    for i in xrange(ROI_columns):
-        ax = fig.add_subplot(gs1[ROI_rows,i])
-        ax.axis('off')
-        ax.text(0.5,0.5,'column {}\navg loading\n{:.0f}%'.format(i,100*numpy.mean(loading[i:i+(ROI_rows-1)*ROI_columns:ROI_columns])),
-            horizontalalignment='center',
-            verticalalignment='center',
-            transform=ax.transAxes)  # ,
-            #fontsize=font)
-
-    #make stats for whole array
-    ax = fig.add_subplot(gs1[ROI_rows,ROI_columns])
-    ax.axis('off')
-    ax.text(0.5,0.5,'array\navg loading\n{:.0f}%'.format(100*numpy.mean(loading)),
-        horizontalalignment='center',
-        verticalalignment='center',
-        transform=ax.transAxes)  # ,
-        #fontsize=font)
-
-    return best_errors, best_mean1s, best_mean2s, best_width1s, best_width2s, best_amplitude1s, best_amplitude2s, best_cutoffs
 
 
 class MeasurementsGraph(AnalysisWithFigure):
