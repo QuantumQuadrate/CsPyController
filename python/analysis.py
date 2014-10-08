@@ -874,7 +874,8 @@ class HistogramGrid(AnalysisWithFigure):
         yc = y1 + y2
         cutoff = xc[numpy.argmin(yc)]
         t2 = time.time()
-        print 'array cutoff finding: {}'.format(cutoff, t2-t1),
+        print 'array cutoff finding:'
+        print {}'.format(cutoff, t2-t1),
 
         # calculate the loading
         loading = best_amplitude2/(best_amplitude1+best_amplitude2)
