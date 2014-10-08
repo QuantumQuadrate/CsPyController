@@ -869,15 +869,15 @@ class HistogramGrid(AnalysisWithFigure):
                     else:
                         out[i] = (w1[i]**2/2*numpy.ln(a1[i]/a2[i]) - x1[i]**2 + x2[i]**2)/(2*(x2[i]-x1[i]))
                 else:
-                    a = x1[i]*w2[i]**2 - x2[i]*w1[i]**2
-                    b = np.sqrt((x1[i]*w2[i]**2 - x2[i]*w1[i]**2)**2 - (w2[i]**2 - w1[i]**2)*(x1[i]**2*w2[i]**2 - x2[i]**2*w1[i]**2 - w1[i]**2*w2[i]**2*np.log(a1[i]/a2[i])/2.0))
-                    c = w2[i]**2 - w1[i]**2
+                    a = - w2[i]**2*x1[i] + w1[i]**2*x2[i]
+                    b = w1[i]*w2[i]*np.sqrt((x1[i]-x2[i])**2 - (w1[i]**2 - w2[i]**2)*np.log(a1[i]/a2[i])/2.0)
+                    c = w1[i]**2 - w2[i]**2
                     out[i] = (a-b)/c  # use the negative root, as that will be the one between x1 and x2
             return out
         else:
-            a = x1*w2**2 - x2*w1**2
-            b = np.sqrt((x1*w2**2 - x2*w1**2)**2 - (w2**2 - w1**2)*(x1**2*w2**2 - x2**2*w1**2 - w1**2*w2**2*np.log(a1/a2)/2.0))
-            c = w2**2 - w1**2
+            a = - w2**2*x1 + w1**2*x2
+            b = w1*w2*np.sqrt((x1-x2)**2 - (w1**2 - w2**2)*np.log(a1/a2)/2.0)  # TODO: protect against imaginary root
+            c = w1**2 - w2**2
             return (a-b)/c  # use the negative root, as that will be the one between x1 and x2
 
 def gaussian1D(x, x0, a, w):

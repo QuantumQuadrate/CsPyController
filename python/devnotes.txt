@@ -5,6 +5,7 @@ TCP ports: 9000 LabView, 9001 Laird box temp
 current question:
 
 TODO:
+    Make PDFs display okay by using Figure.set_dpi(val) and Figure.set_figsize_inches( (w,h) ).  It is likely that Enaml is resizing your figure pixel size, without chaning the inch size, so that the dpi is forced to change.  Should savefig(..., dpi=fig.dpi) to try to cure.
     Make software not screw up during save2013style with 0 independent variables
     make image viewer update available variable choices when a variable is deleted, otherwise you get an error.
     piezo numpy array
