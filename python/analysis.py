@@ -10,15 +10,14 @@ from instrument_property import Prop
 import cs_evaluate
 
 #MPL plotting
-import matplotlib
 from matplotlib.figure import Figure
 from matplotlib.path import Path
 import matplotlib.patches as patches
 from matplotlib.gridspec import GridSpec
-from matplotlib.backends.backend_pdf import PdfPages
+#from matplotlib.backends.backend_pdf import PdfPages
 from enaml.application import deferred_call
 
-import threading, numpy, traceback, os, time
+import threading, numpy, traceback, os
 from scipy.optimize import curve_fit
 
 from colors import my_cmap, green_cmap
@@ -396,7 +395,8 @@ class ImageSumAnalysis(AnalysisWithFigure):
     update_lock = Bool(False)
     min = Member()
     max = Member()
-    pdf = Member()
+    #pdf = Member()
+    pdf_path = Member()
 
     def __init__(self, experiment):
         super(ImageSumAnalysis, self).__init__('ImageSumAnalysis', experiment, 'Sums shot0 images as they come in')
@@ -406,7 +406,12 @@ class ImageSumAnalysis(AnalysisWithFigure):
 
     def preExperiment(self, experimentResults):
         if self.enable and self.experiment.saveData:
-            self.pdf = PdfPages(os.path.join(self.experiment.path, 'image_mean_{}.pdf'.format(self.experiment.experimentPath)))
+            #self.pdf = PdfPages(os.path.join(self.experiment.path, 'image_mean_{}.pdf'.format(self.experiment.experimentPath)))
+
+            # create the nearly complete path name to save pdfs to.  The iteration and .pdf will be appended.
+            if not os.path.exists('pdf'):
+                os.mkdir('pdf')
+            self.pdf_path = os.path.join(self.experiment.path, 'pdf', 'image_mean_{}'.format(self.experiment.experimentPath))
 
     def preIteration(self, iterationResults, experimentResults):
         #clear old data
@@ -444,8 +449,9 @@ class ImageSumAnalysis(AnalysisWithFigure):
 
                 # save to pdf
                 try:
-                    self.pdf.savefig(self.figure, dpi=self.figure.get_dpi(), transparent=True, bbox_inches=None,
-                    pad_inches=0, frameon=False)
+                    self.figure.savefig('{}_{}.pdf'.format(self.pdf_path, self.experiment.iteration), format='pdf',
+                                        dpi=self.figure.get_dpi(), transparent=True, bbox_inches=None, pad_inches=0,
+                                        frameon=False)
 
                 except Exception as e:
                     logger.warning('Problem saving image sum to pdf:\n{}\n'.format(e))
@@ -485,9 +491,9 @@ class ImageSumAnalysis(AnalysisWithFigure):
             finally:
                 self.update_lock = False
 
-    def finalize(self, experimentResults):
-        if self.enable and self.experiment.saveData:
-            self.pdf.close()
+    #def finalize(self, experimentResults):
+    #    if self.enable and self.experiment.saveData:
+    #        self.pdf.close()
 
 class SquareROIAnalysis(AnalysisWithFigure):
     """Add up the sums of pixels in a region, and evaluate whether or not an atom is present based on the totals."""
@@ -704,7 +710,8 @@ class HistogramGrid(AnalysisWithFigure):
     all_shots_array = Member()
     histogram_results = Member()
     shot = Int()
-    pdf = Member()
+    #pdf = Member()
+    pdf_path = Member()
     bins = Member()
     x_min = Member()
     x_max = Member()
@@ -716,11 +723,16 @@ class HistogramGrid(AnalysisWithFigure):
 
     def preExperiment(self, experimentResults):
         if self.enable and self.experiment.saveData:
-            self.pdf = PdfPages(os.path.join(self.experiment.path, 'histogram_grid_{}.pdf'.format(self.experiment.experimentPath)))
+            #self.pdf = PdfPages(os.path.join(self.experiment.path, 'histogram_grid_{}.pdf'.format(self.experiment.experimentPath)))
 
-    def finalize(self, experimentResults):
-        if self.enable and self.experiment.saveData:
-            self.pdf.close()
+            # create the nearly complete path name to save pdfs to.  The iteration and .pdf will be appended.
+            if not os.path.exists('pdf'):
+                os.mkdir('pdf')
+            self.pdf_path = os.path.join(self.experiment.path, 'pdf', 'image_mean_{}'.format(self.experiment.experimentPath))
+
+    #def finalize(self, experimentResults):
+    #    if self.enable and self.experiment.saveData:
+    #        self.pdf.close()
 
     def analyzeIteration(self, iterationResults, experimentResults):
         if self.enable:
@@ -750,8 +762,11 @@ class HistogramGrid(AnalysisWithFigure):
             # save to PDF
             if self.experiment.saveData:
                 try:
-                    self.pdf.savefig(self.figure, dpi=self.figure.get_dpi(), transparent=True, bbox_inches=None,
-                    pad_inches=0, frameon=False)
+                    #self.pdf.savefig(self.figure, dpi=self.figure.get_dpi(), transparent=True, bbox_inches=None,
+                    #pad_inches=0, frameon=False)
+                    self.figure.savefig('{}_{}.pdf'.format(self.pdf_path, self.experiment.iteration), format='pdf',
+                                        dpi=self.figure.get_dpi(), transparent=True, bbox_inches=None, pad_inches=0,
+                                        frameon=False)
 
                 except Exception as e:
                     logger.warning('Problem saving histogramGrid to pdf:\n{}\n'.format(e))
