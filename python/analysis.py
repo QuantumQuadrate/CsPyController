@@ -10,6 +10,7 @@ from instrument_property import Prop
 import cs_evaluate
 
 #MPL plotting
+import matplotlib as mpl
 from matplotlib.figure import Figure
 from matplotlib.path import Path
 import matplotlib.patches as patches
@@ -18,6 +19,7 @@ from matplotlib.gridspec import GridSpec
 from enaml.application import deferred_call
 
 import threading, numpy, traceback, os
+np = numpy
 from scipy.optimize import curve_fit
 
 from colors import my_cmap, green_cmap
@@ -928,6 +930,40 @@ class HistogramGrid(AnalysisWithFigure):
         c = w2**2 - w1**2
         return (a+b)/c  # use the positive root, as that will be the one between x1 and x2
 
+    def histogram_patch(self, ax, x, y, color):
+        # create vertices for histogram patch
+        #   repeat each x twice, and two different y values
+        #   repeat each y twice, at two different x values
+        #   extra length of verts array ensures beginning and end are at y=0
+        verts = np.zeros((2*len(x)+1,2))
+        verts[0:-1:2,0] = x
+        verts[1:-1:2,0] = x
+        verts[1:-3:2,1] = y
+        verts[2:-2:2,1] = y
+        # create codes for histogram patch
+        codes = np.ones(2*len(x)+1, int) * mpl.path.Path.LINETO
+        codes[0] = mpl.path.Path.MOVETO
+        codes[-1] = mpl.path.Path.CLOSEPOLY
+        # create patch and add it to axes
+        my_path = mpl.path.Path(verts, codes)
+        patch = patches.PathPatch(my_path, facecolor=color, edgecolor=color, alpha=0.5)
+        ax.add_patch(patch)
+
+    def two_color_histogram(self, data):
+        # plot histogram for data below the cutoff
+        x = data['bin_edges']
+        x1 = x[x<data['cutoff']]  # take only data below the cutoff
+        xc = len(x1)
+        x1 = x1.append(data['cutoff']) # add the cutoff to the end of the 1st patch
+        y = data['histogram']
+        y1 = y[:xc]  # take the corresponding histogram counts
+        x2 = x[xc:]  # take the remaining values that are above the cutoff
+        x2 = np.insert(x2, 0, data['cutoff'])  # add the cutoff to the beginning of the 2nd patch
+        y2 = y[len(x1):]
+
+        self.histogram_patch(ax, x1, y1, 'b')  # plot the 0 atom peak in blue
+        self.histogram_patch(ax, x2, y2, 'r')  # plot the 1 atom peak in red
+
     def histogram_grid_plot(self, fig, shot, bins):
         """Plot a grid of histograms in the same shape as the ROIs."""
 
@@ -947,34 +983,30 @@ class HistogramGrid(AnalysisWithFigure):
                 ax = fig.add_subplot(gs1[i, j])
 
                 try:
-                    # plot histogram
-                    x = numpy.zeros(bins+2)
-                    x[1:] = data['bin_edges']
-                    # include zero at the beginning and edge, to make the plot range correct
-                    y = numpy.zeros(bins+2, dtype=int)
-                    y[1:-1] = data['histogram']
-                    ax.step(x, y, where='post')
+                    self.two_color_histogram(data)
+
                     ax.set_xlim([self.x_min, self.x_max])
                     ax.set_ylim([0, self.y_max])
                     ax.set_title(u'site {}, {:.0f}\u00B1{:.1f}%'.format(n, data['loading']*100,data['overlap']*100), size=font)
+
                     # put x ticks at the center of each gaussian and the cutoff.
                     # The one at x_max just holds 'e3' to show that the values should be multiplied by 1000
                     ax.set_xticks([data['mean1'], data['cutoff'], data['mean2'], self.x_max])
                     ax.set_xticklabels(['{}'.format(int(data['mean1']/1000)), str(int(data['cutoff']/1000)), '{}'.format(int(data['mean2']/1000)), 'e3'], size=font, rotation=90)
+                    # add this to xticklabels to print gaussian widths:
+                    # u'\u00B1{:.1f}'.format(data['width1']/1000)
+                    # u'\u00B1{:.1f}'.format(data['width2']/1000)
                     # put y ticks at the peak of each gaussian fit
                     if (data['width1'] != 0) and (data['width2'] != 0):
                         y1 = data['amplitude1']/(data['width1']*numpy.sqrt(2*numpy.pi))
                         y2 = data['amplitude2']/(data['width2']*numpy.sqrt(2*numpy.pi))
                         ax.set_yticks([0, y1, y2])
                         ax.set_yticklabels([str(0), str(int(numpy.rint(y1))), str(int(numpy.rint(y2)))])  # , size=font)
-                        ax.text(data['mean1'], y1, u'\u00B1{:.1f}'.format(data['width1']/1000))
-                        ax.text(data['mean2'], y2, u'\u00B1{:.1f}'.format(data['width2']/1000))
                     # plot gaussians
                     x = numpy.linspace(self.x_min, self.x_max, 100)
-                    y1 = numpy.concatenate([[0], self.gaussian1D(x, data['mean1'], data['amplitude1'], data['width1']), [0]])  # pad with zeros so that matplotlib fill shows up correctly
-                    y2 = numpy.concatenate([[0], self.gaussian1D(x, data['mean2'], data['amplitude2'], data['width2']), [0]])
-                    x = numpy.concatenate([[x[0]], x, [x[-1]]])
-                    ax.fill(x, y1, 'b', x, y2, 'r', alpha=0.5)
+                    y1 = self.gaussian1D(x, data['mean1'], data['amplitude1'], data['width1'])
+                    y2 = self.gaussian1D(x, data['mean2'], data['amplitude2'], data['width2'])
+                    ax.plot(x, y1, 'grey', x, y2, 'grey', alpha=0.5)
                     # plot cutoff line
                     ax.vlines(data['cutoff'], 0, self.y_max)
                 except Exception as e:
