@@ -409,9 +409,10 @@ class ImageSumAnalysis(AnalysisWithFigure):
             #self.pdf = PdfPages(os.path.join(self.experiment.path, 'image_mean_{}.pdf'.format(self.experiment.experimentPath)))
 
             # create the nearly complete path name to save pdfs to.  The iteration and .pdf will be appended.
-            if not os.path.exists('pdf'):
-                os.mkdir('pdf')
-            self.pdf_path = os.path.join(self.experiment.path, 'pdf', 'image_mean_{}'.format(self.experiment.experimentPath))
+            pdf_path = os.path.join(self.experiment.path, 'pdf')
+            if not os.path.exists(pdf_path):
+                os.mkdir(pdf_path)
+            self.pdf_path = os.path.join(pdf_path, 'image_mean_{}'.format(self.experiment.experimentPath))
 
     def preIteration(self, iterationResults, experimentResults):
         #clear old data
@@ -726,9 +727,10 @@ class HistogramGrid(AnalysisWithFigure):
             #self.pdf = PdfPages(os.path.join(self.experiment.path, 'histogram_grid_{}.pdf'.format(self.experiment.experimentPath)))
 
             # create the nearly complete path name to save pdfs to.  The iteration and .pdf will be appended.
-            if not os.path.exists('pdf'):
-                os.mkdir('pdf')
-            self.pdf_path = os.path.join(self.experiment.path, 'pdf', 'image_mean_{}'.format(self.experiment.experimentPath))
+            pdf_path = os.path.join(self.experiment.path, 'pdf')
+            if not os.path.exists(pdf_path):
+                os.mkdir(pdf_path)
+            self.pdf_path = os.path.join(pdf_path, 'image_mean_{}'.format(self.experiment.experimentPath))
 
     #def finalize(self, experimentResults):
     #    if self.enable and self.experiment.saveData:
