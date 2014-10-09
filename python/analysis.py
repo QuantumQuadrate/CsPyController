@@ -943,15 +943,15 @@ class HistogramGrid(AnalysisWithFigure):
                     # put x ticks at the center of each gaussian and the cutoff.
                     # The one at x_max just holds 'e3' to show that the values should be multiplied by 1000
                     ax.set_xticks([data['mean1'], data['cutoff'], data['mean2'], self.x_max])
-                    ax.set_xticklabels([u'{}'.format(int(data['mean1']/1000)), str(int(data['cutoff']/1000)), u'{}'.format(int(data['mean2']/1000)), 'e3'], size=font, rotation=90)
+                    ax.set_xticklabels(['{}'.format(int(data['mean1']/1000)), str(int(data['cutoff']/1000)), '{}'.format(int(data['mean2']/1000)), 'e3'], size=font, rotation=90)
                     # put y ticks at the peak of each gaussian fit
                     if (data['width1'] != 0) and (data['width2'] != 0):
                         y1 = data['amplitude1']/(data['width1']*numpy.sqrt(2*numpy.pi))
                         y2 = data['amplitude2']/(data['width2']*numpy.sqrt(2*numpy.pi))
                         ax.set_yticks([0, y1, y2])
                         ax.set_yticklabels([str(0), str(int(numpy.rint(y1))), str(int(numpy.rint(y2)))])  # , size=font)
-                        ax.text(data['mean1'], y1, '\u00B1{:.1f}'.format(data['width1']/1000))
-                        ax.text(data['mean2'], y2, '\u00B1{:.1f}'.format(data['width2']/1000))
+                        ax.text(data['mean1'], y1, u'\u00B1{:.1f}'.format(data['width1']/1000))
+                        ax.text(data['mean2'], y2, u'\u00B1{:.1f}'.format(data['width2']/1000))
                     # plot gaussians
                     x = numpy.linspace(self.x_min, self.x_max, 100)
                     y1 = numpy.concatenate([[0], self.gaussian1D(x, data['mean1'], data['amplitude1'], data['width1']), [0]])  # pad with zeros so that matplotlib fill shows up correctly
