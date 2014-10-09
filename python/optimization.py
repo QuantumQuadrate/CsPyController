@@ -157,12 +157,15 @@ class Optimization(AnalysisWithFigure):
 
     def finalize(self, hdf5):
         if self.enable:
-
             # store the cost graph to a pdf
             if self.experiment.saveData:
                 try:
-                    with PdfPages(os.path.join(self.experiment.path, 'optimizer.pdf')) as pdf:
-                        pdf.savefig(self.figure, transparent=True)
+                    pdf_path = os.path.join(self.experiment.path, 'pdf')
+                    if not os.path.exists(pdf_path):
+                        os.mkdir(pdf_path)
+                    filename = os.path.join(pdf_path, 'optimizer_{}.pdf'.format(self.experiment.experimentPath))
+                    self.figure.savefig(filename, format='pdf', dpi=self.figure.get_dpi(), transparent=True,
+                                        bbox_inches=None, pad_inches=0, frameon=False)
                 except Exception as e:
                     logger.warning('Problem saving optimizer pdf:\n{}\n'.format(e))
 
