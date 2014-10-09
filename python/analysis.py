@@ -10,13 +10,13 @@ from instrument_property import Prop
 import cs_evaluate
 
 #MPL plotting
+import matplotlib
 from matplotlib.figure import Figure
 from matplotlib.path import Path
 import matplotlib.patches as patches
 from matplotlib.gridspec import GridSpec
 from matplotlib.backends.backend_pdf import PdfPages
 from enaml.application import deferred_call
-import matplotlib.pyplot as plt
 
 import threading, numpy, traceback, os, time
 from scipy.optimize import curve_fit
@@ -806,11 +806,8 @@ class HistogramGrid(AnalysisWithFigure):
         self.y_max = numpy.amax(self.histogram_results['histogram'])
 
         # an analytic way of doing the cutoff finding
-        t1 = time.time()
         r = self.histogram_results
         cutoff_analytic = self.analytic_cutoff(r['mean1'], r['mean2'], r['width1'], r['width2'], r['amplitude1'], r['amplitude2'])
-        t2 = time.time()
-        print 'analytic cutoff finding: {} in {:.10f}s'.format(cutoff_analytic, t2-t1)
 
     def gaussian1D(self, x, x0, a, w):
         """returns the height of a gaussian (with mean x0, amplitude, a and width w) at the value(s) x"""
@@ -867,15 +864,11 @@ class HistogramGrid(AnalysisWithFigure):
         # to find a better cutoff:
         # find the lowest point on the sum of the two gaussians
         # go in steps of 1 from peak to peak
-        t1 = time.time()
         xc = numpy.arange(best_mean1, best_mean2)
         y1 = self.gaussian1D(xc, best_mean1, best_amplitude1, best_width1)
         y2 = self.gaussian1D(xc, best_mean2, best_amplitude2, best_width2)
         yc = y1 + y2
         cutoff = xc[numpy.argmin(yc)]
-        t2 = time.time()
-        print 'array cutoff finding:'
-        print {}'.format(cutoff, t2-t1),
 
         # calculate the loading
         loading = best_amplitude2/(best_amplitude1+best_amplitude2)
@@ -889,29 +882,38 @@ class HistogramGrid(AnalysisWithFigure):
     def analytic_cutoff(self, x1, x2, w1, w2, a1, a2):
         """Find the cutoffs analytically.  See MTL thesis for derivation."""
 
-        if numpy.any(w1 == w2):  # if true, we have to do use different equations for each element
-            out = numpy.zeros(len(x1),dtype='f8')
-            # TODO: eliminate for loop by using numpy.where or numpy.select
-            for i in xrange(len(x1)):
-                if w1[i]==w2[i]:
-                    if a1[i]==a2[i]:
-                        out[i] = (x1[i]+x2[i])/2
-                    else:
-                        out[i] = (- x1[i]**2 + x2[i]**2 + w1[i]**2/2*numpy.ln(a1[i]/a2[i]))/(2*(x2[i]-x1[i]))
-                else:
-                    a = - w2[i]**2*x1[i] + w1[i]**2*x2[i]
-                    b = w1[i]*w2[i]*numpy.sqrt((x1[i]-x2[i])**2 - (w1[i]**2 - w2[i]**2)*numpy.log(a1[i]/a2[i])/2.0)
-                    c = w1[i]**2 - w2[i]**2
-                    out[i] = (a-b)/c  # use the negative root, as that will be the one between x1 and x2
-            return out
-        else:
-            a = w2**2*x1 - w1**2*x2
-            b = w1*w2*numpy.sqrt((x1-x2)**2 + (w2**2 - w1**2)*numpy.log(a1/a2)/2.0)  # TODO: protect against imaginary root
-            c = w2**2 - w1**2
-            return (a+b)/c  # use the positive root, as that will be the one between x1 and x2
+        return numpy.where(w1 == w2, self.intersection_of_two_gaussians_of_equal_width(x1, x2, w1, w2, a1, a2), self.intersection_of_two_gaussians(x1, x2, w1, w2, a1, a2))
+
+        # if numpy.any(w1 == w2):  # if true, we have to do use different equations for each element
+        #     out = numpy.zeros(x1.shape, dtype='f8')
+        #     # TODO: eliminate for loop by using numpy.where or numpy.select
+        #     for i in xrange(x1.shape[0]):
+        #         for j in xrange(x1.shape[1]):
+        #             if w1[i,j] == w2[i,j]:
+        #                 if a1[i,j] == a2[i,j]:
+        #                     out[i,j] = (x1[i,j]+x2[i,j])/2
+        #                 else:
+        #                     out[i,j] = (- x1[i,j]**2 + x2[i,j]**2 + w1[i,j]**2/2*numpy.ln(a1[i,j]/a2[i,j]))/(2*(x2[i,j]-x1[i,j]))
+        #             else:
+        #                 out[i,j] = self.intersection_of_two_gaussians(x1[i,j], x2[i,j], w1[i,j], w2[i,j], a1[i,j], a2[i,j])
+        #     return out
+        # else:
+        #     return self.intersection_of_two_gaussians(x1, x2, w1, w2, a1, a2)
+
+    def intersection_of_two_gaussians_of_equal_width(self, x1, x2, w1, w2, a1, a2):
+        return (- x1**2 + x2**2 + w1**2/2*numpy.log(a1/a2))/(2*(x2-x1))
+
+
+    def intersection_of_two_gaussians(self, x1, x2, w1, w2, a1, a2):
+        a = w2**2*x1 - w1**2*x2
+        # TODO: protect against imaginary root
+        b = w1*w2*numpy.sqrt((x1-x2)**2 + (w2**2 - w1**2)*numpy.log(a1/a2)/2.0)
+        c = w2**2 - w1**2
+        return (a+b)/c  # use the positive root, as that will be the one between x1 and x2
 
     def histogram_grid_plot(self, fig, shot, bins):
         """Plot a grid of histograms in the same shape as the ROIs."""
+
         rows = self.experiment.ROI_rows
         columns = self.experiment.ROI_columns
         gs1 = GridSpec(rows+1, columns+1, left=0.02, bottom=0.05, top=.95, right=.98, wspace=0.2, hspace=0.5)
@@ -941,13 +943,15 @@ class HistogramGrid(AnalysisWithFigure):
                     # put x ticks at the center of each gaussian and the cutoff.
                     # The one at x_max just holds 'e3' to show that the values should be multiplied by 1000
                     ax.set_xticks([data['mean1'], data['cutoff'], data['mean2'], self.x_max])
-                    ax.set_xticklabels([u'{}\u00B1{:.1f}'.format(int(data['mean1']/1000), data['width1']/1000), str(int(data['cutoff']/1000)), u'{}\u00B1{:.1f}'.format(int(data['mean2']/1000), data['width2']/1000), 'e3'], size=font, rotation=90)
+                    ax.set_xticklabels([u'{}'.format(int(data['mean1']/1000)), str(int(data['cutoff']/1000)), u'{}'.format(int(data['mean2']/1000)), 'e3'], size=font, rotation=90)
                     # put y ticks at the peak of each gaussian fit
                     if (data['width1'] != 0) and (data['width2'] != 0):
                         y1 = data['amplitude1']/(data['width1']*numpy.sqrt(2*numpy.pi))
                         y2 = data['amplitude2']/(data['width2']*numpy.sqrt(2*numpy.pi))
                         ax.set_yticks([0, y1, y2])
                         ax.set_yticklabels([str(0), str(int(numpy.rint(y1))), str(int(numpy.rint(y2)))])  # , size=font)
+                        ax.text(data['mean1'], y1, '\u00B1{:.1f}'.format(data['width1']/1000))
+                        ax.text(data['mean2'], y2, '\u00B1{:.1f}'.format(data['width2']/1000))
                     # plot gaussians
                     x = numpy.linspace(self.x_min, self.x_max, 100)
                     y1 = numpy.concatenate([[0], self.gaussian1D(x, data['mean1'], data['amplitude1'], data['width1']), [0]])  # pad with zeros so that matplotlib fill shows up correctly

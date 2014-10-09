@@ -495,7 +495,7 @@ enamldef VariableEntry(GroupBox):
 
     HGroup: variable:
         align_widths = False
-        constraints = [nameCont.width==0.5*descCont.width, descCont.width==funcCont.width]
+        constraints = [nameCont.width==100, descCont.width==200, funcCont.width==200]
         Field: nameCont:
             text := indepVar.name
             placeholder = 'name'

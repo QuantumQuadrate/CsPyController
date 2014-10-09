@@ -192,7 +192,7 @@ class Optimization(AnalysisWithFigure):
                 i.currentValue = i.optimizer_max
             else:
                 i.currentValue = x
-            i.set_gui({'currentValueStr': str(x)})
+            i.set_gui({'currentValueStr': str(i.currentValue)})
 
     def genetic(self, x0):
         yi = self.yi
