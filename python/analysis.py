@@ -730,7 +730,7 @@ class HistogramGrid(AnalysisWithFigure):
             pdf_path = os.path.join(self.experiment.path, 'pdf')
             if not os.path.exists(pdf_path):
                 os.mkdir(pdf_path)
-            self.pdf_path = os.path.join(pdf_path, 'image_mean_{}'.format(self.experiment.experimentPath))
+            self.pdf_path = os.path.join(pdf_path, 'histogram_grid_{}'.format(self.experiment.experimentPath))
 
     #def finalize(self, experimentResults):
     #    if self.enable and self.experiment.saveData:
