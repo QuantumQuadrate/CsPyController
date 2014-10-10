@@ -387,7 +387,7 @@ enamldef ExperimentPage(Container):
     attr experiment
 
     Form: form:
-        constraints = [(midline==left)|'strong',(width==parent.contents_width)|'strong']
+        constraints = [(midline==left)|'strong'] #,(width==parent.contents_width)|'strong']
         Label:
             text="Status:"
         Label:
@@ -491,11 +491,11 @@ enamldef VariableEntry(GroupBox):
 
     hug_height = 'strong'
     hug_width = 'strong'
-    constraints = [vbox(variable,optimizer,values,status), align('left',variable,optimizer,values,status)]  # currentValueLabel.right==funcCont.right
+    constraints = [vbox(variable,optimizer1,optimizer2,values,status), align('left',variable,optimizer1,optimizer2,values,status)]
 
     HGroup: variable:
         align_widths = False
-        constraints = [nameCont.width==0.5*descCont.width, descCont.width==funcCont.width]
+        constraints = [nameCont.width==100, descCont.width==200, funcCont.width==200]
         Field: nameCont:
             text := indepVar.name
             placeholder = 'name'
@@ -505,7 +505,7 @@ enamldef VariableEntry(GroupBox):
         Field: funcCont:
             text := indepVar.function
             placeholder = 'function'
-    HGroup: optimizer:
+    HGroup: optimizer1:
         padding = 0
         align_widths = False
         hug_width = 'strong'
@@ -522,6 +522,16 @@ enamldef VariableEntry(GroupBox):
                 value := indepVar.optimizer_initial_step
         Form:
             Label:
+                text = 'end tolerance (abs)'
+            FloatField:
+                value := indepVar.optimizer_end_tolerance
+    HGroup: optimizer2:
+        padding = 0
+        align_widths = False
+        hug_width = 'strong'
+        hug_height = 'strong'
+        Form:
+            Label:
                 text = 'min'
             FloatField:
                 value := indepVar.optimizer_min
@@ -530,15 +540,11 @@ enamldef VariableEntry(GroupBox):
                 text = 'max'
             FloatField:
                 value := indepVar.optimizer_max
-        Form:
-            Label:
-                text = 'end tolerance (abs)'
-            FloatField:
-                value := indepVar.optimizer_end_tolerance
-    HGroup: values:
-        Label:
-            text << 'values: '+indepVar.valueListStr
+    Label: values:
+        text << 'values: '+indepVar.valueListStr
     HGroup: status:
+        padding = 0
+        align_widths = False
         hug_width = 'strong'
         hug_height = 'strong'
         Label:
@@ -1019,73 +1025,64 @@ def get_load_waveform_callback(HSDIO):
                 pass
     return load_file_callback
 
-enamldef Waveforms(Container):
+enamldef Waveforms(VGroup):
     attr HSDIO
 
-    Container:
-        hug_height='strong'
-        hug_width='strong'
-        constraints=[vbox(buttons,c1),align('left',buttons,c1)]
-        Container: buttons:
-            constraints=[hbox(combo,importWaveform,addWaveform,removeWaveform,copyWaveform)]
-            hug_height='strong'
-            hug_width='strong'
-            ComboBox: combo:
-                constraints=[(width==500)|'strong']
-                items << list(HSDIO.waveforms.names)
-                index = (0 if (HSDIO.waveforms.length>0) else -1) # pick first profile on load
-            PushButton: importWaveform:
-                enabled = False
-                #add a waveform from a file
-                text='import'
-                clicked::
-                    dlg = FileDialog(
-                        parent=importWaveform,
-                        title='Choose file to load waveform from',
-                        mode='open_file',
-                        path=HSDIO.import_path,
-                        callback=get_load_waveform_callback(HSDIO),
-                        ).open()
-                    combo.index=len(HSDIO.waveforms)-1
-            PushButton: addWaveform:
-                constraints=[(width==50)|'strong']
-                text = 'add'
-                clicked::
-                    HSDIO.waveforms.add()
-                    combo.index=len(HSDIO.waveforms)-1
-            PushButton: removeWaveform:
-                constraints=[(width==50)|'strong']
-                text = 'remove'
-                clicked::
-                    i=combo.index
-                    if i>=0:
-                        if i>1:
-                            combo.index=i-1
-                        else:
-                            combo.index=0
-                        HSDIO.waveforms.pop(i)
-            PushButton: copyWaveform:
-                constraints=[(width==50)|'strong']
-                text = 'copy'
-                clicked::
-                    HSDIO.waveforms.copy(combo.index)
-                    combo.index=len(HSDIO.waveforms)-1
-        Container: c1:
-            padding=0
-            Conditional:
-                condition << ((HSDIO.waveforms.length>0) and (combo.index >= 0))
-                Container:
-                    padding=0
-                    constraints=[vbox(canvas,stack),align('left',canvas,stack)]
-                    MPLCanvas: canvas:
-                        constraints=[(height==1000)|'strong',(width==1500)|'strong']
-                        figure << HSDIO.waveforms.listProperty[combo.index].figure
-                    Container: stack:
-                        padding=0
-                        # There were too many problems with getting a stack to update properly, so we are using the slower to switch but
-                        # quicker to instantiate single element
-                        NumpyWaveform:
-                            waveform << HSDIO.waveforms.listProperty[combo.index]
+    hug_width='ignore'
+    hug_height='ignore'
+    spacing = 0
+
+    HGroup:
+        align_widths = False
+        ComboBox: combo:
+            constraints=[(width==500)|'strong']
+            items << list(HSDIO.waveforms.names)
+            index = (0 if (HSDIO.waveforms.length>0) else -1) # pick first profile on load
+        PushButton: importWaveform:
+            constraints=[(width==50)|'strong']
+            enabled = False
+            #add a waveform from a file
+            text='import'
+            clicked::
+                dlg = FileDialog(
+                    parent=importWaveform,
+                    title='Choose file to load waveform from',
+                    mode='open_file',
+                    path=HSDIO.import_path,
+                    callback=get_load_waveform_callback(HSDIO),
+                    ).open()
+                combo.index=len(HSDIO.waveforms)-1
+        PushButton: addWaveform:
+            constraints=[(width==50)|'strong']
+            text = 'add'
+            clicked::
+                HSDIO.waveforms.add()
+                combo.index=len(HSDIO.waveforms)-1
+        PushButton: removeWaveform:
+            constraints=[(width==50)|'strong']
+            text = 'remove'
+            clicked::
+                i=combo.index
+                if i>=0:
+                    if i>1:
+                        combo.index=i-1
+                    else:
+                        combo.index=0
+                    HSDIO.waveforms.pop(i)
+        PushButton: copyWaveform:
+            constraints=[(width==50)|'strong']
+            text = 'copy'
+            clicked::
+                HSDIO.waveforms.copy(combo.index)
+                combo.index=len(HSDIO.waveforms)-1
+
+    Conditional:
+        condition << ((HSDIO.waveforms.length>0) and (combo.index >= 0))
+        MPLCanvas: canvas:
+            constraints=[(height==900)|'strong', (width==1850)|'strong']
+            figure << HSDIO.waveforms.listProperty[combo.index].figure
+        NumpyWaveform: waveform:
+            waveform << HSDIO.waveforms.listProperty[combo.index]
 
 enamldef HSDIO_DigitalOutPage(Container):
     attr HSDIO
@@ -1903,18 +1900,14 @@ enamldef MultiImage(Container):
     Label:
         text<<analysis3.text
 
-    Container:
+    HGroup:
         padding = 0
-        constraints = [hbox(a0,a1,a2), align('top',a0,a1,a2), a0.width==a1.width, a0.width==a2.width]
+        spacing = 0
+        align_widths = True
 
         Container: a0:
-            #hug_height = 'strong'
-            #hug_width = 'strong'
             MPLCanvas:
-                #constraints=[(width==parent.width)|'strong',(height==width)|'strong']
                 figure << analysis0.figure
-            #AnalysisImage:
-            #    analysis<<analysis0
             Form:
                 Label:
                     text = 'Show ROIs?'
@@ -1927,13 +1920,8 @@ enamldef MultiImage(Container):
                     value := analysis0.shot
 
         Container: a1:
-            #hug_height='strong'
-            #hug_width='strong'
             MPLCanvas:
-                #constraints=[(width==parent.width)|'strong',(height==width)|'strong']
                 figure << analysis1.figure
-            #AnalysisImage:
-            #    analysis<<analysis1
             Form:
                 Label:
                    text='Show ROIs?'
@@ -1966,12 +1954,7 @@ enamldef MultiImage(Container):
                         maximum=9999999 #a big number
                         value:=analysis1.shot
         Container: a2:
-            #hug_height = 'strong'
-            #hug_width = 'strong'
-            #AnalysisImage:
-            #    analysis<<analysis2
             MPLCanvas:
-                #constraints=[(width==parent.width)|'strong',(height==width)|'strong']
                 figure << analysis2.figure
             Form:
                 Label:
@@ -2058,9 +2041,8 @@ enamldef SquareROIContainer(Container):
 enamldef GaussianROI(Container):
     attr analysis
 
-    hug_height='ignore'
-    hug_width='ignore'
     HGroup:
+        align_widths = False
         Label:
             text = 'enable'
         CheckBox:
@@ -2074,6 +2056,7 @@ enamldef GaussianROI(Container):
         CheckBox:
             checked := analysis.useICA
     HGroup:
+        align_widths = False
         Label:
             text = 'initial guess'
         Label:
@@ -2093,7 +2076,6 @@ enamldef GaussianROI(Container):
         FloatField:
             value := analysis.right
     MPLCanvas:
-        constraints=[(height==1000)|'strong',(width==1700)|'strong']
         figure<<analysis.figure
 
 enamldef LoadingFilters(GroupBox):
@@ -2155,9 +2137,8 @@ enamldef Histogram(Container):
     attr experiment
     attr analysis
 
-    hug_height='ignore'
-    hug_width='ignore'
-    Form:
+    HGroup:
+        align_widths = False
         Label:
             text = 'enable'
         CheckBox:
@@ -2167,17 +2148,14 @@ enamldef Histogram(Container):
         Field:
             text := analysis.list_of_what_to_plot
     MPLCanvas:
-        constraints=[(height==900)|'strong',(width==1700)|'strong']
-        #hug_width='ignore'
         figure<<analysis.figure
 
 enamldef HistogramGrid(Container):
     attr experiment
     attr analysis
 
-    hug_height='ignore'
-    hug_width='ignore'
-    Form:
+    HGroup:
+        align_widths = False
         Label:
             text = 'enable'
         CheckBox:
@@ -2190,18 +2168,15 @@ enamldef HistogramGrid(Container):
             text = 'Use these cutoffs'
             clicked ::
                 analysis.use_cutoffs()
-
     MPLCanvas:
-        constraints=[(height==1700)|'strong',(width==1700)|'strong']
         figure<<analysis.figure
 
 enamldef MeasurementsGraph(Container):
     attr experiment
     attr analysis
 
-    hug_height='ignore'
-    hug_width='ignore'
-    Form:
+    HGroup:
+        align_widths = False
         Label:
             text = 'enable'
         CheckBox:
@@ -2210,26 +2185,23 @@ enamldef MeasurementsGraph(Container):
             text = 'specify shots and regions to graph with a list of pairs: [(shot,region),(shot,region)]'
         Field:
             text := analysis.list_of_what_to_plot
-    PushButton:
-        text = 'clear'
-        clicked :: analysis.clear()
+        PushButton:
+            text = 'clear'
+            clicked :: analysis.clear()
     MPLCanvas:
-        constraints = [(height==900)|'strong',(width==1700)|'strong']
         figure << analysis.figure
 
 enamldef IterationsGraph(Container):
     attr experiment
     attr analysis
 
-    hug_height='ignore'
-    hug_width='ignore'
     Form:
         Label:
             text = 'specify shots and regions to graph with a list of pairs: [(shot,region),(shot,region)]'
         Field:
             text := analysis.list_of_what_to_plot
-    Container:
-        constraints = [hbox(l5,cb5,l0,cb0,l1,cb1,l2,cb2,l3,f3,l4,f4)]
+    HGroup:
+        align_widths = False
         Label: l5:
             text = 'enable'
         CheckBox: cb5:
@@ -2257,22 +2229,19 @@ enamldef IterationsGraph(Container):
             placeholder='blank for autolimit'
             text := analysis.ymax
     MPLCanvas:
-        constraints=[(height==900)|'strong',(width==1700)|'strong']
         figure<<analysis.figure
 
 enamldef RetentionGraph(Container):
     attr experiment
     attr analysis
 
-    hug_height='ignore'
-    hug_width='ignore'
     Form:
         Label:
             text = 'specify shots and regions to graph with a list of pairs: [(shot,region),(shot,region)]'
         Field:
             text := analysis.list_of_what_to_plot
-    Container:
-        constraints = [hbox(l5,cb5,l0,cb0,l1,cb1,l2,cb2,l3,f3,l4,f4)]
+    HGroup:
+        align_widths = False
         Label: l5:
             text = 'enable'
         CheckBox: cb5:
@@ -2300,35 +2269,29 @@ enamldef RetentionGraph(Container):
             placeholder='blank for autolimit'
             text := analysis.ymax
     MPLCanvas:
-        constraints=[(height==900)|'strong',(width==1700)|'strong']
         figure<<analysis.figure
 
 enamldef Ramsey(Container):
     attr analysis
 
-    hug_height='ignore'
-    hug_width='ignore'
     HGroup:
-        Form:
-            Label:
-                text = 'enable'
-            CheckBox:
-                checked := analysis.enable
-        Form:
-            Label:
-                text = 'draw error bars (1 sigma binomial std dev of mean using normal approximation)'
-            CheckBox:
-                checked := analysis.draw_error_bars
-        Form:
-            Label:
-                text = 'roi'
-            SpinBox:
-                value := analysis.roi
-        Form:
-            Label:
-                text = 'time variable name'
-            Field:
-                text := analysis.time_variable_name
+        align_widths = False
+        Label:
+            text = 'enable'
+        CheckBox:
+            checked := analysis.enable
+        Label:
+            text = 'draw error bars (1 sigma binomial std dev of mean using normal approximation)'
+        CheckBox:
+            checked := analysis.draw_error_bars
+        Label:
+            text = 'roi'
+        SpinBox:
+            value := analysis.roi
+        Label:
+            text = 'time variable name'
+        Field:
+            text := analysis.time_variable_name
     GroupBox:
         title = 'fit'
         constraints=[grid([z0,z1,z2],[a0,a1,a2],[b0,b1,b2],[c0,c1,c2],[d0,d1,d2])]
@@ -2367,7 +2330,6 @@ enamldef Ramsey(Container):
             value := analysis.decay
             read_only = True
     MPLCanvas:
-        constraints=[(height==900)|'strong',(width==1700)|'strong']
         figure<<analysis.figure
 
 enamldef TTL_filters(GroupBox):
@@ -2400,44 +2362,44 @@ enamldef TTL_filters(GroupBox):
         Label:
             text := filters.text
 
-enamldef Optimizer(Form):
+enamldef Optimizer(Container):
     attr experiment
     attr analysis
 
-    Label:
-        text = 'enable'
-    CheckBox:
-        checked << analysis.enable_gui
-        enabled = False
-
-    Label:
-        text='update method'
-    ComboBox:
-        items = ['Nelder-Mead', 'genetic', 'gradient descent', 'weighted Nelder-Mead']
-        index := analysis.optimization_method
-
-    # For the gradient method, the initial step size for each variable is used for determining the gradient.
-    # We need a separate step size that multiplies the gradient
-    Conditional:
-        condition << (analysis.optimization_method == 2)
+    Form:
         Label:
-            text = 'Initial gradient step size (fraction)'
-        FloatField:
-            value := analysis.gradient_initial_step
-        Label:
-            text='End when step size is less than (fraction)'
-        FloatField:
-            value := analysis.end_condition_step
+            text = 'enable'
+        CheckBox:
+            checked << analysis.enable_gui
+            enabled = False
 
-    Label:
-        text='cost function'
-    MultilineField:
-        constraints=[height==300]
-        text:=experiment.optimizer.cost_function
+        Label:
+            text='update method'
+        ComboBox:
+            items = ['Nelder-Mead', 'genetic', 'gradient descent', 'weighted Nelder-Mead']
+            index := analysis.optimization_method
+
+        # For the gradient method, the initial step size for each variable is used for determining the gradient.
+        # We need a separate step size that multiplies the gradient
+        Conditional:
+            condition << (analysis.optimization_method == 2)
+            Label:
+                text = 'Initial gradient step size (fraction)'
+            FloatField:
+                value := analysis.gradient_initial_step
+            Label:
+                text='End when step size is less than (fraction)'
+            FloatField:
+                value := analysis.end_condition_step
+
+        Label:
+            text='cost function'
+        MultilineField:
+            constraints=[height==300]
+            text:=experiment.optimizer.cost_function
 
     MPLCanvas: canvas:
-        constraints = [(height==3000)|'strong',(width==1000)|'strong']
-        hug_width = 'ignore'
+        constraints = [(height==50*(len(experiment.independentVariables)+1))|'strong'] #,(width==1000)|'strong']
         figure << analysis.figure
 
 enamldef Picomotor(Container):
