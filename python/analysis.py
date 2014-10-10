@@ -686,14 +686,6 @@ class HistogramAnalysis(AnalysisWithFigure):
                         return
 
                     ax = fig.add_subplot(111)
-                    #for i in plotlist:
-                    #    try:
-                    #        data = self.all_shots_array[:, i[0], i[1]]
-                    #    except:
-                    #        logger.warning('Trying to plot data that does not exist in MeasurementsGraph: shot {} roi {}'.format(i[0], i[1]))
-                    #        continue
-                    #    bins = int(numpy.rint(numpy.sqrt(len(data))))
-                    #    ax.hist(data, bins, histtype='step')
                     shots = [i[0] for i in plotlist]
                     rois = [i[1] for i in plotlist]
                     data = self.all_shots_array[:, shots, rois]
@@ -784,7 +776,7 @@ class HistogramGrid(AnalysisWithFigure):
 
             if self.histogram_results is not None:
                 fig.suptitle('{} shot {}'.format(self.experiment.experimentPath, self.shot))
-                self.histogram_grid_plot(fig, self.shot, self.bins)
+                self.histogram_grid_plot(fig, self.shot)
 
             super(HistogramGrid, self).updateFigure()
 
@@ -934,12 +926,12 @@ class HistogramGrid(AnalysisWithFigure):
         # create vertices for histogram patch
         #   repeat each x twice, and two different y values
         #   repeat each y twice, at two different x values
-        #   extra length of verts array ensures beginning and end are at y=0
-        verts = np.zeros((2*len(x)+1,2))
-        verts[0:-1:2,0] = x
-        verts[1:-1:2,0] = x
-        verts[1:-3:2,1] = y
-        verts[2:-2:2,1] = y
+        #   extra +1 length of verts array allows for CLOSEPOLY code
+        verts = np.zeros((2*len(x)+1, 2))
+        verts[0:-1:2, 0] = x
+        verts[1:-1:2, 0] = x
+        verts[1:-2:2, 1] = y
+        verts[2:-2:2, 1] = y
         # create codes for histogram patch
         codes = np.ones(2*len(x)+1, int) * mpl.path.Path.LINETO
         codes[0] = mpl.path.Path.MOVETO
@@ -949,22 +941,22 @@ class HistogramGrid(AnalysisWithFigure):
         patch = patches.PathPatch(my_path, facecolor=color, edgecolor=color, alpha=0.5)
         ax.add_patch(patch)
 
-    def two_color_histogram(self, data):
+    def two_color_histogram(self, ax, data):
         # plot histogram for data below the cutoff
         x = data['bin_edges']
-        x1 = x[x<data['cutoff']]  # take only data below the cutoff
+        x1 = x[x < data['cutoff']]  # take only data below the cutoff
         xc = len(x1)
-        x1 = x1.append(data['cutoff']) # add the cutoff to the end of the 1st patch
+        x1 = numpy.append(x1, data['cutoff'])  # add the cutoff to the end of the 1st patch
         y = data['histogram']
         y1 = y[:xc]  # take the corresponding histogram counts
         x2 = x[xc:]  # take the remaining values that are above the cutoff
         x2 = np.insert(x2, 0, data['cutoff'])  # add the cutoff to the beginning of the 2nd patch
-        y2 = y[len(x1):]
+        y2 = y[xc-1:]
 
         self.histogram_patch(ax, x1, y1, 'b')  # plot the 0 atom peak in blue
         self.histogram_patch(ax, x2, y2, 'r')  # plot the 1 atom peak in red
 
-    def histogram_grid_plot(self, fig, shot, bins):
+    def histogram_grid_plot(self, fig, shot):
         """Plot a grid of histograms in the same shape as the ROIs."""
 
         rows = self.experiment.ROI_rows
@@ -983,7 +975,7 @@ class HistogramGrid(AnalysisWithFigure):
                 ax = fig.add_subplot(gs1[i, j])
 
                 try:
-                    self.two_color_histogram(data)
+                    self.two_color_histogram(ax, data)
 
                     ax.set_xlim([self.x_min, self.x_max])
                     ax.set_ylim([0, self.y_max])
@@ -1006,11 +998,11 @@ class HistogramGrid(AnalysisWithFigure):
                     x = numpy.linspace(self.x_min, self.x_max, 100)
                     y1 = self.gaussian1D(x, data['mean1'], data['amplitude1'], data['width1'])
                     y2 = self.gaussian1D(x, data['mean2'], data['amplitude2'], data['width2'])
-                    ax.plot(x, y1, 'grey', x, y2, 'grey', alpha=0.5)
+                    ax.plot(x, y1, 'k', x, y2, 'k')
                     # plot cutoff line
                     ax.vlines(data['cutoff'], 0, self.y_max)
                 except Exception as e:
-                    logger.warning('Could not plot histogram for shot {} roi {}:\n{}'.format(shot, n, e))
+                    logger.warning('Could not plot histogram for shot {} roi {}:\n{}\n{}'.format(shot, n, e, traceback.format_exc()))
 
         font = 20  # larger font for average stats
 
