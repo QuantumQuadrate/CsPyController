@@ -8,7 +8,7 @@ import traceback
 from atom.api import Member
 
 # Bring in other files in this package
-import analysis, save2013style, TTL, LabView, roi_fitting, picomotors, andor, DCNoiseEater, Laird_temperature
+import analysis, save2013style, TTL, LabView, roi_fitting, picomotors, andor, DCNoiseEater, Laird_temperature, AnalogInput
 from experiments import Experiment
 
 
@@ -22,6 +22,8 @@ class AQuA(Experiment):
     box_temperature = Member()
 
     TTL_filters = Member()
+    AI_graph = Member()
+    AI_filter = Member()
     squareROIAnalysis = Member()
     gaussian_roi = Member()
     loading_filters = Member()
@@ -57,6 +59,8 @@ class AQuA(Experiment):
 
         #analyses
         self.TTL_filters = TTL.TTL_filters('TTL_filters', self)
+        self.AI_graph = AnalogInput.AI_Graph('AI_graph', self, 'Analog Input Graph')
+        self.AI_filter = AnalogInput.AI_Filter('AI_filter', self, 'Analog Input filter')
         self.loading_filters = analysis.LoadingFilters('loading_filters', self, 'drop measurements with no atom loaded')
         self.first_measurements_filter = analysis.DropFirstMeasurementsFilter('first_measurements_filter', self, 'drop the first N measurements')
         self.squareROIAnalysis = analysis.SquareROIAnalysis(self, ROI_rows=self.ROI_rows, ROI_columns=self.ROI_columns)
@@ -75,7 +79,7 @@ class AQuA(Experiment):
         self.DC_noise_eater_filter = DCNoiseEater.DCNoiseEaterFilter('DC_noise_eater_filter', self, 'DC Noise Eater Filter')
         self.Ramsey = analysis.Ramsey('Ramsey', self, 'Fit a cosine to retention results')
         self.save2013Analysis = save2013style.Save2013Analysis(self)
-        self.analyses += [self.TTL_filters, self.squareROIAnalysis, self.gaussian_roi, self.loading_filters,
+        self.analyses += [self.TTL_filters, self.AI_graph, self.AI_filter, self.squareROIAnalysis, self.gaussian_roi, self.loading_filters,
                           self.first_measurements_filter, self.text_analysis, self.imageSumAnalysis,
                           self.recent_shot_analysis, self.shotBrowserAnalysis, self.histogramAnalysis,
                           self.histogram_grid, self.measurements_graph, self.iterations_graph, self.retention_graph,
@@ -83,7 +87,7 @@ class AQuA(Experiment):
                           self.save2013Analysis]
 
         self.properties += ['LabView', 'picomotors', 'Andor', 'DC_noise_eaters', 'box_temperature',
-                            'squareROIAnalysis', 'gaussian_roi', 'TTL_filters', 'loading_filters',
+                            'squareROIAnalysis', 'gaussian_roi', 'TTL_filters', 'AI_graph', 'AI_filter', 'loading_filters',
                             'first_measurements_filter', 'imageSumAnalysis', 'recent_shot_analysis',
                             'shotBrowserAnalysis', 'histogramAnalysis', 'histogram_grid', 'measurements_graph',
                             'iterations_graph', 'retention_graph', 'andor_viewer', 'DC_noise_eater_filter',
