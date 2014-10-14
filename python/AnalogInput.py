@@ -15,11 +15,11 @@ __author__ = 'Martin Lichtman'
 import logging
 logger = logging.getLogger(__name__)
 
-import numpy as np
-from atom.api import Typed
+import numpy
+from atom.api import Str, Typed, Member, Bool, observe, Int
 from instrument_property import BoolProp, FloatProp, StrProp, IntProp
 from cs_instruments import Instrument
-from analysis import Analysis
+from analysis import Analysis, AnalysisWithFigure
 
 class AnalogInput(Instrument):
     version = '2014.08.19'
@@ -29,7 +29,7 @@ class AnalogInput(Instrument):
     waitForStartTrigger = Typed(BoolProp)
     triggerSource = Typed(StrProp)
     triggerEdge = Typed(StrProp)
-    channel_descriptions = Typed(StrProp)
+    #channel_descriptions = Typed(StrProp)
 
     def __init__(self, experiment):
         super(AnalogInput, self).__init__('AnalogInput', experiment)
@@ -39,9 +39,9 @@ class AnalogInput(Instrument):
         self.waitForStartTrigger = BoolProp('waitForStartTrigger', experiment, '', 'True')
         self.triggerSource = StrProp('triggerSource', experiment, '', '"/PXI1Slot6/PFI0"')
         self.triggerEdge = StrProp('triggerEdge', experiment, '"Rising" or "Falling"', '"Rising"')
-        self.channel_descriptions = StrProp('channel_descriptions', experiment, 'a list channel description strings', '["ch1","ch2","ch3"]')
+        #self.channel_descriptions = StrProp('channel_descriptions', experiment, 'a list channel description strings', '["ch1","ch2","ch3"]')
         self.properties += ['version', 'sample_rate', 'source', 'samples_per_measurement', 'waitForStartTrigger',
-                            'triggerSource', 'triggerEdge', 'channel_descriptions']
+                            'triggerSource', 'triggerEdge'] #, 'channel_descriptions']
 
 
 class AI_Graph(AnalysisWithFigure):
@@ -53,7 +53,7 @@ class AI_Graph(AnalysisWithFigure):
     list_of_what_to_plot = Str()  # a list of tuples of [(channel, samples_list), (channel, samples_list)] where samples in samples_list will be averaged over
 
     def __init__(self, name, experiment, description=''):
-        super(AIGraph, self).__init__(name, experiment, description)
+        super(AI_Graph, self).__init__(name, experiment, description)
         self.properties += ['version', 'enable', 'list_of_what_to_plot']
         self.data = None
 
@@ -93,15 +93,15 @@ class AI_Graph(AnalysisWithFigure):
                     ax = fig.add_subplot(111)
                     for i in plotlist:
                         try:
-                            data = numpy.average(self.data[:, i[0], i[1]], axis=2)  # All measurements. Selected channel, saverage over sampels.
+                            data = numpy.average(self.data[:, i[0], i[1]], axis=1)  # All measurements. Selected channel, saverage over sampels.
                         except:
-                            logger.warning('Trying to plot data that does not exist in MeasurementsGraph: channel {} samples {}-{}'.format(i[0], min(i[1]), max(i[1])))
+                            logger.warning('Trying to plot data that does not exist in AIGraph: channel {} samples {}-{}'.format(i[0], min(i[1]), max(i[1])))
                             continue
-                        label = '({},{},{})'.format(i[0], i[1], i[2])
+                        label = 'ch.{}'.format(i[0])
                         ax.plot(data, 'o', label=label)
                     #add legend using the labels assigned during ax.plot()
                     ax.legend()
-                super(DCNoiseEaterGraph, self).updateFigure()
+                super(AI_Graph, self).updateFigure()
             except Exception as e:
                 logger.warning('Problem in AIGraph.updateFigure()\n:{}'.format(e))
             finally:
@@ -122,14 +122,14 @@ class AI_Filter(Analysis):
     filter_level = Int()
 
     def __init__(self, name, experiment, description=''):
-        super(DCNoiseEaterFilter, self).__init__(name, experiment, description)
+        super(AI_Filter, self).__init__(name, experiment, description)
         self.properties += ['enable', 'what_to_filter', 'filter_level']
 
     def analyzeMeasurement(self, measurementResults, iterationResults, experimentResults):
         text = ''
         if self.enable and ('AI' in measurementResults['data']):
             failed = False  # keep track of if any of the filters fail
-            # read the DC Noise Eater results
+            # read the AI results
             data = measurementResults['data/AI/data']
 
             # parse the "what_to_filter" string
@@ -140,12 +140,12 @@ class AI_Filter(Analysis):
                 raise PauseError
             for i in filter_list:
                 # read the data for the channel
-                d = np.average(data[i[0], i[1]])
+                d = numpy.average(data[i[0], i[1]])
                 if d > i[3]:
                     # data is above the high limit
                     text += 'Analog Input filter failed for channel {}.  Value was {}, above high limit {}.\n'.format(i[0], d, i[3])
                     failed = True
-                elif d < i[3]:
+                elif d < i[2]:
                     # data is below the low limit
                     text += 'Analog Input filter failed for channel {}.  Value was {}, below low limit {}.\n'.format(i[0], d, i[2])
                     failed = True

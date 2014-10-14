@@ -22,6 +22,8 @@ class AQuA(Experiment):
     box_temperature = Member()
 
     TTL_filters = Member()
+    AI_graph = Member()
+    AI_filter = Member()
     squareROIAnalysis = Member()
     gaussian_roi = Member()
     loading_filters = Member()
@@ -85,7 +87,7 @@ class AQuA(Experiment):
                           self.save2013Analysis]
 
         self.properties += ['LabView', 'picomotors', 'Andor', 'DC_noise_eaters', 'box_temperature',
-                            'squareROIAnalysis', 'gaussian_roi', 'TTL_filters', 'AI_filter', 'loading_filters',
+                            'squareROIAnalysis', 'gaussian_roi', 'TTL_filters', 'AI_graph', 'AI_filter', 'loading_filters',
                             'first_measurements_filter', 'imageSumAnalysis', 'recent_shot_analysis',
                             'shotBrowserAnalysis', 'histogramAnalysis', 'histogram_grid', 'measurements_graph',
                             'iterations_graph', 'retention_graph', 'andor_viewer', 'DC_noise_eater_filter',

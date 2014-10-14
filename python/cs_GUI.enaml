@@ -1620,7 +1620,7 @@ enamldef AnalogOutput(Container):
 
 enamldef AnalogInput(Container):
     attr AI
-    attr fitlers
+    attr filters
     attr analysis
 
     hug_height='strong'
@@ -1640,8 +1640,8 @@ enamldef AnalogInput(Container):
         prop << AI.triggerSource
     EvalProp:
         prop << AI.triggerEdge
-    EvalProp:
-        prop << AI.channel_descriptions
+#    EvalProp:
+#        prop << AI.channel_descriptions
 
     # filter
     GroupBox:
@@ -2616,6 +2616,8 @@ enamldef Main(MainWindow): main:
                 p12.content.AO = main.experiment.LabView.AnalogOutput
             ScrollPage('Analog Input', AnalogInput): p13:
                 p13.content.AI = main.experiment.LabView.AnalogInput
+                p13.content.filters = main.experiment.AI_filter
+                p13.content.analysis = main.experiment.AI_graph
             #ScrollPage('Arroyo', Arroyo): p14:
             #    p14.content.arroyo = main.experiment.Arroyo
             ScrollPage('PI Piezo', PI_Piezo): p15:
