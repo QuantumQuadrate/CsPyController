@@ -1620,6 +1620,8 @@ enamldef AnalogOutput(Container):
 
 enamldef AnalogInput(Container):
     attr AI
+    attr fitlers
+    attr analysis
 
     hug_height='strong'
     hug_width='strong'
@@ -1638,6 +1640,58 @@ enamldef AnalogInput(Container):
         prop << AI.triggerSource
     EvalProp:
         prop << AI.triggerEdge
+    EvalProp:
+        prop << AI.channel_descriptions
+
+    # filter
+    GroupBox:
+        title = 'Analog Input Filter'
+        Form:
+            Label:
+                text = 'enable'
+            CheckBox:
+                checked := filters.enable
+
+            Label:
+                text = 'What to filter: a string representing a list of [(channel,samples_list,low,high), ...]\nSamples in samples_list will be averaged.'
+            Field:
+                text := filters.what_to_filter
+
+            Label:
+                text = 'filter level'
+            ComboBox:
+                items = ['None: increment measurement total',
+                         'soft: continue with other analyses, but do not increment measurement total',
+                         'med: continue with other analyses, do not increment measurement total, and delete measurement data after all analyses',
+                         'hard: do not continue with other analyses, do not increment measurement total, delete measurement data']
+                index := filters.filter_level
+
+            Label:
+                text = 'Status'
+            Label:
+                text := filters.text
+
+    # cumulative plot of noise eater data
+    GroupBox:
+        title = 'Analog Input plots'
+        Form:
+            Label:
+                text = 'enable'
+            CheckBox:
+                checked := analysis.enable
+            Label:
+                text = 'specify what to graph with a list of tuples: [(channel,samples_list),(channel, samples_list)...]\nSamples in samples_list will be averaged.'
+            Field:
+                text := analysis.list_of_what_to_plot
+        PushButton:
+            text = 'clear'
+            clicked :: analysis.clear()
+        MPLCanvas: canvas:
+            constraints=[(height==500)|'strong']
+            hug_width='ignore'
+            figure << analysis.figure
+
+
 
 enamldef DCNoiseEaterChannel(Container):
     attr item

@@ -186,7 +186,6 @@ class CsServerSock(CsSock):
         logger.info('server starting up on %s port %s' % self.getsockname())
         threading.Thread(target=self.readLoop).start()
 
-    
     def closeConnection(self):
         if self.connection is not None:
             self.connection.shutdown(socket.SHUT_RDWR)

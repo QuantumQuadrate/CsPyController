@@ -979,21 +979,30 @@ class HistogramGrid(AnalysisWithFigure):
 
                     ax.set_xlim([self.x_min, self.x_max])
                     ax.set_ylim([0, self.y_max])
-                    ax.set_title(u'site {}, {:.0f}\u00B1{:.1f}%'.format(n, data['loading']*100,data['overlap']*100), size=font)
-
+                    #ax.set_title(u'{}: {:.0f}\u00B1{:.1f}%'.format(n, data['loading']*100,data['overlap']*100), size=font)
+                    ax.text(0.9, 0.9, u'{}: {:.0f}\u00B1{:.1f}%'.format(n, data['loading']*100,data['overlap']*100), horizontalalignment='right', verticalalignment='center', transform=ax.transAxes)
                     # put x ticks at the center of each gaussian and the cutoff.
                     # The one at x_max just holds 'e3' to show that the values should be multiplied by 1000
                     ax.set_xticks([data['mean1'], data['cutoff'], data['mean2'], self.x_max])
-                    ax.set_xticklabels(['{}'.format(int(data['mean1']/1000)), str(int(data['cutoff']/1000)), '{}'.format(int(data['mean2']/1000)), 'e3'], size=font, rotation=90)
+                    ax.set_xticklabels([u'{}\u00B1{:.1f}'.format(int(data['mean1']/1000), data['width1']/1000),
+                                        str(int(data['cutoff']/1000)),
+                                        u'{}\u00B1{:.1f}'.format(int(data['mean2']/1000), data['width2']/1000),
+                                        'e3'],
+                                       size=font, rotation=90)
                     # add this to xticklabels to print gaussian widths:
-                    # u'\u00B1{:.1f}'.format(data['width1']/1000)
-                    # u'\u00B1{:.1f}'.format(data['width2']/1000)
+                        # u'\u00B1{:.1f}'.format(data['width1']/1000)
+                        # u'\u00B1{:.1f}'.format(data['width2']/1000)
                     # put y ticks at the peak of each gaussian fit
-                    if (data['width1'] != 0) and (data['width2'] != 0):
+                    yticks = [matplotlib.axis.YTick(ax, 0, '0', tick1On=True, tick2On=True, label1On=True, label2On=False, major=True)]
+                    if (data['width1'] != 0):
                         y1 = data['amplitude1']/(data['width1']*numpy.sqrt(2*numpy.pi))
+                        yticks += [matplotlib.axis.YTick(ax, y1, str(int(numpy.rint(y1))), tick1On=True, tick2On=True, label1On=True, label2On=False, major=True)]
+                    if (data['width2'] != 0):
                         y2 = data['amplitude2']/(data['width2']*numpy.sqrt(2*numpy.pi))
-                        ax.set_yticks([0, y1, y2])
-                        ax.set_yticklabels([str(0), str(int(numpy.rint(y1))), str(int(numpy.rint(y2)))])  # , size=font)
+                        yticks += [matplotlib.axis.YTick(ax, y2, str(int(numpy.rint(y2))), tick1On=True, tick2On=True, label1On=False, label2On=True, major=True)]
+                    ax.set_yticks(yticks)
+                        #ax.set_yticks([0, y1, y2])
+                        #ax.set_yticklabels([str(0), str(int(numpy.rint(y1))), str(int(numpy.rint(y2)))])  # , size=font)
                     # plot gaussians
                     x = numpy.linspace(self.x_min, self.x_max, 100)
                     y1 = self.gaussian1D(x, data['mean1'], data['amplitude1'], data['width1'])

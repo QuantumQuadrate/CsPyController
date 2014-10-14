@@ -15,10 +15,11 @@ __author__ = 'Martin Lichtman'
 import logging
 logger = logging.getLogger(__name__)
 
+import numpy as np
 from atom.api import Typed
 from instrument_property import BoolProp, FloatProp, StrProp, IntProp
 from cs_instruments import Instrument
-
+from analysis import Analysis
 
 class AnalogInput(Instrument):
     version = '2014.08.19'
@@ -28,14 +29,135 @@ class AnalogInput(Instrument):
     waitForStartTrigger = Typed(BoolProp)
     triggerSource = Typed(StrProp)
     triggerEdge = Typed(StrProp)
+    channel_descriptions = Typed(StrProp)
 
     def __init__(self, experiment):
         super(AnalogInput, self).__init__('AnalogInput', experiment)
-        self.sample_rate = FloatProp('sample_rate', experiment, '', '1000.0')
+        self.sample_rate = FloatProp('sample_rate', experiment, 'samples per second', '1000.0')
         self.source = StrProp('source', experiment, '', '"PXI1Slot6/ai0:15"')
         self.samples_per_measurement = IntProp('samples_per_measurement', experiment, '', '1')
         self.waitForStartTrigger = BoolProp('waitForStartTrigger', experiment, '', 'True')
         self.triggerSource = StrProp('triggerSource', experiment, '', '"/PXI1Slot6/PFI0"')
         self.triggerEdge = StrProp('triggerEdge', experiment, '"Rising" or "Falling"', '"Rising"')
+        self.channel_descriptions = StrProp('channel_descriptions', experiment, 'a list channel description strings', '["ch1","ch2","ch3"]')
         self.properties += ['version', 'sample_rate', 'source', 'samples_per_measurement', 'waitForStartTrigger',
-                            'triggerSource', 'triggerEdge']
+                            'triggerSource', 'triggerEdge', 'channel_descriptions']
+
+
+class AI_Graph(AnalysisWithFigure):
+    """Plots a region of interest sum after every measurement"""
+    version = '2014.10.13'
+    enable = Bool()
+    data = Member()
+    update_lock = Bool(False)
+    list_of_what_to_plot = Str()  # a list of tuples of [(channel, samples_list), (channel, samples_list)] where samples in samples_list will be averaged over
+
+    def __init__(self, name, experiment, description=''):
+        super(AIGraph, self).__init__(name, experiment, description)
+        self.properties += ['version', 'enable', 'list_of_what_to_plot']
+        self.data = None
+
+    def analyzeMeasurement(self, measurementResults, iterationResults, experimentResults):
+        if self.enable and ('data/AI' in measurementResults):
+            #every measurement, update a big array of all the AI data on all channels
+            d = measurementResults['data/AI/data']
+            if self.data is None:
+                self.data = numpy.array([d])
+            else:
+                self.data = numpy.append(self.data, numpy.array([d]), axis=0)
+            self.updateFigure()
+
+    @observe('list_of_what_to_plot')
+    def reload(self, change):
+        self.updateFigure()
+
+    def clear(self):
+        self.data = None
+        self.updateFigure()
+
+    def updateFigure(self):
+        if self.enable and (not self.update_lock):
+            try:
+                self.update_lock = True
+                fig = self.backFigure
+                fig.clf()
+
+                if self.data is not None:
+                    #parse the list of what to plot from a string to a list of numbers
+                    try:
+                        plotlist = eval(self.list_of_what_to_plot)
+                    except Exception as e:
+                        logger.warning('Could not eval plotlist in AIGraph:\n{}\n'.format(e))
+                        return
+                    #make one plot
+                    ax = fig.add_subplot(111)
+                    for i in plotlist:
+                        try:
+                            data = numpy.average(self.data[:, i[0], i[1]], axis=2)  # All measurements. Selected channel, saverage over sampels.
+                        except:
+                            logger.warning('Trying to plot data that does not exist in MeasurementsGraph: channel {} samples {}-{}'.format(i[0], min(i[1]), max(i[1])))
+                            continue
+                        label = '({},{},{})'.format(i[0], i[1], i[2])
+                        ax.plot(data, 'o', label=label)
+                    #add legend using the labels assigned during ax.plot()
+                    ax.legend()
+                super(DCNoiseEaterGraph, self).updateFigure()
+            except Exception as e:
+                logger.warning('Problem in AIGraph.updateFigure()\n:{}'.format(e))
+            finally:
+                self.update_lock = False
+
+
+class AI_Filter(Analysis):
+    """
+    This analysis monitors the Analog Inputs and does either hard or soft cuts of the data accordingly.
+    The filters are specified by the what_to_filter string, which is a list in the form:
+    [(channel,sample_list,low,high), (channel,sample_list,low,high)]
+    The samples in sample_list will be averaged.
+    """
+
+    enable = Bool()
+    what_to_filter = Str()  # string representing a list of [(channel,low,high), (channel,low,high)]
+    text = Str()
+    filter_level = Int()
+
+    def __init__(self, name, experiment, description=''):
+        super(DCNoiseEaterFilter, self).__init__(name, experiment, description)
+        self.properties += ['enable', 'what_to_filter', 'filter_level']
+
+    def analyzeMeasurement(self, measurementResults, iterationResults, experimentResults):
+        text = ''
+        if self.enable and ('AI' in measurementResults['data']):
+            failed = False  # keep track of if any of the filters fail
+            # read the DC Noise Eater results
+            data = measurementResults['data/AI/data']
+
+            # parse the "what_to_filter" string
+            try:
+                filter_list = eval(self.what_to_filter)
+            except Exception as e:
+                logger.warning('Could not eval what_to_filter in AI_Filter:\n{}\n'.format(e))
+                raise PauseError
+            for i in filter_list:
+                # read the data for the channel
+                d = np.average(data[i[0], i[1]])
+                if d > i[3]:
+                    # data is above the high limit
+                    text += 'Analog Input filter failed for channel {}.  Value was {}, above high limit {}.\n'.format(i[0], d, i[3])
+                    failed = True
+                elif d < i[3]:
+                    # data is below the low limit
+                    text += 'Analog Input filter failed for channel {}.  Value was {}, below low limit {}.\n'.format(i[0], d, i[2])
+                    failed = True
+
+            #check to see if any of the filters failed
+            if failed:
+                #record to the log and screen
+                logger.warning(text)
+                self.set_gui({'text': text})
+                # User chooses whether or not to delete data.
+                # max takes care of ComboBox returning -1 for no selection
+                return max(0, self.filter_level)
+            else:
+                text = 'okay'
+        self.set_gui({'text': text})
