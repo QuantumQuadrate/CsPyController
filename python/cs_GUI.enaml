@@ -2663,3 +2663,5 @@ enamldef Main(MainWindow): main:
                 p28.content.box_temperature = main.experiment.box_temperature
             ScrollPage('Ramsey', Ramsey): p29:
                 p29.content.analysis = main.experiment.Ramsey
+            ScrollPage('PID', PID): p30:
+                p30.content.PID = main.experiment.PID
