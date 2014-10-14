@@ -993,16 +993,27 @@ class HistogramGrid(AnalysisWithFigure):
                         # u'\u00B1{:.1f}'.format(data['width1']/1000)
                         # u'\u00B1{:.1f}'.format(data['width2']/1000)
                     # put y ticks at the peak of each gaussian fit
-                    yticks = [matplotlib.axis.YTick(ax, 0, '0', tick1On=True, tick2On=True, label1On=True, label2On=False, major=True)]
+                    yticks = [0]
+                    yticklabels = ['0']
+                    ytickleft = [True]
+                    ytickright = [False]
                     if (data['width1'] != 0):
                         y1 = data['amplitude1']/(data['width1']*numpy.sqrt(2*numpy.pi))
-                        yticks += [matplotlib.axis.YTick(ax, y1, str(int(numpy.rint(y1))), tick1On=True, tick2On=True, label1On=True, label2On=False, major=True)]
+                        yticks += [y1]
+                        yticklabels += [str(int(numpy.rint(y1)))]
+                        ytickleft += [True]
+                        ytickright += [False]
                     if (data['width2'] != 0):
                         y2 = data['amplitude2']/(data['width2']*numpy.sqrt(2*numpy.pi))
-                        yticks += [matplotlib.axis.YTick(ax, y2, str(int(numpy.rint(y2))), tick1On=True, tick2On=True, label1On=False, label2On=True, major=True)]
+                        yticks += [y2]
+                        yticklabels += [str(int(numpy.rint(y2)))]
+                        ytickleft += [False]
+                        ytickright += [True]
                     ax.set_yticks(yticks)
-                        #ax.set_yticks([0, y1, y2])
-                        #ax.set_yticklabels([str(0), str(int(numpy.rint(y1))), str(int(numpy.rint(y2)))])  # , size=font)
+                    ax.set_yticklabels(yticklabels)  # , size=font)
+                    for tick, left, right in zip(ax.yaxis.get_major_ticks(), ytickleft, ytickright):
+                        tick.label1On = left
+                        tick.label2On = right
                     # plot gaussians
                     x = numpy.linspace(self.x_min, self.x_max, 100)
                     y1 = self.gaussian1D(x, data['mean1'], data['amplitude1'], data['width1'])
