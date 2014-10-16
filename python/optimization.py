@@ -173,6 +173,9 @@ class Optimization(AnalysisWithFigure):
         fig = self.backFigure
         fig.clf()
 
+        fig.set_dpi(100)
+        fig.set_size_inches(18, len(self.optimization_variables), forward=False)
+
         # plot cost
         ax = fig.add_subplot(self.axes+2, 1, 1)
         ax.plot(self.ylist)

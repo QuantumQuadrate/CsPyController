@@ -360,7 +360,7 @@ class Experiment(Prop):
             # reset the optimization_iteration number, which tracks how many iterations are in this loop
             self.optimizer_iteration_count = 0
         # add this iteration to the group
-        self.experiment_hdf5[str(self.optimizer_iteration_count)] = self.iterationResults
+        self.experiment_hdf5['iterations/'+str(self.optimizer_iteration_count)] = self.iterationResults
 
     def date2str(self, time):
         return datetime.datetime.fromtimestamp(time).strftime('%Y-%m-%d %H:%M:%S')
@@ -586,6 +586,7 @@ class Experiment(Prop):
                             self.set_status('paused after iteration')
                             self.set_gui({'valid': False})
                             # we already played the sounds after the measurement.  Don't play the sounds again.
+                        # else the status is idle or error, and we should not downgrade the status to paused
 
         except PauseError:
             #This should be the only place that PauseError is explicitly handed.

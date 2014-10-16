@@ -2453,7 +2453,8 @@ enamldef Optimizer(Container):
             text:=experiment.optimizer.cost_function
 
     MPLCanvas: canvas:
-        constraints = [(height==50*(len(experiment.independentVariables)+1))|'strong'] #,(width==1000)|'strong']
+        # size is fixed here and in figure definition
+        constraints = [(height==100*(len(experiment.optimizer.optimization_variables)+1))|'strong',(width==1800)|'strong']
         figure << analysis.figure
 
 enamldef Picomotor(Container):

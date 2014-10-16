@@ -1413,7 +1413,7 @@ class Ramsey(AnalysisWithFigure):
                 self.fitParams, fitCovariances = curve_fit(self.fitFunc, self.t, self.y, p0=initial_guess)
             except Exception as e:
                 # note the error, set the amplitude to 0 and move on:
-                logger.warning("Exception in Ramsey.postExperiment:\n{}\n".format(e))
+                logger.warning("Exception in Ramsey.analyzeExperiment:\n{}\n".format(e))
                 # set the results to zero
                 self.fitParams = (0, 0, 0, 0)
                 fitCovariances = numpy.zeros((4, 4))
