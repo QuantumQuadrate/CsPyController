@@ -163,9 +163,9 @@ class Optimization(AnalysisWithFigure):
                     pdf_path = os.path.join(self.experiment.path, 'pdf')
                     if not os.path.exists(pdf_path):
                         os.mkdir(pdf_path)
-                    filename = os.path.join(pdf_path, 'optimizer_{}.pdf'.format(self.experiment.experimentPath))
+                    filename = os.path.join(pdf_path, '{}_optimizer.pdf'.format(self.experiment.experimentPath))
                     self.figure.savefig(filename, format='pdf', dpi=self.figure.get_dpi(), transparent=True,
-                                        bbox_inches=None, pad_inches=0, frameon=False)
+                                        bbox_inches='tight', pad_inches=0.5, frameon=False)
                 except Exception as e:
                     logger.warning('Problem saving optimizer pdf:\n{}\n'.format(e))
 

@@ -414,7 +414,7 @@ class ImageSumAnalysis(AnalysisWithFigure):
             pdf_path = os.path.join(self.experiment.path, 'pdf')
             if not os.path.exists(pdf_path):
                 os.mkdir(pdf_path)
-            self.pdf_path = os.path.join(pdf_path, 'image_mean_{}'.format(self.experiment.experimentPath))
+            self.pdf_path = os.path.join(pdf_path, '{}_image_mean'.format(self.experiment.experimentPath))
 
     def preIteration(self, iterationResults, experimentResults):
         #clear old data
@@ -453,9 +453,8 @@ class ImageSumAnalysis(AnalysisWithFigure):
                 # save to pdf
                 try:
                     self.figure.savefig('{}_{}.pdf'.format(self.pdf_path, self.experiment.iteration), format='pdf',
-                                        dpi=self.figure.get_dpi(), transparent=True, bbox_inches=None, pad_inches=0,
+                                        dpi=self.figure.get_dpi(), transparent=True, bbox_inches='tight', pad_inches=0.5,
                                         frameon=False)
-
                 except Exception as e:
                     logger.warning('Problem saving image sum to pdf:\n{}\n'.format(e))
 
@@ -724,7 +723,7 @@ class HistogramGrid(AnalysisWithFigure):
             pdf_path = os.path.join(self.experiment.path, 'pdf')
             if not os.path.exists(pdf_path):
                 os.mkdir(pdf_path)
-            self.pdf_path = os.path.join(pdf_path, 'histogram_grid_{}'.format(self.experiment.experimentPath))
+            self.pdf_path = os.path.join(pdf_path, '{}_histogram_grid'.format(self.experiment.experimentPath))
 
     #def finalize(self, experimentResults):
     #    if self.enable and self.experiment.saveData:
@@ -761,9 +760,8 @@ class HistogramGrid(AnalysisWithFigure):
                     #self.pdf.savefig(self.figure, dpi=self.figure.get_dpi(), transparent=True, bbox_inches=None,
                     #pad_inches=0, frameon=False)
                     self.figure.savefig('{}_{}.pdf'.format(self.pdf_path, self.experiment.iteration), format='pdf',
-                                        dpi=self.figure.get_dpi(), transparent=True, bbox_inches=None, pad_inches=0,
+                                        dpi=self.figure.get_dpi(), transparent=True, bbox_inches='tight', pad_inches=0.5,
                                         frameon=False)
-
                 except Exception as e:
                     logger.warning('Problem saving histogramGrid to pdf:\n{}\n'.format(e))
         except Exception as e:
