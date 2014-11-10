@@ -11,6 +11,8 @@ import cs_evaluate
 
 #MPL plotting
 import matplotlib as mpl
+mpl.use('PDF')
+import matplotlib.pyplot as plt
 from matplotlib.figure import Figure
 from matplotlib.path import Path
 import matplotlib.patches as patches
@@ -448,19 +450,47 @@ class ImageSumAnalysis(AnalysisWithFigure):
             iterationResults['mean_array'] = self.mean_array
 
             # create image of all shots for pdf
-            if self.experiment.saveData:
-
-                # save to pdf
-                try:
-                    self.figure.savefig('{}_{}.pdf'.format(self.pdf_path, self.experiment.iteration), format='pdf',
-                                        dpi=self.figure.get_dpi(), transparent=True, bbox_inches='tight', pad_inches=0.5,
-                                        frameon=False)
-                except Exception as e:
-                    logger.warning('Problem saving image sum to pdf:\n{}\n'.format(e))
+            self.savefig(iterationResults.attrs['iteration'])
 
     @observe('shot', 'showROIs')
     def reload(self, change):
         self.updateFigure()
+
+    def savefig(self, iteration):
+        try:
+            # save to PDF
+            if self.experiment.saveData:
+                for shot in xrange(self.mean_array.shape[0]):
+
+                    fig = plt.figure(figsize=(8, 6))
+                    dpi = 80
+                    fig.set_dpi(dpi)
+                    fig.suptitle('{} iteration {} shot {}'.format(self.experiment.experimentPath, iteration, shot))
+                    self.draw_fig(fig, shot)
+                    plt.savefig('{}_{}_{}.pdf'.format(self.pdf_path, iteration, shot),
+                                format='pdf', dpi=dpi, transparent=True, bbox_inches='tight',
+                                pad_inches=.25, frameon=False)
+        except Exception as e:
+            logger.warning('Problem in HistogramGrid.savefig():\n{}\n{}\n'.format(e, traceback.format_exc()))
+
+
+    def draw_fig(self, fig, shot):
+        if (self.mean_array is not None) and (shot < len(self.mean_array)):
+            gs = GridSpec(1, 2, width_ratios=[20, 1])
+            ax = fig.add_subplot(gs[0, 0])
+            im = ax.matshow(self.mean_array[shot], cmap=my_cmap)
+
+            #label plot
+            fig.suptitle('{} shot {} mean'.format(self.experiment.experimentPath, shot))
+
+            # make a colorbar
+            cax = fig.add_subplot(gs[0, 1])
+            fig.colorbar(im, cax=cax)
+
+            if self.showROIs:
+                #overlay ROIs
+                for ROI in self.experiment.squareROIAnalysis.ROIs:
+                    mpl_rectangle(ax, ROI)
 
     def updateFigure(self):
         if not self.update_lock:
@@ -470,22 +500,7 @@ class ImageSumAnalysis(AnalysisWithFigure):
                 fig = self.backFigure
                 fig.clf()
 
-                if (self.mean_array is not None) and (self.shot < len(self.mean_array)):
-                    gs = GridSpec(1, 2, width_ratios=[20, 1])
-                    ax = fig.add_subplot(gs[0,0])
-                    im = ax.matshow(self.mean_array[self.shot], cmap=my_cmap)
-
-                    #label plot
-                    fig.suptitle('{} shot {} mean'.format(self.experiment.experimentPath, self.shot))
-
-                    # make a colorbar
-                    cax = fig.add_subplot(gs[0,1])
-                    fig.colorbar(im, cax=cax)
-
-                    if self.showROIs:
-                        #overlay ROIs
-                        for ROI in self.experiment.squareROIAnalysis.ROIs:
-                            mpl_rectangle(ax, ROI)
+                self.draw_fig(fig, self.shot)
 
                 super(ImageSumAnalysis, self).updateFigure()
             except Exception as e:
@@ -740,30 +755,33 @@ class HistogramGrid(AnalysisWithFigure):
             # save data to hdf5
             iterationResults['analysis/histogram_results'] = self.histogram_results
 
+            self.savefig(iterationResults.attrs['iteration'])
+
             # update the figure to show the histograms for the selected shot
             self.updateFigure()
 
             # save the figure in a deferred_call, so that it will be sure to have updated first
             #time.sleep(.01)
-            deferred_call(self.savefig)
+            #deferred_call(self.savefig)
 
     @observe('shot')
     def refresh(self, change):
         if self.enable:
             self.updateFigure()
 
-    def savefig(self):
+    def savefig(self, iteration):
         try:
             # save to PDF
             if self.experiment.saveData:
-                try:
-                    #self.pdf.savefig(self.figure, dpi=self.figure.get_dpi(), transparent=True, bbox_inches=None,
-                    #pad_inches=0, frameon=False)
-                    self.figure.savefig('{}_{}.pdf'.format(self.pdf_path, self.experiment.iteration), format='pdf',
-                                        dpi=self.figure.get_dpi(), transparent=True, bbox_inches='tight', pad_inches=0.5,
-                                        frameon=False)
-                except Exception as e:
-                    logger.warning('Problem saving histogramGrid to pdf:\n{}\n'.format(e))
+                for shot in xrange(self.histogram_results.shape[0]):
+                    fig = plt.figure(figsize=(23.6, 12.3))
+                    dpi=80
+                    fig.set_dpi(dpi)
+                    fig.suptitle('{} iteration {} shot {}'.format(self.experiment.experimentPath, iteration, shot))
+                    self.histogram_grid_plot(fig, shot)
+                    plt.savefig('{}_{}_{}.pdf'.format(self.pdf_path, iteration, shot),
+                                format='pdf', dpi=dpi, transparent=True, bbox_inches='tight',
+                                pad_inches=.25, frameon=False)
         except Exception as e:
             logger.warning('Problem in HistogramGrid.savefig():\n{}\n{}\n'.format(e, traceback.format_exc()))
 
@@ -773,7 +791,7 @@ class HistogramGrid(AnalysisWithFigure):
             fig.clf()
 
             if self.histogram_results is not None:
-                fig.suptitle('{} shot {}'.format(self.experiment.experimentPath, self.shot))
+                fig.suptitle('shot {}'.format(self.shot))
                 self.histogram_grid_plot(fig, self.shot)
 
             super(HistogramGrid, self).updateFigure()
@@ -954,13 +972,15 @@ class HistogramGrid(AnalysisWithFigure):
         self.histogram_patch(ax, x1, y1, 'b')  # plot the 0 atom peak in blue
         self.histogram_patch(ax, x2, y2, 'r')  # plot the 1 atom peak in red
 
-    def histogram_grid_plot(self, fig, shot):
+    def histogram_grid_plot(self, fig, shot, font=8):
         """Plot a grid of histograms in the same shape as the ROIs."""
 
         rows = self.experiment.ROI_rows
         columns = self.experiment.ROI_columns
-        gs1 = GridSpec(rows+1, columns+1, left=0.02, bottom=0.05, top=.95, right=.98, wspace=0.2, hspace=0.5)
-        font = 10
+        # create a grid.  The extra row and column hold the row/column averaged data.
+        # width_ratios and height_ratios make those extra cells smaller than the graphs.
+        gs1 = GridSpec(rows+1, columns+1, left=0.02, bottom=0.05, top=.95, right=.98, wspace=0.2, hspace=0.6,
+                       width_ratios=rows*[1]+[.25], height_ratios=columns*[1]+[.25])
 
         #make histograms for each site
         for i in xrange(rows):
@@ -978,7 +998,7 @@ class HistogramGrid(AnalysisWithFigure):
                     ax.set_xlim([self.x_min, self.x_max])
                     ax.set_ylim([0, self.y_max])
                     #ax.set_title(u'{}: {:.0f}\u00B1{:.1f}%'.format(n, data['loading']*100,data['overlap']*100), size=font)
-                    ax.text(0.9, 0.9, u'{}: {:.0f}\u00B1{:.1f}%'.format(n, data['loading']*100,data['overlap']*100), horizontalalignment='right', verticalalignment='center', transform=ax.transAxes)
+                    ax.text(0.95, 0.85, u'{}: {:.0f}\u00B1{:.1f}%'.format(n, data['loading']*100, data['overlap']*100), horizontalalignment='right', verticalalignment='center', transform=ax.transAxes, fontsize=font)
                     # put x ticks at the center of each gaussian and the cutoff.
                     # The one at x_max just holds 'e3' to show that the values should be multiplied by 1000
                     ax.set_xticks([data['mean1'], data['cutoff'], data['mean2'], self.x_max])
@@ -1008,10 +1028,11 @@ class HistogramGrid(AnalysisWithFigure):
                         ytickleft += [False]
                         ytickright += [True]
                     ax.set_yticks(yticks)
-                    ax.set_yticklabels(yticklabels)  # , size=font)
+                    ax.set_yticklabels(yticklabels, size=font)
                     for tick, left, right in zip(ax.yaxis.get_major_ticks(), ytickleft, ytickright):
                         tick.label1On = left
                         tick.label2On = right
+                        tick.size = font
                     # plot gaussians
                     x = numpy.linspace(self.x_min, self.x_max, 100)
                     y1 = self.gaussian1D(x, data['mean1'], data['amplitude1'], data['width1'])
@@ -1019,10 +1040,9 @@ class HistogramGrid(AnalysisWithFigure):
                     ax.plot(x, y1, 'k', x, y2, 'k')
                     # plot cutoff line
                     ax.vlines(data['cutoff'], 0, self.y_max)
+                    ax.tick_params(labelsize=font)
                 except Exception as e:
                     logger.warning('Could not plot histogram for shot {} roi {}:\n{}\n{}'.format(shot, n, e, traceback.format_exc()))
-
-        font = 20  # larger font for average stats
 
         #make stats for each row
         for i in xrange(rows):
@@ -1032,8 +1052,8 @@ class HistogramGrid(AnalysisWithFigure):
                 'row {}\navg loading\n{:.0f}%'.format(i, 100*numpy.mean(self.histogram_results['loading'][shot, i*columns:(i+1)*columns])),
                 horizontalalignment='center',
                 verticalalignment='center',
-                transform=ax.transAxes)  # ,
-                #fontsize=font)
+                transform=ax.transAxes,
+                fontsize=font)
 
         #make stats for each column
         for i in xrange(columns):
@@ -1043,8 +1063,8 @@ class HistogramGrid(AnalysisWithFigure):
                 'column {}\navg loading\n{:.0f}%'.format(i, 100*numpy.mean(self.histogram_results['loading'][shot, i:i+(rows-1)*columns:columns])),
                 horizontalalignment='center',
                 verticalalignment='center',
-                transform=ax.transAxes)  # ,
-                #fontsize=font)
+                transform=ax.transAxes,
+                fontsize=font)
 
         #make stats for whole array
         ax = fig.add_subplot(gs1[rows, columns])
@@ -1053,8 +1073,8 @@ class HistogramGrid(AnalysisWithFigure):
             'array\navg loading\n{:.0f}%'.format(100*numpy.mean(self.histogram_results['loading'][shot])),
             horizontalalignment='center',
             verticalalignment='center',
-            transform=ax.transAxes)  # ,
-            #fontsize=font)
+            transform=ax.transAxes,
+            fontsize=font)
 
 
 class MeasurementsGraph(AnalysisWithFigure):

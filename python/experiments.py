@@ -997,6 +997,8 @@ class Experiment(Prop):
 
         self.set_status('idle')
         logger.info('Finished Experiment.')
+        self.progress = 100
+        self.update_gui()
         if self.enable_sounds:
             sound.complete_sound()
 

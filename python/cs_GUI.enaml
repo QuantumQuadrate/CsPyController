@@ -1970,7 +1970,7 @@ enamldef MultiImage(Container):
                 Label:
                     text = 'shot'
                 SpinBox:
-                    minimum=0
+                    minimum = 0
                     value := analysis0.shot
 
         Container: a1:
@@ -1985,12 +1985,12 @@ enamldef MultiImage(Container):
                 hug_height='strong'
                 hug_width='strong'
                 Looper:
-                    iterable << analysis1.ivarNames
+                    iterable << experiment.independentVariables  # analysis1.ivarNames
                     Form:
                         Label:
-                            text<<loop_item
+                            text<<loop_item.name
                         ComboBox:
-                            items<<[str(i) for i in analysis1.ivarValueLists[loop_index]]
+                            items<<[str(i) for i in loop_item.valueList]  # analysis1.ivarValueLists[loop_index]]
                             index::
                                 analysis1.setIteration(loop_index, index) #send which ivar (loop_index) to update to index
                 Form:
@@ -2416,6 +2416,12 @@ enamldef TTL_filters(GroupBox):
         Label:
             text := filters.text
 
+def get_num_optimization_variables(experiment):
+    try:
+        return len(experiment.optimizer.optimization_variables)
+    except:
+        return 0
+
 enamldef Optimizer(Container):
     attr experiment
     attr analysis
@@ -2454,7 +2460,7 @@ enamldef Optimizer(Container):
 
     MPLCanvas: canvas:
         # size is fixed here and in figure definition
-        constraints = [(height==100*(len(experiment.optimizer.optimization_variables)+1))|'strong',(width==1800)|'strong']
+        constraints = [(height==100*(get_num_optimization_variables(experiment)+1))|'strong',(width==1800)|'strong']
         figure << analysis.figure
 
 enamldef Picomotor(Container):
@@ -2536,6 +2542,11 @@ enamldef BoxTemperature(Container):
         CheckBox:
             checked << box_temperature.connected
             enabled = False
+
+enamldef PID(Container):
+    attr PID
+
+    pass
 
 def loadIcon():
     #create icon

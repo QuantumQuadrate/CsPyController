@@ -24,7 +24,12 @@ logger = logging.getLogger(__name__)
 import traceback, os
 import numpy
 from math import isnan
+
+import matplotlib as mpl
+mpl.use('PDF')
+import matplotlib.pyplot as plt
 from matplotlib.backends.backend_pdf import PdfPages
+
 from atom.api import Bool, Member, Float, Int, Str
 from analysis import AnalysisWithFigure
 
@@ -164,18 +169,20 @@ class Optimization(AnalysisWithFigure):
                     if not os.path.exists(pdf_path):
                         os.mkdir(pdf_path)
                     filename = os.path.join(pdf_path, '{}_optimizer.pdf'.format(self.experiment.experimentPath))
-                    self.figure.savefig(filename, format='pdf', dpi=self.figure.get_dpi(), transparent=True,
-                                        bbox_inches='tight', pad_inches=0.5, frameon=False)
+
+                    fig = plt.figure(figsize=(22.5, 1.25*(1+len(self.optimization_variables))))
+                    dpi = 80
+                    fig.set_dpi(dpi)
+                    fig.suptitle(self.experiment.experimentPath)
+                    self.draw_fig(fig)
+                    plt.savefig(filename,
+                                format='pdf', dpi=dpi, transparent=True, bbox_inches='tight',
+                                pad_inches=.25, frameon=False)
+
                 except Exception as e:
                     logger.warning('Problem saving optimizer pdf:\n{}\n'.format(e))
 
-    def updateFigure(self):
-        fig = self.backFigure
-        fig.clf()
-
-        fig.set_dpi(100)
-        fig.set_size_inches(18, len(self.optimization_variables), forward=False)
-
+    def draw_fig(self, fig):
         # plot cost
         ax = fig.add_subplot(self.axes+2, 1, 1)
         ax.plot(self.ylist)
@@ -187,6 +194,15 @@ class Optimization(AnalysisWithFigure):
             ax = fig.add_subplot(self.axes+2, 1, i+2)
             ax.plot(d[i])
             ax.set_ylabel(self.optimization_variables[i].name)
+
+    def updateFigure(self):
+        fig = self.backFigure
+        fig.clf()
+
+        # fig.set_dpi(100)
+        # fig.set_size_inches(18, len(self.optimization_variables), forward=False)
+
+        self.draw_fig(fig)
 
         super(Optimization, self).updateFigure()
 
