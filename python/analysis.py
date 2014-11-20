@@ -470,6 +470,7 @@ class ImageSumAnalysis(AnalysisWithFigure):
                     plt.savefig('{}_{}_{}.pdf'.format(self.pdf_path, iteration, shot),
                                 format='pdf', dpi=dpi, transparent=True, bbox_inches='tight',
                                 pad_inches=.25, frameon=False)
+                    plt.close(fig)
         except Exception as e:
             logger.warning('Problem in HistogramGrid.savefig():\n{}\n{}\n'.format(e, traceback.format_exc()))
 
@@ -782,6 +783,7 @@ class HistogramGrid(AnalysisWithFigure):
                     plt.savefig('{}_{}_{}.pdf'.format(self.pdf_path, iteration, shot),
                                 format='pdf', dpi=dpi, transparent=True, bbox_inches='tight',
                                 pad_inches=.25, frameon=False)
+                    plt.close(fig)
         except Exception as e:
             logger.warning('Problem in HistogramGrid.savefig():\n{}\n{}\n'.format(e, traceback.format_exc()))
 
