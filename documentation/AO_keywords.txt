@@ -1,0 +1,3 @@
+externalClockSource
+maxExternalClockRate
+useExternalClock

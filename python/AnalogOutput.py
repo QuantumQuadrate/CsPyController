@@ -83,9 +83,12 @@ class AnalogOutput(Instrument):
     equations = Typed(ListProp)
     exportStartTrigger = Typed(BoolProp)
     exportStartTriggerDestination = Typed(StrProp)
+    useExternalClock = Typed(BoolProp)
+    externalClockSource = Typed(StrProp)
+    maxExternalClockRate = Typed(FloatProp)
     
     timesteps = Member()
-    version = '2014.02.27'
+    version = '2014.11.26'
     
     figure = Typed(Figure)
     backFigure = Typed(Figure)
@@ -105,13 +108,20 @@ class AnalogOutput(Instrument):
         self.units = FloatProp('units', self.experiment, 'equations entered in ms', '.001')
         self.waitForStartTrigger = BoolProp('waitForStartTrigger', self.experiment, '', 'True')
         self.triggerSource = StrProp('triggerSource', self.experiment, '', '"/PXI1Slot2/PFI0"')
-        self.triggerEdge = StrProp('triggerEdge',self.experiment,'','"Rising"')
+        self.triggerEdge = StrProp('triggerEdge', self.experiment, '', '"Rising"')
         self.equations = ListProp('equations', self.experiment, listElementType=AOEquation,
-                            listElementName='equation',listElementKwargs={'AO':self})
-        self.exportStartTrigger=BoolProp('exportStartTrigger',self.experiment,'Should we trigger all other cards off the AO card?','True')
-        self.exportStartTriggerDestination=StrProp('exportStartTriggerDestination',self.experiment,'What line to send the AO StartTrigger out to?','"/PXISlot2/PXI_Trig0"')
-        self.properties+=['version', 'physicalChannels','minimum','maximum','clockRate','totalAOTime','units','waitForStartTrigger','triggerSource','triggerEdge','exportStartTrigger','exportStartTriggerDestination','equations'] #make sure equations are evaluated last
-        self.doNotSendToHardware+=['units','totalAOTime']
+                            listElementName='equation', listElementKwargs={'AO': self})
+        self.exportStartTrigger = BoolProp('exportStartTrigger', self.experiment, 'Should we trigger all other cards off the AO card?','True')
+        self.exportStartTriggerDestination = StrProp('exportStartTriggerDestination', self.experiment, 'What line to send the AO StartTrigger out to?', '"/PXISlot2/PXI_Trig0"')
+        self.useExternalClock = BoolProp('useExternalClock', self.experiment, 'True for external clock, false for default clock.', 'False')
+        self.externalClockSource = StrProp('externalClockSource', self.experiment, 'Where does the external clock come in?','"/PXISlot2/PFI9"')
+        self.maxExternalClockRate = FloatProp('maxExternalClockRate', self.experiment, 'Upper limit on the external clock. Does not have to be exact.', '2000000')
+
+        self.properties += ['version', 'physicalChannels', 'minimum', 'maximum', 'clockRate', 'totalAOTime', 'units',
+                            'waitForStartTrigger', 'triggerSource', 'triggerEdge', 'exportStartTrigger',
+                            'exportStartTriggerDestination', 'useExternalClock', 'externalClockSource',
+                            'maxExternalClockRate', 'equations'] #make sure equations are evaluated last
+        self.doNotSendToHardware += ['units', 'totalAOTime']
         
         self.figure1=Figure()
         self.figure2=Figure()
