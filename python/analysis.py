@@ -439,8 +439,8 @@ class ImageSumAnalysis(AnalysisWithFigure):
                     self.mean_array[i] = self.sum_array[i]/self.count_array[i]
 
             #update the min/max that other image plots will use
-            self.min = numpy.amin(self.mean_array) if (self.ymin == '') else float(self.min_str)
-            self.max = numpy.amax(self.mean_array) if (self.ymax == '') else float(self.max_str)
+            self.min = numpy.amin(self.mean_array) if (self.min_str == '') else float(self.min_str)
+            self.max = numpy.amax(self.mean_array) if (self.max_str == '') else float(self.max_str)
 
             self.updateFigure()  # only update figure if image was loaded
 
