@@ -395,6 +395,8 @@ class ImageSumAnalysis(AnalysisWithFigure):
     showROIs = Bool(False)  # should we superimpose ROIs?
     shot = Int()  # which shot to display
     update_lock = Bool(False)
+    min_str = Str()
+    max_str = Str()
     min = Member()
     max = Member()
     #pdf = Member()
@@ -437,8 +439,8 @@ class ImageSumAnalysis(AnalysisWithFigure):
                     self.mean_array[i] = self.sum_array[i]/self.count_array[i]
 
             #update the min/max that other image plots will use
-            self.min = numpy.amin(self.mean_array)
-            self.max = numpy.amax(self.mean_array)
+            self.min = numpy.amin(self.mean_array) if (self.ymin == '') else float(self.min_str)
+            self.max = numpy.amax(self.mean_array) if (self.ymax == '') else float(self.max_str)
 
             self.updateFigure()  # only update figure if image was loaded
 
@@ -473,8 +475,8 @@ class ImageSumAnalysis(AnalysisWithFigure):
 
                 if (self.mean_array is not None) and (self.shot < len(self.mean_array)):
                     gs = GridSpec(1, 2, width_ratios=[20, 1])
-                    ax = fig.add_subplot(gs[0,0])
-                    im = ax.matshow(self.mean_array[self.shot], cmap=my_cmap)
+                    ax = fig.add_subplot(gs[0, 0])
+                    im = ax.matshow(self.mean_array[self.shot], cmap=my_cmap, vmin=self.min, vmax=self.max)
 
                     #label plot
                     fig.suptitle('{} shot {} mean'.format(self.experiment.experimentPath, self.shot))

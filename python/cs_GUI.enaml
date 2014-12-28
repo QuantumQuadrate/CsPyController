@@ -2030,6 +2030,17 @@ enamldef MultiImage(Container):
                 SpinBox:
                     minimum=0
                     value := analysis2.shot
+                Label:
+                    text = 'plot ymin'
+                Field:
+                    placeholder='blank for autolimit'
+                    text := analysis2.min_str
+                Label:
+                    text = 'plot ymax'
+                Field:
+                    placeholder='blank for autolimit'
+                    text := analysis2.max_str
+
 
 enamldef SquareROI(Container):
     attr item
