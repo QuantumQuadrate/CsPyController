@@ -561,6 +561,7 @@ class SquareROIAnalysis(AnalysisWithFigure):
         # check to see if there were supposed to be images
         elif self.experiment.LabView.camera.enable and (self.experiment.LabView.camera.shotsPerMeasurement>0):
             logger.warning('Camera expected {} shots, but did not get any.'.format(self.experiment.LabView.camera.shotsPerMeasurement))
+            return 3  # hard fail, delete measurement
 
     def updateFigure(self):
         fig = self.backFigure
