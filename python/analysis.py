@@ -532,9 +532,9 @@ class SquareROIAnalysis(AnalysisWithFigure):
 
             numShots = len(measurementResults['data/Hamamatsu/shots'])
             # check to see that we got enough shots
-            if self.experiment.LabView.camera.enable and (numShots != self.experiment.LabView.camera.shotsPerMeasurement):
+            if self.experiment.LabView.camera.enable and (numShots != self.experiment.LabView.camera.shotsPerMeasurement.value):
                 logger.warning('Camera expected {} shots, but instead got {}.'.format(
-                    self.experiment.LabView.camera.shotsPerMeasurement, numShots))
+                    self.experiment.LabView.camera.shotsPerMeasurement.value, numShots))
                 return 3  # hard fail, delete measurement
 
             numROIs=len(self.ROIs)
@@ -559,8 +559,8 @@ class SquareROIAnalysis(AnalysisWithFigure):
             self.updateFigure()
 
         # check to see if there were supposed to be images
-        elif self.experiment.LabView.camera.enable and (self.experiment.LabView.camera.shotsPerMeasurement>0):
-            logger.warning('Camera expected {} shots, but did not get any.'.format(self.experiment.LabView.camera.shotsPerMeasurement))
+        elif self.experiment.LabView.camera.enable and (self.experiment.LabView.camera.shotsPerMeasurement.value > 0):
+            logger.warning('Camera expected {} shots, but did not get any.'.format(self.experiment.LabView.camera.shotsPerMeasurement.value))
             return 3  # hard fail, delete measurement
 
     def updateFigure(self):
