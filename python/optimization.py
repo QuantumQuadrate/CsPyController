@@ -41,8 +41,9 @@ class Optimization(AnalysisWithFigure):
     ylist = Member()  # a history of the costs (shape=(iterations))
     best_xi = Member()
     best_yi = Member()
-    best_yi_str = Str()
-    yi_str = Str()
+    best_yi_str = Str()  # for gui display, the best cost
+    yi_str = Str()  # for gui display, the current cost
+    yi0_str = Str()  # for gui display, the initial cost
     generator = Member()
     initial_step = Member()  # an array of initial steps for each variable
     optimization_method = Int(0)
@@ -52,6 +53,7 @@ class Optimization(AnalysisWithFigure):
     cost_function = Str()
     optimization_variables = Member()
     is_done = Bool()
+    firstrun = Member()
 
     def __init__(self, name, experiment, description=''):
         super(Optimization, self).__init__(name, experiment, description)
@@ -72,6 +74,7 @@ class Optimization(AnalysisWithFigure):
         if self.enable:
 
             self.is_done = False
+            self.firstrun = True  # so we can record the initial cost
 
             # start all the independent variables at the value given for the 0th iteration
             self.xi = numpy.array([i.valueList[0] for i in self.optimization_variables], dtype=float)
@@ -127,6 +130,10 @@ class Optimization(AnalysisWithFigure):
             b = hdf5['analysis/optimizer/costs']
             b.resize(b.len()+1, axis=0)
             b[-1] = self.yi
+
+            if self.firstrun:
+                self.set_gui({'yi0_str': str(self.yi)})
+                self.firstrun = False
 
             # check to see if this is the best point
             if self.yi < self.best_yi:

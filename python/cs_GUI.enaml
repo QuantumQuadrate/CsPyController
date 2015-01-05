@@ -2470,17 +2470,22 @@ enamldef Optimizer(Container):
             text:=experiment.optimizer.cost_function
 
         Label:
-            text='current cost'
+            text='starting cost'
         Label:
-            text<<analysis.yi_str
+            text<<analysis.yi0_str
 
         Label:
             text='best cost'
         Label:
             text<<analysis.best_yi_str
 
+        Label:
+            text='current cost'
+        Label:
+            text<<analysis.yi_str
+
     MPLCanvas: canvas:
-        constraints << [(height==100*(len(experiment.independentVariables)+1))|'strong'] #,(width==1000)|'strong']
+        constraints << [(height==150*(len(experiment.independentVariables)+1))|'strong'] #,(width==1000)|'strong']
         figure << analysis.figure
 
 enamldef Picomotor(Container):

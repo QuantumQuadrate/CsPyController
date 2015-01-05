@@ -537,6 +537,7 @@ class Experiment(Prop):
 
                     # pause after measurement
                     if self.status == 'running' and self.pauseAfterMeasurement:
+                        logger.info('paused after measurement')
                         self.set_status('paused after measurement')
                         self.set_gui({'valid': False})
                         if self.enable_sounds:
@@ -577,6 +578,7 @@ class Experiment(Prop):
                     # pause after iteration
                     if self.pauseAfterIteration:
                         if self.status == 'running':
+                            logger.info('paused after iteration')
                             self.set_status('paused after iteration')
                             self.set_gui({'valid': False})
                             # play sounds
