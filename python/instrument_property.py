@@ -330,7 +330,8 @@ class Prop(Atom):
 
     def set_dict(self, d):
         """Takes in a dictionary (d) of things to set, where self.key is the parameter to set, and value is what it will
-        be set to.  Makes a deferred call to set_dict so that this will happen in the gui thread"""
+        be set to.  Usually this is not called directly, but rather as a deferred call in set_gui
+        so it is done in the GUI thread."""
 
         for key, value in d.iteritems():
             setattr(self, key, value)

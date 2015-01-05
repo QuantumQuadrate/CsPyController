@@ -41,6 +41,8 @@ class Optimization(AnalysisWithFigure):
     ylist = Member()  # a history of the costs (shape=(iterations))
     best_xi = Member()
     best_yi = Member()
+    best_yi_str = Str()
+    yi_str = Str()
     generator = Member()
     initial_step = Member()  # an array of initial steps for each variable
     optimization_method = Int(0)
@@ -140,6 +142,9 @@ class Optimization(AnalysisWithFigure):
 
                 # update the ramsey fit guess
                 self.experiment.Ramsey.optimizer_update_guess()
+
+            # update the gui
+            self.set_dict({'yi_str': self.yi, 'best_yi_str': self.best_yi})
 
             # let the generator decide on the next point to look at
             try:

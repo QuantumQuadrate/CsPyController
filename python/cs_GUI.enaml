@@ -2469,6 +2469,16 @@ enamldef Optimizer(Container):
             constraints=[height==300]
             text:=experiment.optimizer.cost_function
 
+        Label:
+            text='current cost'
+        Label:
+            text=analysis.yi_str
+
+        Label:
+            text='best cost'
+        Label:
+            text=analysis.best_yi_str
+
     MPLCanvas: canvas:
         constraints = [(height==50*(len(experiment.independentVariables)+1))|'strong'] #,(width==1000)|'strong']
         figure << analysis.figure
