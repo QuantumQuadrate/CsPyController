@@ -529,8 +529,16 @@ class SquareROIAnalysis(AnalysisWithFigure):
     def analyzeMeasurement(self, measurementResults, iterationResults, experimentResults):
         if 'data/Hamamatsu/shots' in measurementResults:
             #here we want to live update a digital plot of atom loading as it happens
-            numROIs=len(self.ROIs)
+
             numShots = len(measurementResults['data/Hamamatsu/shots'])
+            # check to see that we got enough shots
+            if self.experiment.LabView.camera.enable and (numShots != self.experiment.LabView.camera.shotsPerMeasurement):
+                logger.warning('Camera expected {} shots, but instead got {}.'.format(
+                    self.experiment.LabView.camera.shotsPerMeasurement, numShots))
+                return 3  # hard fail, delete measurement
+
+            numROIs=len(self.ROIs)
+
             sum_array = numpy.zeros((numShots, numROIs), dtype=numpy.uint32)  # uint32 allows for summing ~65535 regions
             thresholdArray = numpy.zeros((numShots, numROIs), dtype=numpy.bool_)
             #loadingArray = numpy.zeros((numShots, self.ROI_rows, self.ROI_columns), dtype=numpy.bool_)
@@ -549,6 +557,10 @@ class SquareROIAnalysis(AnalysisWithFigure):
             measurementResults['analysis/squareROIsums'] = sum_array
             measurementResults['analysis/squareROIthresholded'] = thresholdArray
             self.updateFigure()
+
+        # check to see if there were supposed to be images
+        elif self.experiment.LabView.camera.enable and (self.experiment.LabView.camera.shotsPerMeasurement>0):
+            logger.warning('Camera expected {} shots, but did not get any.'.format(self.experiment.LabView.camera.shotsPerMeasurement))
 
     def updateFigure(self):
         fig = self.backFigure

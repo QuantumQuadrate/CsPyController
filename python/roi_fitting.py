@@ -83,7 +83,7 @@ class GaussianROI(AnalysisWithFigure):
             try:
                 # --- image cleanup ---
 
-                # compile all shot 1 images from iteration
+                # compile all images from the chosen shot over the whole iteration
                 images = np.array([m['data/Hamamatsu/shots/'+str(self.shot)] for m in iterationResults['measurements'].itervalues()])
                 raw_sum = np.sum(images, axis=0)
 
