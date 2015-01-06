@@ -1967,6 +1967,7 @@ enamldef MultiImage(Container):
 
         Container: a0:
             MPLCanvas:
+                constraints = [(height==1000)|'strong']
                 figure << analysis0.figure
             Form:
                 Label:
@@ -1981,6 +1982,7 @@ enamldef MultiImage(Container):
 
         Container: a1:
             MPLCanvas:
+                constraints = [(height==1000)|'strong']
                 figure << analysis1.figure
             Form:
                 Label:
@@ -2015,6 +2017,7 @@ enamldef MultiImage(Container):
                         value:=analysis1.shot
         Container: a2:
             MPLCanvas:
+                constraints = [(height==1000)|'strong']
                 figure << analysis2.figure
             Form:
                 Label:
@@ -2040,7 +2043,14 @@ enamldef MultiImage(Container):
                 Field:
                     placeholder='blank for autolimit'
                     text := analysis2.max_str
+                Label:
+                    text = 'subtract background (visual only, does not change data)'
+                CheckBox:
+                    checked := analysis2.subtract_background
 
+                PushButton:
+                    text = 'use this image as background'
+                    clicked :: analysis2.set_background()
 
 enamldef SquareROI(Container):
     attr item

@@ -394,6 +394,7 @@ class ImageSumAnalysis(AnalysisWithFigure):
     sum_array = Member()  # holds the sum of each shot
     count_array = Member()  # holds the number of measurements summed
     mean_array = Member()  # holds the mean image for each shot
+    background_array = Member()
     showROIs = Bool(False)  # should we superimpose ROIs?
     shot = Int()  # which shot to display
     update_lock = Bool(False)
@@ -403,6 +404,10 @@ class ImageSumAnalysis(AnalysisWithFigure):
     max = Member()
     #pdf = Member()
     pdf_path = Member()
+    subtract_background = Bool(False)
+
+    def set_background(self):
+        self.background_array = self.mean_array
 
     def __init__(self, experiment):
         super(ImageSumAnalysis, self).__init__('ImageSumAnalysis', experiment, 'Sums shot0 images as they come in')
@@ -1429,7 +1434,7 @@ class Ramsey(AnalysisWithFigure):
             self.sigma = numpy.zeros(num_iterations, dtype=numpy.float64)
             for i in xrange(num_iterations):
                 # pick out the relevant data.  Indices will be (measurement, shot).
-                d1 = numpy.array([m['analysis/squareROIthresholded'][:, self.roi] for m in experimentResults[str(i)+'/measurements'].itervalues()])
+                d1 = numpy.array([m['analysis/squareROIthresholded'][:, self.roi] for m in experimentResults['iterations/'+str(i)+'/measurements'].itervalues()])
                 # filter for having an atom in the 1st shot.  Give the measurement index a 1D array of the booleans that are shot 0.
                 # d2 will be a 1D array of bool with shorter length, since only the ones with atoms in shot 0 are kept.
                 d2 = d1[d1[:, 0], 1]
@@ -1439,7 +1444,7 @@ class Ramsey(AnalysisWithFigure):
                 self.y[i] = mean
                 #find the 1 sigma confidence interval using the normal approximation: http://en.wikipedia.org/wiki/Binomial_proportion_confidence_interval
                 self.sigma[i] = numpy.sqrt(mean*(1-mean)/total)
-                self.t[i] = experimentResults[str(i)+'/variables/'+self.time_variable_name].value
+                self.t[i] = experimentResults['iterations/'+str(i)+'/variables/'+self.time_variable_name].value
 
             # now that we have retention vs. time, do a curve fit
             initial_guess = (self.amplitude_guess, self.frequency_guess, self.offset_guess, self.decay_guess)
