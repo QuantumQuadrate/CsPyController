@@ -1976,7 +1976,7 @@ enamldef MultiImage(Container):
                 Label:
                     text = 'shot'
                 SpinBox:
-                    minimum=0
+                    minimum = 0
                     value := analysis0.shot
 
         Container: a1:
@@ -1991,12 +1991,12 @@ enamldef MultiImage(Container):
                 hug_height='strong'
                 hug_width='strong'
                 Looper:
-                    iterable << analysis1.ivarNames
+                    iterable << experiment.independentVariables  # analysis1.ivarNames
                     Form:
                         Label:
-                            text<<loop_item
+                            text<<loop_item.name
                         ComboBox:
-                            items<<[str(i) for i in analysis1.ivarValueLists[loop_index]]
+                            items<<[str(i) for i in loop_item.valueList]  # analysis1.ivarValueLists[loop_index]]
                             index::
                                 analysis1.setIteration(loop_index, index) #send which ivar (loop_index) to update to index
                 Form:
@@ -2433,6 +2433,12 @@ enamldef TTL_filters(GroupBox):
         Label:
             text := filters.text
 
+def get_num_optimization_variables(experiment):
+    try:
+        return len(experiment.optimizer.optimization_variables)
+    except:
+        return 0
+
 enamldef Optimizer(Container):
     attr experiment
     attr analysis
@@ -2568,6 +2574,11 @@ enamldef BoxTemperature(Container):
             checked << box_temperature.connected
             enabled = False
 
+enamldef PID(Container):
+    attr PID
+
+    pass
+
 def loadIcon():
     #create icon
     with open(os.path.join('icons','2013_11_14_15_18_54_retention_PCA_filtered_image_rotated_smoothed.png'), 'rb') as f:
@@ -2695,3 +2706,5 @@ enamldef Main(MainWindow): main:
                 p28.content.box_temperature = main.experiment.box_temperature
             ScrollPage('Ramsey', Ramsey): p29:
                 p29.content.analysis = main.experiment.Ramsey
+            ScrollPage('PID', PID): p30:
+                p30.content.PID = main.experiment.PID
