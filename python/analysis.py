@@ -746,10 +746,11 @@ class HistogramGrid(AnalysisWithFigure):
     x_min = Member()
     x_max = Member()
     y_max = Member()
+    roi_type = Int(0)
 
     def __init__(self, name, experiment, description=''):
         super(HistogramGrid, self).__init__(name, experiment, description)
-        self.properties += ['enable', 'shot']
+        self.properties += ['enable', 'shot', 'roi_type'']
 
     def preExperiment(self, experimentResults):
         if self.enable and self.experiment.saveData:
@@ -767,8 +768,18 @@ class HistogramGrid(AnalysisWithFigure):
 
     def analyzeIteration(self, iterationResults, experimentResults):
         if self.enable:
-            # all_shots_array will be shape (measurements,shots,rois)
-            all_shots_array = numpy.array([m['analysis/squareROIsums'] for m in iterationResults['measurements'].itervalues()])
+            if self.roi_type == 0:  # square rois
+
+                # all_shots_array will be shape (measurements,shots,rois)
+                all_shots_array = numpy.array([m['analysis/squareROIsums'] for m in iterationResults['measurements'].itervalues()])
+
+            elif self.roi_type == 1:  # gaussian rois
+                # all_shots_array will be shape (measurements,shots,rois)
+                all_shots_array = iterationResults['analysis/gaussian_roi/roi_sums'].value
+
+            else:
+                logger.error('invalid roi type {} in HistogramGrid.analyzeIteration'.format(self.roi_type))
+                raise PauseError
 
             # perform histogram calculations and fits on all shots and regions
             self.calculate_all_histograms(all_shots_array)

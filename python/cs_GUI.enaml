@@ -2129,6 +2129,18 @@ enamldef GaussianROI(Container):
         CheckBox:
             checked := analysis.enable
         Label:
+            text = 'perform gaussian grid fit'
+        CheckBox:
+            checked := analysis.enable_grid_fit
+        Label:
+            text = 'automatically use ROIs from valid fits'
+        CheckBox:
+            checked := analysis.automatically_use_rois
+        Label:
+            text = 'calculate gaussian ROI sums'
+        CheckBox:
+            checked := analysis.enable_calculate_sums
+        Label:
             text = 'shot'
         SpinBox:
             value := analysis.shot
@@ -2136,6 +2148,9 @@ enamldef GaussianROI(Container):
             text = 'clean up image with ICA?'
         CheckBox:
             checked := analysis.useICA
+        PushButton:
+            text = "use these ROIs"
+            clicked :: analysis.use_current_rois()
     HGroup:
         align_widths = False
         Label:
@@ -2245,10 +2260,16 @@ enamldef HistogramGrid(Container):
             text = 'shot'
         SpinBox:
             value := analysis.shot
+        Label:
+            text = 'roi type'
+        ComboBox:
+            items = ['square','gaussian']
+            index := analysis.roi_type
         PushButton:
             text = 'Use these cutoffs'
             clicked ::
                 analysis.use_cutoffs()
+
     MPLCanvas:
         figure<<analysis.figure
 
