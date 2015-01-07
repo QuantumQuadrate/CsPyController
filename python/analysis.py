@@ -254,10 +254,11 @@ class RecentShotAnalysis(AnalysisWithFigure):
     showROIs = Bool(False)
     shot = Int(0)
     update_lock = Bool(False)
+    subtract_background = Bool()
 
     def __init__(self, name, experiment, description=''):
         super(RecentShotAnalysis, self).__init__(name, experiment, description)
-        self.properties += ['showROIs','shot']
+        self.properties += ['showROIs', 'shot', 'subtract_background']
 
     def analyzeMeasurement(self,measurementResults,iterationResults,experimentResults):
         self.data = []
@@ -267,7 +268,7 @@ class RecentShotAnalysis(AnalysisWithFigure):
                 self.data.append(shot)
         self.updateFigure()  # only update figure if image was loaded
 
-    @observe('shot', 'showROIs')
+    @observe('shot', 'showROIs', 'subtract_background')
     def reload(self, change):
         self.updateFigure()
 
@@ -280,7 +281,12 @@ class RecentShotAnalysis(AnalysisWithFigure):
 
                 if (self.data is not None) and (self.shot < len(self.data)):
                     ax = fig.add_subplot(111)
-                    ax.matshow(self.data[self.shot], cmap=my_cmap, vmin=self.experiment.imageSumAnalysis.min, vmax=self.experiment.imageSumAnalysis.max)
+                    if self.subtract_background:
+                        data = self.data[self.shot] - self.experiment.imageSumAnalysis.background_array
+                    else:
+                        data = self.data[self.shot]
+
+                    ax.matshow(data, cmap=my_cmap, vmin=self.experiment.imageSumAnalysis.min, vmax=self.experiment.imageSumAnalysis.max)
                     ax.set_title('most recent shot '+str(self.shot))
                     if self.showROIs:
                         #overlay ROIs
@@ -404,16 +410,16 @@ class ImageSumAnalysis(AnalysisWithFigure):
     max = Member()
     #pdf = Member()
     pdf_path = Member()
-    subtract_background = Bool(False)
-
-    def set_background(self):
-        self.background_array = self.mean_array
+    subtract_background = Bool()
 
     def __init__(self, experiment):
         super(ImageSumAnalysis, self).__init__('ImageSumAnalysis', experiment, 'Sums shot0 images as they come in')
-        self.properties += ['enable', 'showROIs', 'shot']
+        self.properties += ['enable', 'showROIs', 'shot', 'background_array', 'subtract_background']
         self.min = 0
         self.max = 1
+
+    def set_background(self):
+        self.background_array = self.mean_array[self.shot]
 
     def preExperiment(self, experimentResults):
         if self.enable and self.experiment.saveData:
@@ -437,6 +443,8 @@ class ImageSumAnalysis(AnalysisWithFigure):
                 self.sum_array = numpy.array([shot for shot in measurementResults['data/Hamamatsu/shots'].itervalues()], dtype=numpy.uint64)
                 self.count_array = numpy.zeros(len(self.sum_array), dtype=numpy.uint64)
                 self.mean_array = self.sum_array.astype(numpy.float64)
+                if self.subtract_background:
+                    self.mean_array -= self.background_array
 
             else:
                 #add new data
@@ -444,6 +452,8 @@ class ImageSumAnalysis(AnalysisWithFigure):
                     self.sum_array[i] += shot
                     self.count_array[i] += 1
                     self.mean_array[i] = self.sum_array[i]/self.count_array[i]
+                    if self.subtract_background:
+                        self.mean_array -= self.background_array
 
             #update the min/max that other image plots will use
             self.min = numpy.amin(self.mean_array) if (self.min_str == '') else float(self.min_str)

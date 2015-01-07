@@ -1979,6 +1979,10 @@ enamldef MultiImage(Container):
                 SpinBox:
                     minimum = 0
                     value := analysis0.shot
+                Label:
+                    text = 'subtract background (visual only, does not change data)'
+                CheckBox:
+                    checked := analysis0.subtract_background
 
         Container: a1:
             MPLCanvas:
@@ -2047,7 +2051,6 @@ enamldef MultiImage(Container):
                     text = 'subtract background (visual only, does not change data)'
                 CheckBox:
                     checked := analysis2.subtract_background
-
                 PushButton:
                     text = 'use this image as background'
                     clicked :: analysis2.set_background()
