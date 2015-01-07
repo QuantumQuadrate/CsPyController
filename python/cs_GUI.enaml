@@ -1953,7 +1953,6 @@ enamldef AnalysisImage(Container):
 enamldef MultiImage(Container):
     attr experiment
     attr analysis0
-    attr analysis1
     attr analysis2
     attr analysis3
 
@@ -1965,7 +1964,7 @@ enamldef MultiImage(Container):
         spacing = 0
         align_widths = True
 
-        Container: a0:
+        Container:
             MPLCanvas:
                 constraints = [(height==1000)|'strong']
                 figure << analysis0.figure
@@ -1984,42 +1983,7 @@ enamldef MultiImage(Container):
                 CheckBox:
                     checked := analysis0.subtract_background
 
-        Container: a1:
-            MPLCanvas:
-                constraints = [(height==1000)|'strong']
-                figure << analysis1.figure
-            Form:
-                Label:
-                   text='Show ROIs?'
-                CheckBox:
-                    checked:=analysis1.showROIs
-            GroupBox:
-                hug_height='strong'
-                hug_width='strong'
-                Looper:
-                    iterable << experiment.independentVariables  # analysis1.ivarNames
-                    Form:
-                        Label:
-                            text<<loop_item.name
-                        ComboBox:
-                            items<<[str(i) for i in loop_item.valueList]  # analysis1.ivarValueLists[loop_index]]
-                            index::
-                                analysis1.setIteration(loop_index, index) #send which ivar (loop_index) to update to index
-                Form:
-                    Label:
-                        text='Measurement'
-                    SpinBox:
-                        minimum=0
-                        maximum=9999999 #a big number
-                        value:=analysis1.measurement
-                Form:
-                    Label:
-                        text='Shot'
-                    SpinBox:
-                        minimum=0
-                        maximum=9999999 #a big number
-                        value:=analysis1.shot
-        Container: a2:
+        Container:
             MPLCanvas:
                 constraints = [(height==1000)|'strong']
                 figure << analysis2.figure
@@ -2054,6 +2018,45 @@ enamldef MultiImage(Container):
                 PushButton:
                     text = 'use this image as background'
                     clicked :: analysis2.set_background()
+
+enamldef ImageBrowser(Container):
+    attr experiment
+    attr analysis1
+
+    MPLCanvas:
+        constraints = [(height==1000)|'strong']
+        figure << analysis1.figure
+    Form:
+        Label:
+           text='Show ROIs?'
+        CheckBox:
+            checked:=analysis1.showROIs
+    GroupBox:
+        hug_height='strong'
+        hug_width='strong'
+        Looper:
+            iterable << experiment.independentVariables  # analysis1.ivarNames
+            Form:
+                Label:
+                    text<<loop_item.name
+                ComboBox:
+                    items<<[str(i) for i in loop_item.valueList]  # analysis1.ivarValueLists[loop_index]]
+                    index::
+                        analysis1.setIteration(loop_index, index) #send which ivar (loop_index) to update to index
+        Form:
+            Label:
+                text='Measurement'
+            SpinBox:
+                minimum=0
+                maximum=9999999 #a big number
+                value:=analysis1.measurement
+        Form:
+            Label:
+                text='Shot'
+            SpinBox:
+                minimum=0
+                maximum=9999999 #a big number
+                value:=analysis1.shot
 
 enamldef SquareROI(Container):
     attr item
@@ -2147,6 +2150,10 @@ enamldef GaussianROI(Container):
             text = 'shot'
         SpinBox:
             value := analysis.shot
+        Label:
+            text = 'subtract background?'
+        CheckBox:
+            checked := analysis.subtract_background
         Label:
             text = 'clean up image with ICA?'
         CheckBox:
@@ -2701,12 +2708,14 @@ enamldef Main(MainWindow): main:
                 p15.content.piezo = main.experiment.LabView.piezo
             ScrollPage('Picomotors', Picomotors): p16:
                 p16.content.picomotors = main.experiment.picomotors
-            ScrollPage('Images', MultiImage): p17:
+            ScrollPage('Live Images', MultiImage): p17:
                 p17.content.experiment = main.experiment
                 p17.content.analysis0 = main.experiment.recent_shot_analysis
-                p17.content.analysis1 = main.experiment.shotBrowserAnalysis
                 p17.content.analysis2 = main.experiment.imageSumAnalysis
                 p17.content.analysis3 = main.experiment.text_analysis
+            ScrollPage('Image Browser', ImageBrowser): p17b:
+                p17b.content.experiment = main.experiment
+                p17b.content.analysis1 = main.experiment.shotBrowserAnalysis
             ScrollPage('Square ROI',  SquareROIContainer): p18:
                 p18.content.experiment = main.experiment
                 p18.content.analysis = main.experiment.squareROIAnalysis

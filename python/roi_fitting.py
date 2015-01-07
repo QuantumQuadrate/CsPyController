@@ -40,6 +40,7 @@ class GaussianROI(AnalysisWithFigure):
     enable_grid_fit = Bool()
     automatically_use_rois = Bool()
     enable_calculate_sums = Bool()
+    subtract_background = Bool()
 
     def __init__(self, name, experiment, rows=7, columns=7):
         super(GaussianROI, self).__init__(name, experiment, "a gaussian fit to the regions of interest")
@@ -47,7 +48,7 @@ class GaussianROI(AnalysisWithFigure):
         self.columns = columns
         self.properties += ['version', 'enable', 'useICA', 'shot', 'top', 'left', 'bottom', 'right', 'fitParams',
                             'fitCovariances', 'image_shape', 'rois', 'enable_grid_fit', 'automatically_use_rois',
-                            'enable_calculate_sums']
+                            'enable_calculate_sums', 'subtract_background']
 
     # define functions for a gaussian with various degrees of freedom
 
@@ -111,7 +112,9 @@ class GaussianROI(AnalysisWithFigure):
         if self.enable:
             # compile all images from the chosen shot over the whole iteration
             images = np.array([m['data/Hamamatsu/shots/'+str(self.shot)] for m in iterationResults['measurements'].itervalues()])
-            self.image_shape = images.shape[[1, 2]]
+            self.image_shape = (images.shape[1], images.shape[2])
+            if self.subtract_background:
+                images = images - self.experiment.imageSumAnalysis.background_array
             if self.enable_grid_fit:
                 # we use a big try block, and if there are any errors, just set the amplitude to 0 and move on
                 try:
