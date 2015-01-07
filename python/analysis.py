@@ -760,7 +760,7 @@ class HistogramGrid(AnalysisWithFigure):
 
     def __init__(self, name, experiment, description=''):
         super(HistogramGrid, self).__init__(name, experiment, description)
-        self.properties += ['enable', 'shot', 'roi_type'']
+        self.properties += ['enable', 'shot', 'roi_type']
 
     def preExperiment(self, experimentResults):
         if self.enable and self.experiment.saveData:
