@@ -443,8 +443,6 @@ class ImageSumAnalysis(AnalysisWithFigure):
                 self.sum_array = numpy.array([shot for shot in measurementResults['data/Hamamatsu/shots'].itervalues()], dtype=numpy.uint64)
                 self.count_array = numpy.zeros(len(self.sum_array), dtype=numpy.uint64)
                 self.mean_array = self.sum_array.astype(numpy.float64)
-                if self.subtract_background:
-                    self.mean_array -= self.background_array
 
             else:
                 #add new data
@@ -452,8 +450,6 @@ class ImageSumAnalysis(AnalysisWithFigure):
                     self.sum_array[i] += shot
                     self.count_array[i] += 1
                     self.mean_array[i] = self.sum_array[i]/self.count_array[i]
-                    if self.subtract_background:
-                        self.mean_array -= self.background_array
 
             #update the min/max that other image plots will use
             self.min = numpy.amin(self.mean_array) if (self.min_str == '') else float(self.min_str)
@@ -469,7 +465,7 @@ class ImageSumAnalysis(AnalysisWithFigure):
             # create image of all shots for pdf
             self.savefig(iterationResults.attrs['iteration'])
 
-    @observe('shot', 'showROIs')
+    @observe('shot', 'showROIs', 'subtract_background')
     def reload(self, change):
         self.updateFigure()
 
@@ -496,7 +492,12 @@ class ImageSumAnalysis(AnalysisWithFigure):
         if (self.mean_array is not None) and (shot < len(self.mean_array)):
             gs = GridSpec(1, 2, width_ratios=[20, 1])
             ax = fig.add_subplot(gs[0, 0])
-            im = ax.matshow(self.mean_array[shot], cmap=my_cmap)
+            if self.subtract_background:
+                data = self.mean_array[shot] - self.background_array
+            else:
+                data = self.mean_array[shot]
+
+            im = ax.matshow(data, cmap=my_cmap)
 
             #label plot
             fig.suptitle('{} shot {} mean'.format(self.experiment.experimentPath, shot))
