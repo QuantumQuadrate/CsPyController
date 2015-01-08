@@ -41,6 +41,7 @@ class GaussianROI(AnalysisWithFigure):
     automatically_use_rois = Bool()
     enable_calculate_sums = Bool()
     subtract_background = Bool()
+    cutoffs = Member()
 
     def __init__(self, name, experiment, rows=7, columns=7):
         super(GaussianROI, self).__init__(name, experiment, "a gaussian fit to the regions of interest")
@@ -48,7 +49,7 @@ class GaussianROI(AnalysisWithFigure):
         self.columns = columns
         self.properties += ['version', 'enable', 'useICA', 'shot', 'top', 'left', 'bottom', 'right', 'fitParams',
                             'fitCovariances', 'image_shape', 'rois', 'enable_grid_fit', 'automatically_use_rois',
-                            'enable_calculate_sums', 'subtract_background']
+                            'enable_calculate_sums', 'subtract_background', 'cutoffs']
 
     # define functions for a gaussian with various degrees of freedom
 
@@ -111,10 +112,12 @@ class GaussianROI(AnalysisWithFigure):
     def postIteration(self, iterationResults, experimentResults):
         if self.enable:
             # compile all images from the chosen shot over the whole iteration
-            images = np.array([m['data/Hamamatsu/shots/'+str(self.shot)] for m in iterationResults['measurements'].itervalues()])
+            #images = np.array([m['data/Hamamatsu/shots/'+str(self.shot)] for m in iterationResults['measurements'].itervalues()])
+            all_images = np.array([[s.value for s in m['data/Hamamatsu/shots'].itervalues()] for m in iterationResults['measurements'].itervalues()])
+            images = all_images[:, self.shot]
             self.image_shape = (images.shape[1], images.shape[2])
             if self.subtract_background:
-                images -= self.experiment.imageSumAnalysis.background_array
+                images = images - self.experiment.imageSumAnalysis.background_array
             if self.enable_grid_fit:
                 # we use a big try block, and if there are any errors, just set the amplitude to 0 and move on
                 try:
@@ -133,10 +136,10 @@ class GaussianROI(AnalysisWithFigure):
                 iterationResults['analysis/gaussian_roi/covariance_matrix'] = self.fitCovariances
 
             if self.enable_calculate_sums:
-                iterationResults['analysis/gaussian_roi/roi_sums'] = self.calculate_sums(images)
+                iterationResults['analysis/gaussian_roi/sums'] = self.calculate_sums(all_images)
 
     def calculate_sums(self, images):
-        a = images.reshape(images.shape[0], images.shape[1]*images.shape[2])
+        a = images.reshape(images.shape[0], images.shape[1], images.shape[2]*images.shape[3])
         data = np.dot(a, self.rois)
         return data
 
@@ -209,7 +212,7 @@ class GaussianROI(AnalysisWithFigure):
             # set the amplitude to 0 and move on
             logger.warning("Fit failed in GaussianROI:\n{}\n".format(e))
             fitParams = (0, 0, 0, 0, 0, 0, 0, 0, 0)
-            fitCovariances = np.zeros(1)
+            fitCovariances = np.zeros((9, 9))
             # --- save analysis ---
             return fitParams, fitCovariances
 

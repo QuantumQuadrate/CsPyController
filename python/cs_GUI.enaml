@@ -2267,7 +2267,7 @@ enamldef HistogramGrid(Container):
         CheckBox:
             checked := analysis.enable
         Label:
-            text = 'shot'
+            text = 'shot to display'
         SpinBox:
             value := analysis.shot
         Label:
@@ -2275,11 +2275,22 @@ enamldef HistogramGrid(Container):
         ComboBox:
             items = ['square','gaussian']
             index := analysis.roi_type
+        Label:
+            text = 'calculate new cutoffs'
+        CheckBox:
+            checked := analysis.calculate_new_cutoffs
+        Label:
+            text = 'automatically use new cutoffs'
+        CheckBox:
+            checked := analysis.automatically_use_cutoffs
+        Label:
+            text = 'shot to use for cutoffs'
+        SpinBox:
+            value := analysis.shot_to_use_for_cutoffs
         PushButton:
-            text = 'Use these cutoffs'
+            text = 'use new cutoffs'
             clicked ::
                 analysis.use_cutoffs()
-
     MPLCanvas:
         figure<<analysis.figure
 
@@ -2641,6 +2652,21 @@ template ScrollPage(Title, Content):
                 Content: content:
                     pass
 
+enamldef RetentionAnalysis(Container):
+    attr analysis
+
+    Label:
+        text = 'enable'
+    CheckBox:
+        checked := analysis.enable
+    Label:
+        text = 'roi type'
+    ComboBox
+        items = ['square','gaussian']
+        index := analysis.roi_type
+    Label:
+        text << analysis.text
+
 enamldef Main(MainWindow): main:
     attr experiment
     
@@ -2751,3 +2777,5 @@ enamldef Main(MainWindow): main:
                 p29.content.analysis = main.experiment.Ramsey
             ScrollPage('PID', PID): p30:
                 p30.content.PID = main.experiment.PID
+            ScrollPage('Retention Analysis', RetentionAnalysis): p31:
+                p31.content.analysis = main.experiment.retention_analysis

@@ -23,6 +23,7 @@ from enaml.application import deferred_call
 import threading, numpy, traceback, os
 np = numpy
 from scipy.optimize import curve_fit
+from scipy.special import erf
 
 from colors import my_cmap, green_cmap
 
@@ -594,6 +595,16 @@ class SquareROIAnalysis(AnalysisWithFigure):
             logger.warning('Camera expected {} shots, but did not get any.'.format(self.experiment.LabView.camera.shotsPerMeasurement.value))
             return 3  # hard fail, delete measurement
 
+    def analyzeIteration(self, iterationResults, experimentResults):
+        """
+        create a big array of the results from each measurement for convenience
+        data is stored in iterationResults['analysis/square_roi/sums']
+        as an array of size (measurements x shots x roi) array
+        """
+        measurements = map(int, iterationResults['measurements'].keys())
+        measurements.sort()
+        iterationResults['analysis/square_roi/sums'] = numpy.array([iterationResults['measurements/{}/analysis/squareROIsums'.format(m)] for m in measurements])
+
     def updateFigure(self):
         fig = self.backFigure
         fig.clf()
@@ -758,10 +769,12 @@ class HistogramGrid(AnalysisWithFigure):
     x_max = Member()
     y_max = Member()
     roi_type = Int(0)
+    calculate_new_cutoffs = Bool()
+    automatically_use_cutoffs = Bool()
 
     def __init__(self, name, experiment, description=''):
         super(HistogramGrid, self).__init__(name, experiment, description)
-        self.properties += ['enable', 'shot', 'roi_type']
+        self.properties += ['enable', 'shot', 'roi_type', 'calculate_new_cutoffs', 'automatically_use_cutoffs']
 
     def preExperiment(self, experimentResults):
         if self.enable and self.experiment.saveData:
@@ -780,13 +793,12 @@ class HistogramGrid(AnalysisWithFigure):
     def analyzeIteration(self, iterationResults, experimentResults):
         if self.enable:
             if self.roi_type == 0:  # square rois
-
                 # all_shots_array will be shape (measurements,shots,rois)
-                all_shots_array = numpy.array([m['analysis/squareROIsums'] for m in iterationResults['measurements'].itervalues()])
+                all_shots_array = iterationResults['analysis/square_roi/sums'].value
 
             elif self.roi_type == 1:  # gaussian rois
                 # all_shots_array will be shape (measurements,shots,rois)
-                all_shots_array = iterationResults['analysis/gaussian_roi/roi_sums'].value
+                all_shots_array = iterationResults['analysis/gaussian_roi/sums'].value
 
             else:
                 logger.error('invalid roi type {} in HistogramGrid.analyzeIteration'.format(self.roi_type))
@@ -794,6 +806,9 @@ class HistogramGrid(AnalysisWithFigure):
 
             # perform histogram calculations and fits on all shots and regions
             self.calculate_all_histograms(all_shots_array)
+
+            if self.automatically_use_cutoffs:
+                self.use_cutoffs()
 
             # save data to hdf5
             iterationResults['analysis/histogram_results'] = self.histogram_results
@@ -847,9 +862,16 @@ class HistogramGrid(AnalysisWithFigure):
         """Set the cutoffs.  Because they are stored in a numpy field, but we need to set them using a deferred_call,
         the whole ROI array is first copied, then updated, then written back to the squareROIAnalysis."""
 
-        a = self.experiment.squareROIAnalysis.ROIs.copy()
-        a['threshold'] = self.histogram_results[self.shot]['cutoff']
-        self.experiment.squareROIAnalysis.set_gui({'ROIs': a})
+        if self.roi_type == 0:  # square ROI
+            a = self.experiment.squareROIAnalysis.ROIs.copy()
+            a['threshold'] = self.histogram_results[self.shot_to_use_for_cutoffs]['cutoff']
+            self.experiment.squareROIAnalysis.set_gui({'ROIs': a})
+        elif self.roi_type == 1:  # gaussian ROI
+            self.experiment.gaussian_roi.cutoffs = self.histogram_results[self.shot_to_use_for_cutoffs]['cutoff']
+        else:
+            logger.warning('invalid roi type {} in HistogramGrid.calculate_histogram'.format(roi_type))
+            raise PauseError
+
 
     def calculate_all_histograms(self, all_shots_array):
         measurements, shots, rois = all_shots_array.shape
@@ -864,11 +886,24 @@ class HistogramGrid(AnalysisWithFigure):
                                 ('overlap', 'f8')])
         self.histogram_results = numpy.zeros((shots, rois), dtype=my_dtype)
 
-        # go through each shot and roi and calculate the histograms and guassian fits
+        # go through each shot and roi and calculate the histograms and gaussian fits
         for shot in xrange(shots):
             for roi in xrange(rois):
                 roidata = all_shots_array[:, shot, roi]
-                self.histogram_results[shot, roi] = self.calculate_histogram(roidata, self.bins)
+
+                # get old cutoffs
+                if self.calculate_new_cutoffs:
+                    cutoff = None
+                else:
+                    if self.roi_type == 0:  # square ROI
+                        cutoff = self.experiment.squareROIAnalysis.ROIs[roi]['threshold']
+                    elif self.roi_type == 1:  # gaussian ROI
+                        cutoff = self.experiment.gaussian_roi.cutoffs[roi]
+                    else:
+                        logger.warning('invalid roi type {} in HistogramGrid.calculate_histogram'.format(roi_type))
+                        raise PauseError
+
+                self.histogram_results[shot, roi] = self.calculate_histogram(roidata, self.bins, cutoff)
                 # these all have the same number of measurements, so they will all have the same size
 
         # find the min and max
@@ -876,9 +911,11 @@ class HistogramGrid(AnalysisWithFigure):
         self.x_max = numpy.amax(all_shots_array)
         self.y_max = numpy.amax(self.histogram_results['histogram'])
 
+        # TODO: use this instead of the numerical way
+        # TODO: do analytical overlap and loading also in a vectorized fashion
         # an analytic way of doing the cutoff finding
-        r = self.histogram_results
-        cutoff_analytic = self.analytic_cutoff(r['mean1'], r['mean2'], r['width1'], r['width2'], r['amplitude1'], r['amplitude2'])
+        #r = self.histogram_results
+        #cutoff_analytic = self.analytic_cutoff(r['mean1'], r['mean2'], r['width1'], r['width2'], r['amplitude1'], r['amplitude2'])
 
     def gaussian1D(self, x, x0, a, w):
         """returns the height of a gaussian (with mean x0, amplitude, a and width w) at the value(s) x"""
@@ -889,64 +926,107 @@ class HistogramGrid(AnalysisWithFigure):
     def two_gaussians(self, x, x0, a0, w0, x1, a1, w1):
         return self.gaussian1D(x, x0, a0, w0) + self.gaussian1D(x, x1, a1, w1)
 
-    def calculate_histogram(self, ROI_sums, bins):
+    def calculate_histogram(self, ROI_sums, bins, cutoff=None):
         """Takes in ROI_sums which is size (measurements) and contains the data to be histogrammed.
         """
 
         # first numerically take histograms
         hist, bin_edges = numpy.histogram(ROI_sums, bins=bins)
-
         bin_size = (bin_edges[1:]-bin_edges[:-1])
-        x = (bin_edges[1:]+bin_edges[:-1])/2  # take center of each bin as test points (same in number as y)
         y = hist
-        best_error = float('inf')
 
-        # use the bin edges as possible cutoff locations
-        # now go through each possible cutoff location and fit a gaussian above and below
-        # see which cutoff is the best fit
-        for j in xrange(1, bins-1):  # leave off 0th and last bin edge to prevent divide by zero on one of the gaussian sums
+        if cutoff == None:  # find a new cutoff
 
-            #fit a gaussian below the cutoff
-            mean1 = numpy.sum(x[:j]*y[:j])/numpy.sum(y[:j])
-            r1 = numpy.sqrt((x[:j]-mean1)**2)  # an array of distances from the mean
-            width1 = numpy.sqrt(numpy.abs(numpy.sum((r1**2)*y[:j])/numpy.sum(y[:j])))  # the standard deviation
-            amplitude1 = numpy.sum(y[:j]*bin_size[:j])  # area under gaussian is 1, so scale by total volume (i.e. the sum of y)
+            x = (bin_edges[1:]+bin_edges[:-1])/2  # take center of each bin as test points (same in number as y)
+            best_error = float('inf')
+
+            #TODO: instead of bin edges, use unbinned data for gaussian fits, and consider all datapoints as possible cutoffs
+
+            # use the bin edges as possible cutoff locations
+            # now go through each possible cutoff location and fit a gaussian above and below
+            # see which cutoff is the best fit
+            for j in xrange(1, bins-1):  # leave off 0th and last bin edge to prevent divide by zero on one of the gaussian sums
+
+                #fit a gaussian below the cutoff
+                mean1 = numpy.sum(x[:j]*y[:j])/numpy.sum(y[:j])
+                r1 = numpy.sqrt((x[:j]-mean1)**2)  # an array of distances from the mean
+                width1 = numpy.sqrt(numpy.abs(numpy.sum((r1**2)*y[:j])/numpy.sum(y[:j])))  # the standard deviation
+                amplitude1 = numpy.sum(y[:j]*bin_size[:j])  # area under gaussian is 1, so scale by total volume (i.e. the sum of y)
+                g1 = self.gaussian1D(x, mean1, amplitude1, width1)
+
+                # fit a gaussian above the cutoff
+                mean2 = numpy.sum(x[j:]*y[j:])/numpy.sum(y[j:])
+                r2 = numpy.sqrt((x[j:]-mean2)**2) #an array of distances from the mean
+                width2 = numpy.sqrt(numpy.abs(numpy.sum((r2**2)*y[j:])/numpy.sum(y[j:]))) #the standard deviation
+                amplitude2 = numpy.sum(y[j:]*bin_size[j:]) #area under gaussian is 1, so scale by total volume (i.e. the sum of y * step size)
+                g2 = self.gaussian1D(x, mean2, amplitude2, width2)
+
+                #find the total error
+                error = numpy.sum(numpy.abs(y-g1-g2))
+                if error < best_error:
+                    best_error = error
+                    best_mean1 = mean1
+                    best_mean2 = mean2
+                    best_width1 = width1
+                    best_width2 = width2
+                    best_amplitude1 = amplitude1
+                    best_amplitude2 = amplitude2
+
+            # find a better cutoff
+            # the cutoff found is for the digital data, not necessarily the best in terms of the gaussian fits
+            # to find a better cutoff:
+            # find the lowest point on the sum of the two gaussians
+            # go in steps of 1 from peak to peak
+            # TODO: do this analytically
+            xc = numpy.arange(best_mean1, best_mean2)
+            y1 = self.gaussian1D(xc, best_mean1, best_amplitude1, best_width1)
+            y2 = self.gaussian1D(xc, best_mean2, best_amplitude2, best_width2)
+            yc = y1 + y2
+            cutoff = xc[numpy.argmin(yc)]
+
+            # calculalate the overlap (non-analytic, so this is deprecated)
+            # mins = numpy.amin([y1, y2], axis=0)
+            # overlap = numpy.sum(mins) / (numpy.sum(y1) + numpy.sum(y2))
+
+        else:  # use the existing cutoff, unbinned data
+
+            x = ROI_sums
+
+            below = x[x < cutoff]
+            above = x[x >= cutoff]
+
+            mean1 = numpy.mean(below)
+            mean2 = numpy.mean(above)
+            width1 = numpy.std(below)
+            width2 = numpy.std(above)
+
+            bin_size = numpy.mean(bin_size)
+            amplitude1 = len(below) * bin_size
+            amplitude2 = len(above) * bin_size
+
             g1 = self.gaussian1D(x, mean1, amplitude1, width1)
-
-            # fit a gaussian above the cutoff
-            mean2 = numpy.sum(x[j:]*y[j:])/numpy.sum(y[j:])
-            r2 = numpy.sqrt((x[j:]-mean2)**2) #an array of distances from the mean
-            width2 = numpy.sqrt(numpy.abs(numpy.sum((r2**2)*y[j:])/numpy.sum(y[j:]))) #the standard deviation
-            amplitude2 = numpy.sum(y[j:]*bin_size[j:]) #area under gaussian is 1, so scale by total volume (i.e. the sum of y * step size)
             g2 = self.gaussian1D(x, mean2, amplitude2, width2)
 
             #find the total error
             error = numpy.sum(numpy.abs(y-g1-g2))
-            if error < best_error:
-                best_error = error
-                best_mean1 = mean1
-                best_mean2 = mean2
-                best_width1 = width1
-                best_width2 = width2
-                best_amplitude1 = amplitude1
-                best_amplitude2 = amplitude2
 
-        # the cutoff found is for the digital data, not necessarily the best in terms of the gaussian fits
-        # to find a better cutoff:
-        # find the lowest point on the sum of the two gaussians
-        # go in steps of 1 from peak to peak
-        xc = numpy.arange(best_mean1, best_mean2)
-        y1 = self.gaussian1D(xc, best_mean1, best_amplitude1, best_width1)
-        y2 = self.gaussian1D(xc, best_mean2, best_amplitude2, best_width2)
-        yc = y1 + y2
-        cutoff = xc[numpy.argmin(yc)]
+            # we only have one cutoff test here, so use it
+            best_error = error
+            best_mean1 = mean1
+            best_mean2 = mean2
+            best_width1 = width1
+            best_width2 = width2
+            best_amplitude1 = amplitude1
+            best_amplitude2 = amplitude2
 
         # calculate the loading
         loading = best_amplitude2/(best_amplitude1+best_amplitude2)
 
-        #calculalate the overlap
-        mins = numpy.amin([y1, y2], axis=0)
-        overlap = numpy.sum(mins) / (numpy.sum(y1) + numpy.sum(y2))
+        # calculalate the overlap
+        # use the cumulative normal distribution function to get the overlap analytically
+        overlap1 = .5*(1 + erf((best_mean1-cutoff)/(best_width1*np.sqrt(2))))
+        overlap2 = .5*(1 + erf((cutoff-best_mean2)/(best_width2*np.sqrt(2))))
+        overlap = (overlap1*best_amplitude1 + overlap2*best_amplitude2) / (best_amplitude1 + best_amplitude2)
 
         return hist, bin_edges, best_error, best_mean1, best_mean2, best_width1, best_width2, best_amplitude1, best_amplitude2, cutoff, loading, overlap
 
@@ -973,7 +1053,6 @@ class HistogramGrid(AnalysisWithFigure):
 
     def intersection_of_two_gaussians_of_equal_width(self, x1, x2, w1, w2, a1, a2):
         return (- x1**2 + x2**2 + w1**2/2*numpy.log(a1/a2))/(2*(x2-x1))
-
 
     def intersection_of_two_gaussians(self, x1, x2, w1, w2, a1, a2):
         a = w2**2*x1 - w1**2*x2
@@ -1516,3 +1595,66 @@ class Ramsey(AnalysisWithFigure):
             super(Ramsey, self).updateFigure()
         except Exception as e:
             logger.warning('Problem in Ramsey.updateFigure()\n{}\n{}\n'.format(e, traceback.format_exc()))
+
+class RetentionAnalysis(Analysis):
+    #Text output that can be updated back to the GUI
+    enable = Bool()
+    text = Str()
+    roi_type = Int()
+
+    def __init__(self, name, experiment, description=''):
+        super(RetentionAnalysis, self).__init__(name, experiment, description)
+        self.properties += ['enable', 'text']
+
+    def analyzeIteration(self, iterationResults, experimentResults):
+        if self.enable:
+            if self.roi_type == 0:  # square roi
+                cutoffs = self.experiment.squareROIAnalysis.ROIs['threshold']
+                ROI_sums = iterationResults['analysis/square_roi/sums'].value
+            elif self.roi_type == 1:  # gaussian roi
+                cutoffs = self.experiment.gaussian_roi.cutoffs
+                ROI_sums = iterationResults['analysis/gaussian_roi/sums'].value
+            else:
+                logger.warning('invalid roi type {} in RetentionAnalysis.analyzeIteration'.format(roi_type))
+
+            loaded, retained, reloaded, loading, retention, reloading, text = self.retention(cutoffs, ROI_sums)
+
+            iterationResults['analysis/loading_retention/loaded'] = loaded
+            iterationResults['analysis/loading_retention/retained'] = retained
+            iterationResults['analysis/loading_retention/reloaded'] = reloaded
+            iterationResults['analysis/loading_retention/loading'] = loading
+            iterationResults['analysis/loading_retention/retention'] = retention
+            iterationResults['analysis/loading_retention/reloading'] = reloading
+            iterationResults['analysis/loading_retention/text'] = text
+
+            self.set_gui({'text': text})
+
+    def retention(self, cutoffs, ROI_sums, rows=7, columns=7):
+        # cutoffs has shape (rois)
+        # ROI_sums has shape (measurements, shots, rois)
+
+        total = ROI_sums.shape[0]
+
+        # make a boolean array of loading
+        atoms = ROI_sums >= cutoffs
+        # find the loading for each roi
+        loaded = numpy.sum(atoms[:,0,:], axis=0)
+        # find the retention for each roi
+        retained = numpy.sum(numpy.logical_and(atoms[:,0,:], atoms[:,1,:]), axis=0)
+        # find the number of reloaded atoms
+        reloaded = numpy.sum(numpy.logical_and(numpy.logical_not(atoms[:,0,:]), atoms[:,1,:]), axis=0)
+
+        loading = loaded/total
+        retention = retained/loaded
+        reloading = reloaded/total
+
+        # write results to string
+        output = 'total: ' + str(total) +'\n'
+        output += 'loading:\n' + '\n'.join(['\t'.join(map(lambda x: '{:.3f}'.format(x), loading[row*columns:(row+1)*columns])) for row in xrange(rows)]) + '\n'
+        output += 'retention:\n' + '\n'.join(['\t'.join(map(lambda x: '{:.3f}'.format(x), retention[row*columns:(row+1)*columns])) for row in xrange(rows)]) + '\n'
+        output += 'reloading:\n' + '\n'.join(['\t'.join(map(lambda x: '{:.3f}'.format(x), reloading[row*columns:(row+1)*columns])) for row in xrange(rows)]) + '\n'
+        output += 'max retention {:.3f}\n'.format(numpy.max(retained/loaded))
+        output += 'avg retention {:.3f}'.format(numpy.mean(retained/loaded))
+
+        return loaded, retained, reloaded, loading, retention, reloading, output
+
