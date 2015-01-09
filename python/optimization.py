@@ -156,7 +156,7 @@ class Optimization(AnalysisWithFigure):
                 self.experiment.Ramsey.optimizer_update_guess()
 
             # update the gui
-            self.set_dict({'yi_str': str(self.yi), 'best_yi_str': str(self.best_yi)})
+            self.set_gui({'yi_str': str(self.yi), 'best_yi_str': str(self.best_yi)})
 
             # let the generator decide on the next point to look at
             try:

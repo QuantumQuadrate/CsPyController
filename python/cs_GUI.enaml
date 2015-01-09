@@ -2524,7 +2524,7 @@ enamldef Optimizer(Container):
         Label:
             text='cost function'
         MultilineField:
-            constraints=[height==300]
+            #constraints=[height==300]
             text:=experiment.optimizer.cost_function
 
         Label:

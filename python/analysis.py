@@ -1605,7 +1605,7 @@ class RetentionAnalysis(Analysis):
 
     def __init__(self, name, experiment, description=''):
         super(RetentionAnalysis, self).__init__(name, experiment, description)
-        self.properties += ['enable', 'text']
+        self.properties += ['enable', 'text', 'roi_type']
 
     def analyzeIteration(self, iterationResults, experimentResults):
         if self.enable:
