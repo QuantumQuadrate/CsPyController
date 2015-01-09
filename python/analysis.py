@@ -771,10 +771,11 @@ class HistogramGrid(AnalysisWithFigure):
     roi_type = Int(0)
     calculate_new_cutoffs = Bool()
     automatically_use_cutoffs = Bool()
+    shot_to_use_for_cutoffs = Bool()
 
     def __init__(self, name, experiment, description=''):
         super(HistogramGrid, self).__init__(name, experiment, description)
-        self.properties += ['enable', 'shot', 'roi_type', 'calculate_new_cutoffs', 'automatically_use_cutoffs']
+        self.properties += ['enable', 'shot', 'roi_type', 'calculate_new_cutoffs', 'automatically_use_cutoffs', 'shot_to_use_for_cutoffs']
 
     def preExperiment(self, experimentResults):
         if self.enable and self.experiment.saveData:

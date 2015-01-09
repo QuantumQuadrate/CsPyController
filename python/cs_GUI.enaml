@@ -2655,17 +2655,18 @@ template ScrollPage(Title, Content):
 enamldef RetentionAnalysis(Container):
     attr analysis
 
-    Label:
-        text = 'enable'
-    CheckBox:
-        checked := analysis.enable
-    Label:
-        text = 'roi type'
-    ComboBox
-        items = ['square','gaussian']
-        index := analysis.roi_type
-    Label:
-        text << analysis.text
+    Form:
+        Label:
+            text = 'enable'
+        CheckBox:
+            checked := analysis.enable
+        Label:
+            text = 'roi type'
+        ComboBox:
+            items = ['square','gaussian']
+            index := analysis.roi_type
+        Label:
+            text << analysis.text
 
 enamldef Main(MainWindow): main:
     attr experiment
