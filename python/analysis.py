@@ -1005,10 +1005,10 @@ class HistogramGrid(AnalysisWithFigure):
             amplitude1 = len(below) * bin_size
             amplitude2 = len(above) * bin_size
 
+            # find the fit error to the histogram
+            x = (bin_edges[1:]+bin_edges[:-1])/2  # take center of each bin as test points (same in number as y)
             g1 = self.gaussian1D(x, mean1, amplitude1, width1)
             g2 = self.gaussian1D(x, mean2, amplitude2, width2)
-
-            #find the total error
             error = numpy.sum(numpy.abs(y-g1-g2))
 
             # we only have one cutoff test here, so use it
@@ -1025,6 +1025,7 @@ class HistogramGrid(AnalysisWithFigure):
 
         # calculalate the overlap
         # use the cumulative normal distribution function to get the overlap analytically
+        # see MTL thesis for derivation
         overlap1 = .5*(1 + erf((best_mean1-cutoff)/(best_width1*np.sqrt(2))))
         overlap2 = .5*(1 + erf((cutoff-best_mean2)/(best_width2*np.sqrt(2))))
         overlap = (overlap1*best_amplitude1 + overlap2*best_amplitude2) / (best_amplitude1 + best_amplitude2)
@@ -1093,8 +1094,10 @@ class HistogramGrid(AnalysisWithFigure):
         x2 = np.insert(x2, 0, data['cutoff'])  # add the cutoff to the beginning of the 2nd patch
         y2 = y[xc-1:]
 
-        self.histogram_patch(ax, x1, y1, 'b')  # plot the 0 atom peak in blue
-        self.histogram_patch(ax, x2, y2, 'r')  # plot the 1 atom peak in red
+        if len(x1) > 1:  # only draw if there is some data (not including cutoff)
+            self.histogram_patch(ax, x1, y1, 'b')  # plot the 0 atom peak in blue
+        if len(x2) > 1:  # only draw if there is some data (not including cutoff)
+            self.histogram_patch(ax, x2, y2, 'r')  # plot the 1 atom peak in red
 
     def histogram_grid_plot(self, fig, shot, font=8):
         """Plot a grid of histograms in the same shape as the ROIs."""

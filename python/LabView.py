@@ -85,9 +85,9 @@ class LabView(Instrument):
         
         self.timeout = FloatProp('timeout', experiment, 'how long before LabView gives up and returns [s]', '1.0')
         
-        self.properties += ['IP', 'port', 'connected', 'timeout', 'AnalogOutput', 'AnalogInput', 'HSDIO', 'DDS',
+        self.properties += ['IP', 'port', 'timeout', 'AnalogOutput', 'AnalogInput', 'HSDIO', 'DDS',
                             'piezo', 'RF_generators', 'DAQmxDO', 'camera', 'TTL', 'cycleContinuously']
-        self.doNotSendToHardware += ['IP', 'port', 'enable', 'connected']
+        self.doNotSendToHardware += ['IP', 'port', 'enable']
 
     def openThread(self):
         thread = threading.Thread(target=self.initialize)
