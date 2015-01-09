@@ -1650,12 +1650,13 @@ class RetentionAnalysis(Analysis):
         reloading = reloaded/total
 
         # write results to string
-        output = 'total: ' + str(total) +'\n'
-        output += 'loading:\n' + '\n'.join(['\t'.join(map(lambda x: '{:.3f}'.format(x), loading[row*columns:(row+1)*columns])) for row in xrange(rows)]) + '\n'
-        output += 'retention:\n' + '\n'.join(['\t'.join(map(lambda x: '{:.3f}'.format(x), retention[row*columns:(row+1)*columns])) for row in xrange(rows)]) + '\n'
-        output += 'reloading:\n' + '\n'.join(['\t'.join(map(lambda x: '{:.3f}'.format(x), reloading[row*columns:(row+1)*columns])) for row in xrange(rows)]) + '\n'
-        output += 'max retention {:.3f}\n'.format(numpy.max(retained/loaded))
-        output += 'avg retention {:.3f}'.format(numpy.mean(retained/loaded))
+        output = 'total: ' + str(total) +'\n\n'
+        output += 'loading:\tmax {:.3f},\tavg {:.3f}\n'.format(numpy.max(loading), numpy.mean(loading))
+        output += '\n'.join(['\t'.join(map(lambda x: '{:.3f}'.format(x), loading[row*columns:(row+1)*columns])) for row in xrange(rows)]) + '\n\n'
+        output += 'retention:\tmax {:.3f},\tavg {:.3f}\n'.format(numpy.max(retention), numpy.mean(retention))
+        output += '\n'.join(['\t'.join(map(lambda x: '{:.3f}'.format(x), retention[row*columns:(row+1)*columns])) for row in xrange(rows)]) + '\n\n'
+        output += 'reloading:\tmax {:.3f},\tavg {:.3f}\n'.format(numpy.max(reloading), numpy.mean(reloading))
+        output += '\n'.join(['\t'.join(map(lambda x: '{:.3f}'.format(x), reloading[row*columns:(row+1)*columns])) for row in xrange(rows)]) + '\n'
 
         return loaded, retained, reloaded, loading, retention, reloading, output
 
