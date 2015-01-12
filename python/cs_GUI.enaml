@@ -2515,7 +2515,7 @@ enamldef Optimizer(Container):
             Label:
                 text = 'Initial gradient step size (fraction)'
             FloatField:
-                value := analysis.gradient_initial_step
+                value := analysis.line_search_initial_step
             Label:
                 text='End when step size is less than (fraction)'
             FloatField:
