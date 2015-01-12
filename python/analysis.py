@@ -771,11 +771,12 @@ class HistogramGrid(AnalysisWithFigure):
     roi_type = Int(0)
     calculate_new_cutoffs = Bool()
     automatically_use_cutoffs = Bool()
-    shot_to_use_for_cutoffs = Bool()
+    cutoff_shot_mapping = Str()
 
     def __init__(self, name, experiment, description=''):
         super(HistogramGrid, self).__init__(name, experiment, description)
-        self.properties += ['enable', 'shot', 'roi_type', 'calculate_new_cutoffs', 'automatically_use_cutoffs', 'shot_to_use_for_cutoffs']
+        self.properties += ['enable', 'shot', 'roi_type', 'calculate_new_cutoffs', 'automatically_use_cutoffs',
+                            'cutoff_shot_mapping']
 
     def preExperiment(self, experimentResults):
         if self.enable and self.experiment.saveData:
@@ -865,10 +866,17 @@ class HistogramGrid(AnalysisWithFigure):
 
         if self.roi_type == 0:  # square ROI
             a = self.experiment.squareROIAnalysis.ROIs.copy()
-            a['threshold'] = self.histogram_results[self.shot_to_use_for_cutoffs]['cutoff']
+            a['threshold'] = self.histogram_results[self.cutoff_shot_mapping[0]]['cutoff']
             self.experiment.squareROIAnalysis.set_gui({'ROIs': a})
         elif self.roi_type == 1:  # gaussian ROI
-            self.experiment.gaussian_roi.cutoffs = self.histogram_results[self.shot_to_use_for_cutoffs]['cutoff']
+            self.experiment.gaussian_roi.cutoffs = np.zeros(self.histogram_results['cutoff'].shape)
+            try:
+                mapping = eval(self.cutoff_shot_mapping)
+            except:
+                logger.warning('Error evaluating HistogramGrid cutoff_shot_mapping')
+                return
+            for i, x in enumerate(mapping):
+                self.experiment.gaussian_roi.cutoffs[i] = self.histogram_results['cutoff'][x]
         else:
             logger.warning('invalid roi type {} in HistogramGrid.calculate_histogram'.format(roi_type))
             raise PauseError
@@ -1112,14 +1120,14 @@ class HistogramGrid(AnalysisWithFigure):
         #make histograms for each site
         for i in xrange(rows):
             for j in xrange(columns):
-                # choose correct saved data
-                n = columns*i+j
-                data = self.histogram_results[shot, n]
-
-                # create new plot
-                ax = fig.add_subplot(gs1[i, j])
-
                 try:
+                    # choose correct saved data
+                    n = columns*i+j
+                    data = self.histogram_results[shot, n]
+
+                    # create new plot
+                    ax = fig.add_subplot(gs1[i, j])
+
                     self.two_color_histogram(ax, data)
 
                     ax.set_xlim([self.x_min, self.x_max])

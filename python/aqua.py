@@ -43,6 +43,7 @@ class AQuA(Experiment):
     DC_noise_eater_filter = Member()
     Ramsey = Member()
     retention_analysis = Member()
+    save_notes = Member()
     save2013Analysis = Member()
     ROI_rows = 7
     ROI_columns = 7
@@ -80,13 +81,15 @@ class AQuA(Experiment):
         self.DC_noise_eater_filter = DCNoiseEater.DCNoiseEaterFilter('DC_noise_eater_filter', self, 'DC Noise Eater Filter')
         self.Ramsey = analysis.Ramsey('Ramsey', self, 'Fit a cosine to retention results')
         self.retention_analysis = analysis.RetentionAnalysis('retention_analysis', self, 'calculate the loading and retention')
+        self.save_notes = save2013style.SaveNotes('save_notes', self, 'save a separate notes.txt')
         self.save2013Analysis = save2013style.Save2013Analysis(self)
         self.analyses += [self.TTL_filters, self.AI_graph, self.AI_filter, self.squareROIAnalysis, self.gaussian_roi,
                           self.loading_filters, self.first_measurements_filter, self.text_analysis,
                           self.imageSumAnalysis, self.recent_shot_analysis, self.shotBrowserAnalysis,
                           self.histogramAnalysis, self.histogram_grid, self.measurements_graph, self.iterations_graph,
                           self.retention_graph, self.andor_viewer, self.DC_noise_eater_graph,
-                          self.DC_noise_eater_filter, self.Ramsey, self.retention_analysis, self.save2013Analysis]
+                          self.DC_noise_eater_filter, self.Ramsey, self.retention_analysis, self.save_notes,
+                          self.save2013Analysis]
 
         self.properties += ['LabView', 'picomotors', 'Andor', 'DC_noise_eaters', 'box_temperature',
                             'squareROIAnalysis', 'gaussian_roi', 'TTL_filters', 'AI_graph', 'AI_filter', 'loading_filters',

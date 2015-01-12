@@ -12,6 +12,14 @@ import os, numpy, time, shutil
 import png, itertools #for PyPNG support
 from atom.api import Bool, Member, Str
 
+class SaveNotes(Analysis):
+    def finalize(self, experimentResults):
+        if self.experiment.saveData and self.experiment.save_separate_notes:
+            # notes.txt
+            with open(os.path.join(self.experiment.path, 'notes.txt'), 'a') as f:
+                f.write(self.experiment.notes)
+
+
 class Save2013Analysis(Analysis):
     updateBeforeExperiment=Bool(True)
     updateAfterMeasurement=Bool(True)
@@ -123,7 +131,7 @@ class Save2013Analysis(Analysis):
             with open(os.path.join(self.experiment.path, 'error_log.txt'), 'a') as f:
                 f.write(self.experiment.LabView.log)
 
-            #notes.txt
+            # notes.txt
             with open(os.path.join(self.experiment.path, 'notes.txt'), 'a') as f:
                 f.write(self.experiment.notes)
 

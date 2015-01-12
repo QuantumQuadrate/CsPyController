@@ -428,6 +428,10 @@ enamldef ExperimentPage(Container):
         CheckBox:
             checked:=experiment.saveSettings
 
+        Label: text='Save separate notes.txt?'
+        CheckBox:
+            checked:=experiment.save_separate_notes
+
         Label: text='Save 2013 style files?'
         CheckBox:
             checked:=experiment.save2013styleFiles
@@ -2155,6 +2159,10 @@ enamldef GaussianROI(Container):
         CheckBox:
             checked := analysis.subtract_background
         Label:
+            text = 'subtract background from sums?'
+        CheckBox:
+            checked := analysis.subtract_background_from_sums
+        Label:
             text = 'clean up image with ICA?'
         CheckBox:
             checked := analysis.useICA
@@ -2284,9 +2292,9 @@ enamldef HistogramGrid(Container):
         CheckBox:
             checked := analysis.automatically_use_cutoffs
         Label:
-            text = 'shot to use for cutoffs'
-        SpinBox:
-            value := analysis.shot_to_use_for_cutoffs
+            text = 'cutoff shot mapping list: [shot 0, shot 1, ...] (i.e. [1, 1] to always use shot 1 cutoffs)'
+        Field:
+            text := analysis.cutoff_shot_mapping
         PushButton:
             text = 'use new cutoffs'
             clicked ::
@@ -2323,6 +2331,10 @@ enamldef IterationsGraph(Container):
             text = 'specify shots and regions to graph with a list of pairs: [(shot,region),(shot,region)]'
         Field:
             text := analysis.list_of_what_to_plot
+        Label:
+            text = 'update every measurement? (if not, only update at end of iteration)'
+        CheckBox:
+            checked :=
     HGroup:
         align_widths = False
         Label: l5:

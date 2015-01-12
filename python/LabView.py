@@ -236,7 +236,7 @@ class LabView(Instrument):
             logger.debug('Labview waiting for response ...')
             try:
                 rawdata = self.sock.receive()
-            except IOError:
+            except IOError as e:
                 logger.warning('Timeout while waiting for LabView to return data in LabView.send():\n{}\n'.format(e))
                 self.connected = False
                 raise PauseError

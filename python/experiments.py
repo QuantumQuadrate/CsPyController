@@ -105,6 +105,7 @@ class Experiment(Prop):
     saveData = Bool()
     saveSettings = Bool()
     settings_path = Str()
+    save_separate_notes = Bool()
     save2013styleFiles = Bool()
     localDataPath = Str()
     networkDataPath = Str()
@@ -209,14 +210,14 @@ class Experiment(Prop):
 
         self.properties += ['version', 'constantsStr', 'independentVariables', 'dependentVariablesStr',
                             'pauseAfterIteration', 'pauseAfterMeasurement', 'pauseAfterError', 'saveData',
-                            'saveSettings', 'settings_path', 'save2013styleFiles', 'localDataPath', 'networkDataPath',
-                            'copyDataToNetwork', 'experimentDescriptionFilenameSuffix', 'measurementTimeout',
-                            'measurementsPerIteration', 'willSendEmail', 'emailAddresses', 'progress', 'progressGUI',
-                            'iteration', 'measurement', 'goodMeasurements', 'totalIterations', 'timeStarted',
-                            'currentTime', 'timeElapsed', 'timeRemaining', 'totalTime', 'completionTime',
-                            'constantReport', 'variableReport', 'variablesNotToSave', 'notes', 'max_iterations',
-                            'enable_sounds', 'enable_instrument_threads', 'optimizer', 'optimizer_count',
-                            'optimizer_iteration_count']
+                            'saveSettings', 'settings_path', 'save_separate_notes', 'save2013styleFiles',
+                            'localDataPath', 'networkDataPath', 'copyDataToNetwork',
+                            'experimentDescriptionFilenameSuffix', 'measurementTimeout', 'measurementsPerIteration',
+                            'willSendEmail', 'emailAddresses', 'progress', 'progressGUI', 'iteration', 'measurement',
+                            'goodMeasurements', 'totalIterations', 'timeStarted', 'currentTime', 'timeElapsed',
+                            'timeRemaining', 'totalTime', 'completionTime', 'constantReport', 'variableReport',
+                            'variablesNotToSave', 'notes', 'max_iterations', 'enable_sounds',
+                            'enable_instrument_threads', 'optimizer', 'optimizer_count', 'optimizer_iteration_count']
         #we do not load in status as a variable, to allow old settings to be loaded without bringing in the status of
         #the saved experiments
 
