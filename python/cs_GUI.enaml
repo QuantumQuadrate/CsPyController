@@ -1520,40 +1520,35 @@ enamldef Andor(Container):
     attr camera
     attr analysis
 
+    MPLCanvas:
+        figure << analysis.figure
     HGroup:
-        Container:
-            hug_height = 'strong'
-            hug_width = 'strong'
-            LabelBox:
-                text = 'enable'
-                checked := camera.enable
-            HGroup:
-                PushButton:
-                    text = 'video mode'
-                    clicked :: camera.setup_video(analysis)
-                PushButton:
-                    text = 'stop video'
-                    clicked :: camera.stop_video()
-            EvalProp:
-                prop << camera.EMCCDGain
-            EvalProp:
-                prop << camera.preAmpGain
-            EvalProp:
-                prop << camera.exposureTime
-            ComboBox:
-                items = ['Edge', 'Level']
-                index := camera.triggerMode
-            EvalProp:
-                prop<<camera.shotsPerMeasurement
-        Container:
-            MPLCanvas:
-                figure << analysis.figure
-            Form:
-                Label:
-                    text = 'shot'
-                SpinBox: shot:
-                    minimum=0
-                    value := analysis.shot
+        PushButton:
+            text = 'video mode'
+            clicked :: camera.setup_video_thread(analysis)
+        PushButton:
+            text = 'stop video'
+            clicked :: camera.stop_video()
+    LabelBox:
+        text = 'enable'
+        checked := camera.enable
+    EvalProp:
+        prop << camera.EMCCDGain
+    EvalProp:
+        prop << camera.preAmpGain
+    EvalProp:
+        prop << camera.exposureTime
+    ComboBox:
+        items = ['Edge', 'Level']
+        index := camera.triggerMode
+    EvalProp:
+        prop<<camera.shotsPerMeasurement
+    Form:
+        Label:
+            text = 'shot'
+        SpinBox: shot:
+            minimum=0
+            value := analysis.shot
 
 enamldef FiltersPage(Page):
     title = 'Filters'
@@ -2100,6 +2095,11 @@ enamldef SquareROIContainer(Container):
     hug_width='ignore'
     constraints=[hbox(dynoCont,canvas),align('top',dynoCont,canvas)]
     Container: dynoCont:
+        Form:
+            Label:
+                text = 'enable'
+            CheckBox:
+                checked := analysis.enable
         Container:
             hug_height='strong'
             hug_width='strong'
@@ -2334,7 +2334,7 @@ enamldef IterationsGraph(Container):
         Label:
             text = 'update every measurement? (if not, only update at end of iteration)'
         CheckBox:
-            checked :=
+            checked := analysis.update_every_measurement
     HGroup:
         align_widths = False
         Label: l5:

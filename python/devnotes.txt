@@ -5,7 +5,9 @@ TCP ports: 9000 LabView, 9001 Laird box temp
 current question:
 
 TODO:
-    Add 'iterations' to two-layer optimizer directory so that 'analysis' can be separate
+    Use analytic methods as much as possible in HistogramGrid, and make it completely tolerant against bad data
+    Make it so iterationsGraph can be made to only update on iterations, not measurements, if wanted
+    Make ctrl+Q halt
     Implement arbitrary end conditions for iterations (for example so that you can make sure each site loads at least n times)
     Make PDFs display okay by using Figure.set_dpi(val) and Figure.set_figsize_inches( (w,h) ).  It is likely that Enaml is resizing your figure pixel size, without chaning the inch size, so that the dpi is forced to change.  Should savefig(..., dpi=fig.dpi) to try to cure.
     Make software not screw up during save2013style with 0 independent variables
@@ -38,7 +40,6 @@ TODO:
     Array piezo settings
     Restart crashed experiment (Use separate load experiment?)
     Allow for choosing current ivar indices, and ordering
-    Make ctrl+Q halt
     Blank middle image on bad selector
     Make sure to use deferred_call everywhere necessary
     make histogram grid filled gaussians go down to the bottom, even if they get cut off on the end
@@ -47,6 +48,7 @@ TODO:
     Use Atom ContainerList instead of List to put listeners on append and delete
 
 Done:
+    Add 'iterations' to two-layer optimizer directory so that 'analysis' can be separate
     use hdf5 hard links to create optimization sub-experiments
     optimizer exits after 1st iteration.  Does not continue.
     add 2nd HSDIO card, and combine them so it looks like 1 card with 64 channels
