@@ -542,6 +542,7 @@ class SquareROIAnalysis(AnalysisWithFigure):
     filter_level = Int()
     #left, top, right, bottom, threshold = (0, 1, 2, 3, 4)  # column ordering of ROI boundaries in each ROI in ROIs
     loadingArray = Member()
+    enable = Bool()
 
     def __init__(self, experiment, ROI_rows=1, ROI_columns=1):
         super(SquareROIAnalysis, self).__init__('SquareROIAnalysis', experiment, 'Does analysis on square regions of interest')
@@ -550,7 +551,7 @@ class SquareROIAnalysis(AnalysisWithFigure):
         self.ROI_columns = ROI_columns
         dtype = [('left', numpy.uint16), ('top', numpy.uint16), ('right', numpy.uint16), ('bottom', numpy.uint16), ('threshold', numpy.uint32)]
         self.ROIs = numpy.zeros(ROI_rows*ROI_columns, dtype=dtype)  # initialize with a blank array
-        self.properties += ['version', 'ROIs', 'filter_level']
+        self.properties += ['version', 'ROIs', 'filter_level', 'enable']
 
     def sum(self, roi, shot):
         return numpy.sum(shot[roi['top']:roi['bottom'], roi['left']:roi['right']])
@@ -559,7 +560,7 @@ class SquareROIAnalysis(AnalysisWithFigure):
         return numpy.array([self.sum(roi, shot) for roi in rois], dtype=numpy.uint32)
 
     def analyzeMeasurement(self, measurementResults, iterationResults, experimentResults):
-        if 'data/Hamamatsu/shots' in measurementResults:
+        if self.enable and ('data/Hamamatsu/shots' in measurementResults):
             #here we want to live update a digital plot of atom loading as it happens
 
             numShots = len(measurementResults['data/Hamamatsu/shots'])
@@ -601,9 +602,10 @@ class SquareROIAnalysis(AnalysisWithFigure):
         data is stored in iterationResults['analysis/square_roi/sums']
         as an array of size (measurements x shots x roi) array
         """
-        measurements = map(int, iterationResults['measurements'].keys())
-        measurements.sort()
-        iterationResults['analysis/square_roi/sums'] = numpy.array([iterationResults['measurements/{}/analysis/squareROIsums'.format(m)] for m in measurements])
+        if self.enable:
+            measurements = map(int, iterationResults['measurements'].keys())
+            measurements.sort()
+            iterationResults['analysis/square_roi/sums'] = numpy.array([iterationResults['measurements/{}/analysis/squareROIsums'.format(m)] for m in measurements])
 
     def updateFigure(self):
         fig = self.backFigure
@@ -991,6 +993,7 @@ class HistogramGrid(AnalysisWithFigure):
             y1 = self.gaussian1D(xc, best_mean1, best_amplitude1, best_width1)
             y2 = self.gaussian1D(xc, best_mean2, best_amplitude2, best_width2)
             yc = y1 + y2
+
             cutoff = xc[numpy.argmin(yc)]
 
             # calculalate the overlap (non-analytic, so this is deprecated)
@@ -1288,10 +1291,12 @@ class IterationsGraph(AnalysisWithFigure):
     add_only_filtered_data = Bool()
     ymin = Str()
     ymax = Str()
+    update_every_measurement = Bool()
 
     def __init__(self, name, experiment, description=''):
         super(IterationsGraph, self).__init__(name, experiment, description)
-        self.properties += ['enable', 'list_of_what_to_plot', 'draw_connecting_lines', 'draw_error_bars', 'ymin', 'ymax']
+        self.properties += ['enable', 'list_of_what_to_plot', 'draw_connecting_lines', 'draw_error_bars', 'ymin',
+                            'ymax', 'update_every_measurement']
 
     def preExperiment(self, experimentResults):
         #erase the old data at the start of the experiment
@@ -1304,7 +1309,7 @@ class IterationsGraph(AnalysisWithFigure):
     def analyzeMeasurement(self, measurementResults, iterationResults, experimentResults):
         # Check to see if we want to do anything with this data, based on the LoadingFilters.
         # Careful here to use .value, otherwise it will always be True if the dataset exists.
-        if self.enable:
+        if self.enable:  # and self.update_every_measurement:
             if (not self.add_only_filtered_data) or (('analysis/loading_filter' in measurementResults) and measurementResults['analysis/loading_filter'].value):
 
                 d = numpy.array([measurementResults['analysis/squareROIsums']])
@@ -1338,6 +1343,47 @@ class IterationsGraph(AnalysisWithFigure):
                         self.mean[-1] = mean
                         self.sigma[-1] = sigma
                 self.updateFigure()
+
+    # TODO: this needs to be made to update at the iteration update
+    """
+        def analyzeIteration(self, iterationResults, experimentResults):
+            # Check to see if we want to do anything with this data, based on the LoadingFilters.
+            # Careful here to use .value, otherwise it will always be True if the dataset exists.
+            if self.enable:
+                if (not self.add_only_filtered_data) or (('analysis/loading_filter' in measurementResults) and measurementResults['analysis/loading_filter'].value):
+
+                    d = numpy.array([measurementResults['analysis/squareROIsums']])
+
+                    if self.current_iteration_data is None:
+                        #on first measurement of an iteration, start anew
+                        new_iteration = True
+                        self.current_iteration_data = d
+                    else:
+                        #else append
+                        new_iteration = False
+                        self.current_iteration_data = numpy.append(self.current_iteration_data, d, axis=0)
+
+                    # average across measurements
+                    # keepdims gives result with size (1 x shots X rois)
+                    mean = numpy.mean(self.current_iteration_data, axis=0, keepdims=True)
+                    #find standard deviation
+                    sigma = numpy.std(self.current_iteration_data, axis=0, keepdims=True)/numpy.sqrt(len(self.current_iteration_data))
+
+                    if self.mean is None:
+                        #on first iteration start anew
+                        self.mean = mean
+                        self.sigma = sigma
+                    else:
+                        if new_iteration:
+                            #append
+                            self.mean = numpy.append(self.mean, mean, axis=0)
+                            self.sigma = numpy.append(self.sigma, sigma, axis=0)
+                        else:
+                            #replace last entry
+                            self.mean[-1] = mean
+                            self.sigma[-1] = sigma
+                    self.updateFigure()
+    """
 
     @observe('list_of_what_to_plot', 'draw_connecting_lines', 'ymin', 'ymax')
     def reload(self, change):

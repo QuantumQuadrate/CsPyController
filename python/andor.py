@@ -36,6 +36,7 @@ from cs_instruments import Instrument
 # imports for viewer
 from analysis import AnalysisWithFigure
 from colors import my_cmap
+from enaml.application import deferred_call
 
 class Andor(Instrument):
 
@@ -73,6 +74,7 @@ class Andor(Instrument):
     data = Member()  # holds acquired images until they are written
     mode = Str('experiment')  # experiment vs. video
     analysis = Member()  # holds a link to the GUI display
+    dll = Member()
 
     def __init__(self, name, experiment, description=''):
         super(Andor, self).__init__(name, experiment, description)
@@ -80,7 +82,7 @@ class Andor(Instrument):
         self.preAmpGain = IntProp('preAmpGain', experiment, 'Andor analog gain', '0')
         self.exposureTime = FloatProp('exposureTime', experiment, 'exposure time for edge trigger', '0')
         self.shotsPerMeasurement = IntProp('shotsPerMeasurement', experiment, 'number of expected shots', '0')
-        self.properties += ['EMCCDGain', 'preAmpGain', 'exposureTime', 'triggerMode']
+        self.properties += ['EMCCDGain', 'preAmpGain', 'exposureTime', 'triggerMode', 'shotsPerMeasurement']
 
     def __del__(self):
         if self.isInitialized:
@@ -96,11 +98,18 @@ class Andor(Instrument):
 
         self.isInitialized = True
 
+    def start(self):
+        #get images to clear out any old images
+        self.DumpImages()
+        #declare that we are done now
+        self.isDone = True
+
     def update(self):
         if self.enable:
             self.mode = 'experiment'
             if self.GetStatus() == 'DRV_ACQUIRING':
                 self.AbortAcquisition()
+            self.GetDetector()
             self.SetPreAmpGain(self.preAmpGain.value)
             self.SetEMCCDGain(self.EMCCDGain.value)
             self.SetExposureTime(self.exposureTime.value)
@@ -116,6 +125,11 @@ class Andor(Instrument):
             self.SetKineticCycleTime(0)  # no delay
             self.StartAcquisition()
 
+    def setup_video_thread(self, analysis):
+        thread = threading.Thread(target=self.setup_video, args=(analysis,))
+        #thread.daemon = True
+        thread.start()
+
     def setup_video(self, analysis):
         if self.experiment.status != 'idle':
             logger.warning('Cannot start video mode unless experiment is idle.')
@@ -127,6 +141,7 @@ class Andor(Instrument):
             self.initialize()
         if self.GetStatus() == 'DRV_ACQUIRING':
             self.AbortAcquisition()
+        self.GetDetector()
         self.SetPreAmpGain(self.preAmpGain.value)
         self.SetEMCCDGain(self.EMCCDGain.value)
         self.SetExposureTime(self.exposureTime.value)
@@ -136,21 +151,24 @@ class Andor(Instrument):
         self.SetAcquisitionMode(5)  # run till abort
         self.SetKineticCycleTime(0)  # no delay
 
+        print self.width, self.height, self.dim
         self.data = self.CreateAcquisitionBuffer()
         analysis.setup_video(self.data)
 
         self.StartAcquisition()
 
         # run the video loop in a new thread
-        thread = threading.Thread(target=self.start_video_thread)
-        thread.daemon = True
-        thread.start()
+        self.start_video_thread()
+        #thread = threading.Thread(target=self.start_video_thread)
+        #thread.daemon = True
+        #thread.start()
 
     def start_video_thread(self):
         while self.mode == 'video':
-            self.GetMostRecentImage()
-            # then redraw image
-            self.analysis.redraw_video()
+            if self.GetMostRecentImage():
+                # if there is new data, then redraw image
+                self.analysis.redraw_video()
+            time.sleep(.01)
 
     def stop_video(self):
         # stop the video thread from looping
@@ -194,17 +212,18 @@ class Andor(Instrument):
             logger.error('Error initializing Andor camera:\n{}'.format(ERROR_CODE[error]))
             raise PauseError
 
-    def GetNumberNewImages(self):
+    def GetNumberNewImages(self, dump=False):
         first = c_long()
         last = c_long()
         error = self.dll.GetNumberNewImages(byref(first), byref(last))
-        if ERROR_CODE[error] != 'DRV_SUCCESS':
-            logger.error('Error:\n{}'.format(ERROR_CODE[error]))
-            raise PauseError
-        n = (last-first)
-        if n != self.shotsPerMeasurement.value:
-            logger.warning('Andor camera acquired {} images, but was expecting {}.'.format(n, self.shotsPerMeasurement))
-            raise PauseError
+        if not dump:
+            if ERROR_CODE[error] != 'DRV_SUCCESS':
+                logger.error('Error:\n{}'.format(ERROR_CODE[error]))
+                raise PauseError
+            n = (last.value-first.value)
+            if n != self.shotsPerMeasurement.value:
+                logger.warning('Andor camera acquired {} images, but was expecting {}.'.format(n, self.shotsPerMeasurement.value))
+                raise PauseError
         return first.value, last.value
 
     def GetImages(self):
@@ -215,14 +234,27 @@ class Andor(Instrument):
         c_image_array = c_image_array_type()
         validfirst = c_long()
         validlast = c_long()
-        error = self.dll.GetImages(first, last, c_image_array, size, validfirst, validlast)
+        error = self.dll.GetImages(first, last, byref(c_image_array), size, byref(validfirst), byref(validlast))
         if ERROR_CODE[error] != 'DRV_SUCCESS':
             logger.error('Error in Andor.GetImages:\n{}'.format(ERROR_CODE[error]))
             raise PauseError
         else:
-            data = numpy.ctypeslib.as_array(self.cimage)
+            data = numpy.ctypeslib.as_array(self.c_image_array)
             data = numpy.reshape(data, (n, self.width, self.height))
             return data
+
+    def DumpImages(self):
+        while True:
+            first, last = self.GetNumberNewImages(dump=True)
+            n = (last-first)
+            if n==0:
+                break
+            size = self.dim * n
+            c_image_array_type = c_int * size
+            c_image_array = c_image_array_type()
+            validfirst = c_long()
+            validlast = c_long()
+            error = self.dll.GetImages(first, last, byref(c_image_array), size, byref(validfirst), byref(validlast))
 
     def GetDetector(self):
         width = c_int()
@@ -234,10 +266,10 @@ class Andor(Instrument):
             raise PauseError
 
         self.width = width.value
-        self.height = height.value - 2  # -2 because height gets reported as 1004 instead of 1002 for Luca
+        self.height = height.value  # -2 because height gets reported as 1004 instead of 1002 for Luca
         self.dim = self.width * self.height
-
-        return self.width, self.value
+        print 'Andor: width {}, height {}'.format(self.width, self.height)
+        return self.width, self.height
 
     def AbortAcquisition(self):
         error = self.dll.AbortAcquisition()
@@ -327,7 +359,7 @@ class Andor(Instrument):
             logger.error('Error:\n{}'.format(ERROR_CODE[error]))
             raise PauseError
         else:
-            data = numpy.ctypeslib.as_array(self.cimage)
+            data = numpy.ctypeslib.as_array(self.c_image_array)
             data = numpy.reshape(data, (self.width, self.height))
             return data
 
@@ -342,7 +374,7 @@ class Andor(Instrument):
         c_image_array_type = c_int * self.dim
         self.c_image_array = c_image_array_type()
 
-        data = numpy.ctypeslib.as_array(self.cimage)
+        data = numpy.ctypeslib.as_array(self.c_image_array)
         data = numpy.reshape(data, (self.width, self.height))
         self.data = data
         return data
@@ -350,12 +382,14 @@ class Andor(Instrument):
     def GetMostRecentImage(self):
         """This function gets the most recent image, for video display.
         It must be preceded by a call to CreateAcquisitionBuffer() and StartAcquisition().
-        The image data is put into self.cimage, which must already be allocated (by Create AcquisitionBuffer)."""
+        The image data is put into self.c_image_array, which must already be allocated (by Create AcquisitionBuffer)."""
 
         error = self.dll.GetMostRecentImage(byref(self.c_image_array), self.dim)
         if ERROR_CODE[error] != 'DRV_SUCCESS':
             logger.error('Error:\n{}'.format(ERROR_CODE[error]))
-            raise PauseError
+            #raise PauseError
+            return False
+        return True
 
     def SetExposureTime(self, time):
         error = self.dll.SetExposureTime(c_float(time))
@@ -752,9 +786,9 @@ class AndorViewer(AnalysisWithFigure):
         fig.clf()
         ax = fig.add_subplot(111)
         self.artist = ax.imshow(data)
-        super(AndorViewer, self).updateFigure(self)
+        super(AndorViewer, self).updateFigure()
 
     def redraw_video(self):
         """First update self.data using Andor methods, then redraw screen using this."""
         self.artist.autoscale()
-        self.figure.canvas.draw()
+        deferred_call(self.figure.canvas.draw)
