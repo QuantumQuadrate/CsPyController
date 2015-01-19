@@ -492,14 +492,17 @@ enamldef ExperimentPage(Container):
 
 enamldef VariableEntry(GroupBox):
     attr indepVar
+    attr list_index
 
-    hug_height = 'strong'
-    hug_width = 'strong'
-    constraints = [vbox(variable,optimizer1,optimizer2,values,status), align('left',variable,optimizer1,optimizer2,values,status)]
+    #hug_height = 'strong'
+    #hug_width = 'strong'
+    #constraints = [vbox(variable,optimizer1,optimizer2,values,status), align('left',variable,optimizer1,optimizer2,values,status)]
 
     HGroup: variable:
         align_widths = False
         constraints = [nameCont.width==100, descCont.width==200, funcCont.width==200]
+        Label:
+            text << list_index
         Field: nameCont:
             text := indepVar.name
             placeholder = 'name'
@@ -509,11 +512,6 @@ enamldef VariableEntry(GroupBox):
         Field: funcCont:
             text := indepVar.function
             placeholder = 'function'
-    HGroup: optimizer1:
-        padding = 0
-        align_widths = False
-        hug_width = 'strong'
-        hug_height = 'strong'
         Form:
             Label:
                 text = 'optimize?'
@@ -529,11 +527,6 @@ enamldef VariableEntry(GroupBox):
                 text = 'end tolerance (abs)'
             FloatField:
                 value := indepVar.optimizer_end_tolerance
-    HGroup: optimizer2:
-        padding = 0
-        align_widths = False
-        hug_width = 'strong'
-        hug_height = 'strong'
         Form:
             Label:
                 text = 'min'
@@ -544,13 +537,10 @@ enamldef VariableEntry(GroupBox):
                 text = 'max'
             FloatField:
                 value := indepVar.optimizer_max
-    Label: values:
-        text << 'values: '+indepVar.valueListStr
-    HGroup: status:
-        padding = 0
+    HGroup:
         align_widths = False
-        hug_width = 'strong'
-        hug_height = 'strong'
+        Label: values:
+            text << 'values: '+indepVar.valueListStr
         Label:
             text << 'step: '+str(indepVar.index)+' of '+str(indepVar.steps)
         Label:
@@ -559,33 +549,31 @@ enamldef VariableEntry(GroupBox):
             text << indepVar.currentValueStr
             read_only = True
 
-enamldef IndependentVariablesGroupBox(GroupBox):
+enamldef IndependentVariablesGroupBox(Container):
     attr independentVariables
-    title='Independent Variables (2, inner loop on top)'
 
-    hug_height='strong'
-    hug_width='strong'
+    Label:
+        text = 'Evaluated after Constants and before Dependents.  Inner loop on top.'
 
     GroupBox:
-        hug_height='strong'
-        hug_width='strong'
-        constraints=[hbox(spin0,addButton0,removeButton0)]
-        SpinBox: spin0:
-            minimum=0
-            maximum << independentVariables.length
-        PushButton: addButton0:
-            text='+'
-            clicked::
-                independentVariables.add_at(spin0.value)
-        PushButton: removeButton0:
-            text='-'
-            clicked::
-                independentVariables.pop(spin0.value)
+        HGroup:
+            SpinBox: spin0:
+                minimum=0
+                maximum << independentVariables.length
+            PushButton: addButton0:
+                text='+'
+                clicked::
+                    independentVariables.add_at(spin0.value)
+            PushButton: removeButton0:
+                text='-'
+                clicked::
+                    independentVariables.pop(spin0.value)
 
     RefreshableLooper:
         iterable<<independentVariables
         VariableEntry:
             indepVar << loop_item
+            list_index << str(loop_index)
 
 enamldef Variables(Container): page:
     attr experiment
@@ -601,13 +589,11 @@ enamldef Variables(Container): page:
             text:=experiment.variablesNotToSave
             placeholder='scipy,numpy,x'
 
-    Container:
-        padding = 0
-        hug_height = 'ignore'
-        constraints = [hbox(constants, independents, dependents), align('top', constants, independents, dependents), constants.width==dependents.width]
+    HGroup:
+        constraints = [align('top', constants, dependents), constants.width==dependents.width]
 
         GroupBox: constants:
-            title='Constants (1)'
+            title='Constants (Evaluated 1st, before Independents)'
 
             Label:
                 text='Define constants using python code below.'
@@ -615,11 +601,8 @@ enamldef Variables(Container): page:
                 constraints = [bottom==page.contents_bottom]
                 text:=experiment.constantsStr
 
-        IndependentVariablesGroupBox: independents:
-            independentVariables<<experiment.independentVariables
-
         GroupBox: dependents:
-            title='Dependent Variables (3)'
+            title='Dependent Variables (Evaluated 3rd, after Independents)'
 
             Label:
                 text='Define dependent variables using python code below.'
@@ -2714,7 +2697,9 @@ enamldef Main(MainWindow): main:
 
             ScrollPage('Experiment', ExperimentPage): p1:
                 p1.content.experiment = main.experiment
-            ScrollPage('Variables', Variables): p2:
+            ScrollPage('Independent Vars', IndependentVariablesGroupBox): p2a:
+                p2a.content.independentVariables = main.experiment.independentVariables
+            ScrollPage('Constants and Dependent Vars', Variables): p2:
                 p2.content.experiment = main.experiment
             ScrollPage('Report', Reports): p3:
                 p3.content.experiment = main.experiment
