@@ -896,7 +896,8 @@ class HistogramGrid(AnalysisWithFigure):
                                 ('mean1', 'f8'), ('mean2', 'f8'),  ('width1', 'f8'), ('width2', 'f8'),
                                 ('amplitude1', 'f8'), ('amplitude2', 'f8'), ('cutoff', 'f8'), ('loading', 'f8'),
                                 ('overlap', 'f8')])
-        self.histogram_results = numpy.zeros((shots, rois), dtype=my_dtype)
+        self.histogram_results = numpy.empty((shots, rois), dtype=my_dtype)
+        self.histogram_results.fill(numpy.nan)
 
         # go through each shot and roi and calculate the histograms and gaussian fits
         for shot in xrange(shots):
@@ -923,11 +924,7 @@ class HistogramGrid(AnalysisWithFigure):
         self.x_max = numpy.amax(all_shots_array)
         self.y_max = numpy.amax(self.histogram_results['histogram'])
 
-        # TODO: use this instead of the numerical way
-        # TODO: do analytical overlap and loading also in a vectorized fashion
-        # an analytic way of doing the cutoff finding
-        #r = self.histogram_results
-        #cutoff_analytic = self.analytic_cutoff(r['mean1'], r['mean2'], r['width1'], r['width2'], r['amplitude1'], r['amplitude2'])
+        # TODO: do cutoff finding, analytical overlap and loading in a vectorized fashion
 
     def gaussian1D(self, x, x0, a, w):
         """returns the height of a gaussian (with mean x0, amplitude, a and width w) at the value(s) x"""
@@ -986,16 +983,17 @@ class HistogramGrid(AnalysisWithFigure):
 
             # find a better cutoff
             # the cutoff found is for the digital data, not necessarily the best in terms of the gaussian fits
+            cutoff = self.analytic_cutoff(best_mean1, best_mean2, best_width1, best_width2, best_amplitude1, best_amplitude2)
+
+            # deprecated because it wasn't analytic:
             # to find a better cutoff:
             # find the lowest point on the sum of the two gaussians
             # go in steps of 1 from peak to peak
-            # TODO: do this analytically
-            xc = numpy.arange(best_mean1, best_mean2)
-            y1 = self.gaussian1D(xc, best_mean1, best_amplitude1, best_width1)
-            y2 = self.gaussian1D(xc, best_mean2, best_amplitude2, best_width2)
-            yc = y1 + y2
-
-            cutoff = xc[numpy.argmin(yc)]
+            #xc = numpy.arange(best_mean1, best_mean2)
+            #y1 = self.gaussian1D(xc, best_mean1, best_amplitude1, best_width1)
+            #y2 = self.gaussian1D(xc, best_mean2, best_amplitude2, best_width2)
+            #yc = y1 + y2
+            #cutoff = xc[numpy.argmin(yc)]
 
             # calculalate the overlap (non-analytic, so this is deprecated)
             # mins = numpy.amin([y1, y2], axis=0)

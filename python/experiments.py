@@ -379,7 +379,13 @@ class Experiment(Prop):
         """Finishes the current experiment, and then uploads data"""
 
         try:
+            # run final analysis
             self.postExperiment()
+            # save final PDF images and such
+            for i in self.analyses:
+                i.finalize(self.hdf5)
+            self.optimizer.finalize(self.hdf5)
+            # upload results
             self.upload()
         except PauseError:
             self.set_status('paused after error')
