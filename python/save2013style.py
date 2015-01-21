@@ -102,10 +102,12 @@ class Save2013Analysis(Analysis):
                     time.strftime('%m/%d/%Y\t%I:%M %p'),
                     self.experiment.LabView.camera.shotsPerMeasurement.value,
                     int(self.experiment.ROI_rows*self.experiment.ROI_columns)))
-                for measurement in iterationResults['measurements'].itervalues():
-                    if 'analysis/squareROIsums' in measurement:
-                        roi_sums = measurement['analysis/squareROIsums'].value
-                        f.write('\t'.join(['\t'.join([str(ROI) for ROI in shot]) for shot in roi_sums])+'\n')
+                if 'analysis/gaussian_roi' in iterationResults:
+                    roi_sums = iterationResults['analysis/gaussian_roi/sums'].value
+                    f.write('\n'.join(['\t'.join(['\t'.join([str(ROI) for ROI in shot]) for shot in shots]) for shots in roi_sums])+'\n')
+                elif 'analysis/squareROIsums' in iterationResults:
+                    roi_sums = iterationResults['analysis/squareROIsums'].value
+                    f.write('\n'.join(['\t'.join(['\t'.join([str(ROI) for ROI in shot]) for shot in shots]) for shots in roi_sums])+'\n')
 
     def finalize(self, experimentResults):
         if self.experiment.saveData and self.experiment.save2013styleFiles:
