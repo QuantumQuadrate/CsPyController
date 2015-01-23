@@ -329,7 +329,7 @@ class Optimization(AnalysisWithFigure):
         logger.debug('Finished simplex exploration.')
 
         # loop until the simplex is smaller than the end tolerances on each axis
-        while numpy.all((numpy.amax(x, axis=0)-numpy.amin(x, axis=0)) > self.end_tolerances):
+        while numpy.any((numpy.amax(x, axis=0)-numpy.amin(x, axis=0)) > self.end_tolerances):
 
             logger.debug('Starting new round of simplex algorithm.')
 
@@ -436,7 +436,7 @@ class Optimization(AnalysisWithFigure):
             y[i+1] = self.yi
 
         # loop until the simplex is smaller than the end tolerances on each axis
-        while numpy.all((numpy.amax(x, axis=0)-numpy.amin(x, axis=0)) > self.end_tolerances):
+        while numpy.any((numpy.amax(x, axis=0)-numpy.amin(x, axis=0)) > self.end_tolerances):
 
             # order the values
             order = numpy.argsort(y)

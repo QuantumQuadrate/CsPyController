@@ -1016,6 +1016,12 @@ enamldef Waveforms(VGroup):
     hug_height='ignore'
     spacing = 0
 
+    Conditional:
+        condition << ((HSDIO.waveforms.length>0) and (combo.index >= 0))
+        MPLCanvas: canvas:
+            constraints=[(height==900)|'strong', (width==1850)|'strong']
+            figure << HSDIO.waveforms.listProperty[combo.index].figure
+
     HGroup:
         align_widths = False
         ComboBox: combo:
@@ -1062,9 +1068,6 @@ enamldef Waveforms(VGroup):
 
     Conditional:
         condition << ((HSDIO.waveforms.length>0) and (combo.index >= 0))
-        MPLCanvas: canvas:
-            constraints=[(height==900)|'strong', (width==1850)|'strong']
-            figure << HSDIO.waveforms.listProperty[combo.index].figure
         NumpyWaveform: waveform:
             waveform << HSDIO.waveforms.listProperty[combo.index]
 
@@ -2142,6 +2145,10 @@ enamldef GaussianROI(Container):
             text = 'subtract background from sums?'
         CheckBox:
             checked := analysis.subtract_background_from_sums
+        Label:
+            text = 'multiply sums by photoelectron scaling?'
+        CheckBox:
+            checked :=analysis.multiply_sums_by_photoelectron_scaling
         Label:
             text = 'clean up image with ICA?'
         CheckBox:

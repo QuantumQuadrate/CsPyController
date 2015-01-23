@@ -856,7 +856,11 @@ class HistogramGrid(AnalysisWithFigure):
 
             if self.histogram_results is not None:
                 fig.suptitle('shot {}'.format(self.shot))
-                self.histogram_grid_plot(fig, self.shot)
+                if self.experiment.gaussian_roi.multiply_sums_by_photoelectron_scaling:
+                    photoelectronScaling = self.experiment.LabView.camera.photoelectronScaling.value
+                else:
+                    photoelectronScaling = None
+                self.histogram_grid_plot(fig, self.shot, photoelectronScaling=photoelectronScaling)
 
             super(HistogramGrid, self).updateFigure()
 
@@ -911,7 +915,7 @@ class HistogramGrid(AnalysisWithFigure):
                     if self.roi_type == 0:  # square ROI
                         cutoff = self.experiment.squareROIAnalysis.ROIs[roi]['threshold']
                     elif self.roi_type == 1:  # gaussian ROI
-                        cutoff = self.experiment.gaussian_roi.cutoffs[roi]
+                        cutoff = self.experiment.gaussian_roi.cutoffs[:, roi]
                     else:
                         logger.warning('invalid roi type {} in HistogramGrid.calculate_histogram'.format(roi_type))
                         raise PauseError
@@ -1109,7 +1113,7 @@ class HistogramGrid(AnalysisWithFigure):
         if len(x2) > 1:  # only draw if there is some data (not including cutoff)
             self.histogram_patch(ax, x2, y2, 'r')  # plot the 1 atom peak in red
 
-    def histogram_grid_plot(self, fig, shot, font=8):
+    def histogram_grid_plot(self, fig, shot, photoelectronScaling=None, font=8):
         """Plot a grid of histograms in the same shape as the ROIs."""
 
         rows = self.experiment.ROI_rows
@@ -1213,6 +1217,10 @@ class HistogramGrid(AnalysisWithFigure):
             transform=ax.transAxes,
             fontsize=font)
 
+        # add note about photoelectron scaling
+        if photoelectronScaling is not None:
+            fig.text(.05,.95,'scaling applied =\n {} photoelectrons/count'.format(photoelectronScaling))
+
 
 class MeasurementsGraph(AnalysisWithFigure):
     """Plots a region of interest sum after every measurement"""
@@ -1229,7 +1237,13 @@ class MeasurementsGraph(AnalysisWithFigure):
     def analyzeMeasurement(self, measurementResults, iterationResults, experimentResults):
         if self.enable:
             #every measurement, update a big array of all the ROI sums, then histogram only the requested shot/site
-            d = measurementResults['analysis/squareROIsums']
+            if 'analysis/gaussian_roi/sums' in measurementResults:
+                d = measurementResults['analysis/gaussian_roi/sums']
+            elif 'analysis/squareROIsums' in measurementResults:
+                d = measurementResults['analysis/squareROIsums']
+            else:
+                logger.warning('No data to use in MeasurementsGraph')
+                return
             if self.data is None:
                 self.data = numpy.array([d])
             else:

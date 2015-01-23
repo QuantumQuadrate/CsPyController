@@ -43,6 +43,7 @@ class GaussianROI(AnalysisWithFigure):
     subtract_background = Bool()
     cutoffs = Member()
     subtract_background_from_sums = Bool()
+    multiply_sums_by_photoelectron_scaling = Bool()
 
     def __init__(self, name, experiment, rows=7, columns=7):
         super(GaussianROI, self).__init__(name, experiment, "a gaussian fit to the regions of interest")
@@ -50,7 +51,8 @@ class GaussianROI(AnalysisWithFigure):
         self.columns = columns
         self.properties += ['version', 'enable', 'useICA', 'shot', 'top', 'left', 'bottom', 'right', 'fitParams',
                             'fitCovariances', 'image_shape', 'rois', 'enable_grid_fit', 'automatically_use_rois',
-                            'enable_calculate_sums', 'subtract_background', 'cutoffs', 'subtract_background_from_sums']
+                            'enable_calculate_sums', 'subtract_background', 'cutoffs', 'subtract_background_from_sums',
+                            'multiply_sums_by_photoelectron_scaling']
 
     # define functions for a gaussian with various degrees of freedom
 
@@ -142,6 +144,8 @@ class GaussianROI(AnalysisWithFigure):
     def calculate_sums(self, images):
         if self.subtract_background_from_sums:
             images = images - self.experiment.imageSumAnalysis.background_array
+        if self.multiply_sums_by_photoelectron_scaling:
+            images *= self.experiment.LabView.camera.photoelectronScaling.value
         a = images.reshape(images.shape[0], images.shape[1], images.shape[2]*images.shape[3])
         data = np.dot(a, self.rois)
         return data
