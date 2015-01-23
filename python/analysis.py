@@ -1142,11 +1142,10 @@ class HistogramGrid(AnalysisWithFigure):
                     ax.text(0.95, 0.85, u'{}: {:.0f}\u00B1{:.1f}%'.format(n, data['loading']*100, data['overlap']*100), horizontalalignment='right', verticalalignment='center', transform=ax.transAxes, fontsize=font)
                     # put x ticks at the center of each gaussian and the cutoff.
                     # The one at x_max just holds 'e3' to show that the values should be multiplied by 1000
-                    ax.set_xticks([data['mean1'], data['cutoff'], data['mean2'], self.x_max])
-                    ax.set_xticklabels([u'{}\u00B1{:.1f}'.format(int(data['mean1']/1000), data['width1']/1000),
-                                        str(int(data['cutoff']/1000)),
-                                        u'{}\u00B1{:.1f}'.format(int(data['mean2']/1000), data['width2']/1000),
-                                        'e3'],
+                    ax.set_xticks([data['mean1'], data['cutoff'], data['mean2']])
+                    ax.set_xticklabels([u'{}\u00B1{:.1f}'.format(int(data['mean1']), data['width1']),
+                                        str(int(data['cutoff'])),
+                                        u'{}\u00B1{:.1f}'.format(int(data['mean2']), data['width2'])],
                                        size=font, rotation=90)
                     # add this to xticklabels to print gaussian widths:
                         # u'\u00B1{:.1f}'.format(data['width1']/1000)
@@ -1219,7 +1218,7 @@ class HistogramGrid(AnalysisWithFigure):
 
         # add note about photoelectron scaling
         if photoelectronScaling is not None:
-            fig.text(.05,.95,'scaling applied =\n {} photoelectrons/count'.format(photoelectronScaling))
+            fig.text(.05,.95,'scaling applied = {} photoelectrons/count'.format(photoelectronScaling))
 
 
 class MeasurementsGraph(AnalysisWithFigure):
