@@ -37,6 +37,7 @@ from analysis import AnalysisWithFigure
 
 class Optimization(AnalysisWithFigure):
     version = '2014.05.07'
+    enable_override = Bool()  # this must be true for optimizer to function, regardless of ivar.optimize settings
     enable = Bool()  # whether or not to activate this optimization
     enable_gui = Bool()  # shows the enable state on the gui checkbox
     axes = Member()
@@ -63,16 +64,17 @@ class Optimization(AnalysisWithFigure):
     def __init__(self, name, experiment, description=''):
         super(Optimization, self).__init__(name, experiment, description)
         self.properties += ['version', 'enable', 'initial_step', 'line_search_initial_step', 'end_condition_step',
-                            'cost_function', 'optimization_method']
+                            'cost_function', 'optimization_method', 'enable_override']
 
     def setup(self, hdf5):
         self.optimization_variables = []
         enable = False  # don't enable unless there are some optimization variables
-        for i, x in enumerate(self.experiment.independentVariables):
-            if x.optimize:
-                enable = True  # there is at least one optimization variable
-                self.optimization_variables += [x]
-                x.setIndex(0)
+        if self.enable_override:  # to enable you must both enable on the Optimization page and on each ivar
+            for i, x in enumerate(self.experiment.independentVariables):
+                if x.optimize:
+                    enable = True  # there is at least one optimization variable
+                    self.optimization_variables += [x]
+                    x.setIndex(0)
         self.enable = enable
         self.set_gui({'enable_gui': enable})
 

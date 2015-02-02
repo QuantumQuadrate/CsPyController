@@ -2322,6 +2322,7 @@ enamldef IterationsGraph(Container):
             text = 'update every measurement? (if not, only update at end of iteration)'
         CheckBox:
             checked := analysis.update_every_measurement
+            enabled = False
     HGroup:
         align_widths = False
         Label: l5:
@@ -2496,7 +2497,12 @@ enamldef Optimizer(Container):
 
     Form:
         Label:
-            text = 'enable'
+            text = 'enable override (to optimize, enable here and on independent variables'
+        CheckBox:
+            checked := analysis.enable_override
+
+        Label:
+            text = 'enabled?'
         CheckBox:
             checked << analysis.enable_gui
             enabled = False

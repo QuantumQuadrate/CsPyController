@@ -5,6 +5,9 @@ TCP ports: 9000 LabView, 9001 Laird box temp
 current question:
 
 TODO:
+    Apply optimizer min/max BEFORE optimizer calculations, so correct values are actually used and recorded.
+    Test optimizers with numerical functions.
+    Limit size of log file.
     Use analytic methods as much as possible in HistogramGrid, and make it completely tolerant against bad data
     Make it so iterationsGraph can be made to only update on iterations, not measurements, if wanted
     Make ctrl+Q halt

@@ -17,6 +17,7 @@ from matplotlib.figure import Figure
 from matplotlib.path import Path
 import matplotlib.patches as patches
 from matplotlib.gridspec import GridSpec
+from mpl_toolkits.axes_grid1 import make_axes_locatable
 #from matplotlib.backends.backend_pdf import PdfPages
 from enaml.application import deferred_call
 
@@ -261,7 +262,7 @@ class RecentShotAnalysis(AnalysisWithFigure):
         super(RecentShotAnalysis, self).__init__(name, experiment, description)
         self.properties += ['showROIs', 'shot', 'subtract_background']
 
-    def analyzeMeasurement(self,measurementResults,iterationResults,experimentResults):
+    def analyzeMeasurement(self, measurementResults, iterationResults, experimentResults):
         self.data = []
         if 'data/Hamamatsu/shots' in measurementResults:
             #for each image
@@ -282,10 +283,15 @@ class RecentShotAnalysis(AnalysisWithFigure):
 
                 if (self.data is not None) and (self.shot < len(self.data)):
                     ax = fig.add_subplot(111)
+
                     if self.subtract_background:
                         data = self.data[self.shot] - self.experiment.imageSumAnalysis.background_array
+                        vmin = self.experiment.imageSumAnalysis.min_minus_bg
+                        vmax = self.experiment.imageSumAnalysis.max_minus_bg
                     else:
                         data = self.data[self.shot]
+                        vmin = self.experiment.imageSumAnalysis.min
+                        vmax = self.experiment.imageSumAnalysis.max
 
                     ax.matshow(data, cmap=my_cmap, vmin=self.experiment.imageSumAnalysis.min, vmax=self.experiment.imageSumAnalysis.max)
                     ax.set_title('most recent shot '+str(self.shot))
@@ -409,9 +415,12 @@ class ImageSumAnalysis(AnalysisWithFigure):
     max_str = Str()
     min = Member()
     max = Member()
+    min_minus_bg = Member()
+    max_minus_bg = Member()
     #pdf = Member()
     pdf_path = Member()
     subtract_background = Bool()
+    iteration = Int()
 
     def __init__(self, experiment):
         super(ImageSumAnalysis, self).__init__('ImageSumAnalysis', experiment, 'Sums shot0 images as they come in')
@@ -436,7 +445,9 @@ class ImageSumAnalysis(AnalysisWithFigure):
         #clear old data
         self.mean_array = None
 
-    def analyzeMeasurement(self, measurementResults,iterationResults,experimentResults):
+    def analyzeMeasurement(self, measurementResults, iterationResults, experimentResults):
+
+        self.iteration = iterationResults.attrs['iteration']
 
         if 'data/Hamamatsu/shots' in measurementResults:
             if self.mean_array is None:
@@ -452,11 +463,35 @@ class ImageSumAnalysis(AnalysisWithFigure):
                     self.count_array[i] += 1
                     self.mean_array[i] = self.sum_array[i]/self.count_array[i]
 
-            #update the min/max that other image plots will use
-            self.min = numpy.amin(self.mean_array) if (self.min_str == '') else float(self.min_str)
-            self.max = numpy.amax(self.mean_array) if (self.max_str == '') else float(self.max_str)
-
+            self.update_min_max()
             self.updateFigure()  # only update figure if image was loaded
+
+    def update_min_max(self):
+        #update the min/max that this and other image plots will use
+        if self.min_str == '':
+            self.min = numpy.amin(self.mean_array)
+            try:
+                self.min_minus_bg = numpy.amin(self.mean_array-self.background_array)
+            except:
+                logger.warning('Could not subtract background array to create min in ImageSumAnalysis.analyzeMeasurement')
+        else:
+            try:
+                self.min = float(self.min_str)
+                self.min_minus_bg = self.min
+            except:
+                logger.warning('Could not cast string to float in to create min in ImageSumAnalysis.analyzeMeasurement')
+        if self.max_str == '':
+            self.max = numpy.amax(self.mean_array)
+            try:
+                self.max_minus_bg = numpy.amax(self.mean_array-self.background_array)
+            except:
+                logger.warning('Could not subtract background array to create max in ImageSumAnalysis.analyzeMeasurement')
+        else:
+            try:
+                self.max = float(self.max_str)
+                self.max_minus_bg = self.max
+            except:
+                logger.warning('Could not cast string to float in to create max in ImageSumAnalysis.analyzeMeasurement')
 
     def analyzeIteration(self, iterationResults, experimentResults):
         if self.enable:
@@ -479,8 +514,7 @@ class ImageSumAnalysis(AnalysisWithFigure):
                     fig = plt.figure(figsize=(8, 6))
                     dpi = 80
                     fig.set_dpi(dpi)
-                    fig.suptitle('{} iteration {} shot {}'.format(self.experiment.experimentPath, iteration, shot))
-                    self.draw_fig(fig, shot)
+                    self.draw_fig(fig, iteration, shot)
                     plt.savefig('{}_{}_{}.pdf'.format(self.pdf_path, iteration, shot),
                                 format='pdf', dpi=dpi, transparent=True, bbox_inches='tight',
                                 pad_inches=.25, frameon=False)
@@ -489,22 +523,31 @@ class ImageSumAnalysis(AnalysisWithFigure):
             logger.warning('Problem in HistogramGrid.savefig():\n{}\n{}\n'.format(e, traceback.format_exc()))
 
 
-    def draw_fig(self, fig, shot):
+    def draw_fig(self, fig, iteration, shot):
         if (self.mean_array is not None) and (shot < len(self.mean_array)):
-            gs = GridSpec(1, 2, width_ratios=[20, 1])
-            ax = fig.add_subplot(gs[0, 0])
+            #gs = GridSpec(1, 2, width_ratios=[20, 1])
+            #ax = fig.add_subplot(gs[0, 0])
+            ax = fig.add_subplot(111)
+
             if self.subtract_background:
                 data = self.mean_array[shot] - self.background_array
+                min = self.min_minus_bg
+                max = self.max_minus_bg
             else:
                 data = self.mean_array[shot]
+                min = self.min
+                max = self.max
 
-            im = ax.matshow(data, cmap=my_cmap)
+            im = ax.matshow(data, cmap=my_cmap, vmin=self.min, vmax=self.max)
 
             #label plot
-            fig.suptitle('{} shot {} mean'.format(self.experiment.experimentPath, shot))
+            fig.suptitle('{} iteration {} shot {} mean'.format(self.experiment.experimentPath, iteration, shot))
 
             # make a colorbar
-            cax = fig.add_subplot(gs[0, 1])
+            # create an axes on the right side of ax. The width of cax will be 5%
+            # of ax and the padding between cax and ax will be fixed at 0.05 inch.
+            divider = make_axes_locatable(ax)
+            cax = divider.append_axes("right", size="5%", pad=0.05)
             fig.colorbar(im, cax=cax)
 
             if self.showROIs:
@@ -520,7 +563,7 @@ class ImageSumAnalysis(AnalysisWithFigure):
                 fig = self.backFigure
                 fig.clf()
 
-                self.draw_fig(fig, self.shot)
+                self.draw_fig(fig, self.iteration, self.shot)
 
                 super(ImageSumAnalysis, self).updateFigure()
             except Exception as e:
@@ -841,7 +884,7 @@ class HistogramGrid(AnalysisWithFigure):
                     dpi=80
                     fig.set_dpi(dpi)
                     fig.suptitle('{} iteration {} shot {}'.format(self.experiment.experimentPath, iteration, shot))
-                    self.histogram_grid_plot(fig, shot)
+                    self.histogram_grid_plot(fig, shot,  photoelectronScaling=self.experiment.LabView.camera.photoelectronScaling.value, exposure_time=self.experiment.LabView.camera.exposureTime.value)
                     plt.savefig('{}_{}_{}.pdf'.format(self.pdf_path, iteration, shot),
                                 format='pdf', dpi=dpi, transparent=True, bbox_inches='tight',
                                 pad_inches=.25, frameon=False)
@@ -860,7 +903,7 @@ class HistogramGrid(AnalysisWithFigure):
                     photoelectronScaling = self.experiment.LabView.camera.photoelectronScaling.value
                 else:
                     photoelectronScaling = None
-                self.histogram_grid_plot(fig, self.shot, photoelectronScaling=photoelectronScaling)
+                self.histogram_grid_plot(fig, self.shot, photoelectronScaling=photoelectronScaling, exposure_time=self.experiment.LabView.camera.exposureTime.value)
 
             super(HistogramGrid, self).updateFigure()
 
@@ -915,7 +958,7 @@ class HistogramGrid(AnalysisWithFigure):
                     if self.roi_type == 0:  # square ROI
                         cutoff = self.experiment.squareROIAnalysis.ROIs[roi]['threshold']
                     elif self.roi_type == 1:  # gaussian ROI
-                        cutoff = self.experiment.gaussian_roi.cutoffs[:, roi]
+                        cutoff = self.experiment.gaussian_roi.cutoffs[shot, roi]
                     else:
                         logger.warning('invalid roi type {} in HistogramGrid.calculate_histogram'.format(roi_type))
                         raise PauseError
@@ -924,9 +967,9 @@ class HistogramGrid(AnalysisWithFigure):
                 # these all have the same number of measurements, so they will all have the same size
 
         # find the min and max
-        self.x_min = numpy.amin(all_shots_array)
-        self.x_max = numpy.amax(all_shots_array)
-        self.y_max = numpy.amax(self.histogram_results['histogram'])
+        self.x_min = numpy.nanmin(all_shots_array)
+        self.x_max = numpy.nanmax(all_shots_array)
+        self.y_max = numpy.nanmax(self.histogram_results['histogram'])
 
         # TODO: do cutoff finding, analytical overlap and loading in a vectorized fashion
 
@@ -1113,7 +1156,7 @@ class HistogramGrid(AnalysisWithFigure):
         if len(x2) > 1:  # only draw if there is some data (not including cutoff)
             self.histogram_patch(ax, x2, y2, 'r')  # plot the 1 atom peak in red
 
-    def histogram_grid_plot(self, fig, shot, photoelectronScaling=None, font=8):
+    def histogram_grid_plot(self, fig, shot, photoelectronScaling=None, exposure_time=None, font=8):
         """Plot a grid of histograms in the same shape as the ROIs."""
 
         rows = self.experiment.ROI_rows
@@ -1216,9 +1259,11 @@ class HistogramGrid(AnalysisWithFigure):
             transform=ax.transAxes,
             fontsize=font)
 
-        # add note about photoelectron scaling
+        # add note about photoelectron scaling and exposure time
         if photoelectronScaling is not None:
-            fig.text(.05,.95,'scaling applied = {} photoelectrons/count'.format(photoelectronScaling))
+            fig.text(.05,.985,'scaling applied = {} photoelectrons/count'.format(photoelectronScaling))
+        if exposure_time is not None:
+            fig.text(.05,.97,'exposure_time = {} s'.format(exposure_time))
 
 
 class MeasurementsGraph(AnalysisWithFigure):

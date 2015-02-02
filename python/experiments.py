@@ -837,6 +837,8 @@ class Experiment(Prop):
 
         self.set_status('paused before experiment')
 
+        return True  # returning True signals resetAndGo() to continue on to go()
+
     def reset_logger(self):
         #close old stream
         if self.log is not None:
@@ -848,8 +850,9 @@ class Experiment(Prop):
 
     def resetAndGo(self):
         """Reset the iteration variables and timing, then proceed with an experiment."""
-        self.reset()
-        self.go()
+        if self.reset():
+            # if the reset succeeded, then go()
+            self.go()
 
     def resetAndGoThread(self):
         thread = threading.Thread(target=self.resetAndGo)
@@ -954,7 +957,7 @@ class Experiment(Prop):
         index = (self.iteration//self.ivarBases) % self.ivarSteps
 
         for i, x in enumerate(self.independentVariables):
-           if not x.optimize:
+           if (not self.optimizer.enable) or (not x.optimize):  # update the variable is
                 index[i] = x.setIndex(index[i])  # update each variable object
         self.ivarIndex = index
 
