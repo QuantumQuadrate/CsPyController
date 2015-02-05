@@ -54,9 +54,11 @@ class DDS(Instrument):
         thread.start()
 
     def getDDSDeviceList(self):
+        print 'DDS: Requesting device list ...'
         result=self.communicator.send('<LabView><getDDSDeviceList/></LabView>')
         deviceListStr=result['DDS/devices']
         deferred_call(setattr,self,'deviceList',deviceListStr.split('\n'))
+        print 'DDS: ... done.'
     
     def updateBoxDescriptionList(self):
         #sets the descriptions shown in the combo box in the GUI

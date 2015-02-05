@@ -424,7 +424,8 @@ class ImageSumAnalysis(AnalysisWithFigure):
 
     def __init__(self, experiment):
         super(ImageSumAnalysis, self).__init__('ImageSumAnalysis', experiment, 'Sums shot0 images as they come in')
-        self.properties += ['enable', 'showROIs', 'shot', 'background_array', 'subtract_background']
+        self.properties += ['enable', 'showROIs', 'shot', 'background_array', 'subtract_background', 'min_str',
+                            'max_str', 'min', 'max', 'min_minus_bg', 'max_minus_bg']
         self.min = 0
         self.max = 1
 
@@ -467,31 +468,32 @@ class ImageSumAnalysis(AnalysisWithFigure):
             self.updateFigure()  # only update figure if image was loaded
 
     def update_min_max(self):
-        #update the min/max that this and other image plots will use
-        if self.min_str == '':
-            self.min = numpy.amin(self.mean_array)
-            try:
-                self.min_minus_bg = numpy.amin(self.mean_array-self.background_array)
-            except:
-                logger.warning('Could not subtract background array to create min in ImageSumAnalysis.analyzeMeasurement')
-        else:
-            try:
-                self.min = float(self.min_str)
-                self.min_minus_bg = self.min
-            except:
-                logger.warning('Could not cast string to float in to create min in ImageSumAnalysis.analyzeMeasurement')
-        if self.max_str == '':
-            self.max = numpy.amax(self.mean_array)
-            try:
-                self.max_minus_bg = numpy.amax(self.mean_array-self.background_array)
-            except:
-                logger.warning('Could not subtract background array to create max in ImageSumAnalysis.analyzeMeasurement')
-        else:
-            try:
-                self.max = float(self.max_str)
-                self.max_minus_bg = self.max
-            except:
-                logger.warning('Could not cast string to float in to create max in ImageSumAnalysis.analyzeMeasurement')
+        if (self.mean_array is not None) and (self.shot < len(self.mean_array)):
+            #update the min/max that this and other image plots will use
+            if self.min_str == '':
+                self.min = numpy.amin(self.mean_array[self.shot])
+                try:
+                    self.min_minus_bg = numpy.amin(self.mean_array[self.shot]-self.background_array)
+                except:
+                    logger.warning('Could not subtract background array to create min in ImageSumAnalysis.analyzeMeasurement')
+            else:
+                try:
+                    self.min = float(self.min_str)
+                    self.min_minus_bg = self.min
+                except:
+                    logger.warning('Could not cast string to float in to create min in ImageSumAnalysis.analyzeMeasurement')
+            if self.max_str == '':
+                self.max = numpy.amax(self.mean_array[self.shot])
+                try:
+                    self.max_minus_bg = numpy.amax(self.mean_array[self.shot]-self.background_array)
+                except:
+                    logger.warning('Could not subtract background array to create max in ImageSumAnalysis.analyzeMeasurement')
+            else:
+                try:
+                    self.max = float(self.max_str)
+                    self.max_minus_bg = self.max
+                except:
+                    logger.warning('Could not cast string to float in to create max in ImageSumAnalysis.analyzeMeasurement')
 
     def analyzeIteration(self, iterationResults, experimentResults):
         if self.enable:
@@ -503,6 +505,11 @@ class ImageSumAnalysis(AnalysisWithFigure):
 
     @observe('shot', 'showROIs', 'subtract_background')
     def reload(self, change):
+        self.updateFigure()
+
+    @observe('min_str', 'max_str')
+    def change_scaling(self, change):
+        self.update_min_max()
         self.updateFigure()
 
     def savefig(self, iteration):
@@ -538,7 +545,7 @@ class ImageSumAnalysis(AnalysisWithFigure):
                 min = self.min
                 max = self.max
 
-            im = ax.matshow(data, cmap=my_cmap, vmin=self.min, vmax=self.max)
+            im = ax.matshow(data, cmap=my_cmap, vmin=min, vmax=max)
 
             #label plot
             fig.suptitle('{} iteration {} shot {} mean'.format(self.experiment.experimentPath, iteration, shot))
@@ -1163,7 +1170,7 @@ class HistogramGrid(AnalysisWithFigure):
         columns = self.experiment.ROI_columns
         # create a grid.  The extra row and column hold the row/column averaged data.
         # width_ratios and height_ratios make those extra cells smaller than the graphs.
-        gs1 = GridSpec(rows+1, columns+1, left=0.02, bottom=0.05, top=.95, right=.98, wspace=0.2, hspace=0.6,
+        gs1 = GridSpec(rows+1, columns+1, left=0.02, bottom=0.05, top=.95, right=.98, wspace=0.2, hspace=0.65,
                        width_ratios=rows*[1]+[.25], height_ratios=columns*[1]+[.25])
 
         #make histograms for each site
