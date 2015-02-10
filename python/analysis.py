@@ -1170,7 +1170,7 @@ class HistogramGrid(AnalysisWithFigure):
         columns = self.experiment.ROI_columns
         # create a grid.  The extra row and column hold the row/column averaged data.
         # width_ratios and height_ratios make those extra cells smaller than the graphs.
-        gs1 = GridSpec(rows+1, columns+1, left=0.02, bottom=0.05, top=.95, right=.98, wspace=0.2, hspace=0.65,
+        gs1 = GridSpec(rows+1, columns+1, left=0.02, bottom=0.05, top=.95, right=.98, wspace=0.2, hspace=0.75,
                        width_ratios=rows*[1]+[.25], height_ratios=columns*[1]+[.25])
 
         #make histograms for each site
@@ -1390,7 +1390,7 @@ class IterationsGraph(AnalysisWithFigure):
                 # average across measurements
                 # keepdims gives result with size (1 x shots X rois)
                 mean = numpy.mean(self.current_iteration_data, axis=0, keepdims=True)
-                #find standard deviation
+                #find standard deviation of the mean
                 sigma = numpy.std(self.current_iteration_data, axis=0, keepdims=True)/numpy.sqrt(len(self.current_iteration_data))
 
                 if self.mean is None:
@@ -1772,11 +1772,11 @@ class RetentionAnalysis(Analysis):
 
         # write results to string
         output = 'total: ' + str(total) +'\n\n'
-        output += 'loading:\tmax {:.3f},\tavg {:.3f}\n'.format(numpy.max(loading), numpy.mean(loading))
+        output += 'loading:\tmax {:.3f},\tavg {:.3f}\n'.format(numpy.nanmax(loading), numpy.nanmean(loading))
         output += '\n'.join(['\t'.join(map(lambda x: '{:.3f}'.format(x), loading[row*columns:(row+1)*columns])) for row in xrange(rows)]) + '\n\n'
-        output += 'retention:\tmax {:.3f},\tavg {:.3f}\n'.format(numpy.max(retention), numpy.mean(retention))
+        output += 'retention:\tmax {:.3f},\tavg {:.3f}\n'.format(numpy.nanmax(retention), numpy.nanmean(retention))
         output += '\n'.join(['\t'.join(map(lambda x: '{:.3f}'.format(x), retention[row*columns:(row+1)*columns])) for row in xrange(rows)]) + '\n\n'
-        output += 'reloading:\tmax {:.3f},\tavg {:.3f}\n'.format(numpy.max(reloading), numpy.mean(reloading))
+        output += 'reloading:\tmax {:.3f},\tavg {:.3f}\n'.format(numpy.nanmax(reloading), numpy.nanmean(reloading))
         output += '\n'.join(['\t'.join(map(lambda x: '{:.3f}'.format(x), reloading[row*columns:(row+1)*columns])) for row in xrange(rows)]) + '\n'
 
         return loaded, retained, reloaded, loading, retention, reloading, output
