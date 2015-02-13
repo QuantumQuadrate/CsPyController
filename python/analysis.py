@@ -1644,7 +1644,7 @@ class Ramsey(AnalysisWithFigure):
         self.properties += ['enable', 'draw_error_bars', 'roi', 'time_variable_name', 'amplitude_guess', 'frequency_guess', 'offset_guess', 'decay_guess']
 
     def fitFunc(self, t, amplitude, frequency, offset, decay):
-        return amplitude*numpy.cos(2*numpy.pi*frequency*t)*numpy.exp(decay*t)+offset
+        return amplitude*numpy.cos(2*numpy.pi*frequency*t)*numpy.exp(t/decay)+offset
 
     def analyzeExperiment(self, experimentResults):
         """For all iterations in this experiment, calculate the retention fraction.  This should result in a cosine
@@ -1657,7 +1657,11 @@ class Ramsey(AnalysisWithFigure):
             self.sigma = numpy.zeros(num_iterations, dtype=numpy.float64)
             for i in xrange(num_iterations):
                 # pick out the relevant data.  Indices will be (measurement, shot).
-                d1 = numpy.array([m['analysis/squareROIthresholded'][:, self.roi] for m in experimentResults['iterations/'+str(i)+'/measurements'].itervalues()])
+                if 'analysis/gaussian_roi/sums' in experimentResults['iterations/{}'.format(i)]:
+                    # take gaussian roi for all measurements, all shots, but only the roi of interest
+                    d1 = experimentResults['iterations/{}/analysis/gaussian_roi/sums'].value[:, :, self.roi]
+                else:  # use square ROIs
+                    d1 = numpy.array([m['analysis/squareROIthresholded'][:, self.roi] for m in experimentResults['iterations/'+str(i)+'/measurements'].itervalues()])
                 # filter for having an atom in the 1st shot.  Give the measurement index a 1D array of the booleans that are shot 0.
                 # d2 will be a 1D array of bool with shorter length, since only the ones with atoms in shot 0 are kept.
                 d2 = d1[d1[:, 0], 1]
