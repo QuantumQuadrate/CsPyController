@@ -1686,7 +1686,7 @@ enamldef DCNoiseEaterChannel(Container):
 
     Form:
         Label:
-            text = 'Set: Allow settings on computer overwrite those on noise eater'
+            text = 'Set: Allow settings on computer to overwrite those on noise eater'
         CheckBox:
             checked := item.update
         Label:
