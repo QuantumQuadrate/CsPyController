@@ -102,6 +102,7 @@ class Experiment(Prop):
     pauseAfterIteration = Bool()
     pauseAfterMeasurement = Bool()
     pauseAfterError = Bool()
+    reload_settings_after_pause = Bool()
     saveData = Bool()
     saveSettings = Bool()
     settings_path = Str()
@@ -184,6 +185,7 @@ class Experiment(Prop):
     gui = Member()  # a reference to the gui Main, for use in Prop.set_gui
     optimizer = Member()
     ivarBases = Member()
+    instrument_update_needed = Bool(True)
 
     def __init__(self):
         """Defines a set of instruments, and a sequence of what to do with them."""
@@ -209,15 +211,16 @@ class Experiment(Prop):
         self.analyses = []
 
         self.properties += ['version', 'constantsStr', 'independentVariables', 'dependentVariablesStr',
-                            'pauseAfterIteration', 'pauseAfterMeasurement', 'pauseAfterError', 'saveData',
-                            'saveSettings', 'settings_path', 'save_separate_notes', 'save2013styleFiles',
-                            'localDataPath', 'networkDataPath', 'copyDataToNetwork',
-                            'experimentDescriptionFilenameSuffix', 'measurementTimeout', 'measurementsPerIteration',
-                            'willSendEmail', 'emailAddresses', 'progress', 'progressGUI', 'iteration', 'measurement',
-                            'goodMeasurements', 'totalIterations', 'timeStarted', 'currentTime', 'timeElapsed',
-                            'timeRemaining', 'totalTime', 'completionTime', 'constantReport', 'variableReport',
-                            'variablesNotToSave', 'notes', 'max_iterations', 'enable_sounds',
-                            'enable_instrument_threads', 'optimizer', 'optimizer_count', 'optimizer_iteration_count']
+                            'pauseAfterIteration', 'pauseAfterMeasurement', 'pauseAfterError',
+                            'reload_settings_after_pause', 'saveData', 'saveSettings', 'settings_path',
+                            'save_separate_notes', 'save2013styleFiles', 'localDataPath', 'networkDataPath',
+                            'copyDataToNetwork', 'experimentDescriptionFilenameSuffix', 'measurementTimeout',
+                            'measurementsPerIteration', 'willSendEmail', 'emailAddresses', 'progress', 'progressGUI',
+                            'iteration', 'measurement', 'goodMeasurements', 'totalIterations', 'timeStarted',
+                            'currentTime', 'timeElapsed', 'timeRemaining', 'totalTime', 'completionTime',
+                            'constantReport', 'variableReport', 'variablesNotToSave', 'notes', 'max_iterations',
+                            'enable_sounds', 'enable_instrument_threads', 'optimizer', 'optimizer_count',
+                            'optimizer_iteration_count']
         #we do not load in status as a variable, to allow old settings to be loaded without bringing in the status of
         #the saved experiments
 
@@ -508,11 +511,14 @@ class Experiment(Prop):
             while (self.status == 'running') and ((not self.optimizer.enable) or (not self.optimizer.is_done)):
                 logger.debug("starting new iteration")
 
-                # at the start of a new iteration, or if we are continuing
-                logger.debug("evaluating")
-                self.evaluate()  # update ivars to current iteration and re-calculate dependent variables
-                logger.debug("updating instruments")
-                self.update()  # send current values to hardware
+
+                # at the start of a new iteration, or every time if requested
+                if self.instrument_update_needed or self.reload_settings_after_pause:
+                    logger.debug("evaluating")
+                    self.evaluate()  # update ivars to current iteration and re-calculate dependent variables
+                    logger.debug("updating instruments")
+                    self.update()  # send current values to hardware
+                    self.instrument_update_needed = False  # no need to update the settings until the next iteration
 
                 # only at the start of a new iteration
                 if len(self.completedMeasurementsByIteration) <= self.iteration:
@@ -596,6 +602,9 @@ class Experiment(Prop):
                             self.set_gui({'valid': False})
                             # we already played the sounds after the measurement.  Don't play the sounds again.
                         # else the status is idle or error, and we should not downgrade the status to paused
+
+                    # signal that the instrument settings need to be updated at the beginning of the next iteration
+                    self.instrument_update_needed = True
 
         except PauseError:
             #This should be the only place that PauseError is explicitly handed.
@@ -834,6 +843,9 @@ class Experiment(Prop):
         # setup optimizer
         self.optimizer.setup(self.hdf5)
         self.optimizer_count = 0
+
+        # signal that settings should be updated on 1st iteration
+        self.instrument_update_needed = True
 
         self.set_status('paused before experiment')
 

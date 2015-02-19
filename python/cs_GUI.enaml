@@ -406,6 +406,11 @@ enamldef ExperimentPage(Container):
             checked:=experiment.pauseAfterError
 
         Label:
+            text='Reload settings after pause?'
+        CheckBox:
+            checked:=experiment.reload_settings_after_pause
+
+        Label:
             text = 'enable sounds'
         CheckBox:
             checked := experiment.enable_sounds
