@@ -119,9 +119,10 @@ class Analysis(Prop):
     
     def analyzeMeasurement(self, measurementResults, iterationResults, experimentResults):
         """This is called after each measurement.
-        The parameter results is a tuple of (measurementResult,iterationResult,experimentResult) references to HDF5 nodes for this measurement.
+        The parameters (measurementResults, iterationResults, experimentResults)
+        reference the HDF5 nodes for this measurement.
         Subclass this to update the analysis appropriately."""
-        return
+        pass
     
     def postIteration(self, iterationResults, experimentResults):
         if self.queueAfterIteration:
@@ -142,7 +143,7 @@ class Analysis(Prop):
     
     def analyzeIteration(self, iterationResults, experimentResults):
         """This is called after each iteration.
-        The parameter results is a tuple of (iterationResult,experimentResult) references to HDF5 nodes for this measurement.
+        The parameters (iterationResults, experimentResults) reference the HDF5 nodes for this iteration.
         Subclass this to update the analysis appropriately."""
         pass
     
@@ -1656,21 +1657,13 @@ class Ramsey(AnalysisWithFigure):
             self.t = numpy.zeros(num_iterations, dtype=numpy.float64)
             self.sigma = numpy.zeros(num_iterations, dtype=numpy.float64)
             for i in xrange(num_iterations):
-                # pick out the relevant data.  Indices will be (measurement, shot).
-                if 'analysis/gaussian_roi/sums' in experimentResults['iterations/{}'.format(i)]:
-                    # take gaussian roi for all measurements, all shots, but only the roi of interest
-                    d1 = experimentResults['iterations/{}/analysis/gaussian_roi/sums'].value[:, :, self.roi]
-                else:  # use square ROIs
-                    d1 = numpy.array([m['analysis/squareROIthresholded'][:, self.roi] for m in experimentResults['iterations/'+str(i)+'/measurements'].itervalues()])
-                # filter for having an atom in the 1st shot.  Give the measurement index a 1D array of the booleans that are shot 0.
-                # d2 will be a 1D array of bool with shorter length, since only the ones with atoms in shot 0 are kept.
-                d2 = d1[d1[:, 0], 1]
-                total = len(d2)
-                ayes = numpy.sum(d2)
-                mean = ayes/total
-                self.y[i] = mean
-                #find the 1 sigma confidence interval using the normal approximation: http://en.wikipedia.org/wiki/Binomial_proportion_confidence_interval
-                self.sigma[i] = numpy.sqrt(mean*(1-mean)/total)
+                # check to see if retention analysis was done
+                if 'analysis/loading_retention' not in experimentResults['iterations/{}'.format(i)]:
+                    logger.warning('Ramsey analysis: Retention data not present in iteration {}'.format(i))
+                    raise PauseError
+                # get retention data from the retention analysis
+                self.y[i] = experimentResults['iterations/{}/analysis/loading_retention/retention'.format(i)].value
+                self.sigma[i] = experimentResults['iterations/{}/analysis/loading_retention/retention_sigma'.format(i)].value
                 self.t[i] = experimentResults['iterations/'+str(i)+'/variables/'+self.time_variable_name].value
 
             # now that we have retention vs. time, do a curve fit
@@ -1743,13 +1736,14 @@ class RetentionAnalysis(Analysis):
             else:
                 logger.warning('invalid roi type {} in RetentionAnalysis.analyzeIteration'.format(roi_type))
 
-            loaded, retained, reloaded, loading, retention, reloading, text = self.retention(cutoffs, ROI_sums)
+            loaded, retained, reloaded, loading, retention, retention_sigma, reloading, text = self.retention(cutoffs, ROI_sums)
 
             iterationResults['analysis/loading_retention/loaded'] = loaded
             iterationResults['analysis/loading_retention/retained'] = retained
             iterationResults['analysis/loading_retention/reloaded'] = reloaded
             iterationResults['analysis/loading_retention/loading'] = loading
             iterationResults['analysis/loading_retention/retention'] = retention
+            iterationResults['analysis/loading_retention/retention_sigma'] = retention
             iterationResults['analysis/loading_retention/reloading'] = reloading
             iterationResults['analysis/loading_retention/text'] = text
 
@@ -1772,16 +1766,19 @@ class RetentionAnalysis(Analysis):
 
         loading = loaded/total
         retention = retained/loaded
+        # find the 1 sigma confidence interval for binomial data using the normal approximation:
+        # http://en.wikipedia.org/wiki/Binomial_proportion_confidence_interval
+        retention_sigma = numpy.sqrt(retention*(1-retention)/loaded)
         reloading = reloaded/total
 
         # write results to string
-        output = 'total: ' + str(total) +'\n\n'
-        output += 'loading:\tmax {:.3f},\tavg {:.3f}\n'.format(numpy.nanmax(loading), numpy.nanmean(loading))
-        output += '\n'.join(['\t'.join(map(lambda x: '{:.3f}'.format(x), loading[row*columns:(row+1)*columns])) for row in xrange(rows)]) + '\n\n'
-        output += 'retention:\tmax {:.3f},\tavg {:.3f}\n'.format(numpy.nanmax(retention), numpy.nanmean(retention))
-        output += '\n'.join(['\t'.join(map(lambda x: '{:.3f}'.format(x), retention[row*columns:(row+1)*columns])) for row in xrange(rows)]) + '\n\n'
-        output += 'reloading:\tmax {:.3f},\tavg {:.3f}\n'.format(numpy.nanmax(reloading), numpy.nanmean(reloading))
-        output += '\n'.join(['\t'.join(map(lambda x: '{:.3f}'.format(x), reloading[row*columns:(row+1)*columns])) for row in xrange(rows)]) + '\n'
+        text = 'total: ' + str(total) +'\n\n'
+        text += 'loading:\tmax {:.3f},\tavg {:.3f}\n'.format(numpy.nanmax(loading), numpy.nanmean(loading))
+        text += '\n'.join(['\t'.join(map(lambda x: '{:.3f}'.format(x), loading[row*columns:(row+1)*columns])) for row in xrange(rows)]) + '\n\n'
+        text += 'retention:\tmax {:.3f},\tavg {:.3f}\n'.format(numpy.nanmax(retention), numpy.nanmean(retention))
+        text += '\n'.join(['\t'.join(map(lambda x: '{:.3f}'.format(x), retention[row*columns:(row+1)*columns])) for row in xrange(rows)]) + '\n\n'
+        text += 'reloading:\tmax {:.3f},\tavg {:.3f}\n'.format(numpy.nanmax(reloading), numpy.nanmean(reloading))
+        text += '\n'.join(['\t'.join(map(lambda x: '{:.3f}'.format(x), reloading[row*columns:(row+1)*columns])) for row in xrange(rows)]) + '\n'
 
-        return loaded, retained, reloaded, loading, retention, reloading, output
+        return loaded, retained, reloaded, loading, retention, retention_sigma, reloading, text
 

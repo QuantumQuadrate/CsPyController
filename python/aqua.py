@@ -94,9 +94,9 @@ class AQuA(Experiment):
         self.properties += ['LabView', 'picomotors', 'Andor', 'DC_noise_eaters', 'box_temperature',
                             'squareROIAnalysis', 'gaussian_roi', 'TTL_filters', 'AI_graph', 'AI_filter', 'loading_filters',
                             'first_measurements_filter', 'imageSumAnalysis', 'recent_shot_analysis',
-                            'shotBrowserAnalysis', 'histogramAnalysis', 'histogram_grid', 'measurements_graph',
-                            'iterations_graph', 'retention_graph', 'andor_viewer', 'DC_noise_eater_filter',
-                            'DC_noise_eater_graph', 'Ramsey', 'retention_analysis']
+                            'shotBrowserAnalysis', 'histogramAnalysis', 'histogram_grid', 'retention_analysis',
+                            'measurements_graph', 'iterations_graph', 'retention_graph', 'andor_viewer',
+                            'DC_noise_eater_filter', 'DC_noise_eater_graph', 'Ramsey']
 
         try:
             self.allow_evaluation = False
