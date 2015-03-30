@@ -50,7 +50,7 @@ class AOEquation(EvalProp):
             value, valid = cs_evaluate.evalWithDict(self.function, varDict=vars)
             if not valid:
                 #zero the output and raise an error
-                logger.error('Exception in AO equation.evaluate: {}, {}, {}:\n{}'.format(self.name, self.description, self.function, e))
+                logger.error('Exception in AO equation.evaluate: {}, {}, {}'.format(self.name, self.description, self.function))
                 self.value = numpy.zeros_like(self.AO.timestamps)
                 raise PauseError
             elif value is None:

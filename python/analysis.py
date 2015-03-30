@@ -1093,7 +1093,7 @@ class HistogramGrid(AnalysisWithFigure):
         # see MTL thesis for derivation
         overlap1 = .5*(1 + erf((best_mean1-cutoff)/(best_width1*np.sqrt(2))))
         overlap2 = .5*(1 + erf((cutoff-best_mean2)/(best_width2*np.sqrt(2))))
-        overlap = (overlap1*best_amplitude1 + overlap2*best_amplitude2) / (best_amplitude1 + best_amplitude2)
+        overlap = (overlap1*best_amplitude1 + overlap2*best_amplitude2) / min(best_amplitude1, best_amplitude2)
 
         return hist, bin_edges, best_error, best_mean1, best_mean2, best_width1, best_width2, best_amplitude1, best_amplitude2, cutoff, loading, overlap
 
@@ -1736,7 +1736,7 @@ class RetentionAnalysis(Analysis):
             else:
                 logger.warning('invalid roi type {} in RetentionAnalysis.analyzeIteration'.format(roi_type))
 
-            loaded, retained, reloaded, loading, retention, retention_sigma, reloading, text = self.retention(cutoffs, ROI_sums)
+            loaded, retained, reloaded, loading, retention, retention_sigma, reloading, text, atoms = self.retention(cutoffs, ROI_sums)
 
             iterationResults['analysis/loading_retention/loaded'] = loaded
             iterationResults['analysis/loading_retention/retained'] = retained
@@ -1746,6 +1746,7 @@ class RetentionAnalysis(Analysis):
             iterationResults['analysis/loading_retention/retention_sigma'] = retention
             iterationResults['analysis/loading_retention/reloading'] = reloading
             iterationResults['analysis/loading_retention/text'] = text
+            iterationResults['analysis/loading_retention/atoms'] = atoms
 
             self.set_gui({'text': text})
 
@@ -1780,5 +1781,5 @@ class RetentionAnalysis(Analysis):
         text += 'reloading:\tmax {:.3f},\tavg {:.3f}\n'.format(numpy.nanmax(reloading), numpy.nanmean(reloading))
         text += '\n'.join(['\t'.join(map(lambda x: '{:.3f}'.format(x), reloading[row*columns:(row+1)*columns])) for row in xrange(rows)]) + '\n'
 
-        return loaded, retained, reloaded, loading, retention, retention_sigma, reloading, text
+        return loaded, retained, reloaded, loading, retention, retention_sigma, reloading, text, atoms
 
