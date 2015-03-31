@@ -15,7 +15,9 @@ logger = logging.getLogger(__name__)
 
 from atom.api import Bool, Member
 from instrument_property import Prop
-    
+import numpy, struct, traceback, threading
+import TCP
+
 class Instrument(Prop):
     enable = Bool()
     isInitialized = Bool()
@@ -74,3 +76,169 @@ class Instrument(Prop):
     def writeResults(self, hdf5):
         """Write results to the hdf5 file.  Must be overwritten in subclass to do anything."""
         pass
+
+class TCP_Instrument(Instrument):
+    """
+    This class inherets from Instrument but has the capability to do TCP communication to an instrument server.
+    This class is generalized from the LabView class.
+    """
+
+    port = Member()
+    IP = Str()
+    connected = Member()
+    msg = Str()
+    results = Member()
+    sock = Member()
+    timeout = Typed(FloatProp)
+    error = Bool()
+    log = Str()
+
+    def __init__(self, name, experiment, description=''):
+        super(TCP_Instrument, self).__init__(name, experiment, description)
+
+        #defaults
+        self.port = 0
+        self.connected = False
+        self.error = False
+
+        self.connected = False
+        self.results = {}
+
+        self.sock = None
+        self.connected = False
+
+        self.properties += ['IP', 'port']
+        self.doNotSendToHardware += ['IP', 'port']
+
+    def openThread(self):
+        thread = threading.Thread(target=self.initialize)
+        thread.daemon = True
+        thread.start()
+
+    def open(self):
+
+        if self.enable:
+
+            logger.debug('Opening {} TCP.'.format(self.name))
+            #check for an old socket and delete it
+            if self.sock is not None:
+                logger.debug('Closing previously open sock.')
+                try:
+                    self.sock.close()
+                except Exception as e:
+                    logger.debug('Ignoring exception during sock.close() of previously open sock.\n{}\n'.format(e))
+                try:
+                    del self.sock
+                except Exception as e:
+                    logger.debug('Ignoring exception during sock.close() of previously open sock.\n{}\n'.format(e))
+
+            # Create a TCP/IP socket
+            logger.debug('{}.open() opening sock'.format(self.name))
+            try:
+                self.sock = TCP.CsClientSock(self.IP, self.port, parent=self)
+            except Exception as e:
+                logger.warning('Failed to open TCP socket in {}.open():\n{}\n'.format(self.name, e))
+                raise PauseError
+            logger.debug('{}.open() sock opened'.format(self.name))
+            self.connected = True
+
+    def initialize(self):
+        self.open()
+        logger.debug('Initializing LabView instruments.')
+        super(TCP_Instrument, self).initialize()
+
+    def close(self):
+        if self.sock is not None:
+            self.sock.close()
+        self.connected = False
+        self.isInitialized = False
+
+    def update(self):
+        """Send the current values to hardware."""
+
+        super(TCP_Instrument, self).update()
+        self.send(self.toHardware())
+
+    def start(self):
+        #self.send('<LabView><measure/></LabView>')
+        pass
+
+    def writeResults(self, hdf5):
+        """Write the previously obtained results to the experiment hdf5 file.
+        hdf5 is an hdf5 group, typically the data group in the appropriate part of the
+        hierarchy for the current measurement."""
+
+        for key, value in self.results.iteritems():
+
+            # no special protocol
+            try:
+                hdf5[key] = value
+            except Exception as e:
+                logger.error('Exception in {}.writeResults() doing hdf5[key]=value for key='+key+'\n'+str(self.name, e))
+                raise PauseError
+
+    def send(self, msg):
+        results = {}
+        if self.enable:
+            if not (self.isInitialized and self.connected):
+                logger.debug('TCP is not both initialized and connected.  Reinitializing TCP in {}.send().'.format(self.name))
+                self.initialize()
+
+            #display message on GUI
+            self.set_dict({'msg': msg})
+
+            #send message
+            logger.debug('{} sending message ...'.format(self.name))
+            try:
+                self.sock.settimeout(self.timeout.value)
+                self.sock.sendmsg(msg)
+            except IOError:
+                logger.warning('Timeout while waiting to send data in {}.send():\n{}\n'.format(self.name, e))
+                self.connected = False
+                raise PauseError
+            except Exception as e:
+                logger.warning('Exception while sending message in {}.send():\n{}\n{}\n'.format(self.name, e, traceback.format_exc()))
+                self.connected = False
+                raise PauseError
+
+            #wait for response
+            logger.debug('{} waiting for response ...'.format(self.name))
+            try:
+                rawdata = self.sock.receive()
+            except IOError as e:
+                logger.warning('Timeout while waiting for return data in {}.send():\n{}\n'.format(self.name, e))
+                self.connected = False
+                raise PauseError
+            except Exception as e:
+                logger.warning('Exception in {}.sock.receive:\n{}\n{}\n'.format(self.name, e, traceback.format_exc()))
+                self.connected = False
+                raise PauseError
+
+            #parse results
+            logger.debug('Parsing TCP results ...')
+            results = self.sock.parsemsg(rawdata)
+            #for key, value in self.results.iteritems():
+            #    print 'key: {} value: {}'.format(key,str(value)[:40])
+
+            #report server errors
+            log = ''
+            if 'log' in results:
+                log = results['log']
+                self.set_gui({'log': self.log + log})
+            if 'error' in results:
+                error = toBool(results['error'])
+                self.set_gui({'error': error})
+                if error:
+                    logger.warning('Error returned from {}.send:\n{}\n'.format(self.name, log))
+                    raise PauseError
+
+        self.results = results
+        self.isDone = True
+        return results
+
+    def evaluate(self):
+        if self.experiment.allow_evaluation:
+            logger.debug('{}.evaluate()'.format(self.name))
+            return super(TCP_Instrument, self).evaluate()
+
+

@@ -21,7 +21,7 @@ import TCP, HSDIO, piezo, DDS, RF_generators, AnalogOutput, AnalogInput, DAQmxDO
 from atom.api import Bool, Str, Member, Typed
 from instrument_property import FloatProp
 from cs_instruments import Instrument
-import numpy, struct, traceback, threading, sys
+import numpy, struct, traceback, threading
 
 def toBool(x):
     if (x == 'False') or (x == 'false'):

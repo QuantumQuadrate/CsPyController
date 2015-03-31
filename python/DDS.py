@@ -16,36 +16,34 @@ logger = logging.getLogger(__name__)
 
 import threading
 
-from atom.api import Bool, Int, Float, Str, Typed, Member, List, observe, Atom
+from atom.api import Bool, Int, Float, Str, Typed, Member, observe, Atom
 from enaml.application import deferred_call
 from instrument_property import Prop, BoolProp, IntProp, FloatProp, StrProp, ListProp
-from cs_instruments import Instrument
+from cs_instruments import TCP_Instrument
 
 class DDS_gui(Atom):
     deviceList=Member()
     boxDescriptionList=Member()
 
-class DDS(Instrument):
-    version = '2014.07.16'
+class DDS(TCP_Instrument):
+    version = '2015.03.28'
     boxes = Typed(ListProp)
-    communicator = Member() #holds the reference to the thing that sends DDS commands, usually the LabView object
-    #deviceListStr=Str()
     deviceList = Member()
     boxDescriptionList = Member()
 
-    def __init__(self,experiment,communicator):
-        super(DDS,self).__init__('DDS',experiment)
-        self.communicator=communicator
-        self.boxes=ListProp('boxes',experiment,listElementType=DDSbox,listElementName='box',listElementKwargs={'DDS':self})
-        self.deviceList=[]
-        self.boxDescriptionList=[]
-        self.properties+=['version', 'boxes','deviceList','boxDescriptionList']
-        self.doNotSendToHardware+=['deviceList','boxDescriptionList']
+    def __init__(self, experiment):
+        super(DDS, self).__init__(name, experiment, description)
+        self.boxes = ListProp('boxes', experiment, listElementType=DDSbox, listElementName='box',
+                              listElementKwargs={'DDS': self})
+        self.deviceList = []
+        self.boxDescriptionList = []
+        self.properties += ['version', 'boxes', 'deviceList', 'boxDescriptionList']
+        self.doNotSendToHardware += ['deviceList', 'boxDescriptionList']
 
     def evaluate(self):
         if self.experiment.allow_evaluation:
             logger.debug('DDS.evaluate()')
-            super(DDS,self).evaluate()
+            super(DDS, self).evaluate()
             self.updateBoxDescriptionList()
 
     def getDDSDeviceListThread(self):
@@ -54,19 +52,20 @@ class DDS(Instrument):
         thread.start()
 
     def getDDSDeviceList(self):
-        print 'DDS: Requesting device list ...'
-        result=self.communicator.send('<LabView><getDDSDeviceList/></LabView>')
-        deviceListStr=result['DDS/devices']
-        deferred_call(setattr,self,'deviceList',deviceListStr.split('\n'))
-        print 'DDS: ... done.'
+        logger.info('DDS: Requesting device list ...')
+        result = self.send('<LabView><getDDSDeviceList/></LabView>')
+        deviceListStr = result['DDS/devices']
+        deferred_call(setattr, self, 'deviceList', deviceListStr.split('\n'))
+        logger.info('DDS: ... done.')
     
     def updateBoxDescriptionList(self):
         #sets the descriptions shown in the combo box in the GUI
         try:
-            deferred_call(setattr,self,'boxDescriptionList',[str(i)+' '+n.description for i,n in enumerate(self.boxes)])
+            deferred_call(setattr, self, 'boxDescriptionList',
+                          [str(i)+' '+n.description for i, n in enumerate(self.boxes)])
         except RuntimeError:
             #the GUI is not yet active
-            self.boxDescriptionList=[str(i)+' '+n.description for i, n in enumerate(self.boxes)]
+            self.boxDescriptionList = [str(i)+' '+n.description for i, n in enumerate(self.boxes)]
 
     def initializeDDSThread(self):
         thread = threading.Thread(target=self.initializeDDS)
@@ -77,10 +76,10 @@ class DDS(Instrument):
         #send just the DDS settings, force initialization, and then set DDS settings
         #This is not used as the instrument.initialize method at this time
 
-        print 'DDS: Requesting initialize and load ...'
-        result = self.communicator.send('<LabView><uninitializeDDS/>'+self.toHardware()+'</LabView>')
+        logger.info('DDS: Requesting initialize and load ...')
+        result = self.send('<LabView><uninitializeDDS/>'+self.toHardware()+'</LabView>')
         self.isInitialized = True
-        print 'DDS: ... done.'
+        logger.info('DDS: ... done.')
 
     def loadDDSThread(self):
         thread = threading.Thread(target=self.loadDDS)
@@ -89,10 +88,10 @@ class DDS(Instrument):
 
     def loadDDS(self):
         #send just the DDS settings, initialize if neccessary, and then set DDS settings
-        print 'DDS: Loading settings ...'
-        result = self.communicator.send('<LabView>'+self.toHardware()+'</LabView>')
+        logger.info('DDS: Loading settings ...')
+        result = self.send('<LabView>'+self.toHardware()+'</LabView>')
         self.isInitialized=True
-        print 'DDS: ... done.'
+        logger.info('DDS: ... done.')
 
 class DDSbox(Prop):
     enable = Bool()
@@ -104,12 +103,14 @@ class DDSbox(Prop):
     
     def __init__(self, name, experiment, description='', DDS=None):
         self.DDS = DDS
-        self.enable=False
-        self.DIOport=0
-        self.serialClockRate=1000
+        self.enable = False
+        self.DIOport = 0
+        self.serialClockRate = 1000
         super(DDSbox, self).__init__(name, experiment, description)
-        '''each box has exactly 4 channels'''
-        self.channels = ListProp('channels',experiment,listProperty=[DDSchannel('channel',self.experiment) for i in range(4)],listElementType=DDSchannel,listElementName='channel')
+        # each box has exactly 4 channels
+        self.channels = ListProp('channels', experiment,
+                                 listProperty=[DDSchannel('channel', self.experiment) for i in range(4)],
+                                 listElementType=DDSchannel, listElementName='channel')
         self.properties += ['enable', 'deviceReference', 'DIOport', 'serialClockRate', 'channels']
     
     @observe('description')
@@ -141,7 +142,10 @@ class DDSchannel(Prop):
         self.RAMDefaultPhase = FloatProp('RAMDefaultPhase', self.experiment, '[rad]', '0')
         '''each channel has exactly 8 profiles'''
         self.profileDescriptionList = []
-        self.profiles = ListProp('profiles', self.experiment, listProperty=[DDSprofile('profile', self.experiment, channel=self) for i in range(8)], listElementType=DDSprofile, listElementName='profile', listElementKwargs={'channel': self})
+        self.profiles = ListProp('profiles', self.experiment,
+                                 listProperty=[DDSprofile('profile', self.experiment, channel=self) for i in range(8)],
+                                 listElementType=DDSprofile,
+                                 listElementName='profile', listElementKwargs={'channel': self})
         self.properties += ['power', 'refClockRate', 'fullScaleOutputPower', 'RAMenable', 'RAMDestType', 'RAMDefaultFrequency',
             'RAMDefaultAmplitude', 'RAMDefaultPhase', 'profiles', 'profileDescriptionList']
         self.doNotSendToHardware += ['profileDescriptionList']
@@ -173,9 +177,6 @@ class RAMStaticPoint(Prop):
     fPhiA = Float()
     Mag = Float()
 
-    def toHardware(self):
-        return '{} {}\n'.format(fPhiA, Mag)
-
 class DDSprofile(Prop):
     frequency = Typed(FloatProp)
     amplitude = Typed(FloatProp)
@@ -192,36 +193,40 @@ class DDSprofile(Prop):
     RAMStaticArray = Typed(ListProp)
     channel = Member()
     
-    def __init__(self,name,experiment,description='',channel=None):
-        self.channel=channel
-        super(DDSprofile,self).__init__(name,experiment,description)
-        self.frequency=FloatProp('frequency',self.experiment,'[MHz]','0')
-        self.amplitude=FloatProp('amplitude',self.experiment,'[dBm]','0')
-        self.phase=FloatProp('phase',self.experiment,'[rad]','0')
-        self.RAMMode=StrProp('RAMMode',self.experiment,'','"Direct Switch"')
-        self.ZeroCrossing=BoolProp('ZeroCrossing',self.experiment,'','False')
-        self.NoDwellHigh=BoolProp('NoDwellHigh',self.experiment,'','False')
-        self.FunctionOrStatic=BoolProp('FunctionOrStatic',self.experiment,'True=function, False=static','False')
-        self.RAMFunction=StrProp('RAMFunction',self.experiment,'','""')
-        self.RAMInitialValue=FloatProp('RAMInitialValue',self.experiment,'','0')
-        self.RAMStepValue=FloatProp('RAMStepValue',self.experiment,'','0')
-        self.RAMTimeStep=FloatProp('RAMTimeStep',self.experiment,'[us]','0')
-        self.RAMNumSteps=IntProp('RAMNumSteps',self.experiment,'','0')
-        self.RAMStaticArray=ListProp('RAMStaticArray', self.experiment, listElementType=RAMStaticPoint, listElementName='point')
-        self.properties+=['frequency','amplitude','phase','RAMMode','ZeroCrossing','NoDwellHigh',
-            'FunctionOrStatic','RAMFunction','RAMInitialValue','RAMStepValue','RAMTimeStep','RAMNumSteps','RAMStaticArray']
-        self.doNotSendToHardware+=['RAMFunction','RAMInitialValue','RAMStepValue','RAMTimeStep','RAMNumSteps','RAMStaticArray']
+    def __init__(self, name, experiment, description='', channel=None):
+        self.channel = channel
+        super(DDSprofile, self).__init__(name, experiment, description)
+        self.frequency = FloatProp('frequency', self.experiment, '[MHz]', '0')
+        self.amplitude = FloatProp('amplitude', self.experiment, '[dBm]', '0')
+        self.phase = FloatProp('phase', self.experiment, '[rad]', '0')
+        self.RAMMode = IntProp('RAMMode', self.experiment,
+                               '0:Direct Switch, 1:Ramp Up, 2:Bidirectional Ramp, 3:Continuous Bidirectional Ramp, 4: Continuous Recirculate, 5: Direct Switch 2, 6: Direct Switch 3',
+                               '1')
+        self.ZeroCrossing = BoolProp('ZeroCrossing', self.experiment, '', 'False')
+        self.NoDwellHigh = BoolProp('NoDwellHigh', self.experiment, '', 'False')
+        self.FunctionOrStatic = BoolProp('FunctionOrStatic', self.experiment, 'True=function, False=static', 'False')
+        self.RAMFunction = StrProp('RAMFunction', self.experiment, '', '""')
+        self.RAMInitialValue = FloatProp('RAMInitialValue', self.experiment, '', '0')
+        self.RAMStepValue = FloatProp('RAMStepValue',self.experiment, '', '0')
+        self.RAMTimeStep = FloatProp('RAMTimeStep', self.experiment, '[us]', '0')
+        self.RAMNumSteps = IntProp('RAMNumSteps', self.experiment, '', '0')
+        self.RAMStaticArray = ListProp('RAMStaticArray', self.experiment, listElementType=RAMStaticPoint, listElementName='point')
+        self.properties += ['frequency', 'amplitude', 'phase', 'RAMMode', 'ZeroCrossing', 'NoDwellHigh',
+                            'FunctionOrStatic', 'RAMFunction', 'RAMInitialValue', 'RAMStepValue', 'RAMTimeStep',
+                            'RAMNumSteps', 'RAMStaticArray']
+        self.doNotSendToHardware += ['RAMFunction', 'RAMInitialValue', 'RAMStepValue', 'RAMTimeStep', 'RAMNumSteps',
+                                     'RAMStaticArray']
 
     @observe('description')
     def descriptionChanged(self, change):
         self.channel.updateProfileDescriptionList()
     
-    #override from Prop to give special formating of RAMFunction and RAMStaticArray.  They are in doNotSendToHardware, so they will not otherwise be sent
     def toHardware(self):
-        '''This function provides generic hardware communication XML for this package.  It is similar to toXML(self),
-        but in the end it puts out str(value) of each property, which is useful to the hardware, and does not put out any of the
-        function information that leads to those values.'''
-        output=''
+        """
+        Override from Prop to give special formating of RAMFunction and RAMStaticArray.
+        They are in doNotSendToHardware, so they will not otherwise be sent.
+        """
+        output = ''
         
         #go through list of single properties:
         for p in self.properties: # I use a for loop instead of list comprehension so I can have more detailed error reporting.
@@ -237,7 +242,7 @@ class DDSprofile(Prop):
         
         #special formatting for RAMFunction
         output += '<RAMFunction>{}\t{}\t{}\t{}\t{}</RAMFunction>'.format(self.RAMFunction.value, self.RAMInitialValue.value, self.RAMStepValue.value, self.RAMTimeStep.value, self.RAMNumSteps.value)
-        output += '<RAMStaticArray>{}</RAMStaticArray>'.format('\t'.join([i.value for i in self.RAMStaticArray]))
+        output += '<RAMStaticArray>{}</RAMStaticArray>'.format('\n'.join(['{} {}'.format(i.fPhiA, i.Mag) for i in self.RAMStaticArray]))
         
         try:
             return '<{}>{}</{}>\n'.format(self.name, output, self.name)

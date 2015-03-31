@@ -1314,70 +1314,95 @@ enamldef DDS_box(Form):
 enamldef DDS_Page(Container): page:
     attr DDS
 
-    Container:
-        hug_width='strong'
-        hug_height='strong'
-        constraints=[vbox(hbox(enable,isInit,getDevicesButton,initButton,loadButton),stackGroup),align('v_center',getDevicesButton,initButton,loadButton,enable,isInit),enable.width==500,getDevicesButton.width==200,initButton.width==200,loadButton.width==200]
+
+    HGroup:
+        PushButton:
+            text = 'open connection'
+            clicked::
+                DDS.openThread()
+        PushButton:
+            text = 'update settings'
+            clicked::
+                DDS.update()
+        PushButton:
+            text = 'close connection'
+            clicked::
+                DDS.close()
+        Form:
+            Label: text = 'IP address'
+            Field: text := DDS.IP
+            Label: text = 'TCP port'
+            IntField: value := DDS.port
+        EvalProp:
+            prop << DDS.timeout
+        Form:
+            Label: text = 'connected'
+            CheckBox:
+                checked := DDS.connected
+                enabled = False
+            Label: text='DDS error'
+            Label: text<<str(DDS.error)
+        GroupBox:
+            title='DDS log'
+            constraints = [(height==500)|'strong']
+            hug_width='ignore'
+            ScrollArea:
+                Container:
+                    hug_height='ignore'
+                    hug_width='ignore'
+                    Label:
+                        hug_height='ignore'
+                        hug_width='ignore'
+                        text<<DDS.log
+    HGroup:
         Form:
             Label:
                 text = 'enable'
-            CheckBox: enable:
+            CheckBox:
                 checked := DDS.enable
-        PushButton: getDevicesButton:
-            text='Get DDS Device List'
-            clicked::DDS.getDDSDeviceListThread()
-        PushButton: initButton:
-            text='Initialize and Load'
-            clicked::DDS.initializeDDSThread()
-        PushButton: loadButton:
-            text='Load'
-            clicked::DDS.loadDDSThread()
-
-        #LabelBox: enable:
-        #    text='enable'
-        #    checked:=DDS.enable.value
-
-        LabelBox: isInit:
+        LabelBox:
             text='initialized?'
             checked<<DDS.isInitialized
             enabled=False #keep it greyed out.
-
-        GroupBox: stackGroup:
-            pass
-            title='DDS boxes'
-            constraints=[vbox(hbox(combo,addButton,removeButton),stack),stack.width==contents_width]
+        PushButton:
+            text='Get DDS Device List'
+            clicked :: DDS.getDDSDeviceListThread()
+        PushButton:
+            text='Initialize and Load'
+            clicked :: DDS.initializeDDSThread()
+        PushButton:
+            text='Load'
+            clicked :: DDS.loadDDSThread()
+    GroupBox:
+        pass
+        title = 'DDS boxes'
+        constraints = [stack.width==contents_width]
+        HGroup:
             ComboBox: combo:
                 items<<list(DDS.boxDescriptionList)
                 index = (0 if (DDS.boxes.length>0) else -1) # pick first profile on load
-            PushButton: addButton:
+            PushButton:
                 text='+'
                 constraints=[width==50,height==20]
                 clicked::
                     DDS.boxes.add()
                     DDS.updateBoxDescriptionList()
                     combo.index=len(DDS.boxes)-2 #point to new box
-            PushButton: removeButton:
+            PushButton:
                 text='-'
-                constraints=[width==50,height==20]
+                constraints = [width==50,height==20]
                 clicked::
-                    i=combo.index
-                    if i>=0:
+                    i = combo.index
+                    if i >= 0:
                         DDS.boxes.pop(i)
                         DDS.updateBoxDescriptionList()
-                        combo.index=i-1
-#            Stack: stack:
-#                index<<combo.index
-#                RefreshableLooper:
-#                    iterable<<DDS.boxes
-#                    StackItem:
-#                        DDS_box:
-#                            box<<loop_item
-            Container: stack:
-                padding = 0
-                Conditional:
-                    condition << ((DDS.boxes.length>0) and (combo.index >= 0))
-                    DDS_box:
-                        box<<DDS.boxes.listProperty[combo.index]
+                        combo.index = i-1
+        Container:
+            padding = 0
+            Conditional:
+                condition << ((DDS.boxes.length>0) and (combo.index >= 0))
+                DDS_box:
+                    box << DDS.boxes.listProperty[combo.index]
 
 enamldef RF_gen(StackItem):
     attr item
