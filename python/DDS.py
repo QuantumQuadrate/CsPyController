@@ -135,7 +135,7 @@ class DDSchannel(Prop):
         self.refClockRate = IntProp('refClockRate', self.experiment, '[MHz]', '1000')
         self.fullScaleOutputPower = FloatProp('fullScaleOutputPower', self.experiment, '[dBm]', '0')
         self.RAMenable = BoolProp('RAMenable', self.experiment, 'RAM enable', 'False')
-        self.RAMDestType = IntProp('RAMDestType', self.experiment, 'RAM Destination Type (integer code)', '0')
+        self.RAMDestType = IntProp('RAMDestType', self.experiment, 'RAM Destination Type (0:Frequency,1:Phase,2:Amplitude,3:Polar)', '0')
         self.RAMDefaultFrequency = FloatProp('RAMDefaultFrequency', self.experiment, '[MHz]', '0')
         self.RAMDefaultAmplitude = FloatProp('RAMDefaultAmplitude', self.experiment, '[dBm]', '0')
         self.RAMDefaultPhase = FloatProp('RAMDefaultPhase', self.experiment, '[rad]', '0')
@@ -161,6 +161,20 @@ class DDSchannel(Prop):
                 #the GUI is not yet active
                 self.profileDescriptionList = pdl
 
+class RAMStaticPoint(Prop):
+    """ Used to send one point for the RAM static array to the LabView controller.
+    fPhiA stores the frequency, phase, or amplitude
+    Mag stores the polar magnitude
+
+    These are used in a ListProp, which is passed to labview as an nx2 array.
+    It is transposed in LabView to a 2xn array, with the first row as f/phi/A and the 2nd row as Mag.
+    """
+
+    fPhiA = Float()
+    Mag = Float()
+
+    def toHardware(self):
+        return '{} {}\n'.format(fPhiA, Mag)
 
 class DDSprofile(Prop):
     frequency = Typed(FloatProp)
@@ -193,7 +207,7 @@ class DDSprofile(Prop):
         self.RAMStepValue=FloatProp('RAMStepValue',self.experiment,'','0')
         self.RAMTimeStep=FloatProp('RAMTimeStep',self.experiment,'','0')
         self.RAMNumSteps=IntProp('RAMNumSteps',self.experiment,'','0')
-        self.RAMStaticArray=ListProp('RAMStaticArray',self.experiment,listElementType=IntProp,listElementName='int')
+        self.RAMStaticArray=ListProp('RAMStaticArray', self.experiment, listElementType=RAMStaticPoint, listElementName='point')
         self.properties+=['frequency','amplitude','phase','RAMMode','ZeroCrossing','NoDwellHigh',
             'FunctionOrStatic','RAMFunction','RAMInitialValue','RAMStepValue','RAMTimeStep','RAMNumSteps','RAMStaticArray']
         self.doNotSendToHardware+=['RAMFunction','RAMInitialValue','RAMStepValue','RAMTimeStep','RAMNumSteps','RAMStaticArray']
@@ -214,19 +228,19 @@ class DDSprofile(Prop):
             if p not in self.doNotSendToHardware:
                 #convert the string name to an actual object
                 try:
-                    o=getattr(self,p)
+                    o = getattr(self, p)
                 except:
                     logger.warning('In Prop.toHardware() for class '+self.name+': item '+p+' in properties list does not exist.\n')
                     continue
                 
-                output+=self.HardwareProtocol(o,p)
+                output+=self.HardwareProtocol(o, p)
         
         #special formatting for RAMFunction
-        output+='<RAMFunction>{}\t{}\t{}\t{}\t{}</RAMFunction>'.format(self.RAMFunction.value,self.RAMInitialValue.value,self.RAMStepValue.value,self.RAMTimeStep.value,self.RAMNumSteps.value)
-        output+='<RAMStaticArray>{}</RAMStaticArray>'.format('\t'.join([i.value for i in self.RAMStaticArray]))
+        output += '<RAMFunction>{}\t{}\t{}\t{}\t{}</RAMFunction>'.format(self.RAMFunction.value, self.RAMInitialValue.value, self.RAMStepValue.value, self.RAMTimeStep.value, self.RAMNumSteps.value)
+        output += '<RAMStaticArray>{}</RAMStaticArray>'.format('\t'.join([i.value for i in self.RAMStaticArray]))
         
         try:
-            return '<{}>{}</{}>\n'.format(self.name,output,self.name)
+            return '<{}>{}</{}>\n'.format(self.name, output, self.name)
         except Exception as e:
             logger.warning('While in format() in DDSProfile.toHardware() in '+self.name+'.\n'+str(e)+'\n')
             return ''

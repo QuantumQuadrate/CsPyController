@@ -1184,7 +1184,20 @@ enamldef DDS_profile(Container):
             IndexedStack:
                 title='RAMStaticArray'
                 iterable<<profile.RAMStaticArray
-                viewType=ItemProp
+                viewType=RAMStaticPoint
+
+enamldef RAMStaticPoint(StackItem):
+    attr item
+    Container:
+        Form:
+            Label:
+                text = 'f/phi/A'
+            FloatField:
+                value := item.fPhiA
+            Label:
+                text = 'Mag'
+            FloatField:
+                value := item.Mag
 
 enamldef ItemProp(StackItem):
     attr item

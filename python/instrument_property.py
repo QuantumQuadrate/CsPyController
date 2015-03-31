@@ -793,3 +793,12 @@ class Numpy2DProp(Prop):
 
     def fromHDF5(self, hdf):
         self.array = hdf.value.astype(self.dtype)
+
+    def toHardware(self):
+        try:
+            valueStr = '\n'.join([' '.join(map(str, i)) for i in self.array])
+        except Exception as e:
+            logger.warning('Exception in Numpy2DProp.toHardware() in '+self.name+' .\n'+str(e))
+            raise PauseError
+        return '<{}>{}</{}>\n'.format(self.name, valueStr, self.name)
+
