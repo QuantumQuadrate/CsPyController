@@ -172,8 +172,7 @@ class TCP_Instrument(Instrument):
         self.send(self.toHardware())
 
     def start(self):
-        #self.send('<LabView><measure/></LabView>')
-        pass
+        self.isDone = True
 
     def writeResults(self, hdf5):
         """Write the previously obtained results to the experiment hdf5 file.
