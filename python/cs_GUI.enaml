@@ -1311,55 +1311,27 @@ enamldef DDS_box(Form):
                 index<<loop_index
                 channel<<loop_item
 
-enamldef DDS_Page(Container): page:
+enamldef DDS_Page(Container):
     attr DDS
 
-
     HGroup:
+        align_widths = False
         PushButton:
             text = 'open connection'
             clicked::
                 DDS.openThread()
         PushButton:
-            text = 'update settings'
-            clicked::
-                DDS.update()
-        PushButton:
             text = 'close connection'
             clicked::
                 DDS.close()
-        Form:
-            Label: text = 'IP address'
-            Field: text := DDS.IP
-            Label: text = 'TCP port'
-            IntField: value := DDS.port
+        Label: text = 'IP address'
+        Field: text := DDS.IP
+        Label: text = 'TCP port'
+        IntField: value := DDS.port
         EvalProp:
             prop << DDS.timeout
-        Form:
-            Label: text = 'connected'
-            CheckBox:
-                checked := DDS.connected
-                enabled = False
-            Label: text='DDS error'
-            Label: text<<str(DDS.error)
-        GroupBox:
-            title='DDS log'
-            constraints = [(height==500)|'strong']
-            hug_width='ignore'
-            ScrollArea:
-                Container:
-                    hug_height='ignore'
-                    hug_width='ignore'
-                    Label:
-                        hug_height='ignore'
-                        hug_width='ignore'
-                        text<<DDS.log
-    HGroup:
-        Form:
-            Label:
-                text = 'enable'
-            CheckBox:
-                checked := DDS.enable
+        Label: text = 'enable'
+        CheckBox: checked := DDS.enable
         LabelBox:
             text='initialized?'
             checked<<DDS.isInitialized
@@ -1373,11 +1345,11 @@ enamldef DDS_Page(Container): page:
         PushButton:
             text='Load'
             clicked :: DDS.loadDDSThread()
+
     GroupBox:
-        pass
         title = 'DDS boxes'
-        constraints = [stack.width==contents_width]
         HGroup:
+            align_widths = False
             ComboBox: combo:
                 items<<list(DDS.boxDescriptionList)
                 index = (0 if (DDS.boxes.length>0) else -1) # pick first profile on load
@@ -1403,6 +1375,16 @@ enamldef DDS_Page(Container): page:
                 condition << ((DDS.boxes.length>0) and (combo.index >= 0))
                 DDS_box:
                     box << DDS.boxes.listProperty[combo.index]
+
+    Form:
+        Label: text = 'connected'
+        CheckBox:
+            checked := DDS.connected
+            enabled = False
+        Label: text='DDS error'
+        Label: text<<str(DDS.error)
+        Label: text='DDS log'
+        Label: text<<DDS.log
 
 enamldef RF_gen(StackItem):
     attr item
@@ -2765,7 +2747,7 @@ enamldef Main(MainWindow): main:
             ScrollPage('DAQmx', DAQmxDigitalOutPage): p7:
                 p7.content.DAQmx = main.experiment.LabView.DAQmxDO
             ScrollPage('DDS', DDS_Page): p8:
-                p8.content.DDS = main.experiment.LabView.DDS
+                p8.content.DDS = main.experiment.DDS
             ScrollPage('RF Generators', RFGenPage): p9:
                 p9.content.LabView = main.experiment.LabView
             ScrollPage('Hamamatsu', CameraPage): p10:

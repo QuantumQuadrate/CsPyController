@@ -31,7 +31,7 @@ class DDS(TCP_Instrument):
     deviceList = Member()
     boxDescriptionList = Member()
 
-    def __init__(self, experiment):
+    def __init__(self, name, experiment, description=''):
         super(DDS, self).__init__(name, experiment, description)
         self.boxes = ListProp('boxes', experiment, listElementType=DDSbox, listElementName='box',
                               listElementKwargs={'DDS': self})
@@ -82,16 +82,21 @@ class DDS(TCP_Instrument):
         logger.info('DDS: ... done.')
 
     def loadDDSThread(self):
+        #send just the DDS settings, initialize if neccessary, and then set DDS settings
         thread = threading.Thread(target=self.loadDDS)
         thread.daemon = True
         thread.start()
 
     def loadDDS(self):
-        #send just the DDS settings, initialize if neccessary, and then set DDS settings
+        """Send the current values to hardware."""
         logger.info('DDS: Loading settings ...')
-        result = self.send('<LabView>'+self.toHardware()+'</LabView>')
-        self.isInitialized=True
+        self.update()
         logger.info('DDS: ... done.')
+
+    def update(self):
+        super(TCP_Instrument, self).update()
+        self.send('<LabView>'+self.toHardware()+'</LabView>')
+        self.isInitialized = True
 
 class DDSbox(Prop):
     enable = Bool()
@@ -181,7 +186,7 @@ class DDSprofile(Prop):
     frequency = Typed(FloatProp)
     amplitude = Typed(FloatProp)
     phase = Typed(FloatProp)
-    RAMMode = Typed(StrProp)
+    RAMMode = Typed(IntProp)
     ZeroCrossing = Typed(BoolProp)
     NoDwellHigh = Typed(BoolProp)
     FunctionOrStatic = Typed(BoolProp)
@@ -214,7 +219,7 @@ class DDSprofile(Prop):
         self.properties += ['frequency', 'amplitude', 'phase', 'RAMMode', 'ZeroCrossing', 'NoDwellHigh',
                             'FunctionOrStatic', 'RAMFunction', 'RAMInitialValue', 'RAMStepValue', 'RAMTimeStep',
                             'RAMNumSteps', 'RAMStaticArray']
-        self.doNotSendToHardware += ['RAMFunction', 'RAMInitialValue', 'RAMStepValue', 'RAMTimeStep', 'RAMNumSteps',
+        self.doNotSendToHardware += ['RAMFunction', 'RAMInitialValue', 'RAMStepValue', 'RAMNumSteps',
                                      'RAMStaticArray']
 
     @observe('description')
@@ -241,7 +246,7 @@ class DDSprofile(Prop):
                 output+=self.HardwareProtocol(o, p)
         
         #special formatting for RAMFunction
-        output += '<RAMFunction>{}\t{}\t{}\t{}\t{}</RAMFunction>'.format(self.RAMFunction.value, self.RAMInitialValue.value, self.RAMStepValue.value, self.RAMTimeStep.value, self.RAMNumSteps.value)
+        output += '<RAMFunction>{}\t{}\t{}\t{}</RAMFunction>'.format(self.RAMFunction.value, self.RAMInitialValue.value, self.RAMStepValue.value, self.RAMNumSteps.value)
         output += '<RAMStaticArray>{}</RAMStaticArray>'.format('\n'.join(['{} {}'.format(i.fPhiA, i.Mag) for i in self.RAMStaticArray]))
         
         try:

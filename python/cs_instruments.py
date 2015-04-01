@@ -13,10 +13,20 @@ __author__ = 'Martin Lichtman'
 import logging
 logger = logging.getLogger(__name__)
 
-from atom.api import Bool, Member
-from instrument_property import Prop
-import numpy, struct, traceback, threading
+from cs_errors import PauseError
+
+from atom.api import Bool, Member, Str, Typed
+from instrument_property import Prop, FloatProp
+import traceback, threading
 import TCP
+
+def toBool(x):
+    if (x == 'False') or (x == 'false'):
+        return False
+    elif (x == 'True') or (x == 'true'):
+        return True
+    else:
+        return bool(x)
 
 class Instrument(Prop):
     enable = Bool()
@@ -107,8 +117,10 @@ class TCP_Instrument(Instrument):
         self.sock = None
         self.connected = False
 
-        self.properties += ['IP', 'port']
-        self.doNotSendToHardware += ['IP', 'port']
+        self.timeout = FloatProp('timeout', experiment, 'how long before TCP gives up [s]', '1.0')
+
+        self.properties += ['IP', 'port', 'timeout']
+        self.doNotSendToHardware += ['IP', 'port', 'timeout']
 
     def openThread(self):
         thread = threading.Thread(target=self.initialize)
@@ -192,7 +204,7 @@ class TCP_Instrument(Instrument):
             try:
                 self.sock.settimeout(self.timeout.value)
                 self.sock.sendmsg(msg)
-            except IOError:
+            except IOError as e:
                 logger.warning('Timeout while waiting to send data in {}.send():\n{}\n'.format(self.name, e))
                 self.connected = False
                 raise PauseError

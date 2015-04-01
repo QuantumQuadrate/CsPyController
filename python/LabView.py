@@ -40,7 +40,6 @@ class LabView(Instrument):
     connected = Member()
     msg = Str()
     HSDIO = Member()
-    DDS = Member()
     piezo = Member()
     RF_generators = Member()
     AnalogOutput = Member()
@@ -66,7 +65,6 @@ class LabView(Instrument):
 
         self.connected = False
         self.HSDIO = HSDIO.npHSDIO('HSDIO', experiment)
-        self.DDS = DDS.DDS(experiment, self)
         self.piezo = piezo.Piezo(experiment)
         self.RF_generators = RF_generators.RF_generators(experiment)
         self.AnalogOutput = AnalogOutput.AnalogOutput(experiment)
@@ -77,7 +75,7 @@ class LabView(Instrument):
         self.results = {}
         #self.Counter = Counter.Counter(experiment)
 
-        self.instruments = [self.HSDIO, self.DDS, self.piezo, self.RF_generators, self.AnalogOutput, self.AnalogInput,
+        self.instruments = [self.HSDIO, self.piezo, self.RF_generators, self.AnalogOutput, self.AnalogInput,
                             self.DAQmxDO, self.camera, self.TTL] #,self.Counter]
         
         self.sock = None
@@ -85,7 +83,7 @@ class LabView(Instrument):
         
         self.timeout = FloatProp('timeout', experiment, 'how long before LabView gives up and returns [s]', '1.0')
         
-        self.properties += ['IP', 'port', 'timeout', 'AnalogOutput', 'AnalogInput', 'HSDIO', 'DDS',
+        self.properties += ['IP', 'port', 'timeout', 'AnalogOutput', 'AnalogInput', 'HSDIO',
                             'piezo', 'RF_generators', 'DAQmxDO', 'camera', 'TTL', 'cycleContinuously']
         self.doNotSendToHardware += ['IP', 'port', 'enable']
 

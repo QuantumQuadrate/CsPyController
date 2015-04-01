@@ -8,7 +8,7 @@ import traceback
 from atom.api import Member
 
 # Bring in other files in this package
-import analysis, save2013style, TTL, LabView, roi_fitting, picomotors, andor, DCNoiseEater, Laird_temperature, AnalogInput
+import analysis, save2013style, TTL, LabView, DDS, roi_fitting, picomotors, andor, DCNoiseEater, Laird_temperature, AnalogInput
 from experiments import Experiment
 
 
@@ -18,6 +18,7 @@ class AQuA(Experiment):
     picomotors = Member()
     Andor = Member()
     LabView = Member()
+    DDS = Member()
     DC_noise_eaters = Member()
     box_temperature = Member()
 
@@ -54,10 +55,12 @@ class AQuA(Experiment):
         #add instruments
         self.picomotors = picomotors.Picomotors('picomotors', self, 'Newport Picomotors')
         self.Andor = andor.Andor('Andor', self, 'Andor Luca Camera')
-        self.LabView = LabView.LabView(experiment=self)
+        self.LabView = LabView.LabView(self)
+        self.DDS = DDS.DDS('DDS', self, 'server for homemade DDS boxes')
         self.DC_noise_eaters = DCNoiseEater.DCNoiseEaters('DC_noise_eaters', self)
         self.box_temperature = Laird_temperature.LairdTemperature('box_temperature', self)
-        self.instruments += [self.box_temperature, self.picomotors, self.Andor, self.DC_noise_eaters, self.LabView]
+        self.instruments += [self.box_temperature, self.picomotors, self.Andor, self.DC_noise_eaters, self.LabView,
+                             self.DDS]
 
         #analyses
         self.TTL_filters = TTL.TTL_filters('TTL_filters', self)
@@ -91,9 +94,9 @@ class AQuA(Experiment):
                           self.DC_noise_eater_filter, self.Ramsey, self.retention_analysis, self.save_notes,
                           self.save2013Analysis]
 
-        self.properties += ['LabView', 'picomotors', 'Andor', 'DC_noise_eaters', 'box_temperature',
-                            'squareROIAnalysis', 'gaussian_roi', 'TTL_filters', 'AI_graph', 'AI_filter', 'loading_filters',
-                            'first_measurements_filter', 'imageSumAnalysis', 'recent_shot_analysis',
+        self.properties += ['LabView', 'DDS', 'picomotors', 'Andor', 'DC_noise_eaters', 'box_temperature',
+                            'squareROIAnalysis', 'gaussian_roi', 'TTL_filters', 'AI_graph', 'AI_filter',
+                            'loading_filters', 'first_measurements_filter', 'imageSumAnalysis', 'recent_shot_analysis',
                             'shotBrowserAnalysis', 'histogramAnalysis', 'histogram_grid', 'retention_analysis',
                             'measurements_graph', 'iterations_graph', 'retention_graph', 'andor_viewer',
                             'DC_noise_eater_filter', 'DC_noise_eater_graph', 'Ramsey']

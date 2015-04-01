@@ -29,16 +29,21 @@ def guiThread(exp):
     logger.debug('importing GUI')
     with enaml.imports():
         from cs_GUI import Main
+    logger.debug('starting GUI application')
     app = QtApplication()
+    logger.debug('assigning experiment backend to GUI')
     main = Main(experiment=exp)
     #controller = Controller(exp=exp, view=main)
 
+    logger.debug('gui show')
     main.show()
+    logger.debug('gui activate')
     main.activate_window()
+    logger.debug('gui to front')
     main.send_to_front()
+    logger.debug('gui maximize')
     main.maximize()
-
-    #give the experiment a reference to the gui
+    logger.debug('give the experiment a reference to the gui')
     exp.gui = main
 
     logger.info('starting QtApplication')
