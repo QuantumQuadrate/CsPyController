@@ -182,6 +182,13 @@ class RAMStaticPoint(Prop):
     fPhiA = Float()
     Mag = Float()
 
+    def __init__(self, name, experiment, description=''):
+        super(RAMStaticPoint, self).__init__(name, experiment, description)
+        self.fPhiA = 0
+        self.Mag = 0
+        self.properties += ['fPhiA', 'Mag']
+
+
 class DDSprofile(Prop):
     frequency = Typed(FloatProp)
     amplitude = Typed(FloatProp)
@@ -247,7 +254,7 @@ class DDSprofile(Prop):
         
         #special formatting for RAMFunction
         output += '<RAMFunction>{}\t{}\t{}\t{}</RAMFunction>'.format(self.RAMFunction.value, self.RAMInitialValue.value, self.RAMStepValue.value, self.RAMNumSteps.value)
-        output += '<RAMStaticArray>{}</RAMStaticArray>'.format('\n'.join(['{} {}'.format(i.fPhiA, i.Mag) for i in self.RAMStaticArray]))
+        output += '<RAMStaticArray>{}</RAMStaticArray>'.format('\n'.join(['{}\t{}'.format(i.fPhiA, i.Mag) for i in self.RAMStaticArray]))
         
         try:
             return '<{}>{}</{}>\n'.format(self.name, output, self.name)
