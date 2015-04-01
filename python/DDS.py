@@ -98,6 +98,9 @@ class DDS(TCP_Instrument):
         self.send('<LabView>'+self.toHardware()+'</LabView>')
         self.isInitialized = True
 
+    def writeResults(self, hdf5):
+        pass
+
 class DDSbox(Prop):
     enable = Bool()
     deviceReference = Str()
