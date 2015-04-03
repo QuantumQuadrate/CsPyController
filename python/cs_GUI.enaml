@@ -276,7 +276,7 @@ enamldef CsMenuBar(MenuBar): menuBar:
             title = 'Pause...'
             Action:
                 checkable = True
-                text = 'After Measurement'
+                text = 'After Measurement\tCtrl+M'
                 checked := experiment.pauseAfterMeasurement
             Action:
                 checkable = True
