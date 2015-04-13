@@ -299,9 +299,8 @@ enamldef CsMenuBar(MenuBar): menuBar:
             text = 'Stop\tCtrl+H'
             triggered::experiment.stop()
 
-enamldef EvalProp(GroupBox): evalprop:
+enamldef EvalProp(GroupBox):
     attr prop
-    attr enabled
 
     padding = 0
     flat = True
@@ -314,13 +313,11 @@ enamldef EvalProp(GroupBox): evalprop:
     Field: desc:
         text := prop.description
         placeholder = 'description'
-        enabled = evalprop.enabled
 
     Field: func:
         text := prop.function
         placeholder = prop.placeholder
         style_class << 'valid' if prop.valid else 'invalid'
-        enabled = evalprop.enabled
 
     Label: val:
         text << prop.valueStr

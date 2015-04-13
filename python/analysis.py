@@ -1761,7 +1761,7 @@ class RetentionAnalysis(Analysis):
             iterationResults['analysis/loading_retention/reloaded'] = reloaded
             iterationResults['analysis/loading_retention/loading'] = loading
             iterationResults['analysis/loading_retention/retention'] = retention
-            iterationResults['analysis/loading_retention/retention_sigma'] = retention
+            iterationResults['analysis/loading_retention/retention_sigma'] = retention_sigma
             iterationResults['analysis/loading_retention/reloading'] = reloading
             iterationResults['analysis/loading_retention/text'] = text
             iterationResults['analysis/loading_retention/atoms'] = atoms
