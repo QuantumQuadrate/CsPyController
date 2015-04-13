@@ -1524,47 +1524,65 @@ class RetentionGraph(AnalysisWithFigure):
     def preIteration(self, iterationResults, experimentResults):
         self.current_iteration_data = None
 
-    def analyzeMeasurement(self, measurementResults, iterationResults, experimentResults):
-        """Every measurement, update the results.  Plot the ratio of shots with an atom to shots without."""
-        # Check to see if we want to do anything with this data, based on the LoadingFilters.
-        # Careful here to use .value, otherwise it will always be True if the dataset exists.
+    def analyzeIteration(self, iterationResults, experimentResults):
         if self.enable:
-            if (not self.add_only_filtered_data) or (('analysis/loading_filter' in measurementResults) and measurementResults['analysis/loading_filter'].value):
-
-                # grab already thresholded data from SquareROIAnalysis
-                a = measurementResults['analysis/squareROIthresholded']
-                # add one dimension to the data to help with appending
-                d = numpy.reshape(a, (1, a.shape[0], a.shape[1]))
-
-                if self.current_iteration_data is None:
-                    #on first measurement of an iteration, start anew
-                    new_iteration = True
-                    self.current_iteration_data = d
-                else:
-                    #else append
-                    new_iteration = False
-                    self.current_iteration_data = numpy.append(self.current_iteration_data, d, axis=0)
-
-                # average across measurements
-                # keepdims gives result with size (1 x shots X rois)
-                mean = numpy.mean(self.current_iteration_data, axis=0, keepdims=True)
-                #find the 1 sigma confidence interval using the normal approximation: http://en.wikipedia.org/wiki/Binomial_proportion_confidence_interval
-                sigma = numpy.sqrt(mean*(1-mean)/len(self.current_iteration_data))
-
+            # check to see if retention analysis was done
+            if 'analysis/loading_retention' in iterationResults:
+                # load retention, and pad arrays with an extra dimension so they can be concatenated
+                retention = iterationResults['analysis/loading_retention/retention'].value[np.newaxis]
+                sigma = iterationResults['analysis/loading_retention/retention_sigma'].value[np.newaxis]
                 if self.mean is None:
                     #on first iteration start anew
-                    self.mean = mean
+                    self.mean = retention
                     self.sigma = sigma
                 else:
-                    if new_iteration:
-                        #append
-                        self.mean = numpy.append(self.mean, mean, axis=0)
-                        self.sigma = numpy.append(self.sigma, sigma, axis=0)
-                    else:
-                        #replace last entry
-                        self.mean[-1] = mean
-                        self.sigma[-1] = sigma
+                    #append
+                    self.mean = numpy.append(self.mean, retention, axis=0)
+                    self.sigma = numpy.append(self.sigma, sigma, axis=0)
                 self.updateFigure()
+
+    def analyzeMeasurement(self, measurementResults, iterationResults, experimentResults):
+        pass
+        # """Every measurement, update the results.  Plot the ratio of shots with an atom to shots without."""
+        # # Check to see if we want to do anything with this data, based on the LoadingFilters.
+        # # Careful here to use .value, otherwise it will always be True if the dataset exists.
+        # if self.enable:
+        #     if (not self.add_only_filtered_data) or (('analysis/loading_filter' in measurementResults) and measurementResults['analysis/loading_filter'].value):
+        #
+        #         # grab already thresholded data from SquareROIAnalysis
+        #         a = measurementResults['analysis/squareROIthresholded']
+        #         # add one dimension to the data to help with appending
+        #         d = numpy.reshape(a, (1, a.shape[0], a.shape[1]))
+        #
+        #         if self.current_iteration_data is None:
+        #             #on first measurement of an iteration, start anew
+        #             new_iteration = True
+        #             self.current_iteration_data = d
+        #         else:
+        #             #else append
+        #             new_iteration = False
+        #             self.current_iteration_data = numpy.append(self.current_iteration_data, d, axis=0)
+        #
+        #         # average across measurements
+        #         # keepdims gives result with size (1 x shots X rois)
+        #         mean = numpy.mean(self.current_iteration_data, axis=0, keepdims=True)
+        #         #find the 1 sigma confidence interval using the normal approximation: http://en.wikipedia.org/wiki/Binomial_proportion_confidence_interval
+        #         sigma = numpy.sqrt(mean*(1-mean)/len(self.current_iteration_data))
+        #
+        #         if self.mean is None:
+        #             #on first iteration start anew
+        #             self.mean = mean
+        #             self.sigma = sigma
+        #         else:
+        #             if new_iteration:
+        #                 #append
+        #                 self.mean = numpy.append(self.mean, mean, axis=0)
+        #                 self.sigma = numpy.append(self.sigma, sigma, axis=0)
+        #             else:
+        #                 #replace last entry
+        #                 self.mean[-1] = mean
+        #                 self.sigma[-1] = sigma
+        #         self.updateFigure()
 
     @observe('list_of_what_to_plot', 'draw_connecting_lines', 'draw_error_bars', 'ymin', 'ymax')
     def reload(self, change):
