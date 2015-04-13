@@ -1606,12 +1606,12 @@ class RetentionGraph(AnalysisWithFigure):
                     ax = fig.add_subplot(111)
                     for i in plotlist:
                         try:
-                            mean = self.mean[:, i[0], i[1]]
-                            sigma = self.sigma[:, i[0], i[1]]
+                            mean = self.mean[:, i]
+                            sigma = self.sigma[:, i]
                         except:
-                            logger.warning('Trying to plot data that does not exist in RetentionGraph: shot {} roi {}'.format(i[0], i[1]))
+                            logger.warning('Trying to plot data that does not exist in RetentionGraph: roi {}'.format(i))
                             continue
-                        label = '({},{})'.format(i[0], i[1])
+                        label = '({})'.format(i)
                         linestyle = '-o' if self.draw_connecting_lines else 'o'
                         if self.draw_error_bars:
                             ax.errorbar(numpy.arange(len(mean)), mean, yerr=sigma, fmt=linestyle, label=label)

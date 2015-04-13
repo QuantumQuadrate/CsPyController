@@ -299,8 +299,10 @@ enamldef CsMenuBar(MenuBar): menuBar:
             text = 'Stop\tCtrl+H'
             triggered::experiment.stop()
 
-enamldef EvalProp(GroupBox):
+enamldef EvalProp(GroupBox): evalprop:
     attr prop
+    attr enabled
+
     padding = 0
     flat = True
     title << prop.name
@@ -312,11 +314,13 @@ enamldef EvalProp(GroupBox):
     Field: desc:
         text := prop.description
         placeholder = 'description'
+        enabled = evalprop.enabled
 
     Field: func:
         text := prop.function
         placeholder = prop.placeholder
         style_class << 'valid' if prop.valid else 'invalid'
+        enabled = evalprop.enabled
 
     Label: val:
         text << prop.valueStr
@@ -1227,6 +1231,7 @@ enamldef DDS_channel(GroupBox):
             prop<<channel.power
         EvalProp: refClockRate:
             prop<<channel.refClockRate
+            enabled = False
         EvalProp: fullScaleOutputPower:
             prop<<channel.fullScaleOutputPower
     
@@ -2385,7 +2390,7 @@ enamldef RetentionGraph(Container):
 
     Form:
         Label:
-            text = 'specify shots and regions to graph with a list of pairs: [(shot,region),(shot,region)]'
+            text = 'specify regions to graph with a list: [region1, region2]'
         Field:
             text := analysis.list_of_what_to_plot
     HGroup:
