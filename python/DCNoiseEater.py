@@ -25,6 +25,7 @@ import serial
 import serial.tools.list_ports
 from atom.api import Str, Typed, Member, Bool, observe, Int
 from enaml.application import deferred_call
+import sound
 from instrument_property import Prop, IntProp, ListProp
 from cs_instruments import Instrument
 from analysis import Analysis, AnalysisWithFigure
