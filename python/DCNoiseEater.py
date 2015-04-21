@@ -356,10 +356,14 @@ class DCNoiseEaterFilter(Analysis):
     what_to_filter = Str()  # string representing a list of [(box,channel,variable,low,high), (box,channel,variable,low,high)]
     text = Str()
     filter_level = Int()
+    number_of_consecutive_failed_measurements = Int()
 
     def __init__(self, name, experiment, description=''):
         super(DCNoiseEaterFilter, self).__init__(name, experiment, description)
         self.properties += ['enable', 'what_to_filter', 'filter_level']
+
+    def preExperiment(self, experimentResults):
+        self.number_of_consecutive_failed_measurements = 0
 
     def analyzeMeasurement(self, measurementResults, iterationResults, experimentResults):
         text = ''
@@ -391,9 +395,15 @@ class DCNoiseEaterFilter(Analysis):
                 #record to the log and screen
                 logger.warning(text)
                 self.set_gui({'text': text})
+
+                self.number_of_consecutive_failed_measurements += 1
+                if (self.number_of_consecutive_failed_measurements > 10) and self.experiment.enable_sounds:
+                    sound.warning_sound()
+
                 # User chooses whether or not to delete data.
                 # max takes care of ComboBox returning -1 for no selection
                 return max(0, self.filter_level)
             else:
+                self.number_of_consecutive_failed_measurements = 0
                 text = 'okay'
         self.set_gui({'text': text})
