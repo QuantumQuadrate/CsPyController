@@ -5,7 +5,7 @@ TCP ports: 9000 LabView, 9001 Laird box temp
 current question:
 
 TODO:
-    Make sure that experiment can continue on error without having a conflict on measurement number.
+    Play sounds in a separate thread so they don't slow down the execution.
     Apply optimizer min/max BEFORE optimizer calculations, so correct values are actually used and recorded.
     Test optimizers with numerical functions.
     Limit size of log file.
@@ -52,6 +52,7 @@ TODO:
     Use Atom ContainerList instead of List to put listeners on append and delete
 
 Done:
+    Make sure that experiment can continue on error without having a conflict on measurement number.
     Add 'iterations' to two-layer optimizer directory so that 'analysis' can be separate
     use hdf5 hard links to create optimization sub-experiments
     optimizer exits after 1st iteration.  Does not continue.
