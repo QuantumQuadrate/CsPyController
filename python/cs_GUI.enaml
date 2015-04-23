@@ -381,7 +381,7 @@ enamldef LabelField(VGroup):
 #class RefreshableComboBox(ComboBox):
 #    refresh = EnamlEvent
 
-enamldef ExperimentPage(Container):
+enamldef ExperimentPage(Window):
     attr experiment
 
     Form: form:
@@ -2684,6 +2684,19 @@ template ScrollPage(Title, Content):
                 Content: content:
                     pass
 
+template ScrollWindow(Title, Content):
+    Window:
+        alias content
+        title = Title
+        style_class << 'valid' if experiment.valid else 'invalid'
+        Container:
+            padding = 0
+            style_class << 'valid' if experiment.valid else 'invalid'
+            ScrollArea:
+                style_class << 'valid' if experiment.valid else 'invalid'
+                Content: content:
+                    pass
+
 enamldef RetentionAnalysis(Container):
     attr analysis
 
@@ -2724,16 +2737,19 @@ enamldef Main(MainWindow): main:
                 minimum=0
                 maximum=100
                 value<<int(experiment.progressGUI)
-    Container:
-        padding = 0
-        Notebook: notebook:
-            tabs_closable=False
-            tabs_movable=False
-            tab_style = 'preferences'
-            size_hint_mode = 'current'
+    HGroup:
+        align_widths = False
+        Label: text = 'Select a window to open:'
+        ComboBox:
+            items = ['','Experiment','IndependentVariables']
+            index ::
+                if selected_item == 'Experiment':
+                    new = ExperimentPage(experiment = main.experiment)
+                    new.show()
 
-            ScrollPage('Experiment', ExperimentPage): p1:
-                p1.content.experiment = main.experiment
+enamldef OtherStuff(MainWindow):
+    Container:
+        Container:
             ScrollPage('Independent Vars', IndependentVariablesGroupBox): p2a:
                 p2a.content.independentVariables = main.experiment.independentVariables
             ScrollPage('Constants and Dependent Vars', Variables): p2:
