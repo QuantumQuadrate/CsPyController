@@ -3046,7 +3046,7 @@ window_dictionary = {'':'',
                      'Independent Variables': 'IndependentVariables(independentVariables = main.experiment.independentVariables)',
                      'Constants and Dependent Vars': 'Variables(experiment = main.experiment)',
                      'Report': 'Reports(experiment = main.experiment)',
-                     'LabView': 'LabViewPage(LabView = main.experiment.LabView)',
+                     'PXI Communication': 'LabViewPage(LabView = main.experiment.LabView)',
                      'HSDIO': 'HSDIO_DigitalOutPage(HSDIO = main.experiment.LabView.HSDIO)',
                      'Waveforms': 'Waveforms(HSDIO = main.experiment.LabView.HSDIO)',
                      'DAQmx': 'DAQmxDigitalOutPage(DAQmx = main.experiment.LabView.DAQmxDO)',
@@ -3076,6 +3076,9 @@ window_dictionary = {'':'',
                      'PID': 'PID(experiment = main.experiment)',
                      'Retention Analysis': 'RetentionAnalysis(analysis = main.experiment.retention_analysis)'
                      }
+window_keys = window_dictionary.keys()
+window_keys.sort()
+
 
 enamldef Main(MainWindow): main:
     attr experiment
@@ -3104,8 +3107,14 @@ enamldef Main(MainWindow): main:
     HGroup:
         align_widths = False
         Label: text = 'Select a window to open:'
-        ComboBox:
-            items = window_dictionary.keys()
+        PushButton:
+            text = 'open'
+            clicked ::
+                if combo.selected_item != '':
+                    new = eval(window_dictionary[combo.selected_item])
+                    new.show()
+        ComboBox: combo:
+            items = window_keys
             index ::
                 if selected_item != '':
                     new = eval(window_dictionary[selected_item])
