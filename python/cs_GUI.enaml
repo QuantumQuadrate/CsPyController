@@ -17,7 +17,7 @@ from cs_errors import PauseError
 
 from enaml.layout.api import vbox, hbox, align, horizontal, vertical, spacer, grid
 from enaml.widgets.api import (MainWindow, MenuBar, Menu, Action,
-                                Notebook, Page, Container, GroupBox, 
+                                Notebook, Page, Container, GroupBox, DualSlider, 
                                 Form, Label, CheckBox, SpinBox, PushButton, MPLCanvas,
                                 MultilineField, ProgressBar, ScrollArea, Separator,
                                 FileDialog,Window, StatusBar, StatusItem,
@@ -1562,8 +1562,25 @@ enamldef PICam(Container):
     attr camera
     attr analysis
 
-    MPLCanvas:
-        figure << analysis.figure
+    HGroup:
+        align_widths = False
+        MPLCanvas:
+            figure << analysis.figure
+        DualSlider:
+            orientation = 'vertical'
+            low_value := camera.roilowv
+            high_value := camera.roihighv
+            low_value :: camera.setROIvalues()
+            high_value :: camera.setROIvalues()
+            minimum = 0
+            maximum = 512
+    DualSlider:
+        low_value := camera.roilowh
+        high_value := camera.roihighh
+        low_value :: camera.setROIvalues()
+        high_value :: camera.setROIvalues()
+        minimum = 0
+        maximum = 512
     HGroup:
         PushButton:
             text = 'video mode'

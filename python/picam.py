@@ -58,6 +58,10 @@ class PICam(Instrument):
     exposureTime = Member()
     triggerMode = Int()
     shotsPerMeasurement = Member()
+    roilowh = Int(0)
+    roihighh = Int(512)
+    roilowv = Int(0)
+    roihighv = Int(512)
     
     useDemo = True
 
@@ -172,7 +176,16 @@ class PICam(Instrument):
     
 
     def setROIvalues(self):
-        return
+        self.ROI[0] = self.roilowh   #x
+        self.ROI[1] = self.roihighh - self.roilowh   #width
+        self.ROI[2] = 1   #x-binning
+        self.ROI[3] = self.roilowv   #y
+        self.ROI[4] = self.roihighv - self.roilowv   #height
+        self.ROI[5] = 1   #y-binning
+        self.width = self.ROI[1]
+        self.height = self.ROI[4]
+        self.dim = self.width*self.height
+        print "ROI values are: {} {} {} {} {} {}".format(*self.ROI)
         
         
     def setup_video(self, analysis):
@@ -258,7 +271,8 @@ class PICam(Instrument):
             except Exception as e:
                 logger.error('in Picam.writeResults:\n{}'.format(e))
                 raise PauseError
-
+                
+    '''
     def SetSingleScan(self):
         self.setSingleROI(0,self.width,1,0,self.height,1)
         self.SetAcquisitionMode(1)
@@ -268,7 +282,7 @@ class PICam(Instrument):
         self.setSingleROI(0,self.width,1,0,self.height,1)
         #self.SetAcquisitionMode(5)
         #self.SetKineticCycleTime(0)  # for run till abort mode
-        self.SetTriggerMode(0)  # internal trigger
+        self.SetTriggerMode(0)  # internal trigger'''
 
     def InitializeCamera(self):
         #if useDemo is True, connect a demo camera
@@ -338,7 +352,7 @@ class PICam(Instrument):
         self.height = self.getPicamParameterInt(ctypes.c_int(PicamParameter_SensorActiveHeight).value) 
         self.width = self.width - 1
         self.height = self.height - 1   # -2 because height gets reported as 1004 instead of 1002 for Luca
-        self.ROI = (0, self.width, 1, 0, self.height, 1 );   #setting default ROI to be full field.
+        self.ROI = [0, self.width, 1, 0, self.height, 1 ];   #setting default ROI to be full field.
         self.dim = self.width * self.height
         print 'PICam: width {}, height {}'.format(self.width, self.height)
         print 'PICam dim: {}'.format(self.dim)
@@ -398,7 +412,7 @@ class PICam(Instrument):
         self.c_image_array = c_image_array_type()
 
         data = numpy.ctypeslib.as_array(self.c_image_array)
-        data = numpy.reshape(data, (self.width, self.height))
+        data = numpy.reshape(data, (self.height, self.width))
         self.data = data
         return data
 
@@ -537,6 +551,7 @@ class PICam(Instrument):
     """
     def setSingleROI(self,x,width,x_binning,y,height,y_binning):
         self.sock.sendmsg("ROI  {} {} {} {} {} {}".format(x,width,x_binning,y,height,y_binning))
+        print "Sending ROI: {} {} {} {} {} {} ".format(x,width,x_binning,y,height,y_binning)
         returnedmessage = self.sock.receive()
         if (returnedmessage[0:3] != 'ACK'):
             logger.error("Error setting single ROI: message from C++ program: {}".format(returnedmessage))
@@ -566,7 +581,7 @@ class PICamViewer(AnalysisWithFigure):
     @observe('shot')
     def reload(self, change):
         self.updateFigure()
-
+    
     def updateFigure(self):
         if not self.update_lock:  # and (self.experiment.Andor.mode != 'video'):
             try:
@@ -580,10 +595,11 @@ class PICamViewer(AnalysisWithFigure):
                     ax.set_title('most recent shot '+str(self.shot))
                 super(PICamViewer, self).updateFigure()
             except Exception as e:
-                logger.warning('Problem in AndorViewer.updateFigure()\n:{}'.format(e))
+                logger.warning('Problem in PicamViewer.updateFigure()\n:{}'.format(e))
             finally:
                 self.update_lock = False
-
+    
+    
     def setup_video(self, data):
         """Use this method to connect the analysis figure to an array that will be rapidly updated
         in video mode."""
@@ -598,3 +614,5 @@ class PICamViewer(AnalysisWithFigure):
         """First update self.data using Andor methods, then redraw screen using this."""
         self.artist.autoscale()
         deferred_call(self.figure.canvas.draw)
+        
+        
