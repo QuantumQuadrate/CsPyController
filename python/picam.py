@@ -421,14 +421,14 @@ class PICam(Instrument):
         self.sock.sendmsg("SPIN {} {}".format(param,value))
         returnedmessage = self.sock.receive()
         if (returnedmessage[0:3] != "ACK"):
-            logger.error("Set Integer Parameter {} failed.\nMessage returned from C++: {}".format(param, returnedmessage))
+            logger.error("Set Integer Parameter {} failed.\nMessage returned from C++: {}".format(PicamParamDict[str(param%65536)], returnedmessage))
             raise PauseError
             
     def setPicamParameterLongInt(self, param, value):
         self.sock.sendmsg("SPLI {} {}".format(param,value))
         returnedmessage = self.sock.receive()
         if (returnedmessage[0:3] != "ACK"):
-            logger.error("Set Long Integer Parameter {} failed.\nMessage returned from C++: {}".format(param, returnedmessage))
+            logger.error("Set Long Integer Parameter {} failed.\nMessage returned from C++: {}".format(PicamParamDict[str(param%65536)], returnedmessage))
             raise PauseError
             
             
@@ -436,7 +436,7 @@ class PICam(Instrument):
         self.sock.sendmsg("SPFP {} {}".format(param,value))
         returnedmessage = self.sock.receive()
         if (returnedmessage[0:3] != "ACK"):
-            logger.error("Set Floating Point Parameter {} failed.\nMessage returned from C++: {}".format(param, returnedmessage))
+            logger.error("Set Floating Point Parameter {} failed.\nMessage returned from C++: {}".format(PicamParamDict[str(param%65536)], returnedmessage))
             raise PauseError
             
             
@@ -444,7 +444,7 @@ class PICam(Instrument):
         self.sock.sendmsg("GPIN {}".format(param))
         returnedmessage = self.sock.receive()
         if (returnedmessage[0:3] != "ACK"):
-            logger.error("Get Integer Parameter {} failed.\nMessage returned from C++: {}".format(param, returnedmessage[0:3]))
+            logger.error("Get Integer Parameter {} failed.\nMessage returned from C++: {}".format(PicamParamDict[str(param%65536)], returnedmessage[0:3]))
             raise PauseError
         ack, comm, value = returnedmessage.split()
         logger.warning("Parameter {} value: {}\n".format(param,int(value)))
@@ -454,7 +454,7 @@ class PICam(Instrument):
         self.sock.sendmsg("GPLI {}".format(param))
         returnedmessage = self.sock.receive()
         if (returnedmessage[0:3] != "ACK"):
-            logger.error("Get Long Integer Parameter {} failed.\nMessage returned from C++: {}".format(param, returnedmessage))
+            logger.error("Get Long Integer Parameter {} failed.\nMessage returned from C++: {}".format(PicamParamDict[str(param%65536)], returnedmessage))
             raise PauseError
         ack, par, value = returnedmessage.split()
         return long(value)
@@ -464,7 +464,7 @@ class PICam(Instrument):
         self.sock.sendmsg("GPFP {}".format(param))
         returnedmessage = self.sock.receive()
         if (returnedmessage[0:3] != "ACK"):
-            logger.error("Get Floating Point Parameter {} failed.\nMessage returned from C++: {}".format(param, returnedmessage))
+            logger.error("Get Floating Point Parameter {} failed.\nMessage returned from C++: {}".format(PicamParamDict[str(param%65536)], returnedmessage))
             raise PauseError
         ack, par, value = returnedmessage.split()
         return float(value)
