@@ -53,7 +53,7 @@ def new():
     logger.info('Started CsPyController')
     exp = aqua.AQuA()
     #start in a new thread so you can continue to use the shell
-    threading.Thread(target=guiThread,args=[exp]).start()
+    threading.Thread(target=guiThread, args=[exp]).start()
     return exp
 
 if __name__ == '__main__':

@@ -94,9 +94,8 @@ class AQuA(Experiment):
                           self.loading_filters, self.first_measurements_filter, self.text_analysis,
                           self.imageSumAnalysis, self.recent_shot_analysis, self.shotBrowserAnalysis,
                           self.histogramAnalysis, self.histogram_grid, self.measurements_graph, self.iterations_graph,
-                          self.retention_graph, self.andor_viewer, self.picam_viewer, self.DC_noise_eater_graph,
-                          self.DC_noise_eater_filter, self.Ramsey, self.retention_analysis, self.save_notes,
-                          self.save2013Analysis]
+                          self.andor_viewer, self.picam_viewer, self.DC_noise_eater_graph, self.DC_noise_eater_filter, self.Ramsey,
+                          self.retention_analysis, self.retention_graph, self.save_notes, self.save2013Analysis]
 
         self.properties += ['LabView', 'DDS', 'picomotors', 'Andor', 'DC_noise_eaters', 'box_temperature',
                             'squareROIAnalysis', 'gaussian_roi', 'TTL_filters', 'AI_graph', 'AI_filter',

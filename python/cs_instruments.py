@@ -172,8 +172,7 @@ class TCP_Instrument(Instrument):
         self.send(self.toHardware())
 
     def start(self):
-        #self.send('<LabView><measure/></LabView>')
-        pass
+        self.isDone = True
 
     def writeResults(self, hdf5):
         """Write the previously obtained results to the experiment hdf5 file.
@@ -186,7 +185,7 @@ class TCP_Instrument(Instrument):
             try:
                 hdf5[key] = value
             except Exception as e:
-                logger.error('Exception in {}.writeResults() doing hdf5[key]=value for key='+key+'\n'+str(self.name, e))
+                logger.error('Exception in {}.writeResults() doing hdf5[key]=value for key={}\n'.format(key, self.name, e))
                 raise PauseError
 
     def send(self, msg):

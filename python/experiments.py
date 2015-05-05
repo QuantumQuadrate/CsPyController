@@ -608,16 +608,35 @@ class Experiment(Prop):
 
         except PauseError:
             #This should be the only place that PauseError is explicitly handed.
-            #All other non-fatal error caught higher up in the experiment chain should
+            #All other non-fatal errors caught higher up in the experiment chain should
             #gracefully handle the error, then 'raise PauseError' so that the experiment
             #exits out to this point.
+
+            # Delete this measurement from the results, since the data is probably no good anyway, and the
+            # measurement number may not have incremented and may have to be reused.
+            try:
+                del self.measurementResults  # remove the reference to the bad data
+                del self.hdf5['iterations/{}/measurements/{}'.format(self.iteration, self.measurement)]  # really remove the bad data
+            except:
+                pass
+
             if self.pauseAfterError:
                 self.set_status('paused after error')
             self.set_gui({'valid': False})
             if self.enable_sounds:
                 sound.error_sound()
+
         except Exception as e:
             logger.error('Exception during experiment:\n'+str(e)+'\n'+str(traceback.format_exc())+'\n')
+
+            # Delete this measurement from the results, since the data is probably no good anyway, and the
+            # measurement number may not have incremented and may have to be reused.
+            try:
+                del self.measurementResults  # remove the reference to the bad data
+                del self.hdf5['iterations/{}/measurements/{}'.format(self.iteration, self.measurement)]  # really remove the bad data
+            except:
+                pass
+
             if self.pauseAfterError:
                 self.set_status('paused after error')
             self.set_gui({'valid': False})
