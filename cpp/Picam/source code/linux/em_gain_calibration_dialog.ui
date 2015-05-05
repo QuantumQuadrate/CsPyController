@@ -1,0 +1,190 @@
+<interface>
+  <object
+    class="GtkDialog"
+    id="dialog"
+    >
+    <property name="title">EM Gain Calibration</property>
+    <property name="resizable">FALSE</property>
+    <property name="border-width">12</property>
+    <child
+      internal-child="vbox"
+      >
+      <object
+        class="GtkVBox"
+        id="vbox"
+        >
+        <property name="spacing">12</property>
+        <child>
+          <object
+            class="GtkHBox"
+            id="last_calibration_hbox"
+            >
+            <property name="spacing">6</property>
+            <child>
+              <object
+                class="GtkLabel"
+                id="last_calibration_title_label"
+                >
+                <property name="label">Last Calibration:</property>
+                <property name="xalign">1</property>
+              </object>
+            </child>
+            <child>
+              <object
+                class="GtkLabel"
+                id="last_calibration_label"
+                >
+                <property name="label">Unknown</property>
+                <property name="xalign">0</property>
+              </object>
+            </child>
+          </object>
+          <packing>
+            <property name="expand">FALSE</property>
+            <property name="fill">FALSE</property>
+          </packing>
+        </child>
+        <child>
+          <object
+            class="GtkFrame"
+            id="temperature_frame"
+            >
+            <child
+              type="label"
+              >
+              <object
+                class="GtkLabel"
+                id="temperature_frame_label"
+                >
+                <property name="label">Temperature</property>
+              </object>
+            </child>
+            <child>
+              <object
+                class="GtkTable"
+                id="temperature_table"
+                >
+                <property name="n-columns">2</property>
+                <property name="n-rows">2</property>
+                <property name="column-spacing">6</property>
+                <property name="row-spacing">6</property>
+                <property name="border-width">12</property>
+                <child>
+                  <object
+                    class="GtkLabel"
+                    id="target_title_label"
+                    >
+                    <property name="label">Target:</property>
+                    <property name="xalign">1</property>
+                  </object>
+                  <packing>
+                    <property name="left-attach">0</property>
+                    <property name="right-attach">1</property>
+                    <property name="top-attach">0</property>
+                    <property name="bottom-attach">1</property>
+                    <property name="y-options">GTK_SHRINK</property>
+                  </packing>
+                </child>
+                <child>
+                  <object
+                    class="GtkEntry"
+                    id="target_entry"
+                    >
+                    <property name="xalign">0</property>
+                  </object>
+                  <packing>
+                    <property name="left-attach">1</property>
+                    <property name="right-attach">2</property>
+                    <property name="top-attach">0</property>
+                    <property name="bottom-attach">1</property>
+                    <property name="y-options">GTK_SHRINK</property>
+                  </packing>
+                </child>
+                <child>
+                  <object
+                    class="GtkLabel"
+                    id="current_title_label"
+                    >
+                    <property name="label">Current:</property>
+                    <property name="xalign">1</property>
+                  </object>
+                  <packing>
+                    <property name="left-attach">0</property>
+                    <property name="right-attach">1</property>
+                    <property name="top-attach">1</property>
+                    <property name="bottom-attach">2</property>
+                    <property name="y-options">GTK_SHRINK</property>
+                  </packing>
+                </child>
+                <child>
+                  <object
+                    class="GtkLabel"
+                    id="current_label"
+                    >
+                    <property name="xalign">0</property>
+                  </object>
+                  <packing>
+                    <property name="left-attach">1</property>
+                    <property name="right-attach">2</property>
+                    <property name="top-attach">1</property>
+                    <property name="bottom-attach">2</property>
+                    <property name="y-options">GTK_SHRINK</property>
+                  </packing>
+                </child>
+              </object>
+            </child>
+          </object>
+        </child>
+        <child>
+          <object
+            class="GtkLabel"
+            id="message_label"
+            >
+            <property name="xalign">0</property>
+          </object>
+          <packing>
+            <property name="expand">FALSE</property>
+            <property name="fill">FALSE</property>
+          </packing>
+        </child>
+        <child>
+          <object
+            class="GtkProgressBar"
+            id="progress_bar"
+            />
+          <packing>
+            <property name="expand">FALSE</property>
+            <property name="fill">FALSE</property>
+          </packing>
+        </child>
+        <child
+          internal-child="action_area"
+          >
+          <object
+            class="GtkButtonBox"
+            id="button_box"
+            >
+            <child>
+              <object
+                class="GtkButton"
+                id="close_button"
+                >
+                <property name="label">Close</property>
+              </object>
+            </child>
+            <child>
+              <object
+                class="GtkButton"
+                id="calibrate_button"
+                >
+                <property name="label">Calibrate</property>
+                <property name="can-default">TRUE</property>
+                <property name="has-default">TRUE</property>
+              </object>
+            </child>
+          </object>
+        </child>
+      </object>
+    </child>
+  </object>
+</interface>

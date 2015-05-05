@@ -1,0 +1,18 @@
+﻿Build started 5/4/2015 4:47:05 PM.
+     1>Project "C:\Users\Public\Documents\Princeton Instruments\Picam\Samples\projects\vs2010\EMGainCalibration.vcxproj" on node 5 (Build target(s)).
+     1>ClCompile:
+         C:\Program Files (x86)\Microsoft Visual Studio 12.0\VC\bin\x86_amd64\CL.exe /c /I"C:\Program Files\Princeton Instruments\Picam\\Includes" /Zi /nologo /W4 /WX /O2 /Oi /GL /D _MBCS /Gm- /EHsc /MD /GS /Gy /fp:precise /Zc:wchar_t /Zc:forScope /Fo"obj\EMGainCalibration\x64\Release\\" /Fd"obj\EMGainCalibration\x64\Release\vc120.pdb" /Gd /TP /errorReport:prompt "..\..\Source Code\Windows\EMGainCalibration.cpp"
+         EMGainCalibration.cpp
+       ResourceCompile:
+         C:\Program Files (x86)\Windows Kits\8.1\bin\x86\rc.exe /l"0x0409" /nologo /fo"obj\EMGainCalibration\x64\Release\EmGainCalibration.res" "..\..\Source Code\Windows\EmGainCalibration.rc" 
+       Link:
+         C:\Program Files (x86)\Microsoft Visual Studio 12.0\VC\bin\x86_amd64\link.exe /ERRORREPORT:PROMPT /OUT:"C:\Users\Public\Documents\Princeton Instruments\Picam\Samples\projects\vs2010\bin\x64\Release\EMGainCalibration.exe" /NOLOGO /LIBPATH:"C:\Program Files\Princeton Instruments\Picam\\Libraries" picam.lib kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /MANIFEST /MANIFESTUAC:"level='asInvoker' uiAccess='false'" /manifest:embed /DEBUG /PDB:"C:\Users\Public\Documents\Princeton Instruments\Picam\Samples\projects\vs2010\bin\x64\Release\EMGainCalibration.pdb" /OPT:REF /OPT:ICF /LTCG /TLBID:1 /DYNAMICBASE /NXCOMPAT /IMPLIB:"C:\Users\Public\Documents\Princeton Instruments\Picam\Samples\projects\vs2010\bin\x64\Release\EMGainCalibration.lib" /MACHINE:X64 obj\EMGainCalibration\x64\Release\EmGainCalibration.res
+         obj\EMGainCalibration\x64\Release\EMGainCalibration.obj
+         Generating code
+         Finished generating code
+         EMGainCalibration.vcxproj -> C:\Users\Public\Documents\Princeton Instruments\Picam\Samples\projects\vs2010\bin\x64\Release\EMGainCalibration.exe
+     1>Done Building Project "C:\Users\Public\Documents\Princeton Instruments\Picam\Samples\projects\vs2010\EMGainCalibration.vcxproj" (Build target(s)).
+
+Build succeeded.
+
+Time Elapsed 00:00:01.91

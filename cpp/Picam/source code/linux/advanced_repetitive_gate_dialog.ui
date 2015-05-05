@@ -1,0 +1,187 @@
+<interface>
+  <object
+    class="GtkDialog"
+    id="dialog"
+    >
+    <property name="title">Repetitive Gate</property>
+    <property name="resizable">FALSE</property>
+    <property name="border-width">12</property>
+    <property name="destroy-with-parent">TRUE</property>
+    <child
+      internal-child="vbox"
+      >
+      <object
+        class="GtkVBox"
+        id="vbox"
+        >
+        <property name="spacing">24</property>
+        <child>
+          <object
+            class="GtkVBox"
+            id="delay_vbox"
+            >
+            <child>
+              <object
+                class="GtkHBox"
+                id="delay_hbox"
+                >
+                <property name="spacing">12</property>
+                <child>
+                  <object
+                    class="GtkLabel"
+                    id="delay_label"
+                    >
+                    <property name="label">Delay (us):</property>
+                    <property name="xalign">1</property>
+                  </object>
+                  <packing>
+                    <property name="expand">FALSE</property>
+                    <property name="fill">FALSE</property>
+                  </packing>
+                </child>
+                <child>
+                  <object
+                    class="GtkEntry"
+                    id="delay_entry"
+                    />
+                </child>
+                <child>
+                  <object
+                    class="GtkHButtonBox"
+                    id="delay_button_box"
+                    >
+                    <child>
+                      <object
+                        class="GtkButton"
+                        id="submit_delay_button"
+                        >
+                        <property name="label">Submit</property>
+                      </object>
+                    </child>
+                  </object>
+                  <packing>
+                    <property name="expand">FALSE</property>
+                    <property name="fill">FALSE</property>
+                  </packing>
+                </child>
+              </object>
+              <packing>
+                <property name="expand">FALSE</property>
+                <property name="fill">FALSE</property>
+              </packing>
+            </child>
+            <child>
+              <object
+                class="GtkHScale"
+                id="delay_hscale"
+                >
+                <property name="draw-value">FALSE</property>
+              </object>
+              <packing>
+                <property name="expand">FALSE</property>
+                <property name="fill">FALSE</property>
+              </packing>
+            </child>
+          </object>
+          <packing>
+            <property name="expand">FALSE</property>
+            <property name="fill">FALSE</property>
+          </packing>
+        </child>
+        <child>
+          <object
+            class="GtkVBox"
+            id="width_vbox"
+            >
+            <child>
+              <object
+                class="GtkHBox"
+                id="width_hbox"
+                >
+                <property name="spacing">12</property>
+                <child>
+                  <object
+                    class="GtkLabel"
+                    id="width_label"
+                    >
+                    <property name="label">Width (us):</property>
+                    <property name="xalign">1</property>
+                  </object>
+                  <packing>
+                    <property name="expand">FALSE</property>
+                    <property name="fill">FALSE</property>
+                  </packing>
+                </child>
+                <child>
+                  <object
+                    class="GtkEntry"
+                    id="width_entry"
+                    />
+                </child>
+                <child>
+                  <object
+                    class="GtkHButtonBox"
+                    id="width_button_box"
+                    >
+                    <child>
+                      <object
+                        class="GtkButton"
+                        id="submit_width_button"
+                        >
+                        <property name="label">Submit</property>
+                      </object>
+                    </child>
+                  </object>
+                  <packing>
+                    <property name="expand">FALSE</property>
+                    <property name="fill">FALSE</property>
+                  </packing>
+                </child>
+              </object>
+              <packing>
+                <property name="expand">FALSE</property>
+                <property name="fill">FALSE</property>
+              </packing>
+            </child>
+            <child>
+              <object
+                class="GtkHScale"
+                id="width_hscale"
+                >
+                <property name="draw-value">FALSE</property>
+              </object>
+              <packing>
+                <property name="expand">FALSE</property>
+                <property name="fill">FALSE</property>
+              </packing>
+            </child>
+          </object>
+          <packing>
+            <property name="expand">FALSE</property>
+            <property name="fill">FALSE</property>
+          </packing>
+        </child>
+        <child
+          internal-child="action_area"
+          >
+          <object
+            class="GtkButtonBox"
+            id="button_box"
+            >
+            <child>
+              <object
+                class="GtkButton"
+                id="close_button"
+                >
+                <property name="label">Close</property>
+              </object>
+            </child>
+          </object>
+        </child>
+      </object>
+    </child>
+    <action-widgets>
+      <action-widget response="-7">close_button</action-widget>
+    </action-widgets>
+  </object>
+</interface>
