@@ -18,7 +18,7 @@ TODO:
     make image viewer update available variable choices when a variable is deleted, otherwise you get an error.
     piezo numpy array
     AO numpy array
-    RF gen numpy aray
+    RF gen numpy array
     loading of only part of settings
     replace other indexed Stacks with no stack at all?
     make it so that RangeProp high and low could be re-assigned to None dynamically if desired (without raising error, unless value is outside that range)
@@ -52,6 +52,7 @@ TODO:
     Use Atom ContainerList instead of List to put listeners on append and delete
 
 Done:
+    Added best optimizer experiment number to hdf5 results and gui display
     Make sure that experiment can continue on error without having a conflict on measurement number.
     Add 'iterations' to two-layer optimizer directory so that 'analysis' can be separate
     use hdf5 hard links to create optimization sub-experiments

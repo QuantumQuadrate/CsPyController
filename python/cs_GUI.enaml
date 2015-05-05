@@ -2837,20 +2837,17 @@ enamldef Optimizer(Window):
                         #constraints=[height==300]
                         text:=experiment.optimizer.cost_function
 
-                    Label:
-                        text='starting cost'
-                    Label:
-                        text<<analysis.yi0_str
+                    Label:  text = 'starting cost'
+                    Label:  text << analysis.yi0_str
 
-                    Label:
-                        text='best cost'
-                    Label:
-                        text<<analysis.best_yi_str
+                    Label:  text = 'best cost'
+                    Label:  text << analysis.best_yi_str
 
-                    Label:
-                        text='current cost'
-                    Label:
-                        text<<analysis.yi_str
+                    Label:  text = 'current cost'
+                    Label:  text << analysis.yi_str
+
+                    Label: text = 'best experiment number'
+                    Label: text << analysis.best_experiment_number_str
 
                 MPLCanvas: canvas:
                     constraints << [(height==150*(len(experiment.independentVariables)+1))|'strong'] #,(width==1000)|'strong']
