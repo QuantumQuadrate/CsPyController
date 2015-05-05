@@ -1557,6 +1557,40 @@ enamldef Andor(Container):
         SpinBox: shot:
             minimum=0
             value := analysis.shot
+            
+enamldef PICam(Container):
+    attr camera
+    attr analysis
+
+    MPLCanvas:
+        figure << analysis.figure
+    HGroup:
+        PushButton:
+            text = 'video mode'
+            clicked :: camera.setup_video_thread(analysis)
+        PushButton:
+            text = 'stop video'
+            clicked :: camera.stop_video()
+    LabelBox:
+        text = 'enable'
+        checked := camera.enable
+    EvalProp:
+        prop << camera.AdcEMGain
+    #EvalProp:
+    #    prop << camera.preAmpGain
+    EvalProp:
+        prop << camera.exposureTime
+    ComboBox:
+        items = ['Edge', 'Level']
+        index := camera.triggerMode
+    EvalProp:
+        prop<<camera.shotsPerMeasurement
+    Form:
+        Label:
+            text = 'shot'
+        SpinBox: shot:
+            minimum=0
+            value := analysis.shot
 
 enamldef FiltersPage(Page):
     title = 'Filters'
@@ -2755,12 +2789,15 @@ enamldef Main(MainWindow): main:
             ScrollPage('Andor', Andor): p11:
                 p11.content.camera = main.experiment.Andor
                 p11.content.analysis=main.experiment.andor_viewer
-            ScrollPage('Analog Output', AnalogOutput): p12:
-                p12.content.AO = main.experiment.LabView.AnalogOutput
-            ScrollPage('Analog Input', AnalogInput): p13:
-                p13.content.AI = main.experiment.LabView.AnalogInput
-                p13.content.filters = main.experiment.AI_filter
-                p13.content.analysis = main.experiment.AI_graph
+            ScrollPage('PICam', PICam): p12:
+                p12.content.camera = main.experiment.PICam
+                p12.content.analysis=main.experiment.picam_viewer
+            ScrollPage('Analog Output', AnalogOutput): p13:
+                p13.content.AO = main.experiment.LabView.AnalogOutput
+            ScrollPage('Analog Input', AnalogInput): p14:
+                p14.content.AI = main.experiment.LabView.AnalogInput
+                p14.content.filters = main.experiment.AI_filter
+                p14.content.analysis = main.experiment.AI_graph
             #ScrollPage('Arroyo', Arroyo): p14:
             #    p14.content.arroyo = main.experiment.Arroyo
             ScrollPage('PI Piezo', PI_Piezo): p15:
