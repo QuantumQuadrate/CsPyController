@@ -49,6 +49,7 @@ using namespace std;
 
 
 #define WINSOCK_MESSAGE 1045
+#define PORTNO 2153
 
 ////////////////////////////////////////////////////////////////////////////////
 // Standard C++ Library Headers
@@ -292,6 +293,7 @@ pi64s renderedImageVersion_ = 0;        // - current version of rendered image
 
 
 SOCKET s;
+SOCKET client;
 SOCKADDR_IN from;
 int fromlen = sizeof(from);
 
@@ -3106,7 +3108,7 @@ pibool Initialize()
     AutoBusy ab;
 
     //Initialize Winsock and set up server listening port
-    int wserror = ListenOnPort(2153);
+    int wserror = ListenOnPort(PORTNO);
 	wstring wserrstr = L"ListenOnPort returned error: ";
 	wserrstr.append(to_wstring(wserror));
 	if (wserror < 0) DisplayError(wserrstr);
@@ -5017,7 +5019,7 @@ int ParseInput(char* buffer, int datalen)
 			PicamError error = PicamAdvanced_CloseCameraDevice(device_);
 			if (error != PicamError_None)
 				DisplayError(L"Failed to close camera.", error);
-			string ack = "ACK STVD";
+			string ack = "ACK CLOS";
 			int len;
 			wsmessage formatmesg;
 			formatmessage(ack, len, formatmesg);
@@ -5030,6 +5032,15 @@ int ParseInput(char* buffer, int datalen)
 			wsmessage formatmesg;
 			formatmessage(ack, len, formatmesg);
 			sendmessage(formatmesg);
+		}
+		if (client)
+		{
+			char yes = '1';
+			if (setsockopt(client, SOL_SOCKET, SO_REUSEADDR, &yes, sizeof(yes)) == -1) {
+				perror("setsockopt");
+				exit(1);
+			}
+			closesocket(client);
 		}
 	}
 	else if (strcmp(command, "CMTP") == 0)
@@ -5441,9 +5452,9 @@ int sendmessage(wsmessage formatmesg)
 {
 	INT32 chicken = htonl(formatmesg.len);
 
-	send(s, (char *)&formatmesg.mesg, sizeof(formatmesg.mesg) - 1, 0);
-	send(s, (char *)&chicken, sizeof(formatmesg.len), 0);
-	send(s, formatmesg.message, formatmesg.len, 0);
+	send(client, (char *)&formatmesg.mesg, sizeof(formatmesg.mesg) - 1, 0);
+	send(client, (char *)&chicken, sizeof(formatmesg.len), 0);
+	send(client, formatmesg.message, formatmesg.len, 0);
 
 	return 0;
 }
@@ -5473,10 +5484,10 @@ int sendmessageimage(wsmessageimagedata formatmesg)
 		image[i] = formatmesg.imagedat[i];
 	}
 
-	send(s, (char *)&formatmesg.mesg, sizeof(formatmesg.mesg) - 1, 0);
-	send(s, (char *)&chicken, sizeof(chicken), 0);
-	send(s, formatmesg.message, formatmesg.len, 0);
-	send(s, (char *)image, formatmesg.imagelen*2, 0);
+	send(client, (char *)&formatmesg.mesg, sizeof(formatmesg.mesg) - 1, 0);
+	send(client, (char *)&chicken, sizeof(chicken), 0);
+	send(client, formatmesg.message, formatmesg.len, 0);
+	send(client, (char *)image, formatmesg.imagelen * 2, 0);
 
 	/*
 	string munchy = to_string(formatmesg.imagelen);
@@ -5558,7 +5569,8 @@ LRESULT CALLBACK MainWindowProc(
                 case FD_CLOSE:
 					DisplayError(L"Connection closed");
 					if (s) closesocket(s);
-					//WSACleanup();
+					WSACleanup();
+					ListenOnPort(PORTNO);
                     break;
                     
 				case FD_READ:
@@ -5567,7 +5579,7 @@ LRESULT CALLBACK MainWindowProc(
 					char buffer[80];
 					memset(buffer, 0, sizeof(buffer)); //Clear the buffer
 
-					recv(s, buffer, sizeof(buffer) - 1, 0); //Get the text
+					recv(client, buffer, sizeof(buffer) - 1, 0); //Get the text
 					ParseInput(buffer, sizeof(buffer));// , sizeof(buffer));
 				}
                     break;
@@ -5575,7 +5587,7 @@ LRESULT CALLBACK MainWindowProc(
                 case FD_ACCEPT:
 					//ParseInput("Connection accepted");
 					SOCKET TempSock = accept(s, (struct sockaddr*)&from, &fromlen);
-					s = TempSock; //Switch our old socket to the new one
+					client = TempSock; //Switch our old socket to the new one
                     break;
                     
                 }
