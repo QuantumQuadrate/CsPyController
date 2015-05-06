@@ -116,7 +116,7 @@ class PICam(Instrument):
         #self.ChildProcess = subprocess.Popen(['picamAdvanced.exe',''])
 
     def __del__(self):
-        print "Calling __del__ on Picam"
+        #print "Calling __del__ on Picam"
         if self.isInitialized:
             self.ShutDown()
         #self.ChildProcess.terminate()
@@ -125,17 +125,17 @@ class PICam(Instrument):
         """Starts the dll and finds the camera."""
         #Here we'll need to launch the C process, then check we can communicate with it.
         self.sock = CsClientSock("127.0.0.1",2153)
-        logger.warning("Sending Hello message to C++ program")
+        #logger.warning("Sending Hello message to C++ program")
         self.sock.sendmsg('Hello')
-        logger.warning("Receiving Hello reply from C++ program")
+        #logger.warning("Receiving Hello reply from C++ program")
         returnedmessage = self.sock.receive()
-        logger.warning('Received message: {}'.format(returnedmessage))
+        #logger.warning('Received message: {}'.format(returnedmessage))
         
         self.InitializeCamera()
         #self.GetCameraSerialNumber()
         self.sock.sendmsg("COOL 1")   #Cooling fan on.
         returnedmessage = self.sock.receive()
-        logger.warning('Received message: {}'.format(returnedmessage))
+        #logger.warning('Received message: {}'.format(returnedmessage))
         
 
         self.isInitialized = True
@@ -468,7 +468,7 @@ class PICam(Instrument):
             logger.error("Get Integer Parameter {} failed.\nMessage returned from C++: {}".format(PicamParamDict[str(param%65536)], returnedmessage[0:3]))
             raise PauseError
         ack, comm, value = returnedmessage.split()
-        logger.warning("Parameter {} value: {}\n".format(param,int(value)))
+        #logger.warning("Parameter {} value: {}\n".format(param,int(value)))
         return int(value)
             
     def getPicamParameterLongInt(self, param):
