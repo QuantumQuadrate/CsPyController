@@ -60,8 +60,10 @@ class PICam(Instrument):
     shotsPerMeasurement = Member()
     roilowh = Int(0)
     roihighh = Int(512)
-    roilowv = Int(0)
-    roihighv = Int(512)
+    roilowv = Int(-512)
+    roihighv = Int(0)
+    roimaxh = Int(512)
+    roimaxv = Int(-512)
     
     useDemo = True
 
@@ -111,18 +113,21 @@ class PICam(Instrument):
         self.exposureTime = FloatProp('exposureTime', experiment, 'exposure time for edge trigger', '0')
         self.shotsPerMeasurement = IntProp('shotsPerMeasurement', experiment, 'number of expected shots', '0')
         self.properties += ['AdcEMGain', 'preAmpGain', 'exposureTime', 'triggerMode', 'shotsPerMeasurement']
-        self.ChildProcess = subprocess.Popen(['picamAdvanced.exe',''])
+        #self.ChildProcess = subprocess.Popen(['picamAdvanced.exe',''])
 
     def __del__(self):
+        print "Calling __del__ on Picam"
         if self.isInitialized:
             self.ShutDown()
-        self.ChildProcess.terminate()
+        #self.ChildProcess.terminate()
 
     def initialize(self):
         """Starts the dll and finds the camera."""
         #Here we'll need to launch the C process, then check we can communicate with it.
         self.sock = CsClientSock("127.0.0.1",2153)
+        logger.warning("Sending Hello message to C++ program")
         self.sock.sendmsg('Hello')
+        logger.warning("Receiving Hello reply from C++ program")
         returnedmessage = self.sock.receive()
         logger.warning('Received message: {}'.format(returnedmessage))
         
@@ -179,7 +184,7 @@ class PICam(Instrument):
         self.ROI[0] = self.roilowh   #x
         self.ROI[1] = self.roihighh - self.roilowh   #width
         self.ROI[2] = 1   #x-binning
-        self.ROI[3] = self.roilowv   #y
+        self.ROI[3] = -self.roihighv   #y
         self.ROI[4] = self.roihighv - self.roilowv   #height
         self.ROI[5] = 1   #y-binning
         self.width = self.ROI[1]
@@ -349,7 +354,9 @@ class PICam(Instrument):
 
     def GetDetector(self):
         self.width = self.getPicamParameterInt(ctypes.c_int(PicamParameter_SensorActiveWidth).value)
-        self.height = self.getPicamParameterInt(ctypes.c_int(PicamParameter_SensorActiveHeight).value) 
+        self.height = self.getPicamParameterInt(ctypes.c_int(PicamParameter_SensorActiveHeight).value)
+        self.roimaxv = -self.height
+        self.roimaxh = self.width
         self.width = self.width - 1
         self.height = self.height - 1   # -2 because height gets reported as 1004 instead of 1002 for Luca
         self.ROI = [0, self.width, 1, 0, self.height, 1 ];   #setting default ROI to be full field.
@@ -370,7 +377,7 @@ class PICam(Instrument):
         returnedmessage = self.sock.receive()
         if (returnedmessage[0:3] != "ACK"):
             logger.error("Close Camera {} failed.\nMessage returned from C++: {}".format(param, returnedmessage))
-            raise PauseError
+            #raise PauseError
         
 
     def GetCameraSerialNumber(self):

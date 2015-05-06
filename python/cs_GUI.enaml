@@ -1687,6 +1687,7 @@ enamldef PICam(Window):
     attr camera
     attr analysis
 
+    title = 'Princeton Instruments Camera'
     Container:
         padding = 0
         ScrollArea:
@@ -1697,19 +1698,21 @@ enamldef PICam(Window):
                         figure << analysis.figure
                     DualSlider:
                         orientation = 'vertical'
+                        #auto_hug = False
                         low_value := camera.roilowv
                         high_value := camera.roihighv
                         low_value :: camera.setROIvalues()
                         high_value :: camera.setROIvalues()
-                        minimum = 0
-                        maximum = 512
+                        minimum << camera.roimaxv
+                        maximum = 0
                 DualSlider:
+                    #auto_hug = False
                     low_value := camera.roilowh
                     high_value := camera.roihighh
                     low_value :: camera.setROIvalues()
                     high_value :: camera.setROIvalues()
                     minimum = 0
-                    maximum = 512
+                    maximum << camera.roimaxh
                 HGroup:
                     PushButton:
                         text = 'video mode'
@@ -3150,6 +3153,7 @@ enamldef Main(MainWindow): main:
     #initial_position=(0,0)
     #initial_size=(1500,1100)
     icon = loadIcon()
+    closing :: main.experiment.exiting()
 
     MyStyleSheet:
         #just implement the style sheet defined separately

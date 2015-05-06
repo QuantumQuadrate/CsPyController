@@ -62,7 +62,7 @@ class AQuA(Experiment):
         self.DDS = DDS.DDS('DDS', self, 'server for homemade DDS boxes')
         self.DC_noise_eaters = DCNoiseEater.DCNoiseEaters('DC_noise_eaters', self)
         self.box_temperature = Laird_temperature.LairdTemperature('box_temperature', self)
-        self.instruments += [self.box_temperature, self.picomotors, self.Andor, self.DC_noise_eaters, self.LabView,
+        self.instruments += [self.box_temperature, self.picomotors, self.Andor, self.PICam, self.DC_noise_eaters, self.LabView,
                              self.DDS]
 
         #analyses
@@ -118,3 +118,8 @@ class AQuA(Experiment):
 
         #make sure evaluation is allowed now
         self.allow_evaluation = True
+
+    def exiting(self):
+        self.PICam.__del__()
+        self.Andor.__del__()
+        return
