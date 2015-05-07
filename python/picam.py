@@ -331,9 +331,11 @@ class PICam(Instrument):
             i=i+1
         if (self.mode == 'video'):
             return imagedata
+        #logger.warning("Reshaping numpy array")
         framedata = numpy.ctypeslib.as_array(self.c_image_array)
-        framedata = numpy.reshape(framedata, (1, self.width, self.height))
+        framedata = numpy.reshape(framedata, (1, self.height, self.width))
         if (len(self.data)>0):
+            #logger.warning("self.data: {}".format(self.data))
             data = numpy.append(self.data,framedata,axis=0)
         else:
             data = framedata
@@ -607,6 +609,8 @@ class PICamViewer(AnalysisWithFigure):
                     ax = fig.add_subplot(111)
                     ax.matshow(self.data[self.shot], cmap=my_cmap)
                     ax.set_title('most recent shot '+str(self.shot))
+                #else:
+                #    logger.warning("self.data is None, or self.shot > len(self.data)\nself.data: {}\nlen(self.data): {}".format(self.data,len(self.data)))
                 super(PICamViewer, self).updateFigure()
             except Exception as e:
                 logger.warning('Problem in PicamViewer.updateFigure()\n:{}'.format(e))
