@@ -158,14 +158,24 @@ class PICam(Instrument):
             self.SetExposureTime(self.exposureTime.value)
             if self.triggerMode == 0:
                 # set edge trigger
-                self.SetTriggerDetermination(PicamTriggerDetermination_RisingEdge)
+                '''
+                typedef enum PicamTriggerDetermination
+                {
+                    PicamTriggerDetermination_PositivePolarity = 1,
+                    PicamTriggerDetermination_NegativePolarity = 2,
+                    PicamTriggerDetermination_RisingEdge       = 3,
+                    PicamTriggerDetermination_FallingEdge      = 4
+                } PicamTriggerDetermination; /* (5) */
+                '''
+                self.SetTriggerDetermination(3)
             else:
                 # set level trigger
-                self.SetTriggerDetermination(PicamTriggerDetermination_PositivePolarity)
+                self.SetTriggerDetermination(1)
             #self.SetImage(1, 1, 1, self.width, 1, self.height)  # full sensor, no binning
             
             self.setSingleROI(self.ROI[0], self.ROI[1], self.ROI[2], self.ROI[3], self.ROI[4], self.ROI[5])
-            
+            self.CreateAcquisitionBuffer()
+            self.data = []
             #self.SetKineticCycleTime(0)  # no delay
             self.sock.sendmsg("CMTP")
             returnedmessage = self.sock.receive()
@@ -276,18 +286,6 @@ class PICam(Instrument):
             except Exception as e:
                 logger.error('in Picam.writeResults:\n{}'.format(e))
                 raise PauseError
-                
-    '''
-    def SetSingleScan(self):
-        self.setSingleROI(0,self.width,1,0,self.height,1)
-        self.SetAcquisitionMode(1)
-        self.SetTriggerMode(0)
-
-    def SetVideoMode(self):
-        self.setSingleROI(0,self.width,1,0,self.height,1)
-        #self.SetAcquisitionMode(5)
-        #self.SetKineticCycleTime(0)  # for run till abort mode
-        self.SetTriggerMode(0)  # internal trigger'''
 
     def InitializeCamera(self):
         #if useDemo is True, connect a demo camera
@@ -312,6 +310,8 @@ class PICam(Instrument):
             raise PauseError
         imagedatastr = returnedmessage[9:]
         imagedatalen = len(imagedatastr)/2  #16-bit data...
+        if (imagedatalen != self.dim):
+            logger.warning("GetImages(): imagedatalen != self.dim. Possibly missing data...")
         try:
             imagedata=struct.unpack(""+str(imagedatalen)+"H", imagedatastr)
         except Exception as e:
@@ -329,7 +329,15 @@ class PICam(Instrument):
                 self.c_image_array[i+j*(self.width)] = imagedata[i+j*(self.width)]
                 j=j+1
             i=i+1
-        return imagedata
+        if (self.mode == 'video'):
+            return imagedata
+        framedata = numpy.ctypeslib.as_array(self.c_image_array)
+        framedata = numpy.reshape(framedata, (1, self.width, self.height))
+        if (len(self.data)>0):
+            data = numpy.append(self.data,framedata,axis=0)
+        else:
+            data = framedata
+        return data
         
         
     '''
@@ -420,7 +428,6 @@ class PICam(Instrument):
 
         data = numpy.ctypeslib.as_array(self.c_image_array)
         data = numpy.reshape(data, (self.height, self.width))
-        self.data = data
         return data
 
 #    def GetMostRecentImage(self):
@@ -590,7 +597,7 @@ class PICamViewer(AnalysisWithFigure):
         self.updateFigure()
     
     def updateFigure(self):
-        if not self.update_lock:  # and (self.experiment.Andor.mode != 'video'):
+        if not self.update_lock and (self.experiment.PICam.mode != 'video'):
             try:
                 self.update_lock = True
                 fig = self.backFigure
@@ -605,8 +612,7 @@ class PICamViewer(AnalysisWithFigure):
                 logger.warning('Problem in PicamViewer.updateFigure()\n:{}'.format(e))
             finally:
                 self.update_lock = False
-    
-    
+      
     def setup_video(self, data):
         """Use this method to connect the analysis figure to an array that will be rapidly updated
         in video mode."""
