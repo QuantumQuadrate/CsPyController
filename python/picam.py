@@ -140,6 +140,17 @@ class PICam(Instrument):
 
         self.isInitialized = True
 
+    def GetNumberNewImages(self): 
+        self.sock.sendmsg('GNNI')
+        returnedmessage = self.sock.receive()
+        if (returnedmessage[0:3] != "ACK"):
+            logger.error("Get Number New Images failed.\nMessage returned from C++: {}".format(returnedmessage[0:3]))
+            raise PauseError
+        ack, comm, value = returnedmessage.split()
+        #logger.warning("Parameter {} value: {}\n".format(param,int(value)))
+        return 0, int(value)
+        
+        
     def start(self):
         #get images to clear out any old images
         #self.DumpImages()
@@ -182,7 +193,12 @@ class PICam(Instrument):
             if (returnedmessage[0:3]!='ACK'):
                 logger.error("Failed to commit parameters. Returned message: {}".format(returnedmessage))
                 raise PauseError
-            self.StartAcquisition()
+            #self.StartAcquisition()
+            self.sock.sendmsg("KLCB")
+            returnedmessage = self.sock.receive()
+            if (returnedmessage[0:3]!='ACK'):
+                logger.error("Failed to commit parameters. Returned message: {}".format(returnedmessage))
+                raise PauseError
 
     def setup_video_thread(self, analysis):
         thread = threading.Thread(target=self.setup_video, args=(analysis,))
@@ -290,27 +306,46 @@ class PICam(Instrument):
     def InitializeCamera(self):
         #if useDemo is True, connect a demo camera
         if (self.useDemo):
-            logger.warning('Connecting Demo Camera... ')
+            logger.debug('Connecting Demo Camera... ')
             self.sock.sendmsg('CDMC 604 Demo_Cam_1')
             returnedmessage = self.sock.receive()
-            logger.warning('Reply from C++ code: {}'.format(returnedmessage))
+            logger.debug('Reply from C++ code: {}'.format(returnedmessage))
         #send Open Camera command
         self.sock.sendmsg('OFCM')
         returnedmessage = self.sock.receive()
-        logger.warning('Reply from C++ code: {}'.format(returnedmessage))
+        logger.debug('Reply from C++ code: {}'.format(returnedmessage))
 
     def GetImages(self):
-        self.sock.sendmsg("ACQI")
-        returnedmessage = self.sock.receive()
-        if (returnedmessage[0:3]!='ACK'):
-            logger.error("Failed to get images. Returned message: {}".format(returnedmessage))
-            raise PauseError
-        if (returnedmessage[4:8]!='ACQI'):
-            logger.error("Returned message to GetImages from C++ not matching Acquire Image request. Returned message: {}".format(returnedmessage))
-            raise PauseError
+        first, last = self.GetNumberNewImages()
+        if (self.mode == 'video' or self.mode == 'idle'):
+            acquiredimages = 1
+            self.sock.sendmsg("ACQI")
+            returnedmessage = self.sock.receive()
+            if (returnedmessage[0:3]!='ACK'):
+                logger.error("Failed to get image. Returned message: {}".format(returnedmessage))
+                return
+            if (returnedmessage[4:8]!='ACQI'):
+                logger.error("Returned message to GetImages from C++ not matching Acquire Image request. Returned message: {}".format(returnedmessage))
+                return
+        else:
+            acquiredimages = self.shotsPerMeasurement.value
+            logger.debug("Requesting {} images".format(acquiredimages))
+            self.sock.sendmsg("AQMI {}".format(acquiredimages))
+            returnedmessage = self.sock.receive()
+            if (returnedmessage[0:3]!='ACK'):
+                logger.error("Failed to get images. Returned message: {}".format(returnedmessage))
+                raise PauseError
+            if (returnedmessage[4:8]!='AQMI'):
+                logger.error("Returned message to GetImages from C++ not matching Acquire Multiple Image request. Returned message: {}".format(returnedmessage))
+                raise PauseError
+        
+        size = self.dim * acquiredimages
+        c_image_array_type = c_int * size
+        c_image_array = c_image_array_type()
+        
         imagedatastr = returnedmessage[9:]
         imagedatalen = len(imagedatastr)/2  #16-bit data...
-        if (imagedatalen != self.dim):
+        if (imagedatalen != self.dim*acquiredimages):
             logger.warning("GetImages(): imagedatalen != self.dim. Possibly missing data...")
         try:
             imagedata=struct.unpack(""+str(imagedatalen)+"H", imagedatastr)
@@ -318,22 +353,32 @@ class PICam(Instrument):
             logger.warning('incorrectly formatted message: does not have 2 byte unsigned short for length. '+str(e))
             logger.warning('Message length: {} bytes'.format(len(imagedatastr)))
             raise PauseError
-        if (self.width*(self.height) != imagedatalen):
+        if (self.width*(self.height)*acquiredimages != imagedatalen):
             logger.error("Image data dimensions do not match expected dims: {}x{} {} bytes. Received: {} bytes".format(self.width,self.height,self.dim,imagedatalen))
             #logger.error("Returned Message from C++: {}".format(returnedmessage))
             raise PauseError
+        
+        if (self.mode == 'video'):
+            i=0
+            while (i<self.width):
+                j=0
+                while (j<self.height):
+                    self.c_image_array[i+j*(self.width)] = imagedata[i+j*(self.width)]
+                    j=j+1
+                i=i+1
+            return imagedata
+        if (self.mode == 'idle'):
+            return self.data
         i=0
         while (i<self.width):
             j=0
-            while (j<self.height):
-                self.c_image_array[i+j*(self.width)] = imagedata[i+j*(self.width)]
+            while (j<self.height*acquiredimages):
+                c_image_array[i+j*(self.width)] = imagedata[i+j*(self.width)]
                 j=j+1
             i=i+1
-        if (self.mode == 'video'):
-            return imagedata
         #logger.warning("Reshaping numpy array")
-        framedata = numpy.ctypeslib.as_array(self.c_image_array)
-        framedata = numpy.reshape(framedata, (1, self.height, self.width))
+        framedata = numpy.ctypeslib.as_array(c_image_array)
+        framedata = numpy.reshape(framedata, (acquiredimages, self.height, self.width))
         if (len(self.data)>0):
             #logger.warning("self.data: {}".format(self.data))
             data = numpy.append(self.data,framedata,axis=0)

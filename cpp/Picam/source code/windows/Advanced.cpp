@@ -136,6 +136,12 @@ int sendmessage(wsmessage formatmesg);
 int sendmessageimage(wsmessageimagedata formatmesg);
 int test_picam_error(PicamError error, string errmess);
 
+int sendmessageimagemult(wsmessageimagedata formatmesg, vector<pi16u>* imgs, int imgssize);
+int formatmessageimagemult(string message, int &length, wsmessageimagedata &formattedmessage, vector<char16_t> &imagedat, int imagelen);
+
+
+PicamAvailableData availabledata;
+
 string ws2s(const std::wstring& wstr);
 std::vector<std::string> &split(const std::string &s, char delim, std::vector<std::string> &elems);
 std::vector<std::string> split(const std::string &s, char delim);
@@ -3040,6 +3046,8 @@ PicamError PIL_CALL AcquisitionUpdated(
     {
         // - copy the last available frame to the shared image buffer and notify
         AutoLock al( lock_ );
+		availabledata.readout_count = available->readout_count;
+		availabledata.initial_readout = available->initial_readout;
         pi64s lastReadoutOffset = readoutStride_ * (available->readout_count-1);
         pi64s lastFrameOffset = frameStride_ * (framesPerReadout_-1);
         const pibyte* frame =
@@ -5000,6 +5008,136 @@ int ParseInput(char* buffer, int datalen)
 		sendmessage(formatmesg);
 
 	}
+	else if (strcmp(command, "ROIS") == 0)
+	{
+		//use arguments given in remainder of data to set ROIs
+
+		string arglist;
+		arglist = &buffer[13];
+		vector<string> splitarglist;
+		splitarglist = split(arglist, ' ');
+		if (splitarglist.size() % 6 != 0)
+		{
+			wsmessage formatmesg;
+			int len;
+			formatmessage("Incorrect number of arguments for Set Multiple ROIs (ROIS). Expected a multiple of 6.", len, formatmesg);
+			sendmessage(formatmesg);
+			return -2;
+		}
+
+		int numrois = static_cast<int>(splitarglist.size()) / 6;
+		PicamRoi* roi;
+		roi = new PicamRoi[numrois];
+		for (int roinum = 0; roinum < numrois; roinum++)
+		{
+			roi[roinum].x = stoi(splitarglist[0 + roinum*6]);
+			roi[roinum].width = stoi(splitarglist[1 + roinum * 6]);
+			roi[roinum].x_binning = stoi(splitarglist[2 + roinum * 6]);
+			roi[roinum].y = stoi(splitarglist[3 + roinum * 6]);
+			roi[roinum].height = stoi(splitarglist[4 + roinum * 6]);
+			roi[roinum].y_binning = stoi(splitarglist[5 + roinum * 6]);
+		}
+
+		PicamRois rois = { roi, numrois };
+		PicamError error = Picam_SetParameterRoisValue(device_, PicamParameter_Rois, &rois);
+		test_picam_error(error, "Failed to set ROIs.");
+		string ack = "ACK ROIS";
+		int len;
+		wsmessage formatmesg;
+		formatmessage(ack, len, formatmesg);
+		sendmessage(formatmesg);
+
+	}
+	else if (strcmp(command, "AQMI") == 0)
+	{
+		//Acquire multiple images
+
+		string arglist;
+		arglist = &buffer[13];
+		vector<string> splitarglist;
+		splitarglist = split(arglist, ' ');
+		if (splitarglist.size() != 1)
+		{
+			wsmessage formatmesg;
+			int len;
+			formatmessage("Incorrect number of arguments for Acquire Multiple Images (AQMI). Expected 1.", len, formatmesg);
+			sendmessage(formatmesg);
+			return -2;
+		}
+		piint numreads = stoi(splitarglist[0]);
+
+		PicamAcquisitionErrorsMask errormask;
+		PicamAvailableData avail;
+		PicamError error;
+		error = Picam_Acquire(device_, numreads, -1, &avail, &errormask);
+		test_picam_error(error, "Could not acquire images ");
+
+		if (errormask != 0)
+		{
+			wsmessage formatmesg;
+			int len;
+			string readouterr = "Acquisition Error: ";
+			readouterr.append(to_string((int)errormask));
+			formatmessage(readouterr, len, formatmesg);
+			sendmessage(formatmesg);
+			return -9;
+		}
+
+		if (avail.readout_count < numreads)
+		{
+			wsmessage formatmesg;
+			int len;
+			string readouterr = "Too few readouts available: ";
+			readouterr.append(to_string(avail.readout_count));
+			formatmessage(readouterr, len, formatmesg);
+			sendmessage(formatmesg);
+			return -8;
+		}
+		
+
+		string ack = "ACK AQMI ";
+		int len;
+		std::vector<pi16u>* idat;
+		idat = new vector<pi16u>[numreads];
+		
+		CacheFrameNavigation();
+
+		for (int i = 0; i < numreads; i++)
+		{
+			
+			
+			idat[i].resize(frameSize_ / sizeof(pi16u));
+			pi64s lastReadoutOffset = readoutStride_ * (avail.readout_count - numreads + i);
+			pi64s lastFrameOffset = frameStride_ * (framesPerReadout_ - 1);
+			const pibyte* frame =
+				static_cast<const pibyte*>(avail.initial_readout) +
+				lastReadoutOffset + lastFrameOffset;
+
+			//MessageBox(main_, to_wstring(static_cast<int>((&idat[i])->size())).c_str(), L"idat", 0);
+			//MessageBox(main_, to_wstring(lastReadoutOffset).c_str(), L"", 0);
+
+			std::memcpy(&(idat[i][0]), frame, frameSize_);
+
+			//MessageBox(main_, to_wstring(lastFrameOffset).c_str(), L"", 0);
+			//MessageBox(main_, to_wstring((int)frame).c_str(), L"", 0);
+		}
+		wsmessageimagedata formatmesg;
+		formatmessageimagemult(ack, len, formatmesg, idat[0], static_cast<int>((&idat[0])->size()));
+		sendmessageimagemult(formatmesg, idat, numreads);
+
+	}
+	else if (strcmp(command, "GNNI") == 0)
+	{
+		//Get Number of New Images
+		
+		pi64s numreadouts = availabledata.readout_count;
+		string ack = "ACK GNNI ";
+		ack.append(to_string(numreadouts));
+		int len;
+		wsmessage formatmesg;
+		formatmessage(ack, len, formatmesg);
+		sendmessage(formatmesg);
+	}
 	else if (strcmp(command, "STVD") == 0)
 	{
 		//Start Video (used in place of Start Acquisition for displaying continuous video)
@@ -5067,8 +5205,31 @@ int ParseInput(char* buffer, int datalen)
 	else if (strcmp(command, "STAQ") == 0)
 	{
 		//Start Acquisition
+		PicamError error =
+			PicamAdvanced_RegisterForAcquisitionUpdated(
+			device_,
+			AcquisitionUpdated);
+		if (error != PicamError_None)
+			DisplayError(L"Failed to register for acquisition updated.", error);
 		Start();
 		string ack = "ACK STAQ";
+		int len;
+		wsmessage formatmesg;
+		formatmessage(ack, len, formatmesg);
+		sendmessage(formatmesg);
+	}
+	else if (strcmp(command, "KLCB") == 0)
+	{
+		//Kill Callback (used in Experiment mode when shotsPerMeasurement > 1), 
+		//to prevent the callback function from clearing the acquisition buffer after each readout.
+		PicamError error =
+			PicamAdvanced_UnregisterForAcquisitionUpdated(
+			device_,
+			AcquisitionUpdated);
+		if (error != PicamError_None)
+			DisplayError(L"Failed to register for acquisition updated.", error);
+
+		string ack = "ACK KLCB";
 		int len;
 		wsmessage formatmesg;
 		formatmessage(ack, len, formatmesg);
@@ -5495,6 +5656,47 @@ int sendmessageimage(wsmessageimagedata formatmesg)
 	StringToWString(wmunchy, munchy);
 	DisplayError(wmunchy);
 	*/
+
+	return 0;
+}
+
+int formatmessageimagemult(string message, int &length, wsmessageimagedata &formattedmessage, vector<char16_t> &imagedat, int imagelen)
+{
+	length = static_cast<int>(message.length());
+	formattedmessage.message = new char[length + 1];
+	//int totallength = length + imagelen;
+	strncpy_s(formattedmessage.mesg, 5, "MESG", 4);
+	formattedmessage.len = length;
+	strncpy_s(formattedmessage.message, length + 1, message.c_str(), length);
+	formattedmessage.imagedat = &imagedat[0];
+	formattedmessage.imagelen = imagelen;
+
+	return 0;
+}
+
+int sendmessageimagemult(wsmessageimagedata formatmesg, vector<pi16u>* imgs, int imgssize)
+{
+	
+	INT32 chicken = htonl(formatmesg.len + (imgssize)*formatmesg.imagelen * 2);
+	//MessageBox(main_, to_wstring(imgssize).c_str(), L"imgssize", 0);
+	//MessageBox(main_, to_wstring(formatmesg.imagelen*2).c_str(), L"imagelen*2", 0);
+	/*char16_t *image;
+	image = new char16_t[formatmesg.imagelen];
+	for (int i = 0; i < formatmesg.imagelen; i = i + 1)
+	{
+		image[i] = formatmesg.imagedat[i];
+	}*/
+
+	send(client, (char *)&formatmesg.mesg, sizeof(formatmesg.mesg) - 1, 0);
+	send(client, (char *)&chicken, sizeof(chicken), 0);
+	send(client, formatmesg.message, formatmesg.len, 0);
+	stringstream imgout;
+	for (int i = 0; i < imgssize; i++)
+	{
+		imgout << (char *)&(imgs[i][0]);
+	}
+	send(client, imgout.str().c_str(), imgssize * formatmesg.imagelen * 2, 0);
+
 
 	return 0;
 }
