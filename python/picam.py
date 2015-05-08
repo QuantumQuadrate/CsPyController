@@ -316,7 +316,7 @@ class PICam(Instrument):
         logger.debug('Reply from C++ code: {}'.format(returnedmessage))
 
     def GetImages(self):
-        first, last = self.GetNumberNewImages()
+        #first, last = self.GetNumberNewImages()
         if (self.mode == 'video' or self.mode == 'idle'):
             acquiredimages = 1
             self.sock.sendmsg("ACQI")
