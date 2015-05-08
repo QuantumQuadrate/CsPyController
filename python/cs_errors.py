@@ -55,7 +55,8 @@ def setup_log():
     sh.setFormatter(sh_formatter)
 
     #set up logging to file for ALL messages
-    fh = logging.FileHandler('log.txt')
+    #fh = logging.FileHandler('log.txt')
+    fh = logging.TimedRotatingFileHandler('log.txt', when='midnight', interval=1, backupCount=7)
     fh.setLevel(logging.DEBUG)
     fh_formatter = logging.Formatter(fmt='%(asctime)s - %(threadName)s - %(filename)s.%(funcName)s.%(lineno)s - %(levelname)s\n%(message)s\n\n', datefmt='%Y/%m/%d %H:%M:%S')
     fh.setFormatter(fh_formatter)

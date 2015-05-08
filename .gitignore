@@ -1,6 +1,6 @@
 .DS_Store
 .idea
-log.txt
+log.txt*
 settings.hdf5
 previous_settings.hdf5
 *.pyc
