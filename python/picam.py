@@ -230,8 +230,8 @@ class PICam(Instrument):
         if not self.isInitialized:
             self.initialize()
         self.sock.clearbuffer()   #clear socket's buffer to kill off any old messages
-        if self.IsAcquisitionRunning():
-            self.AbortAcquisition()
+        #if self.IsAcquisitionRunning():
+        self.AbortAcquisition()
         
         self.GetDetector()
         self.setROIvalues()
@@ -338,11 +338,7 @@ class PICam(Instrument):
             if (returnedmessage[4:8]!='AQMI'):
                 logger.error("Returned message to GetImages from C++ not matching Acquire Multiple Image request. Returned message: {}".format(returnedmessage))
                 raise PauseError
-        
-        size = self.dim * acquiredimages
-        c_image_array_type = c_int * size
-        c_image_array = c_image_array_type()
-        
+
         imagedatastr = returnedmessage[9:]
         imagedatalen = len(imagedatastr)/2  #16-bit data...
         if (imagedatalen != self.dim*acquiredimages):
@@ -359,22 +355,33 @@ class PICam(Instrument):
             raise PauseError
         
         if (self.mode == 'video'):
+            starttime = time.clock()
             i=0
-            while (i<self.width):
-                j=0
-                while (j<self.height):
-                    self.c_image_array[i+j*(self.width)] = imagedata[i+j*(self.width)]
-                    j=j+1
+            while (i<self.width*self.height):
+                self.c_image_array[i] = imagedata[i]
+                #j=0
+                #while (j<self.height):
+                    #self.c_image_array[i+j*(self.width)] = imagedata[i+j*(self.width)]
+                    #j=j+1
                 i=i+1
+            #ctypes.memmove(self.c_image_array, (ctypes.c_int * len(imagedata))(*imagedata), self.width*self.height*ctypes.sizeof(ctypes.c_int))
+            endtime = time.clock()
+            logger.warning("Time elapsed while copying into c_image_array: {} seconds".format(endtime-starttime))
             return imagedata
         if (self.mode == 'idle'):
             return self.data
+        
+        #Allocate space for temp c_image_array...
+        size = self.dim * acquiredimages
+        c_image_array_type = c_int * size
+        c_image_array = c_image_array_type()
         i=0
-        while (i<self.width):
-            j=0
-            while (j<self.height*acquiredimages):
-                c_image_array[i+j*(self.width)] = imagedata[i+j*(self.width)]
-                j=j+1
+        while (i<self.width*self.height*acquiredimages):
+            c_image_array[i] = imagedata[i]
+            #j=0
+            #while (j<self.height*acquiredimages):
+            #    c_image_array[i+j*(self.width)] = imagedata[i+j*(self.width)]
+            #    j=j+1
             i=i+1
         #logger.warning("Reshaping numpy array")
         framedata = numpy.ctypeslib.as_array(c_image_array)
@@ -577,8 +584,10 @@ class PICam(Instrument):
         returnedmessage = self.sock.receive()
         if (returnedmessage == "ACK ISAR 1"):
             status = True
+            logger.warning("Acquisition is running.")
         elif (returnedmessage == "ACK ISAR 0"):
             status = False
+            logger.warning("Acquisition is NOT running.")
         else:
             status = False
             logger.error("Received message from C++ code after sending IsAcquisitionRunning: {}".format(returnedmessage))
