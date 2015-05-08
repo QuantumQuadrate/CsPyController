@@ -920,7 +920,8 @@ class HistogramGrid(AnalysisWithFigure):
 
     def use_cutoffs(self):
         """Set the cutoffs.  Because they are stored in a numpy field, but we need to set them using a deferred_call,
-        the whole ROI array is first copied, then updated, then written back to the squareROIAnalysis."""
+        the whole ROI array is first copied, then updated, then written back to the squareROIAnalysis
+        or gaussian_roi."""
 
         if self.roi_type == 0:  # square ROI
             a = self.experiment.squareROIAnalysis.ROIs.copy()

@@ -153,7 +153,7 @@ class Optimization(AnalysisWithFigure):
                 # update hdf5
                 hdf5['analysis/optimizer/best_values'][...] = self.xi
                 hdf5['analysis/optimizer/best_cost'][...] = self.yi
-                hdf5['analysis/optimizer/best_experiment'][...] = self.best_experiment_number
+                hdf5['analysis/optimizer/best_experiment_number'][...] = self.best_experiment_number
                 # update experiment independent variables
                 for i, j in zip(self.optimization_variables, self.xi):
                     i.set_gui({'function': str(j)})

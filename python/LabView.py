@@ -184,7 +184,7 @@ class LabView(Instrument):
                     raise PauseError
 
             elif key == 'AI/data':
-                #boolean data was stored as 8 byte doubles
+                #analog data was stored as 8 byte doubles
                 array = numpy.array(struct.unpack('!'+str(int(len(value)/8))+'d', value), dtype=numpy.float64)
                 try:
                     dims = map(int, self.results['AI/dimensions'].split(','))
