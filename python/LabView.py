@@ -69,14 +69,14 @@ class LabView(Instrument):
         self.RF_generators = RF_generators.RF_generators(experiment)
         self.AnalogOutput = AnalogOutput.AnalogOutput(experiment)
         self.AnalogInput = AnalogInput.AnalogInput(experiment)
+        self.Counters = Counter.Counters('counters', experiment)
         self.DAQmxDO = DAQmxDO.DAQmxDO(experiment)
         self.camera = Camera.HamamatsuC9100_13(experiment)
         self.TTL = TTL.TTL(experiment)
         self.results = {}
-        #self.Counter = Counter.Counter(experiment)
 
         self.instruments = [self.HSDIO, self.piezo, self.RF_generators, self.AnalogOutput, self.AnalogInput,
-                            self.DAQmxDO, self.camera, self.TTL] #,self.Counter]
+                            self.Counter, self.DAQmxDO, self.camera, self.TTL]
         
         self.sock = None
         self.connected = False
@@ -184,13 +184,28 @@ class LabView(Instrument):
                     raise PauseError
 
             elif key == 'AI/data':
-                #analog data was stored as 8 byte doubles
+                #analog data was stored as big-endian (network order) doubles floats (8-bytes)
                 array = numpy.array(struct.unpack('!'+str(int(len(value)/8))+'d', value), dtype=numpy.float64)
                 try:
                     dims = map(int, self.results['AI/dimensions'].split(','))
                     array.resize(dims)
                 except Exception as e:
                     logger.error('unable to resize AI data, check for AI/dimensions in returned data:\n'+str(e))
+                    raise PauseError
+                try:
+                    hdf5[key] = array
+                except Exception as e:
+                    logger.error('in LabView.writeResults() doing hdf5[{}]\n{}'.format(key, e))
+                    raise PauseError
+
+            elif key == 'counter/data':
+                #counter data was stored as big-endian (network order) unsigned long (4-byte) integers
+                array = numpy.array(struct.unpack('!'+str(int(len(value)/4))+'L', value), dtype=numpy.uint32)
+                try:
+                    dims = map(int, self.results['counter/dimensions'].split(','))
+                    array.resize(dims)
+                except Exception as e:
+                    logger.error('unable to resize counter data, check for counter/dimensions in returned data:\n'+str(e))
                     raise PauseError
                 try:
                     hdf5[key] = array

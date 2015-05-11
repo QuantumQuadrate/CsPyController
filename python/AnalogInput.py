@@ -8,6 +8,7 @@ modified>=2014-08-19
 This file holds everything needed to set up a finite acquisition of a fixed number of data points during the
 experiment from a National Instruments DAQmx card.
 It communicates to LabView via the higher up LabView(Instrument) class.
+Saving of returned data is handled in the LabView class.
 """
 
 from __future__ import division

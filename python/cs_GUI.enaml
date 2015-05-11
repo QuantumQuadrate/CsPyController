@@ -168,7 +168,7 @@ enamldef IndexedContainer(GroupBox):
     # change what that one object is using an Include
     # The attribute 'iterable' must be a ListProp.  This container then provides controls to add and remove elements.
     # The GUI element viewType must define 'item' which is the element of the ListProp that will be passed to it
-    # The attribute static disables the buttons to dynamically add or remove list items
+    # The attribute dynamic enables the buttons to dynamically add or remove list items
 
     attr iterable = Typed(ListProp)
     # Below is commented out because we don't actually have to declare the type.
@@ -1846,6 +1846,43 @@ enamldef AnalogInput(Window):
                         hug_width='ignore'
                         figure << analysis.figure
 
+
+enamldef Counters(Window):
+    attr counters
+
+    title = 'Counters'
+    style_class << 'valid' if experiment.valid else 'invalid'
+    Container:
+        padding = 0
+        style_class << 'valid' if experiment.valid else 'invalid'
+        ScrollArea:
+            style_class << 'valid' if experiment.valid else 'invalid'
+            Container:
+                style_class << 'valid' if experiment.valid else 'invalid'
+
+                hug_height='strong'
+                hug_width='strong'
+
+                LabelBox:
+                    text='enable'
+                    checked := counters.enable
+                IndexedContainer:
+                    dynamic = False
+                    iterable << counters.counters
+                    viewType = Counter
+
+
+enamldef Counter(Container):
+    attr item
+
+    Form:
+        Label: text = 'counter source'
+        Field: text := item.counter_source
+        Label: text = 'clock source'
+        Field: text := item.clock_source
+        Label: text = 'clock rate (used for internal source only) [Hz]'
+        Field: text := clock_rate
+
 enamldef DCNoiseEaterChannel(Container):
     attr item
 
@@ -3071,7 +3108,8 @@ window_dictionary = {'':'',
                      'Box Temperature': 'BoxTemperature(box_temperature = main.experiment.box_temperature)',
                      'Ramsey': 'Ramsey(analysis = main.experiment.Ramsey)',
                      'PID': 'PID(experiment = main.experiment)',
-                     'Retention Analysis': 'RetentionAnalysis(analysis = main.experiment.retention_analysis)'
+                     'Retention Analysis': 'RetentionAnalysis(analysis = main.experiment.retention_analysis)',
+                     'Counters': 'Counters(counters = main.experiment.LabView.Counters)'
                      }
 window_keys = window_dictionary.keys()
 window_keys.sort()
