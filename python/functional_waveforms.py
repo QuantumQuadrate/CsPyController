@@ -9,7 +9,9 @@ This file holds text files which specify the waveform timing for HSDIO, DAQmx DI
 Waveforms are specified as python functions.  Every waveform function must take in the absolute time
 for the waveform to begin, and must return the absolute time when the waveform ends.  In this way, the length of each
 waveform can easily be used to synchronize all three of these instruments.
-This file holds everything needed to model the high speed digital output from the National Instruments HSDIO card.  It communicates to LabView via the higher up LabView(Instrument) class.
+
+In practice the functionality of this instrument is exactly the same as the dependent variables,
+except that the resulting definitions will not be saved into the HDF5 file.
 """
 
 from __future__ import division
@@ -26,7 +28,6 @@ class FunctionalWaveforms(Instrument):
     version = '2015.05.19'
 
     text = Str()  # a text string that holds all the waveforms
-    instrument_list = Str()  # a string giving a list of the instruments that should be made available to this analysis
 
     def __init__(self, name, experiment, description=''):
         super(FunctionalWaveforms, self).__init__(name, experiment, description)
@@ -37,7 +38,6 @@ class FunctionalWaveforms(Instrument):
             logger.debug('FunctionalWaveforms.evaluate()')
 
             localvars = self.experiment.vars.copy()
-            localvars.update({'experiment': self.experiment})
             cs_evaluate.execWithDict(self.text, localvars)
 
             return super(FunctionalWaveforms, self).evaluate()

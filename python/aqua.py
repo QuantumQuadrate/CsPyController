@@ -8,13 +8,14 @@ import traceback
 from atom.api import Member
 
 # Bring in other files in this package
-import analysis, save2013style, TTL, LabView, DDS, roi_fitting, picomotors, andor, DCNoiseEater, Laird_temperature, AnalogInput
+import functional_waveforms, analysis, save2013style, TTL, LabView, DDS, roi_fitting, picomotors, andor, DCNoiseEater, Laird_temperature, AnalogInput
 from experiments import Experiment
 
 
 class AQuA(Experiment):
     """A subclass of Experiment which knows about all our particular hardware"""
 
+    functional_waveforms = Member()
     picomotors = Member()
     Andor = Member()
     LabView = Member()
@@ -53,13 +54,14 @@ class AQuA(Experiment):
         super(AQuA, self).__init__()
 
         #add instruments
+        self.functional_waveforms = functional_waveforms.FunctionalWaveforms('functional_waveforms', self, 'Waveforms for HSDIO, DAQmx DIO, and DAQmx AO; defined as functions')
         self.picomotors = picomotors.Picomotors('picomotors', self, 'Newport Picomotors')
         self.Andor = andor.Andor('Andor', self, 'Andor Luca Camera')
         self.LabView = LabView.LabView(self)
         self.DDS = DDS.DDS('DDS', self, 'server for homemade DDS boxes')
         self.DC_noise_eaters = DCNoiseEater.DCNoiseEaters('DC_noise_eaters', self)
         self.box_temperature = Laird_temperature.LairdTemperature('box_temperature', self)
-        self.instruments += [self.box_temperature, self.picomotors, self.Andor, self.DC_noise_eaters, self.LabView,
+        self.instruments += [self.functional_waveforms, self.box_temperature, self.picomotors, self.Andor, self.DC_noise_eaters, self.LabView,
                              self.DDS]
 
         #analyses

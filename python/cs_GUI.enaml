@@ -1081,7 +1081,6 @@ enamldef Waveforms(Window):
                     hug_height = 'ignore'
                     text := experiment.functional_waveforms.text
 
-
 enamldef HSDIO_DigitalOutPage(Window):
     attr HSDIO
 
