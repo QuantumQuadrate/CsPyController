@@ -70,6 +70,7 @@ class HSDIO(Instrument):
     # properties for functional waveforms
     transition_list = Member()  # list that will store the transitions as they are added
     states = Member()  # an array of the compiled transition states
+    indices = Member()  # an array of the compiled transition indices
     times = Member()  # an array of the compiled transition times
     durations = Member()  # an array of the compiled transition durations
 
@@ -88,11 +89,11 @@ class HSDIO(Instrument):
 
     def evaluate(self):
         if self.enable and self.experiment.allow_evaluation:
-            logger.debug('functional_HSDIO.evaluate()')
+            logger.debug('HSDIO.evaluate()')
+            super(HSDIO, self).evaluate()
             self.parse_transition_list()
             # reset the transition list so it starts empty for the next usage
             self.transition_list = []
-            return super(HSDIO, self).evaluate()
 
     def add_transition(self, time, channel, state):
         """Append a transition to the list of transitions.  The values are not processed until evaluate is called.
@@ -107,7 +108,7 @@ class HSDIO(Instrument):
     def parse_transition_list(self):
         # put all the transitions that have been stored together into one big list
         # convert the float time to an integer number of samples
-        times = np.rint(np.array([i[0] for i in self.transition_list], dtype=np.float64)*self.clockRate.value*self.units.value).astype(np.uint64)
+        indices = np.rint(np.array([i[0] for i in self.transition_list], dtype=np.float64)*self.clockRate.value*self.units.value).astype(np.uint64)
         # compile the channels
         channels = np.array([i[1] for i in self.transition_list], dtype=uint8)
         # compile the states
@@ -115,34 +116,38 @@ class HSDIO(Instrument):
 
         # Create two arrays to store the compiled times and states.
         # These arrays will be appended to to increase their size as we go along.
-        time_list = np.zeros(1, dtype=np.uint64)
+        index_list = np.zeros(1, dtype=np.uint64)
         state_list = np.zeros((1, self.numChannels), dtype=np.bool)
 
         # sort the transitions time.  If there is a tie, preserve the order.
         # mergesort is slower than the default quicksort, but it is 'stable' which means items of the same value are kept in their relative order, which is desired here
-        order = np.argsort(times, kind='mergesort')
+        order = np.argsort(indices, kind='mergesort')
 
         # go through all the transitions, updating the compiled sequence as we go
         for i in order:
             # check to see if the next time is the same as the last one in the time list
-            if times[i] == time_list[-1]:
+            if indices[i] == index_list[-1]:
                 # if this is a duplicate time, the latter entry overrides
                 state_list[-1][channels[i]] = state[i]
             else:
                 # If this is a new time, increase the length of time_list and state_list.
                 # Create the new state_list entry by copying the last entry.
-                time_list = np.append(time_list, times[i])
+                index_list = np.append(index_list, indices[i])
                 state_list.append(state_list[-1, np.newaxis], axis=0)
                 # then update the last entry
                 state_list[-1, channels[i]] = states[i]
 
         # find the duration of each segment
-        durations = np.empty_like(time_list)
-        durations[:-1] = time_list[1:]-time_list[:-1]
+        durations = np.empty_like(index_list)
+        durations[:-1] = index_list[1:]-index_list[:-1]
         durations[-1] = 1  # add in a 1 sample duration at end for last transition
 
+        # find the real time at each index (used for plotting)
+        times = index_list/(self.clockRate.value*self.units.value)
+
         #update the exposed variables
-        self.times = time_list
+        self.indices = index_list
+        self.times = times
         self.states = state_list
         self.durations = durations
 
@@ -163,7 +168,7 @@ class HSDIO(Instrument):
         waveformXML=''
 
         #go through each transition
-        for i in xrange(len(self.times)):
+        for i in xrange(len(self.indices)):
             # for each transition, replace with a sequence of generate wXXXXXXXX, if wXXXXXXXX not in list, add wXXXXXXXX to list of necessary waveforms, create waveform and add it to waveform XML
             singleSampleWaveformName = 'w'+''.join([str(int(j)) for j in self.states[i]])  # make a name for the waveform.  the name is w followed by the binary expression of the state
             script += 'generate '+singleSampleWaveformName+'\n'
@@ -185,4 +190,4 @@ class HSDIO(Instrument):
 
         # then upload scriptOut instead of script.toHardware, waveformXML instead of waveforms.toHardware (those toHardware methods will return an empty string and so will not interfere)
         # then process the rest of the properties as usual
-        return '<HSDIO><script>{}</script>\n<waveforms>{}</waveforms>\n'.format(script, waveformXML)+super(npHSDIO,self).toHardware()[7:]  # [7:] removes the <HSDIO> on what is returned from super.toHardware
+        return '<HSDIO><script>{}</script>\n<waveforms>{}</waveforms>\n'.format(script, waveformXML)+super(HSDIO, self).toHardware()[7:]  # [7:] removes the <HSDIO> on what is returned from super.toHardware

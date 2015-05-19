@@ -61,7 +61,7 @@ class AQuA(Experiment):
         self.DDS = DDS.DDS('DDS', self, 'server for homemade DDS boxes')
         self.DC_noise_eaters = DCNoiseEater.DCNoiseEaters('DC_noise_eaters', self)
         self.box_temperature = Laird_temperature.LairdTemperature('box_temperature', self)
-        self.instruments += [self.functional_waveforms, self.box_temperature, self.picomotors, self.Andor, self.DC_noise_eaters, self.LabView,
+        self.instruments += [self.box_temperature, self.picomotors, self.Andor, self.DC_noise_eaters, self.LabView,
                              self.DDS]
 
         #analyses
@@ -95,7 +95,7 @@ class AQuA(Experiment):
                           self.andor_viewer, self.DC_noise_eater_graph, self.DC_noise_eater_filter, self.Ramsey,
                           self.retention_analysis, self.retention_graph, self.save_notes, self.save2013Analysis]
 
-        self.properties += ['LabView', 'DDS', 'picomotors', 'Andor', 'DC_noise_eaters', 'box_temperature',
+        self.properties += ['functional_waveforms', 'LabView', 'DDS', 'picomotors', 'Andor', 'DC_noise_eaters', 'box_temperature',
                             'squareROIAnalysis', 'gaussian_roi', 'TTL_filters', 'AI_graph', 'AI_filter',
                             'loading_filters', 'first_measurements_filter', 'imageSumAnalysis', 'recent_shot_analysis',
                             'shotBrowserAnalysis', 'histogramAnalysis', 'histogram_grid', 'retention_analysis',

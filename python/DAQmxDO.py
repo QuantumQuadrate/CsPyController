@@ -18,9 +18,7 @@ from cs_instruments import Instrument
 
 from atom.api import Typed, Member
 from instrument_property import Prop, BoolProp, IntProp, FloatProp, StrProp, EnumProp
-from digital_waveform import NumpyChannels, NumpyWaveform
-
-#---- DAQmxDO properties ----
+from digital_waveform import NumpyChannels
 
 
 class StartTrigger(Prop):
@@ -35,21 +33,24 @@ class StartTrigger(Prop):
         self.edge = EnumProp('edge', experiment, 'start trigger edge', '"rising"', ["rising", "falling"])
         self.properties += ['waitForStartTrigger', 'source', 'edge']
 
-#---- DAQmxDO instrument ----
-
 
 class DAQmxDO(Instrument):
-    version = '2014.07.16'
-    script = Typed(StrProp)
+    version = '2015.05.19'
     resourceName = Typed(StrProp)
     clockRate = Typed(FloatProp)
     units = Typed(FloatProp)
     hardwareAlignmentQuantum = Typed(IntProp)
-    waveform = Member()
     channels = Member()
     triggers = Member()
     startTrigger = Member()
-    numChannels = 8
+    numChannels = Int(8)
+
+    # properties for functional waveforms
+    transition_list = Member()  # list that will store the transitions as they are added
+    states = Member()  # an array of the compiled transition states
+    times = Member()  # an array of the compiled transition times
+    durations = Member()  # an array of the compiled transition durations
+
     
     def __init__(self, experiment):
         super(DAQmxDO, self).__init__('DAQmxDO', experiment)
@@ -57,14 +58,84 @@ class DAQmxDO(Instrument):
         self.clockRate = FloatProp('clockRate', experiment, 'samples/channel/sec', '1000')
         self.units = FloatProp('units', experiment, 'multiplier for timing values (milli=.001)', '1')
         self.channels = NumpyChannels(experiment, self)
-        self.waveform = NumpyWaveform('waveform', experiment, digitalout=self)
         self.startTrigger = StartTrigger(experiment)
-        self.properties += ['version', 'resourceName', 'clockRate', 'units', 'channels', 'waveform', 'startTrigger']
+        self.properties += ['version', 'resourceName', 'clockRate', 'units', 'channels', 'startTrigger', 'numChannels']
         # the number of channels is defined by the resourceName (and the waveform which must agree), so
         # channels need not be send to hardware
         self.doNotSendToHardware += ['units', 'channels']
+        self.transition_list = []
 
     def evaluate(self):
         if self.experiment.allow_evaluation:
             logger.debug('DAQmxDO.evaluate()')
             return super(DAQmxDO, self).evaluate()
+
+    def evaluate(self):
+        if self.enable and self.experiment.allow_evaluation:
+            logger.debug('DAQmxDO.evaluate()')
+            super(DAQmxDO, self).evaluate()
+            self.parse_transition_list()
+            # reset the transition list so it starts empty for the next usage
+            self.transition_list = []
+
+    def add_transition(self, time, channel, state):
+        """Append a transition to the list of transitions.  The values are not processed until evaluate is called.
+        Generally the master functional waveform instrument should evaluate before HSDIO evaluates.
+        :param time: float.  Absolute time since the HSDIO was triggered, in the units specified by self.units
+        :param channel: int.  The channel number to change.
+        :param state: bool.  Should the channel go high  (True) or low (False) at this time?
+        :return: Nothing.
+        """
+        self.transition_list.append((time, channel, state))
+
+    def parse_transition_list(self):
+        # put all the transitions that have been stored together into one big list
+        # convert the float time to an integer number of samples
+        indices = np.rint(np.array([i[0] for i in self.transition_list], dtype=np.float64)*self.clockRate.value*self.units.value).astype(np.uint64)
+        # compile the channels
+        channels = np.array([i[1] for i in self.transition_list], dtype=uint8)
+        # compile the states
+        states = np.array([for i in self.transition_list], dtype=np.bool)
+
+        # Create two arrays to store the compiled times and states.
+        # These arrays will be appended to to increase their size as we go along.
+        index_list = np.zeros(1, dtype=np.uint64)
+        state_list = np.zeros((1, self.numChannels), dtype=np.bool)
+
+        # sort the transitions time.  If there is a tie, preserve the order.
+        # mergesort is slower than the default quicksort, but it is 'stable' which means items of the same value are kept in their relative order, which is desired here
+        order = np.argsort(indices, kind='mergesort')
+
+        # go through all the transitions, updating the compiled sequence as we go
+        for i in order:
+            # check to see if the next time is the same as the last one in the time list
+            if indices[i] == index_list[-1]:
+                # if this is a duplicate time, the latter entry overrides
+                state_list[-1][channels[i]] = state[i]
+            else:
+                # If this is a new time, increase the length of time_list and state_list.
+                # Create the new state_list entry by copying the last entry.
+                index_list = np.append(index_list, indices[i])
+                state_list.append(state_list[-1, np.newaxis], axis=0)
+                # then update the last entry
+                state_list[-1, channels[i]] = states[i]
+
+        # find the real time at each index (used for plotting)
+        times = index_list/(self.clockRate.value*self.units.value)
+
+        #update the exposed variables
+        self.indices = index_list
+        self.times = times
+        self.states = state_list
+        self.durations = durations
+
+    def toHardware(self):
+        waveformXML = ('<waveform>'+
+            '<name>'+self.name+'</name>'+
+            '<transitions>'+' '.join([str(time) for time in self.index_list])+'</transitions>'+
+            '<states>'+'\n'.join([' '.join([str(sample) for sample in state]) for state in self.state_list])+'</states>\n'+
+            '</waveform>\n')
+
+        # then upload scriptOut instead of script.toHardware, waveformXML instead of waveforms.toHardware (those toHardware methods will return an empty string and so will not interfere)
+        # then process the rest of the properties as usual
+        return '<DAQmxDO>{}\n'.format(waveformXML)+super(DAQmxDO, self).toHardware()[9:]  # [9:] removes the <DAQmxDO> on what is returned from super.toHardware

@@ -1126,29 +1126,14 @@ enamldef DAQmxDigitalOutPage(Window):
             Container:
                 style_class << 'valid' if experiment.valid else 'invalid'
 
-                constraints=[vbox(canvas,p6,hbox(vbox(p0,p1,p2,p3,p4),p5)),align('top',p0,p5)]
-                hug_height='strong'
-                hug_width='strong'
-                Form: p0:
-                    Label:
-                        text = 'enable'
-                    CheckBox:
-                        checked := DAQmx.enable
-                EvalProp: p1:
-                    prop<<DAQmx.resourceName
-                EvalProp: p2:
-                    prop<<DAQmx.clockRate
-                EvalProp: p3:
-                    prop<<DAQmx.units
-                StartTrigger: p4:
-                    trigger<<DAQmx.startTrigger
-                NumpyDOchannels: p5:
-                    channels<<DAQmx.channels
-                NumpyWaveform: p6:
-                    waveform<<DAQmx.waveform
-                MPLCanvas: canvas:
-                    constraints=[(height==500)|'strong',(width==1500)|'strong']
-                    figure << DAQmx.waveform.figure
+                LabelBox:
+                    text = 'enable'
+                    checked := DAQmx.enable
+                EvalProp: prop<<DAQmx.resourceName
+                EvalProp: prop<<DAQmx.clockRate
+                EvalProp: prop<<DAQmx.units
+                StartTrigger: trigger<<DAQmx.startTrigger
+                NumpyDOchannels: channels<<DAQmx.channels
 
 enamldef DDS_profile(Container):
     attr profile
