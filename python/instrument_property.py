@@ -727,6 +727,9 @@ class Numpy1DProp(Prop):
         self.array = numpy.zeros(0, dtype=dtype)
         self.properties += ['array']
 
+    def __len__(self):
+        return len(self.array)
+
     def add(self, index):
         zero = numpy.zeros(1, dtype=self.dtype)
         if self.zero is not None:

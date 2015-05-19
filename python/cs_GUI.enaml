@@ -1065,76 +1065,22 @@ def get_load_waveform_callback(HSDIO):
     return load_file_callback
 
 enamldef Waveforms(Window):
-    attr HSDIO
+    attr experiment
 
-    title = 'HSDIO Waveforms'
+    title = 'Global Waveforms'
     style_class << 'valid' if experiment.valid else 'invalid'
     Container:
         padding = 0
         style_class << 'valid' if experiment.valid else 'invalid'
         ScrollArea:
             style_class << 'valid' if experiment.valid else 'invalid'
-            VGroup:
+            Container:
                 style_class << 'valid' if experiment.valid else 'invalid'
+                MultilineField:
+                    hug_width = 'ignore'
+                    hug_height = 'ignore'
+                    text := experiment.functional_waveforms.text
 
-                hug_width='ignore'
-                hug_height='ignore'
-                spacing = 0
-
-                Conditional:
-                    condition << ((HSDIO.waveforms.length>0) and (combo.index >= 0))
-                    MPLCanvas: canvas:
-                        constraints=[(height==900)|'strong', (width==1850)|'strong']
-                        figure << HSDIO.waveforms.listProperty[combo.index].figure
-
-                HGroup:
-                    align_widths = False
-                    ComboBox: combo:
-                        constraints=[(width==500)|'strong']
-                        items << list(HSDIO.waveforms.names)
-                        index = (0 if (HSDIO.waveforms.length>0) else -1) # pick first profile on load
-                    PushButton: importWaveform:
-                        constraints=[(width==50)|'strong']
-                        enabled = False
-                        #add a waveform from a file
-                        text='import'
-                        clicked::
-                            dlg = FileDialog(
-                                parent=importWaveform,
-                                title='Choose file to load waveform from',
-                                mode='open_file',
-                                path=HSDIO.import_path,
-                                callback=get_load_waveform_callback(HSDIO),
-                                ).open()
-                            combo.index=len(HSDIO.waveforms)-1
-                    PushButton: addWaveform:
-                        constraints=[(width==50)|'strong']
-                        text = 'add'
-                        clicked::
-                            HSDIO.waveforms.add()
-                            combo.index=len(HSDIO.waveforms)-1
-                    PushButton: removeWaveform:
-                        constraints=[(width==50)|'strong']
-                        text = 'remove'
-                        clicked::
-                            i=combo.index
-                            if i>=0:
-                                if i>1:
-                                    combo.index=i-1
-                                else:
-                                    combo.index=0
-                                HSDIO.waveforms.pop(i)
-                    PushButton: copyWaveform:
-                        constraints=[(width==50)|'strong']
-                        text = 'copy'
-                        clicked::
-                            HSDIO.waveforms.copy(combo.index)
-                            combo.index=len(HSDIO.waveforms)-1
-
-                Conditional:
-                    condition << ((HSDIO.waveforms.length>0) and (combo.index >= 0))
-                    NumpyWaveform: waveform:
-                        waveform << HSDIO.waveforms.listProperty[combo.index]
 
 enamldef HSDIO_DigitalOutPage(Window):
     attr HSDIO
@@ -1149,30 +1095,21 @@ enamldef HSDIO_DigitalOutPage(Window):
             Container:
                 style_class << 'valid' if experiment.valid else 'invalid'
 
-                constraints=[hbox(vbox(p1,p9,p2,p4,p5,p6,p7,p8),p3),align('left',p1,p9,p2,p4,p5,p6,p7),align('top',p1,p3)]
-                hug_height='strong'
-                hug_width='strong'
-                Form: p1:
-                    Label:
-                        text = 'enable'
-                    CheckBox:
-                        checked := HSDIO.enable
-                StartTrigger: p9:
-                    trigger<<HSDIO.startTrigger
-                IndexedStack: p2:
+                Form:
+                    Label: text = 'enable'
+                    CheckBox: checked := HSDIO.enable
+                StartTrigger: trigger<<HSDIO.startTrigger
+                IndexedStack:
                     title='Script Triggers'
                     iterable<<HSDIO.triggers
                     viewType=HSDIOScriptTrigger
-                MultilineProp: p3:
-                    prop<<HSDIO.script
-                EvalProp: p4:
-                    prop<<HSDIO.resourceName
-                EvalProp: p5:
-                    prop<<HSDIO.clockRate
-                EvalProp: p6:
-                    prop<<HSDIO.units
-                EvalProp: p7:
-                    prop<<HSDIO.hardwareAlignmentQuantum
+                EvalProp: prop<<HSDIO.resourceName
+                EvalProp: prop<<HSDIO.clockRate
+                EvalProp: prop<<HSDIO.units
+                EvalProp: prop<<HSDIO.hardwareAlignmentQuantum
+                Form:
+                    Label: text = 'number of channels (multiples of 32)'
+                    IntField: value := HSDIO.numChannels
                 NumpyDOchannels: p8:
                     channels<<HSDIO.channels
 
@@ -3045,7 +2982,7 @@ window_dictionary = {'':'',
                      'Report': 'Reports(experiment = main.experiment)',
                      'PXI Communication': 'LabViewPage(LabView = main.experiment.LabView)',
                      'HSDIO': 'HSDIO_DigitalOutPage(HSDIO = main.experiment.LabView.HSDIO)',
-                     'Waveforms': 'Waveforms(HSDIO = main.experiment.LabView.HSDIO)',
+                     'Waveforms': 'Waveforms(experiment = main.experiment)',
                      'DAQmx': 'DAQmxDigitalOutPage(DAQmx = main.experiment.LabView.DAQmxDO)',
                      'DDS': 'DDS_Page(DDS = main.experiment.DDS)',
                      'RF Generators': 'RFGenPage(LabView = main.experiment.LabView)',
