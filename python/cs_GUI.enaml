@@ -1652,52 +1652,38 @@ enamldef AnalogOutput(Window):
             Container:
                 style_class << 'valid' if experiment.valid else 'invalid'
 
-                hug_height='strong'
-                #hug_width='strong'
-                constraints=[vbox(e1,canvas,equations,c1),align('left',e1,canvas,equations,c1)]
                 LabelBox: e1:
                     text='enable'
                     checked:=AO.enable
-                MPLCanvas: canvas:
-                    constraints=[(height==500)|'strong']
-                    hug_width='ignore'
-                    figure << AO.figure
-                IndexedStack: equations:
-                    title='equations'
-                    iterable<<AO.equations
-                    viewType=AOequation
-                Container: c1:
-                    hug_height='strong'
-                    hug_width='strong'
-                    constraints=[grid([e2,e3,e4],[e5,e6,e7],[e8,e9,e10],[e11,e12],[e13,e14,e15])]
-                    EvalProp: e2:
-                        prop<<AO.physicalChannels
-                    EvalProp: e3:
-                        prop<<AO.minimum
-                    EvalProp: e4:
-                        prop<<AO.maximum
-                    EvalProp: e5:
-                        prop<<AO.clockRate
-                    EvalProp: e6:
-                        prop<<AO.units
-                    EvalProp: e7:
-                        prop<<AO.totalAOTime
-                    EvalProp: e8:
-                        prop<<AO.waitForStartTrigger
-                    EvalProp: e9:
-                        prop<<AO.triggerSource
-                    EvalProp: e10:
-                        prop<<AO.triggerEdge
-                    EvalProp: e11:
-                        prop<<AO.exportStartTrigger
-                    EvalProp: e12:
-                        prop<<AO.exportStartTriggerDestination
-                    EvalProp: e13:
-                        prop<<AO.useExternalClock
-                    EvalProp: e14:
-                        prop<<AO.externalClockSource
-                    EvalProp: e15:
-                        prop<<AO.maxExternalClockRate
+                EvalProp: e2:
+                    prop<<AO.physicalChannels
+                IntField: value := AO.numChannels
+                EvalProp: e3:
+                    prop<<AO.minimum
+                EvalProp: e4:
+                    prop<<AO.maximum
+                EvalProp: e5:
+                    prop<<AO.clockRate
+                EvalProp: e6:
+                    prop<<AO.units
+                EvalProp: e7:
+                    prop<<AO.totalAOTime
+                EvalProp: e8:
+                    prop<<AO.waitForStartTrigger
+                EvalProp: e9:
+                    prop<<AO.triggerSource
+                EvalProp: e10:
+                    prop<<AO.triggerEdge
+                EvalProp: e11:
+                    prop<<AO.exportStartTrigger
+                EvalProp: e12:
+                    prop<<AO.exportStartTriggerDestination
+                EvalProp: e13:
+                    prop<<AO.useExternalClock
+                EvalProp: e14:
+                    prop<<AO.externalClockSource
+                EvalProp: e15:
+                    prop<<AO.maxExternalClockRate
 
 enamldef AnalogInput(Window):
     attr AI

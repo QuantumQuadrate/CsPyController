@@ -16,12 +16,11 @@ logger = logging.getLogger(__name__)
 from cs_errors import PauseError
 
 from atom.api import Typed, Member
-import numpy
-np=numpy
+import numpy as np
 
 from instrument_property import Prop, BoolProp, IntProp, FloatProp, StrProp, ListProp
 from cs_instruments import Instrument
-from digital_waveform import NumpyWaveform, NumpyChannels
+from digital_waveform import NumpyChannels
 
 
 class ScriptTrigger(Prop):
@@ -39,12 +38,6 @@ class ScriptTrigger(Prop):
         self.edge = StrProp('edge', experiment, '', '"rising"')
         self.level = StrProp('level', experiment, '', '"high"')
         self.properties += ['id', 'source', 'type', 'edge', 'level']
-
-
-class Waveforms(ListProp):
-    '''We can't use an unmodified ListProp for this because the added children must be passed waveforms=self, which is not possible to describe in a one-line definintion.'''
-    def __init__(self, experiment, digitalout):
-        super(Waveforms, self).__init__('waveforms', experiment, description='Holds all the digitalout waveforms', listElementType=NumpyWaveform, listElementName='waveform', listElementKwargs={'digitalout': digitalout, 'waveforms': self})
 
 
 class StartTrigger(Prop):
@@ -114,13 +107,11 @@ class HSDIO(Instrument):
     def parse_transition_list(self):
         # put all the transitions that have been stored together into one big list
         # convert the float time to an integer number of samples
-        times = numpy.rint(np.array([i[0] for i in self.transition_list], dtype=np.float64)*self.clockRate.value*self.units.value).astype(numpy.uint64)
+        times = np.rint(np.array([i[0] for i in self.transition_list], dtype=np.float64)*self.clockRate.value*self.units.value).astype(np.uint64)
         # compile the channels
         channels = np.array([i[1] for i in self.transition_list], dtype=uint8)
         # compile the states
         states = np.array([for i in self.transition_list], dtype=np.bool)
-
-        #transitions = np.array([() for i in self.transition_list], dtype=[('time', np.uint64), ('channel', np.uint32), ('state', numpy.bool)])
 
         # Create two arrays to store the compiled times and states.
         # These arrays will be appended to to increase their size as we go along.
@@ -129,7 +120,7 @@ class HSDIO(Instrument):
 
         # sort the transitions time.  If there is a tie, preserve the order.
         # mergesort is slower than the default quicksort, but it is 'stable' which means items of the same value are kept in their relative order, which is desired here
-        order = numpy.argsort(times, kind='mergesort')
+        order = np.argsort(times, kind='mergesort')
 
         # go through all the transitions, updating the compiled sequence as we go
         for i in order:
