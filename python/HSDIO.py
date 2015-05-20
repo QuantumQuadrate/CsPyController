@@ -143,11 +143,11 @@ class HSDIO(Instrument):
         durations[-1] = 1  # add in a 1 sample duration at end for last transition
 
         # find the real time at each index (used for plotting)
-        times = index_list/(self.clockRate.value*self.units.value)
+        self.times = index_list/self.clockRate.value
+        self.time_durations = durations/self.clockRate
 
         #update the exposed variables
         self.indices = index_list
-        self.times = times
         self.states = state_list
         self.durations = durations
 

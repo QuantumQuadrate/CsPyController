@@ -15,7 +15,6 @@ from experiments import Experiment
 class AQuA(Experiment):
     """A subclass of Experiment which knows about all our particular hardware"""
 
-    functional_waveforms = Member()
     picomotors = Member()
     Andor = Member()
     LabView = Member()
@@ -23,6 +22,8 @@ class AQuA(Experiment):
     DC_noise_eaters = Member()
     box_temperature = Member()
 
+    functional_waveforms = Member()
+    functional_waveforms_graph = Member()
     TTL_filters = Member()
     AI_graph = Member()
     AI_filter = Member()

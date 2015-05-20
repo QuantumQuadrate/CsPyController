@@ -1065,7 +1065,8 @@ def get_load_waveform_callback(HSDIO):
     return load_file_callback
 
 enamldef Waveforms(Window):
-    attr experiment
+    attr waveforms
+    attr graph
 
     title = 'Global Waveforms'
     style_class << 'valid' if experiment.valid else 'invalid'
@@ -1076,10 +1077,32 @@ enamldef Waveforms(Window):
             style_class << 'valid' if experiment.valid else 'invalid'
             Container:
                 style_class << 'valid' if experiment.valid else 'invalid'
-                MultilineField:
+
+                MPLCanvas: canvas:
+                    constraints=[(height==900)|'strong', (width==1850)|'strong']
+                    figure << graph.figure
+
+                HGroup:  # plot controls
+                    align_widths = False
+                    hug_width='strong'
+                    hug_height='strong'
+                    padding=0
+                    Label: text = 'plot min'
+                    Field:
+                        placeholder = 'blank for autolimit'
+                        text:: graph.updateFigure()
+                    Label: text = 'plot max'
+                    Field:
+                        placeholder = 'blank for autolimit'
+                        text:: graph.updateFigure()
+                    Label: text = 'units'
+                    FloatField:
+                        value := graph.units
+
+                MultilineField:  # waveform entry
                     hug_width = 'ignore'
                     hug_height = 'ignore'
-                    text := experiment.functional_waveforms.text
+                    text := waveforms.text
 
 enamldef HSDIO_DigitalOutPage(Window):
     attr HSDIO
@@ -2952,7 +2975,7 @@ window_dictionary = {'':'',
                      'Report': 'Reports(experiment = main.experiment)',
                      'PXI Communication': 'LabViewPage(LabView = main.experiment.LabView)',
                      'HSDIO': 'HSDIO_DigitalOutPage(HSDIO = main.experiment.LabView.HSDIO)',
-                     'Waveforms': 'Waveforms(experiment = main.experiment)',
+                     'Waveforms': 'Waveforms(waveforms = main.experiment.functional_waveforms, graph = main.experiment.functional_waveforms_graph)',
                      'DAQmx': 'DAQmxDigitalOutPage(DAQmx = main.experiment.LabView.DAQmxDO)',
                      'DDS': 'DDS_Page(DDS = main.experiment.DDS)',
                      'RF Generators': 'RFGenPage(LabView = main.experiment.LabView)',

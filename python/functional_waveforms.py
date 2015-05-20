@@ -51,10 +51,17 @@ class FunctionalWaveformGraph(AnalysisWithFigure):
 
     labels = Member()
     spans = Member()
+    plotmin = Str()
+    plotmax = Str()
+    units = Float(.001)
+    HSDIO_channels_to_plot = Str()
+    AO_channels_to_plot = Str()
+    DAQmxDO_channels_to_plot = Str()
 
     def __init__(self, name, experiment, description=''):
         super(FunctionalWaveformGraph, self).__init__(name, experiment, description)
-        self.properties += ['enable']
+        self.properties += ['enable', 'plotmin', 'plotmax', 'units', 'HSDIO_channels_to_plot', 'AO_channels_to_plot',
+                            'DAQmxDO_channels_to_plot']
 
     def __init__(self):
         self.labels = []
@@ -66,9 +73,82 @@ class FunctionalWaveformGraph(AnalysisWithFigure):
         self.spans += [(t1, t2, text)]
 
     def evaluate(self):
-        # update the plot
+        """Update the plot"""
 
-        # make the digital plots
+        # sources
+        HSDIO = self.experiment.LabView.HSDIO
+        AO = self.experiment.LabView.AnalogOutput
+        DO = self.experiment.LabView.DAQmxDO
+
+        #draw on the inactive figure
+        fig=self.backFigure
+
+        #clear figure
+        fig.clf()
+
+        ### HSDIO plots ###
+
+        #create axis
+        ax = fig.add_subplot(111)
+        ax.set_xlabel('time [ms]')
+
+        # make horizontal grid lines
+        ax.grid(True)
+
+        channels = eval(self.HSDIO_channels_to_plot)
+        states = HSDIO.states[:, channels]
+        times = HSDIO.times/self.units
+        durations = HSDIO.durations/self.units
+
+        # get plot info
+        numTransitions, numChannels = states.shape
+
+        # set plot limits
+        # y
+        ax.set_ylim(0, numChannels)
+        # x
+        if self.plotmin == '':
+            plotmin = times[0]
+        else:
+            plotmin = float(self.plotmin)
+        if self.plotmax == '':
+            plotmax = times[-1]
+        else:
+            plotmax = float(self.plotmax)
+        if plotmin == plotmax:
+            # avoid divide by zeros
+            plotmax += 1
+        ax.set_xlim(plotmin, plotmax)
+
+        # set up plot ticks
+        ax.set_xticks(times)
+        ax.set_xticklabels(map(lambda x: str.format('{:.3g}', x), times))
+        # make vertical tick labels on the bottom
+        for label in ax.xaxis.get_ticklabels():
+            label.set_rotation(90)
+
+        # create a timeList on the scale 0 to 1
+        relativeTimeList=(times-plotmin)/(plotmax-plotmin)
+        relativeDuration=durations/(plotmax-plotmin)
+
+        # Make a broken horizontal bar plot, i.e. one with gaps
+        for i in xrange(numChannels):
+            # reverse plot order of channels
+            yhigh=numChannels-1-i+.9
+            ylow=numChannels-1-i+.1
+            for j in xrange(numTransitions):
+                if states[j,i]:
+                    ax.axhspan(ylow, yhigh, relativeTimeList[j], relativeTimeList[j]+relativeDuration[j], color='black', alpha=0.5)
+                # if value is False, plot nothing
+
+        # setup y-axis ticks
+        ax.set_yticks(numpy.arange(numChannels)+0.5)
+        yticklabels=[x+(' : ' if x else ' ')+str(i) for i,x in enumerate(HSDIO.channels.array['description'][channels])]
+        yticklabels.reverse()  # reverse plot order of channels
+        ax.set_yticklabels(yticklabels)
+
+        #make sure the tick labels have room
+        fig.subplots_adjust(left=.2, right=.95, bottom=.2)
 
         # make the analog plots
 
