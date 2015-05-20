@@ -45,6 +45,18 @@ class CsSock(socket.socket):
             logger.error('Error sending message: '+str(e))
             raise PauseError
 
+    def clearbuffer(self,sock):
+        timeout = sock.gettimeout()
+        sock.settimeout(1)
+        while 1:
+            try:
+                data = sock.recv(4096)
+            except:
+                break;
+            #print 'draining: {}...'.format(data[:40])
+            if not data: break
+        sock.settimeout(timeout)
+        
     def receive(self,sock):
         #every message should start with 'MESG'
         try:
@@ -123,7 +135,11 @@ class CsClientSock(CsSock):
     def sendmsg(self, msgtxt):
         #reference the common message format, pass self as sock
         super(CsClientSock, self).sendmsg(self, msgtxt)
-    
+
+    def clearbuffer(self):
+        #reference the common message format, pass self as sock
+        return super(CsClientSock, self).clearbuffer(self) 
+        
     def receive(self):
         #reference the common message format, pass self as sock
         return super(CsClientSock, self).receive(self)

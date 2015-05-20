@@ -1,0 +1,14 @@
+﻿Build started 5/6/2015 12:00:19 PM.
+     1>Project "C:\Users\Public\Documents\Princeton Instruments\Picam\Samples - Copy\projects\vs2010\Advanced.vcxproj" on node 2 (Build target(s)).
+     1>ClCompile:
+         C:\Program Files (x86)\Microsoft Visual Studio 12.0\VC\bin\x86_amd64\CL.exe /c /I"C:\Program Files\Princeton Instruments\Picam\\Includes" /Zi /nologo /W4 /WX /Od /D _MBCS /Gm /EHsc /RTC1 /MDd /GS /fp:precise /Zc:wchar_t /Zc:forScope /Fo"obj\Advanced\x64\Debug\\" /Fd"obj\Advanced\x64\Debug\vc120.pdb" /Gd /TP /errorReport:prompt "..\..\Source Code\Windows\Advanced.cpp"
+         Advanced.cpp
+       Link:
+         C:\Program Files (x86)\Microsoft Visual Studio 12.0\VC\bin\x86_amd64\link.exe /ERRORREPORT:PROMPT /OUT:"C:\Users\Public\Documents\Princeton Instruments\Picam\Samples - Copy\projects\vs2010\bin\x64\Debug\Advanced.exe" /NOLOGO /LIBPATH:"C:\Program Files\Princeton Instruments\Picam\\Libraries" picam.lib kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /MANIFEST /MANIFESTUAC:"level='asInvoker' uiAccess='false'" /manifest:embed /DEBUG /PDB:"C:\Users\Public\Documents\Princeton Instruments\Picam\Samples - Copy\projects\vs2010\bin\x64\Debug\Advanced.pdb" /TLBID:1 /DYNAMICBASE /NXCOMPAT /IMPLIB:"C:\Users\Public\Documents\Princeton Instruments\Picam\Samples - Copy\projects\vs2010\bin\x64\Debug\Advanced.lib" /MACHINE:X64 obj\Advanced\x64\Debug\Advanced.res
+         obj\Advanced\x64\Debug\Advanced.obj
+         Advanced.vcxproj -> C:\Users\Public\Documents\Princeton Instruments\Picam\Samples - Copy\projects\vs2010\bin\x64\Debug\Advanced.exe
+     1>Done Building Project "C:\Users\Public\Documents\Princeton Instruments\Picam\Samples - Copy\projects\vs2010\Advanced.vcxproj" (Build target(s)).
+
+Build succeeded.
+
+Time Elapsed 00:00:03.08

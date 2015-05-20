@@ -17,7 +17,7 @@ from cs_errors import PauseError
 
 from enaml.layout.api import vbox, hbox, align, horizontal, vertical, spacer, grid
 from enaml.widgets.api import (MainWindow, MenuBar, Menu, Action,
-                                Notebook, Page, Container, GroupBox, 
+                                Notebook, Page, Container, GroupBox, DualSlider, 
                                 Form, Label, CheckBox, SpinBox, PushButton, MPLCanvas,
                                 MultilineField, ProgressBar, ScrollArea, Separator,
                                 FileDialog,Window, StatusBar, StatusItem,
@@ -1662,6 +1662,71 @@ enamldef Andor(Window):
                         minimum=0
                         value := analysis.shot
 
+                        
+
+            
+enamldef PICam(Window):
+    attr camera
+    attr analysis
+
+    title = 'Princeton Instruments Camera'
+    Container:
+        padding = 0
+        ScrollArea:
+            Container:
+                HGroup:
+                    align_widths = False
+                    MPLCanvas:
+                        figure << analysis.figure
+                    DualSlider:
+                        orientation = 'vertical'
+                        #auto_hug = False
+                        low_value := camera.roilowv
+                        high_value := camera.roihighv
+                        low_value :: camera.setROIvalues()
+                        high_value :: camera.setROIvalues()
+                        minimum << camera.roimaxv
+                        maximum = 0
+                DualSlider:
+                    #auto_hug = False
+                    low_value := camera.roilowh
+                    high_value := camera.roihighh
+                    low_value :: camera.setROIvalues()
+                    high_value :: camera.setROIvalues()
+                    minimum = 0
+                    maximum << camera.roimaxh
+                HGroup:
+                    PushButton:
+                        text = 'video mode'
+                        clicked :: camera.setup_video_thread(analysis)
+                    PushButton:
+                        text = 'stop video'
+                        clicked :: camera.stop_video()
+                LabelBox:
+                    text = 'enable'
+                    checked := camera.enable
+                EvalProp:
+                    prop << camera.AdcEMGain
+                #EvalProp:
+                #    prop << camera.preAmpGain
+                EvalProp:
+                    prop << camera.exposureTime
+                ComboBox:
+                    items = ['Edge', 'Level']
+                    index := camera.triggerMode
+                EvalProp:
+                    prop<<camera.shotsPerMeasurement
+                Form:
+                    Label:
+                        text = 'shot'
+                    SpinBox: shot:
+                        minimum=0
+                        value := analysis.shot                        
+                            
+                            
+                        
+                        
+
 enamldef FiltersPage(Page):
     title = 'Filters'
 
@@ -3056,6 +3121,7 @@ window_dictionary = {'':'',
                      'RF Generators': 'RFGenPage(LabView = main.experiment.LabView)',
                      'Hamamatsu': 'CameraPage(camera = main.experiment.LabView.camera)',
                      'Andor': 'Andor(camera = main.experiment.Andor, analysis=main.experiment.andor_viewer)',
+                     'Princeton Instruments Camera': 'PICam(camera = main.experiment.PICam, analysis=main.experiment.picam_viewer)',
                      'Analog Output': 'AnalogOutput(AO = main.experiment.LabView.AnalogOutput)',
                      'Analog Input': 'AnalogInput(AI = main.experiment.LabView.AnalogInput, filters = main.experiment.AI_filter, analysis = main.experiment.AI_graph)',
                      'Arroyo': 'Arroyo(experiment = main.experiment)',
@@ -3090,6 +3156,7 @@ enamldef Main(MainWindow): main:
     #initial_position=(0,0)
     #initial_size=(1500,1100)
     icon = loadIcon()
+    closing :: main.experiment.exiting()
 
     MyStyleSheet:
         #just implement the style sheet defined separately
@@ -3107,6 +3174,10 @@ enamldef Main(MainWindow): main:
                 minimum=0
                 maximum=100
                 value<<int(experiment.progressGUI)
+                
+                
+                
+
     HGroup:
         align_widths = False
         Label: text = 'Select a window to open:'
