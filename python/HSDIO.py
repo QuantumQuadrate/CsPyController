@@ -15,7 +15,7 @@ logger = logging.getLogger(__name__)
 
 from cs_errors import PauseError
 
-from atom.api import Typed, Member
+from atom.api import Typed, Member, Int
 import numpy as np
 
 from instrument_property import Prop, BoolProp, IntProp, FloatProp, StrProp, ListProp
@@ -112,7 +112,7 @@ class HSDIO(Instrument):
         # compile the channels
         channels = np.array([i[1] for i in self.transition_list], dtype=uint8)
         # compile the states
-        states = np.array([for i in self.transition_list], dtype=np.bool)
+        states = np.array([i[2] for i in self.transition_list], dtype=np.bool)
 
         # Create two arrays to store the compiled times and states.
         # These arrays will be appended to to increase their size as we go along.

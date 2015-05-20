@@ -17,7 +17,7 @@ logger = logging.getLogger(__name__)
 
 from cs_errors import PauseError
 
-import TCP, HSDIO, piezo, DDS, RF_generators, AnalogOutput, AnalogInput, DAQmxDO, Camera, TTL
+import TCP, HSDIO, piezo, DDS, RF_generators, AnalogOutput, AnalogInput, DAQmxDO, Camera, TTL, Counter
 from atom.api import Bool, Str, Member, Typed
 from instrument_property import FloatProp
 from cs_instruments import Instrument
@@ -45,6 +45,7 @@ class LabView(Instrument):
     AnalogOutput = Member()
     AnalogInput = Member()
     DAQmxDO = Member()
+    Counters = Member()
     camera = Member()
     TTL = Member()
     results = Member()
@@ -76,7 +77,7 @@ class LabView(Instrument):
         self.results = {}
 
         self.instruments = [self.HSDIO, self.piezo, self.RF_generators, self.AnalogOutput, self.AnalogInput,
-                            self.Counter, self.DAQmxDO, self.camera, self.TTL]
+                            self.Counters, self.DAQmxDO, self.camera, self.TTL]
         
         self.sock = None
         self.connected = False

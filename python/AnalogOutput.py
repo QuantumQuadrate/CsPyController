@@ -15,7 +15,7 @@ logger = logging.getLogger(__name__)
 
 from cs_errors import PauseError
 
-from atom.api import Typed, Member
+from atom.api import Typed, Member, Int
 from enaml.application import deferred_call
 from matplotlib.ticker import NullFormatter
 from instrument_property import BoolProp, FloatProp, StrProp
@@ -87,7 +87,7 @@ class AnalogOutput(Instrument):
         # compile the channels
         channels = np.array([i[1] for i in self.transition_list], dtype=uint8)
         # compile the values
-        values = np.array([for i in self.transition_list], dtype=np.float32)
+        values = np.array([i[2] for i in self.transition_list], dtype=np.float32)
 
         # sort the transitions time.  If there is a tie, preserve the order.
         # mergesort is slower than the default quicksort, but it is 'stable' which means items of the same value are kept in their relative order, which is desired here

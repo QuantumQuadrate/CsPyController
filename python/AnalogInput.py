@@ -17,7 +17,9 @@ import logging
 logger = logging.getLogger(__name__)
 
 import numpy
+import h5py
 from atom.api import Str, Typed, Member, Bool, observe, Int
+
 from instrument_property import BoolProp, FloatProp, StrProp, IntProp, Numpy1DProp
 from cs_instruments import Instrument
 from analysis import Analysis, AnalysisWithFigure
@@ -31,7 +33,7 @@ class AnalogInput(Instrument):
     triggerSource = Typed(StrProp)
     triggerEdge = Typed(StrProp)
     channels = Member()  # just holds the channel descriptions
-    ground_mode = Str('NRSE') = Typed(StrProp)
+    ground_mode = Typed(StrProp)
 
     def __init__(self, experiment):
         super(AnalogInput, self).__init__('AnalogInput', experiment)
@@ -42,7 +44,7 @@ class AnalogInput(Instrument):
         self.triggerSource = StrProp('triggerSource', experiment, '', '"/PXI1Slot6/PFI0"')
         self.triggerEdge = StrProp('triggerEdge', experiment, '"Rising" or "Falling"', '"Rising"')
         self.channels = Numpy1DProp('channels', experiment, 'a list of channel descriptions', dtype=[('description', object)], hdf_dtype=[('description', h5py.special_dtype(vlen=str))], zero=('new'))
-        self.ground_mode = StrProp('ground_mode', self.experiment, 'RSE for ungrounded sensors, NRSE for grounded sensors')
+        self.ground_mode = StrProp('ground_mode', experiment, 'RSE for ungrounded sensors, NRSE for grounded sensors', '"NRSE"')
         self.properties += ['version', 'sample_rate', 'source', 'samples_per_measurement', 'waitForStartTrigger',
                             'triggerSource', 'triggerEdge', 'channels', 'ground_mode']
         self.doNotSendToHardware += ['channels']

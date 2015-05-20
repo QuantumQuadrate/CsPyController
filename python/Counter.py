@@ -16,8 +16,9 @@ __author__ = 'Martin Lichtman'
 import logging
 logger = logging.getLogger(__name__)
 
-from atom.api import Str, Float
+from atom.api import Str, Float, Typed
 from cs_instruments import Instrument
+from instrument_property import ListProp
 
 class Counters(Instrument):
     version = '2015.05.11'

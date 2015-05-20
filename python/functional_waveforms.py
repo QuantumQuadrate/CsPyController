@@ -23,6 +23,7 @@ from cs_errors import PauseError
 import cs_evaluate
 from analysis import AnalysisWithFigure
 from instrument_property import Prop
+from atom.api import Str,Member,Float,Typed
 
 
 class FunctionalWaveforms(Prop):
@@ -62,9 +63,8 @@ class FunctionalWaveformGraph(AnalysisWithFigure):
         super(FunctionalWaveformGraph, self).__init__(name, experiment, description)
         self.properties += ['enable', 'plotmin', 'plotmax', 'units', 'HSDIO_channels_to_plot', 'AO_channels_to_plot',
                             'DAQmxDO_channels_to_plot']
-
-    def __init__(self):
         self.labels = []
+        self.spans = []
 
     def label(self, time, text):
         self.labels += [(time, text)]
