@@ -1,0 +1,385 @@
+<interface>
+  <object
+    class="GtkListStore"
+    id="selected_camera_model"
+    >
+    <columns>
+      <column
+        type="gchararray"
+        />
+    </columns>
+  </object>
+  <object
+    class="GtkListStore"
+    id="available_camera_model"
+    >
+    <columns>
+      <column
+        type="gchararray"
+        />
+    </columns>
+  </object>
+  <object
+    class="GtkListStore"
+    id="unavailable_camera_model"
+    >
+    <columns>
+      <column
+        type="gchararray"
+        />
+    </columns>
+  </object>
+  <object
+    class="GtkListStore"
+    id="demo_model"
+    >
+    <columns>
+      <column
+        type="gchararray"
+        />
+      <column
+        type="gint"
+        />
+    </columns>
+  </object>
+  <object
+    class="GtkDialog"
+    id="dialog"
+    >
+    <property name="title">Cameras</property>
+    <property name="resizable">FALSE</property>
+    <property name="border-width">12</property>
+    <property name="destroy-with-parent">TRUE</property>
+    <child
+      internal-child="vbox"
+      >
+      <object
+        class="GtkVBox"
+        id="vbox"
+        >
+        <property name="spacing">24</property>
+        <child>
+          <object
+            class="GtkVBox"
+            id="selected_camera_vbox"
+            >
+            <child>
+              <object
+                class="GtkLabel"
+                id="selected_camera_label"
+                >
+                <property name="label">Selected Camera:</property>
+                <property name="xalign">0</property>
+              </object>
+              <packing>
+                <property name="expand">FALSE</property>
+                <property name="fill">FALSE</property>
+              </packing>
+            </child>
+            <child>
+              <object
+                class="GtkComboBox"
+                id="selected_camera_combo_box"
+                >
+                <property name="model">selected_camera_model</property>
+                <child>
+                  <object
+                    class="GtkCellRendererText"
+                    id="selected_camera_renderer"
+                    />
+                  <attributes>
+                    <attribute name="text">0</attribute>
+                  </attributes>
+                </child>
+              </object>
+              <packing>
+                <property name="expand">FALSE</property>
+                <property name="fill">FALSE</property>
+              </packing>
+            </child>
+          </object>
+          <packing>
+            <property name="expand">FALSE</property>
+            <property name="fill">FALSE</property>
+          </packing>
+        </child>
+        <child>
+          <object
+            class="GtkVBox"
+            id="cameras_vbox"
+            >
+            <property name="spacing">12</property>
+            <child>
+              <object
+                class="GtkVBox"
+                id="available_cameras_vbox"
+                >
+                <child>
+                  <object
+                    class="GtkLabel"
+                    id="available_cameras_label"
+                    >
+                    <property name="label">Available Cameras:</property>
+                    <property name="xalign">0</property>
+                  </object>
+                  <packing>
+                    <property name="expand">FALSE</property>
+                    <property name="fill">FALSE</property>
+                  </packing>
+                </child>
+                <child>
+                  <object
+                    class="GtkScrolledWindow"
+                    id="available_cameras_window"
+                    >
+                    <property name="shadow-type">GTK_SHADOW_IN</property>
+                    <property name="hscrollbar-policy">GTK_POLICY_AUTOMATIC</property>
+                    <property name="height-request">100</property>
+                    <child>
+                      <object
+                        class="GtkTreeView"
+                        id="available_cameras_treeview"
+                        >
+                        <property name="model">available_camera_model</property>
+                        <child>
+                          <object
+                            class="GtkTreeViewColumn"
+                            id="available_cameras_column"
+                            >
+                            <child>
+                              <object
+                                class="GtkCellRendererText"
+                                id="available_cameras_renderer"
+                                />
+                              <attributes>
+                                <attribute name="text">0</attribute>
+                              </attributes>
+                            </child>
+                          </object>
+                        </child>
+                      </object>
+                    </child>
+                  </object>
+                  <packing>
+                    <property name="expand">FALSE</property>
+                    <property name="fill">FALSE</property>
+                  </packing>
+                </child>
+              </object>
+            </child>
+            <child>
+              <object
+                class="GtkVBox"
+                id="unavailable_cameras_vbox"
+                >
+                <child>
+                  <object
+                    class="GtkLabel"
+                    id="unavailable_cameras_label"
+                    >
+                    <property name="label">Unavailable Cameras:</property>
+                    <property name="xalign">0</property>
+                  </object>
+                  <packing>
+                    <property name="expand">FALSE</property>
+                    <property name="fill">FALSE</property>
+                  </packing>
+                </child>
+                <child>
+                  <object
+                    class="GtkScrolledWindow"
+                    id="unavailable_cameras_window"
+                    >
+                    <property name="shadow-type">GTK_SHADOW_IN</property>
+                    <property name="hscrollbar-policy">GTK_POLICY_AUTOMATIC</property>
+                    <property name="height-request">100</property>
+                    <child>
+                      <object
+                        class="GtkTreeView"
+                        id="unavailable_cameras_treeview"
+                        >
+                        <property name="model">unavailable_camera_model</property>
+                        <child>
+                          <object
+                            class="GtkTreeViewColumn"
+                            id="unavailable_cameras_column"
+                            >
+                            <child>
+                              <object
+                                class="GtkCellRendererText"
+                                id="unavailable_cameras_renderer"
+                                />
+                              <attributes>
+                                <attribute name="text">0</attribute>
+                              </attributes>
+                            </child>
+                          </object>
+                        </child>
+                      </object>
+                    </child>
+                  </object>
+                  <packing>
+                    <property name="expand">FALSE</property>
+                    <property name="fill">FALSE</property>
+                  </packing>
+                </child>
+              </object>
+            </child>
+          </object>
+        </child>
+        <child>
+          <object
+            class="GtkFrame"
+            id="demo_cameras_frame"
+            >
+            <child
+              type="label"
+              >
+              <object
+                class="GtkLabel"
+                id="demo_cameras_frame_label"
+                >
+                <property name="label">Demo Cameras</property>
+              </object>
+            </child>
+            <child>
+              <object
+                class="GtkAlignment"
+                id="demo_cameras_alignment"
+                >
+                <property name="left-padding">12</property>
+                <property name="top-padding">12</property>
+                <property name="right-padding">12</property>
+                <property name="bottom-padding">12</property>
+                <property name="xalign">0</property>
+                <child>
+                  <object
+                    class="GtkHBox"
+                    id="demo_cameras_hbox"
+                    >
+                    <property name="spacing">12</property>
+                    <child>
+                      <object
+                        class="GtkVBox"
+                        id="demo_cameras_column_1"
+                        >
+                        <property name="spacing">12</property>
+                        <child>
+                          <object
+                            class="GtkComboBox"
+                            id="selected_demo_camera_combo_box"
+                            >
+                            <child>
+                              <object
+                                class="GtkCellRendererText"
+                                id="demo_renderer"
+                                />
+                                <attributes>
+                                  <attribute name="text">0</attribute>
+                                </attributes>
+                            </child>
+                          </object>
+                          <packing>
+                            <property name="expand">FALSE</property>
+                            <property name="fill">FALSE</property>
+                          </packing>
+                        </child>
+                        <child>
+                          <object
+                            class="GtkHBox"
+                            id="demo_camera_serial_number_hbox"
+                            >
+                            <property name="spacing">12</property>
+                            <child>
+                              <object
+                                class="GtkLabel"
+                                id="demo_camera_serial_number_label"
+                                >
+                                <property name="label">Serial Number:</property>
+                              </object>
+                            </child>
+                            <child>
+                              <object
+                                class="GtkEntry"
+                                id="demo_camera_serial_number_entry"
+                                />
+                            </child>
+                          </object>
+                        </child>
+                      </object>
+                      <packing>
+                        <property name="expand">FALSE</property>
+                        <property name="fill">FALSE</property>
+                      </packing>
+                    </child>
+                    <child>
+                      <object
+                        class="GtkVBox"
+                        id="demo_cameras_column_2"
+                        >
+                        <child>
+                          <object
+                            class="GtkHButtonBox"
+                            id="demo_cameras_button_box"
+                            >
+                            <child>
+                              <object
+                                class="GtkButton"
+                                id="connect_demo_camera_button"
+                                >
+                                <property name="label">Connect</property>
+                              </object>
+                            </child>
+                          </object>
+                          <packing>
+                            <property name="expand">FALSE</property>
+                            <property name="fill">FALSE</property>
+                          </packing>
+                        </child>
+                      </object>
+                      <packing>
+                        <property name="expand">FALSE</property>
+                        <property name="fill">FALSE</property>
+                      </packing>
+                    </child>
+                  </object>
+                </child>
+              </object>
+            </child>
+          </object>
+        </child>
+        <child
+          internal-child="action_area"
+          >
+          <object
+            class="GtkButtonBox"
+            id="button_box"
+            >
+            <child>
+              <object
+                class="GtkButton"
+                id="cancel_button"
+                >
+                <property name="label">Cancel</property>
+              </object>
+            </child>
+            <child>
+              <object
+                class="GtkButton"
+                id="ok_button"
+                >
+                <property name="label">OK</property>
+                <property name="can-default">TRUE</property>
+                <property name="has-default">TRUE</property>
+              </object>
+            </child>
+          </object>
+        </child>
+      </object>
+    </child>
+    <action-widgets>
+      <action-widget response="-6">cancel_button</action-widget>
+      <action-widget response="-5">ok_button</action-widget>
+    </action-widgets>
+  </object>
+</interface>

@@ -1,0 +1,107 @@
+<interface>
+  <object
+    class="GtkDialog"
+    id="dialog"
+    >
+    <property name="title">Exposure</property>
+    <property name="resizable">FALSE</property>
+    <property name="border-width">12</property>
+    <property name="destroy-with-parent">TRUE</property>
+    <child
+      internal-child="vbox"
+      >
+      <object
+        class="GtkVBox"
+        id="vbox"
+        >
+        <property name="spacing">24</property>
+        <child>
+          <object
+            class="GtkHBox"
+            id="exposure_hbox"
+            >
+            <property name="spacing">12</property>
+            <child>
+              <object
+                class="GtkLabel"
+                id="exposure_label"
+                >
+                <property name="label">Exposure Time (ms):</property>
+                <property name="xalign">1</property>
+              </object>
+              <packing>
+                <property name="expand">FALSE</property>
+                <property name="fill">FALSE</property>
+              </packing>
+            </child>
+            <child>
+              <object
+                class="GtkEntry"
+                id="exposure_entry"
+                >
+                <property name="activates-default">TRUE</property>
+              </object>
+            </child>
+            <child>
+              <object
+                class="GtkHButtonBox"
+                id="exposure_button_box"
+                >
+                <child>
+                  <object
+                    class="GtkButton"
+                    id="submit_exposure_button"
+                    >
+                    <property name="label">Submit</property>
+                    <property name="can-default">TRUE</property>
+                    <property name="has-default">TRUE</property>
+                  </object>
+                </child>
+              </object>
+              <packing>
+                <property name="expand">FALSE</property>
+                <property name="fill">FALSE</property>
+              </packing>
+            </child>
+          </object>
+          <packing>
+            <property name="expand">FALSE</property>
+            <property name="fill">FALSE</property>
+          </packing>
+        </child>
+        <child>
+          <object
+            class="GtkHScale"
+            id="exposure_hscale"
+            >
+            <property name="draw-value">FALSE</property>
+          </object>
+          <packing>
+            <property name="expand">FALSE</property>
+            <property name="fill">FALSE</property>
+          </packing>
+        </child>
+        <child
+          internal-child="action_area"
+          >
+          <object
+            class="GtkButtonBox"
+            id="button_box"
+            >
+            <child>
+              <object
+                class="GtkButton"
+                id="close_button"
+                >
+                <property name="label">Close</property>
+              </object>
+            </child>
+          </object>
+        </child>
+      </object>
+    </child>
+    <action-widgets>
+      <action-widget response="-7">close_button</action-widget>
+    </action-widgets>
+  </object>
+</interface>

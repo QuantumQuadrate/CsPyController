@@ -5,3 +5,4 @@ settings.hdf5
 previous_settings.hdf5
 *.pyc
 __enamlcache__
+cpp/Picam/projects/vs2010/bin/x64/Debug/Advanced.ilk

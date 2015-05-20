@@ -1,0 +1,343 @@
+<interface>
+  <object
+    class="GtkListStore"
+    id="parameters_model"
+    >
+    <columns>
+      <column
+        type="gchararray"
+        />
+      <column
+        type="gint"
+        />
+    </columns>
+  </object>
+  <object
+    class="GtkDialog"
+    id="dialog"
+    >
+    <property name="title">Camera Parameters</property>
+    <property name="resizable">FALSE</property>
+    <property name="border-width">12</property>
+    <property name="destroy-with-parent">TRUE</property>
+    <child
+      internal-child="vbox"
+      >
+      <object
+        class="GtkVBox"
+        id="vbox"
+        >
+        <property name="spacing">24</property>
+        <child>
+          <object
+            class="GtkTable"
+            id="parameters_table"
+            >
+            <property name="n-columns">3</property>
+            <property name="n-rows">5</property>
+            <property name="column-spacing">6</property>
+            <property name="row-spacing">6</property>
+            <child>
+              <object
+                class="GtkHBox"
+                id="format_hbox"
+                >
+                <property name="spacing">6</property>
+                <child>
+                  <object
+                    class="GtkLabel"
+                    id="format_title_label"
+                    >
+                    <property name="label">Format:</property>
+                  </object>
+                  <packing>
+                    <property name="expand">FALSE</property>
+                    <property name="fill">FALSE</property>
+                  </packing>
+                </child>
+                <child>
+                  <object
+                    class="GtkLabel"
+                    id="format_label"
+                    >
+                    <property name="xalign">0</property>
+                  </object>
+                  <packing>
+                    <property name="expand">FALSE</property>
+                    <property name="fill">FALSE</property>
+                  </packing>
+                </child>
+              </object>
+              <packing>
+                <property name="left-attach">1</property>
+                <property name="right-attach">3</property>
+                <property name="top-attach">0</property>
+                <property name="bottom-attach">1</property>
+                <property name="y-options">GTK_SHRINK</property>
+              </packing>
+            </child>
+            <child>
+              <object
+                class="GtkComboBox"
+                id="parameters_combo_box"
+                >
+                <child>
+                  <object
+                    class="GtkCellRendererText"
+                    id="parameters_renderer"
+                    />
+                  <attributes>
+                    <attribute name="text">0</attribute>
+                  </attributes>
+                </child>
+              </object>
+              <packing>
+                <property name="left-attach">0</property>
+                <property name="right-attach">1</property>
+                <property name="top-attach">1</property>
+                <property name="bottom-attach">2</property>
+                <property name="y-options">GTK_SHRINK</property>
+              </packing>
+            </child>
+            <child>
+              <object
+                class="GtkEntry"
+                id="value_entry"
+                >
+                <property name="activates-default">TRUE</property>
+              </object>
+              <packing>
+                <property name="left-attach">1</property>
+                <property name="right-attach">2</property>
+                <property name="top-attach">1</property>
+                <property name="bottom-attach">2</property>
+                <property name="y-options">GTK_SHRINK</property>
+              </packing>
+            </child>
+            <child>
+              <object
+                class="GtkLabel"
+                id="value_title_label"
+                >
+                <property name="label">Formatted Value:</property>
+                <property name="xalign">1</property>
+              </object>
+              <packing>
+                <property name="left-attach">0</property>
+                <property name="right-attach">1</property>
+                <property name="top-attach">2</property>
+                <property name="bottom-attach">3</property>
+                <property name="y-options">GTK_SHRINK</property>
+              </packing>
+            </child>
+            <child>
+              <object
+                class="GtkLabel"
+                id="value_label"
+                >
+                <property name="xalign">0</property>
+              </object>
+              <packing>
+                <property name="left-attach">1</property>
+                <property name="right-attach">2</property>
+                <property name="top-attach">2</property>
+                <property name="bottom-attach">3</property>
+                <property name="y-options">GTK_SHRINK</property>
+              </packing>
+            </child>
+            <child>
+              <object
+                class="GtkLabel"
+                id="access_title_label"
+                >
+                <property name="label">Formatted Access:</property>
+                <property name="xalign">1</property>
+              </object>
+              <packing>
+                <property name="left-attach">0</property>
+                <property name="right-attach">1</property>
+                <property name="top-attach">3</property>
+                <property name="bottom-attach">4</property>
+                <property name="y-options">GTK_SHRINK</property>
+              </packing>
+            </child>
+            <child>
+              <object
+                class="GtkLabel"
+                id="access_label"
+                >
+                <property name="xalign">0</property>
+              </object>
+              <packing>
+                <property name="left-attach">1</property>
+                <property name="right-attach">2</property>
+                <property name="top-attach">3</property>
+                <property name="bottom-attach">4</property>
+                <property name="y-options">GTK_SHRINK</property>
+              </packing>
+            </child>
+            <child>
+              <object
+                class="GtkLabel"
+                id="dynamics_title_label"
+                >
+                <property name="label">Dynamics:</property>
+                <property name="xalign">1</property>
+              </object>
+              <packing>
+                <property name="left-attach">0</property>
+                <property name="right-attach">1</property>
+                <property name="top-attach">4</property>
+                <property name="bottom-attach">5</property>
+                <property name="y-options">GTK_SHRINK</property>
+              </packing>
+            </child>
+            <child>
+              <object
+                class="GtkLabel"
+                id="dynamics_label"
+                >
+                <property name="xalign">0</property>
+              </object>
+              <packing>
+                <property name="left-attach">1</property>
+                <property name="right-attach">2</property>
+                <property name="top-attach">4</property>
+                <property name="bottom-attach">5</property>
+                <property name="y-options">GTK_SHRINK</property>
+              </packing>
+            </child>
+            <child>
+              <object
+                class="GtkHButtonBox"
+                id="submit_button_box"
+                >
+                <child>
+                  <object
+                    class="GtkButton"
+                    id="submit_button"
+                    >
+                    <property name="label">Submit</property>
+                    <property name="can-default">TRUE</property>
+                    <property name="has-default">TRUE</property>
+                  </object>
+                </child>
+              </object>
+              <packing>
+                <property name="left-attach">2</property>
+                <property name="right-attach">3</property>
+                <property name="top-attach">1</property>
+                <property name="bottom-attach">2</property>
+                <property name="x-options">GTK_SHRINK</property>
+                <property name="y-options">GTK_SHRINK</property>
+              </packing>
+            </child>
+          </object>
+          <packing>
+            <property name="expand">FALSE</property>
+            <property name="fill">FALSE</property>
+          </packing>
+        </child>
+        <child>
+          <object
+            class="GtkVBox"
+            id="events_vbox"
+            >
+            <child>
+              <object
+                class="GtkLabel"
+                id="events_label"
+                >
+                <property name="label">Events:</property>
+                <property name="xalign">0</property>
+              </object>
+              <packing>
+                <property name="expand">FALSE</property>
+                <property name="fill">FALSE</property>
+              </packing>
+            </child>
+            <child>
+              <object
+                class="GtkScrolledWindow"
+                id="events_window"
+                >
+                <property name="shadow-type">GTK_SHADOW_IN</property>
+                <property name="hscrollbar-policy">GTK_POLICY_AUTOMATIC</property>
+                <property name="height-request">400</property>
+                <child>
+                  <object
+                    class="GtkTextView"
+                    id="events_text_view"
+                    >
+                    <property name="editable">FALSE</property>
+                  </object>
+                </child>
+              </object>
+              <packing>
+                <property name="expand">FALSE</property>
+                <property name="fill">FALSE</property>
+              </packing>
+            </child>
+          </object>
+        </child>
+        <child
+          internal-child="action_area"
+          >
+          <object
+            class="GtkButtonBox"
+            id="button_box"
+            >
+            <child>
+              <object
+                class="GtkButton"
+                id="cancel_button"
+                >
+                <property name="label">Cancel</property>
+              </object>
+            </child>
+            <child>
+              <object
+                class="GtkButton"
+                id="ok_button"
+                >
+                <property name="label">OK</property>
+              </object>
+            </child>
+            <child>
+              <object
+                class="GtkButton"
+                id="refresh_button"
+                >
+                <property name="label">Refresh</property>
+              </object>
+            </child>
+            <child>
+              <object
+                class="GtkButton"
+                id="commit_button"
+                >
+                <property name="label">Commit</property>
+              </object>
+            </child>
+            <child>
+              <object
+                class="GtkButton"
+                id="validate_button"
+                >
+                <property name="label">Validate</property>
+              </object>
+            </child>
+            <child>
+              <object
+                class="GtkButton"
+                id="clear_button"
+                >
+                <property name="label">Clear</property>
+              </object>
+            </child>
+          </object>
+        </child>
+      </object>
+    </child>
+  </object>
+</interface>

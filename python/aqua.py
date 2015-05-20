@@ -8,7 +8,7 @@ import traceback
 from atom.api import Member
 
 # Bring in other files in this package
-import functional_waveforms, analysis, save2013style, TTL, LabView, DDS, roi_fitting, picomotors, andor, DCNoiseEater, Laird_temperature, AnalogInput
+import functional_waveforms, analysis, save2013style, TTL, LabView, DDS, roi_fitting, picomotors, andor, picam, DCNoiseEater, Laird_temperature, AnalogInput
 from experiments import Experiment
 
 
@@ -17,6 +17,7 @@ class AQuA(Experiment):
 
     picomotors = Member()
     Andor = Member()
+    PICam = Member()
     LabView = Member()
     DDS = Member()
     DC_noise_eaters = Member()
@@ -42,6 +43,7 @@ class AQuA(Experiment):
     iterations_graph = Member()
     retention_graph = Member()
     andor_viewer = Member()
+    picam_viewer = Member()
     DC_noise_eater_graph = Member()
     DC_noise_eater_filter = Member()
     Ramsey = Member()
@@ -61,11 +63,12 @@ class AQuA(Experiment):
         # instruments
         self.picomotors = picomotors.Picomotors('picomotors', self, 'Newport Picomotors')
         self.Andor = andor.Andor('Andor', self, 'Andor Luca Camera')
+        self.PICam = picam.PICam('PICam', self, 'Princeton Instruments Camera')
         self.LabView = LabView.LabView(self)
         self.DDS = DDS.DDS('DDS', self, 'server for homemade DDS boxes')
         self.DC_noise_eaters = DCNoiseEater.DCNoiseEaters('DC_noise_eaters', self)
         self.box_temperature = Laird_temperature.LairdTemperature('box_temperature', self)
-        self.instruments += [self.box_temperature, self.picomotors, self.Andor, self.DC_noise_eaters, self.LabView,
+        self.instruments += [self.box_temperature, self.picomotors, self.Andor, self.PICam, self.DC_noise_eaters, self.LabView,
                              self.DDS]
 
         # analyses
@@ -86,6 +89,7 @@ class AQuA(Experiment):
         self.iterations_graph = analysis.IterationsGraph('iterations_graph', self, 'plot the average of ROI sums vs iterations')
         self.retention_graph = analysis.RetentionGraph('retention_graph', self, 'plot occurence of binary result (i.e. whether or not atoms are there in the 2nd shot)')
         self.andor_viewer = andor.AndorViewer('andor_viewer', self, 'show the most recent Andor image')
+        self.picam_viewer = picam.PICamViewer('picam_viewer', self, 'show the most recent PICam image')
         self.DC_noise_eater_graph = DCNoiseEater.DCNoiseEaterGraph('DC_noise_eater_graph', self, 'DC Noise Eater graph')
         self.DC_noise_eater_filter = DCNoiseEater.DCNoiseEaterFilter('DC_noise_eater_filter', self, 'DC Noise Eater Filter')
         self.Ramsey = analysis.Ramsey('Ramsey', self, 'Fit a cosine to retention results')
@@ -96,15 +100,15 @@ class AQuA(Experiment):
                           self.loading_filters, self.first_measurements_filter, self.text_analysis,
                           self.imageSumAnalysis, self.recent_shot_analysis, self.shotBrowserAnalysis,
                           self.histogramAnalysis, self.histogram_grid, self.measurements_graph, self.iterations_graph,
-                          self.andor_viewer, self.DC_noise_eater_graph, self.DC_noise_eater_filter, self.Ramsey,
+                          self.andor_viewer, self.picam_viewer, self.DC_noise_eater_graph, self.DC_noise_eater_filter, self.Ramsey,
                           self.retention_analysis, self.retention_graph, self.save_notes, self.save2013Analysis]
 
         self.properties += ['functional_waveforms', 'LabView', 'functional_waveforms_graph', 'DDS', 'picomotors',
-                            'Andor', 'DC_noise_eaters', 'box_temperature', 'squareROIAnalysis', 'gaussian_roi',
+                            'Andor', 'PICam', 'DC_noise_eaters', 'box_temperature', 'squareROIAnalysis', 'gaussian_roi',
                             'TTL_filters', 'AI_graph', 'AI_filter', 'loading_filters', 'first_measurements_filter',
                             'imageSumAnalysis', 'recent_shot_analysis', 'shotBrowserAnalysis', 'histogramAnalysis',
                             'histogram_grid', 'retention_analysis', 'measurements_graph', 'iterations_graph',
-                            'retention_graph', 'andor_viewer', 'DC_noise_eater_filter', 'DC_noise_eater_graph',
+                            'retention_graph', 'andor_viewer', 'picam_viewer', 'DC_noise_eater_filter', 'DC_noise_eater_graph',
                             'Ramsey']
 
         try:
@@ -121,3 +125,8 @@ class AQuA(Experiment):
 
         #make sure evaluation is allowed now
         self.allow_evaluation = True
+
+    def exiting(self):
+        self.PICam.__del__()
+        self.Andor.__del__()
+        return
