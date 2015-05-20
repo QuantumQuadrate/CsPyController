@@ -39,6 +39,7 @@ class AnalogOutput(Instrument):
     useExternalClock = Typed(BoolProp)
     externalClockSource = Typed(StrProp)
     maxExternalClockRate = Typed(FloatProp)
+    channel_descriptions = Str('[]')
     numChannels = Int(6)
 
     # properties for functional waveforms
@@ -66,8 +67,8 @@ class AnalogOutput(Instrument):
         self.properties += ['version', 'physicalChannels', 'numChannels', 'minimum', 'maximum', 'clockRate', 'units',
                             'waitForStartTrigger', 'triggerSource', 'triggerEdge', 'exportStartTrigger',
                             'exportStartTriggerDestination', 'useExternalClock', 'externalClockSource',
-                            'maxExternalClockRate']
-        self.doNotSendToHardware += ['numChannels', 'units']
+                            'maxExternalClockRate', 'channel_descriptions']
+        self.doNotSendToHardware += ['numChannels', 'units', 'channel_descriptions']
         self.transition_list = []  # an empty list to store
 
     def add_transition(self, time, channel, state):
@@ -98,7 +99,7 @@ class AnalogOutput(Instrument):
 
         # Create an array to store the compiled sample values
         total_samples = times[order[-1]]*self.clockRate.value*self.units.value+1
-        time_list = np.arange(0,total_samples)
+        time_list = np.arange(0,total_samples)/self.clockRate.value
         value_list = np.zeros((total_samples, self.numChannels), dtype=np.float32)
 
         # go through all the transitions, updating the compiled sequence as we go
