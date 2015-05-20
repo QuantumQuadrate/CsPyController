@@ -85,7 +85,7 @@ class AnalogOutput(Instrument):
         # keep the times as floats for now, they will be converted to integer samples after the sample rate is applied
         times = np.array([i[0] for i in self.transition_list], dtype=np.float64)
         # compile the channels
-        channels = np.array([i[1] for i in self.transition_list], dtype=uint8)
+        channels = np.array([i[1] for i in self.transition_list], dtype=np.uint8)
         # compile the values
         values = np.array([i[2] for i in self.transition_list], dtype=np.float32)
 

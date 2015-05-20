@@ -14,9 +14,11 @@ __author__ = 'Martin Lichtman'
 import logging
 logger = logging.getLogger(__name__)
 
-from cs_instruments import Instrument
 
+import numpy as np
 from atom.api import Typed, Member, Int
+
+from cs_instruments import Instrument
 from instrument_property import Prop, BoolProp, IntProp, FloatProp, StrProp, EnumProp
 from digital_waveform import NumpyChannels
 
@@ -93,7 +95,7 @@ class DAQmxDO(Instrument):
         # convert the float time to an integer number of samples
         indices = np.rint(np.array([i[0] for i in self.transition_list], dtype=np.float64)*self.clockRate.value*self.units.value).astype(np.uint64)
         # compile the channels
-        channels = np.array([i[1] for i in self.transition_list], dtype=uint8)
+        channels = np.array([i[1] for i in self.transition_list], dtype=np.uint8)
         # compile the states
         states = np.array([i[2] for i in self.transition_list], dtype=np.bool)
 

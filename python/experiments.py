@@ -127,9 +127,9 @@ class Experiment(Prop):
     dailyPath = Member()
     experimentPath = Member()
 
-    iteration = Member()
+    iteration = Int(0)
     iterationStr = Str()
-    measurement = Member()
+    measurement = Int(0)
     measurementStr = Str()
     goodMeasurements = Member()
     goodMeasurementsStr = Str()
