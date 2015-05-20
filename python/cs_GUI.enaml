@@ -825,6 +825,44 @@ class RefreshableMPLCanvas(MPLCanvas):
 class RemoveEventContainer(Container):
     remove=d_(Bool())
 
+enamldef NumpyAOchannel(Container):
+    attr channel
+    attr index
+
+    hug_height='strong'
+    hug_width='strong'
+    padding=0
+    Form:
+        Label: text=str(index)
+        Field:
+            text:=channel['description']
+            placeholder='description'
+
+enamldef NumpyAOchannels(GroupBox):
+    attr channels
+    title='channels (#, description)'
+    hug_height='strong'
+    hug_width='strong'
+    Container: controls:
+        hug_height='strong'
+        hug_width='strong'
+        constraints=[hbox(spin0,addButton,removeButton)]
+        SpinBox: spin0:
+            minimum=0
+            maximum<<len(channels.array)
+        PushButton: addButton:
+            text='+'
+            clicked::
+                channels.add(spin0.value)
+        PushButton: removeButton:
+            text='-'
+            clicked::
+                channels.remove(spin0.value)
+    Container:
+        Include:
+            objects<<[NumpyAOchannel(channel=x,index=i) for i,x in enumerate(channels.array)]
+
+
 enamldef NumpyDOchannel(Container):
     attr channel
     attr index
@@ -1795,8 +1833,8 @@ enamldef AnalogInput(Window):
                     prop << AI.triggerSource
                 EvalProp:
                     prop << AI.triggerEdge
-            #    EvalProp:
-            #        prop << AI.channel_descriptions
+                NumpyAOchannels:
+                    channels<<AI.channels
 
                 # filter
                 GroupBox:
