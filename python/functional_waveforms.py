@@ -21,9 +21,11 @@ logger = logging.getLogger(__name__)
 
 from cs_errors import PauseError
 import cs_evaluate
+from analysis import AnalysisWithFigure
+from instrument_property import Prop
 
 
-class FunctionalWaveforms(Instrument):
+class FunctionalWaveforms(Prop):
     """A virtual instrument that specifies the timing for HSDIO, DAQmx DIO, and DAQmx AO."""
     version = '2015.05.19'
 
@@ -31,7 +33,7 @@ class FunctionalWaveforms(Instrument):
 
     def __init__(self, name, experiment, description=''):
         super(FunctionalWaveforms, self).__init__(name, experiment, description)
-        self.properties += ['version', 'instrument_list','text']
+        self.properties += ['version', 'text']
 
     def evaluate(self):
         if self.enable and self.experiment.allow_evaluation:
@@ -41,3 +43,35 @@ class FunctionalWaveforms(Instrument):
             cs_evaluate.execWithDict(self.text, localvars)
 
             return super(FunctionalWaveforms, self).evaluate()
+
+class FunctionalWaveformGraph(AnalysisWithFigure):
+    """
+    This analysis is not set up to be called after measurements or iterations.  It is set up to update on evaluate().
+    """
+
+    labels = Member()
+    spans = Member()
+
+    def __init__(self, name, experiment, description=''):
+        super(FunctionalWaveformGraph, self).__init__(name, experiment, description)
+        self.properties += ['enable']
+
+    def __init__(self):
+        self.labels = []
+
+    def label(self, time, text):
+        self.labels += [(time, text)]
+
+    def span(self, t1, t2, text):
+        self.spans += [(t1, t2, text)]
+
+    def evaluate(self):
+        # update the plot
+
+        # make the digital plots
+
+        # make the analog plots
+
+        # clear the label lists
+        self.labels = []
+        self.spans = []

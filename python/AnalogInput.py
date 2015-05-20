@@ -29,7 +29,6 @@ class AnalogInput(Instrument):
     waitForStartTrigger = Typed(BoolProp)
     triggerSource = Typed(StrProp)
     triggerEdge = Typed(StrProp)
-    #channel_descriptions = Typed(StrProp)
 
     def __init__(self, experiment):
         super(AnalogInput, self).__init__('AnalogInput', experiment)
@@ -39,10 +38,9 @@ class AnalogInput(Instrument):
         self.waitForStartTrigger = BoolProp('waitForStartTrigger', experiment, '', 'True')
         self.triggerSource = StrProp('triggerSource', experiment, '', '"/PXI1Slot6/PFI0"')
         self.triggerEdge = StrProp('triggerEdge', experiment, '"Rising" or "Falling"', '"Rising"')
-        #self.channel_descriptions = StrProp('channel_descriptions', experiment, 'a list channel description strings', '["ch1","ch2","ch3"]')
-        self.properties += ['version', 'sample_rate', 'source', 'samples_per_measurement', 'waitForStartTrigger',
-                            'triggerSource', 'triggerEdge'] #, 'channel_descriptions']
 
+        self.properties += ['version', 'sample_rate', 'source', 'samples_per_measurement', 'waitForStartTrigger',
+                            'triggerSource', 'triggerEdge']
 
 class AI_Graph(AnalysisWithFigure):
     """Plots a region of interest sum after every measurement"""
