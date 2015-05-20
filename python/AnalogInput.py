@@ -33,7 +33,6 @@ class AnalogInput(Instrument):
     channels = Member()  # just holds the channel descriptions
     ground_mode = Str('NRSE') = Typed(StrProp)
 
-
     def __init__(self, experiment):
         super(AnalogInput, self).__init__('AnalogInput', experiment)
         self.sample_rate = FloatProp('sample_rate', experiment, 'samples per second', '1000.0')
@@ -47,7 +46,6 @@ class AnalogInput(Instrument):
         self.properties += ['version', 'sample_rate', 'source', 'samples_per_measurement', 'waitForStartTrigger',
                             'triggerSource', 'triggerEdge', 'channels', 'ground_mode']
         self.doNotSendToHardware += ['channels']
-
 
 class AI_Graph(AnalysisWithFigure):
     """Plots a region of interest sum after every measurement"""

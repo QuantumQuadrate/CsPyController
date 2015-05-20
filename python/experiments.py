@@ -434,6 +434,7 @@ class Experiment(Prop):
             self.updateIndependentVariables()
             ivars = dict([(i.name, i.currentValue) for i in self.independentVariables])
             self.vars.update(ivars)
+            self.vars.update({'experiment': self})
 
             #evaluate the dependent variable multi-line string
             cs_evaluate.execWithDict(self.dependentVariablesStr, self.vars)

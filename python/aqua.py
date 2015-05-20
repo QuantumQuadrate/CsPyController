@@ -8,7 +8,7 @@ import traceback
 from atom.api import Member
 
 # Bring in other files in this package
-import analysis, save2013style, TTL, LabView, DDS, roi_fitting, picomotors, andor, DCNoiseEater, Laird_temperature, AnalogInput
+import functional_waveforms, analysis, save2013style, TTL, LabView, DDS, roi_fitting, picomotors, andor, DCNoiseEater, Laird_temperature, AnalogInput
 from experiments import Experiment
 
 
@@ -22,6 +22,8 @@ class AQuA(Experiment):
     DC_noise_eaters = Member()
     box_temperature = Member()
 
+    functional_waveforms = Member()
+    functional_waveforms_graph = Member()
     TTL_filters = Member()
     AI_graph = Member()
     AI_filter = Member()
@@ -52,7 +54,11 @@ class AQuA(Experiment):
     def __init__(self):
         super(AQuA, self).__init__()
 
-        #add instruments
+        # properties
+        self.functional_waveforms = functional_waveforms.FunctionalWaveforms('functional_waveforms', self, 'Waveforms for HSDIO, DAQmx DIO, and DAQmx AO; defined as functions')
+        self.functional_waveforms_graph = functional_waveforms.FunctionalWaveformGraph('functional_waveform_graph', self, 'Graph the HSDIO, DAQmx DO, and DAQmx AO settings')
+
+        # instruments
         self.picomotors = picomotors.Picomotors('picomotors', self, 'Newport Picomotors')
         self.Andor = andor.Andor('Andor', self, 'Andor Luca Camera')
         self.LabView = LabView.LabView(self)
@@ -62,7 +68,7 @@ class AQuA(Experiment):
         self.instruments += [self.box_temperature, self.picomotors, self.Andor, self.DC_noise_eaters, self.LabView,
                              self.DDS]
 
-        #analyses
+        # analyses
         self.TTL_filters = TTL.TTL_filters('TTL_filters', self)
         self.AI_graph = AnalogInput.AI_Graph('AI_graph', self, 'Analog Input Graph')
         self.AI_filter = AnalogInput.AI_Filter('AI_filter', self, 'Analog Input filter')
@@ -93,12 +99,13 @@ class AQuA(Experiment):
                           self.andor_viewer, self.DC_noise_eater_graph, self.DC_noise_eater_filter, self.Ramsey,
                           self.retention_analysis, self.retention_graph, self.save_notes, self.save2013Analysis]
 
-        self.properties += ['LabView', 'DDS', 'picomotors', 'Andor', 'DC_noise_eaters', 'box_temperature',
-                            'squareROIAnalysis', 'gaussian_roi', 'TTL_filters', 'AI_graph', 'AI_filter',
-                            'loading_filters', 'first_measurements_filter', 'imageSumAnalysis', 'recent_shot_analysis',
-                            'shotBrowserAnalysis', 'histogramAnalysis', 'histogram_grid', 'retention_analysis',
-                            'measurements_graph', 'iterations_graph', 'retention_graph', 'andor_viewer',
-                            'DC_noise_eater_filter', 'DC_noise_eater_graph', 'Ramsey']
+        self.properties += ['functional_waveforms', 'LabView', 'functional_waveforms_graph', 'DDS', 'picomotors',
+                            'Andor', 'DC_noise_eaters', 'box_temperature', 'squareROIAnalysis', 'gaussian_roi',
+                            'TTL_filters', 'AI_graph', 'AI_filter', 'loading_filters', 'first_measurements_filter',
+                            'imageSumAnalysis', 'recent_shot_analysis', 'shotBrowserAnalysis', 'histogramAnalysis',
+                            'histogram_grid', 'retention_analysis', 'measurements_graph', 'iterations_graph',
+                            'retention_graph', 'andor_viewer', 'DC_noise_eater_filter', 'DC_noise_eater_graph',
+                            'Ramsey']
 
         try:
             self.allow_evaluation = False
