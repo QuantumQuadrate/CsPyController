@@ -93,15 +93,19 @@ class FunctionalWaveformGraph(AnalysisWithFigure):
         fig.clf()
         # new axes
         ax = fig.add_subplot(111)
+        # create axis
+        ax.set_xlabel('time [ms]')
+        # make horizontal grid lines
+        ax.grid(True)
 
         # HSDIO plots
-        self.drawHSDIO(ax, HSDIO, HSDIO_channels)
+        self.draw_digital(ax, HSDIO, HSDIO_channels, 0)
 
         # AO plots
-        self.drawAO(ax, AO, AO_channels, len(HSDIO_channels))
+        self.draw_analog(ax, AO, AO_channels, len(HSDIO_channels))
 
         # DAQmxDO plots
-        self.drawDO(ax, DO, DO_channels, len(HSDIO_channels)+len(AO_channels))
+        self.draw_digital(ax, DO, DO_channels, len(HSDIO_channels)+len(AO_channels))
 
         # set plot limits
         # y
@@ -127,7 +131,7 @@ class FunctionalWaveformGraph(AnalysisWithFigure):
         #AO
         yticklabels += eval(AO.channel_descriptions)
         #DO
-        yticklabels += [x for x in DO.channels.array['description'][HSDIO_channels]]
+        yticklabels += [x for x in DO.channels.array['description'][DO_channels]]
         ax.set_yticklabels(yticklabels)
 
         #make sure the tick labels have room
@@ -141,22 +145,14 @@ class FunctionalWaveformGraph(AnalysisWithFigure):
         self.labels = []
         self.spans = []
 
-    def drawHSDIO(self, ax, HSDIO, channels):
+    def draw_digital(self, ax, source, channels, offset):
         try:
-            #create axis
-            ax.set_xlabel('time [ms]')
-
-            # make horizontal grid lines
-            ax.grid(True)
-
-            states = HSDIO.states[:, channels]
-            times = HSDIO.times/self.units
-            durations = HSDIO.durations/self.units
+            states = source.states[:, channels]
+            times = source.times/self.units
+            durations = source.durations/self.units
 
             # get plot info
             numTransitions, numChannels = states.shape
-
-
 
             # set up plot ticks
             ax.set_xticks(times)
@@ -172,8 +168,8 @@ class FunctionalWaveformGraph(AnalysisWithFigure):
             # Make a broken horizontal bar plot, i.e. one with gaps
             for i in xrange(numChannels):
                 # reverse plot order of channels
-                yhigh = i+.9
-                ylow = i+.1
+                yhigh = i+.9+offset
+                ylow = i+.1+offset
                 for j in xrange(numTransitions):
                     if states[j, i]:
                         ax.axhspan(ylow, yhigh, relativeTimeList[j], relativeTimeList[j]+relativeDuration[j], color='black', alpha=0.5)
@@ -181,9 +177,9 @@ class FunctionalWaveformGraph(AnalysisWithFigure):
 
         except Exception as e:
             # report the error and continue if drawing the figure fails
-            logger.warning('Exception in {}.drawHSDIO():\n{}\n{}\n'.format(self.name, e, traceback.format_exc()))
+            logger.warning('Exception in {}.draw_digital():\n{}\n{}\n'.format(self.name, e, traceback.format_exc()))
 
-    def drawAO(self, ax, AO, channels, scale, offset):
+    def draw_analog(self, ax, AO, channels, scale, offset):
         try:
             # select the channels
             values = AO.values[:, channels]
@@ -197,45 +193,3 @@ class FunctionalWaveformGraph(AnalysisWithFigure):
         except Exception as e:
             # report the error and continue if drawing the figure fails
             logger.warning('Exception in {}.drawAO():\n{}\n{}\n'.format(self.name, e, traceback.format_exc()))
-
-    def drawDO(self, ax, DO, channels, offset):
-        try:
-            #create axis
-            ax.set_xlabel('time [ms]')
-
-            # make horizontal grid lines
-            ax.grid(True)
-
-            states = HSDIO.states[:, channels]
-            times = HSDIO.times/self.units
-            durations = HSDIO.durations/self.units
-
-            # get plot info
-            numTransitions, numChannels = states.shape
-
-
-
-            # set up plot ticks
-            ax.set_xticks(times)
-            ax.set_xticklabels(map(lambda x: str.format('{:.3g}', x), times))
-            # make vertical tick labels on the bottom
-            for label in ax.xaxis.get_ticklabels():
-                label.set_rotation(90)
-
-            # create a timeList on the scale 0 to 1
-            relativeTimeList = (times-plotmin)/(plotmax-plotmin)
-            relativeDuration = durations/(plotmax-plotmin)
-
-            # Make a broken horizontal bar plot, i.e. one with gaps
-            for i in xrange(numChannels):
-                # reverse plot order of channels
-                yhigh = i+.9
-                ylow = i+.1
-                for j in xrange(numTransitions):
-                    if states[j, i]:
-                        ax.axhspan(ylow, yhigh, relativeTimeList[j], relativeTimeList[j]+relativeDuration[j], color='black', alpha=0.5)
-                    # if value is False, plot nothing
-
-        except Exception as e:
-            # report the error and continue if drawing the figure fails
-            logger.warning('Exception in {}.drawHSDIO():\n{}\n{}\n'.format(self.name, e, traceback.format_exc()))
