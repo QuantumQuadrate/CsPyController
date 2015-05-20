@@ -123,7 +123,7 @@ class DAQmxDO(Instrument):
                 state_list[-1, channels[i]] = states[i]
 
         # find the real time at each index (used for plotting)
-        times = index_list/(self.clockRate.value*self.units.value)
+        times = index_list/self.clockRate.value
 
         #update the exposed variables
         self.indices = index_list
