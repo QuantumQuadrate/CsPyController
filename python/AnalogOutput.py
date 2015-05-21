@@ -155,3 +155,15 @@ class AnalogOutput(Instrument):
             self.parse_transition_list()
             # reset the transition list so it starts empty for the next usage
             self.transition_list = []
+
+
+    def toHardware(self):
+        """This overwrites Instrument.toHardware in order to add in the <waveform> which is not stored as a property.
+        We transpose self.values because Labview expects the waveform with shape (channels, times)."""
+        waveformXML = ('<waveform>'+
+            '\n'.join([' '.join([str(sample) for sample in channel]) for channel in self.values.T])+
+            '</waveform>\n')
+
+        # then insert waveformXML into the output sent to LabView, in addition to the other properites
+        # [14:] removes the <AnalogOutput> on what is returned from super.toHardware
+        return '<AnalogOutput>{}\n'.format(waveformXML)+super(AnalogOutput, self).toHardware()[14:]
