@@ -443,14 +443,14 @@ class Experiment(Prop):
             #at this time the properties are not all evaluated, so, we must do this one manually
             self.variableReport.evaluate()
 
-            logger.debug('Evaluating instruments ...')
-            #re-evaluate all instruments
-            for i in self.instruments:
-                i.evaluate()  # each instrument will calculate its properties
+            # evaluate everything else
+            logger.debug('Evaluating experiment properties ...')
+            super(Experiment, self).evaluate()
 
+            # post the new experiment status variables to the GUI
             self.update_gui()
 
-            logger.debug('Finished evaluate().')
+            logger.debug('Finished experiment.evaluate().')
 
     def evaluate_constants(self):
         if self.allow_evaluation:

@@ -20,14 +20,16 @@ import logging
 logger = logging.getLogger(__name__)
 from cs_errors import PauseError
 
-from atom.api import Str, Member, Float
+import traceback
+import numpy as np
+from atom.api import Str, Member, Float, Bool, Int, observe
 
 import cs_evaluate
 from analysis import AnalysisWithFigure
-from instrument_property import Prop
+from cs_instruments import Instrument
 
 
-class FunctionalWaveforms(Prop):
+class FunctionalWaveforms(Instrument):
     """A virtual instrument that specifies the timing for HSDIO, DAQmx DIO, and DAQmx AO."""
     version = '2015.05.19'
 
@@ -44,7 +46,7 @@ class FunctionalWaveforms(Prop):
             localvars = self.experiment.vars.copy()
             cs_evaluate.execWithDict(self.text, localvars)
 
-            return super(FunctionalWaveforms, self).evaluate()
+            super(FunctionalWaveforms, self).evaluate()
 
 class FunctionalWaveformGraph(AnalysisWithFigure):
     """
@@ -53,20 +55,23 @@ class FunctionalWaveformGraph(AnalysisWithFigure):
 
     labels = Member()
     spans = Member()
-    plotmin = Str()
-    plotmax = Str()
+    enable = Bool()
+    plotmin_str = Str()
+    plotmin = Float(0)
+    plotmax_str = Str()
+    plotmax = Float(1)
     units = Float(.001)
     HSDIO_channels_to_plot = Str()
     AO_channels_to_plot = Str()
     DO_channels_to_plot = Str()
     AO_scale = Float(1)
+    update_lock = Bool(False)
+
 
     def __init__(self, name, experiment, description=''):
         super(FunctionalWaveformGraph, self).__init__(name, experiment, description)
-        self.properties += ['enable', 'plotmin', 'plotmax', 'units', 'HSDIO_channels_to_plot', 'AO_channels_to_plot',
-                            'DAQmxDO_channels_to_plot', 'AO_scale']
-
-    def __init__(self):
+        self.properties += ['enable', 'plotmin_str', 'plotmax_str', 'units', 'HSDIO_channels_to_plot', 'AO_channels_to_plot',
+                            'DO_channels_to_plot', 'AO_scale']
         self.labels = []
         self.spans = []
 
@@ -77,82 +82,127 @@ class FunctionalWaveformGraph(AnalysisWithFigure):
         self.spans += [(t1, t2, text)]
 
     def evaluate(self):
+        if self.enable and self.experiment.allow_evaluation:
+            self.updateFigure()
+
+    @observe('plotmin_str', 'plotmax_str', 'units', 'HSDIO_channels_to_plot', 'AO_channels_to_plot', 'DAQmxDO_channels_to_plot', 'AO_scale')
+    def reload(self, change):
+        self.updateFigure()
+
+    def updateFigure(self):
         """Update the plot"""
+        if not self.update_lock:
+            try:
+                self.update_lock = True
+                # draw on the inactive figure
+                fig = self.backFigure
+                # clear figure
+                fig.clf()
 
-        # sources
-        HSDIO = self.experiment.LabView.HSDIO
-        AO = self.experiment.LabView.AnalogOutput
-        DO = self.experiment.LabView.DAQmxDO
+                # sources
+                HSDIO = self.experiment.LabView.HSDIO
+                AO = self.experiment.LabView.AnalogOutput
+                DO = self.experiment.LabView.DAQmxDO
 
-        # channels to plot
-        HSDIO_channels = eval(self.HSDIO_channels_to_plot)
-        AO_channels = eval(self.AO_channels_to_plot)
-        DO_channels = eval(self.DO_channels_to_plot)
-        total_channels = len(HSDIO_channels)+len(AO_channels)+len(DO_channels)
+                # channels to plot
+                if self.HSDIO_channels_to_plot:
+                    HSDIO_channels = eval(self.HSDIO_channels_to_plot)
+                else:
+                    HSDIO_channels = []
+                if self.AO_channels_to_plot:
+                    AO_channels = eval(self.AO_channels_to_plot)
+                else:
+                    AO_channels = []
+                if self.DO_channels_to_plot:
+                    DO_channels = eval(self.DO_channels_to_plot)
+                else:
+                    DO_channels = []
+                total_channels = len(HSDIO_channels)+len(AO_channels)+len(DO_channels)
 
-        # draw on the inactive figure
-        fig = self.backFigure
-        # clear figure
-        fig.clf()
-        # new axes
-        ax = fig.add_subplot(111)
-        # create axis
-        ax.set_xlabel('time [ms]')
-        # make horizontal grid lines
-        ax.grid(True)
+                # new axes
+                ax = fig.add_subplot(111)
+                # create axis
+                ax.set_xlabel('time [{}*s]'.format(self.units))
+                # make horizontal grid lines
+                ax.grid(True)
 
-        # HSDIO plots
-        self.draw_digital(ax, HSDIO, HSDIO_channels, 0)
+                # HSDIO plots
+                if HSDIO_channels:
+                    self.draw_digital(ax, HSDIO, HSDIO_channels, 0)
 
-        # AO plots
-        self.draw_analog(ax, AO, AO_channels, len(HSDIO_channels))
+                # AO plots
+                if AO_channels:
+                    self.draw_analog(ax, AO, AO_channels, self.AO_scale, len(HSDIO_channels))
 
-        # DAQmxDO plots
-        self.draw_digital(ax, DO, DO_channels, len(HSDIO_channels)+len(AO_channels))
+                # DAQmxDO plots
+                if DO_channels:
+                    self.draw_digital(ax, DO, DO_channels, len(HSDIO_channels)+len(AO_channels))
 
-        # set plot limits
-        # y
-        ax.set_ylim(0, total_channels)
-        # x
-        if self.plotmin == '':
-            plotmin = min(HSDIO.times[0], AO.times[0], DO.times[0])
-        else:
-            plotmin = float(self.plotmin)
-        if self.plotmax == '':
-            plotmax = max(HSDIO.times[-1], AO.times[-1], DO.times[-1])
-        else:
-            plotmax = float(self.plotmax)
-        if plotmin == plotmax:
-            # avoid divide by zeros
-            plotmax += 1
-        ax.set_xlim(plotmin, plotmax)
+                # set plot limits
+                # y
+                ax.set_ylim(0, total_channels)
+                # x
+                if self.plotmin_str == '':
+                    plotmin = 0
+                    if len(HSDIO.times) > 0:
+                        plotmin = min(plotmin, HSDIO.times[0])
+                    if len(AO.times) > 0:
+                        plotmin = min(plotmin, AO.times[0])
+                    if len(DO.times) > 0:
+                        plotmin = min(plotmin, DO.times[0])
+                else:
+                    plotmin = float(self.plotmin_str)
+                if self.plotmax_str == '':
+                    plotmax = 0
+                    if len(HSDIO.times) > 0:
+                        plotmax = max(plotmax, HSDIO.times[-1])
+                    if len(AO.times) > 0:
+                        plotmax = min(plotmax, AO.times[-1])
+                    if len(DO.times) > 0:
+                        plotmax = min(plotmax, DO.times[-1])
+                else:
+                    plotmax = float(self.plotmax_str)
+                if plotmin == plotmax:
+                    # avoid divide by zeros
+                    plotmax += 1
+                ax.set_xlim(plotmin, plotmax)
+                self.plotmin = plotmin
+                self.plotmax = plotmax
 
-        # setup y-axis ticks
-        ax.set_yticks(numpy.arange(numChannels)+0.5)
-        #HSDIO
-        yticklabels = [x for x in HSDIO.channels.array['description'][HSDIO_channels]]
-        #AO
-        yticklabels += eval(AO.channel_descriptions)
-        #DO
-        yticklabels += [x for x in DO.channels.array['description'][DO_channels]]
-        ax.set_yticklabels(yticklabels)
+                # setup y-axis ticks
+                ax.set_yticks(np.arange(total_channels)+0.5)
+                #HSDIO
+                yticklabels = [x for x in HSDIO.channels.array['description'][HSDIO_channels]]
+                #AO
+                yticklabels += eval(AO.channel_descriptions)
+                #DO
+                yticklabels += [x for x in DO.channels.array['description'][DO_channels]]
+                ax.set_yticklabels(yticklabels)
 
-        #make sure the tick labels have room
-        fig.subplots_adjust(left=.3, right=.95, bottom=.2)
+                #make sure the tick labels have room
+                fig.subplots_adjust(left=.3, right=.95, bottom=.2)
 
-        # draw the vertical labels
+                # draw the vertical labels
 
-        # draw the horizontal spans
+                # draw the horizontal spans
 
-        # clear the label lists
-        self.labels = []
-        self.spans = []
+                # clear the label lists
+                self.labels = []
+                self.spans = []
+
+                # call super to update the figure to the GUI
+                super(FunctionalWaveformGraph, self).updateFigure()
+
+            except Exception as e:
+                logger.warning('Problem in FunctionalWaveformGraph.updateFigure()\n{}\n{}\n'.format(e, traceback.format_exc()))
+            finally:
+                self.update_lock = False
 
     def draw_digital(self, ax, source, channels, offset):
         try:
             states = source.states[:, channels]
             times = source.times/self.units
-            durations = source.durations/self.units
+            durations = source.time_durations/self.units
 
             # get plot info
             numTransitions, numChannels = states.shape
@@ -165,8 +215,8 @@ class FunctionalWaveformGraph(AnalysisWithFigure):
                 label.set_rotation(90)
 
             # create a timeList on the scale 0 to 1
-            relativeTimeList = (times-plotmin)/(plotmax-plotmin)
-            relativeDuration = durations/(plotmax-plotmin)
+            relativeTimeList = (times-self.plotmin)/(self.plotmax-self.plotmin)
+            relativeDuration = durations/(self.plotmax-self.plotmin)
 
             # Make a broken horizontal bar plot, i.e. one with gaps
             for i in xrange(numChannels):
@@ -184,15 +234,14 @@ class FunctionalWaveformGraph(AnalysisWithFigure):
 
     def draw_analog(self, ax, AO, channels, scale, offset):
         try:
-            # select the channels
-            values = AO.values[:, channels]
+            # scale the x-axis
             times = AO.times/self.units
 
-            #redraw the graph
-            n=len(channels)
-            for i in range(n):
+            n = len(channels)
+            for i, x in enumerate(channels):
                 # plot the values with a vertical offset to separate them
-                ax.plot(AO.times, AO.values[:,i]/scale+i+offset)
+                print times.shape, AO.values[:, x].shape
+                ax.plot(times, AO.values[:, x]/scale+i+offset)
         except Exception as e:
             # report the error and continue if drawing the figure fails
             logger.warning('Exception in {}.drawAO():\n{}\n{}\n'.format(self.name, e, traceback.format_exc()))

@@ -56,11 +56,8 @@ class AQuA(Experiment):
     def __init__(self):
         super(AQuA, self).__init__()
 
-        # properties
-        self.functional_waveforms = functional_waveforms.FunctionalWaveforms('functional_waveforms', self, 'Waveforms for HSDIO, DAQmx DIO, and DAQmx AO; defined as functions')
-        self.functional_waveforms_graph = functional_waveforms.FunctionalWaveformGraph('functional_waveform_graph', self, 'Graph the HSDIO, DAQmx DO, and DAQmx AO settings')
-
         # instruments
+        self.functional_waveforms = functional_waveforms.FunctionalWaveforms('functional_waveforms', self, 'Waveforms for HSDIO, DAQmx DIO, and DAQmx AO; defined as functions')
         self.picomotors = picomotors.Picomotors('picomotors', self, 'Newport Picomotors')
         self.Andor = andor.Andor('Andor', self, 'Andor Luca Camera')
         self.PICam = picam.PICam('PICam', self, 'Princeton Instruments Camera')
@@ -68,10 +65,12 @@ class AQuA(Experiment):
         self.DDS = DDS.DDS('DDS', self, 'server for homemade DDS boxes')
         self.DC_noise_eaters = DCNoiseEater.DCNoiseEaters('DC_noise_eaters', self)
         self.box_temperature = Laird_temperature.LairdTemperature('box_temperature', self)
-        self.instruments += [self.box_temperature, self.picomotors, self.Andor, self.PICam, self.DC_noise_eaters, self.LabView,
-                             self.DDS]
+        # do not include functional_waveforms in self.instruments because it need not start/stop
+        self.instruments += [self.box_temperature, self.picomotors, self.Andor, self.PICam, self.DC_noise_eaters,
+                             self.LabView, self.DDS]
 
         # analyses
+        self.functional_waveforms_graph = functional_waveforms.FunctionalWaveformGraph('functional_waveform_graph', self, 'Graph the HSDIO, DAQmx DO, and DAQmx AO settings')
         self.TTL_filters = TTL.TTL_filters('TTL_filters', self)
         self.AI_graph = AnalogInput.AI_Graph('AI_graph', self, 'Analog Input Graph')
         self.AI_filter = AnalogInput.AI_Filter('AI_filter', self, 'Analog Input filter')
@@ -96,20 +95,21 @@ class AQuA(Experiment):
         self.retention_analysis = analysis.RetentionAnalysis('retention_analysis', self, 'calculate the loading and retention')
         self.save_notes = save2013style.SaveNotes('save_notes', self, 'save a separate notes.txt')
         self.save2013Analysis = save2013style.Save2013Analysis(self)
+        # do not include functional_waveforms_graph in self.analyses because it need not update on iterations, etc.
         self.analyses += [self.TTL_filters, self.AI_graph, self.AI_filter, self.squareROIAnalysis, self.gaussian_roi,
                           self.loading_filters, self.first_measurements_filter, self.text_analysis,
                           self.imageSumAnalysis, self.recent_shot_analysis, self.shotBrowserAnalysis,
                           self.histogramAnalysis, self.histogram_grid, self.measurements_graph, self.iterations_graph,
-                          self.andor_viewer, self.picam_viewer, self.DC_noise_eater_graph, self.DC_noise_eater_filter, self.Ramsey,
-                          self.retention_analysis, self.retention_graph, self.save_notes, self.save2013Analysis]
-
+                          self.andor_viewer, self.picam_viewer, self.DC_noise_eater_graph, self.DC_noise_eater_filter,
+                          self.Ramsey, self.retention_analysis, self.retention_graph, self.save_notes,
+                          self.save2013Analysis]
         self.properties += ['functional_waveforms', 'LabView', 'functional_waveforms_graph', 'DDS', 'picomotors',
                             'Andor', 'PICam', 'DC_noise_eaters', 'box_temperature', 'squareROIAnalysis', 'gaussian_roi',
                             'TTL_filters', 'AI_graph', 'AI_filter', 'loading_filters', 'first_measurements_filter',
                             'imageSumAnalysis', 'recent_shot_analysis', 'shotBrowserAnalysis', 'histogramAnalysis',
                             'histogram_grid', 'retention_analysis', 'measurements_graph', 'iterations_graph',
-                            'retention_graph', 'andor_viewer', 'picam_viewer', 'DC_noise_eater_filter', 'DC_noise_eater_graph',
-                            'Ramsey']
+                            'retention_graph', 'andor_viewer', 'picam_viewer', 'DC_noise_eater_filter',
+                            'DC_noise_eater_graph', 'Ramsey']
 
         try:
             self.allow_evaluation = False

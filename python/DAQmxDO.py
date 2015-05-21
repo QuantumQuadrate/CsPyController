@@ -50,8 +50,9 @@ class DAQmxDO(Instrument):
     # properties for functional waveforms
     transition_list = Member()  # list that will store the transitions as they are added
     states = Member()  # an array of the compiled transition states
-    times = Member()  # an array of the compiled transition times
-    durations = Member()  # an array of the compiled transition durations
+    indices = Member()  # an array of the compiled transitions times (in samples indexes)
+    times = Member()  # an array of the compiled transition times (in seconds, for plotting)
+    time_durations = Member()  # an array of the compiled transition durations (in seconds, for plotting)
 
     
     def __init__(self, experiment):
@@ -91,51 +92,62 @@ class DAQmxDO(Instrument):
         self.transition_list.append((time, channel, state))
 
     def parse_transition_list(self):
-        # put all the transitions that have been stored together into one big list
-        # convert the float time to an integer number of samples
-        indices = np.rint(np.array([i[0] for i in self.transition_list], dtype=np.float64)*self.clockRate.value*self.units.value).astype(np.uint64)
-        # compile the channels
-        channels = np.array([i[1] for i in self.transition_list], dtype=np.uint8)
-        # compile the states
-        states = np.array([i[2] for i in self.transition_list], dtype=np.bool)
+        if self.transition_list:
+            # put all the transitions that have been stored together into one big list
+            # convert the float time to an integer number of samples
+            indices = np.rint(np.array([i[0] for i in self.transition_list], dtype=np.float64)*self.clockRate.value*self.units.value).astype(np.uint64)
+            # compile the channels
+            channels = np.array([i[1] for i in self.transition_list], dtype=np.uint8)
+            # compile the states
+            states = np.array([i[2] for i in self.transition_list], dtype=np.bool)
 
-        # Create two arrays to store the compiled times and states.
-        # These arrays will be appended to to increase their size as we go along.
-        index_list = np.zeros(1, dtype=np.uint64)
-        state_list = np.zeros((1, self.numChannels), dtype=np.bool)
+            # Create two arrays to store the compiled times and states.
+            # These arrays will be appended to to increase their size as we go along.
+            index_list = np.zeros(1, dtype=np.uint64)
+            state_list = np.zeros((1, self.numChannels), dtype=np.bool)
 
-        # sort the transitions time.  If there is a tie, preserve the order.
-        # mergesort is slower than the default quicksort, but it is 'stable' which means items of the same value are kept in their relative order, which is desired here
-        order = np.argsort(indices, kind='mergesort')
+            # sort the transitions time.  If there is a tie, preserve the order.
+            # mergesort is slower than the default quicksort, but it is 'stable' which means items of the same value are kept in their relative order, which is desired here
+            order = np.argsort(indices, kind='mergesort')
 
-        # go through all the transitions, updating the compiled sequence as we go
-        for i in order:
-            # check to see if the next time is the same as the last one in the time list
-            if indices[i] == index_list[-1]:
-                # if this is a duplicate time, the latter entry overrides
-                state_list[-1][channels[i]] = state[i]
-            else:
-                # If this is a new time, increase the length of time_list and state_list.
-                # Create the new state_list entry by copying the last entry.
-                index_list = np.append(index_list, indices[i])
-                state_list.append(state_list[-1, np.newaxis], axis=0)
-                # then update the last entry
-                state_list[-1, channels[i]] = states[i]
+            # go through all the transitions, updating the compiled sequence as we go
+            for i in order:
+                # check to see if the next time is the same as the last one in the time list
+                if indices[i] == index_list[-1]:
+                    # if this is a duplicate time, the latter entry overrides
+                    state_list[-1][channels[i]] = state[i]
+                else:
+                    # If this is a new time, increase the length of time_list and state_list.
+                    # Create the new state_list entry by copying the last entry.
+                    index_list = np.append(index_list, indices[i])
+                    state_list.append(state_list[-1, np.newaxis], axis=0)
+                    # then update the last entry
+                    state_list[-1, channels[i]] = states[i]
 
-        # find the real time at each index (used for plotting)
-        times = index_list/self.clockRate.value
+            # find the duration of each segment
+            durations = np.empty_like(index_list)
+            durations[:-1] = index_list[1:]-index_list[:-1]
+            durations[-1] = 1  # add in a 1 sample duration at end for last transition
 
-        #update the exposed variables
-        self.indices = index_list
-        self.times = times
-        self.states = state_list
-        self.durations = durations
+            # find the real time at each index (used for plotting)
+            # leave this in seconds, don't use units so that the plot can apply its own units
+            self.times = index_list/self.clockRate.value
+            self.time_durations = durations/self.clockRate.value
+
+            # update the exposed variables
+            self.indices = index_list
+            self.states = state_list
+        else:
+            self.times = np.zeros(0, dtype=np.float64)
+            self.time_durations = np.zeros(0, dtype=np.float64)
+            self.indices = np.zeros(0, dtype=np.uint64)
+            self.states = np.zeros((0, self.numChannels), dtype=np.bool)
 
     def toHardware(self):
         waveformXML = ('<waveform>'+
             '<name>'+self.name+'</name>'+
-            '<transitions>'+' '.join([str(time) for time in self.index_list])+'</transitions>'+
-            '<states>'+'\n'.join([' '.join([str(sample) for sample in state]) for state in self.state_list])+'</states>\n'+
+            '<transitions>'+' '.join([str(time) for time in self.indices])+'</transitions>'+
+            '<states>'+'\n'.join([' '.join([str(sample) for sample in state]) for state in self.states])+'</states>\n'+
             '</waveform>\n')
 
         # then upload scriptOut instead of script.toHardware, waveformXML instead of waveforms.toHardware (those toHardware methods will return an empty string and so will not interfere)

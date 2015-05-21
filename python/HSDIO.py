@@ -72,7 +72,8 @@ class HSDIO(Instrument):
     states = Member()  # an array of the compiled transition states
     indices = Member()  # an array of the compiled transition indices
     times = Member()  # an array of the compiled transition times
-    durations = Member()  # an array of the compiled transition durations
+    index_durations = Member()  # an array of the compiled transition durations (in terms of indexes)
+    time_durations = Member()  # an array of compiled transition durations (in terms of time)
 
     def __init__(self, name, experiment):
         super(HSDIO, self).__init__(name, experiment)
@@ -106,50 +107,58 @@ class HSDIO(Instrument):
         self.transition_list.append((time, channel, state))
 
     def parse_transition_list(self):
-        # put all the transitions that have been stored together into one big list
-        # convert the float time to an integer number of samples
-        indices = np.rint(np.array([i[0] for i in self.transition_list], dtype=np.float64)*self.clockRate.value*self.units.value).astype(np.uint64)
-        # compile the channels
-        channels = np.array([i[1] for i in self.transition_list], dtype=np.uint8)
-        # compile the states
-        states = np.array([i[2] for i in self.transition_list], dtype=np.bool)
+        if self.transition_list:
+            # put all the transitions that have been stored together into one big list
+            # convert the float time to an integer number of samples
+            indices = np.rint(np.array([i[0] for i in self.transition_list], dtype=np.float64)*self.clockRate.value*self.units.value).astype(np.uint64)
+            # compile the channels
+            channels = np.array([i[1] for i in self.transition_list], dtype=np.uint8)
+            # compile the states
+            states = np.array([i[2] for i in self.transition_list], dtype=np.bool)
 
-        # Create two arrays to store the compiled times and states.
-        # These arrays will be appended to to increase their size as we go along.
-        index_list = np.zeros(1, dtype=np.uint64)
-        state_list = np.zeros((1, self.numChannels), dtype=np.bool)
+            # Create two arrays to store the compiled times and states.
+            # These arrays will be appended to to increase their size as we go along.
+            index_list = np.zeros(1, dtype=np.uint64)
+            state_list = np.zeros((1, self.numChannels), dtype=np.bool)
 
-        # sort the transitions time.  If there is a tie, preserve the order.
-        # mergesort is slower than the default quicksort, but it is 'stable' which means items of the same value are kept in their relative order, which is desired here
-        order = np.argsort(indices, kind='mergesort')
+            # sort the transitions time.  If there is a tie, preserve the order.
+            # mergesort is slower than the default quicksort, but it is 'stable' which means items of the same value are kept in their relative order, which is desired here
+            order = np.argsort(indices, kind='mergesort')
 
-        # go through all the transitions, updating the compiled sequence as we go
-        for i in order:
-            # check to see if the next time is the same as the last one in the time list
-            if indices[i] == index_list[-1]:
-                # if this is a duplicate time, the latter entry overrides
-                state_list[-1][channels[i]] = state[i]
-            else:
-                # If this is a new time, increase the length of time_list and state_list.
-                # Create the new state_list entry by copying the last entry.
-                index_list = np.append(index_list, indices[i])
-                state_list.append(state_list[-1, np.newaxis], axis=0)
-                # then update the last entry
-                state_list[-1, channels[i]] = states[i]
+            # go through all the transitions, updating the compiled sequence as we go
+            for i in order:
+                # check to see if the next time is the same as the last one in the time list
+                if indices[i] == index_list[-1]:
+                    # if this is a duplicate time, the latter entry overrides
+                    state_list[-1][channels[i]] = states[i]
+                else:
+                    # If this is a new time, increase the length of time_list and state_list.
+                    # Create the new state_list entry by copying the last entry.
+                    index_list = np.append(index_list, indices[i])
+                    state_list = np.append(state_list, state_list[-1, np.newaxis], axis=0)
+                    # then update the last entry
+                    state_list[-1, channels[i]] = states[i]
 
-        # find the duration of each segment
-        durations = np.empty_like(index_list)
-        durations[:-1] = index_list[1:]-index_list[:-1]
-        durations[-1] = 1  # add in a 1 sample duration at end for last transition
+            # find the duration of each segment
+            durations = np.empty_like(index_list)
+            durations[:-1] = index_list[1:]-index_list[:-1]
+            durations[-1] = 1  # add in a 1 sample duration at end for last transition
 
-        # find the real time at each index (used for plotting)
-        self.times = index_list/self.clockRate.value
-        self.time_durations = durations/self.clockRate
+            # find the real time at each index (used for plotting)
+            # send values in seconds, do not use units, so that the plot can apply its own units
+            self.times = index_list/self.clockRate.value
+            self.time_durations = durations/self.clockRate.value
 
-        #update the exposed variables
-        self.indices = index_list
-        self.states = state_list
-        self.durations = durations
+            #update the exposed variables
+            self.indices = index_list
+            self.states = state_list
+            self.index_durations = durations
+        else:
+            self.times = np.zeros(0, dtype=np.float64)
+            self.time_durations = np.zeros(0, dtype=np.float64)
+            self.indices = np.zeros(0, dtype=np.uint64)
+            self.states = np.zeros((0, self.numChannels), dtype=np.bool)
+            self.index_durations = np.zeros_like(self.indices)
 
     def toHardware(self):
         """
@@ -172,7 +181,7 @@ class HSDIO(Instrument):
             # for each transition, replace with a sequence of generate wXXXXXXXX, if wXXXXXXXX not in list, add wXXXXXXXX to list of necessary waveforms, create waveform and add it to waveform XML
             singleSampleWaveformName = 'w'+''.join([str(int(j)) for j in self.states[i]])  # make a name for the waveform.  the name is w followed by the binary expression of the state
             script += 'generate '+singleSampleWaveformName+'\n'
-            waitTime = self.durations[i]-self.hardwareAlignmentQuantum.value
+            waitTime = self.index_durations[i]-self.hardwareAlignmentQuantum.value
             if waitTime > 0:  # if we need to wait after this sample to get the correct time delay
                 if waitTime % self.hardwareAlignmentQuantum.value != 0:  # if the wait time is not a multiple of the hardwareAlignmentQuantum
                     waitTime = (int(waitTime/self.hardwareAlignmentQuantum.value)+1)*self.hardwareAlignmentQuantum.value  # round up

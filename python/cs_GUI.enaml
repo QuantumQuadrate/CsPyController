@@ -1102,11 +1102,32 @@ def get_load_waveform_callback(HSDIO):
                 pass
     return load_file_callback
 
-enamldef Waveforms(Window):
+enamldef FunctionalWaveforms(Window):
     attr waveforms
+
+    title = 'Functional Waveform Definitions'
+    style_class << 'valid' if experiment.valid else 'invalid'
+    Container:
+        padding = 0
+        style_class << 'valid' if experiment.valid else 'invalid'
+        ScrollArea:
+            style_class << 'valid' if experiment.valid else 'invalid'
+            Container:
+                style_class << 'valid' if experiment.valid else 'invalid'
+
+                LabelBox:
+                    text = 'enable'
+                    checked := waveforms.enable
+
+                MultilineField:  # waveform entry
+                    hug_width = 'ignore'
+                    hug_height = 'ignore'
+                    text := waveforms.text
+
+enamldef FunctionalWaveformsGraph(Window):
     attr graph
 
-    title = 'Global Waveforms'
+    title = 'Functional Waveforms Graph'
     style_class << 'valid' if experiment.valid else 'invalid'
     Container:
         padding = 0
@@ -1117,7 +1138,7 @@ enamldef Waveforms(Window):
                 style_class << 'valid' if experiment.valid else 'invalid'
 
                 MPLCanvas: canvas:
-                    constraints=[(height==900)|'strong', (width==1850)|'strong']
+#                    constraints=[(height==900)|'strong', (width==1850)|'strong']
                     figure << graph.figure
 
                 HGroup:  # plot controls
@@ -1125,22 +1146,33 @@ enamldef Waveforms(Window):
                     hug_width='strong'
                     hug_height='strong'
                     padding=0
+                    LabelBox:
+                        text = 'enable'
+                        checked := graph.enable
+                    Label: text = 'HSDIO'
+                    Field:
+                        placeholder = 'HSDIO channels to plot'
+                        text := graph.HSDIO_channels_to_plot
+                    Label: text = 'AO'
+                    Field:
+                        placeholder = 'AO channels to plot'
+                        text := graph.AO_channels_to_plot
+                    Label: text = 'DAQmxDO'
+                    Field:
+                        placeholder = 'DAQmxDO channels to plot'
+                        text := graph.DO_channels_to_plot
                     Label: text = 'plot min'
                     Field:
                         placeholder = 'blank for autolimit'
-                        text:: graph.updateFigure()
+                        text := graph.plotmin_str
                     Label: text = 'plot max'
                     Field:
                         placeholder = 'blank for autolimit'
-                        text:: graph.updateFigure()
+                        text := graph.plotmax_str
                     Label: text = 'units'
-                    FloatField:
-                        value := graph.units
-
-                MultilineField:  # waveform entry
-                    hug_width = 'ignore'
-                    hug_height = 'ignore'
-                    text := waveforms.text
+                    FloatField: value := graph.units
+                    Label: text = 'AO scale'
+                    FloatField: value := graph.AO_scale
 
 enamldef HSDIO_DigitalOutPage(Window):
     attr HSDIO
@@ -1768,7 +1800,11 @@ enamldef AnalogOutput(Window):
                     checked:=AO.enable
                 EvalProp: e2:
                     prop<<AO.physicalChannels
-                IntField: value := AO.numChannels
+                Form:
+                    Label: text = 'number of channels'
+                    IntField: value := AO.numChannels
+                    Label: text = 'channel descriptions'
+                    Field: text := AO.channel_descriptions
                 EvalProp: e3:
                     prop<<AO.minimum
                 EvalProp: e4:
@@ -1777,8 +1813,6 @@ enamldef AnalogOutput(Window):
                     prop<<AO.clockRate
                 EvalProp: e6:
                     prop<<AO.units
-                EvalProp: e7:
-                    prop<<AO.totalAOTime
                 EvalProp: e8:
                     prop<<AO.waitForStartTrigger
                 EvalProp: e9:
@@ -3115,7 +3149,6 @@ window_dictionary = {'':'',
                      'Report': 'Reports(experiment = main.experiment)',
                      'PXI Communication': 'LabViewPage(LabView = main.experiment.LabView)',
                      'HSDIO': 'HSDIO_DigitalOutPage(HSDIO = main.experiment.LabView.HSDIO)',
-                     'Waveforms': 'Waveforms(waveforms = main.experiment.functional_waveforms, graph = main.experiment.functional_waveforms_graph)',
                      'DAQmx': 'DAQmxDigitalOutPage(DAQmx = main.experiment.LabView.DAQmxDO)',
                      'DDS': 'DDS_Page(DDS = main.experiment.DDS)',
                      'RF Generators': 'RFGenPage(LabView = main.experiment.LabView)',
@@ -3143,7 +3176,9 @@ window_dictionary = {'':'',
                      'Ramsey': 'Ramsey(analysis = main.experiment.Ramsey)',
                      'PID': 'PID(experiment = main.experiment)',
                      'Retention Analysis': 'RetentionAnalysis(analysis = main.experiment.retention_analysis)',
-                     'Counters': 'Counters(counters = main.experiment.LabView.Counters)'
+                     'Counters': 'Counters(counters = main.experiment.LabView.Counters)',
+                     'Functional Waveforms': 'FunctionalWaveforms(waveforms = main.experiment.functional_waveforms)',
+                     'Functional Waveforms Graph': 'FunctionalWaveformsGraph(graph = main.experiment.functional_waveforms_graph)'
                      }
 window_keys = window_dictionary.keys()
 window_keys.sort()

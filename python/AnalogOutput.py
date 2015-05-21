@@ -15,7 +15,7 @@ logger = logging.getLogger(__name__)
 
 from cs_errors import PauseError
 
-from atom.api import Typed, Member, Int
+from atom.api import Typed, Member, Int, Str
 from enaml.application import deferred_call
 from matplotlib.ticker import NullFormatter
 from instrument_property import BoolProp, FloatProp, StrProp
@@ -71,7 +71,7 @@ class AnalogOutput(Instrument):
         self.doNotSendToHardware += ['numChannels', 'units', 'channel_descriptions']
         self.transition_list = []  # an empty list to store
 
-    def add_transition(self, time, channel, state):
+    def add_transition(self, time, channel, value):
         """Append a transition to the list of transitions.  The values are not processed until evaluate is called.
         Generally the master functional waveform instrument should evaluate before AO evaluates.
         :param time: float.  Absolute time since the HSDIO was triggered, in the units specified by self.units
@@ -82,37 +82,40 @@ class AnalogOutput(Instrument):
         self.transition_list.append((time, channel, value))
 
     def parse_transition_list(self):
-        # put all the transitions that have been stored together into one big list
-        # keep the times as floats for now, they will be converted to integer samples after the sample rate is applied
-        times = np.array([i[0] for i in self.transition_list], dtype=np.float64)
-        # compile the channels
-        channels = np.array([i[1] for i in self.transition_list], dtype=np.uint8)
-        # compile the values
-        values = np.array([i[2] for i in self.transition_list], dtype=np.float32)
+        if self.transition_list:
+            # put all the transitions that have been stored together into one big list
+            # keep the times as floats for now, they will be converted to integer samples after the sample rate is applied
+            times = np.array([i[0] for i in self.transition_list], dtype=np.float64)
+            # compile the channels
+            channels = np.array([i[1] for i in self.transition_list], dtype=np.uint8)
+            # compile the values
+            values = np.array([i[2] for i in self.transition_list], dtype=np.float32)
 
-        # sort the transitions time.  If there is a tie, preserve the order.
-        # mergesort is slower than the default quicksort, but it is 'stable' which means items of the same value are kept in their relative order, which is desired here
-        order = np.argsort(times, kind='mergesort')
-        times = times[order]
-        channels = channels[order]
-        values = values[order]
+            # sort the transitions time.  If there is a tie, preserve the order.
+            # mergesort is slower than the default quicksort, but it is 'stable'
+            # which means items of the same value are kept in their relative order, which is desired here
+            order = np.argsort(times, kind='mergesort')
 
-        # Create an array to store the compiled sample values
-        total_samples = times[order[-1]]*self.clockRate.value*self.units.value+1
-        time_list = np.arange(0,total_samples)/self.clockRate.value
-        value_list = np.zeros((total_samples, self.numChannels), dtype=np.float32)
+            # Create an array to store the compiled sample values
+            total_samples = times[order[-1]]*self.clockRate.value*self.units.value+1
+            time_list = np.arange(total_samples)/self.clockRate.value
+            value_list = np.zeros((total_samples, self.numChannels), dtype=np.float32)
 
-        # go through all the transitions, updating the compiled sequence as we go
-        # duplicate times are okay.  We want to allow that to allow sharp steps.
-        for i in order:
-            # evaluate the sample index equivalent to the transition time
-            index = np.rint(times[i]*self.clockRate.value*self.units.value).astype(np.uint64)
-            # for all samples >= index set it to the new value
-            value_list[index:, channels[i]] =  values[i]
+            # go through all the transitions, updating the compiled sequence as we go
+            # duplicate times are okay.  We want to allow that to allow sharp steps.
+            for i in order:
+                # evaluate the sample index equivalent to the transition time
+                index = np.rint(times[i]*self.clockRate.value*self.units.value).astype(np.uint64)
+                # for all samples >= index set it to the new value
+                value_list[index:, channels[i]] = values[i]
 
-        #update the exposed variables
-        self.times = time_list
-        self.values = value_list
+            # update the exposed variables
+            self.times = time_list
+            self.values = value_list
+        else:
+            # there are no stored transitions
+            self.times = np.zeros(0, dtype=np.float64)
+            self.values = np.zeros((0, self.numChannels), dtype=np.float32)
 
     def drawMPL(self):
         try:
@@ -155,7 +158,6 @@ class AnalogOutput(Instrument):
             self.parse_transition_list()
             # reset the transition list so it starts empty for the next usage
             self.transition_list = []
-
 
     def toHardware(self):
         """This overwrites Instrument.toHardware in order to add in the <waveform> which is not stored as a property.

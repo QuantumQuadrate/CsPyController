@@ -1778,7 +1778,7 @@ class RetentionAnalysis(Analysis):
         # make a boolean array of loading
         atoms = ROI_sums >= cutoffs
         # find the loading for each roi
-        loaded = numpy.sum(atoms[:,0,:], axis=0)
+        loaded = numpy.sum(atoms[:, 0, :], axis=0)
         # find the retention for each roi
         retained = numpy.sum(numpy.logical_and(atoms[:,0,:], atoms[:,1,:]), axis=0)
         # find the number of reloaded atoms
