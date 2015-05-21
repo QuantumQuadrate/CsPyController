@@ -146,8 +146,8 @@ class HSDIO(Instrument):
 
             # find the real time at each index (used for plotting)
             # send values in seconds, do not use units, so that the plot can apply its own units
-            self.times = index_list/self.clockRate.value
-            self.time_durations = durations/self.clockRate.value
+            self.times = 1.0*index_list/self.clockRate.value
+            self.time_durations = 1.0*durations/self.clockRate.value
 
             #update the exposed variables
             self.indices = index_list

@@ -97,8 +97,8 @@ class AnalogOutput(Instrument):
             order = np.argsort(times, kind='mergesort')
 
             # Create an array to store the compiled sample values
-            total_samples = times[order[-1]]*self.clockRate.value*self.units.value+1
-            time_list = np.arange(total_samples)/self.clockRate.value
+            total_samples = int(np.rint(times[order[-1]]*self.clockRate.value*self.units.value)+1)
+            time_list = 1.0*np.arange(total_samples)/self.clockRate.value
             value_list = np.zeros((total_samples, self.numChannels), dtype=np.float32)
 
             # go through all the transitions, updating the compiled sequence as we go
@@ -116,40 +116,6 @@ class AnalogOutput(Instrument):
             # there are no stored transitions
             self.times = np.zeros(0, dtype=np.float64)
             self.values = np.zeros((0, self.numChannels), dtype=np.float32)
-
-    def drawMPL(self):
-        try:
-            fig=self.backFigure
-
-            #clear the old graph
-            fig.clf()
-
-            #redraw the graph
-            n=len(self.equations)
-            for i in range(n):
-            #for each equation
-                ax=fig.add_subplot(n,1,i+1)
-                ax.plot(self.timesteps,self.equations[i].value)
-                ax.set_ylabel(self.equations[i].description)
-                if i<(n-1):
-                    #remove tick labels all all except last plot
-                    ax.xaxis.set_major_formatter(NullFormatter())
-                else:
-                    #label only the last (bottom) plot
-                    ax.set_xlabel('time')
-                    #make sure the tick labels have room
-
-                #make the ylim a little wider than default (otherwise constant levels are sometimes on top of the plot frame)
-                ylim=ax.get_ylim()
-                yrange=abs(ylim[1]-ylim[0])
-                newylim=(ylim[0]-yrange*.05,ylim[1]+yrange*.05)
-                ax.set_ylim(newylim)
-
-            #make room for the equation labels
-            fig.subplots_adjust(left=.2,right=.95)
-        except Exception as e:
-            # report the error and continue if drawing the figure fails
-            logger.warning('Exception in {}.drawMPL():\n{}\n{}\n'.format(self.name, e, traceback.format_exc()))
 
     def evaluate(self):
         if self.enable and self.experiment.allow_evaluation:

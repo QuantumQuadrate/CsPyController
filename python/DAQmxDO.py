@@ -54,7 +54,6 @@ class DAQmxDO(Instrument):
     times = Member()  # an array of the compiled transition times (in seconds, for plotting)
     time_durations = Member()  # an array of the compiled transition durations (in seconds, for plotting)
 
-    
     def __init__(self, experiment):
         super(DAQmxDO, self).__init__('DAQmxDO', experiment)
         self.resourceName = StrProp('resourceName', experiment, 'the hardware location of the card', "'Dev1'")
@@ -131,8 +130,8 @@ class DAQmxDO(Instrument):
 
             # find the real time at each index (used for plotting)
             # leave this in seconds, don't use units so that the plot can apply its own units
-            self.times = index_list/self.clockRate.value
-            self.time_durations = durations/self.clockRate.value
+            self.times = 1.0*index_list/self.clockRate.value
+            self.time_durations = 1.0*durations/self.clockRate.value
 
             # update the exposed variables
             self.indices = index_list

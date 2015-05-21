@@ -57,9 +57,7 @@ class FunctionalWaveformGraph(AnalysisWithFigure):
     spans = Member()
     enable = Bool()
     plotmin_str = Str()
-    plotmin = Float(0)
     plotmax_str = Str()
-    plotmax = Float(1)
     units = Float(.001)
     HSDIO_channels_to_plot = Str()
     AO_channels_to_plot = Str()
@@ -91,7 +89,7 @@ class FunctionalWaveformGraph(AnalysisWithFigure):
 
     def updateFigure(self):
         """Update the plot"""
-        if not self.update_lock:
+        if self.enable and self.experiment.allow_evaluation and (not self.update_lock):
             try:
                 self.update_lock = True
                 # draw on the inactive figure
@@ -126,9 +124,38 @@ class FunctionalWaveformGraph(AnalysisWithFigure):
                 # make horizontal grid lines
                 ax.grid(True)
 
+                # set plot limits
+                # y
+                ax.set_ylim(0, total_channels)
+                # x
+                if self.plotmin_str == '':
+                    plotmin = 0
+                    if HSDIO_channels and (len(HSDIO.times) > 0):
+                        plotmin = min(plotmin, HSDIO.times[0])
+                    if AO_channels and (len(AO.times) > 0):
+                        plotmin = min(plotmin, AO.times[0])
+                    if DO_channels and (len(DO.times) > 0):
+                        plotmin = min(plotmin, DO.times[0])
+                else:
+                    plotmin = float(self.plotmin_str)
+                if self.plotmax_str == '':
+                    plotmax = 0
+                    if HSDIO_channels and (len(HSDIO.times) > 0):
+                        plotmax = max(plotmax, HSDIO.times[-1])
+                    if AO_channels and (len(AO.times) > 0):
+                        plotmax = max(plotmax, AO.times[-1])
+                    if DO_channels and (len(DO.times) > 0):
+                        plotmax = max(plotmax, DO.times[-1])
+                else:
+                    plotmax = float(self.plotmax_str)
+                if plotmin == plotmax:
+                    # avoid divide by zeros
+                    plotmax += 1
+                ax.set_xlim(plotmin, plotmax)
+
                 # HSDIO plots
                 if HSDIO_channels:
-                    self.draw_digital(ax, HSDIO, HSDIO_channels, 0)
+                    self.draw_digital(ax, HSDIO, HSDIO_channels, plotmin, plotmax, 0)
 
                 # AO plots
                 if AO_channels:
@@ -136,38 +163,7 @@ class FunctionalWaveformGraph(AnalysisWithFigure):
 
                 # DAQmxDO plots
                 if DO_channels:
-                    self.draw_digital(ax, DO, DO_channels, len(HSDIO_channels)+len(AO_channels))
-
-                # set plot limits
-                # y
-                ax.set_ylim(0, total_channels)
-                # x
-                if self.plotmin_str == '':
-                    plotmin = 0
-                    if len(HSDIO.times) > 0:
-                        plotmin = min(plotmin, HSDIO.times[0])
-                    if len(AO.times) > 0:
-                        plotmin = min(plotmin, AO.times[0])
-                    if len(DO.times) > 0:
-                        plotmin = min(plotmin, DO.times[0])
-                else:
-                    plotmin = float(self.plotmin_str)
-                if self.plotmax_str == '':
-                    plotmax = 0
-                    if len(HSDIO.times) > 0:
-                        plotmax = max(plotmax, HSDIO.times[-1])
-                    if len(AO.times) > 0:
-                        plotmax = min(plotmax, AO.times[-1])
-                    if len(DO.times) > 0:
-                        plotmax = min(plotmax, DO.times[-1])
-                else:
-                    plotmax = float(self.plotmax_str)
-                if plotmin == plotmax:
-                    # avoid divide by zeros
-                    plotmax += 1
-                ax.set_xlim(plotmin, plotmax)
-                self.plotmin = plotmin
-                self.plotmax = plotmax
+                    self.draw_digital(ax, DO, DO_channels, plotmin, plotmax, len(HSDIO_channels)+len(AO_channels))
 
                 # setup y-axis ticks
                 ax.set_yticks(np.arange(total_channels)+0.5)
@@ -198,11 +194,11 @@ class FunctionalWaveformGraph(AnalysisWithFigure):
             finally:
                 self.update_lock = False
 
-    def draw_digital(self, ax, source, channels, offset):
+    def draw_digital(self, ax, source, channels, plotmin, plotmax, offset):
         try:
             states = source.states[:, channels]
-            times = source.times/self.units
-            durations = source.time_durations/self.units
+            times = 1.0*source.times/self.units
+            durations = 1.0*source.time_durations/self.units
 
             # get plot info
             numTransitions, numChannels = states.shape
@@ -215,8 +211,8 @@ class FunctionalWaveformGraph(AnalysisWithFigure):
                 label.set_rotation(90)
 
             # create a timeList on the scale 0 to 1
-            relativeTimeList = (times-self.plotmin)/(self.plotmax-self.plotmin)
-            relativeDuration = durations/(self.plotmax-self.plotmin)
+            relativeTimeList = 1.0*(times-plotmin)/(plotmax-plotmin)
+            relativeDuration = 1.0*durations/(plotmax-plotmin)
 
             # Make a broken horizontal bar plot, i.e. one with gaps
             for i in xrange(numChannels):
@@ -235,13 +231,12 @@ class FunctionalWaveformGraph(AnalysisWithFigure):
     def draw_analog(self, ax, AO, channels, scale, offset):
         try:
             # scale the x-axis
-            times = AO.times/self.units
+            times = 1.0*AO.times/self.units
 
             n = len(channels)
             for i, x in enumerate(channels):
                 # plot the values with a vertical offset to separate them
-                print times.shape, AO.values[:, x].shape
-                ax.plot(times, AO.values[:, x]/scale+i+offset)
+                ax.plot(times, 1.0*AO.values[:, x]/scale+i+.5+offset)
         except Exception as e:
             # report the error and continue if drawing the figure fails
             logger.warning('Exception in {}.drawAO():\n{}\n{}\n'.format(self.name, e, traceback.format_exc()))

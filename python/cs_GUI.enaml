@@ -1114,12 +1114,14 @@ enamldef FunctionalWaveforms(Window):
             style_class << 'valid' if experiment.valid else 'invalid'
             Container:
                 style_class << 'valid' if experiment.valid else 'invalid'
+                constraints = [enable.left==contents_left, enable.bottom+5==field.top, enable.top==contents_top, field.left==contents_left, field.right==contents_right, field.bottom==contents_bottom]
 
-                LabelBox:
+                LabelBox: enable:
                     text = 'enable'
                     checked := waveforms.enable
 
-                MultilineField:  # waveform entry
+                MultilineField: field:
+                    # waveform entry
                     hug_width = 'ignore'
                     hug_height = 'ignore'
                     text := waveforms.text
@@ -1137,11 +1139,13 @@ enamldef FunctionalWaveformsGraph(Window):
             Container:
                 style_class << 'valid' if experiment.valid else 'invalid'
 
+                constraints = [canvas.top==contents_top, canvas.left==contents_left, canvas.right==contents_right, canvas.bottom+5==controls.top, controls.left==contents_left, controls.bottom==contents_bottom]
+
                 MPLCanvas: canvas:
-#                    constraints=[(height==900)|'strong', (width==1850)|'strong']
                     figure << graph.figure
 
-                HGroup:  # plot controls
+                # plot controls
+                HGroup: controls:
                     align_widths = False
                     hug_width='strong'
                     hug_height='strong'
