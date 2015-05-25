@@ -54,7 +54,9 @@ class FunctionalWaveformGraph(AnalysisWithFigure):
     """
 
     labels = Member()
+    saved_labels = Member()
     spans = Member()
+    saved_spans = Member()
     enable = Bool()
     plotmin_str = Str()
     plotmax_str = Str()
@@ -64,12 +66,16 @@ class FunctionalWaveformGraph(AnalysisWithFigure):
     DO_channels_to_plot = Str()
     AO_scale = Float(1)
     update_lock = Bool(False)
-
+    draw_HSDIO_ticks = Bool()
+    draw_AO_ticks = Bool()
+    draw_DO_ticks = Bool()
+    draw_label_ticks = Bool()
 
     def __init__(self, name, experiment, description=''):
         super(FunctionalWaveformGraph, self).__init__(name, experiment, description)
-        self.properties += ['enable', 'plotmin_str', 'plotmax_str', 'units', 'HSDIO_channels_to_plot', 'AO_channels_to_plot',
-                            'DO_channels_to_plot', 'AO_scale']
+        self.properties += ['enable', 'plotmin_str', 'plotmax_str', 'units', 'HSDIO_channels_to_plot',
+                            'AO_channels_to_plot', 'DO_channels_to_plot', 'AO_scale', 'draw_HSDIO_ticks',
+                            'draw_AO_ticks', 'draw_DO_ticks', 'draw_label_ticks']
         self.labels = []
         self.spans = []
 
@@ -81,9 +87,20 @@ class FunctionalWaveformGraph(AnalysisWithFigure):
 
     def evaluate(self):
         if self.enable and self.experiment.allow_evaluation:
+
+            # save the labels for plotting
+            self.saved_labels = self.labels
+            self.saved_spans = self.spans
+
+            # clear the label lists so they are empty for next time the functional waveforms are evaluated
+            self.labels = []
+            self.spans = []
+
             self.updateFigure()
 
-    @observe('plotmin_str', 'plotmax_str', 'units', 'HSDIO_channels_to_plot', 'AO_channels_to_plot', 'DAQmxDO_channels_to_plot', 'AO_scale')
+    @observe('plotmin_str', 'plotmax_str', 'units', 'HSDIO_channels_to_plot', 'AO_channels_to_plot',
+             'DAQmxDO_channels_to_plot', 'AO_scale', 'draw_HSDIO_ticks', 'draw_AO_ticks', 'draw_DO_ticks',
+             'draw_label_ticks')
     def reload(self, change):
         self.updateFigure()
 
@@ -164,6 +181,36 @@ class FunctionalWaveformGraph(AnalysisWithFigure):
                 if DO_channels:
                     self.draw_digital(ax, DO, DO_channels, plotmin, plotmax, len(HSDIO_channels)+len(AO_channels))
 
+                # setup the x-ticks
+                xticks = []
+                if self.draw_HSDIO_ticks:
+                    a = (HSDIO.times/self.units).tolist()
+                    xticks += a
+                if self.draw_DO_ticks:
+                    a = (DO.times/self.units).tolist()
+                    xticks += a
+                if self.draw_AO_ticks:
+                    a = (AO.transitions/self.units).tolist()
+                    xticks += a
+                # set the plot ticks
+                ax.set_xticks(xticks)
+
+                # labels
+                if self.draw_label_ticks:
+                    # get the plot ticks so for
+                    xticks = ax.get_xticks().tolist()
+                    xtick_labels = map(lambda x: x.get_text(), ax.get_xticklabels())
+                    for i in self.saved_labels:
+                        xticks += [i[0]]
+                        xtick_labels += [i[1]]
+                    # set the plot ticks again
+                    ax.set_xticks(xticks)
+                    ax.set_xticklabels(xtick_labels)
+
+                # make the xtick labels vertical
+                for label in ax.xaxis.get_ticklabels():
+                    label.set_rotation(90)
+
                 ax.set_xlim(plotmin, plotmax)
 
                 # setup y-axis ticks
@@ -171,7 +218,8 @@ class FunctionalWaveformGraph(AnalysisWithFigure):
                 #HSDIO
                 yticklabels = ['{}: {}'.format(i, HSDIO.channels.array['description'][i]) for i in HSDIO_channels]
                 #AO
-                yticklabels += eval(AO.channel_descriptions)
+                AO_yticks = eval(AO.channel_descriptions)
+                yticklabels += [AO_yticks[i] for i in AO_channels]
                 #DO
                 yticklabels += [x for x in DO.channels.array['description'][DO_channels]]
                 ax.set_yticklabels(yticklabels)
@@ -179,13 +227,7 @@ class FunctionalWaveformGraph(AnalysisWithFigure):
                 #make sure the tick labels have room
                 fig.subplots_adjust(left=.3, right=.95, bottom=.2)
 
-                # draw the vertical labels
-
-                # draw the horizontal spans
-
-                # clear the label lists
-                self.labels = []
-                self.spans = []
+                # TODO:draw the horizontal spans
 
                 # call super to update the figure to the GUI
                 super(FunctionalWaveformGraph, self).updateFigure()
@@ -204,13 +246,6 @@ class FunctionalWaveformGraph(AnalysisWithFigure):
             # get plot info
             numTransitions, numChannels = states.shape
 
-            # set up plot ticks
-            ax.set_xticks(times)
-            #ax.set_xticklabels(map(lambda x: str.format('{:.3g}', x), times))
-            # make vertical tick labels on the bottom
-            for label in ax.xaxis.get_ticklabels():
-                label.set_rotation(90)
-
             # create a timeList on the scale 0 to 1
             relativeTimeList = 1.0*(times-plotmin)/(plotmax-plotmin)
             relativeDuration = 1.0*durations/(plotmax-plotmin)
@@ -228,6 +263,8 @@ class FunctionalWaveformGraph(AnalysisWithFigure):
         except Exception as e:
             # report the error and continue if drawing the figure fails
             logger.warning('Exception in {}.draw_digital():\n{}\n{}\n'.format(self.name, e, traceback.format_exc()))
+            # return no new xticks
+            return [], []
 
     def draw_analog(self, ax, AO, channels, scale, offset):
         try:

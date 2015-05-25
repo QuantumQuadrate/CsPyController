@@ -1157,14 +1157,26 @@ enamldef FunctionalWaveformsGraph(Window):
                     Field:
                         placeholder = 'HSDIO channels to plot'
                         text := graph.HSDIO_channels_to_plot
+                    LabelBox:
+                        text = 'HSDIO ticks'
+                        checked := graph.draw_HSDIO_ticks
                     Label: text = 'AO'
                     Field:
                         placeholder = 'AO channels to plot'
                         text := graph.AO_channels_to_plot
+                    LabelBox:
+                        text = 'AO ticks'
+                        checked := graph.draw_AO_ticks
                     Label: text = 'DAQmxDO'
                     Field:
                         placeholder = 'DAQmxDO channels to plot'
                         text := graph.DO_channels_to_plot
+                    LabelBox:
+                        text = 'DO ticks'
+                        checked := graph.draw_DO_ticks
+                    LabelBox:
+                        text = 'labels'
+                        checked := graph.draw_label_ticks
                     Label: text = 'plot min'
                     Field:
                         placeholder = 'blank for autolimit'

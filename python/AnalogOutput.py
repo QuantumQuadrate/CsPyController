@@ -46,6 +46,7 @@ class AnalogOutput(Instrument):
     transition_list = Member()  # list that will store the transitions as they are added
     values = Member()  # an array of the compiled transition values
     times = Member()  # an array of the compiled transition times
+    transitions = Member()
 
     def __init__(self, experiment):
         super(AnalogOutput, self).__init__('AnalogOutput', experiment)
@@ -112,10 +113,12 @@ class AnalogOutput(Instrument):
             # update the exposed variables
             self.times = time_list
             self.values = value_list
+            self.transitions = times[order]*self.units.value  # used for plot xticks
         else:
             # there are no stored transitions
             self.times = np.zeros(0, dtype=np.float64)
             self.values = np.zeros((0, self.numChannels), dtype=np.float32)
+            self.transitions = np.zeros(0, dtype=np.float64)  # used for plot xticks
 
     def evaluate(self):
         if self.enable and self.experiment.allow_evaluation:
