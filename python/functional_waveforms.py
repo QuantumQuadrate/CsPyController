@@ -151,7 +151,6 @@ class FunctionalWaveformGraph(AnalysisWithFigure):
                 if plotmin == plotmax:
                     # avoid divide by zeros
                     plotmax += 1
-                ax.set_xlim(plotmin, plotmax)
 
                 # HSDIO plots
                 if HSDIO_channels:
@@ -164,6 +163,8 @@ class FunctionalWaveformGraph(AnalysisWithFigure):
                 # DAQmxDO plots
                 if DO_channels:
                     self.draw_digital(ax, DO, DO_channels, plotmin, plotmax, len(HSDIO_channels)+len(AO_channels))
+
+                ax.set_xlim(plotmin, plotmax)
 
                 # setup y-axis ticks
                 ax.set_yticks(np.arange(total_channels)+0.5)
