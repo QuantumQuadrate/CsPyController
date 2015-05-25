@@ -43,8 +43,8 @@ class FunctionalWaveforms(Instrument):
         if self.enable and self.experiment.allow_evaluation:
             logger.debug('FunctionalWaveforms.evaluate()')
 
-            localvars = self.experiment.vars.copy()
-            cs_evaluate.execWithDict(self.text, localvars)
+            #localvars = self.experiment.vars.copy()
+            cs_evaluate.execWithGlobalDict(self.text) #, localvars)
 
             super(FunctionalWaveforms, self).evaluate()
 
