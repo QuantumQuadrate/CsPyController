@@ -131,21 +131,21 @@ class FunctionalWaveformGraph(AnalysisWithFigure):
                 if self.plotmin_str == '':
                     plotmin = 0
                     if HSDIO_channels and (len(HSDIO.times) > 0):
-                        plotmin = min(plotmin, HSDIO.times[0]*self.units)
+                        plotmin = min(plotmin, HSDIO.times[0]/self.units)
                     if AO_channels and (len(AO.times) > 0):
-                        plotmin = min(plotmin, AO.times[0]*self.units)
+                        plotmin = min(plotmin, AO.times[0]/self.units)
                     if DO_channels and (len(DO.times) > 0):
-                        plotmin = min(plotmin, DO.times[0]*self.units)
+                        plotmin = min(plotmin, DO.times[0]/self.units)
                 else:
                     plotmin = float(self.plotmin_str)
                 if self.plotmax_str == '':
                     plotmax = 0
                     if HSDIO_channels and (len(HSDIO.times) > 0):
-                        plotmax = max(plotmax, HSDIO.times[-1]*self.units)
+                        plotmax = max(plotmax, HSDIO.times[-1]/self.units)
                     if AO_channels and (len(AO.times) > 0):
-                        plotmax = max(plotmax, AO.times[-1]*self.units)
+                        plotmax = max(plotmax, AO.times[-1]/self.units)
                     if DO_channels and (len(DO.times) > 0):
-                        plotmax = max(plotmax, DO.times[-1]*self.units)
+                        plotmax = max(plotmax, DO.times[-1]/self.units)
                 else:
                     plotmax = float(self.plotmax_str)
                 if plotmin == plotmax:
