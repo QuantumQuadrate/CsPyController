@@ -169,7 +169,7 @@ class FunctionalWaveformGraph(AnalysisWithFigure):
                 # setup y-axis ticks
                 ax.set_yticks(np.arange(total_channels)+0.5)
                 #HSDIO
-                yticklabels = [x for x in HSDIO.channels.array['description'][HSDIO_channels]]
+                yticklabels = ['{}: {}'.format(i, HSDIO.channels.array['description'][i]) for i in HSDIO_channels]
                 #AO
                 yticklabels += eval(AO.channel_descriptions)
                 #DO
@@ -206,7 +206,7 @@ class FunctionalWaveformGraph(AnalysisWithFigure):
 
             # set up plot ticks
             ax.set_xticks(times)
-            ax.set_xticklabels(map(lambda x: str.format('{:.3g}', x), times))
+            #ax.set_xticklabels(map(lambda x: str.format('{:.3g}', x), times))
             # make vertical tick labels on the bottom
             for label in ax.xaxis.get_ticklabels():
                 label.set_rotation(90)
@@ -237,7 +237,7 @@ class FunctionalWaveformGraph(AnalysisWithFigure):
             n = len(channels)
             for i, x in enumerate(channels):
                 # plot the values with a vertical offset to separate them
-                ax.plot(times, 1.0*AO.values[:, x]/scale+i+.5+offset)
+                ax.step(times, 1.0*AO.values[:, x]/scale+i+.5+offset, where='post')
         except Exception as e:
             # report the error and continue if drawing the figure fails
             logger.warning('Exception in {}.drawAO():\n{}\n{}\n'.format(self.name, e, traceback.format_exc()))
