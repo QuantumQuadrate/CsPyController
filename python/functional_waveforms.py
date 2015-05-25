@@ -3,7 +3,7 @@ Part of the AQuA Cesium Controller software package
 
 author=Martin Lichtman
 created=2015-05-19
-modified>=2015-05-019
+modified>=2015-05-24
 
 This file holds text files which specify the waveform timing for HSDIO, DAQmx DIO, and DAQmx AO.
 Waveforms are specified as python functions.  Every waveform function must take in the absolute time
@@ -31,7 +31,7 @@ from cs_instruments import Instrument
 
 class FunctionalWaveforms(Instrument):
     """A virtual instrument that specifies the timing for HSDIO, DAQmx DIO, and DAQmx AO."""
-    version = '2015.05.19'
+    version = '2015.05.24'
 
     text = Str()  # a text string that holds all the waveforms
 
@@ -131,21 +131,21 @@ class FunctionalWaveformGraph(AnalysisWithFigure):
                 if self.plotmin_str == '':
                     plotmin = 0
                     if HSDIO_channels and (len(HSDIO.times) > 0):
-                        plotmin = min(plotmin, HSDIO.times[0])
+                        plotmin = min(plotmin, HSDIO.times[0]*self.units)
                     if AO_channels and (len(AO.times) > 0):
-                        plotmin = min(plotmin, AO.times[0])
+                        plotmin = min(plotmin, AO.times[0]*self.units)
                     if DO_channels and (len(DO.times) > 0):
-                        plotmin = min(plotmin, DO.times[0])
+                        plotmin = min(plotmin, DO.times[0]*self.units)
                 else:
                     plotmin = float(self.plotmin_str)
                 if self.plotmax_str == '':
                     plotmax = 0
                     if HSDIO_channels and (len(HSDIO.times) > 0):
-                        plotmax = max(plotmax, HSDIO.times[-1])
+                        plotmax = max(plotmax, HSDIO.times[-1]*self.units)
                     if AO_channels and (len(AO.times) > 0):
-                        plotmax = max(plotmax, AO.times[-1])
+                        plotmax = max(plotmax, AO.times[-1]*self.units)
                     if DO_channels and (len(DO.times) > 0):
-                        plotmax = max(plotmax, DO.times[-1])
+                        plotmax = max(plotmax, DO.times[-1]*self.units)
                 else:
                     plotmax = float(self.plotmax_str)
                 if plotmin == plotmax:

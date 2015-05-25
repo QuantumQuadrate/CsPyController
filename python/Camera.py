@@ -3,7 +3,7 @@ Part of the AQuA Cesium Controller software package
 
 author=Martin Lichtman
 created=2014-01-17
-modified>=2014-01-17
+modified>=2015-05-24
 
 This file holds everything needed to model the high speed digital output from the National Instruments HSDIO card.  It communicates to LabView via the higher up LabView(Instrument) class.
 """
@@ -31,7 +31,7 @@ class Camera(Instrument):
         self.doNotSendToHardware+=['saveAsPNG','saveAsASCII']
 
 class HamamatsuC9100_13(Camera):
-    version='2014.07.16'
+    version='2015.05.24'
     forceImagesToU16=Typed(BoolProp)
     EMGain=Typed(IntRangeProp)
     analogGain=Typed(IntRangeProp)

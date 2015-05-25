@@ -3,7 +3,7 @@ Part of the AQuA Cesium Controller software package
 
 author=Martin Lichtman
 created=2013-10-08
-modified>=2013-10-08
+modified>=2015-05-24
 
 This file holds everything needed to model the high speed digital output from the National Instruments HSDIO card.  It communicates to LabView via the higher up LabView(Instrument) class.
 """
@@ -55,7 +55,7 @@ class StartTrigger(Prop):
 
 class HSDIO(Instrument):
     """A version of the HSDIO instrument that uses functionally defined waveforms."""
-    version = '2015.05.19'
+    version = '2015.05.24'
 
     numChannels = Int(32)
     resourceName = Member()

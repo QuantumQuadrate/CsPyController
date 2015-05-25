@@ -4,7 +4,7 @@ Part of the AQuA Cesium Controller software package
 
 author=Martin Lichtman
 created=2013-10-19
-modified>=2014-03-25
+modified>=2015-05-24
 
 This file holds everything to model a National Instruments DAQmx pulse output.  It communicated to LabView via the higher up LabView class.
 """
@@ -37,7 +37,7 @@ class StartTrigger(Prop):
 
 
 class DAQmxDO(Instrument):
-    version = '2015.05.19'
+    version = '2015.05.24'
     resourceName = Typed(StrProp)
     clockRate = Typed(FloatProp)
     units = Typed(FloatProp)
