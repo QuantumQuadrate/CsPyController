@@ -84,7 +84,8 @@ class HSDIO(Instrument):
         self.channels = NumpyChannels(experiment, self)
         self.triggers = ListProp('triggers', self.experiment, listElementType=ScriptTrigger, listElementName='trigger')
         self.startTrigger = StartTrigger(experiment)
-        self.properties += ['version', 'resourceName', 'clockRate', 'units', 'hardwareAlignmentQuantum', 'triggers', 'channels', 'startTrigger']
+        self.properties += ['version', 'resourceName', 'clockRate', 'units', 'hardwareAlignmentQuantum', 'triggers',
+                            'channels', 'startTrigger', 'numChannels']
         self.doNotSendToHardware += ['units']  # script and waveforms are handled specially in HSDIO.toHardware()
         self.transition_list=[]  # an empty list to store
 

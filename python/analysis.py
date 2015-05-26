@@ -1625,7 +1625,8 @@ class RetentionGraph(AnalysisWithFigure):
                     if self.ymax != '':
                         ax.set_ylim(top=float(self.ymax))
                     #add legend using the labels assigned during ax.plot() or ax.errorbar()
-                    ax.legend()
+                    ax.legend(bbox_to_anchor=(0., 1.02, 1., .102), loc=3, ncol=7, mode="expand", borderaxespad=0.)
+                    
                 super(RetentionGraph, self).updateFigure()
             except Exception as e:
                 logger.warning('Problem in RetentionGraph.updateFigure()\n{}\n{}\n'.format(e, traceback.format_exc()))
