@@ -940,7 +940,6 @@ class HistogramGrid(AnalysisWithFigure):
             logger.warning('invalid roi type {} in HistogramGrid.calculate_histogram'.format(roi_type))
             raise PauseError
 
-
     def calculate_all_histograms(self, all_shots_array):
         measurements, shots, rois = all_shots_array.shape
 
@@ -1026,7 +1025,7 @@ class HistogramGrid(AnalysisWithFigure):
                 amplitude2 = numpy.sum(y[j:]*bin_size[j:]) #area under gaussian is 1, so scale by total volume (i.e. the sum of y * step size)
                 g2 = self.gaussian1D(x, mean2, amplitude2, width2)
 
-                #find the total error
+                # find the total error
                 error = numpy.sum(numpy.abs(y-g1-g2))
                 if error < best_error:
                     best_error = error
@@ -1068,8 +1067,8 @@ class HistogramGrid(AnalysisWithFigure):
             width2 = numpy.std(above)
 
             bin_size = numpy.mean(bin_size)
-            amplitude1 = len(below) * bin_size
-            amplitude2 = len(above) * bin_size
+            amplitude1 = len(below) * np.mean(bin_size)
+            amplitude2 = len(above) * np.mean(bin_size)
 
             # find the fit error to the histogram
             x = (bin_edges[1:]+bin_edges[:-1])/2  # take center of each bin as test points (same in number as y)
@@ -1086,8 +1085,15 @@ class HistogramGrid(AnalysisWithFigure):
             best_amplitude1 = amplitude1
             best_amplitude2 = amplitude2
 
-        # calculate the loading
-        loading = best_amplitude2/(best_amplitude1+best_amplitude2)
+        # calculate the loading based on the cuts (updated if specified) and the actual atom data
+
+        total = len(ROI_sums.shape)
+        # make a boolean array of loading
+        atoms = ROI_sums >= cutoff
+        # find the loading for each roi
+        loaded = numpy.sum(atoms)
+
+        loading = loaded/total
 
         # calculalate the overlap
         # use the cumulative normal distribution function to get the overlap analytically
@@ -1102,22 +1108,6 @@ class HistogramGrid(AnalysisWithFigure):
         """Find the cutoffs analytically.  See MTL thesis for derivation."""
 
         return numpy.where(w1 == w2, self.intersection_of_two_gaussians_of_equal_width(x1, x2, w1, w2, a1, a2), self.intersection_of_two_gaussians(x1, x2, w1, w2, a1, a2))
-
-        # if numpy.any(w1 == w2):  # if true, we have to do use different equations for each element
-        #     out = numpy.zeros(x1.shape, dtype='f8')
-        #     # TODO: eliminate for loop by using numpy.where or numpy.select
-        #     for i in xrange(x1.shape[0]):
-        #         for j in xrange(x1.shape[1]):
-        #             if w1[i,j] == w2[i,j]:
-        #                 if a1[i,j] == a2[i,j]:
-        #                     out[i,j] = (x1[i,j]+x2[i,j])/2
-        #                 else:
-        #                     out[i,j] = (- x1[i,j]**2 + x2[i,j]**2 + w1[i,j]**2/2*numpy.ln(a1[i,j]/a2[i,j]))/(2*(x2[i,j]-x1[i,j]))
-        #             else:
-        #                 out[i,j] = self.intersection_of_two_gaussians(x1[i,j], x2[i,j], w1[i,j], w2[i,j], a1[i,j], a2[i,j])
-        #     return out
-        # else:
-        #     return self.intersection_of_two_gaussians(x1, x2, w1, w2, a1, a2)
 
     def intersection_of_two_gaussians_of_equal_width(self, x1, x2, w1, w2, a1, a2):
         return (- x1**2 + x2**2 + w1**2/2*numpy.log(a1/a2))/(2*(x2-x1))
@@ -1149,7 +1139,10 @@ class HistogramGrid(AnalysisWithFigure):
         ax.add_patch(patch)
 
     def two_color_histogram(self, ax, data):
+
         # plot histogram for data below the cutoff
+        # It is intentional that len(x1)=len(y1)+1 and len(x2)=len(y2)+1 because y=0 is added at the beginning and
+        # end of the below and above segments when plotted in histogram_patch, and we require 1 more x point than y.
         x = data['bin_edges']
         x1 = x[x < data['cutoff']]  # take only data below the cutoff
         xc = len(x1)
@@ -1164,7 +1157,7 @@ class HistogramGrid(AnalysisWithFigure):
             self.histogram_patch(ax, x1, y1, 'b')  # plot the 0 atom peak in blue
         if len(x2) > 1:  # only draw if there is some data (not including cutoff)
             self.histogram_patch(ax, x2, y2, 'r')  # plot the 1 atom peak in red
-
+    
     def histogram_grid_plot(self, fig, shot, photoelectronScaling=None, exposure_time=None, font=8):
         """Plot a grid of histograms in the same shape as the ROIs."""
 
@@ -1175,7 +1168,7 @@ class HistogramGrid(AnalysisWithFigure):
         gs1 = GridSpec(rows+1, columns+1, left=0.02, bottom=0.05, top=.95, right=.98, wspace=0.2, hspace=0.75,
                        width_ratios=rows*[1]+[.25], height_ratios=columns*[1]+[.25])
 
-        #make histograms for each site
+        # make histograms for each site
         for i in xrange(rows):
             for j in xrange(columns):
                 try:
@@ -1626,7 +1619,7 @@ class RetentionGraph(AnalysisWithFigure):
                         ax.set_ylim(top=float(self.ymax))
                     #add legend using the labels assigned during ax.plot() or ax.errorbar()
                     ax.legend(bbox_to_anchor=(0., 1.02, 1., .102), loc=3, ncol=7, mode="expand", borderaxespad=0.)
-                    
+
                 super(RetentionGraph, self).updateFigure()
             except Exception as e:
                 logger.warning('Problem in RetentionGraph.updateFigure()\n{}\n{}\n'.format(e, traceback.format_exc()))
@@ -1736,6 +1729,7 @@ class Ramsey(AnalysisWithFigure):
             logger.warning('Problem in Ramsey.updateFigure()\n{}\n{}\n'.format(e, traceback.format_exc()))
 
 class RetentionAnalysis(Analysis):
+
     #Text output that can be updated back to the GUI
     enable = Bool()
     text = Str()
@@ -1781,9 +1775,9 @@ class RetentionAnalysis(Analysis):
         # find the loading for each roi
         loaded = numpy.sum(atoms[:, 0, :], axis=0)
         # find the retention for each roi
-        retained = numpy.sum(numpy.logical_and(atoms[:,0,:], atoms[:,1,:]), axis=0)
+        retained = numpy.sum(numpy.logical_and(atoms[:, 0, :], atoms[:, 1, :]), axis=0)
         # find the number of reloaded atoms
-        reloaded = numpy.sum(numpy.logical_and(numpy.logical_not(atoms[:,0,:]), atoms[:,1,:]), axis=0)
+        reloaded = numpy.sum(numpy.logical_and(numpy.logical_not(atoms[:, 0, :]), atoms[:, 1, :]), axis=0)
 
         loading = loaded/total
         retention = retained/loaded
@@ -1802,4 +1796,3 @@ class RetentionAnalysis(Analysis):
         text += '\n'.join(['\t'.join(map(lambda x: '{:.3f}'.format(x), reloading[row*columns:(row+1)*columns])) for row in xrange(rows)]) + '\n'
 
         return loaded, retained, reloaded, loading, retention, retention_sigma, reloading, text, atoms
-
