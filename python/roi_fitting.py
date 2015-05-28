@@ -44,6 +44,7 @@ class GaussianROI(AnalysisWithFigure):
     cutoffs = Member()
     subtract_background_from_sums = Bool()
     multiply_sums_by_photoelectron_scaling = Bool()
+    cutoffs_from_which_experiment = Str()
 
     def __init__(self, name, experiment, rows=7, columns=7):
         super(GaussianROI, self).__init__(name, experiment, "a gaussian fit to the regions of interest")
@@ -52,7 +53,7 @@ class GaussianROI(AnalysisWithFigure):
         self.properties += ['version', 'enable', 'useICA', 'shot', 'top', 'left', 'bottom', 'right', 'fitParams',
                             'fitCovariances', 'image_shape', 'rois', 'enable_grid_fit', 'automatically_use_rois',
                             'enable_calculate_sums', 'subtract_background', 'cutoffs', 'subtract_background_from_sums',
-                            'multiply_sums_by_photoelectron_scaling']
+                            'multiply_sums_by_photoelectron_scaling', 'cutoffs_from_which_experiment']
 
     # define functions for a gaussian with various degrees of freedom
 

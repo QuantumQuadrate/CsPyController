@@ -5,9 +5,7 @@ logger = logging.getLogger(__name__)
 
 from cs_errors import PauseError
 
-from atom.api import Bool, Typed, Str, Member, List, Int, observe, Float
-from instrument_property import Prop
-import cs_evaluate
+import threading, numpy, traceback, os, datetime
 
 #MPL plotting
 import matplotlib as mpl
@@ -21,12 +19,15 @@ from mpl_toolkits.axes_grid1 import make_axes_locatable
 #from matplotlib.backends.backend_pdf import PdfPages
 from enaml.application import deferred_call
 
-import threading, numpy, traceback, os
+from atom.api import Bool, Typed, Str, Member, List, Int, observe, Float
 np = numpy
 from scipy.optimize import curve_fit
 from scipy.special import erf
 
 from colors import my_cmap, green_cmap
+
+from instrument_property import Prop
+import cs_evaluate
 
 
 def mpl_rectangle(ax, ROI):
@@ -594,6 +595,7 @@ class SquareROIAnalysis(AnalysisWithFigure):
     #left, top, right, bottom, threshold = (0, 1, 2, 3, 4)  # column ordering of ROI boundaries in each ROI in ROIs
     loadingArray = Member()
     enable = Bool()
+    cutoffs_from_which_experiment = Str()
 
     def __init__(self, experiment, ROI_rows=1, ROI_columns=1):
         super(SquareROIAnalysis, self).__init__('SquareROIAnalysis', experiment, 'Does analysis on square regions of interest')
@@ -602,7 +604,7 @@ class SquareROIAnalysis(AnalysisWithFigure):
         self.ROI_columns = ROI_columns
         dtype = [('left', numpy.uint16), ('top', numpy.uint16), ('right', numpy.uint16), ('bottom', numpy.uint16), ('threshold', numpy.uint32)]
         self.ROIs = numpy.zeros(ROI_rows*ROI_columns, dtype=dtype)  # initialize with a blank array
-        self.properties += ['version', 'ROIs', 'filter_level', 'enable']
+        self.properties += ['version', 'ROIs', 'filter_level', 'enable', 'cutoffs_from_which_experiment']
 
     def sum(self, roi, shot):
         return numpy.sum(shot[roi['top']:roi['bottom'], roi['left']:roi['right']])
@@ -826,6 +828,7 @@ class HistogramGrid(AnalysisWithFigure):
     calculate_new_cutoffs = Bool()
     automatically_use_cutoffs = Bool()
     cutoff_shot_mapping = Str()
+    cutoffs_from_which_experiment = Str()
 
     def __init__(self, name, experiment, description=''):
         super(HistogramGrid, self).__init__(name, experiment, description)
@@ -911,7 +914,7 @@ class HistogramGrid(AnalysisWithFigure):
                     photoelectronScaling = self.experiment.LabView.camera.photoelectronScaling.value
                 else:
                     photoelectronScaling = None
-                self.histogram_grid_plot(fig, self.shot, photoelectronScaling=photoelectronScaling, exposure_time=self.experiment.LabView.camera.exposureTime.value)
+                self.histogram_grid_plot(fig, self.shot, photoelectronScaling=photoelectronScaling, exposure_time=self.experiment.LabView.camera.exposureTime.value, )
 
             super(HistogramGrid, self).updateFigure()
 
@@ -923,10 +926,13 @@ class HistogramGrid(AnalysisWithFigure):
         the whole ROI array is first copied, then updated, then written back to the squareROIAnalysis
         or gaussian_roi."""
 
+        experiment_timestamp = datetime.datetime.fromtimestamp(self.timeStarted).strftime('%Y_%m_%d_%H_%M_%S')
+
         if self.roi_type == 0:  # square ROI
             a = self.experiment.squareROIAnalysis.ROIs.copy()
             a['threshold'] = self.histogram_results[self.cutoff_shot_mapping[0]]['cutoff']
             self.experiment.squareROIAnalysis.set_gui({'ROIs': a})
+            self.experiment.squareROIAnalysis.cutoffs_from_which_experiment = experiment_timestamp
         elif self.roi_type == 1:  # gaussian ROI
             self.experiment.gaussian_roi.cutoffs = np.zeros(self.histogram_results['cutoff'].shape)
             try:
@@ -936,6 +942,7 @@ class HistogramGrid(AnalysisWithFigure):
                 return
             for i, x in enumerate(mapping):
                 self.experiment.gaussian_roi.cutoffs[i] = self.histogram_results['cutoff'][x]
+            self.experiment.gaussian_roi.cutoffs_from_which_experiment = experiment_timestamp
         else:
             logger.warning('invalid roi type {} in HistogramGrid.calculate_histogram'.format(roi_type))
             raise PauseError
@@ -973,6 +980,18 @@ class HistogramGrid(AnalysisWithFigure):
 
                 self.histogram_results[shot, roi] = self.calculate_histogram(roidata, self.bins, cutoff)
                 # these all have the same number of measurements, so they will all have the same size
+
+        # make a note of which cutoffs were used
+        if self.calculate_new_cutoffs:
+            self.cutoffs_from_which_experiment = datetime.datetime.fromtimestamp(self.timeStarted).strftime('%Y_%m_%d_%H_%M_%S')
+        else:
+            if self.roi_type == 0:  # square ROI
+            self.cutoffs_from_which_experiment = self.experiment.squareROIAnalysis.cutoffs_from_which_experiment
+            elif self.roi_type == 1:  # gaussian ROI
+                self.cutoffs_from_which_experiment = self.experiment.gaussian_roi.cutoffs_from_which_experiment
+            else:
+                logger.warning('invalid roi type {} in HistogramGrid.calculate_histogram'.format(roi_type))
+                raise PauseError
 
         # find the min and max
         self.x_min = numpy.nanmin(all_shots_array)
@@ -1157,7 +1176,7 @@ class HistogramGrid(AnalysisWithFigure):
             self.histogram_patch(ax, x1, y1, 'b')  # plot the 0 atom peak in blue
         if len(x2) > 1:  # only draw if there is some data (not including cutoff)
             self.histogram_patch(ax, x2, y2, 'r')  # plot the 1 atom peak in red
-    
+
     def histogram_grid_plot(self, fig, shot, photoelectronScaling=None, exposure_time=None, font=8):
         """Plot a grid of histograms in the same shape as the ROIs."""
 
@@ -1263,10 +1282,11 @@ class HistogramGrid(AnalysisWithFigure):
 
         # add note about photoelectron scaling and exposure time
         if photoelectronScaling is not None:
-            fig.text(.05,.985,'scaling applied = {} photoelectrons/count'.format(photoelectronScaling))
+            fig.text(.05, .985,'scaling applied = {} photoelectrons/count'.format(photoelectronScaling))
         if exposure_time is not None:
-            fig.text(.05,.97,'exposure_time = {} s'.format(exposure_time))
-
+            fig.text(.05, .97,'exposure_time = {} s'.format(exposure_time))
+        fig.text(.05, .955,'cutoffs from {}'.format(self.cutoffs_from_which_experiment))
+        fig.text(.05, .94, 'target # measurements = {}'.format(self.experiment.measurementsPerIteration))
 
 class MeasurementsGraph(AnalysisWithFigure):
     """Plots a region of interest sum after every measurement"""
