@@ -19,7 +19,7 @@ from matplotlib.patches import Ellipse
 from matplotlib.gridspec import GridSpec
 from sklearn.decomposition import FastICA
 from scipy.optimize import curve_fit
-from atom.api import Bool, Float, Member, Int
+from atom.api import Bool, Float, Member, Int, Str
 from analysis import AnalysisWithFigure
 
 class GaussianROI(AnalysisWithFigure):

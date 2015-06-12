@@ -986,7 +986,7 @@ class HistogramGrid(AnalysisWithFigure):
             self.cutoffs_from_which_experiment = datetime.datetime.fromtimestamp(self.timeStarted).strftime('%Y_%m_%d_%H_%M_%S')
         else:
             if self.roi_type == 0:  # square ROI
-            self.cutoffs_from_which_experiment = self.experiment.squareROIAnalysis.cutoffs_from_which_experiment
+                self.cutoffs_from_which_experiment = self.experiment.squareROIAnalysis.cutoffs_from_which_experiment
             elif self.roi_type == 1:  # gaussian ROI
                 self.cutoffs_from_which_experiment = self.experiment.gaussian_roi.cutoffs_from_which_experiment
             else:
