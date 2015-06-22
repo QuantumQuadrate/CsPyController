@@ -8,7 +8,7 @@ import traceback
 from atom.api import Member
 
 # Bring in other files in this package
-import functional_waveforms, analysis, save2013style, TTL, LabView, DDS, roi_fitting, picomotors, andor, picam, DCNoiseEater, Laird_temperature, AnalogInput
+import functional_waveforms, analysis, save2013style, TTL, LabView, DDS, roi_fitting, aerotech, picomotors, andor, picam, DCNoiseEater, Laird_temperature, AnalogInput
 from experiments import Experiment
 
 
@@ -16,6 +16,7 @@ class AQuA(Experiment):
     """A subclass of Experiment which knows about all our particular hardware"""
 
     picomotors = Member()
+    aerotech = Member()
     Andor = Member()
     PICam = Member()
     LabView = Member()
@@ -58,6 +59,7 @@ class AQuA(Experiment):
 
         # instruments
         self.functional_waveforms = functional_waveforms.FunctionalWaveforms('functional_waveforms', self, 'Waveforms for HSDIO, DAQmx DIO, and DAQmx AO; defined as functions')
+        self.aerotech = aerotech.Aerotechs('aerotechs', self, 'Aerotech Ensemble')
         self.picomotors = picomotors.Picomotors('picomotors', self, 'Newport Picomotors')
         self.Andor = andor.Andor('Andor', self, 'Andor Luca Camera')
         self.PICam = picam.PICam('PICam', self, 'Princeton Instruments Camera')
@@ -103,7 +105,7 @@ class AQuA(Experiment):
                           self.andor_viewer, self.picam_viewer, self.DC_noise_eater_graph, self.DC_noise_eater_filter,
                           self.Ramsey, self.retention_analysis, self.retention_graph, self.save_notes,
                           self.save2013Analysis]
-        self.properties += ['functional_waveforms', 'LabView', 'functional_waveforms_graph', 'DDS', 'picomotors',
+        self.properties += ['functional_waveforms', 'LabView', 'functional_waveforms_graph', 'DDS', 'aerotechs', 'picomotors',
                             'Andor', 'PICam', 'DC_noise_eaters', 'box_temperature', 'squareROIAnalysis', 'gaussian_roi',
                             'TTL_filters', 'AI_graph', 'AI_filter', 'loading_filters', 'first_measurements_filter',
                             'imageSumAnalysis', 'recent_shot_analysis', 'shotBrowserAnalysis', 'histogramAnalysis',

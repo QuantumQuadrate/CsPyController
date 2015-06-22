@@ -2973,6 +2973,70 @@ enamldef Optimizer(Window):
                     constraints << [(height==150*(len(experiment.independentVariables)+1))|'strong'] #,(width==1000)|'strong']
                     figure << analysis.figure
 
+enamldef Aerotechs(Window):
+    attr aerotechs
+
+    title = 'Aerotech'
+    style_class << 'valid' if experiment.valid else 'invalid'
+    Container:
+        padding = 0
+        style_class << 'valid' if experiment.valid else 'invalid'
+        ScrollArea:
+            style_class << 'valid' if experiment.valid else 'invalid'
+            Container:
+                style_class << 'valid' if experiment.valid else 'invalid'
+
+                Container:
+                    hug_width = 'strong'
+                    hug_height = 'strong'
+                    Form:
+                        hug_width = 'strong'
+                        hug_height = 'strong'
+                        Label:
+                            text = 'enable'
+                        CheckBox:
+                            checked := aerotechs.enable
+                        Label:
+                            text = 'IP Address'
+                        Field:
+                            text := aerotechs.IP
+                        Label:
+                            text = 'port'
+                        IntField:
+                            value := aerotechs.port
+
+                    IndexedContainer:
+                        iterable << aerotechs.motors
+                        viewType = Aerotech                    
+                    
+enamldef Aerotech(Container):
+    attr item
+
+    hug_width = 'strong'
+    hug_height = 'strong'
+
+    Container:
+        hug_width = 'strong'
+        hug_height = 'strong'
+        EvalProp:
+            prop << item.Xi 
+        EvalProp:
+            prop << item.Xend 
+        EvalProp:
+            prop << item.Xvmx 
+        EvalProp:
+            prop << item.Xamx 
+        EvalProp:
+            prop << item.Zi 
+        EvalProp:
+            prop << item.Zend 
+        EvalProp:
+            prop << item.Zvmx 
+        EvalProp:
+            prop << item.Zamx 
+        EvalProp:
+            prop << item.XretTrig             
+                    
 enamldef Picomotor(Container):
     attr item
 
@@ -3176,6 +3240,7 @@ window_dictionary = {'':'',
                      'Arroyo': 'Arroyo(experiment = main.experiment)',
                      'PI Piezo': 'PI_Piezo(piezo = main.experiment.LabView.piezo)',
                      'Picomotors': 'Picomotors(picomotors = main.experiment.picomotors)',
+                     'Aerotech': 'Aerotechs(aerotechs = main.experiment.aerotechs)',
                      'Live Images': 'MultiImage(experiment = main.experiment, analysis0 = main.experiment.recent_shot_analysis, analysis2 = main.experiment.imageSumAnalysis, analysis3 = main.experiment.text_analysis)',
                      'Image Browser': 'ImageBrowser(experiment = main.experiment, analysis1 = main.experiment.shotBrowserAnalysis)',
                      'Square ROI':  'SquareROIContainer(experiment = main.experiment, analysis = main.experiment.squareROIAnalysis)',
