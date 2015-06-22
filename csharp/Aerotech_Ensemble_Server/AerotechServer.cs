@@ -1,19 +1,13 @@
-﻿// Picomotor_server.cs
+﻿// AerotechServer.cs
 // Part of the AQuA control software by Martin Lichtman.
 
-// This is a simple server to allow control of Newport Picomotors via TCP.
-// Written in C# because the Picomotor drivers are .NET assemblies, which means either using
-// .NET for python (which I was unable to install), or IronPython (which is slower and because of
-// parameters passed as ref is not exactly the same syntax as python anyway, and so does not have an
-// advantage), or in a .NET language such as C# (which was advantageous because of the examples available.)
-// Based on RelativeMove.cs example from Newport, and on the Synchronous Socket Server Example 
-// from Microsoft at http://msdn.microsoft.com/en-us/library/6y0e13d3(v=vs.110).aspx
+// This is a simple server to allow control of Aerotech Ensemble translation stages via TCP.
+// Written in C# because the Aerotech drivers are .NET assemblies.
+// Based on Picomotor_server.cs by Martin Lichtman.
 
-// Note this project must be set to compile with .NET 4, not .NET 4.5, otherwise it will not find any devices.
-
-// author = Martin Lichtman 
-// created = 2014.06.26
-// modified >= 2014.07.09
+// author = Donald Booth
+// created = 2015.06.22
+// modified >= 2015.06.22
 
 using System;
 using System.Collections.Generic;
@@ -53,6 +47,7 @@ class AerotechServer
 
                 Console.WriteLine("Connecting to controller...\r\n");
                 Controller myController = Controller.Connect()[0];
+             
                 
 
                 // wait for TCP connection
