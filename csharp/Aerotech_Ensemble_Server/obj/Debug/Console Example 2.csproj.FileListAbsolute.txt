@@ -1,0 +1,18 @@
+C:\Users\don\Desktop\CodeStuff\CsPyController\csharp\Aerotech_Ensemble_Server\bin\Debug\Aerotech.Common.dll
+C:\Users\don\Desktop\CodeStuff\CsPyController\csharp\Aerotech_Ensemble_Server\bin\Debug\Aerotech.Ensemble.dll
+C:\Users\don\Desktop\CodeStuff\CsPyController\csharp\Aerotech_Ensemble_Server\bin\Debug\Aerotech.Common.xml
+C:\Users\don\Desktop\CodeStuff\CsPyController\csharp\Aerotech_Ensemble_Server\bin\Debug\Aerotech.Ensemble.xml
+C:\Users\don\Desktop\CodeStuff\CsPyController\csharp\Aerotech_Ensemble_Server\obj\Debug\Console Example 2.csprojResolveAssemblyReference.cache
+C:\Users\don\Desktop\CodeStuff\CsPyController\csharp\Aerotech_Ensemble_Server\obj\Debug\Ensemble Console Example CSharp.exe
+C:\Users\don\Desktop\CodeStuff\CsPyController\csharp\Aerotech_Ensemble_Server\obj\Debug\Ensemble Console Example CSharp.pdb
+C:\Users\don\Desktop\CodeStuff\CsPyController\csharp\Aerotech_Ensemble_Server\bin\Debug\Ensemble Console Example CSharp.exe
+C:\Users\don\Desktop\CodeStuff\CsPyController\csharp\Aerotech_Ensemble_Server\bin\Debug\Ensemble Console Example CSharp.pdb
+Z:\users\DonaldBooth\CodeStuff\CsPyController\csharp\Aerotech_Ensemble_Server\obj\Debug\Ensemble Console Example CSharp.exe
+Z:\users\DonaldBooth\CodeStuff\CsPyController\csharp\Aerotech_Ensemble_Server\obj\Debug\Ensemble Console Example CSharp.pdb
+Z:\users\DonaldBooth\CodeStuff\CsPyController\csharp\Aerotech_Ensemble_Server\bin\Debug\Ensemble Console Example CSharp.exe
+Z:\users\DonaldBooth\CodeStuff\CsPyController\csharp\Aerotech_Ensemble_Server\bin\Debug\Ensemble Console Example CSharp.pdb
+Z:\users\DonaldBooth\CodeStuff\CsPyController\csharp\Aerotech_Ensemble_Server\bin\Debug\Aerotech.Common.dll
+Z:\users\DonaldBooth\CodeStuff\CsPyController\csharp\Aerotech_Ensemble_Server\bin\Debug\Aerotech.Ensemble.dll
+Z:\users\DonaldBooth\CodeStuff\CsPyController\csharp\Aerotech_Ensemble_Server\bin\Debug\Aerotech.Common.xml
+Z:\users\DonaldBooth\CodeStuff\CsPyController\csharp\Aerotech_Ensemble_Server\bin\Debug\Aerotech.Ensemble.xml
+Z:\users\DonaldBooth\CodeStuff\CsPyController\csharp\Aerotech_Ensemble_Server\obj\Debug\Console Example 2.csprojResolveAssemblyReference.cache
