@@ -6,3 +6,7 @@ previous_settings.hdf5
 *.pyc
 __enamlcache__
 cpp/Picam/projects/vs2010/bin/x64/Debug/Advanced.ilk
+csharp/Aerotech_Ensemble_Server/bin/Debug/output.txt
+csharp/Aerotech_Ensemble_Server/obj/Debug/Console Example 2.csprojResolveAssemblyReference.cache
+csharp/Aerotech_Ensemble_Server/obj/Debug/Console Example 2.csprojResolveAssemblyReference.cache
+*.cache

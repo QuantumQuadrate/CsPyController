@@ -16,4 +16,3 @@ Z:\users\DonaldBooth\CodeStuff\CsPyController\csharp\Aerotech_Ensemble_Server\bi
 Z:\users\DonaldBooth\CodeStuff\CsPyController\csharp\Aerotech_Ensemble_Server\bin\Debug\Aerotech.Common.xml
 Z:\users\DonaldBooth\CodeStuff\CsPyController\csharp\Aerotech_Ensemble_Server\bin\Debug\Aerotech.Ensemble.xml
 Z:\users\DonaldBooth\CodeStuff\CsPyController\csharp\Aerotech_Ensemble_Server\obj\Debug\Console Example 2.csprojResolveAssemblyReference.cache
-Z:\users\DonaldBooth\CodeStuff\CsPyController\csharp\Aerotech_Ensemble_Server\bin\Debug\EnsembleCore64.dll

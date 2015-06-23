@@ -53,10 +53,10 @@
   <ItemGroup>
     <Content Include="AeroBasic.dll" />
     <Content Include="AeroBasic64.dll" />
+    <Content Include="Aerotech.Common.dll" />
+    <Content Include="Aerotech.Ensemble.dll" />
     <Content Include="EnsembleCore.dll" />
-    <Content Include="EnsembleCore64.dll">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
+    <Content Include="EnsembleCore64.dll" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

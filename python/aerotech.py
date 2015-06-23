@@ -1,16 +1,16 @@
 from __future__ import division
 
 """
-picomotors.py
+aerotech.py
 
 part of the CsPyController package for AQuA experiment control by Martin Lichtman
 
-Handles sending position commands to Newport/New Focus Picomotors
+Handles sending global variable updates to the Aerotech Ensemble translation stage.
 This python code sends commands via TCP to a server running in C#, also in this package.
-The C# server then uses the .NET assembly provided by Newport to talk to the 8742 Picomotor driver.
+The C# server then uses the .NET assembly provided by Aerotech to talk to the Ensemble driver.
 
-created = 2014.07.09
-modified >= 2014.07.09
+created = 2015.06.22
+modified >= 2015.06.22
 """
 
 __author__ = 'Martin Lichtman'
