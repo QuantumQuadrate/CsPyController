@@ -18,7 +18,7 @@ import logging
 logger = logging.getLogger(__name__)
 
 from atom.api import Bool, Str, Member, Int
-from instrument_property import Prop, IntProp, ListProp
+from instrument_property import Prop, FloatProp, IntProp, ListProp
 from cs_instruments import Instrument
 import TCP
 from cs_errors import PauseError

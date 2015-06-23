@@ -16,7 +16,7 @@ class AQuA(Experiment):
     """A subclass of Experiment which knows about all our particular hardware"""
 
     picomotors = Member()
-    aerotech = Member()
+    aerotechs = Member()
     Andor = Member()
     PICam = Member()
     LabView = Member()
@@ -59,7 +59,7 @@ class AQuA(Experiment):
 
         # instruments
         self.functional_waveforms = functional_waveforms.FunctionalWaveforms('functional_waveforms', self, 'Waveforms for HSDIO, DAQmx DIO, and DAQmx AO; defined as functions')
-        self.aerotech = aerotech.Aerotechs('aerotechs', self, 'Aerotech Ensemble')
+        self.aerotechs = aerotech.Aerotechs('aerotechs', self, 'Aerotech Ensemble')
         self.picomotors = picomotors.Picomotors('picomotors', self, 'Newport Picomotors')
         self.Andor = andor.Andor('Andor', self, 'Andor Luca Camera')
         self.PICam = picam.PICam('PICam', self, 'Princeton Instruments Camera')
