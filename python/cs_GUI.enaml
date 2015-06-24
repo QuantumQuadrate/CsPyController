@@ -1950,21 +1950,20 @@ enamldef Counters(Window):
                     text='enable'
                     checked := counters.enable
                 IndexedContainer:
-                    dynamic = False
+                    dynamic = True
                     iterable << counters.counters
                     viewType = Counter
 
 
-enamldef Counter(Container):
+enamldef Counter(Form):
     attr item
 
-    Form:
-        Label: text = 'counter source'
-        Field: text := item.counter_source
-        Label: text = 'clock source'
-        Field: text := item.clock_source
-        Label: text = 'clock rate (used for internal source only) [Hz]'
-        Field: text := clock_rate
+    Label: text = 'counter source'
+    Field: text := item.counter_source
+    Label: text = 'clock source'
+    Field: text := item.clock_source
+    Label: text = 'clock rate (used for internal source only) [Hz]'
+    FloatField: value := item.clock_rate
 
 enamldef DCNoiseEaterChannel(Container):
     attr item

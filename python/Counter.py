@@ -18,7 +18,7 @@ logger = logging.getLogger(__name__)
 
 from atom.api import Str, Float, Typed
 from cs_instruments import Instrument
-from instrument_property import ListProp
+from instrument_property import Prop, ListProp
 
 class Counters(Instrument):
     version = '2015.05.11'
@@ -30,7 +30,7 @@ class Counters(Instrument):
         self.counters = ListProp('counters', experiment, listElementType=Counter, listElementName='counter')
         self.properties += ['version', 'counters']
 
-class Counter():
+class Counter(Prop):
     """ Each individual counter has a field for the signal source, clock source, and clock rate (in Hz, used only for
     internal clocking).
     """
