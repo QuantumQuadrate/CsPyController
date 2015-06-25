@@ -131,7 +131,7 @@ class AnalogOutput(Instrument):
     def toHardware(self):
         """This overwrites Instrument.toHardware in order to add in the <waveform> which is not stored as a property.
         We transpose self.values because Labview expects the waveform with shape (channels, times)."""
-        if self.enable():
+        if self.enable:
             waveformXML = ('<waveform>'+
                 '\n'.join([' '.join([str(sample) for sample in channel]) for channel in self.values.T])+
                 '</waveform>\n')
