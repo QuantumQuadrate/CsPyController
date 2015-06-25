@@ -143,12 +143,16 @@ class DAQmxDO(Instrument):
             self.states = np.zeros((0, self.numChannels), dtype=np.bool)
 
     def toHardware(self):
-        waveformXML = ('<waveform>'+
-            '<name>'+self.name+'</name>'+
-            '<transitions>'+' '.join([str(time) for time in self.indices])+'</transitions>'+
-            '<states>'+'\n'.join([' '.join([str(sample) for sample in state]) for state in self.states])+'</states>\n'+
-            '</waveform>\n')
+        if self.enable:
+            waveformXML = ('<waveform>'+
+                '<name>'+self.name+'</name>'+
+                '<transitions>'+' '.join([str(time) for time in self.indices])+'</transitions>'+
+                '<states>'+'\n'.join([' '.join([str(sample) for sample in state]) for state in self.states])+'</states>\n'+
+                '</waveform>\n')
 
-        # then upload scriptOut instead of script.toHardware, waveformXML instead of waveforms.toHardware (those toHardware methods will return an empty string and so will not interfere)
-        # then process the rest of the properties as usual
-        return '<DAQmxDO>{}\n'.format(waveformXML)+super(DAQmxDO, self).toHardware()[9:]  # [9:] removes the <DAQmxDO> on what is returned from super.toHardware
+            # then upload scriptOut instead of script.toHardware, waveformXML instead of waveforms.toHardware (those toHardware methods will return an empty string and so will not interfere)
+            # then process the rest of the properties as usual
+            return '<DAQmxDO>{}\n'.format(waveformXML)+super(DAQmxDO, self).toHardware()[9:]  # [9:] removes the <DAQmxDO> on what is returned from super.toHardware
+        else:
+            # Instrument.toHardware() will send an <enable>=False command
+            return super(DAQmxDO, self).toHardware()
