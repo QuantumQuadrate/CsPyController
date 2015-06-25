@@ -175,7 +175,7 @@ class HSDIO(Instrument):
             #build dictionary of waveforms keyed on waveform name
             waveformsInUse = []
 
-            script = ''
+            script = 'script script1\n'
             waveformXML=''
 
             #go through each transition
@@ -198,6 +198,7 @@ class HSDIO(Instrument):
                         '<transitions>'+' '.join([str(time) for time in range(self.hardwareAlignmentQuantum.value)])+'</transitions>'+  # make as many time points as the minimum necessary for hardware
                         '<states>'+'\n'.join([' '.join([str(sample) for sample in self.states[i]]) for time in range(self.hardwareAlignmentQuantum.value)])+'</states>\n' +
                         '</waveform>\n')
+            script += 'end script\n'
 
             # then upload scriptOut instead of script.toHardware, waveformXML instead of waveforms.toHardware (those toHardware methods will return an empty string and so will not interfere)
             # then process the rest of the properties as usual
