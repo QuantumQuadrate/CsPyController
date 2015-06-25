@@ -171,33 +171,37 @@ class HSDIO(Instrument):
         Only the necessary waveforms are created and passed to the HSDIO hardware.
         """
 
-        #build dictionary of waveforms keyed on waveform name
-        waveformsInUse = []
+        if self.enable:
+            #build dictionary of waveforms keyed on waveform name
+            waveformsInUse = []
 
-        script = ''
-        waveformXML=''
+            script = ''
+            waveformXML=''
 
-        #go through each transition
-        for i in xrange(len(self.indices)):
-            # for each transition, replace with a sequence of generate wXXXXXXXX, if wXXXXXXXX not in list, add wXXXXXXXX to list of necessary waveforms, create waveform and add it to waveform XML
-            singleSampleWaveformName = 'w'+''.join([str(int(j)) for j in self.states[i]])  # make a name for the waveform.  the name is w followed by the binary expression of the state
-            script += 'generate '+singleSampleWaveformName+'\n'
-            waitTime = self.index_durations[i]-self.hardwareAlignmentQuantum.value
-            if waitTime > 0:  # if we need to wait after this sample to get the correct time delay
-                if waitTime % self.hardwareAlignmentQuantum.value != 0:  # if the wait time is not a multiple of the hardwareAlignmentQuantum
-                    waitTime = (int(waitTime/self.hardwareAlignmentQuantum.value)+1)*self.hardwareAlignmentQuantum.value  # round up
-                    script += int(waitTime/536870912)*'wait 536870912\n'  # the HSDIO card cannot handle a wait value longer than this, so we repeat it as many times as necessary
-                    script += 'wait '+str(int(waitTime % 536870912))+'\n'  # add the remaining wait
-            if not singleSampleWaveformName in waveformsInUse:
-                # add waveform to those to be transferred to LabView
-                waveformsInUse += [singleSampleWaveformName]
-                # don't create a real waveform object, just its toHardware signature
-                waveformXML += ('<waveform>'+
-                    '<name>'+singleSampleWaveformName+'</name>' +
-                    '<transitions>'+' '.join([str(time) for time in range(self.hardwareAlignmentQuantum.value)])+'</transitions>'+  # make as many time points as the minimum necessary for hardware
-                    '<states>'+'\n'.join([' '.join([str(sample) for sample in self.states[i]]) for time in range(self.hardwareAlignmentQuantum.value)])+'</states>\n' +
-                    '</waveform>\n')
+            #go through each transition
+            for i in xrange(len(self.indices)):
+                # for each transition, replace with a sequence of generate wXXXXXXXX, if wXXXXXXXX not in list, add wXXXXXXXX to list of necessary waveforms, create waveform and add it to waveform XML
+                singleSampleWaveformName = 'w'+''.join([str(int(j)) for j in self.states[i]])  # make a name for the waveform.  the name is w followed by the binary expression of the state
+                script += 'generate '+singleSampleWaveformName+'\n'
+                waitTime = self.index_durations[i]-self.hardwareAlignmentQuantum.value
+                if waitTime > 0:  # if we need to wait after this sample to get the correct time delay
+                    if waitTime % self.hardwareAlignmentQuantum.value != 0:  # if the wait time is not a multiple of the hardwareAlignmentQuantum
+                        waitTime = (int(waitTime/self.hardwareAlignmentQuantum.value)+1)*self.hardwareAlignmentQuantum.value  # round up
+                        script += int(waitTime/536870912)*'wait 536870912\n'  # the HSDIO card cannot handle a wait value longer than this, so we repeat it as many times as necessary
+                        script += 'wait '+str(int(waitTime % 536870912))+'\n'  # add the remaining wait
+                if not singleSampleWaveformName in waveformsInUse:
+                    # add waveform to those to be transferred to LabView
+                    waveformsInUse += [singleSampleWaveformName]
+                    # don't create a real waveform object, just its toHardware signature
+                    waveformXML += ('<waveform>'+
+                        '<name>'+singleSampleWaveformName+'</name>' +
+                        '<transitions>'+' '.join([str(time) for time in range(self.hardwareAlignmentQuantum.value)])+'</transitions>'+  # make as many time points as the minimum necessary for hardware
+                        '<states>'+'\n'.join([' '.join([str(sample) for sample in self.states[i]]) for time in range(self.hardwareAlignmentQuantum.value)])+'</states>\n' +
+                        '</waveform>\n')
 
-        # then upload scriptOut instead of script.toHardware, waveformXML instead of waveforms.toHardware (those toHardware methods will return an empty string and so will not interfere)
-        # then process the rest of the properties as usual
-        return '<HSDIO><script>{}</script>\n<waveforms>{}</waveforms>\n'.format(script, waveformXML)+super(HSDIO, self).toHardware()[7:]  # [7:] removes the <HSDIO> on what is returned from super.toHardware
+            # then upload scriptOut instead of script.toHardware, waveformXML instead of waveforms.toHardware (those toHardware methods will return an empty string and so will not interfere)
+            # then process the rest of the properties as usual
+            return '<HSDIO><script>{}</script>\n<waveforms>{}</waveforms>\n'.format(script, waveformXML)+super(HSDIO, self).toHardware()[7:]  # [7:] removes the <HSDIO> on what is returned from super.toHardware
+        else:
+            # let Instrument.toHardware send <name><enable>False</enable><name>
+            return super(HSDIO, self).toHardware()

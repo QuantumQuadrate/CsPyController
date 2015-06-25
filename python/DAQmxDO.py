@@ -154,5 +154,5 @@ class DAQmxDO(Instrument):
             # then process the rest of the properties as usual
             return '<DAQmxDO>{}\n'.format(waveformXML)+super(DAQmxDO, self).toHardware()[9:]  # [9:] removes the <DAQmxDO> on what is returned from super.toHardware
         else:
-            # Instrument.toHardware() will send an <enable>=False command
+            # let Instrument.toHardware send <name><enable>False</enable><name>
             return super(DAQmxDO, self).toHardware()
