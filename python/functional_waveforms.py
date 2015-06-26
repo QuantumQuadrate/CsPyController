@@ -257,7 +257,8 @@ class FunctionalWaveformGraph(AnalysisWithFigure):
                 ylow = i+.1+offset
                 for j in xrange(numTransitions):
                     if states[j, i]:
-                        ax.axhspan(ylow, yhigh, relativeTimeList[j], relativeTimeList[j]+relativeDuration[j], color='gray')
+                        ax.axhspan(ylow, yhigh, relativeTimeList[j], relativeTimeList[j]+relativeDuration[j],
+                                   color='gray')
                     # if value is False, plot nothing
 
         except Exception as e:
