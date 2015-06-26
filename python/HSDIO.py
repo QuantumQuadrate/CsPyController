@@ -185,7 +185,7 @@ class HSDIO(Instrument):
                 script += 'generate '+singleSampleWaveformName+'\n'
                 waitTime = self.index_durations[i]-self.hardwareAlignmentQuantum.value
                 if waitTime > 0:  # if we need to wait after this sample to get the correct time delay
-                    if waitTime % self.hardwareAlignmentQuantum.value != 0:  # if the wait time is not a multiple of the hardwareAlignmentQuantum
+                    if (waitTime % self.hardwareAlignmentQuantum.value) != 0:  # if the wait time is not a multiple of the hardwareAlignmentQuantum
                         waitTime = (int(waitTime/self.hardwareAlignmentQuantum.value)+1)*self.hardwareAlignmentQuantum.value  # round up
                         script += int(waitTime/536870912)*'wait 536870912\n'  # the HSDIO card cannot handle a wait value longer than this, so we repeat it as many times as necessary
                         script += 'wait '+str(int(waitTime % 536870912))+'\n'  # add the remaining wait

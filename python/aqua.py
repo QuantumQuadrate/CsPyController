@@ -103,7 +103,8 @@ class AQuA(Experiment):
                           self.andor_viewer, self.picam_viewer, self.DC_noise_eater_graph, self.DC_noise_eater_filter,
                           self.Ramsey, self.retention_analysis, self.retention_graph, self.save_notes,
                           self.save2013Analysis]
-        self.properties += ['functional_waveforms', 'LabView', 'functional_waveforms_graph', 'DDS', 'picomotors',
+        
+        self.properties += ['LabView', 'functional_waveforms', 'functional_waveforms_graph', 'DDS', 'picomotors',
                             'Andor', 'PICam', 'DC_noise_eaters', 'box_temperature', 'squareROIAnalysis', 'gaussian_roi',
                             'TTL_filters', 'AI_graph', 'AI_filter', 'loading_filters', 'first_measurements_filter',
                             'imageSumAnalysis', 'recent_shot_analysis', 'shotBrowserAnalysis', 'histogramAnalysis',
