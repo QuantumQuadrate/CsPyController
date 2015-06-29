@@ -70,7 +70,7 @@ class LabView(Instrument):
         self.RF_generators = RF_generators.RF_generators(experiment)
         self.AnalogOutput = AnalogOutput.AnalogOutput(experiment)
         self.AnalogInput = AnalogInput.AnalogInput(experiment)
-        self.Counters = Counter.Counters('counters', experiment)
+        self.Counters = Counter.Counters('Counters', experiment)
         self.DAQmxDO = DAQmxDO.DAQmxDO(experiment)
         self.camera = Camera.HamamatsuC9100_13(experiment)
         self.TTL = TTL.TTL(experiment)
@@ -85,7 +85,7 @@ class LabView(Instrument):
         self.timeout = FloatProp('timeout', experiment, 'how long before LabView gives up and returns [s]', '1.0')
         
         self.properties += ['IP', 'port', 'timeout', 'AnalogOutput', 'AnalogInput', 'HSDIO',
-                            'piezo', 'RF_generators', 'DAQmxDO', 'camera', 'TTL', 'cycleContinuously']
+                            'piezo', 'RF_generators', 'DAQmxDO', 'camera', 'TTL', 'Counters', 'cycleContinuously']
         self.doNotSendToHardware += ['IP', 'port', 'enable']
 
     def openThread(self):
@@ -208,6 +208,14 @@ class LabView(Instrument):
                 except Exception as e:
                     logger.error('unable to resize counter data, check for counter/dimensions in returned data:\n'+str(e))
                     raise PauseError
+
+                # take the difference of successive elements.
+                # Set the first element always to zero.  This is tested to work correctly in case of 32-bit rollover.
+                array[0] = 0
+                array[1:] = array[1:]-array[:-1]
+
+
+
                 try:
                     hdf5[key] = array
                 except Exception as e:

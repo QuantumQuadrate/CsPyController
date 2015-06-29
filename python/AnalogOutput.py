@@ -24,7 +24,7 @@ import numpy as np
 
 
 class AnalogOutput(Instrument):
-    version = '2015.05.19'
+    version = '2015.06.29'
 
     physicalChannels = Typed(StrProp)
     minimum = Typed(FloatProp)

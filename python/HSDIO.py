@@ -200,12 +200,13 @@ class HSDIO(Instrument):
                     waveformXML += ('<waveform>'+
                         '<name>'+singleSampleWaveformName+'</name>' +
                         '<transitions>'+' '.join([str(time) for time in range(self.hardwareAlignmentQuantum.value)])+'</transitions>'+  # make as many time points as the minimum necessary for hardware
-                        '<states>'+'\n'.join([' '.join([str(sample) for sample in self.states[i]]) for time in range(self.hardwareAlignmentQuantum.value)])+'</states>\n' +
+                        '<states>'+'\n'.join([' '.join([str(int(sample)) for sample in self.states[i]]) for time in range(self.hardwareAlignmentQuantum.value)])+'</states>\n' +
                         '</waveform>\n')
             script += 'end script\n'
 
             # then upload scriptOut instead of script.toHardware, waveformXML instead of waveforms.toHardware (those toHardware methods will return an empty string and so will not interfere)
             # then process the rest of the properties as usual
+
             return '<HSDIO><script>{}</script>\n<waveforms>{}</waveforms>\n'.format(script, waveformXML)+super(HSDIO, self).toHardware()[7:]  # [7:] removes the <HSDIO> on what is returned from super.toHardware
         else:
             # let Instrument.toHardware send <name><enable>False</enable><name>
