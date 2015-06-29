@@ -64,7 +64,7 @@ class DAQmxDO(Instrument):
         self.properties += ['version', 'resourceName', 'clockRate', 'units', 'channels', 'startTrigger', 'numChannels']
         # the number of channels is defined by the resourceName (and the waveform which must agree), so
         # channels need not be send to hardware
-        self.doNotSendToHardware += ['units', 'channels']
+        self.doNotSendToHardware += ['units', 'channels', 'numChannels']
         self.transition_list = []
 
     def evaluate(self):
@@ -114,14 +114,20 @@ class DAQmxDO(Instrument):
                 # check to see if the next time is the same as the last one in the time list
                 if indices[i] == index_list[-1]:
                     # if this is a duplicate time, the latter entry overrides
-                    state_list[-1][channels[i]] = state[i]
+                    state_list[-1][channels[i]] = states[i]
                 else:
                     # If this is a new time, increase the length of time_list and state_list.
                     # Create the new state_list entry by copying the last entry.
                     index_list = np.append(index_list, indices[i])
-                    state_list.append(state_list[-1, np.newaxis], axis=0)
+                    state_list = np.append(state_list, state_list[-1, np.newaxis], axis=0)
                     # then update the last entry
                     state_list[-1, channels[i]] = states[i]
+
+            # the DAQmx hardware requires at least 2 samples
+            if len(index_list) < 2:
+                # duplicate the last sample
+                index_list = np.append(index_list, index_list[-1]+1)
+                state_list = np.append(state_list, state_list[-1, np.newaxis], axis=0)
 
             # find the duration of each segment
             durations = np.empty_like(index_list)
@@ -143,7 +149,8 @@ class DAQmxDO(Instrument):
             self.states = np.zeros((0, self.numChannels), dtype=np.bool)
 
     def toHardware(self):
-        if self.enable:
+        # Check that there is some DAQmx data to send, otherwise disable the instrument
+        if self.enable and (len(self.indices)>0):
             waveformXML = ('<waveform>'+
                 '<name>'+self.name+'</name>'+
                 '<transitions>'+' '.join([str(time) for time in self.indices])+'</transitions>'+
