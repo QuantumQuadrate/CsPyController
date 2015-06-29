@@ -8,7 +8,7 @@ import traceback
 from atom.api import Member
 
 # Bring in other files in this package
-import functional_waveforms, analysis, save2013style, TTL, LabView, DDS, roi_fitting, aerotech, picomotors, andor, picam, DCNoiseEater, Laird_temperature, AnalogInput
+import functional_waveforms, analysis, save2013style, TTL, LabView, DDS, roi_fitting, aerotech, picomotors, conex, andor, picam, DCNoiseEater, Laird_temperature, AnalogInput
 from experiments import Experiment
 
 
@@ -17,6 +17,7 @@ class AQuA(Experiment):
 
     picomotors = Member()
     aerotechs = Member()
+    conexes = Member()
     Andor = Member()
     PICam = Member()
     LabView = Member()
@@ -60,6 +61,7 @@ class AQuA(Experiment):
         # instruments
         self.functional_waveforms = functional_waveforms.FunctionalWaveforms('functional_waveforms', self, 'Waveforms for HSDIO, DAQmx DIO, and DAQmx AO; defined as functions')
         self.aerotechs = aerotech.Aerotechs('aerotechs', self, 'Aerotech Ensemble')
+        self.conexes = conex.Conexes('conexes', self, 'CONEX-CC')
         self.picomotors = picomotors.Picomotors('picomotors', self, 'Newport Picomotors')
         self.Andor = andor.Andor('Andor', self, 'Andor Luca Camera')
         self.PICam = picam.PICam('PICam', self, 'Princeton Instruments Camera')
@@ -69,7 +71,7 @@ class AQuA(Experiment):
         self.box_temperature = Laird_temperature.LairdTemperature('box_temperature', self)
         # do not include functional_waveforms in self.instruments because it need not start/stop
         self.instruments += [self.box_temperature, self.picomotors, self.Andor, self.PICam, self.DC_noise_eaters,
-                             self.LabView, self.DDS]
+                             self.LabView, self.DDS, self.aerotechs, self.conexes]
 
         # analyses
         self.functional_waveforms_graph = functional_waveforms.FunctionalWaveformGraph('functional_waveform_graph', self, 'Graph the HSDIO, DAQmx DO, and DAQmx AO settings')
@@ -105,7 +107,7 @@ class AQuA(Experiment):
                           self.andor_viewer, self.picam_viewer, self.DC_noise_eater_graph, self.DC_noise_eater_filter,
                           self.Ramsey, self.retention_analysis, self.retention_graph, self.save_notes,
                           self.save2013Analysis]
-        self.properties += ['functional_waveforms', 'LabView', 'functional_waveforms_graph', 'DDS', 'aerotechs', 'picomotors',
+        self.properties += ['functional_waveforms', 'LabView', 'functional_waveforms_graph', 'DDS', 'aerotechs', 'picomotors', 'conexes',
                             'Andor', 'PICam', 'DC_noise_eaters', 'box_temperature', 'squareROIAnalysis', 'gaussian_roi',
                             'TTL_filters', 'AI_graph', 'AI_filter', 'loading_filters', 'first_measurements_filter',
                             'imageSumAnalysis', 'recent_shot_analysis', 'shotBrowserAnalysis', 'histogramAnalysis',

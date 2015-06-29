@@ -1750,6 +1750,9 @@ enamldef PICam(Window):
                     PushButton:
                         text = 'stop video'
                         clicked :: camera.stop_video()
+                    PushButton:
+                        text = 'Start Server'
+                        clicked :: camera.start_server()
                 LabelBox:
                     text = 'enable'
                     checked := camera.enable
@@ -3036,7 +3039,73 @@ enamldef Aerotech(Container):
             prop << item.Zamx 
         EvalProp:
             prop << item.XretTrig             
+
+
+
+
+enamldef Conexes(Window):
+    attr conexes
+
+    title = 'CONEX-CC'
+    style_class << 'valid' if experiment.valid else 'invalid'
+    Container:
+        padding = 0
+        style_class << 'valid' if experiment.valid else 'invalid'
+        ScrollArea:
+            style_class << 'valid' if experiment.valid else 'invalid'
+            Container:
+                style_class << 'valid' if experiment.valid else 'invalid'
+
+                Container:
+                    hug_width = 'strong'
+                    hug_height = 'strong'
+                    Form:
+                        hug_width = 'strong'
+                        hug_height = 'strong'
+                        Label:
+                            text = 'enable'
+                        CheckBox:
+                            checked := conexes.enable
+                        Label:
+                            text = 'IP Address'
+                        Field:
+                            text := conexes.IP
+                        Label:
+                            text = 'port'
+                        IntField:
+                            value := conexes.port
+
+                    IndexedContainer:
+                        iterable << conexes.motors
+                        viewType = Conex                    
                     
+enamldef Conex(Container):
+    attr item
+
+    hug_width = 'strong'
+    hug_height = 'strong'
+
+    Container:
+        hug_width = 'strong'
+        hug_height = 'strong'
+        EvalProp:
+            prop << item.IDString
+        EvalProp:
+            prop << item.SetPos
+        Label:
+            text = 'Velocity: '
+        CheckBox:
+            checked := item.enableVel            
+        EvalProp:
+            prop << item.Vel             
+
+
+
+
+
+
+
+            
 enamldef Picomotor(Container):
     attr item
 
@@ -3241,6 +3310,7 @@ window_dictionary = {'':'',
                      'PI Piezo': 'PI_Piezo(piezo = main.experiment.LabView.piezo)',
                      'Picomotors': 'Picomotors(picomotors = main.experiment.picomotors)',
                      'Aerotech': 'Aerotechs(aerotechs = main.experiment.aerotechs)',
+                     'CONEX-CC': 'Conexes(conexes = main.experiment.conexes)',
                      'Live Images': 'MultiImage(experiment = main.experiment, analysis0 = main.experiment.recent_shot_analysis, analysis2 = main.experiment.imageSumAnalysis, analysis3 = main.experiment.text_analysis)',
                      'Image Browser': 'ImageBrowser(experiment = main.experiment, analysis1 = main.experiment.shotBrowserAnalysis)',
                      'Square ROI':  'SquareROIContainer(experiment = main.experiment, analysis = main.experiment.squareROIAnalysis)',

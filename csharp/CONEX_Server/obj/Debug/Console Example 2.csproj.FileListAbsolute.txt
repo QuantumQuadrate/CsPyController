@@ -1,0 +1,8 @@
+Z:\users\DonaldBooth\CodeStuff\CsPyController\csharp\CONEX_Server\bin\Debug\Ensemble Console Example CSharp.exe
+Z:\users\DonaldBooth\CodeStuff\CsPyController\csharp\CONEX_Server\bin\Debug\Ensemble Console Example CSharp.pdb
+Z:\users\DonaldBooth\CodeStuff\CsPyController\csharp\CONEX_Server\bin\Debug\Newport.CONEXCC.CommandInterface.dll
+Z:\users\DonaldBooth\CodeStuff\CsPyController\csharp\CONEX_Server\obj\Debug\Console Example 2.csprojResolveAssemblyReference.cache
+Z:\users\DonaldBooth\CodeStuff\CsPyController\csharp\CONEX_Server\obj\Debug\Ensemble Console Example CSharp.exe
+Z:\users\DonaldBooth\CodeStuff\CsPyController\csharp\CONEX_Server\obj\Debug\Ensemble Console Example CSharp.pdb
+Z:\users\DonaldBooth\CodeStuff\CsPyController\csharp\CONEX_Server\bin\Debug\Diagnostics.Logging.Applet.dll
+Z:\users\DonaldBooth\CodeStuff\CsPyController\csharp\CONEX_Server\bin\Debug\VCPWrap.dll

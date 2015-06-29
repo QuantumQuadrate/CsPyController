@@ -150,7 +150,10 @@ class PICam(Instrument):
         #logger.warning("Parameter {} value: {}\n".format(param,int(value)))
         return 0, int(value)
         
-        
+    def start_server(self):
+        subprocess.Popen(['..\\cpp\\Picam\\projects\\vs2010\\bin\\x64\\Release\\Advanced.exe'])
+
+    
     def start(self):
         #get images to clear out any old images
         #self.DumpImages()
@@ -216,7 +219,7 @@ class PICam(Instrument):
         self.width = self.ROI[1]
         self.height = self.ROI[4]
         self.dim = self.width*self.height
-        print "ROI values are: {} {} {} {} {} {}".format(*self.ROI)
+        #print "ROI values are: {} {} {} {} {} {}".format(*self.ROI)
         
         
     def setup_video(self, analysis):
@@ -244,7 +247,7 @@ class PICam(Instrument):
         self.setPicamParameterLongInt(c_int(PicamParameter_ReadoutCount).value,1) #run continuously until Picam_StopAcquisition is called
         #self.SetKineticCycleTime(0)  # no delay
 
-        print self.width, self.height, self.dim
+        #print self.width, self.height, self.dim
         self.data = self.CreateAcquisitionBuffer()
         analysis.setup_video(self.data)
         
@@ -366,7 +369,7 @@ class PICam(Instrument):
                 i=i+1
             #ctypes.memmove(self.c_image_array, (ctypes.c_int * len(imagedata))(*imagedata), self.width*self.height*ctypes.sizeof(ctypes.c_int))
             endtime = time.clock()
-            logger.warning("Time elapsed while copying into c_image_array: {} seconds".format(endtime-starttime))
+            logger.debug("Time elapsed while copying into c_image_array: {} seconds".format(endtime-starttime))
             return imagedata
         if (self.mode == 'idle'):
             return self.data
@@ -423,8 +426,8 @@ class PICam(Instrument):
         self.height = self.height - 1   # -2 because height gets reported as 1004 instead of 1002 for Luca
         self.ROI = [0, self.width, 1, 0, self.height, 1 ];   #setting default ROI to be full field.
         self.dim = self.width * self.height
-        print 'PICam: width {}, height {}'.format(self.width, self.height)
-        print 'PICam dim: {}'.format(self.dim)
+        #print 'PICam: width {}, height {}'.format(self.width, self.height)
+        #print 'PICam dim: {}'.format(self.dim)
         return self.width, self.height
 
     def AbortAcquisition(self):
@@ -621,7 +624,7 @@ class PICam(Instrument):
     """
     def setSingleROI(self,x,width,x_binning,y,height,y_binning):
         self.sock.sendmsg("ROI  {} {} {} {} {} {}".format(x,width,x_binning,y,height,y_binning))
-        print "Sending ROI: {} {} {} {} {} {} ".format(x,width,x_binning,y,height,y_binning)
+        #print "Sending ROI: {} {} {} {} {} {} ".format(x,width,x_binning,y,height,y_binning)
         returnedmessage = self.sock.receive()
         if (returnedmessage[0:3] != 'ACK'):
             logger.error("Error setting single ROI: message from C++ program: {}".format(returnedmessage))
