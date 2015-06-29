@@ -1750,6 +1750,9 @@ enamldef PICam(Window):
                     PushButton:
                         text = 'stop video'
                         clicked :: camera.stop_video()
+                    PushButton:
+                        text = 'Start Server'
+                        clicked :: camera.start_server()
                 LabelBox:
                     text = 'enable'
                     checked := camera.enable
