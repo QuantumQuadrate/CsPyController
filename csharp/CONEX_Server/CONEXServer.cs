@@ -292,7 +292,7 @@ class ConexServer
     static double GetPosition(String[] commandStrings, CommandInterfaceConexCC.ConexCC myController)
     {
         string errs = "";
-        double position = Convert.ToDouble(commandStrings[1]);
+        double position = 0;
         int address = 1;
         int err = myController.PA_Get(address, out position, out errs);
         return position;
