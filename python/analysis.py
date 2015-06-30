@@ -926,7 +926,7 @@ class HistogramGrid(AnalysisWithFigure):
         the whole ROI array is first copied, then updated, then written back to the squareROIAnalysis
         or gaussian_roi."""
 
-        experiment_timestamp = datetime.datetime.fromtimestamp(self.timeStarted).strftime('%Y_%m_%d_%H_%M_%S')
+        experiment_timestamp = datetime.datetime.fromtimestamp(self.experiment.timeStarted).strftime('%Y_%m_%d_%H_%M_%S')
 
         if self.roi_type == 0:  # square ROI
             a = self.experiment.squareROIAnalysis.ROIs.copy()
@@ -983,7 +983,7 @@ class HistogramGrid(AnalysisWithFigure):
 
         # make a note of which cutoffs were used
         if self.calculate_new_cutoffs:
-            self.cutoffs_from_which_experiment = datetime.datetime.fromtimestamp(self.timeStarted).strftime('%Y_%m_%d_%H_%M_%S')
+            self.cutoffs_from_which_experiment = datetime.datetime.fromtimestamp(self.experiment.timeStarted).strftime('%Y_%m_%d_%H_%M_%S')
         else:
             if self.roi_type == 0:  # square ROI
                 self.cutoffs_from_which_experiment = self.experiment.squareROIAnalysis.cutoffs_from_which_experiment
