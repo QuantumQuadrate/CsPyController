@@ -238,7 +238,7 @@ class AerotechServer
         controllerParameters.System.User.UserInteger0.Value = 1;
 
         //pause 1000 ms to sync
-        System.Threading.Thread.Sleep(1000);
+        //System.Threading.Thread.Sleep(1000);
         
     }
     

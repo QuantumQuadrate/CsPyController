@@ -22,6 +22,7 @@ from instrument_property import Prop, FloatProp, IntProp, ListProp, BoolProp, St
 from cs_instruments import Instrument
 import TCP
 from cs_errors import PauseError
+import time
 
 class Conex(Prop):
     SetPos = Member()
@@ -93,6 +94,14 @@ class Conexes(Instrument):
                     msg = i.update()
                     # send update to the conex server
                     self.socket.sendmsg(msg)
+                    self.socket.sendmsg("GetPosition")
+                    returnedmessage = self.socket.receive()
+                    curPos = float(returnedmessage)
+                    while(i.SetPos.Value - curPos > .01)
+                        time.sleep(0.1)
+                        self.socket.sendmsg("GetPosition")
+                        returnedmessage = self.socket.receive()
+                        curPos = float(returnedmessage)
             except Exception as e:
                 logger.error('Problem setting Conex positions, closing socket:\n{}\n{}\n'.format(msg, e))
                 self.socket.close()

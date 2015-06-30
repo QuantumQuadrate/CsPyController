@@ -223,6 +223,12 @@ class ConexServer
                                 Console.WriteLine("Incorrect number of arguments for SetPositionVelocity.");
                             }
                             break;
+
+
+                        case "GetPosition":
+                            double pos = GetPosition(commandStrings, CC);
+                            sendmessage(pos.ToString(),handler);
+                            break;
                         
                     }
                     
@@ -254,6 +260,13 @@ class ConexServer
 
         }
     }
+    
+    public static void sendmessage (String message, Socket handler)
+    {
+        handler.Send(Encoding.ASCII.GetBytes("MESG"));
+        handler.Send(Encoding.ASCII.GetBytes(Convert.ToString(message.Length)));
+        handler.Send(Encoding.ASCII.GetBytes(message));
+    }
 
     public static int Main(String[] args)
     {
@@ -273,8 +286,16 @@ class ConexServer
         double position = Convert.ToDouble(commandStrings[1]);
         int address = 1;
         int err = myController.PA_Set(address, position, out errs);
-        System.Threading.Thread.Sleep(4000);
         return err;
+    }
+
+    static double GetPosition(String[] commandStrings, CommandInterfaceConexCC.ConexCC myController)
+    {
+        string errs = "";
+        double position = Convert.ToDouble(commandStrings[1]);
+        int address = 1;
+        int err = myController.PA_Get(address, out position, out errs);
+        return position;
     }
 
     static int SetVelocity(String[] commandStrings, CommandInterfaceConexCC.ConexCC myController)
