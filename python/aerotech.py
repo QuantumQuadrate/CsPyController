@@ -22,6 +22,7 @@ from instrument_property import Prop, FloatProp, IntProp, ListProp
 from cs_instruments import Instrument
 import TCP
 from cs_errors import PauseError
+import subprocess
 
 class Aerotech(Prop):
     Xi = Member()
@@ -63,6 +64,10 @@ class Aerotechs(Instrument):
         self.motors = ListProp('motors', experiment, 'A list of individual Aerotech stages', listElementType=Aerotech,
                                listElementName='motor')
         self.properties += ['version', 'IP', 'port', 'motors']
+
+    def launchServer(self):
+        subprocess.Popen(["C:\\Windows\\System32\\cmd.exe","/C","..\\csharp\\Aerotech_Ensemble_Server\\bin\\Debug\\Ensemble Console Example CSharp.exe"], creationflags=subprocess.CREATE_NEW_CONSOLE)
+
 
     def preExperiment(self, hdf5):
         """Open the TCP socket"""

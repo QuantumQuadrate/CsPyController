@@ -3038,6 +3038,9 @@ enamldef Aerotechs(Window):
                             text = 'port'
                         IntField:
                             value := aerotechs.port
+                        PushButton:
+                            text = 'Launch Server'
+                            clicked :: aerotechs.launchServer()
 
                     IndexedContainer:
                         iterable << aerotechs.motors
@@ -3105,6 +3108,9 @@ enamldef Conexes(Window):
                             text = 'port'
                         IntField:
                             value := conexes.port
+                        PushButton:
+                            text = 'Launch Server'
+                            clicked :: conexes.launchServer()
 
                     IndexedContainer:
                         iterable << conexes.motors

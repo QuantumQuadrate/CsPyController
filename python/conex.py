@@ -23,6 +23,7 @@ from cs_instruments import Instrument
 import TCP
 from cs_errors import PauseError
 import time
+import subprocess
 
 class Conex(Prop):
     SetPos = Member()
@@ -62,7 +63,8 @@ class Conexes(Instrument):
                                listElementName='motor')
         self.properties += ['version', 'IP', 'port', 'motors']
 
-
+    def launchServer(self):
+        subprocess.Popen(["C:\\Windows\\System32\\cmd.exe","/C","..\\csharp\\CONEX_Server\\bin\\Debug\\Ensemble Console Example CSharp.exe"], creationflags=subprocess.CREATE_NEW_CONSOLE)
 
     def preExperiment(self, hdf5):
         """Open the TCP socket"""
