@@ -67,7 +67,7 @@ class AerotechServer
                 listener.Bind(localEndPoint);
 
                 // listen for incoming connections.
-                listener.Listen(10);
+                listener.Listen(10); 
 
                 // Start listening for connections.
                 Console.WriteLine("Waiting for a connection...");
@@ -146,9 +146,9 @@ class AerotechServer
                     
                     //Use commandStrings[0] to decide which function to run with what arguments...
                     
-                    switch (commandStrings[0])
+                    if (commandStrings[0] == "UpdateGlobals")
                     {
-                        case "UpdateGlobals":
+                            
                             if (commandStrings.Length == 10)
                             {
                                 /*Argument list (element 0 is 'UpdateGlobals'):
@@ -169,13 +169,13 @@ class AerotechServer
                                 //invalid argument list length
                                 Console.WriteLine("Incorrect number of arguments for UpdateGlobals.");
                             }
-                            break;
-                            
-                        case "WaitForGlobals":
-                            waitForGlobals(myController);
-                            break;
-                        
                     }
+                    else if (commandStrings[0] == "WaitForGlobals")        
+                    {
+                            waitForGlobals(myController);
+                    }
+                        
+                    
                     
                     
                     
