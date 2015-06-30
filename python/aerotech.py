@@ -68,6 +68,7 @@ class Aerotechs(Instrument):
         """Open the TCP socket"""
         if self.enable:
             self.socket = TCP.CsClientSock(self.IP, self.port)
+            logger.debug("Aerotech: preExperiment: sending WaitForGlobals")
             self.socket.sendmsg("WaitForGlobals")
             # TODO: add here some sort of communications check to see if it worked
 

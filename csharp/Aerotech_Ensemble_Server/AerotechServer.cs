@@ -202,15 +202,29 @@ class AerotechServer
             //close socket and retry
             if (!(handler == null))
             {
-                handler.Shutdown(SocketShutdown.Both);
-                handler.Close();
-                handler = null;
+                try
+                {
+                    handler.Shutdown(SocketShutdown.Both);
+                    handler.Close();
+                    handler = null;
+                }
+                catch (Exception e)
+                {
+                    handler = null;
+                }
             }
             if (!(listener == null))
             {
-                listener.Shutdown(SocketShutdown.Both);
-                listener.Close();
-                listener = null;
+                try
+                {
+                    listener.Shutdown(SocketShutdown.Both);
+                    listener.Close();
+                    listener = null;
+                }
+                catch (Exception e)
+                {
+                    handler = null;
+                }
             }
 
 

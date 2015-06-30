@@ -6,3 +6,11 @@ Z:\users\DonaldBooth\CodeStuff\CsPyController\csharp\CONEX_Server\obj\Debug\Ense
 Z:\users\DonaldBooth\CodeStuff\CsPyController\csharp\CONEX_Server\obj\Debug\Ensemble Console Example CSharp.pdb
 Z:\users\DonaldBooth\CodeStuff\CsPyController\csharp\CONEX_Server\bin\Debug\Diagnostics.Logging.Applet.dll
 Z:\users\DonaldBooth\CodeStuff\CsPyController\csharp\CONEX_Server\bin\Debug\VCPWrap.dll
+D:\Git Repositories\CsPyController\csharp\CONEX_Server\obj\Debug\Ensemble Console Example CSharp.exe
+D:\Git Repositories\CsPyController\csharp\CONEX_Server\obj\Debug\Ensemble Console Example CSharp.pdb
+D:\Git Repositories\CsPyController\csharp\CONEX_Server\bin\Debug\Ensemble Console Example CSharp.exe
+D:\Git Repositories\CsPyController\csharp\CONEX_Server\bin\Debug\Ensemble Console Example CSharp.pdb
+D:\Git Repositories\CsPyController\csharp\CONEX_Server\bin\Debug\Diagnostics.Logging.Applet.dll
+D:\Git Repositories\CsPyController\csharp\CONEX_Server\bin\Debug\Newport.CONEXCC.CommandInterface.dll
+D:\Git Repositories\CsPyController\csharp\CONEX_Server\bin\Debug\VCPWrap.dll
+D:\Git Repositories\CsPyController\csharp\CONEX_Server\obj\Debug\Console Example 2.csprojResolveAssemblyReference.cache

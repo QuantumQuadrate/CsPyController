@@ -164,8 +164,10 @@ class ConexServer
                                 {
                                     Console.WriteLine("Return code from init: 0");
                                     String message = "Success";
+                                    Byte[] len = BitConverter.GetBytes(message.Length);
+                                    Array.Reverse(len);
                                     handler.Send(Encoding.ASCII.GetBytes("MESG"));
-                                    handler.Send(Encoding.ASCII.GetBytes(Convert.ToString(message.Length)));
+                                    handler.Send(len);
                                     handler.Send(Encoding.ASCII.GetBytes(message));
                                 }
                             }
@@ -246,15 +248,29 @@ class ConexServer
             //close socket and retry
             if (!(handler == null))
             {
-                handler.Shutdown(SocketShutdown.Both);
-                handler.Close();
-                handler = null;
+                try
+                {
+                    handler.Shutdown(SocketShutdown.Both);
+                    handler.Close();
+                    handler = null;
+                }
+                catch (Exception e)
+                {
+                    handler = null;
+                }
             }
             if (!(listener == null))
             {
-                listener.Shutdown(SocketShutdown.Both);
-                listener.Close();
-                listener = null;
+                try
+                {
+                    listener.Shutdown(SocketShutdown.Both);
+                    listener.Close();
+                    listener = null;
+                }
+                catch (Exception e)
+                {
+                    listener = null;
+                }
             }
 
 
@@ -263,8 +279,10 @@ class ConexServer
     
     public static void sendmessage (String message, Socket handler)
     {
+        Byte[] len = BitConverter.GetBytes(message.Length);
+        Array.Reverse(len);
         handler.Send(Encoding.ASCII.GetBytes("MESG"));
-        handler.Send(Encoding.ASCII.GetBytes(Convert.ToString(message.Length)));
+        handler.Send(len);
         handler.Send(Encoding.ASCII.GetBytes(message));
     }
 

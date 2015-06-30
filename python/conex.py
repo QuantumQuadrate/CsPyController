@@ -72,7 +72,9 @@ class Conexes(Instrument):
                 for i in self.motors:
                     msg = i.initialize()
                     self.socket.sendmsg(msg)
+                    logger.debug("CONEX: Sent initialization message, waiting for response")
                     returnedmessage = self.socket.receive()
+                    logger.debug("CONEX: Received response: {}".format(returnedmessage))
                     if (returnedmessage != "Success"):
                         logger.error('Problem initializing Conex: \n{}\n'.format(returnedmessage))
                         self.isInitialized = False
@@ -105,11 +107,15 @@ class Conexes(Instrument):
                 for i in self.motors:
                     msg = i.update()
                     # send update to the conex server
+                    logger.debug("Conex: About to send update to CONEX server")
                     self.socket.sendmsg(msg)
+                    logger.debug("Conex: Sent update to CONEX server. About to ask position")
                     self.socket.sendmsg("GetPosition")
+                    logger.debug("Conex: Asked position. Waiting for response")
                     returnedmessage = self.socket.receive()
+                    logger.debug("Conex: Received response: {}".format(returnedmessage))
                     curPos = float(returnedmessage)
-                    while(i.SetPos.Value - curPos > .01):
+                    while(i.SetPos.value - curPos > .01):
                         time.sleep(0.1)
                         self.socket.sendmsg("GetPosition")
                         returnedmessage = self.socket.receive()
