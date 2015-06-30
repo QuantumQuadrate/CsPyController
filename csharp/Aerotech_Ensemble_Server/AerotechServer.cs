@@ -197,7 +197,7 @@ class AerotechServer
             }
             if (!(listener == null))
             {
-                //listener.Shutdown(SocketShutdown.Both);
+                listener.Shutdown(SocketShutdown.Both);
                 listener.Close();
                 listener = null;
             }

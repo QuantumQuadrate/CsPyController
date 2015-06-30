@@ -80,7 +80,7 @@ class Aerotechs(Instrument):
         if self.enable:
             msg = ''
             try:
-                for i in motors:
+                for i in self.motors:
                     self.socket.sendmsg("WaitForGlobals")
                     msg = i.update()
                     # send update to the aerotech server
