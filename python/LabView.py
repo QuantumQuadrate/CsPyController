@@ -217,8 +217,6 @@ class LabView(Instrument):
                 array[:, 0] = 0
                 array[:, 1:] = array[:, 1:]-array[:, :-1]
 
-
-
                 # Taking only first channel from counter!!!!
 
                 if self.experiment.counter_graph.counter_array is None:
