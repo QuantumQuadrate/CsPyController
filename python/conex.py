@@ -62,7 +62,9 @@ class Conexes(Instrument):
                                listElementName='motor')
         self.properties += ['version', 'IP', 'port', 'motors']
 
-    def initialize(self):
+
+
+    def preExperiment(self, hdf5):
         """Open the TCP socket"""
         if self.enable:
             self.socket = TCP.CsClientSock(self.IP, self.port)
@@ -83,7 +85,17 @@ class Conexes(Instrument):
 
             self.isInitialized = True
 
-    def update(self):
+
+    def postMeasurement(self, measurementresults, iterationresults, hdf5):
+        return
+
+    def postIteration(self, iterationresults, hdf5):
+        return
+
+    def postExperiment(self, hdf5):
+        return
+
+    def preIteration(self, iterationresults, hdf5):
         """
         Every iteration, send the motors updated positions.
         """
@@ -97,7 +109,7 @@ class Conexes(Instrument):
                     self.socket.sendmsg("GetPosition")
                     returnedmessage = self.socket.receive()
                     curPos = float(returnedmessage)
-                    while(i.SetPos.Value - curPos > .01)
+                    while(i.SetPos.Value - curPos > .01):
                         time.sleep(0.1)
                         self.socket.sendmsg("GetPosition")
                         returnedmessage = self.socket.receive()

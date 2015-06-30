@@ -68,8 +68,8 @@ class CounterAnalysis(AnalysisWithFigure):
 
     def analyzeMeasurement(self, measurementResults, iterationResults, experimentResults):
         if self.enable:
-                self.binned_array = np.array([self.counter_array[: ,self.drops-1:self.drops+self.bins].sum(1),
-                                              self.counter_array[: ,2*self.drops+self.bins:].sum(1)])
+                self.binned_array = np.array([self.counter_array[:, self.drops-1:self.drops+self.bins].sum(1),
+                                              self.counter_array[:, 2*self.drops+self.bins:].sum(1)])
         self.updateFigure()
 
 
