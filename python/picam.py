@@ -641,7 +641,7 @@ class PICamViewer(AnalysisWithFigure):
     artist = Member()
 
     def __init__(self, name, experiment, description=''):
-        super(PICamViewer, self).__init__(name, experiment, description)
+        super(PICamViewer, self).__init__(name, experiment, description) 
         self.properties += ['shot']
 
     def analyzeMeasurement(self, measurementResults, iterationResults, experimentResults):

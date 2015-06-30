@@ -33,7 +33,6 @@
 		<Item Name="Hamamatsu_C9100-13.lvclass" Type="LVClass" URL="../Camera/Hamamatsu_C9100-13/Hamamatsu_C9100-13.lvclass"/>
 		<Item Name="Counter.lvclass" Type="LVClass" URL="../Counter/Counter.lvclass"/>
 		<Item Name="DAQmx_DO.lvclass" Type="LVClass" URL="../DAQmx_DO/DAQmx_DO.lvclass"/>
-		<Item Name="DDS.lvclass" Type="LVClass" URL="../DDS/DDS.lvclass"/>
 		<Item Name="HSDIO.lvclass" Type="LVClass" URL="../HSDIO/HSDIO.lvclass"/>
 		<Item Name="GPIB.lvclass" Type="LVClass" URL="../GPIB/GPIB.lvclass"/>
 		<Item Name="HP83712B_RF_Generator.lvclass" Type="LVClass" URL="../GPIB/HP83712B_RF_Generator/HP83712B_RF_Generator.lvclass"/>
@@ -455,6 +454,11 @@
 				<Item Name="NI-845x SPI Script Clock Rate.vi" Type="VI" URL="/&lt;vilib&gt;/ni845x/ni845x.llb/NI-845x SPI Script Clock Rate.vi"/>
 				<Item Name="NI-845x SPI Script DIO Configure Line.vi" Type="VI" URL="/&lt;vilib&gt;/ni845x/ni845x.llb/NI-845x SPI Script DIO Configure Line.vi"/>
 				<Item Name="NI-845x SPI Script DIO Write Line.vi" Type="VI" URL="/&lt;vilib&gt;/ni845x/ni845x.llb/NI-845x SPI Script DIO Write Line.vi"/>
+				<Item Name="DAQmx Create Channel (CI-Duty Cycle).vi" Type="VI" URL="/&lt;vilib&gt;/DAQmx/create/channels.llb/DAQmx Create Channel (CI-Duty Cycle).vi"/>
+				<Item Name="DAQmx Read (Counter 1D DBL NChan 1Samp).vi" Type="VI" URL="/&lt;vilib&gt;/DAQmx/read.llb/DAQmx Read (Counter 1D DBL NChan 1Samp).vi"/>
+				<Item Name="DAQmx Read (Counter 1D U32 NChan 1Samp).vi" Type="VI" URL="/&lt;vilib&gt;/DAQmx/read.llb/DAQmx Read (Counter 1D U32 NChan 1Samp).vi"/>
+				<Item Name="DAQmx Read (Counter 2D DBL NChan NSamp).vi" Type="VI" URL="/&lt;vilib&gt;/DAQmx/read.llb/DAQmx Read (Counter 2D DBL NChan NSamp).vi"/>
+				<Item Name="DAQmx Read (Counter 2D U32 NChan NSamp).vi" Type="VI" URL="/&lt;vilib&gt;/DAQmx/read.llb/DAQmx Read (Counter 2D U32 NChan NSamp).vi"/>
 			</Item>
 			<Item Name="imaq.dll" Type="Document" URL="imaq.dll">
 				<Property Name="NI.PreserveRelativePath" Type="Bool">true</Property>
@@ -575,6 +579,7 @@
 				<Property Name="NI.PreserveRelativePath" Type="Bool">true</Property>
 			</Item>
 			<Item Name="DDS.lvlib" Type="Library" URL="../DDS/DDS Library/DDS.lvlib"/>
+			<Item Name="DDS.lvclass" Type="LVClass" URL="../DDS/DDS.lvclass"/>
 		</Item>
 		<Item Name="Build Specifications" Type="Build">
 			<Item Name="cs_server" Type="EXE">
@@ -592,7 +597,7 @@
 				<Property Name="Bld_localDestDirType" Type="Str">relativeToProject</Property>
 				<Property Name="Bld_modifyLibraryFile" Type="Bool">true</Property>
 				<Property Name="Bld_previewCacheID" Type="Str">{574B9F9D-241F-4A68-8892-A5E401941744}</Property>
-				<Property Name="Bld_version.build" Type="Int">39</Property>
+				<Property Name="Bld_version.build" Type="Int">41</Property>
 				<Property Name="Bld_version.major" Type="Int">1</Property>
 				<Property Name="Destination[0].destName" Type="Str">cs_server.exe</Property>
 				<Property Name="Destination[0].path" Type="Path">../builds/cs_server.exe</Property>
@@ -603,7 +608,7 @@
 				<Property Name="Destination[1].path" Type="Path">../builds/app_support</Property>
 				<Property Name="Destination[1].path.type" Type="Str">relativeToProject</Property>
 				<Property Name="DestinationCount" Type="Int">2</Property>
-				<Property Name="Source[0].itemID" Type="Str">{E5655C04-9E64-4D86-99F6-A5ACA82FC156}</Property>
+				<Property Name="Source[0].itemID" Type="Str">{C2B4C3E7-DAB0-41F9-B757-E91808402616}</Property>
 				<Property Name="Source[0].type" Type="Str">Container</Property>
 				<Property Name="Source[1].destinationIndex" Type="Int">0</Property>
 				<Property Name="Source[1].itemID" Type="Ref">/My Computer/Experiment.lvclass/server.vi</Property>

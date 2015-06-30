@@ -1953,21 +1953,20 @@ enamldef Counters(Window):
                     text='enable'
                     checked := counters.enable
                 IndexedContainer:
-                    dynamic = False
+                    dynamic = True
                     iterable << counters.counters
                     viewType = Counter
 
 
-enamldef Counter(Container):
+enamldef Counter(Form):
     attr item
 
-    Form:
-        Label: text = 'counter source'
-        Field: text := item.counter_source
-        Label: text = 'clock source'
-        Field: text := item.clock_source
-        Label: text = 'clock rate (used for internal source only) [Hz]'
-        Field: text := clock_rate
+    Label: text = 'counter source'
+    Field: text := item.counter_source
+    Label: text = 'clock source'
+    Field: text := item.clock_source
+    Label: text = 'clock rate (used for internal source only) [Hz]'
+    FloatField: value := item.clock_rate
 
 enamldef DCNoiseEaterChannel(Container):
     attr item
@@ -2802,6 +2801,38 @@ enamldef RetentionGraph(Window):
                 MPLCanvas:
                     figure<<analysis.figure
 
+enamldef CounterGraph(Window):
+    attr analysis
+
+    title = 'Counter Graph'
+    style_class << 'valid' if experiment.valid else 'invalid'
+    Container:
+        padding = 0
+        style_class << 'valid' if experiment.valid else 'invalid'
+        ScrollArea:
+            style_class << 'valid' if experiment.valid else 'invalid'
+            Container:
+                style_class << 'valid' if experiment.valid else 'invalid'
+
+                HGroup:
+                    align_widths = False
+                    Label:
+                        text = 'enable'
+                    CheckBox:
+                        checked := analysis.enable
+                    Label:
+                        text = 'pre-Data Bins'
+                    IntField:
+                        value := analysis.drops
+                    Label:
+                        text = 'Data Bins'
+                    IntField:
+                        value := analysis.bins
+
+                MPLCanvas:
+                    figure<<analysis.figure
+
+
 enamldef Ramsey(Window):
     attr analysis
 
@@ -3329,7 +3360,8 @@ window_dictionary = {'':'',
                      'Retention Analysis': 'RetentionAnalysis(analysis = main.experiment.retention_analysis)',
                      'Counters': 'Counters(counters = main.experiment.LabView.Counters)',
                      'Functional Waveforms': 'FunctionalWaveforms(waveforms = main.experiment.functional_waveforms)',
-                     'Functional Waveforms Graph': 'FunctionalWaveformsGraph(graph = main.experiment.functional_waveforms_graph)'
+                     'Functional Waveforms Graph': 'FunctionalWaveformsGraph(graph = main.experiment.functional_waveforms_graph)',
+                     'CounterGraph': 'CounterGraph(analysis = main.experiment.counter_graph)'
                      }
 window_keys = window_dictionary.keys()
 window_keys.sort()

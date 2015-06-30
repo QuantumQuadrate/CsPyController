@@ -34,7 +34,7 @@ class Instrument(Prop):
     isDone = Bool()
     instruments = Member()
     data = Member()
-    
+
     def __init__(self, name, experiment, description=''):
         super(Instrument, self).__init__(name, experiment, description)
         self.instruments = []
@@ -42,6 +42,19 @@ class Instrument(Prop):
         self.isDone = True
         self.data = []
         self.properties += ['enable']
+
+    def evaluate(self):
+        """Checks to see if the Instrument is enabled, before calling Prop.evaluate()"""
+        if self.enable:
+            logger.debug('{}.evaluate()'.format(self.name))
+            return super(Instrument, self).evaluate()
+
+    def toHardware(self):
+        """Checks to see if the Instrument is enabled, before calling Prop.toHardware()"""
+        if self.enable:
+            return super(Instrument, self).toHardware()
+        else:
+            return '<{}><enable>False</enable></{}>'.format(self.name, self.name)
 
     def update(self):
         """Sends current settings to the instrument.  This function is run at the beginning of every new iteration.
@@ -246,10 +259,3 @@ class TCP_Instrument(Instrument):
         self.results = results
         self.isDone = True
         return results
-
-    def evaluate(self):
-        if self.experiment.allow_evaluation:
-            logger.debug('{}.evaluate()'.format(self.name))
-            return super(TCP_Instrument, self).evaluate()
-
-
