@@ -47,8 +47,19 @@ class AerotechServer
 
                 Console.WriteLine("Connecting to controller...\r\n");
                 Controller myController = Controller.Connect()[0];
-             
-                
+
+                if (!(handler == null))
+                {
+                    handler.Shutdown(SocketShutdown.Both);
+                    handler.Close();
+                    handler = null;
+                }
+                if (!(listener == null))
+                {
+                    listener.Shutdown(SocketShutdown.Both);
+                    listener.Close();
+                    listener = null;
+                }
 
                 // wait for TCP connection
 

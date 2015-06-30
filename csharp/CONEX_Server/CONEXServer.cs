@@ -246,7 +246,7 @@ class ConexServer
             }
             if (!(listener == null))
             {
-                //listener.Shutdown(SocketShutdown.Both);
+                listener.Shutdown(SocketShutdown.Both);
                 listener.Close();
                 listener = null;
             }
@@ -273,6 +273,7 @@ class ConexServer
         double position = Convert.ToDouble(commandStrings[1]);
         int address = 1;
         int err = myController.PA_Set(address, position, out errs);
+        System.Threading.Thread.Sleep(4000);
         return err;
     }
 
