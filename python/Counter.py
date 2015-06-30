@@ -68,8 +68,8 @@ class CounterAnalysis(AnalysisWithFigure):
 
     def analyzeMeasurement(self, measurementResults, iterationResults, experimentResults):
         if self.enable:
-                self.binned_array = np.array([[self.counter_array[: ,self.drops-1:self.drops+self.bins].sum(1),
-                                              self.counter_array[: ,2*self.drops+self.bins:].sum(1)]])
+                self.binned_array = np.array([self.counter_array[: ,self.drops-1:self.drops+self.bins].sum(1),
+                                              self.counter_array[: ,2*self.drops+self.bins:].sum(1)])
         self.updateFigure()
 
 
@@ -96,7 +96,7 @@ class CounterAnalysis(AnalysisWithFigure):
                     ax.set_title('Iteration average') #Average over all shots/iteration
 
                     ax = fig.add_subplot(223)
-                    ax.plot(self.binned_array[0].transpose(),'.')
+                    ax.plot(self.binned_array.transpose(),'.')
 
 
 
@@ -104,7 +104,8 @@ class CounterAnalysis(AnalysisWithFigure):
                     ax.set_title('Binned Data')
 
                     ax = fig.add_subplot(224)
-                    ax.hist(self.binned_array[0,0], bins=40, histtype='step')
+                    ax.hist(self.binned_array[0], bins=40, histtype='step')
+                    ax.hist(self.binned_array[1], bins=40, histtype='step')
 
 
                     super(CounterAnalysis, self).updateFigure()
