@@ -211,10 +211,20 @@ class LabView(Instrument):
 
                 # take the difference of successive elements.
                 # Set the first element always to zero.  This is tested to work correctly in case of 32-bit rollover.
-                array[0] = 0
-                array[1:] = array[1:]-array[:-1]
 
 
+
+                array[:, 0] = 0
+                array[:, 1:] = array[:, 1:]-array[:, :-1]
+
+
+
+                # Taking only first channel from counter!!!!
+
+                if self.experiment.counter_graph.counter_array is None:
+                    self.experiment.counter_graph.counter_array = numpy.array([array[0]])
+                else:
+                    self.experiment.counter_graph.counter_array = numpy.append(self.experiment.counter_graph.counter_array, array[0][numpy.newaxis], axis=0)
 
                 try:
                     hdf5[key] = array
