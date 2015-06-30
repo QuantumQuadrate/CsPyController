@@ -64,16 +64,26 @@ class Aerotechs(Instrument):
                                listElementName='motor')
         self.properties += ['version', 'IP', 'port', 'motors']
 
-    def initialize(self):
+    def preExperiment(self, hdf5):
         """Open the TCP socket"""
         if self.enable:
             self.socket = TCP.CsClientSock(self.IP, self.port)
-
+            self.socket.sendmsg("WaitForGlobals")
             # TODO: add here some sort of communications check to see if it worked
 
             self.isInitialized = True
 
-    def update(self):
+    def postMeasurement(self, measurementresults, iterationresults, hdf5):
+        return
+
+    def postIteration(self, iterationresults, hdf5):
+        self.socket.sendmsg("WaitForGlobals")
+        return
+
+    def postExperiment(self, hdf5):
+        return
+
+    def preIteration(self, iterationresults, hdf5):
         """
         Every iteration, send the motors updated positions.
         """
@@ -81,7 +91,6 @@ class Aerotechs(Instrument):
             msg = ''
             try:
                 for i in self.motors:
-                    self.socket.sendmsg("WaitForGlobals")
                     msg = i.update()
                     # send update to the aerotech server
                     self.socket.sendmsg(msg)

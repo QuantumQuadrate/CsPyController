@@ -72,7 +72,7 @@ class AQuA(Experiment):
         self.box_temperature = Laird_temperature.LairdTemperature('box_temperature', self)
         # do not include functional_waveforms in self.instruments because it need not start/stop
         self.instruments += [self.box_temperature, self.picomotors, self.Andor, self.PICam, self.DC_noise_eaters,
-                             self.LabView, self.DDS, self.aerotechs, self.conexes]
+                             self.LabView, self.DDS]
 
         # analyses
         self.functional_waveforms_graph = functional_waveforms.FunctionalWaveformGraph('functional_waveform_graph', self, 'Graph the HSDIO, DAQmx DO, and DAQmx AO settings')
@@ -108,7 +108,7 @@ class AQuA(Experiment):
                           self.histogramAnalysis, self.histogram_grid, self.measurements_graph, self.iterations_graph,
                           self.andor_viewer, self.picam_viewer, self.DC_noise_eater_graph, self.DC_noise_eater_filter,
                           self.Ramsey, self.retention_analysis, self.retention_graph, self.counter_graph,
-                          self.save_notes, self.save2013Analysis]
+                          self.save_notes, self.save2013Analysis, self.aerotechs, self.conexes]
         
         self.properties += ['functional_waveforms', 'LabView', 'functional_waveforms_graph', 'DDS', 'aerotechs', 'picomotors', 'conexes',
                             'Andor', 'PICam', 'DC_noise_eaters', 'box_temperature', 'squareROIAnalysis', 'gaussian_roi',
