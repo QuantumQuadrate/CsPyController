@@ -89,6 +89,9 @@ class Aerotechs(Instrument):
     def postExperiment(self, hdf5):
         return
 
+    def finalize(self,hdf5):
+        return
+
     def preIteration(self, iterationresults, hdf5):
         """
         Every iteration, send the motors updated positions.

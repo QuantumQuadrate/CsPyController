@@ -37,7 +37,7 @@ class Conex(Prop):
         self.SetPos = FloatProp('SetPos', experiment, 'Set position (mm)','0')
         #self.enableVel = BoolProp('enableVel', experiment, '', '0')
         self.Vel = FloatProp('Vel', experiment, 'Velocity (mm/s)','0')
-        self.properties += ['SetPos', 'enableVel', 'Vel']
+        self.properties += ['SetPos', 'enableVel', 'Vel', "IDString"]
 
         
     def initialize(self):
@@ -97,6 +97,10 @@ class Conexes(Instrument):
         return
 
     def postExperiment(self, hdf5):
+        return
+
+    def finalize(self, hdf5):
+        self.socket.close()
         return
 
     def preIteration(self, iterationresults, hdf5):
