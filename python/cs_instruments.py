@@ -130,7 +130,8 @@ class TCP_Instrument(Instrument):
         self.sock = None
         self.connected = False
 
-        self.timeout = FloatProp('timeout', experiment, 'how long before TCP gives up [s]', '1.0')
+        # NOTE: I suspect that the python.socket documentation is wrong, and that this setting is really in [ms] not [s]
+        self.timeout = FloatProp('timeout', experiment, 'how long before TCP gives up [s]', '10.0')
 
         self.properties += ['IP', 'port', 'timeout']
         self.doNotSendToHardware += ['IP', 'port', 'timeout']
