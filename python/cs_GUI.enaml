@@ -3134,7 +3134,9 @@ enamldef Conex(Container):
         CheckBox:
             checked := item.enableVel            
         EvalProp:
-            prop << item.Vel             
+            prop << item.Vel     
+        EvalProp:
+            prop << item.Threshold
 
 
 

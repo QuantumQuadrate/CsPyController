@@ -30,14 +30,15 @@ class Conex(Prop):
     Vel = Member()
     enableVel = Bool()
     IDString = Member()
+    Threshold = Member()
 
     def __init__(self, name, experiment, description=''):
         super(Conex, self).__init__(name, experiment, description)
         self.IDString = StrProp('IDString', experiment, 'Instrument Key','0')
         self.SetPos = FloatProp('SetPos', experiment, 'Set position (mm)','0')
-        #self.enableVel = BoolProp('enableVel', experiment, '', '0')
         self.Vel = FloatProp('Vel', experiment, 'Velocity (mm/s)','0')
-        self.properties += ['SetPos', 'enableVel', 'Vel', "IDString"]
+        self.Threshold = FloatProp('PositionThreshold', experiment, 'Threshold for Position (mm)','0')
+        self.properties += ['SetPos', 'enableVel', 'Vel', "IDString",'PositionThreshold']
 
         
     def initialize(self):
@@ -121,7 +122,7 @@ class Conexes(Instrument):
                     returnedmessage = self.socket.receive()
                     logger.debug("Conex: Received response: {}".format(returnedmessage))
                     curPos = float(returnedmessage)
-                    while(i.SetPos.value - curPos > .01):
+                    while(abs(i.SetPos.value - curPos) > i.Threshold.value):  #loop until the error is less than threshold
                         time.sleep(0.1)
                         self.socket.sendmsg("GetPosition")
                         returnedmessage = self.socket.receive()
