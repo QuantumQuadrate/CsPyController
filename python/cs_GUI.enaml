@@ -1881,6 +1881,8 @@ enamldef AnalogInput(Window):
                     prop << AI.triggerSource
                 EvalProp:
                     prop << AI.triggerEdge
+                EvalProp:
+                    prop << AI.ground_mode
                 NumpyAOchannels:
                     channels<<AI.channels
 
