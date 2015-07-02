@@ -1010,9 +1010,14 @@ class HistogramGrid(AnalysisWithFigure):
         return self.gaussian1D(x, x0, a0, w0) + self.gaussian1D(x, x1, a1, w1)
 
     def calculate_histogram(self, ROI_sums, bins, cutoff=None):
-        """Takes in ROI_sums which is size (measurements) and contains the data to be histogrammed.
         """
+        Takes a single histogram.
 
+        :param ROI_sums: the data to be histogrammed.  Length = number of measurements
+        :param bins: the number of histogram bins to make
+        :param cutoff: The cutoff to use.  If None, a new cutoff will be calculated.
+        :return: a tuple of histogram results
+        """
         # first numerically take histograms
         hist, bin_edges = numpy.histogram(ROI_sums, bins=bins)
         bin_size = (bin_edges[1:]-bin_edges[:-1])
@@ -1106,7 +1111,7 @@ class HistogramGrid(AnalysisWithFigure):
 
         # calculate the loading based on the cuts (updated if specified) and the actual atom data
 
-        total = len(ROI_sums.shape)
+        total = len(ROI_sums)
         # make a boolean array of loading
         atoms = ROI_sums >= cutoff
         # find the loading for each roi
@@ -1282,11 +1287,11 @@ class HistogramGrid(AnalysisWithFigure):
 
         # add note about photoelectron scaling and exposure time
         if photoelectronScaling is not None:
-            fig.text(.05, .985,'scaling applied = {} photoelectrons/count'.format(photoelectronScaling))
+            fig.text(.05, .985, 'scaling applied = {} photoelectrons/count'.format(photoelectronScaling))
         if exposure_time is not None:
-            fig.text(.05, .97,'exposure_time = {} s'.format(exposure_time))
-        fig.text(.05, .955,'cutoffs from {}'.format(self.cutoffs_from_which_experiment))
-        fig.text(.05, .94, 'target # measurements = {}'.format(self.experiment.measurementsPerIteration))
+            fig.text(.1, .985, 'exposure_time = {} ms'.format(exposure_time/1000.0))
+        fig.text(.05, .97, 'cutoffs from {}, target # measurements = {}'.format(
+            self.cutoffs_from_which_experiment, self.experiment.measurementsPerIteration))
 
 class MeasurementsGraph(AnalysisWithFigure):
     """Plots a region of interest sum after every measurement"""
