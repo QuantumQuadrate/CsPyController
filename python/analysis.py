@@ -1286,12 +1286,13 @@ class HistogramGrid(AnalysisWithFigure):
             fontsize=font)
 
         # add note about photoelectron scaling and exposure time
+        figtext = 'cutoffs from {}, target # measurements = {}'.format(
+            self.cutoffs_from_which_experiment, self.experiment.measurementsPerIteration)
         if photoelectronScaling is not None:
-            fig.text(.05, .985, 'scaling applied = {} photoelectrons/count'.format(photoelectronScaling))
+            figtext += ', scaling applied = {} photoelectrons/count'.format(photoelectronScaling)
         if exposure_time is not None:
-            fig.text(.1, .985, 'exposure_time = {} ms'.format(exposure_time/1000.0))
-        fig.text(.05, .97, 'cutoffs from {}, target # measurements = {}'.format(
-            self.cutoffs_from_which_experiment, self.experiment.measurementsPerIteration))
+            figtext += ', exposure_time = {} ms'.format(exposure_time/1000.0)
+        fig.text(.05, .985, figtext)
 
 class MeasurementsGraph(AnalysisWithFigure):
     """Plots a region of interest sum after every measurement"""
