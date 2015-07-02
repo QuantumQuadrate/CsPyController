@@ -107,7 +107,7 @@ class TCP_Instrument(Instrument):
     """
 
     port = Member()
-    IP = Str()
+    IP = Str('localhost')
     connected = Member()
     msg = Str()
     results = Member()
