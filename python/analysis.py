@@ -1148,13 +1148,13 @@ class HistogramGrid(AnalysisWithFigure):
         #   repeat each x twice, and two different y values
         #   repeat each y twice, at two different x values
         #   extra +1 length of verts array allows for CLOSEPOLY code
-        verts = np.zeros((2*len(x)+1, 2))
+        verts = np.zeros((2*len(x)+1, 2), dtype=float)
         verts[0:-1:2, 0] = x
         verts[1:-1:2, 0] = x
         verts[1:-2:2, 1] = y
         verts[2:-2:2, 1] = y
         # create codes for histogram patch
-        codes = np.ones(2*len(x)+1, int) * mpl.path.Path.LINETO
+        codes = np.ones(2*len(x)+1, dtype=int) * mpl.path.Path.LINETO
         codes[0] = mpl.path.Path.MOVETO
         codes[-1] = mpl.path.Path.CLOSEPOLY
         # create patch and add it to axes
@@ -1166,7 +1166,7 @@ class HistogramGrid(AnalysisWithFigure):
 
         # plot histogram for data below the cutoff
         # It is intentional that len(x1)=len(y1)+1 and len(x2)=len(y2)+1 because y=0 is added at the beginning and
-        # end of the below and above segments when plotted in histogram_patch, and we require 1 more x point than y.
+        # end of the below and above segments when plotted in histogram_patch, so we require 1 more x point than y.
         x = data['bin_edges']
         x1 = x[x < data['cutoff']]  # take only data below the cutoff
         xc = len(x1)
