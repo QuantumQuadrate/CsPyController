@@ -1224,7 +1224,7 @@ enamldef HSDIO_DigitalOutPage(Window):
 enamldef DAQmxDigitalOutPage(Window):
     attr DAQmx
 
-    title = 'DAQmx Digital Pulse Output'
+    title = 'DAQmx Digital Output'
     style_class << 'valid' if experiment.valid else 'invalid'
 
     Container:
@@ -2225,7 +2225,7 @@ enamldef PI_Piezo(Window):
     attr piezo
     style_class << 'valid' if experiment.valid else 'invalid'
 
-    title = 'PI_Piezo'
+    title = 'Physik Instrumente Piezo'
     Container:
         padding = 0
         style_class << 'valid' if experiment.valid else 'invalid'
@@ -3059,7 +3059,7 @@ enamldef Filters(Window):
 enamldef BoxTemperature(Window):
     attr box_temperature
 
-    title = 'Box Temperature'
+    title = 'Laird Temperature Controllers'
     style_class << 'valid' if experiment.valid else 'invalid'
     Container:
         padding = 0
@@ -3168,8 +3168,8 @@ window_dictionary = {'':'',
                      'Constants and Dependent Vars': 'Variables(experiment = main.experiment)',
                      'Report': 'Reports(experiment = main.experiment)',
                      'PXI Communication': 'LabViewPage(LabView = main.experiment.LabView)',
-                     'HSDIO': 'HSDIO_DigitalOutPage(HSDIO = main.experiment.LabView.HSDIO)',
-                     'DAQmx': 'DAQmxDigitalOutPage(DAQmx = main.experiment.LabView.DAQmxDO)',
+                     'HSDIO Digital Output': 'HSDIO_DigitalOutPage(HSDIO = main.experiment.LabView.HSDIO)',
+                     'DAQmx Digital Output': 'DAQmxDigitalOutPage(DAQmx = main.experiment.LabView.DAQmxDO)',
                      'DDS': 'DDS_Page(DDS = main.experiment.DDS)',
                      'RF Generators': 'RFGenPage(LabView = main.experiment.LabView)',
                      'Hamamatsu': 'CameraPage(camera = main.experiment.LabView.camera)',
@@ -3192,7 +3192,7 @@ window_dictionary = {'':'',
                      'Filters': 'Filters(experiment = main.experiment)',
                      'Optimization': 'Optimizer(experiment = main.experiment, analysis = main.experiment.optimizer)',
                      'DC Noise Eaters': 'DCNoiseEaters(DC_noise_eaters = main.experiment.DC_noise_eaters, analysis = main.experiment.DC_noise_eater_graph, filters = main.experiment.DC_noise_eater_filter)',
-                     'Box Temperature': 'BoxTemperature(box_temperature = main.experiment.box_temperature)',
+                     'Laird Temperature Controllers': 'BoxTemperature(box_temperature = main.experiment.box_temperature)',
                      'Ramsey': 'Ramsey(analysis = main.experiment.Ramsey)',
                      'PID': 'PID(experiment = main.experiment)',
                      'Retention Analysis': 'RetentionAnalysis(analysis = main.experiment.retention_analysis)',
