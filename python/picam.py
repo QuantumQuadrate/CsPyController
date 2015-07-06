@@ -96,6 +96,8 @@ class PICam(Instrument):
     videoStarted = Bool()
     ChildProcess = Member()
     
+    updatelock = Bool()
+    
     ROI = Member()
     
     sock = Member()
@@ -210,17 +212,78 @@ class PICam(Instrument):
     
 
     def setROIvalues(self):
-        self.ROI[0] = self.roilowh   #x
-        self.ROI[1] = self.roihighh - self.roilowh   #width
+        if (self.roilowh < self.roihighh):
+            self.ROI[0] = self.roilowh   #x
+            self.ROI[1] = self.roihighh - self.roilowh   #width
+        elif (self.roilowh > self.roihighh):
+            self.ROI[0] = self.roihighh   #x
+            self.ROI[1] = self.roilowh - self.roihighh   #width
+        else:
+            self.ROI[0] = self.roihighh
+            self.ROI[1] = 1
         self.ROI[2] = 1   #x-binning
-        self.ROI[3] = -self.roihighv   #y
-        self.ROI[4] = self.roihighv - self.roilowv   #height
+        
+        if (self.roilowv < self.roihighv):
+            self.ROI[3] = -self.roihighv   #x
+            self.ROI[4] = self.roihighv - self.roilowv   #width
+        elif (self.roilowv > self.roihighv):
+            self.ROI[3] = -self.roilowv   #x
+            self.ROI[4] = self.roilowv - self.roihighv   #width
+        else:
+            self.ROI[3] = self.roihighv
+            self.ROI[4] = 1
         self.ROI[5] = 1   #y-binning
+        
+        
         self.width = self.ROI[1]
         self.height = self.ROI[4]
         self.dim = self.width*self.height
         #print "ROI values are: {} {} {} {} {} {}".format(*self.ROI)
         
+    def setSendROIvalues(self):
+        if self.updatelock == False:
+            try:
+                self.updatelock = True
+                modeorig = ''
+                if self.mode == 'video':
+                    modeorig = 'video'
+                    self.stop_video()
+                time.sleep(1)
+                if (self.roilowh < self.roihighh):
+                    self.ROI[0] = self.roilowh   #x
+                    self.ROI[1] = self.roihighh - self.roilowh   #width
+                elif (self.roilowh > self.roihighh):
+                    self.ROI[0] = self.roihighh   #x
+                    self.ROI[1] = self.roilowh - self.roihighh   #width
+                else:
+                    self.ROI[0] = self.roihighh
+                    self.ROI[1] = 1
+                self.ROI[2] = 1   #x-binning
+                
+                if (self.roilowv < self.roihighv):
+                    self.ROI[3] = -self.roihighv   #x
+                    self.ROI[4] = self.roihighv - self.roilowv   #width
+                elif (self.roilowv > self.roihighv):
+                    self.ROI[3] = -self.roilowv   #x
+                    self.ROI[4] = self.roilowv - self.roihighv   #width
+                else:
+                    self.ROI[3] = self.roihighv
+                    self.ROI[4] = 1
+                self.ROI[5] = 1   #y-binning
+                self.width = self.ROI[1]
+                self.height = self.ROI[4]
+                self.dim = self.width*self.height
+                self.setSingleROI(self.ROI[0], self.ROI[1], self.ROI[2], self.ROI[3], self.ROI[4], self.ROI[5])
+                time.sleep(1)
+                if modeorig == 'video':
+                    self.setup_video_thread(self.analysis)
+                #print "ROI values are: {} {} {} {} {} {}".format(*self.ROI)
+            except:
+                logger.error("Exception in setSendROIValues")
+                raise PauseError
+            finally:
+                self.updatelock = False
+                
         
     def setup_video(self, analysis):
         if self.experiment.status != 'idle':
@@ -278,7 +341,7 @@ class PICam(Instrument):
     def stop_video(self):
         # stop the video thread from looping
         self.mode = 'idle'
-        time.sleep(.01)
+        time.sleep(1)
         self.AbortAcquisition()
 
     """
@@ -628,6 +691,7 @@ class PICam(Instrument):
         returnedmessage = self.sock.receive()
         if (returnedmessage[0:3] != 'ACK'):
             logger.error("Error setting single ROI: message from C++ program: {}".format(returnedmessage))
+            logger.error("ROI Values: {}, {}, {}, {}, {}, {}".format(x,width,x_binning,y,height,y_binning))
         
         
         
