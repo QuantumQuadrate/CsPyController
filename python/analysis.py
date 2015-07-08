@@ -154,12 +154,13 @@ class Analysis(Prop):
     
     def analyzeExperiment(self, experimentResults):
         """This is called at the end of the experiment.
-        The parameter experimentResults is a reference to the HDF5 file for the experiment.
+        The parameter experimentResults is a reference to the HDF5 node for the experiment.
         Subclass this to update the analysis appropriately."""
         pass
 
     def finalize(self, hdf5):
-        """To be run after all optimization loops are complete, so as to close files and such."""
+        """To be run after all optimization loops are complete, so as to close files and such.
+        The parameter hdf5 is a reference to the entire hdf5 file."""
         pass
 
 

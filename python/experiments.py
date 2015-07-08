@@ -739,7 +739,8 @@ class Experiment(Prop):
 
         # give each instrument a chance to acquire final data
         for i in self.instruments:
-            i.acquire_data()
+            if i.enable:
+                i.acquire_data()
 
         # record results to hdf5
         self.measurementResults = self.hdf5.create_group('iterations/'+str(self.iteration)+'/measurements/'+str(self.measurement))
