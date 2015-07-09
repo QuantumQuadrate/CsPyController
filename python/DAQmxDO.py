@@ -154,7 +154,7 @@ class DAQmxDO(Instrument):
             waveformXML = ('<waveform>'+
                 '<name>'+self.name+'</name>'+
                 '<transitions>'+' '.join([str(time) for time in self.indices])+'</transitions>'+
-                '<states>'+'\n'.join([' '.join([str(sample) for sample in state]) for state in self.states])+'</states>\n'+
+                '<states>'+'\n'.join([' '.join([str(int(sample)) for sample in state]) for state in self.states])+'</states>\n'+
                 '</waveform>\n')
 
             # then upload scriptOut instead of script.toHardware, waveformXML instead of waveforms.toHardware (those toHardware methods will return an empty string and so will not interfere)
