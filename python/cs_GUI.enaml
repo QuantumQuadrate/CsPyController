@@ -17,7 +17,7 @@ from cs_errors import PauseError
 
 from enaml.layout.api import vbox, hbox, align, horizontal, vertical, spacer, grid
 from enaml.widgets.api import (MainWindow, MenuBar, Menu, Action,
-                                Notebook, Page, Container, GroupBox, 
+                                Notebook, Page, Container, GroupBox, DualSlider, 
                                 Form, Label, CheckBox, SpinBox, PushButton, MPLCanvas,
                                 MultilineField, ProgressBar, ScrollArea, Separator,
                                 FileDialog,Window, StatusBar, StatusItem,
@@ -168,7 +168,7 @@ enamldef IndexedContainer(GroupBox):
     # change what that one object is using an Include
     # The attribute 'iterable' must be a ListProp.  This container then provides controls to add and remove elements.
     # The GUI element viewType must define 'item' which is the element of the ListProp that will be passed to it
-    # The attribute static disables the buttons to dynamically add or remove list items
+    # The attribute dynamic enables the buttons to dynamically add or remove list items
 
     attr iterable = Typed(ListProp)
     # Below is commented out because we don't actually have to declare the type.
@@ -825,6 +825,44 @@ class RefreshableMPLCanvas(MPLCanvas):
 class RemoveEventContainer(Container):
     remove=d_(Bool())
 
+enamldef NumpyAOchannel(Container):
+    attr channel
+    attr index
+
+    hug_height='strong'
+    hug_width='strong'
+    padding=0
+    Form:
+        Label: text=str(index)
+        Field:
+            text:=channel['description']
+            placeholder='description'
+
+enamldef NumpyAOchannels(GroupBox):
+    attr channels
+    title='channels (#, description)'
+    hug_height='strong'
+    hug_width='strong'
+    Container: controls:
+        hug_height='strong'
+        hug_width='strong'
+        constraints=[hbox(spin0,addButton,removeButton)]
+        SpinBox: spin0:
+            minimum=0
+            maximum<<len(channels.array)
+        PushButton: addButton:
+            text='+'
+            clicked::
+                channels.add(spin0.value)
+        PushButton: removeButton:
+            text='-'
+            clicked::
+                channels.remove(spin0.value)
+    Container:
+        Include:
+            objects<<[NumpyAOchannel(channel=x,index=i) for i,x in enumerate(channels.array)]
+
+
 enamldef NumpyDOchannel(Container):
     attr channel
     attr index
@@ -1064,77 +1102,93 @@ def get_load_waveform_callback(HSDIO):
                 pass
     return load_file_callback
 
-enamldef Waveforms(Window):
-    attr HSDIO
+enamldef FunctionalWaveforms(Window):
+    attr waveforms
 
-    title = 'HSDIO Waveforms'
+    title = 'Functional Waveform Definitions'
     style_class << 'valid' if experiment.valid else 'invalid'
     Container:
         padding = 0
         style_class << 'valid' if experiment.valid else 'invalid'
         ScrollArea:
             style_class << 'valid' if experiment.valid else 'invalid'
-            VGroup:
+            Container:
+                style_class << 'valid' if experiment.valid else 'invalid'
+                constraints = [enable.left==contents_left, enable.bottom+5==field.top, enable.top==contents_top, field.left==contents_left, field.right==contents_right, field.bottom==contents_bottom]
+
+                LabelBox: enable:
+                    text = 'enable'
+                    checked := waveforms.enable
+
+                MultilineField: field:
+                    # waveform entry
+                    hug_width = 'ignore'
+                    hug_height = 'ignore'
+                    text := waveforms.text
+
+enamldef FunctionalWaveformsGraph(Window):
+    attr graph
+
+    title = 'Functional Waveforms Graph'
+    style_class << 'valid' if experiment.valid else 'invalid'
+    Container:
+        padding = 0
+        style_class << 'valid' if experiment.valid else 'invalid'
+        ScrollArea:
+            style_class << 'valid' if experiment.valid else 'invalid'
+            Container:
                 style_class << 'valid' if experiment.valid else 'invalid'
 
-                hug_width='ignore'
-                hug_height='ignore'
-                spacing = 0
+                constraints = [canvas.top==contents_top, canvas.left==contents_left, canvas.right==contents_right, canvas.bottom+5==controls.top, controls.left==contents_left, controls.bottom==contents_bottom]
 
-                Conditional:
-                    condition << ((HSDIO.waveforms.length>0) and (combo.index >= 0))
-                    MPLCanvas: canvas:
-                        constraints=[(height==900)|'strong', (width==1850)|'strong']
-                        figure << HSDIO.waveforms.listProperty[combo.index].figure
+                MPLCanvas: canvas:
+                    figure << graph.figure
 
-                HGroup:
+                # plot controls
+                HGroup: controls:
                     align_widths = False
-                    ComboBox: combo:
-                        constraints=[(width==500)|'strong']
-                        items << list(HSDIO.waveforms.names)
-                        index = (0 if (HSDIO.waveforms.length>0) else -1) # pick first profile on load
-                    PushButton: importWaveform:
-                        constraints=[(width==50)|'strong']
-                        enabled = False
-                        #add a waveform from a file
-                        text='import'
-                        clicked::
-                            dlg = FileDialog(
-                                parent=importWaveform,
-                                title='Choose file to load waveform from',
-                                mode='open_file',
-                                path=HSDIO.import_path,
-                                callback=get_load_waveform_callback(HSDIO),
-                                ).open()
-                            combo.index=len(HSDIO.waveforms)-1
-                    PushButton: addWaveform:
-                        constraints=[(width==50)|'strong']
-                        text = 'add'
-                        clicked::
-                            HSDIO.waveforms.add()
-                            combo.index=len(HSDIO.waveforms)-1
-                    PushButton: removeWaveform:
-                        constraints=[(width==50)|'strong']
-                        text = 'remove'
-                        clicked::
-                            i=combo.index
-                            if i>=0:
-                                if i>1:
-                                    combo.index=i-1
-                                else:
-                                    combo.index=0
-                                HSDIO.waveforms.pop(i)
-                    PushButton: copyWaveform:
-                        constraints=[(width==50)|'strong']
-                        text = 'copy'
-                        clicked::
-                            HSDIO.waveforms.copy(combo.index)
-                            combo.index=len(HSDIO.waveforms)-1
-
-                Conditional:
-                    condition << ((HSDIO.waveforms.length>0) and (combo.index >= 0))
-                    NumpyWaveform: waveform:
-                        waveform << HSDIO.waveforms.listProperty[combo.index]
+                    hug_width='strong'
+                    hug_height='strong'
+                    padding=0
+                    LabelBox:
+                        text = 'enable'
+                        checked := graph.enable
+                    Label: text = 'HSDIO'
+                    Field:
+                        placeholder = 'HSDIO channels to plot'
+                        text := graph.HSDIO_channels_to_plot
+                    LabelBox:
+                        text = 'HSDIO ticks'
+                        checked := graph.draw_HSDIO_ticks
+                    Label: text = 'AO'
+                    Field:
+                        placeholder = 'AO channels to plot'
+                        text := graph.AO_channels_to_plot
+                    LabelBox:
+                        text = 'AO ticks'
+                        checked := graph.draw_AO_ticks
+                    Label: text = 'DAQmxDO'
+                    Field:
+                        placeholder = 'DAQmxDO channels to plot'
+                        text := graph.DO_channels_to_plot
+                    LabelBox:
+                        text = 'DO ticks'
+                        checked := graph.draw_DO_ticks
+                    LabelBox:
+                        text = 'labels'
+                        checked := graph.draw_label_ticks
+                    Label: text = 'plot min'
+                    Field:
+                        placeholder = 'blank for autolimit'
+                        text := graph.plotmin_str
+                    Label: text = 'plot max'
+                    Field:
+                        placeholder = 'blank for autolimit'
+                        text := graph.plotmax_str
+                    Label: text = 'units'
+                    FloatField: value := graph.units
+                    Label: text = 'AO scale'
+                    FloatField: value := graph.AO_scale
 
 enamldef HSDIO_DigitalOutPage(Window):
     attr HSDIO
@@ -1149,37 +1203,28 @@ enamldef HSDIO_DigitalOutPage(Window):
             Container:
                 style_class << 'valid' if experiment.valid else 'invalid'
 
-                constraints=[hbox(vbox(p1,p9,p2,p4,p5,p6,p7,p8),p3),align('left',p1,p9,p2,p4,p5,p6,p7),align('top',p1,p3)]
-                hug_height='strong'
-                hug_width='strong'
-                Form: p1:
-                    Label:
-                        text = 'enable'
-                    CheckBox:
-                        checked := HSDIO.enable
-                StartTrigger: p9:
-                    trigger<<HSDIO.startTrigger
-                IndexedStack: p2:
+                Form:
+                    Label: text = 'enable'
+                    CheckBox: checked := HSDIO.enable
+                StartTrigger: trigger<<HSDIO.startTrigger
+                IndexedStack:
                     title='Script Triggers'
                     iterable<<HSDIO.triggers
                     viewType=HSDIOScriptTrigger
-                MultilineProp: p3:
-                    prop<<HSDIO.script
-                EvalProp: p4:
-                    prop<<HSDIO.resourceName
-                EvalProp: p5:
-                    prop<<HSDIO.clockRate
-                EvalProp: p6:
-                    prop<<HSDIO.units
-                EvalProp: p7:
-                    prop<<HSDIO.hardwareAlignmentQuantum
+                EvalProp: prop<<HSDIO.resourceName
+                EvalProp: prop<<HSDIO.clockRate
+                EvalProp: prop<<HSDIO.units
+                EvalProp: prop<<HSDIO.hardwareAlignmentQuantum
+                Form:
+                    Label: text = 'number of channels (multiples of 32)'
+                    IntField: value := HSDIO.numChannels
                 NumpyDOchannels: p8:
                     channels<<HSDIO.channels
 
 enamldef DAQmxDigitalOutPage(Window):
     attr DAQmx
 
-    title = 'DAQmx Digital Pulse Output'
+    title = 'DAQmx Digital Output'
     style_class << 'valid' if experiment.valid else 'invalid'
 
     Container:
@@ -1190,29 +1235,14 @@ enamldef DAQmxDigitalOutPage(Window):
             Container:
                 style_class << 'valid' if experiment.valid else 'invalid'
 
-                constraints=[vbox(canvas,p6,hbox(vbox(p0,p1,p2,p3,p4),p5)),align('top',p0,p5)]
-                hug_height='strong'
-                hug_width='strong'
-                Form: p0:
-                    Label:
-                        text = 'enable'
-                    CheckBox:
-                        checked := DAQmx.enable
-                EvalProp: p1:
-                    prop<<DAQmx.resourceName
-                EvalProp: p2:
-                    prop<<DAQmx.clockRate
-                EvalProp: p3:
-                    prop<<DAQmx.units
-                StartTrigger: p4:
-                    trigger<<DAQmx.startTrigger
-                NumpyDOchannels: p5:
-                    channels<<DAQmx.channels
-                NumpyWaveform: p6:
-                    waveform<<DAQmx.waveform
-                MPLCanvas: canvas:
-                    constraints=[(height==500)|'strong',(width==1500)|'strong']
-                    figure << DAQmx.waveform.figure
+                LabelBox:
+                    text = 'enable'
+                    checked := DAQmx.enable
+                EvalProp: prop<<DAQmx.resourceName
+                EvalProp: prop<<DAQmx.clockRate
+                EvalProp: prop<<DAQmx.units
+                StartTrigger: trigger<<DAQmx.startTrigger
+                NumpyDOchannels: channels<<DAQmx.channels
 
 enamldef DDS_profile(Container):
     attr profile
@@ -1680,6 +1710,74 @@ enamldef Andor(Window):
                         minimum=0
                         value := analysis.shot
 
+                        
+
+            
+enamldef PICam(Window):
+    attr camera
+    attr analysis
+
+    title = 'Princeton Instruments Camera'
+    Container:
+        padding = 0
+        ScrollArea:
+            Container:
+                HGroup:
+                    align_widths = False
+                    MPLCanvas:
+                        figure << analysis.figure
+                    DualSlider:
+                        orientation = 'vertical'
+                        #auto_hug = False
+                        low_value := camera.roilowv
+                        high_value := camera.roihighv
+                        low_value :: camera.setROIvalues()
+                        high_value :: camera.setROIvalues()
+                        minimum << camera.roimaxv
+                        maximum = 0
+                DualSlider:
+                    #auto_hug = False
+                    low_value := camera.roilowh
+                    high_value := camera.roihighh
+                    low_value :: camera.setROIvalues()
+                    high_value :: camera.setROIvalues()
+                    minimum = 0
+                    maximum << camera.roimaxh
+                HGroup:
+                    PushButton:
+                        text = 'video mode'
+                        clicked :: camera.setup_video_thread(analysis)
+                    PushButton:
+                        text = 'stop video'
+                        clicked :: camera.stop_video()
+                    PushButton:
+                        text = 'Start Server'
+                        clicked :: camera.start_server()
+                LabelBox:
+                    text = 'enable'
+                    checked := camera.enable
+                EvalProp:
+                    prop << camera.AdcEMGain
+                #EvalProp:
+                #    prop << camera.preAmpGain
+                EvalProp:
+                    prop << camera.exposureTime
+                ComboBox:
+                    items = ['Edge', 'Level']
+                    index := camera.triggerMode
+                EvalProp:
+                    prop<<camera.shotsPerMeasurement
+                Form:
+                    Label:
+                        text = 'shot'
+                    SpinBox: shot:
+                        minimum=0
+                        value := analysis.shot                        
+                            
+                            
+                        
+                        
+
 enamldef FiltersPage(Page):
     title = 'Filters'
 
@@ -1716,52 +1814,40 @@ enamldef AnalogOutput(Window):
             Container:
                 style_class << 'valid' if experiment.valid else 'invalid'
 
-                hug_height='strong'
-                #hug_width='strong'
-                constraints=[vbox(e1,canvas,equations,c1),align('left',e1,canvas,equations,c1)]
                 LabelBox: e1:
                     text='enable'
                     checked:=AO.enable
-                MPLCanvas: canvas:
-                    constraints=[(height==500)|'strong']
-                    hug_width='ignore'
-                    figure << AO.figure
-                IndexedStack: equations:
-                    title='equations'
-                    iterable<<AO.equations
-                    viewType=AOequation
-                Container: c1:
-                    hug_height='strong'
-                    hug_width='strong'
-                    constraints=[grid([e2,e3,e4],[e5,e6,e7],[e8,e9,e10],[e11,e12],[e13,e14,e15])]
-                    EvalProp: e2:
-                        prop<<AO.physicalChannels
-                    EvalProp: e3:
-                        prop<<AO.minimum
-                    EvalProp: e4:
-                        prop<<AO.maximum
-                    EvalProp: e5:
-                        prop<<AO.clockRate
-                    EvalProp: e6:
-                        prop<<AO.units
-                    EvalProp: e7:
-                        prop<<AO.totalAOTime
-                    EvalProp: e8:
-                        prop<<AO.waitForStartTrigger
-                    EvalProp: e9:
-                        prop<<AO.triggerSource
-                    EvalProp: e10:
-                        prop<<AO.triggerEdge
-                    EvalProp: e11:
-                        prop<<AO.exportStartTrigger
-                    EvalProp: e12:
-                        prop<<AO.exportStartTriggerDestination
-                    EvalProp: e13:
-                        prop<<AO.useExternalClock
-                    EvalProp: e14:
-                        prop<<AO.externalClockSource
-                    EvalProp: e15:
-                        prop<<AO.maxExternalClockRate
+                EvalProp: e2:
+                    prop<<AO.physicalChannels
+                Form:
+                    Label: text = 'number of channels'
+                    IntField: value := AO.numChannels
+                    Label: text = 'channel descriptions'
+                    Field: text := AO.channel_descriptions
+                EvalProp: e3:
+                    prop<<AO.minimum
+                EvalProp: e4:
+                    prop<<AO.maximum
+                EvalProp: e5:
+                    prop<<AO.clockRate
+                EvalProp: e6:
+                    prop<<AO.units
+                EvalProp: e8:
+                    prop<<AO.waitForStartTrigger
+                EvalProp: e9:
+                    prop<<AO.triggerSource
+                EvalProp: e10:
+                    prop<<AO.triggerEdge
+                EvalProp: e11:
+                    prop<<AO.exportStartTrigger
+                EvalProp: e12:
+                    prop<<AO.exportStartTriggerDestination
+                EvalProp: e13:
+                    prop<<AO.useExternalClock
+                EvalProp: e14:
+                    prop<<AO.externalClockSource
+                EvalProp: e15:
+                    prop<<AO.maxExternalClockRate
 
 enamldef AnalogInput(Window):
     attr AI
@@ -1795,8 +1881,10 @@ enamldef AnalogInput(Window):
                     prop << AI.triggerSource
                 EvalProp:
                     prop << AI.triggerEdge
-            #    EvalProp:
-            #        prop << AI.channel_descriptions
+                EvalProp:
+                    prop << AI.ground_mode
+                NumpyAOchannels:
+                    channels<<AI.channels
 
                 # filter
                 GroupBox:
@@ -1845,6 +1933,42 @@ enamldef AnalogInput(Window):
                         constraints=[(height==500)|'strong']
                         hug_width='ignore'
                         figure << analysis.figure
+
+
+enamldef Counters(Window):
+    attr counters
+
+    title = 'Counters'
+    style_class << 'valid' if experiment.valid else 'invalid'
+    Container:
+        padding = 0
+        style_class << 'valid' if experiment.valid else 'invalid'
+        ScrollArea:
+            style_class << 'valid' if experiment.valid else 'invalid'
+            Container:
+                style_class << 'valid' if experiment.valid else 'invalid'
+
+                hug_height='strong'
+                hug_width='strong'
+
+                LabelBox:
+                    text='enable'
+                    checked := counters.enable
+                IndexedContainer:
+                    dynamic = True
+                    iterable << counters.counters
+                    viewType = Counter
+
+
+enamldef Counter(Form):
+    attr item
+
+    Label: text = 'counter source'
+    Field: text := item.counter_source
+    Label: text = 'clock source'
+    Field: text := item.clock_source
+    Label: text = 'clock rate (used for internal source only) [Hz]'
+    FloatField: value := item.clock_rate
 
 enamldef DCNoiseEaterChannel(Container):
     attr item
@@ -2101,7 +2225,7 @@ enamldef PI_Piezo(Window):
     attr piezo
     style_class << 'valid' if experiment.valid else 'invalid'
 
-    title = 'PI_Piezo'
+    title = 'Physik Instrumente Piezo'
     Container:
         padding = 0
         style_class << 'valid' if experiment.valid else 'invalid'
@@ -2837,20 +2961,17 @@ enamldef Optimizer(Window):
                         #constraints=[height==300]
                         text:=experiment.optimizer.cost_function
 
-                    Label:
-                        text='starting cost'
-                    Label:
-                        text<<analysis.yi0_str
+                    Label:  text = 'starting cost'
+                    Label:  text << analysis.yi0_str
 
-                    Label:
-                        text='best cost'
-                    Label:
-                        text<<analysis.best_yi_str
+                    Label:  text = 'best cost'
+                    Label:  text << analysis.best_yi_str
 
-                    Label:
-                        text='current cost'
-                    Label:
-                        text<<analysis.yi_str
+                    Label:  text = 'current cost'
+                    Label:  text << analysis.yi_str
+
+                    Label: text = 'best experiment number'
+                    Label: text << analysis.best_experiment_number_str
 
                 MPLCanvas: canvas:
                     constraints << [(height==150*(len(experiment.independentVariables)+1))|'strong'] #,(width==1000)|'strong']
@@ -3028,7 +3149,7 @@ enamldef Filters(Window):
 enamldef BoxTemperature(Window):
     attr box_temperature
 
-    title = 'Box Temperature'
+    title = 'Laird Temperature Controllers'
     style_class << 'valid' if experiment.valid else 'invalid'
     Container:
         padding = 0
@@ -3137,13 +3258,13 @@ window_dictionary = {'':'',
                      'Constants and Dependent Vars': 'Variables(experiment = main.experiment)',
                      'Report': 'Reports(experiment = main.experiment)',
                      'PXI Communication': 'LabViewPage(LabView = main.experiment.LabView)',
-                     'HSDIO': 'HSDIO_DigitalOutPage(HSDIO = main.experiment.LabView.HSDIO)',
-                     'Waveforms': 'Waveforms(HSDIO = main.experiment.LabView.HSDIO)',
-                     'DAQmx': 'DAQmxDigitalOutPage(DAQmx = main.experiment.LabView.DAQmxDO)',
+                     'HSDIO Digital Output': 'HSDIO_DigitalOutPage(HSDIO = main.experiment.LabView.HSDIO)',
+                     'DAQmx Digital Output': 'DAQmxDigitalOutPage(DAQmx = main.experiment.LabView.DAQmxDO)',
                      'DDS': 'DDS_Page(DDS = main.experiment.DDS)',
                      'RF Generators': 'RFGenPage(LabView = main.experiment.LabView)',
                      'Hamamatsu': 'CameraPage(camera = main.experiment.LabView.camera)',
                      'Andor': 'Andor(camera = main.experiment.Andor, analysis=main.experiment.andor_viewer)',
+                     'Princeton Instruments Camera': 'PICam(camera = main.experiment.PICam, analysis=main.experiment.picam_viewer)',
                      'Analog Output': 'AnalogOutput(AO = main.experiment.LabView.AnalogOutput)',
                      'Analog Input': 'AnalogInput(AI = main.experiment.LabView.AnalogInput, filters = main.experiment.AI_filter, analysis = main.experiment.AI_graph)',
                      'Arroyo': 'Arroyo(experiment = main.experiment)',
@@ -3162,10 +3283,13 @@ window_dictionary = {'':'',
                      'Filters': 'Filters(experiment = main.experiment)',
                      'Optimization': 'Optimizer(experiment = main.experiment, analysis = main.experiment.optimizer)',
                      'DC Noise Eaters': 'DCNoiseEaters(DC_noise_eaters = main.experiment.DC_noise_eaters, analysis = main.experiment.DC_noise_eater_graph, filters = main.experiment.DC_noise_eater_filter)',
-                     'Box Temperature': 'BoxTemperature(box_temperature = main.experiment.box_temperature)',
+                     'Laird Temperature Controllers': 'BoxTemperature(box_temperature = main.experiment.box_temperature)',
                      'Ramsey': 'Ramsey(analysis = main.experiment.Ramsey)',
                      'PID': 'PID(experiment = main.experiment)',
-                     'Retention Analysis': 'RetentionAnalysis(analysis = main.experiment.retention_analysis)'
+                     'Retention Analysis': 'RetentionAnalysis(analysis = main.experiment.retention_analysis)',
+                     'Counters': 'Counters(counters = main.experiment.LabView.Counters)',
+                     'Functional Waveforms': 'FunctionalWaveforms(waveforms = main.experiment.functional_waveforms)',
+                     'Functional Waveforms Graph': 'FunctionalWaveformsGraph(graph = main.experiment.functional_waveforms_graph)'
                      }
 window_keys = window_dictionary.keys()
 window_keys.sort()
@@ -3178,6 +3302,7 @@ enamldef Main(MainWindow): main:
     #initial_position=(0,0)
     #initial_size=(1500,1100)
     icon = loadIcon()
+    closing :: main.experiment.exiting()
 
     MyStyleSheet:
         #just implement the style sheet defined separately
@@ -3195,6 +3320,10 @@ enamldef Main(MainWindow): main:
                 minimum=0
                 maximum=100
                 value<<int(experiment.progressGUI)
+                
+                
+                
+
     HGroup:
         align_widths = False
         Label: text = 'Select a window to open:'

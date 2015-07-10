@@ -27,7 +27,7 @@ class ROI_framework(AnalysisWithFigure):
     """
 
     version = '2015.02.26'
-    enable = Bool()  # whether or not to activate this optimization
+    enable = Bool()
     enable_post_measurement = Bool()
     enable_post_iteration = Bool()
     enable_show_rois = Bool()
@@ -37,30 +37,62 @@ class ROI_framework(AnalysisWithFigure):
     display_roi_summation = Bool()
     display_contours = Bool()
     display_numbers = Bool()
+    multiply_sums_by_photoelectron_scaling = Bool()
+    image_source = Str()
+
 
     ROIs = Member()  # an array of size (num shots, num rois, image rows, image columns)
+    contours = Member()  # a list of the matplotlib path veritces that will be used to draw the contours around the ROIs
+
 
     def __init__(self, name, experiment):
         super(ROI_framework, self).__init__(name, experiment, "ROI framework")
-        self.properties += ['version', 'enable', 'enable_post_measurement', 'enable_post_iteration', 'ROIs',
-                            'calculate_sums', 'subtract_background', 'multiply_sums_by_photoelectron_scaling']
+        self.properties += ['version', 'enable', 'enable_post_measurement', 'enable_post_iteration',
+                            'enable_show_rois', 'calculate_sums', 'subtract_background', 'display_individual_rois',
+                            'display_roi_summation', 'display_contours', 'display_numbers',
+                            'multiply_sums_by_photoelectron_scaling', 'image_source', 'ROIs']
 
     def analyzeIteration(self, iterationResults, experimentResults):
-        if self.enable_post_iteration
+        """After each iteration, the sums are compiled and saved into an array."""
+        if self.enable_post_iteration:
+            # list and sort the measurements
+            measurements = map(int, iterationResults['measurements'].keys())
+            measurements.sort()
+            # compile all the sums into one array, which makes it a lot easier to use in later analysis
+            # file the results under self.name, in case this analysis is used for multiple cameras
+            iterationResults['analysis/{}/sums'.format(self.name)] = np.array([iterationResults['measurements/{}/analysis/roi/sums'.format(m)].value for m in measurements])
 
     def analyzeMeasurement(self, measurementResults, iterationResults, experimentResults):
-        """This is called after each measurement.
-        The parameters (measurementResults, iterationResults, experimentResults)
-        reference the HDF5 nodes for this measurement.
-        Subclass this to update the analysis appropriately."""
-        return
+        """After each measurement, the region of interest sums are calculated.
+        The image_source variable is used so that this analysis can point to any camera.
+        image_source must be an array of shape (shots, image rows, image columns)"""
+
+        if self.enable:
+            self.calculate_sums(measurementResults[self.image_source].value)
+            self.drawstuff(self.backFigure)
+            super(ROI_framework, self).updateFigure()
+
+    def drawstuff(self, fig):
+        # draw individual rois
+        # draw summation image individual image
+        pass
+
+    def set_ROIs(self, ROIs, contours=None):
+        self.ROIs = ROIs
+        self.contours = contours
+
+        # update roi images
+        # draw individual rois
+        # draw roi summation
+        # draw contour summation
+
 
     def calculate_sums(self, images):
         if self.subtract_background:
             images = images - self.experiment.imageSumAnalysis.background_array
         if self.multiply_sums_by_photoelectron_scaling:
-            images *= self.experiment.LabView.camera.photoelectronScaling.value
+            images = images * self.experiment.LabView.camera.photoelectronScaling.value
         # turn each image into a 1D array to make the multiplication simpler
-        a = images.reshape(images.shape[0], images.shape[1], images.shape[2]*images.shape[3])
+        a = images.reshape(images.shape[0], images.shape[1]*images.shape[2])
         data = np.dot(a, self.rois)
         return data

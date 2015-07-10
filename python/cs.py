@@ -41,8 +41,6 @@ def guiThread(exp):
     main.activate_window()
     logger.debug('gui to front')
     main.send_to_front()
-    logger.debug('gui maximize')
-    main.maximize()
     logger.debug('give the experiment a reference to the gui')
     exp.gui = main
 

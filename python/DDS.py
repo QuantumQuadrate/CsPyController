@@ -26,7 +26,7 @@ class DDS_gui(Atom):
     boxDescriptionList=Member()
 
 class DDS(TCP_Instrument):
-    version = '2015.03.28'
+    version = '2015.03.30'
     boxes = Typed(ListProp)
     deviceList = Member()
     boxDescriptionList = Member()

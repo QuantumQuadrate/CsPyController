@@ -8,6 +8,7 @@ modified>=2014-08-19
 This file holds everything needed to set up a finite acquisition of a fixed number of data points during the
 experiment from a National Instruments DAQmx card.
 It communicates to LabView via the higher up LabView(Instrument) class.
+Saving of returned data is handled in the LabView class.
 """
 
 from __future__ import division
@@ -16,8 +17,10 @@ import logging
 logger = logging.getLogger(__name__)
 
 import numpy
+import h5py
 from atom.api import Str, Typed, Member, Bool, observe, Int
-from instrument_property import BoolProp, FloatProp, StrProp, IntProp
+
+from instrument_property import BoolProp, FloatProp, StrProp, IntProp, Numpy1DProp
 from cs_instruments import Instrument
 from analysis import Analysis, AnalysisWithFigure
 
@@ -29,7 +32,8 @@ class AnalogInput(Instrument):
     waitForStartTrigger = Typed(BoolProp)
     triggerSource = Typed(StrProp)
     triggerEdge = Typed(StrProp)
-    #channel_descriptions = Typed(StrProp)
+    channels = Member()  # just holds the channel descriptions
+    ground_mode = Typed(StrProp)
 
     def __init__(self, experiment):
         super(AnalogInput, self).__init__('AnalogInput', experiment)
@@ -39,10 +43,11 @@ class AnalogInput(Instrument):
         self.waitForStartTrigger = BoolProp('waitForStartTrigger', experiment, '', 'True')
         self.triggerSource = StrProp('triggerSource', experiment, '', '"/PXI1Slot6/PFI0"')
         self.triggerEdge = StrProp('triggerEdge', experiment, '"Rising" or "Falling"', '"Rising"')
-        #self.channel_descriptions = StrProp('channel_descriptions', experiment, 'a list channel description strings', '["ch1","ch2","ch3"]')
+        self.channels = Numpy1DProp('channels', experiment, 'a list of channel descriptions', dtype=[('description', object)], hdf_dtype=[('description', h5py.special_dtype(vlen=str))], zero=('new'))
+        self.ground_mode = StrProp('ground_mode', experiment, 'RSE for ungrounded sensors, NRSE for grounded sensors', '"NRSE"')
         self.properties += ['version', 'sample_rate', 'source', 'samples_per_measurement', 'waitForStartTrigger',
-                            'triggerSource', 'triggerEdge'] #, 'channel_descriptions']
-
+                            'triggerSource', 'triggerEdge', 'channels', 'ground_mode']
+        self.doNotSendToHardware += ['channels']
 
 class AI_Graph(AnalysisWithFigure):
     """Plots a region of interest sum after every measurement"""

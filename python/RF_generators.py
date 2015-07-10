@@ -3,7 +3,7 @@ Part of the AQuA Cesium Controller software package
 
 author=Martin Lichtman
 created=2013-10-22
-modified>=2013-10-22
+modified>=2015-05-24
 
 This file holds everything needed to model the microwave RF generators (HP/Agilent) which are controlled by GPIB.
 It communicates to LabView via the higher up HEXQC2 class.
@@ -29,7 +29,7 @@ class RFGenList(ListProp):
 
 
 class RF_generators(Instrument):
-    version = '2014.07.16'
+    version = '2015.05.24'
     HP83623A_list = Typed(RFGenList)
     HP8662A_list = Typed(RFGenList)
     HP83712B_list = Typed(RFGenList)

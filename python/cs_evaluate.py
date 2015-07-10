@@ -81,7 +81,7 @@ def evalWithDict(string, varDict=None):
 def execWithDict(string, varDict=None):
     """This executes a string with a globals context containing only numpy.
     The passed in dictionary gets updated with newly defined locals.
-    myGlobals persists so it can be used in evalWithDict."""
+    varDict persists so it can be used in evalWithDict."""
 
     global myGlobals
 
@@ -98,3 +98,23 @@ def execWithDict(string, varDict=None):
             logger.warning('Could not exec string:\n{}\n{}\n{}\n'.format(string, e, traceback.format_exc()))
             raise PauseError
     myGlobals.update(varDict)
+
+def execWithGlobalDict(string, varDict=None):
+    """This executes a string with a the global context containing the previous established global namespace plus
+    any passed in variables.
+    Variables defined in this context do not persist."""
+
+    global myGlobals
+
+    myVars = myGlobals.copy()
+
+    if varDict is not None:
+        myVars.update(varDict)
+
+    if string != '':
+        try:
+            exec(string, myVars)
+        except Exception as e:
+            logger.warning('In execWithGlobalDict: Could not exec string:\n{}\n{}\n{}\n'.format(string, e,
+                                                                                                traceback.format_exc()))
+            raise PauseError

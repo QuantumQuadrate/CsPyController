@@ -93,8 +93,8 @@ class Save2013Analysis(Analysis):
             #Data Order Log.txt
             #one line with ivar indices
             #(a,b,l0): 	0,0,0	0,0,1	0,0,2	0,0,3	0,0,4	0,0,5	0,0,6	0,0,7	0,0,8	0,0,9	0,0,10
-            with open(os.path.join(self.experiment.path,'Data Order Log.txt'), 'a') as f:
-                f.write('\t'+','.join(map(str,iterationResults.attrs['ivarIndex'])))
+            with open(os.path.join(self.experiment.path, 'Data Order Log.txt'), 'a') as f:
+                f.write('\t'+','.join(map(str, iterationResults.attrs['ivarIndex'])))
 
             #Camera Data Iteration0 (signal).txt
             with open(os.path.join(self.experiment.path, 'Camera Data Iteration{} (signal).txt'.format(iterationResults.attrs['iteration'])), 'a') as f:
@@ -108,6 +108,16 @@ class Save2013Analysis(Analysis):
                 elif 'analysis/squareROIsums' in iterationResults:
                     roi_sums = iterationResults['analysis/squareROIsums'].value
                     f.write('\n'.join(['\t'.join(['\t'.join([str(ROI) for ROI in shot]) for shot in shots]) for shots in roi_sums])+'\n')
+
+            #Counter Data Iteration0 (signal).txt
+            if self.experiment.counters.enable:
+                measurements = map(int, iterationResults['measurements'].keys())
+                measurements.sort()
+                data = [iterationResults['{}/data/counters/data'.format(m)].value for m in measurements]
+                for counter in xrange(len(self.experiment.counters.counters)):
+                    with open(os.path.join(self.experiment.path, 'Counter {} Data Iteration{}.txt'.format(counter, iterationResults.attrs['iteration'])), 'a') as f:
+                        f.write('Counter Data\t{}\n'.format(time.strftime('%m/%d/%Y\t%I:%M %p')))
+                        f.write('\n'.join(['\t'.join(map(str, data[m][counter])) for m in measurements])+'\n')
 
     def finalize(self, experimentResults):
         if self.experiment.saveData and self.experiment.save2013styleFiles:

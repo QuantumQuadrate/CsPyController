@@ -132,7 +132,7 @@ if __name__ == '__main__':
     controllers = [Controller(i['name'], i['port']) for i in ports]
 
     # start TCP/IP server in a different thread
-    BoxTempServer(9001, controllers)
+    BoxTempServer(9002, controllers)
 
     # enter a loop of continual data taking
     i = 300 # write to file on 1st read

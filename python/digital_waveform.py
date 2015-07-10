@@ -8,7 +8,7 @@ logger = logging.getLogger(__name__)
 
 from atom.api import Member, Typed, observe
 from enaml.application import deferred_call
-from instrument_property import Prop, BoolProp, FloatProp, ListProp, EnumProp, Numpy1DProp, Numpy2DProp
+from instrument_property import Prop, Numpy1DProp, Numpy2DProp
 from matplotlib.figure import Figure
 import numpy, h5py
 
@@ -242,7 +242,7 @@ class NumpyWaveform(Prop):
             #timeList=(timeList*self.digitalout.clockRate.value*self.digitalout.units.value).astype(numpy.uint64)
             
             #put the transition list in order
-            order=numpy.argsort(timeList,kind='mergesort')  # mergesort is slower than the default quicksort, but it is 'stable' which means items of the same value are kept in their relative order, which is desired here
+            order=numpy.argsort(timeList, kind='mergesort')  # mergesort is slower than the default quicksort, but it is 'stable' which means items of the same value are kept in their relative order, which is desired here
             timeList=timeList[order]
             stateList=stateList[order]
             

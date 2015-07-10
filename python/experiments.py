@@ -127,9 +127,9 @@ class Experiment(Prop):
     dailyPath = Member()
     experimentPath = Member()
 
-    iteration = Member()
+    iteration = Int(0)
     iterationStr = Str()
-    measurement = Member()
+    measurement = Int(0)
     measurementStr = Str()
     goodMeasurements = Member()
     goodMeasurementsStr = Str()
@@ -361,6 +361,7 @@ class Experiment(Prop):
         if experiment_hdf5_path not in self.hdf5:
             # create a new group to store all the iterations in this loop
             self.experiment_hdf5 = self.hdf5.create_group(experiment_hdf5_path)
+            self.experiment_hdf5.attrs['experiment_number'] = self.optimizer_count
             # reset the optimization_iteration number, which tracks how many iterations are in this loop
             self.optimizer_iteration_count = 0
         # add this iteration to the group
@@ -433,6 +434,7 @@ class Experiment(Prop):
             self.updateIndependentVariables()
             ivars = dict([(i.name, i.currentValue) for i in self.independentVariables])
             self.vars.update(ivars)
+            self.vars.update({'experiment': self})
 
             #evaluate the dependent variable multi-line string
             cs_evaluate.execWithDict(self.dependentVariablesStr, self.vars)
@@ -441,14 +443,14 @@ class Experiment(Prop):
             #at this time the properties are not all evaluated, so, we must do this one manually
             self.variableReport.evaluate()
 
-            logger.debug('Evaluating instruments ...')
-            #re-evaluate all instruments
-            for i in self.instruments:
-                i.evaluate()  # each instrument will calculate its properties
+            # evaluate everything else
+            logger.debug('Evaluating experiment properties ...')
+            super(Experiment, self).evaluate()
 
+            # post the new experiment status variables to the GUI
             self.update_gui()
 
-            logger.debug('Finished evaluate().')
+            logger.debug('Finished experiment.evaluate().')
 
     def evaluate_constants(self):
         if self.allow_evaluation:
@@ -737,7 +739,8 @@ class Experiment(Prop):
 
         # give each instrument a chance to acquire final data
         for i in self.instruments:
-            i.acquire_data()
+            if i.enable:
+                i.acquire_data()
 
         # record results to hdf5
         self.measurementResults = self.hdf5.create_group('iterations/'+str(self.iteration)+'/measurements/'+str(self.measurement))
