@@ -5,3 +5,5 @@ settings.hdf5
 previous_settings.hdf5
 *.pyc
 __enamlcache__
+*.hdf5
+*.2015-07-09

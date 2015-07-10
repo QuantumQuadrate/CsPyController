@@ -2914,6 +2914,96 @@ enamldef Picomotors(Window):
                         iterable << picomotors.motors
                         viewType = Picomotor
 
+
+enamldef Instek_PST(Container):
+    attr item
+
+    hug_width = 'strong'
+    hug_height = 'strong'
+
+    Container:
+        hug_width = 'strong'
+        hug_height = 'strong'
+        Label:
+            text := 'serial number: {}'.format(item.serial_number)
+        EvalProp:
+            prop << item.com_port
+        Container:
+            constraints = [
+                vbox(
+                    hbox(Ch1V, Ch1A),
+                    hbox(Ch2V, Ch2A),
+                    hbox(Ch3V, Ch3A)
+                )
+            ]
+            hug_width = 'strong'
+            hug_height = 'strong'
+            EvalProp: Ch1V:
+                prop << item.voltage_setpoint_1
+            EvalProp: Ch1A:
+                prop << item.current_setpoint_1
+            EvalProp: Ch2V:
+                prop << item.voltage_setpoint_2
+            EvalProp: Ch2A:
+                prop << item.current_setpoint_2
+            EvalProp: Ch3V:
+                prop << item.voltage_setpoint_3
+            EvalProp: Ch3A:
+                prop << item.current_setpoint_3    
+        Label:
+            text = ""
+        Container:
+            constraints = [
+                vbox(
+                    hbox(Ch1Va, Ch1Aa),
+                    hbox(Ch2Va, Ch2Aa),
+                    hbox(Ch3Va, Ch3Aa)
+                )
+            ]
+            hug_width = 'strong'
+            hug_height = 'strong'
+            Label: Ch1Va:
+                text := 'Channel 1 Voltage: {}'.format(item.actual_voltage_1)
+            Label: Ch1Aa:
+                text := 'Channel 1 Current: {}'.format(item.actual_current_1)
+            Label: Ch2Va:
+                text := 'Channel 2 Voltage: {}'.format(item.actual_voltage_2)
+            Label: Ch2Aa:
+                text := 'Channel 2 Current: {}'.format(item.actual_current_2)
+            Label: Ch3Va:
+                text := 'Channel 3 Voltage: {}'.format(item.actual_voltage_3)
+            Label: Ch3Aa:
+                text := 'Channel 3 Current: {}'.format(item.actual_current_3)
+
+enamldef Instek_PSTs(Window):
+    attr instek_psts
+
+    title = 'Instek PST Power Supplies'
+    style_class << 'valid' if experiment.valid else 'invalid'
+    Container:
+        padding = 0
+        style_class << 'valid' if experiment.valid else 'invalid'
+        ScrollArea:
+            style_class << 'valid' if experiment.valid else 'invalid'
+            Container:
+                style_class << 'valid' if experiment.valid else 'invalid'
+
+                Container:
+                    hug_width = 'strong'
+                    hug_height = 'strong'
+                    Form:
+                        hug_width = 'strong'
+                        hug_height = 'strong'
+                        Label:
+                            text = 'enable'
+                        CheckBox:
+                            checked := instek_psts.enable
+
+                    IndexedContainer:
+                        iterable << instek_psts.motors
+                        viewType = Instek_PST
+
+
 enamldef Filters(Window):
     attr experiment
 
@@ -3059,6 +3149,7 @@ window_dictionary = {'':'',
                      'Arroyo': 'Arroyo(experiment = main.experiment)',
                      'PI Piezo': 'PI_Piezo(piezo = main.experiment.LabView.piezo)',
                      'Picomotors': 'Picomotors(picomotors = main.experiment.picomotors)',
+                     'Instek PST Power Supplies': 'Instek_PSTs(instek_psts = main.experiment.instekpsts)',
                      'Live Images': 'MultiImage(experiment = main.experiment, analysis0 = main.experiment.recent_shot_analysis, analysis2 = main.experiment.imageSumAnalysis, analysis3 = main.experiment.text_analysis)',
                      'Image Browser': 'ImageBrowser(experiment = main.experiment, analysis1 = main.experiment.shotBrowserAnalysis)',
                      'Square ROI':  'SquareROIContainer(experiment = main.experiment, analysis = main.experiment.squareROIAnalysis)',

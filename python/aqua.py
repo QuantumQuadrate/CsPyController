@@ -8,7 +8,7 @@ import traceback
 from atom.api import Member
 
 # Bring in other files in this package
-import analysis, save2013style, TTL, LabView, DDS, roi_fitting, picomotors, andor, DCNoiseEater, Laird_temperature, AnalogInput
+import analysis, save2013style, TTL, LabView, DDS, roi_fitting, picomotors, andor, DCNoiseEater, Laird_temperature, AnalogInput, instek_pst
 from experiments import Experiment
 
 
@@ -16,6 +16,7 @@ class AQuA(Experiment):
     """A subclass of Experiment which knows about all our particular hardware"""
 
     picomotors = Member()
+    instekpsts = Member()
     Andor = Member()
     LabView = Member()
     DDS = Member()
@@ -54,6 +55,7 @@ class AQuA(Experiment):
 
         #add instruments
         self.picomotors = picomotors.Picomotors('picomotors', self, 'Newport Picomotors')
+        self.instekpsts = instek_pst.InstekPSTs('instekpsts', self, 'Instek PST power supply')
         self.Andor = andor.Andor('Andor', self, 'Andor Luca Camera')
         self.LabView = LabView.LabView(self)
         self.DDS = DDS.DDS('DDS', self, 'server for homemade DDS boxes')
@@ -91,12 +93,12 @@ class AQuA(Experiment):
                           self.imageSumAnalysis, self.recent_shot_analysis, self.shotBrowserAnalysis,
                           self.histogramAnalysis, self.histogram_grid, self.measurements_graph, self.iterations_graph,
                           self.andor_viewer, self.DC_noise_eater_graph, self.DC_noise_eater_filter, self.Ramsey,
-                          self.retention_analysis, self.retention_graph, self.save_notes, self.save2013Analysis]
+                          self.retention_analysis, self.retention_graph, self.save_notes, self.save2013Analysis, self.instekpsts]
 
         self.properties += ['LabView', 'DDS', 'picomotors', 'Andor', 'DC_noise_eaters', 'box_temperature',
                             'squareROIAnalysis', 'gaussian_roi', 'TTL_filters', 'AI_graph', 'AI_filter',
                             'loading_filters', 'first_measurements_filter', 'imageSumAnalysis', 'recent_shot_analysis',
-                            'shotBrowserAnalysis', 'histogramAnalysis', 'histogram_grid', 'retention_analysis',
+                            'shotBrowserAnalysis', 'instekpsts', 'histogramAnalysis', 'histogram_grid', 'retention_analysis',
                             'measurements_graph', 'iterations_graph', 'retention_graph', 'andor_viewer',
                             'DC_noise_eater_filter', 'DC_noise_eater_graph', 'Ramsey']
 
