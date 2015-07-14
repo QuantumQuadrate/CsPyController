@@ -3049,6 +3049,8 @@ enamldef Instek_PST(Container):
             text := 'serial number: {}'.format(item.serial_number)
         EvalProp:
             prop << item.com_port
+        EvalProp:
+            prop << item.tracking
         Container:
             constraints = [
                 vbox(
@@ -3095,6 +3097,9 @@ enamldef Instek_PST(Container):
                 text := 'Channel 3 Voltage: {}'.format(item.actual_voltage_3)
             Label: Ch3Aa:
                 text := 'Channel 3 Current: {}'.format(item.actual_current_3)
+        PushButton: UpdateNow:
+            text = 'Update Now'
+            clicked :: item.update()
 
 enamldef Instek_PSTs(Window):
     attr instek_psts

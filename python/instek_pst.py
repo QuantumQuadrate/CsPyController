@@ -24,6 +24,8 @@ from cs_errors import PauseError
 class InstekPST(Prop):
     serial_number = Str()
     com_port = Member()
+    tracking = Member()
+    isInitialized = Bool(False)
     #num_chans = Int(3)           #TODO: Implement variable number of channels...
     voltage_setpoint_1 = Member()
     current_setpoint_1 = Member()
@@ -42,6 +44,7 @@ class InstekPST(Prop):
     def __init__(self, name, experiment, description=''):
         super(InstekPST, self).__init__(name, experiment, description)
         self.com_port = StrProp('com_port', experiment, 'Communications port of PST','0')
+        self.tracking = IntProp('tracking', experiment, 'Tracking Mode (0 Independent; 1 Parallel; 2 Series)','0')
         #self.num_chans = IntProp('num_chans', experiment, 'Number of channels','0')
         self.voltage_setpoint_1 = FloatProp('voltage_setpoint_1', experiment, 'Voltage Setpoint for Channel 1','0')
         self.current_setpoint_1 = FloatProp('current_setpoint_1', experiment, 'Current Setpoint for Channel 1','0')
@@ -49,7 +52,7 @@ class InstekPST(Prop):
         self.current_setpoint_2 = FloatProp('current_setpoint_2', experiment, 'Current Setpoint for Channel 2','0')
         self.voltage_setpoint_3 = FloatProp('voltage_setpoint_3', experiment, 'Voltage Setpoint for Channel 3','0')
         self.current_setpoint_3 = FloatProp('current_setpoint_3', experiment, 'Current Setpoint for Channel 3','0')
-        self.properties += ['com_port', 'serial_number',
+        self.properties += ['com_port', 'serial_number', 'tracking',
                             'voltage_setpoint_1', 'current_setpoint_1', 'voltage_setpoint_2', 'current_setpoint_2',
                             'voltage_setpoint_3', 'current_setpoint_3', 'actual_voltage_1', 'actual_current_1',
                             'actual_voltage_2', 'actual_current_2', 'actual_voltage_3', 'actual_current_3',
@@ -62,8 +65,10 @@ class InstekPST(Prop):
         self.ser.timeout = 1
         try:
             self.ser.open()
+            self.isInitialized = True
         except serial.SerialException, e:
             logger.error("Instek PST initialize: Could not open serial port %s: %s\n" % (self.ser.portstr, e))
+            self.isInitialized = False
             raise PauseError
 
     def send_voltage_current(self,chan,voltage,current):
@@ -98,6 +103,8 @@ class InstekPST(Prop):
         
         
     def update(self):
+        if self.isInitialized == False:
+            self.initialize()
         #send voltages and currents
         #for chan in range(1, self.num_chans.value):
         self.send_voltage_current(1,self.voltage_setpoint_1.value,self.current_setpoint_1.value)
@@ -110,7 +117,18 @@ class InstekPST(Prop):
         
         self.measure_all_channels()
         return
+        
+        
+    def set_tracking(self):
+        if (self.tracking.value == 0 or self.tracking.value == 1 or self.tracking.value == 2):
+            self.ser.write(":OUTP:COUP:TRAC {}\n".format(self.tracking.value))
+        else:
+            logger.error("Instek PST tracking mode must be 0 (independent), 1 (parallel), or 2 (series). Current value: {}".format(self.tracking.value))
+            raise PauseError
 
+    def get_tracking(self):
+        self.ser.write(":OUTP:COUP:TRAC ?\n")
+        return int(self.ser.readline())
 
 class InstekPSTs(Instrument):
     version = '2015.07.09'
@@ -145,6 +163,8 @@ class InstekPSTs(Instrument):
                     i.update()
                     if i.test_output() == False:
                         i.enable_output()
+                    if (i.get_tracking() != i.tracking.value):
+                        i.set_tracking()
             except Exception as e:
                 logger.error('Problem updating current/voltage for Instek PST:\n{}\n{}\n'.format(msg, e))
                 self.isInitialized = False
