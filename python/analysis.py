@@ -1292,7 +1292,7 @@ class HistogramGrid(AnalysisWithFigure):
         if photoelectronScaling is not None:
             figtext += ', scaling applied = {} photoelectrons/count'.format(photoelectronScaling)
         if exposure_time is not None:
-            figtext += ', exposure_time = {} ms'.format(exposure_time/1000.0)
+            figtext += ', exposure_time = {} ms'.format(exposure_time)
         fig.text(.05, .985, figtext)
 
 class MeasurementsGraph(AnalysisWithFigure):
