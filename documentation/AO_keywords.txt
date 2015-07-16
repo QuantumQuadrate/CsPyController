@@ -1,3 +1,0 @@
-externalClockSource
-maxExternalClockRate
-useExternalClock
