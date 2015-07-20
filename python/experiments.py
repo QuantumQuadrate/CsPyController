@@ -428,7 +428,11 @@ class Experiment(Prop):
             logger.debug('Experiment.evaluate() ...')
 
             # start with the constants
-            self.vars = self.constants.copy()
+            # modified so that if constants contain arrays, they will be re-evaluated every iteration
+            # otherwise, because self.constants() is a dict() namespace that actually only contains pointers to the\
+            # arrays, and not the value of the arrays themselves, the arrays do not reset every iteration.
+            self.evaluate_constants()  # added
+            #self.vars = self.constants.copy()  # removed
 
             # add the independent variables current values to the dict
             self.updateIndependentVariables()
