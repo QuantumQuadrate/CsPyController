@@ -1696,21 +1696,30 @@ enamldef PICam(Window):
                     align_widths = False
                     MPLCanvas:
                         figure << analysis.figure
-                    DualSlider:
+                    Slider:
                         orientation = 'vertical'
-                        #auto_hug = False
-                        low_value := camera.roilowv
-                        high_value := camera.roihighv
-                        low_value :: camera.setROIvalues()
-                        high_value :: camera.setROIvalues()
+                        tracking = False
+                        value := camera.roilowv
+                        value :: camera.setSendROIvalues()
                         minimum << camera.roimaxv
                         maximum = 0
-                DualSlider:
-                    #auto_hug = False
-                    low_value := camera.roilowh
-                    high_value := camera.roihighh
-                    low_value :: camera.setROIvalues()
-                    high_value :: camera.setROIvalues()
+                    Slider:
+                        orientation = 'vertical'
+                        tracking = False
+                        value := camera.roihighv
+                        value :: camera.setSendROIvalues()
+                        minimum << camera.roimaxv
+                        maximum = 0
+                Slider:
+                    tracking = False
+                    value := camera.roilowh
+                    value :: camera.setSendROIvalues()
+                    minimum = 0
+                    maximum << camera.roimaxh
+                Slider:
+                    tracking = False
+                    value := camera.roihighh
+                    value :: camera.setSendROIvalues()
                     minimum = 0
                     maximum << camera.roimaxh
                 HGroup:
@@ -1720,6 +1729,9 @@ enamldef PICam(Window):
                     PushButton:
                         text = 'stop video'
                         clicked :: camera.stop_video()
+                    PushButton:
+                        text = 'Start Server'
+                        clicked :: camera.start_server()
                 LabelBox:
                     text = 'enable'
                     checked := camera.enable
@@ -1739,9 +1751,7 @@ enamldef PICam(Window):
                         text = 'shot'
                     SpinBox: shot:
                         minimum=0
-                        value := analysis.shot                        
-                            
-                            
+                        value := analysis.shot           
                         
                         
 
