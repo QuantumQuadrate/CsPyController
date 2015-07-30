@@ -1,0 +1,858 @@
+%% LyX 2.1.2.2 created this file.  For more info, see http://www.lyx.org/.
+%% Do not edit unless you really know what you are doing.
+\documentclass[english]{article}
+\usepackage[T1]{fontenc}
+\usepackage[latin9]{inputenc}
+\usepackage{geometry}
+\geometry{verbose,tmargin=1in,bmargin=1in,lmargin=1in,rmargin=1in}
+\setcounter{secnumdepth}{5}
+\setcounter{tocdepth}{5}
+\setlength{\parskip}{\smallskipamount}
+\setlength{\parindent}{0pt}
+\usepackage{url}
+
+\makeatletter
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% LyX specific LaTeX commands.
+\newcommand{\noun}[1]{\textsc{#1}}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% Textclass specific LaTeX commands.
+\newenvironment{lyxcode}
+{\par\begin{list}{}{
+\setlength{\rightmargin}{\leftmargin}
+\setlength{\listparindent}{0pt}% needed for AMS classes
+\raggedright
+\setlength{\itemsep}{0pt}
+\setlength{\parsep}{0pt}
+\normalfont\ttfamily}%
+ \item[]}
+{\end{list}}
+
+\makeatother
+
+\usepackage{babel}
+\begin{document}
+
+\title{CsPyController Programmers' Manual}
+
+
+\author{Martin Tom Lichtman}
+
+
+\date{2015 July 6}
+
+\maketitle
+\tableofcontents{}
+
+
+\section{Introduction}
+
+The \noun{CsPyController} software was written by MTL to run experiments
+and collect data for the \noun{AQuA}(\emph{Atomic Qubit Array}) project,
+however it was designed with extensibility in mind. This \emph{Programmers'
+Manual} explains how to extend \noun{CsPyController} by adding more
+\textbf{instruments} or \textbf{analyses}.
+
+A separate \emph{Users' Manual} explains the basic functionality of
+\noun{CsPyController}. While successful use of \noun{CsPyController}
+requires some knowledge of Python syntax, using the software as described
+in the \emph{Users' Manual} requires little more than being able to
+write, for example, \texttt{a = 5}, or, \texttt{arange(10)}. This
+\emph{Programmers' Manual} assumes familiarity with the use of CsPyController
+at least at the level of the \emph{Users' Manual}. However, it also
+assumes at least a moderate degree of skill in object-oriented programming
+in Python.
+
+Furthermore, while this manual explains the necessary features of
+a new \textbf{instrument} or \textbf{analysis}, it is left to the
+reader's creativity to invent new code that is powerful and useful.
+
+
+\section{GIT Version Control}
+
+As detailed in the \emph{Users' Manual}, the \noun{CsPyController}
+code is stored in, and can be cloned from, a GIT repository on the
+\texttt{hexagon}. You will need to be familiar at least with \emph{branching,
+commiting}, \emph{pushing} and \emph{pulling} in GIT. A GIT primer
+is available on the Saffmanlab Wiki, and much more info is available
+on the web, particularly at \url{git-scm.com} and \url{stackexchange.com}.
+The main stable branch is called \texttt{master}. Always pull \texttt{master}
+before beginning your work to make sure your have the lastest version.
+You should never make edits in \texttt{master}. It is fast and resource-cheap
+to make new branches in GIT, so branch early and often. Make a new
+branch for every new idea that you try. Make frequent commits to your
+new branch, and push to the server to make sure your work is backed
+up.
+
+The goal for all new branches should be to eventually merge them back
+into \texttt{master}, not to create a whole separate version of \noun{CsPyController}
+for your project. New \textbf{instruments} and \textbf{analyses} that
+you program may eventually be useful to others, and they should be
+programmed with this in mind. Also consider that others may \emph{not}
+want to use any particular \textbf{instrument} or \textbf{analysis},
+and so they should always have \texttt{enable} flags that allow a
+particular piece of code to be ignored and consume no resources.
+
+When your branch is mature enough to be both useful and stable, do
+not merge it into \texttt{master} yourself. Instead, make a \emph{pull
+request} to whomever is in charge of \noun{CsPyController} development
+(MTL until September 2015).
+
+
+\section{Tools}
+
+The author finds the \emph{PyCharm} editor invaluable for programming
+in Python. A free \emph{community edition} is available. It does a
+large amount of syntax and code flow checking for you on the fly,
+highlights potential errors, and it indexes the structure of your
+code so you can easily find the piece of code you are interested in.
+
+
+\section{Code Structure}
+
+
+\subsection{Top-level Classes}
+
+The execution of \noun{CsPyController} begins in \texttt{cs.py}, which
+does little more than create the GUI environment and assign an instance
+of \texttt{aqua.AQuA} to the GUI and vice-versa. \texttt{aqua.AQuA}
+is a subclass of \texttt{experiment.Experiment}. An instance of \texttt{experiment},
+can be thought of as the master object that has complete knowledge
+of all the various components of the software apparatus. \texttt{experiment.Experiment}
+defines all the methods which control experiment flow and looping
+through experiments, iterations and measurements. \texttt{aqua.AQuA}
+catalogs the various instrument and analysis code that is available,
+and defines the evaluation and update order of those pieces. For example,
+\texttt{aqua.AQuA} has an instance of \texttt{andor.Andor} , an \texttt{Instrument}
+for the Andor camera. It also has an instance of \texttt{andor.AndorViewer},
+which takes care of displaying new images from the Andor camera.
+
+Once you program your \textbf{instrument} or \textbf{analysis} as
+a new class, you will usually need to add an instance of that class
+to \texttt{aqua}.\texttt{AQuA}. \texttt{Instruments} can be nested,
+and so in some cases you will not want to add your new \textbf{instrument}
+to \texttt{aqua.AQuA}, but instead to a lower class. For example,
+the \texttt{LabView.LabView} \texttt{TCPInstrument} handles communication
+for, and acts as a container for, several sub-instruments. So \texttt{LabView.LabView}
+has instances of \texttt{HSDIO.HSDIO}, \texttt{AnalogOutput.AnalogOutput},
+and \texttt{AnalogInput.AnalogInput} (amongst others).
+
+The appropriate places to add references to an \texttt{Instrument}
+are slightly different from an \texttt{Analysis}, and all the necessary
+references will be detailed in their respective sections of this document.
+
+
+\subsection{\texttt{Prop}}
+
+A \texttt{instrument\_property.Prop} is the workhorse class that handles:
+\begin{itemize}
+\item evaluation with respect to the defined \textbf{constants}, \textbf{independent}
+and \textbf{dependent variables} namespace
+\item saving and loading settings
+\end{itemize}
+Most, if not all, classes that you define will inherit from \texttt{Prop}.
+For example, \texttt{Experiment}, \texttt{Instrument}, and \texttt{Analysis}
+are all subclasses of \texttt{Prop}. This allows their evaluation
+and save/load behavior to be standardized, called at the appropriate
+time. As long as you follow certain conventions, this allows you to
+program extensions to the code without worrying about these important
+processes.
+
+Every \texttt{Prop} has at least the following instance variables:
+\begin{itemize}
+\item \texttt{name}: a name that gives it a unique path in the \texttt{property}
+tree (i.e. it does not have to be globally unique, just unique amongst
+its siblings)
+\item \texttt{description}: some helpful information about this particular
+\texttt{Prop} instance (such as why it was set to a particular value,
+or what units its value has)
+\item \texttt{experiment}: a reference to the top-level \texttt{Experiment}
+instance
+\end{itemize}
+Generally these three instance variables will be defined when the
+\texttt{Prop} is constructed, for example with a call to \texttt{super(myProp,
+Prop).\_\_init\_\_(name, experiment, description)}
+
+Furthermore, every \texttt{Prop} also has at least the following instance
+variables:
+\begin{itemize}
+\item \texttt{properties}: a list of the instance variable names that should
+be evaluated (if they have such behavior) and saved. To add to the
+\texttt{properties} list, be sure to denote the variable names as
+strings, not as actual Python objects. Also, you will almost always
+want to append to the \texttt{properties}, instead of overwritting
+them, so that any \texttt{properties} from the parent class are preserved.
+For example:\end{itemize}
+\begin{lyxcode}
+self.properties~+=~{[}'clockRate',~'units'{]}\end{lyxcode}
+\begin{itemize}
+\item \texttt{doNotSendToHardware}: a list of items that are also in \texttt{properties},
+but that you do not wish to be processed by the \texttt{Prop.toHardware()}
+method, which creates XML code for transmitting to some TCP instrument
+server. Adding items to this list follows the same syntax as \texttt{properties. For
+example:}\end{itemize}
+\begin{lyxcode}
+self.doNotSendToHardware~=~{[}'description'{]}
+\end{lyxcode}
+When a \texttt{Prop} is evaluated, \noun{CsPyController} iterates
+through the \texttt{properties} list and attempts to evaluate each
+item. The items in \texttt{properties} do not have to be instances
+of \texttt{Prop}. However, if you do include \texttt{Prop}s in \texttt{properties},
+you can created nested trees of \texttt{Props}. Furthermore, when
+the settings are saved to HDF5 files, these nested trees are preserved
+in the HDF5 hierarchy. This is how many of the \noun{CsPyController}
+\texttt{Instruments} organize their settings.
+
+
+\subsubsection{\texttt{EvalProp}}
+
+A \texttt{Prop} knows how to save/load its \texttt{properties}, and
+when a \texttt{Prop} is evaluated it knows how to go through its \texttt{properties}
+and try to evaluate them. However, it still does not know \emph{how}
+to actually evaluate itself with respect to equations or functions
+and the like. For this, we have the \texttt{instrument\_properties.EvalProp}
+class, and several of its subclasses \texttt{StrProp}, \texttt{IntProp},
+\texttt{RangeProp}, \texttt{IntRangeProp}, \texttt{FloatRangeProp},
+\texttt{FloatProp}, \texttt{BoolProp}, \texttt{EnumProp}, \texttt{Numpy1DProp}
+and \texttt{Numpy2DProp}.
+
+In addition to all the workings of a \texttt{Prop}, each of these
+has a \texttt{function}, and a \texttt{value}. The \texttt{function}
+is a string which holds Python syntax code that will be evaluated
+in the namespace of the \textbf{constants}, \textbf{independent} and
+\textbf{dependent variables}. The evaluation is checked to make sure
+it results in the correct \texttt{type}, and in some cases within
+the correct range, and then is stored in \texttt{value}.
+
+The different subclasses of \texttt{EvalProp} are generally what you
+will use for \texttt{Instrument} and \texttt{Analysis} settings when
+you want users to be able to use variables there. More often than
+not you might as well enable this behavior, as opposed to static settings,
+as some future user might want to scan a setting in a way you did
+not expect.
+
+
+\subsection{GUI}
+
+
+\subsubsection{Enaml}
+
+The \noun{CsPyController} uses the \texttt{enaml} package to create
+the GUI. For reference on \emph{Enaml}, be sure to refer to the \emph{Nucleic}
+documentation at \url{http://nucleic.github.io/enaml/docs/} or the
+source code at \url{https://github.com/nucleic/enaml}, and not the
+older documentation or code from \emph{Enthought}. The GUI is defined
+using a heirarchical (i.e. nested) syntax in \texttt{cs\_GUI.enaml}.
+The syntax for the \emph{Enaml} file is mostly Python syntax, with
+several added operators (and some restrictions). In order to make
+the settings on your new \textbf{instrument} or \textbf{analysis}
+accessible to the user, you will have to first define the appropriate
+GUI widgets, and then link them to the backend instance variables
+that represent your \textbf{instrument} or \textbf{analysis}.
+
+
+\subsubsection{Make a new window}
+
+Usually you will create a new window to display your \textbf{instrument}
+settings or \textbf{analysis} results or graphs. To do this, first
+define the new \texttt{Window} widget.
+
+
+\paragraph{Instrument window}
+
+For example:
+\begin{lyxcode}
+enamldef~CameraWindow(Window):
+
+~~~~attr~camera
+
+~~~~title~=~'Groovy~EMCCD~Camera'
+
+~~~~Form:
+
+~~~~~~~~Label:
+
+~~~~~~~~~~~~text~=~'enable'
+
+~~~~~~~~CheckBox:
+
+~~~~~~~~~~~~checked~:=~camera.enable
+
+~~~~~~~~Label:
+
+~~~~~~~~~~~~text~=~'scan~mode'
+
+~~~~~~~~SpinBox:
+
+~~~~~~~~~~~~value~:=~camera.scan\_mode
+
+~~~~~~~~~~~~minimum~=~1
+
+~~~~~~~~~~~~maximum~=~3
+
+~~~~EvalProp:
+
+~~~~~~~~prop~<\textcompwordmark{}<~camera.EM\_gain
+
+~~~~EvalProp:
+
+~~~~~~~~prop~<\textcompwordmark{}<~camera.cooling
+
+~~~~EvalProp:
+
+~~~~~~~~prop~<\textcompwordmark{}<~camera.exposure\_time
+
+~~~~PushButton:
+
+~~~~~~~~text~=~'take~a~picture'
+
+~~~~~~~~clicked~::~camera.take\_one\_picture()
+\end{lyxcode}
+In this example we see several new features. First the \texttt{enamldef}
+statement, which functions much like a \texttt{class} declaration,
+but signals the \emph{Enaml} parser that this defines a new GUI object
+called \texttt{CameraWindow}. Here \texttt{CameraWindow} is defined
+as a subclass of \texttt{Window}. Merely defining \texttt{CameraWindow}
+does not actually create one, but we can create as many instances
+of it as we like, which will be explained below.
+
+Next \texttt{attr camera} is how the instance variable \texttt{camera}
+must be declared. Here \texttt{camera} will store a reference to an
+instance of an \texttt{Instrument} which contains all the information
+and functions for controlling a camera.
+
+The layout of the \texttt{Window} and its sub-widgets is controlled
+using a nested syntax. For example the \texttt{Window} contains \texttt{a
+Form} (an invisible container with two column layout), which in turn
+contains \texttt{Label} and \texttt{CheckBox}. These are base widgets
+from the \texttt{enaml} package. The default layout for \emph{Enaml}
+widgets is usually adequate, but you may fine tune all the layout
+and behavior as described in the \emph{Enaml} docs.
+
+There are several assignment operators that are unique to \emph{Enaml}.
+First we see \texttt{text = 'enable'} which is a simple one-time assignment
+of the string \texttt{'enable'} to the \texttt{text} field of the
+\texttt{Label}. Next we see \texttt{checked := camera.enable}, where
+the \texttt{:=} operator denotes a two-way synchronizaton. Any changes
+to \texttt{camera.enable} (a True/False boolean variable) will update
+the checked/unchecked state of the \texttt{CheckBox}. At the same
+time any time the user checks/unchecks the \texttt{CheckBox} causing
+its \texttt{checked} state to change, the value of \texttt{camera.enable}
+will change on the backend. This is one of the best features of \emph{Enaml}
+that makes it easy to link up variables on the GUI and backend. \texttt{camera.enable}
+is an example of a setting that does not respond to equations (it
+is a \texttt{Bool}, not an \texttt{EvalProp}).
+
+The \texttt{Form} also contains another \texttt{Label} and a \texttt{SpinBox}.
+The \texttt{SpinBox} has its \texttt{value} synced to the variable
+\texttt{camera.scan\_mode}, which is another example of a setting
+that does not take equations (it is an \texttt{Int}, not an \texttt{IntProp}).
+The \texttt{minimimum} and \texttt{maximum} arguments define the available
+range of the \texttt{SpinBox}.
+
+Then we see the \texttt{EvalProp} widget, which is a useful custom
+widget defined in \texttt{cs\_GUI.enaml}, that links to an \texttt{instrument\_property.EvalProp},
+displays the \texttt{EvalProp.name}, gives a place to enter the \texttt{EvalProp.description}
+and \texttt{EvalProp.function}, and displays the evaluated \texttt{EvalProp.value}.
+This works with any kind of \texttt{EvalProp}, be it an \texttt{IntProp},
+\texttt{StrProp}, or \texttt{FloatProp}, etc. Here we see how the
+\noun{CsPyController }backend has made it easy for you to handle \texttt{EM\_gain}
+(an \texttt{IntProp}), \texttt{cooling} (a \texttt{BoolProp}), and
+\texttt{exposure\_time} (a \texttt{FloatProp}) all using the same
+code.\texttt{ }The \texttt{function} field will highlight in red if
+it does not evaluate to the correct type, making it easy to find user
+errors. A \texttt{placeholder} in the \texttt{function} field shows
+the expected type or range if the field is left blank.
+
+You may of course define your own custom widgets to handle your data
+structures in new ways.
+
+Within the \texttt{EvalProp} widgets, we see the use of the subscription
+operator \texttt{<\textcompwordmark{}<}. This operator is a one-way
+subscription, so that whenever, for example, the \texttt{camera.EMGain}
+object changes identity (such as during a settings load), the GUI
+will update (but not vice-versa). The operator \texttt{>\textcompwordmark{}>}
+is also available which is a one-way broadcasting that will update
+the backend variable when the GUI updates, but not vice-versa.
+
+Finally, we have clickable button defined using \texttt{PushButton. We}
+see the \texttt{::} operator, which does not pass a value, but instead
+defines an action to be taken. In this case, when the \texttt{clicked}
+state of the \texttt{PushButton} changes, the method \texttt{take\_one\_picture()}
+is called.
+
+
+\paragraph{Analysis Window}
+
+A \texttt{Window} for an \texttt{Analysis} is created in much the
+same way as for an \texttt{Instrument}. For the \texttt{Analysis}
+you will usually want to have more ways to display data and statistics.
+For example:
+\begin{lyxcode}
+enamldef~PictureViewer(Window):
+
+~~~~attr~viewer
+
+~~~~title~=~'Picture~Viewer'
+
+~~~~MPLCanvas:
+
+~~~~~~~~figure~<\textcompwordmark{}<~viewer.fig
+
+~~~~Label:
+
+~~~~~~~~text~<\textcompwordmark{}<~viewer.text
+\end{lyxcode}
+In this example the attribute \texttt{viewer} would be linked to an
+instance of, for example an \texttt{analysis.AnalysisWithFigure}.
+The \texttt{MPLCanvas} is a widget which allows the display of any
+\texttt{matplotlib} figure. The GUI display is only updated whenever
+the identity of \texttt{viewer.fig} is changed as specified by the
+\texttt{<\textcompwordmark{}<} subscription operator. (A simple redraw
+is not enough, but these mechanics are handled for you if you use
+the \texttt{AnalysisWithFigure} class.) Finally the \texttt{Label}
+widget is used to display dynamic from \texttt{viewer.text} by using
+the \texttt{<\textcompwordmark{}<} subscription operator, unlike in
+the \texttt{CameraWindow} example above where the \texttt{Label} \texttt{text}
+is static.
+
+
+\subsubsection{Add the Window to the list}
+
+In order so that the user can call up your new \texttt{Window} by
+selecting it on the combo box in the \texttt{MainWindow} (the one
+that opens when you launch \texttt{cs.py}), it must be added to the
+\texttt{window\_dictionary} used in \texttt{Main}. Toward the bottom
+of \texttt{cs\_GUI.enaml} you will find the definition of \texttt{window\_dictionary}
+as a Python \texttt{dict}. Add your \texttt{Window} to the list with
+the following syntax:
+\begin{lyxcode}
+'Groovy~Camera~Setup':~'CameraWindow(camera~=~main.experiment.camera)',
+\end{lyxcode}
+or
+\begin{lyxcode}
+'Groovy~Camera~Display':~'PictureViewer(analysis~=~main.experiment.picture\_viewer)',
+\end{lyxcode}
+The first element is a string key that is used as the display text
+in the combo box. The second element is a string, which when evaluated
+is a call to the constructor for your new \texttt{Window} subclass.
+The constructor is passed values for all the \texttt{attr} attributes
+defined in the \texttt{Window}. In \texttt{main.experiment.camera},
+first \texttt{main} refers to the \texttt{MainWindow}, which knows
+about \texttt{experiment} which is your instance of \texttt{experiments.Experiment},
+which finally has an instance of an \texttt{Instrument} named \texttt{camera}.
+(We will cover creating this backend instance below.) Similarly, the
+\texttt{PictureViewer} instance is passed a reference to an instance
+of an \texttt{Analysis} named \texttt{picture\_viewer} on the backend.
+This list is automatically sorted alphabetically, so position is not
+important. However, be sure that each line except the last ends with
+a comma.
+
+
+\section{\texttt{atom}}
+
+Use of \texttt{enaml} for the GUI requires that we use the \texttt{atom}
+package to support the variable-to-GUI synchronization and event observation.
+This offers both advantages and additional headaches. Any class whose
+variables we would like to sync with the GUI, must descend from the
+class \texttt{atom.api.Atom}. To achieve this, we make \texttt{Prop}
+a subclass of \texttt{Atom} so that every \texttt{EvalProp}, \texttt{Instrument}
+and \texttt{Analysis} already has this inheritance.
+
+One disadvantage (although it provides a performance boost) of using
+an \texttt{atom.api.Atom} is that you cannot declare instance-wide
+variables on the fly, they must be declared at the top of the class
+definition. What this means is that you cannot state:
+\begin{lyxcode}
+from~atom.api~import~Atom
+
+class~MyClass(Atom):
+
+~~~~def~myMethod(self):
+
+~~~~~~~~self.x~=~5
+\end{lyxcode}
+Instead you must declare \texttt{x} using, for example:
+\begin{lyxcode}
+from~atom.api~import~Atom,~Int
+
+class~MyClass(Atom):
+
+~~~~x~=~Int()~~~~
+
+~~~~def~myMethod(self):
+
+~~~~~~~~self.x~=~5
+\end{lyxcode}
+Here the type used is \texttt{Int}, which is not the basic Python
+\texttt{int} but instead is an \texttt{atom} class which implements
+error checking to make sure that only integers are assigned to \texttt{x}.
+\texttt{atom} also has classes for \texttt{Bool}, \texttt{Float},
+\texttt{String} and many other types as well as customizable wrappers.
+It is required to use these \texttt{atom} types instead of basic Python
+types. If you would like to synchronize one of these backend variables
+with the GUI, then the declared type of the variable must match the
+type expected by the GUI widget.
+
+There are often variables that you would prefer not to have to both
+to declare, perhaps because they will never be used in the GUI, or
+they may have some unique type that is not supported easily by \texttt{atom}.
+For these, use the \texttt{Member} type which is the most general
+that \texttt{atom} allows:
+\begin{lyxcode}
+from~atom.api~import~Atom,~Member
+
+class~MyClass(Atom):
+
+~~~~x~=~Member()~~~~
+
+~~~~def~myMethod(self):
+
+~~~~~~~~self.x~=~some\_weird\_type()
+\end{lyxcode}
+The synchronization tools of \texttt{atom} are activated automatically
+by using the \texttt{:=}, \texttt{<\textcompwordmark{}<}, or \texttt{>\textcompwordmark{}>}
+operators in the \texttt{.enaml} file. There are further ways to leverage
+atom to perform actions on variable changes, such as the \texttt{@observe}
+decorator. Used here in an example from \texttt{AnalogInput.py}:
+\begin{lyxcode}
+from~atom.api~import~observe,~Str
+
+class~MyClass(Atom):
+
+~~~~list\_of\_what\_to\_plot~=~Str()
+
+~~~~@observe('list\_of\_what\_to\_plot')
+
+~~~~def~reload(self,~change):
+
+~~~~~~~~self.updateFigure()
+\end{lyxcode}
+In this example, whenever the string \texttt{list\_of\_what\_to\_plot}
+is changed, then the \texttt{updateFigure()} method is called.
+
+Info on the \texttt{atom} package is available at \url{https://github.com/nucleic/atom},
+however the most complete information on \texttt{atom} is actually
+available in the \texttt{enaml} examples.
+
+
+\section{\texttt{Instrument}}
+
+
+\subsection{Create a new \texttt{Instrument}}
+
+The class \texttt{cs\_instrument.Instrument} is the base class to
+use to describe a new \textbf{instrument}. First, create a new \texttt{.py}
+file to hold your class. At the top of the class, you will almost
+always want some fashion of the following import lines:
+\begin{itemize}
+\item Usually it is a good idea to set default divison to be floating point,
+not integer math (so that $1/2=0.5$ instead of $1/2=0$).\end{itemize}
+\begin{lyxcode}
+from~\_\_future\_\_~import~division\end{lyxcode}
+\begin{itemize}
+\item Don't use print statements, instead use \texttt{logger.info()}, \texttt{logger.debug()},
+\texttt{logger.warning()}, \texttt{logger.error()}. These will handle
+time stamping and saving to the log.txt file.\end{itemize}
+\begin{lyxcode}
+import~logging~logger~=~logging.getLogger(\_\_name\_\_)\end{lyxcode}
+\begin{itemize}
+\item Your code should implement try/except error catching blocks, and give
+description errors sent to the \texttt{logger} commands. When the
+error is bad enough that the experiment execution should be paused,
+use \texttt{raise PauseError.}\end{itemize}
+\begin{lyxcode}
+from~cs\_errors~import~PauseError\end{lyxcode}
+\begin{itemize}
+\item You will probably need some \texttt{atom} types:\end{itemize}
+\begin{lyxcode}
+from~atom.api~import~Member,~Int,~Bool,~Str,~Float\end{lyxcode}
+\begin{itemize}
+\item Numerical functions are very often useful:\end{itemize}
+\begin{lyxcode}
+import~numpy~as~np\end{lyxcode}
+\begin{itemize}
+\item You will probably want some \texttt{EvalProp} types:\end{itemize}
+\begin{lyxcode}
+from~instrument\_property~import~BoolProp,~IntProp,~FloatProp,~StrProp\end{lyxcode}
+\begin{itemize}
+\item Finally, you will need the \noun{CsPyController} base class for an
+\textbf{instrument}: \end{itemize}
+\begin{lyxcode}
+from~cs\_instruments~import~Instrument
+\end{lyxcode}
+Now define your new class. In this simple example we will create a
+new camera class that uses a \texttt{DLL} (dynamic link library) driver
+to send commands to the hardware. This is very hardware specific,
+and you might use some other means to communicate with the hardware.
+Use of the \texttt{TCP\_Instrument} to communicate with a separate
+\textbf{instrument server} is shown later. The main points to absorb
+here are how the variables are set up to coordinate with the GUI frontend
+described above.
+\begin{lyxcode}
+from~ctypes~import~CDLL
+
+
+
+import~class~GroovyCamera(Instrument):
+
+~~~~EM\_gain~=~Member()
+
+~~~~cooling~=~Member()
+
+~~~~exposure\_time~=~Member()
+
+~~~~scan\_mode~=~Int(1)
+
+~~~~
+
+~~~~dll~=~Member()
+
+~~~~current\_picture~=~Member()
+
+~~~~
+
+~~~~def~\_\_init\_\_\_(self,~name,~experiment,~description='A~great~new~camera'):
+
+~~~~~~~~\#~call~Instrument.\_\_init\_\_~to~setup~the~more~general~features,~such~as~enable
+
+~~~~~~~~super(self,~GroovyCamera).\_\_init\_\_(name,~experiment,~description)
+
+~~~~~~~~
+
+~~~~~~~~\#~create~instances~for~the~Prop~properties
+
+~~~~~~~~self.EM\_gain~=~IntProp('EM\_gain',~experiment,~'the~electron~multiplier~gain~(0-255)',~'0')
+
+~~~~~~~~self.cooling~=~BoolProp('cooling',~experiment,~'whether~or~not~to~turn~on~the~TEC',~'True')
+
+~~~~~~~~self.exposure\_time~=~FloatProp('exposure\_time',~experiment,~'how~long~to~open~the~shutter~{[}ms{]}',~'50.0')
+
+~~~~~~~~
+
+~~~~~~~~\#~list~all~the~properties~that~will~be~evaluated~and~saved
+
+~~~~~~~~properties~+=~{[}'EM\_gain',~'cooling',~'exposure\_time',~'scan\_mode'{]}
+
+~~~~
+
+~~~~def~initialize(self):
+
+~~~~~~~~\textquotedbl{}\textquotedbl{}\textquotedbl{}initialize~the~DLL\textquotedbl{}\textquotedbl{}\textquotedbl{}
+
+~~~~~~~~self.dll~=~CDLL(\textquotedbl{}camera\_driver.dll\textquotedbl{})
+
+~~~~~~~~super(self,~GroovyCamera).initialize()
+
+~~~~
+
+~~~~def~take\_one\_picture(self):
+
+~~~~~~~~\textquotedbl{}\textquotedbl{}\textquotedbl{}Send~a~single~shot~command~to~the~camera.
+
+~~~~~~~~Use~a~hardware~command,~which~might~be~call~to~a~DLL,~for~example
+
+~~~~~~~~This~ficticious~example~returns~the~picture~as~an~array,~which~is~assigned~to~self.current\_picture.
+
+~~~~~~~~\textquotedbl{}\textquotedbl{}\textquotedbl{}
+
+~~~~~~~~if~not~self.isInitialized:
+
+~~~~~~~~~~~~self.initialize()
+
+~~~~~~~~if~self.enable:
+
+~~~~~~~~~~~~self.current\_picture~=~self.dll.take\_picture\_now()
+
+~~~~
+
+~~~~def~update(self):
+
+~~~~~~~~\textquotedbl{}\textquotedbl{}\textquotedbl{}Send~the~current~settings~to~hardware.\textquotedbl{}\textquotedbl{}\textquotedbl{}
+
+~~~~~~~~self.dll.set\_EM\_gain(self.EM\_gain.value)
+
+~~~~~~~~self.dll.set\_cooling(self.cooling.value)
+
+~~~~~~~~self.dll.set\_exposure\_time(self.exposure\_time.value)
+
+~~~~~~~~self.dll.scan\_mode(self.scan\_mode)
+
+~~~~
+
+~~~~def~start(self):
+
+~~~~~~~~\textquotedbl{}\textquotedbl{}\textquotedbl{}Tell~the~camera~to~wait~for~a~trigger~and~then~capture~an~image~to~its~buffer.\textquotedbl{}\textquotedbl{}\textquotedbl{}
+
+~~~~~~~~self.dll.wait\_for\_trigger()
+
+~~~~~~~~self.isDone~=~True
+
+~~~~
+
+~~~~def~acquire\_data(self):
+
+~~~~~~~~\textquotedbl{}\textquotedbl{}\textquotedbl{}Get~the~latest~image~from~the~buffer.\textquotedbl{}\textquotedbl{}\textquotedbl{}
+
+~~~~~~~~self.current\_picture~=~self.dll.get\_picture\_from\_buffer()
+
+~~~~
+
+~~~~def~writeResults(self,~hdf5):
+
+~~~~~~~~\textquotedbl{}\textquotedbl{}\textquotedbl{}Write~the~previously~obtained~results~to~the~experiment~hdf5~file.\textquotedbl{}\textquotedbl{}\textquotedbl{}
+
+~~~~~~~~try:
+
+~~~~~~~~~~~~hdf5{[}'groovy\_camera/data'{]}~=~self.current\_picture()
+
+~~~~~~~~except~Exception~as~e:
+
+~~~~~~~~~~~~logger.error('in~GroovyCamera.writeResults()~while~attempting~to~save~camera~data~to~hdf5\textbackslash{}n\{\}'.format(e))
+
+~~~~~~~~~~~~raise~PauseError
+\end{lyxcode}
+Let us go through the parts of this \texttt{Instrument}. First, we
+needed to declare all the instance variables, because \texttt{Instrument}
+is a \texttt{Prop} which is an \texttt{Atom}. The \texttt{EM\_gain},
+\texttt{cooling}, \texttt{exposure\_time} and \texttt{scan\_mode}
+variables all require this because they are synchronized with the
+GUI. The \texttt{dll} and \texttt{current\_picture} variables don't
+have a purpose in being declared, but it is required to declare all
+instance variables within an \texttt{Atom}.
+
+The \texttt{\_\_init\_\_} method is called when an instance of \texttt{GroovyCamera}
+is constructed, and takes in the \texttt{name}, a reference to the
+\texttt{Experiment}, and an optional \texttt{description} with a default
+description of \texttt{'A great new camera'}. We then immediately
+pass on most of this information to the parent class using a \texttt{super}
+command, so that \texttt{Instrument} can handle this info with the
+default behavior. Next we create instances for each \texttt{Prop}
+that this class contains. \texttt{IntProp}, \texttt{BoolProp} and
+\texttt{FloatProp} each take the same arguments of \texttt{(name,
+experiment, description, initial\_function\_string)} with the only
+difference being in the type that the function string will resolve
+to. It is necessary that the \texttt{name} parameter be a string that
+matches the actual variable name, and so \texttt{self.EM\_gain} is
+given a \texttt{name} of \texttt{'EM\_gain'}. The reference to \texttt{experiment}
+will be passed in when we instantiate this class, which will be shown
+later. The \texttt{description} should contain useful text specific
+to this variable, such as the units, or why a particular value was
+chosen. Finally, the \texttt{initial\_function\_string} can contain
+variables and equations, but must evaluate to the correct type. Note
+that this is a string, and so we write \texttt{'50.0'} and not \texttt{50.0}.
+If a \texttt{StrProp} were used, the string must evaluate to a string,
+so you could write \texttt{'''hi'''} or \texttt{'str(5)'} for example.
+Finally we must indicate that all these variables should be evaluated
+and saved, by adding them to the \texttt{properties} string. Note
+that once again this is a list of strings, and so we write \texttt{{[}'EM\_gain',
+'cooling', 'exposure\_time', 'scan\_mode'{]}}, and not \texttt{{[}EM\_gain,
+cooling, exposure\_time, scan\_mode{]}}. Also note that we say \texttt{properties
++=} and not \texttt{=}, because we do not want to lose any properties
+from the list that were assigned in \texttt{Instruments.\_\_init\_\_()},
+which in this case includes the \texttt{enable} variable. 
+
+Note how we used the \texttt{enable} variable in the GUI example,
+and yet it is not shown in the code above (except in \texttt{take\_one\_picture()}).
+That is because \texttt{enable} is set up in the parent class and
+inherited without modification here. It is necessary to specifically
+check the \texttt{enable} variable in \texttt{take\_one\_picture()}
+because that is a custom method for this example. However, we do not
+check \texttt{enable} in \texttt{initialize()}, \texttt{update()},
+\texttt{start()}, \texttt{acquire\_data()} or \texttt{writeResults()}
+because \noun{CsPyController} takes care of checking that for all
+\texttt{Instruments} before these methods are called in \texttt{Experiment}.
+
+The \texttt{initialize()} method is called for all \texttt{Instruments}
+before they \texttt{update}, but only once (or as long as \texttt{self.isInitialized
+== False}). This is a good place to do initial one-time setup of the
+instrument. In this example we use this method to setup the DLL. We
+end with a call to \texttt{Instrument.initialize()} via \texttt{super},
+which in this case will just set \texttt{self.isInitialized = True}
+for us, so that \texttt{initialize} will not be called again.
+
+The \texttt{take\_one\_picture()} method is something that we set
+up in this example to be called by a \texttt{PushButton} on the GUI.
+This method is therefore executed in the GUI thread. If the DLL call
+is very slow, it would be necessary to have this method spawn a different
+thread which would then make the DLL call, so as to not cause the
+GUI to hang. We check \texttt{isInitialized} before proceeding with
+this method because \texttt{initialize()} may not have been called
+yet, if this button is pressed before the first experiment is run.
+
+The \texttt{update()} method is called at the beginning of every \textbf{iteration},
+after everything has been evaluated with the newly iterated variables.
+The job of \texttt{update} is to send the updated settings to the
+hardware. This is very hardware specific, and in this example we do
+so with a series of calls to the DLL. Note how we pass \texttt{EM\_gain.value},
+\texttt{cooling.value}, and \texttt{exposure\_time.value}, and not
+\texttt{EM\_gain}, \texttt{cooling} and \texttt{exposure\_time}, because
+we do not want to pass the whole \texttt{EvalProp} instance, just
+the relevant evaluated value. For \texttt{scan\_mode} we can just
+pass \texttt{scan\_mode} because it is a primitive type, not an \texttt{EvalProp}.
+
+The \texttt{start()} method is called at the beginning of every \textbf{measurement}.
+If this instrument's timing is to be triggered by some other piece
+of hardware, like for example an HSDIO digital output channel, then
+\texttt{start()} should just set the instrument up to wait for the
+trigger, which is what we have done here. If this instrument will
+be internally timed, then just go ahead and tell it to proceed with
+a \textbf{measuremen}t. The \textbf{measurement} will not end until
+all the instruments have \texttt{self.isDone == True} (or if the experiment
+timeout is reached). You can delay setting \texttt{isDone} to \texttt{True}
+until you have confirmation that the instrument has fired, for example
+by creating a watchdog thread which keeps checking the camera status
+or buffer and updates \texttt{isDone} only once that status changes.
+Or you can take the easier route that we use here, and simply trust
+that the camera will do its job if it gets the trigger, and that the
+HSDIO will not report \texttt{isDone} until it finishes its sequence
+and all the output triggers. So here we just set \texttt{self.isDone
+= True} right away.
+
+Next, \texttt{acquire\_data()} is called after all the \texttt{Instruments}
+reach the \texttt{isDone} state. This may not be necessary for all
+instruments, if for example the data was returned right away in \texttt{start()}.
+This method should store the data in an instance variable, where it
+can be used directly or accessed later for saving to the results file.
+
+Finally, we have the \texttt{writeResults()} method. This method should
+save any data to the HDF5 file. A reference to the HDF5 node within
+this particular measurement (i.e. \texttt{f{[}/iterations/\#/measurements/\#/data}{]})
+is passed in as \texttt{hdf5}. The reason that this method exists
+separately from \texttt{acquire\_data} is that in some cases you may
+need to get back data from other instruments before deciding exactly
+how to process and save the data from this instrument. This separation
+is not always necessary, and so you could do the work of both \texttt{acquire\_data}
+and \texttt{writeResults} in just \texttt{writeResults} and avoid
+having to create the \texttt{current\_picture} temporary storage variable.
+
+
+\subsection{Create a new \texttt{TCP\_Instrument}}
+
+
+\subsection{Instantiate your \texttt{Instrument}}
+
+
+\section{Analysis}
+
+
+\subsection{Create a new \texttt{Analysis}}
+
+
+\subsection{Instantiate your \texttt{Analysis}}
+
+
+\section{Afterword}
+
+This guide is intended to explain the minimum necessary structure
+for adding an \textbf{instrument} or \textbf{analysis}. \noun{CsPyController}
+is however a complicated package, with at the time of this writing 35519 
+lines of Python code, a great deal of auxiliary code in LabView, C,
+C++ and C\#, totaling 821 MB for the repository, and 764 GIT commits
+on \texttt{master}. The ultimate way to understand the details of
+implementation, and to get ideas for how complicated structures have
+been implemented, is to look at the source code. A great deal of effort,
+to the best of the author's ability and time, has been put into making
+the source code well commented. Your contributions to making this
+code even better will be greatly appreciated.
+\end{document}

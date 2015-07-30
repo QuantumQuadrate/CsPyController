@@ -1,0 +1,1058 @@
+\documentclass[pdftex,11pt,letterpaper]{article}
+
+\usepackage[pdftex]{graphicx}
+\usepackage[margin=.75in]{geometry}
+\usepackage{enumitem}
+\usepackage{mathtools}
+\usepackage{url}
+\usepackage{hyperref}
+\usepackage{amssymb}
+\usepackage[toc,page]{appendix}
+\usepackage{listings}
+\lstset{
+basicstyle=\small\ttfamily,
+columns=flexible,
+breaklines=true
+}
+
+\title{CsPyController Users' Manual}
+\author{Martin Tom Lichtman}
+
+\begin{document}
+\maketitle
+
+\tableofcontents
+\section{Introduction}
+The \textsc{CsPyController} software was written by MTL to run experiments and collect data for the \textsc{AQuA} (\textit{Atomic Qubit Array}) project.  It was designed with generality in mind, and should be usable for a wide variety of physics experiments.  It is the successor to \textsc{CsLabViewController} (also by MTL), which was in turn the successor to \textsc{QCE Suite} (by Thomas Henage), and presents many improvements over those codes, including increased flexibility, programmability, ease of use, maintainability, and in particular a built-in optimizer.
+
+This manual demonstrates basic use of the software, including instruments and analyses which are already part of the code.  A separate \textit{CsPyControler Programmers' Manual} explains how to extend the code for new instruments and analyses.
+
+\section{Architecture}
+\textsc{CsPyControler} uses a central controller written in Python as the high-level \textbf{command center}.  This \textbf{command center} sequences the experiment, send out commands to instruments, collects data, and runs some analyses.  Under normal operation, the users only interacts with the Python \textbf{command center}.
+
+Some instruments are controlled by the \textbf{command center} directly, however many are controlled by satellite \textbf{instrument server} programs.  These \textbf{servers} may be running on the same computer, or the may run on a different computer.  Regardless of location, communication between the \textbf{command center} and the \textbf{servers} is done using \textit{TCP/IP} internet protocol messaging.  This allows the \textbf{servers} to be written any language for any operating system.  The user must manually start any separate \textbf{servers}, but once they are running the \textbf{command center} acts as a \textit{TCP/IP client} and all user interaction, setup and control is done from there.  The main instruments in use on the AQuA project are on a separate PXI system, controlled by a \textbf{server} written in \textit{LabView} running on an embedded \textit{Windows} controller running on that system.
+
+For every experiment, the settings and data are saved into \textsc{HDF5} files, which is a standardized and well-supported file format which is ideally suited for scientific data collection.  Some analyses are done on-the-fly in the \textbf{command center}, but any other analysis desired may always be done on the data saved to the HDF5 file, using your scientific computing software of choice (e.g. \textit{Mathematica}, \textit{Matlab}.  Or as MTL recommends \textit{Python} with the \texttt{ipython}, \texttt{h5py}, \texttt{numpy}, \texttt{scipy} and \texttt{matplotlib} packages.)
+
+\section{Installation}
+
+The \textsc{CsPyController} software is stored in a \textit{GIT} repository on the Saffmanlab \texttt{hexagon} server, which makes it easy to archive and maintain version control.  The \textbf{command center} can be run on any operating system that supports Python, and has been tested on both Windows and Mac OS/X.  However, the majority of work has been done on the following configuration, and hence is the only configuration supported:
+
+\begin{itemize}
+\item Microsoft Windows 8, 64-bit, with Classic Shell
+\item Python 2.7, 64-bit, via Enthought Canopy
+\item LabView 2014, 32-bit
+\end{itemize}
+
+\subsection{Install GIT}
+
+Download the latest Windows binary of \textit{GIT} from \url{https://git-scm.com/download/win}.  Follow instructions there to install GIT.  All the default installation choices are acceptable.
+
+\subsection{Clone the \textsc{CsPyController} repository}
+
+To get a copy of the \textsc{CsPyController} software, you will make a GIT ``clone'' of the repository.  First, map \texttt{hexagon} as a network drive by opening the \textit{Windows Explorer}, right clicking \textit{My Computer} or \texttt{This PC}, and selecting \textit{Map network drive}.  Chose a drive letter (e.g. \texttt{Z:}) and then point to the server at \texttt{\textbackslash \textbackslash hexagon\textbackslash hexagon D\textbackslash users}.
+
+Next launch the \texttt{Git Gui} from the Start Menu under \texttt{All Programs $\rightarrow$ Git $\rightarrow$ Git GUI}.  Select \textit{Clone Existing Repository} and for \textit{Source Location} browse to \texttt{Z:/Public/software/git\_repos/CsPyController.git}.  For \textit{Target Directory} install the software wherever you like (e.g. \texttt{C:/Users/Hexagon/Documents/git}.  A \textit{Standard} copy is sufficient.  Click \textit{Clone} to complete the process.
+
+\subsection{Install Python}
+
+There are many ways to install \textit{Python} and its packages.  The recommended and supported method is to use \textit{Enthought Canopy}, which has the easiest package manager available.  First, request a free academic license at \url{https://store.enthought.com/licenses/academic/}.  Once your license is confirmed, log in at \url{https://store.enthought.com/accounts/login/} and download \textit{Canopy 64-bit for Windows} from \url{https://store.enthought.com/downloads/canopy/win/64/free/}.
+
+Follow instructions there to install \textit{Canopy}.
+
+\subsection{Install Python packages}
+
+Once \textit{Canopy} is installed, launch the package manager via \texttt{Start Menu $\rightarrow$ All Programs $\rightarrow$ Enthought Canopy 64-bit $\rightarrow$ Package Manager}.  On servers such as \texttt{hexagoncrunch3} you must \texttt{Run as administrator} for the package manager to work.  Log in using your \textit{Enthough} account.  First click \texttt{Updates} and then click \texttt{Install all Updates}.  Then go to \texttt{Available Packages} and install the following packages (if they are not already installed):
+
+\begin{itemize}
+\item enaml (0.9.8-3 or later)
+\item h5py (2.5.0-3 or later)
+\item matplotlib (1.4.3-5 or later)
+\item numpy (1.9.2-1 or later)
+\item pyaudio (0.2.4-3 or later)
+\item pypng (0.0.15-1 or later)
+\item PyQt (4.11.3-1 or later)
+\item pyserial (2.7-2 or later)
+\item scikit\_learn (0.16.1-2 or later)
+\item scipy (0.15.1-2 or later)
+\end{itemize}
+
+And for data analysis you will find it very useful to install:
+
+\begin{itemize}
+\item ipython (3.2.0-1 or later)
+\item seaborn (0.5.1-9 or later)
+\end{itemize}
+
+Any packages necessary to support these will be automatically install.  Not all of these are strictly required to use CsPyController, some of them are convenient to have installed for data analysis.
+
+\subsection{Install LabView or LabView Runtime Engine}
+
+If you will be using any of the \textit{National Instruments} devices such as \textit{HSDIO, DAQmx or IMAQ} cards, it will be necessary to run the \texttt{CsPyController LabView server}.  It is not necessary to install a complete copy of LabView (although you can choose to do so), but it will be necessary to install the LabView Runtime Engine (32-bit 2014 SP1 or later), which can be downloaded from \url{http://www.ni.com/download/labview-run-time-engine-2014/4887/en/ }.  You may need to create an NI account to download software.  The departmental has a site license for most \textit{National Instruments} products, and license number can be obtained from the IT department (e.g. Chad Seys).  As of this writing the most recent license number was \texttt{H21L20973}.  It should be entered when the installers  as for \texttt{serial number}.
+
+You will also need the runtime or full versions of several LabView packages:
+
+\begin{itemize}
+\item NI Vision Development Module (2014 SP1 or later)
+\item NI-845x (14.0 or later)
+\item NI-DAQmx (14.2.0 or later)
+\item NI-HSDIO (14.0.0 or later)
+\item NI-IMAQ (14.5 or later)
+\item NI-VISA (14.0.1 or later)
+\end{itemize}
+
+Always install LabView before installing packages, so the package installer can auto-detect which versions need support.  The packages are available individually from \url{http://www.ni.com/downloads/drivers/} or you may find most of them in the \textit{NI Device Driver} bundle.  Typically it is less time consuming to download the individual drivers, rather than the bundle.  Follow the installation instructions for each installer.
+
+\subsection{Launch the Python \textbf{command center}}
+
+To launch the Python \textbf{command center}, open:
+\\ \\
+\texttt{Start Menu}$\rightarrow$\texttt{All Programs}$\rightarrow$\texttt{Enthought Canopy (64-bit)}$\rightarrow$\texttt{Canopy 64-bit command prompt}
+\\ \\
+Change directories into the \texttt{python} subdirectory of your cloned \textit{CsPyController} repository, with the command:
+\\ \\
+\texttt{cd C:\textbackslash Users\textbackslash Hexagon\textbackslash Documents\textbackslash git\textbackslash CsPyController\textbackslash python}
+\\ \\
+where the second argument must be customized to your installation location.  Then type:
+\\ \\
+\texttt{python cs.py}
+\\ \\
+Hit enter and the \textit{CsPyController} \textbf{command center} will open.  The main window has a combo box to select which window your would like to open.  Multiple copies of each window may be open and they will stay in sync.
+
+Alternatively, if you set up python to be be in the path of an ordinary Windows command prompt (via the \textit{Canopy} installer or preferences, or manually), then you can launch the \textbf{command center} via a batch file.  Open \textit{Windows Explorer}, navigate to the directory where you cloned \textit{CsPyController} into, and then into the \texttt{python} subdirectory (e.g. \texttt{cd C:\textbackslash Users\textbackslash Hexagon\textbackslash Documents\textbackslash git\textbackslash CsPyController\textbackslash python}).  Double-click \texttt{CsPyController.bat}.  You can drag this \texttt{.bat} file to the \texttt{Start Menu} for quick access.
+
+\subsection{Launch the LabView \textbf{PXI\_server}}
+
+On the machine with the \textit{National Instruments} devices (this may be the same machine), open \textit{Windows Explorer}, navigate to the directory where you cloned \textit{CsPyController} into, and then into the\\ \texttt{labview\textbackslash PXI\_server\textbackslash builds} subdirectory \\(e.g. \texttt{C:\textbackslash Users\textbackslash Hexagon\textbackslash Documents\textbackslash git\textbackslash CsPyController\textbackslash labview\textbackslash PXI\_server\textbackslash builds}) and double-click \texttt{PXI\_server.exe}.  This \texttt{.exe} can be dragged to your \texttt{Start Menu} for easier access.
+
+If you have multiple ethernet cards, and want to restrict incoming connections to a specific network, enter the IP address of the specific ethernet card.  Listen for local connections only using \texttt{localhost}.  Otherwise leave the space blank.  This is the address of the machine running \textbf{PXI\_server}, not the address of the machine running the textbf{command center}.
+
+The IP address of this machine can be found from a command prompt by typing \texttt{ipconfig} and noting the line that says \texttt{IPv4 Address}.  You will need this information later to connect from the \textbf{command center}.
+
+The \texttt{port} number can be changed to accomodate different network situations, but must match the setting in the \texttt{command center} and generally should be left at the default of \texttt{9000}.
+
+\subsection{Launch the LabView \textbf{DDS\_server}}
+
+On the machine with the DDS boxes connected via USB (this may be the same machine), open \textit{Windows Explorer}, navigate to the directory where you cloned \textit{CsPyController} into, and then into the\\ \texttt{labview\textbackslash DDS\_server\textbackslash builds} subdirectory\\ (e.g. \texttt{C:\textbackslash Users\textbackslash Hexagon\textbackslash Documents\textbackslash git\textbackslash CsPyController\textbackslash labview\textbackslash DDS\_server\textbackslash builds}) and double-click \texttt{DDS\_standalone.exe}.  This \texttt{.exe} can be dragged to your \texttt{Start Menu} for easier access.
+
+If you have multiple ethernet cards, and want to restrict incoming connections to a specific network, enter the IP address of the specific ethernet card.  Listen for local connections only using \texttt{localhost}.  Otherwise leave the space blank.  This is the address of the machine running \textbf{PXI\_server}, not the address of the machine running the textbf{command center}.
+
+The IP address of this machine can be found from a command prompt by typing \texttt{ipconfig} and noting the line that says \texttt{IPv4 Address}.  You will need this information later to connect from the \textbf{command center}.
+
+The \texttt{port} number can be changed to accomodate different network situations, but must match the setting in the \texttt{command center} and generally should be left at the default of \texttt{9001}.
+
+\subsection{Launch other instrument servers}
+
+Depending on what instruments you are using, you may have to launch other instrument servers as well.  Use of the Picomotors requires the use of \texttt{CsPyController\textbackslash csharp\textbackslash PicomotorServer\textbackslash bin\textbackslash Debug\textbackslash PicomotorServer.exe}.  The Princeton GigE camera server may usually be run on the same machine as the \textbf{command center}, and can be launched from within the \textbf{command center} GUI.
+
+\subsection{Enter IP addresses into the \textbf{command center}}
+
+Take the IP addresses that you noted for the machines running \texttt{PXI\_server.exe} and \texttt{DDS\_server.exe} and enter them in the \textbf{command center} into the pages for \textit{PXI communication} and \textit{DDS} respectively.  If everything is running on the same machine, you may enter \texttt{localhost}.  These settings save with the experiment settings and will not need to be re-entered.
+
+\section{Experiments, Iterations, Measurements and Shots}
+
+Let us establish some nomenclature.  There are several levels of repetition performed by the software.  From big to small, they are \textit{experiments}, \textit{iterations}, \textit{measurements} and \textit{shots}.
+
+An \textit{experiment} is one round of execution with one set of programmed specifications.  Generally you run one new \textit{experiment} and get one new results file every time you press \textit{Run} (unless using the optimizer), then you make some change and then run another \textit{experiment}.
+
+An \textit{iteration} is one set of settings.  As an \textit{experiment} runs, it can step through different settings as specified by the \textit{independent variables}.  Each of these steps is an \textit{iteration}.  As detailed later, the \textit{independent variable} settings define the number of \textit{iterations} per \textit{experiment}.
+
+A \textit{measurement} is one execution of the currently programmed experiment sequence.  You will generally program an \textit{iteration} to have many \textit{measurements} to gather better statistics.  The number of \textit{measurements} per \textit{iteration} is set on the \textit{Experiment} page of the \textit{command center}.
+
+A \textit{shot} is a single camera exposure.  Usually you will program two or more \textit{shots} per \textit{measurement} in order to make a before-and-after or time-of-flight comparison.  A shot is usually specified in the \textit{Functional Waveform} sequencing, by triggering a digital output pin.  For some cameras, the number of expected shots must be entered on their settings page for the purpose of error checking.  Every \textit{measurement} in a given \textit{iteration} should have the same number of \textit{shots}.
+
+Note that in almost all cases, lists and arrays in \textsc{CsPyController} are numbered starting from 0.  For example, shot 0 is the 1st shot, and shot 1 is the 2nd shot.
+
+\section{Variables} \label{sec:Variables}
+
+One of the strengths of this software package is the ability to work with variables in a flexible and powerful way.  There are three places that variables can be specified: \textit{Constants}, \textit{Independent Variables}, and \textit{Dependent Variables}.  These variables are stored in a namespace that can be used in almost every other setting in the software.
+
+
+\subsection{Using variables}
+
+Settings where variables can be used are called a \texttt{Prop} in the code, and are defined by a \textit{name}, \textit{description}, \textit{function}, and \textit{value}.  (Some settings such as simple enable/disable, hardware clockrates, etc., are not \texttt{Prop}s because it is never necessary for their values to be dynamic.)  The \textit{function} is where you enter your desired expression.  You can use any valid python syntax.  You can reference any defined variable, and even any external package that was imported in the \textit{Constants} and \textit{Dependent Variables}.  The entire namespace of \texttt{from numpy import *} is made available by default for convenience (so \texttt{sin}, \texttt{cos}, \texttt{pi} and many more are already imported).  The value returned by evaluating the \textit{function} must be of the correct type (i.e. interger, float, string) for that \texttt{Prop}, otherwise an error will be returned.  Keep the \textbf{command prompt} window visible to watch for errors, which are usually very descriptive and should be read to see what the problem is.  The offending \texttt{Prop} will also be highlighted in red.
+
+Evaluation of the variables and \texttt{Prop}s occurs at the start of every \textit{iteration}.  Upon evaluation, the \texttt{Prop} values are updated.  Evaluation of the \texttt{Props} can be forced from the main \textbf{command center} window menu under \textit{Evaluation}$\rightarrow$\textit{Update variables throughout experiment}.
+
+The order of evaluation is explained below.
+
+\subsection{Constants}
+
+\textit{Constants} are executed first, and only once, at the beginning of the \textit{experiment}.  The \textit{constants} are defined in a large multi-line text box on the \textit{Constants and Dependents} page.  The \textit{constants} are defined using python code.  This could be as simple as, for example:
+
+\texttt{a = 5}
+
+\texttt{readout\_time = 7}
+
+Or it can be more complex, involving function definitions, imports, and much more.  The namespace of \texttt{from numpy import *} is available, as well as anything else the user chooses to import.  The entire namespace that results from the execution of this code is preserved and available in the rest of the variable evaluation process.
+
+See Appendix~\ref{AQuA Constants} for a model example of the \textsc{AQuA} \textbf{constants}.
+
+
+\subsection{Independent Variables}
+
+\textit{Independent Variables} are evaluated second, once at the beginning of each \textit{iteration}.  The independent variables have a more structured entry format.  You can add a new \textit{independent variables} by hitting the \textit{+} button at the top of the page.  The new variable will be inserted at the position in the list specified by the integer spin box at the top left.  To remove a variable, set the integer spin box to the index of the variable you would like to remove, and hit the \textit{-} button.
+
+Each \textit{independent variable} is defined by a function, which can use anything defined in the \textit{constants} namespace.  This function must evaluate to something that can be cast to a 1D \textit{numpy array}.  In other words, it must either be a scalar or a 1D list.  Useful functions include: \texttt{linspace(a, b, n)} to make \texttt{n} evenly spaced points between \texttt{a} and \texttt{b} inclusive, and \texttt{arange(a, b, step)} to make points with spacing \texttt{step} from \texttt{a} to \texttt{b}.  You can also enter just a single value (i.e. \texttt{0.271}) or a list of specific values (i.e. \texttt{[3, 0.2, 4.9, 5.0]}.
+
+The evaluated functions are immediately shown.  Check this to make sure you have entered the \textit{independent variable} as intended.
+
+Every \textit{iteration}, only one scalar value is used for each \textit{independent variable}.  The values are iterated through in a series of nested loops, with the inner-most loop being at the top of the list, and the outer-most loop at the bottom of the list.  The number of iterations is defined by the product of the length of each \textit{independent variable} evaluation.  \textit{Independent variables} of length 1 do not contribute to the number of \textit{iterations}.  You do not need to have any \textit{independent variables}, but there is always at least 1 \textit{iteration}.
+
+After this evaluation, the \textit{independent variable} names are in the variable namespace, and they have a single scalar value associated with them.  For the purposes of later calculation, they are not lists or arrays, no matter how large a list or array was used to define them.
+
+The remaining fields are used for the \textit{optimizer}.  In particular, note that the \textit{min} and \textit{max} fields have \textbf{no} effect unless you are using the optimizer.  It is allowed to assign a value outside of this range during normal a normal iterative experiment run.
+
+\subsection{Dependent Variables}
+
+\textit{Dependent variables} are executed 3rd.  The \textit{dependent variables} are defined by a large multi-line text box, just like the \textit{constants}.  The difference is that \textit{dependent variables} are evaluated at the start of each \textit{iteration} but after the \textit{independent variables}, so they can implement functions that rely on both \textit{constants} and \textit{independent variables}.  The \textit{dependent variables} then update as the \textit{iterations} are stepped.  Everything defined by the \textit{constants}, \textit{independent variables} and \textit{dependent variables} is then stored in a namespace that is available to all later \texttt{Prop} function evaluations.
+
+See Appendix~\ref{AQuA Dependent Variables} for a model example of the \textsc{AQuA} \textbf{functional waveforms}.
+
+\subsection{Exclude variables from HDF5}
+
+Everything in the variable namespace is stored to the results \textit{HDF5} file for each iteration.  However there are types of objects that cannot be stored (and usually you would not want to store these), such as imported modules and function definitions.  To avoid seeing errors related to failure to store these variables, put them in the exclusion list at the top of the \textit{Constants and Dependent Vars} page, titled \textit{Variables Not to Save to HDF5}.  Put the names of the excluded variables, separated by commas, with no spaces.
+
+\section{Program Controls}
+
+\subsection{Running an experiment}
+
+To run an experiment, simply go to the main window menu and click \textit{Experiment}$\rightarrow$\textit{Reset and Run}, or hit \texttt{ctrl+r} from the main window.
+
+You may also select \textit{Experiment}$\rightarrow$\textit{Reset}, which creates the experiment files but does not begin the run.  Then you can begin the run with \textit{Experiment}$\rightarrow$\textit{Run/Continue}. It is rare that you would want to use this.
+
+\subsection{Pausing}
+
+There are several different ways to plan for an experiment to be paused.  If enabled (on the \textit{Experiments} page) there is an audible alert when paused.  \textit{Run/Continue} or \texttt{ctrl+g} is used to continue an experiment that has been paused.  Note that the \textit{Pause After Measurement} and \textit{Pause After Iteration} settings will remain checked and will keep pausing the experiment after each measurement or iteration, until they are manually unchecked.  Usually if you have used \textit{Pause After Measurement} to do a temporary pause, you will uncheck the setting before selecting \textit{Continue}.
+
+\textit{Experiment}$\rightarrow$\textit{Pause}$\rightarrow$\textit{After Measurement} waits until the end of the current measurement to pause.  If the experiment is between measurements, but already evaluating for the next measurement, it will not pause until after the 1st measurement of the coming iteration.  \textit{Pause After Measurement} is generally the best way to do an immediate pause, as it does not compromise the experiment status.
+
+\textit{Experiment}$\rightarrow$\textit{Pause}$\rightarrow$\textit{After Iteration} waits until the end of the current iteration to pause.  It is useful if there is a piece of hardware that you need to manually adjust between iterations, or if you would like to end the experiment early but have all the iterations taken be complete.
+
+\textit{Experiment}$\rightarrow$\textit{Pause}$\rightarrow$\textit{Now} sets the status to Paused.  It is not the best way to pause a running experiment and may compromise the experiment status.  It is useful if the experiment has been prematurely stopped, and you would like to set the status back to \textit{Paused} so that you may then \textit{Continue}.
+
+\subsection{Uploading}
+
+The experiment files are uploaded to the server (if enabled on the \textit{Experiments} page) at the end of the \textit{experiment}.  However, if you would like to finish the experiment prematurely, first pause it (\textit{Pause After Measurement} would be the most graceful in this case) and then select \textit{Experiment}$\rightarrow$\textit{End and Upload}.  This will do any final calculations and then upload the experiment.
+
+If there is some error that is preventing the experiment from reaching the upload stage, but you still want to preserve the data, just use the \textit{Experiment}$\rightarrow$\textit{Upload}.  If all else fails you may find the experiment directory and copy it to the server yourself.
+
+\subsection{Closing the Program}
+
+The program will not quit until allow windows have been closed, by clicking the X on the titlebar of each window.  You can use \textit{File}$\rightarrow$\textit{Quit} or \texttt{ctrl+q} to close the main window.  You can also forcibly end the whole program by hitting \texttt{ctrl+c} in the \textbf{command prompt} window.  Make sure you have saved any changes because they are \textbf{not} auto-saved on exit.
+
+\subsection{Experiment Page}
+
+The \textit{Experiment} window can be brought up using the page selector on the main \textbf{command center} window.  This page has important master settings for the whole experiment:
+
+\begin{itemize}
+\item \texttt{Status}:  The running/paused/idle status of the experiment.
+\item \texttt{Pause after iteration}:  When selected, the experiment will pause after each iteration.
+\item \texttt{Pause after measurement}:  When selected, the experiment will pause after each measurement.
+\item \texttt{Reload settings after pause?}:  If selected, all the hardware settings will be resent when the experiment is continued after a pause.  It is usually a good idea to use this when continuing after a \texttt{Pause on error}, but it slows things down unnecessarily when continuing from a \texttt{Pause after measurement}.
+\item \texttt{enable sounds}:  Enable or disable playing sounds on pause, error and experiment success.
+\item \texttt{start each instrument in a separate thread}:  Click to enable multi-threading of the \texttt{start} command to each experiment.  Could increase experiment speed, but not usable if the experiment start order is critical due to the start trigger setup.
+\item \texttt{Save Data?}:  Check to allow saving of data, and give the path to the directory where daily directories will be created.
+\item \texttt{Save Settings?}:  Automatically save the experiment settings when the experiment is run.
+\item \texttt{Save separate notes.txt?}:  Click to save the notes in a separate \texttt{notes.txt} file, in addition to within \texttt{results.hdf5}.
+\item \texttt{Save 2013 style files?}:  Click to save the ASCII data files compatible with Larry's Mathematica analysis code.  Disable also overrides the \texttt{Save as PNG} and \texttt{Save as ASCII} \textit{Hamamatsu} camera settings.
+\item \texttt{Copy Data to Network?}:  Check to allow copying of the entire experiment directory to the server after the experiment is complete, and give the path to the server.  Requires the server to be setup as a mapped drive.
+\item \texttt{Experiment description suffix for filename}:  The name of the experiment, to be appended to the timestamp filename (e.g. \texttt{suffix} gives \texttt{2015\_07\_05\_16\_53\_12\_suffix}).  No spaces or special characters.
+\item \texttt{Measurement Timeout}:  The amount of time the measurement is allowed to proceed in the \textbf{PXI\_server} and \textbf{DDS\_server} before raising an error.
+\item \texttt{Measurements per Iteration}:  The number of measurement repeats per one set of iteration settings.
+\item \texttt{E-mail on error/completion?}:  Check to allow the software to send an e-mail when there is an error or when the experiment completes, and give the e-mail address to send to.
+\item \texttt{Notes}:  Text about the specific experiment that is useful when looking at old results.
+\item \texttt{Time status and progress}:  Read only.  Various statistics are given about the experiment progress.  When using the optimizer, the progress will read high than $100\%$ after the first experiment.  The completion time prediction takes into account the deadtime between measurements and iterations, and becomes more accurate as the experiment progresses.
+\end{itemize}
+
+\section{HDF5 files}
+
+Settings and data are stored in \textit{HDF5} files.  \textit{HDF5}, or \textit{Hierarchical Data Format 5} is a standard file format, controlled by the \href{https://www.hdfgroup.org/HDF5/}{HDF Group}.  It is the answer to all your prayers.  \text{HDF5} files store numerical data efficiently in a binary format, but they contain sufficient metadata so that there is never any confusion about what the data type is.  They can handle multi-dimensional arrays.  The various data saved into the \textit{HDF5} file can be placed in a tree format to keep it well organized.
+
+You can easily see what data are in an \textit{HDF5} file by using the \href{https://www.hdfgroup.org/HDF5/}{HDFView} Java program.  This program is also useful to edit settings files by deleting parts that you do not want, or to combine settings from two or more files.  \textbf{CsPyController} does not have the capability to load partial settings, as \textbf{CsLabViewController} did, because you can do this using \textit{HDFView} in a far more powerful and flexible way.
+
+\textit{HDF5} files can be accessed from all the numerical analysis software (\textit{Mathematica}, \textit{Matlab}, \textit{Python}), but the best way to work with them is using the \texttt{h5py} package in Python because it allows \textit{HDF5} data to be loaded as \texttt{numpy} arrays, and also it is extremely fast.
+
+\textit{HDF5} files have internal paths to label the location of each dataset.  The experiment settings, including every variable setting, instrument setting, and analysis setting, are stored under \texttt{/settings/experiment}.  The settings are saved automatically into the results file at the start of each experiment (if the \texttt{Save Settings?} box is checked on the \textit{Experiment} page of the \textbf{command center}), so that there is always a good record of what experiment was run.  The settings can be saved manually from the \textbf{command center} menu at \textit{File}$\rightarrow$\textit{Save}.  Any time the settings are saved, either automatically or manually, the default settings, stored in \texttt{settings.hdf5} in the \textbf{CsPyController/python} program directory, are updated.
+
+Every time an experiment is run, a new directory is created, named with the timestamp of the start of the experiment and the suffix defined on the \textit{Experiment} page (\texttt{yyyy\_mm\_dd\_hh\_mm\_ss\_suffix}).  This directory is placed inside a daily directory (created if it does not already exist), inside the data directory specified on the \textit{Experiment} page.  The data file is named \texttt{results.hdf5}.  Within the HDF5 file, data for each iteration is stored at \texttt{/iterations/0}, \texttt{iterations/1}, etc.  Every iteration node then has a place for analyses (i.e. \texttt{/iterations/0/analysis}) such as loading data.  The data for each measurement is then stored at \texttt{/iterations/0/measurements/0}, \texttt{/iterations/0/measurements/1}, etc.  Within these nodes you will find all the raw and processed data for the experiment.
+
+\section{Optimizer}
+
+The \textbf{optimzer} allows \textsc{CsPyController} to automate improvements to your experiment settings.  The \textbf{optimizer} functions by running your \textbf{experiment} many times, and making changes to some or all of the \textbf{independent variables}, in a way that minimizes a \textbf{cost function}.
+
+\subsection{Saved Data}
+
+Each loop of the \textbf{optimizer} is considered another \textbf{experiment}.  In the HDF5 file, the optimizer loops are collected under \texttt{/experiments/0}, \texttt{/experiments/1}, etc.  These nodes contain virtual links to the \textbf{iterations} within these experiments, which are re-numbered starting from \texttt{0} for each loop, even as the labels continue to increase monotonically under the \texttt{/iterations} section of the HDF5 file.
+
+The analyzed cost function data is saved in the HDF5 file under \texttt{/analysis}.
+
+\subsection{Setup}
+
+\subsubsection{Iterated Variables}
+
+To set up the optimizer, first set up an experiment either as you usually would, or in such a way as to amplify sensitivity to the optimal parameters (for example: adding an optical depumping phase after optical pumping, or adding a trap drop phase when trying to lower atom temperature).  This experiment may be just one iteration, or it may be multiple iterations.  If iterating over some variable, make sure that the \texttt{optimize?} box is \textbf{un}checked, otherwise the \textbf{optimizer} will control it and it will not step as desired.
+
+\subsubsection{Optimized Variables}
+Next, create \textbf{independent variables} for each setting that you would like to \textbf{optimizer} to be able to adjust.  For each of these, check the \texttt{optimize?} box.  Assign some non-zero value to \texttt{initial step (abs)} which defines the initial step size for the \textbf{optimizer}.  Choose a step size large enough to illuminate the dependence of the cost function on the variable, but not so large to make convergence take overly long.  \texttt{(abs)} indicates that this is an absolute step size, not a percent or fraction.  Next, enter the \texttt{end tolerance (abs)}.  The \textbf{optimizer} will end when none of the variables change by more than their \texttt{end tolerance}.  Finally, enter a \texttt{min} and \texttt{max}.  These values are safety limits.  They do not influence the normal behavior of the \textbf{optimizer}, but if the \textbf{optimizer} puts a variable value outside of the \texttt{min}/\texttt{max} range the actual output is capped.
+
+\subsubsection{Optimizer Settings}
+Then, on the \textit{Optimizer} page, turn on the \texttt{enable override}.  To activate the \textbf{optimizer}, you need to enable both on this page, and each \textbf{independent variable} individually.  Choose an \texttt{update method}:
+\begin{itemize}
+\item \texttt{Nelder-Mead}:  This method, also known as the \textit{Simplex} method, is an excellent general purpose optimization algorithm, because it does not require prior knowledge of the scale of the local features.  This is the most recommended method to use.
+\item \texttt{Weighted Nelder-Mead}:  Similar to the Nelder-Mead algorith, but instead of doing simple reflections of the simplex in the average point, takes the \text{cost function} value at each point into account to make reflections in the centroid instead.
+\item \texttt{Gradient Descent}:  Makes a number of measurements around the initial point to determine the gradient, then moves in the direction of the steepest downward slope.  This method converges fast if you know the scale of the local features, but is not useful if you do not know the scale.  The gradient is measured over steps determined by the \textbf{independent variable} step sizes.  The size of the move down the slope is defined by the \texttt{initial gradient step size} parameter set on the \textit{Optimizer} page.  The algorithm termination is defined by the \texttt{end when step size is less then} parameter on the \textit{Optimizer}, not by the individual \texttt{end tolerance}s on the \textit{Independent Variables} page.
+\item \texttt{Genetic}:  This algorithm makes random moves, keeps them if they are an improvement, and discards them if they are not.  It's convergence is generally too slow to be useful.
+\end{itemize}
+
+\subsubsection{Cost Function}
+Finally, you must define the \textbf{cost function}, on the \textit{Optimizer} page.  The cost function box is treated as python code, which is then executed.  The variable \texttt{experimentResults} is available in this namespace, and its value is the HDF5 node for the most recent completed experiment.  Use \texttt{experimentResults} to gain access to the results of the last \textbf{experiment} run, which is what the cost function should be based on.  Finally, after calculating the cost function, assign it to \texttt{self.yi} which is where the code will access it.
+
+Here is an example that maximizes the retention:
+
+\begin{verbatim}
+# get the first iteration
+iterationResults = experimentResults['iterations/0']
+# get the retention for all regions of interest
+retention_all = iterationResults['analysis/loading_retention/retention'].value
+# average over all sites (ignore sites with NaN due to no loading)
+retention_avg = numpy.nanmean(retention_all)
+# assign the cost function, use a minus sign because the optimizer is a minimizer
+self.yi = -retention_avg
+\end{verbatim}
+
+See Appendix~\ref{AQuA Cost Functions} for a model example of the \textsc{AQuA} \textbf{cost functions}.
+
+\subsection{Feedback}
+
+The graph on the \textit{Opimizer} page shows the cost function in the top subplot, and each variable being optimized in the subplots below.  Whenever the optimizer finds a new lowest cost, it sets the function for every \textbf{independent variable} being optimized to match those settings.  After running the optimizer, the experiment is therefore already set to the best settings.  You may have to copy those settings to \textbf{constants} if you plan to remove the \textbf{independent variables}.  Also, note that while the \texttt{results.hdf5} file for the optimizer run has all the information needed to read out the best settings, the settings stored under \texttt{/settings/experiment} are (as always) saved at the beginning of the run, not the end.  Therefore, if you were to load settings from that HDF5 file, it would set up the controller to re-run the \textbf{optimizer} from its starting point, not its best point.  This is by design as the settings in an HDF5 file should always allow you to recreate an experiment exactly.  To save the new best settings after an optimizer run, manually save or just run the next experiment.
+
+During the optimizer run, you will often see non-optimal iterations as the optimizer finds its way.  The last point is not necessarily the best point.
+
+Typically, the more variables you put into the optimizer, the more of a speedup advantage you gain from doing a multi-dimensional optimization, as all the variables are adjusted simultaneously.  However, there is a linearly increasing cost to starting up the optimizer with many variables, as it has to evaluate the initial simplex or gradient.
+
+\section{Functional Waveforms}
+
+The \textbf{functional waveforms} are how the sequencing for the \texttt{HSDIO digital output}, \texttt{Analog Output}, and \texttt{DAQmx digital output} are specified.  Formerly, a table was used.  This system is superior because:
+
+\begin{itemize}
+\item it allows building sequences both in series (timewise) and in parallel (channelwise)
+\item it allows events to be referenced to either an absolute or relative times
+\item many different time references can be created so that the event times refer to the most relevant other event in the sequence
+\item sequences can be built out of many different nested levels, so that low level functions can be defined once, and high level functions can be mixed and matched to define an experiment
+\item it eliminates the need to specifically calculate the length of any sequence
+\item allows implementation of complex behaviors like automatic Gray coding
+\item waveforms are more compact (a "sparse" implementation), and evaluation is much faster
+\item repetition eliminated, so changes can be made across all waveforms sharing some function
+\item nest waveforms to reuse code
+\item backend code is actually simpler in many ways
+\item view a universal graph of HSDIO and AO waveforms, across the entire experiment
+\item waveforms are readable, commentable, and make a lot more sense
+\end{itemize}
+
+The way the \textbf{functional waveform} system works is to start by providing only 3 basic functions:
+
+\begin{itemize}
+\item \texttt{HSDIO(t, channel, state)}: sets one HSDIO \texttt{channel} to \texttt{state} (high = True or 1, low = False or 0) at time \texttt{t}
+\item \texttt{AO(t, channel, value)}: sets one Analog Output \texttt{channel} to voltage \texttt{value} at time \texttt{t}
+\item \texttt{DO(t, channel, state)}: sets one DAQmx digital output \texttt{channel} to \texttt{state} (high = True or 1, low = False or 0) at time \texttt{t}
+\item \texttt{label(t, text)}: labels the \textbf{functional waveforms graph} at time \texttt{t} with the label \texttt{text}, which allows the graph to be understood in terms of the phases of an experiment
+\end{itemize}
+
+These functions can then be used in the \textit{Functional Waveforms} window, which has a multi-line text box that allows execution of arbitrary code.  This code has access to the namespace of variables defined by the \textbf{constants}, \textbf{independent variables}, and \textbf{dependent variables}.  It is re-evaluated every \textbf{iteration}.
+
+\subsection{Setup}
+
+Begin by importing the \texttt{add\_transition} functions:
+
+\begin{verbatim}
+HSDIO = experiment.LabView.HSDIO.add_transition
+AO = experiment.LabView.AnalogOutput.add_transition
+DO = experiment.LabView.DAQmxDO.add_transition
+label = experiment.functional_waveforms_graph.label
+\end{verbatim}
+
+Now proceed to define useful functions.  Best practice is that every function, always, should take in the start time as the first parameter, and return the end time when it is done.
+
+\begin{verbatim}
+def pulse(t, channel, duration):
+    """A square pulse on one channel for a limited duration."""
+    HSDIO(t, channel, True)  # turn the channel on
+    t += duration  # wait until the duration passes
+    HSDIO(t, channel, False)  # turn the channel off
+    return t  # return the end time
+
+def ramp(t, channel, v1, v2, duration):
+    """Sweep one analog output channel from v1 to v2."""
+    t_list = linspace(t, t+duration,100)  # make 100 time steps
+    v_list = linspace(v1, v2, 100)  # make 100 voltage steps
+    for t, v in zip(t_list, v_list):
+        # step through each value and assign it to the AO channel
+        AO(t, channel, v)
+    return t+duration  # return the end time
+\end{verbatim}
+
+Defining a function does not execute it.  So you can keep many different functions in your text for various uses.  However, at the bottom of the \textbf{functional waveforms} text box, after your functions have been defined, you must actually call the functions so that they execute:
+
+\begin{verbatim}
+# define some channels
+laser = 3
+camera = 5
+t = 0  # reset the time
+t += pulse(t, laser, 5)  # do a 5 ms laser pulse
+t += pulse(t, camera, 30) # take a 30 ms exposure
+\end{verbatim}
+
+By using the \texttt{t +=} syntax, the time variable \texttt{t} keeps incrementing, so you do not have to do any other math to get the sequence timing correct.  Events can be specified to be simultaneous, or even out-of-order, to achieve the desired sequence.  The \texttt{HSDIO}, \texttt{AO} and \texttt{DAQmxDO} instruments will then calculate their waveform output automatically.
+
+See Appendix~\ref{AQuA Functional Waveforms} for a model example of the \textsc{AQuA} \textbf{functional waveforms}.
+
+\subsection{Functional Waveforms Graph}
+
+The \textit{Functional waveforms Graph} page shows a highly customizable graph of the \texttt{HSDIO}, \texttt{AO} and \texttt{DAQmxDO} behavior.
+
+\begin{itemize}
+\item \texttt{enable}: Enables or disables the graphing.
+\item \texttt{HSDIO}: A list of the HSDIO channels to plot.  Valid formats include \texttt{range(32)} for all channels from 0 to 31, \texttt{[13,14,15]} for just several channels, or \texttt{[11]} for just one channel (note the brackets are required to make a list, even for one channel), or blank for none.
+\item \texttt{HSDIO ticks}:  Enable or disable vertical markers and x-axis tick labels for the \texttt{HSDIO} transitions
+\item \texttt{AO}: A list of the AO channels to plot.  Valid formats include \texttt{range(5)} for all channels from 0 to 4, \texttt{[2,3,4]} for just several channels, or \texttt{[1]} for just one channel (note the brackets are required to make a list, even for one channel), or blank for none.
+\item \texttt{AO ticks}:  Enable or disable vertical markers and x-axis tick labels for the \texttt{AO} transitions
+\item \texttt{DO}: A list of the DAQmx Digital Output channels to plot.  Valid formats include \texttt{range(5)} for all channels from 0 to 4, \texttt{[2,3,4]} for just several channels, or \texttt{[1]} for just one channel (note the brackets are required to make a list, even for one channel), or blank for none.
+\item \texttt{DO ticks}: Enable or disable vertical markers and x-axis tick labels for the \texttt{DO} transitions
+\item \texttt{labels}: Toggle whether to show numerical x-axis tick labels (unchecked) or the text labels that were specified using the \texttt{functional\_waveforms\_graph.label} method.
+\item \texttt{plot min}: The minimum time to plot.
+\item \texttt{plot max}: The maximum time to plot.
+\item \texttt{units}: The time units for the plot.  (1 = seconds, .001 = milliseconds)
+\item \texttt{AO scale}:  By default, the AO plots have the space between two channel plots equal to one volt.  This setting sets the number of volts/division.  (A bigger number shrinks the plots vertically, a smaller number expands them.)
+\end{itemize}
+
+\section{Instruments and Analyses}
+
+Each instrument has a separate settings page, accessible via the combo box selector on the main window of the \textbf{command center}.
+
+\subsection{Analog Input}
+
+The Analog Input instrument controls an DAQmx AI task via the LabView \textbf{PXI\_server} and requires the \textbf{PXI\_server} program to be running.  Recorded data is saved to \texttt{results.hdf5} at \texttt{/iterations/\#/measurements/\#/data/AI/data}.
+
+\begin{itemize}
+\item \texttt{enable}: Check to enable the instrument.
+\item \texttt{sample\_rate}:  How often to take data, in Hz.  (Variables okay, must evaluate to float.)
+\item \texttt{source}:  The source for the AI channels, which can be determined through the NI Measurement and Automation Explorer.  (Variables okay, must evaluate to string.)
+\item \texttt{samples\_per\_measurement}:  How many samples to take after the start trigger.  (Variables okay, must evaluate to int).
+\item \texttt{waitForStartTrigger}:  If \texttt{False}, start via software trigger at the beginning of the measurement.  If \texttt{True}, wait for the trigger specified in \texttt{triggerSource}.  (Variables okay, must evaluate to bool.)
+\item \texttt{triggerSource}:  The source for the start trigger, which can be determined through the NI Measurement and Automation Explorer.  (Variables okay, must evaluate to string.)
+\item \texttt{triggerEdge}:  Choose to trigger on the rising or falling edge.  (Variables okay, must evaluate to string "Rising" or "Falling".)
+\item \texttt{channels}:  Used to keep track of channel descriptions.  Use the + and - buttons to add or remove an item at the listed index.
+\item \texttt{Analog Input Filter}:  Choose to reject certain measurements based on AI levels.
+\begin{itemize}
+\item \texttt{enable}: Enable or disable this filter.
+\item \texttt{What to filter}: Program the filter with a list of the format \texttt{[(channel, samples list, low, high), (channel, samples list, low, high), ...]}.  The samples list is averaged over.  For example \texttt{[(1,[33,34],.12,.15),(2,range(10),-.5,-.4)]} will only pass measurements where channel 1 reads between .12 V and .15 V when averaged over samples 33 and 34, and channel 2 reads between -.5 V and -.4 V when averaged over samples 0 through 9.
+\item \texttt{Filter level}:  Choose the action to take if the filter fails.
+\end{itemize}
+\item \texttt{Analog Input Plots}:  Show the AI levels after every measurement.  This graph shows one data point per channel per measurement, averaged over the selected samples.  It does not show an oscilloscope trace vs samples within a measurement.
+\begin{itemize}
+\item \texttt{enable}:  Enable or disable the plots.
+\item \texttt{What to plot}:  Program the plot with a list of the format \texttt{[(channel, samples list), (channel, samples list, ...]}.  The samples list is averaged over.  For example \texttt{[(1,[33,34]),(2,range(10))]} will only plot channel 1 averaged over samples 33 and 34, and channel 2 averaged over samples 0 through 9.
+\item \texttt{clear}:  The AI plot will persist from experiment to experiment, until cleared using this button.
+\end{itemize}
+\end{itemize}
+
+\subsection{Analog Output}
+
+The Analog Input instrument controls an DAQmx AO task via the LabView \textbf{PXI\_server} and requires the \textbf{PXI\_server} program to be running.  Sequencing of the AO events is done using the \textbf{functional waveforms}, where the method \texttt{experiment.LabView.AnalogOutput.add\_transition(time, channel, voltage)} is available to set a given \texttt{channel} to some \texttt{voltage} at some \texttt{time}.  The \texttt{add\_transition} calls need not be done in order, and can be looped to create ramps or arbitrary waveforms.  Unless otherwise specified, channels revert to 0 volts at \text{t = 0}, but hold their values after the last specified transition until the beginning of the next measurement.
+
+\begin{itemize}
+\item \texttt{enable}: Enable or disable this instrument.
+\item \texttt{physicalChannels}:  The source for the AO task, which can be determined using the NI Measurement and Automation Explorer.  (Variables okay, must evaluate to string.)
+\item \texttt{number of channels}:  Specify the total number of channels, which must match the number listed in \texttt{physicalChannels}.
+\item \texttt{channel descriptions}:  A list of strings describing each channel, used in the \textbf{functional waveforms graph}.  The format is \texttt{['name1','name2','name3']} with the number of names matching the \texttt{number of channels}.
+\item \texttt{minimum}:  The lowest voltage that the hardware will be allowed to produce (generally cannot be lower than -10 V).  (Variables okay, must evaluate to float.)
+\item \texttt{maximum}:  The highest voltage that the hardware will be allowed to produce (generally cannot be higher than +10 V).  (Variables okay, must evaluate to float.)
+\item \texttt{clockRate}:  Clockrate in Hz.  (Variables okay, must evaluate to float.)
+\item \texttt{units}:  The time units to be used in the \textbf{functional waveforms}.  (1 = seconds, .001 = milliseconds).  (Variables okay, must evaluate to float.)
+\item \texttt{waitForStartTrigger}:  If \texttt{True}, wait for a hardware start trigger.  If \texttt{False}, start via software trigger at the beginning of the measurement.  (Variables okay, must evaluate to bool.)
+\item \texttt{triggerSource}:  The source of the start trigger, if used.  Can be found using the NI Measurement and Automation Explorer.  (Variables okay, must evaluate to string.)
+\item \texttt{triggerEdge}:  Choose to trigger on the rising or falling edge.  (Variables okay, must evaluate to string "Rising" or "Falling".)
+\item \texttt{exportStartTrigger}:  Choose if you want a signal to be sent to the PXI bus when this instrument starts.  In the AQuA experiment, all other PXI instruments are triggered off this signal.  (Variables okay, must evaluate to bool.)
+\item \texttt{exportStartTriggerDestination}:  The LabView path to export the start trigger signal.  Can be determined using the NI Measurement and Automation Explorer.  (Variables okay, must evaluate to string.)
+\item \texttt{useExternalClock}:  If \texttt{False}, use the internal clock, if \texttt{True} use an external clock from the port specified in \texttt{externalClockSource}.  (Variables okay, must evaluate to bool.)
+\item \texttt{externalClockSource}:  The LabView path for the external clock.  Can be determined using the NI Measurement and Automation Explorer.  (Variables okay, must evaluate to string.)
+\item \texttt{maxExternalClockRate}:  An upper bound for the external clock rate.  Does not have to be exact.  (Variables okay, must evaluate to float.)
+\end{itemize}
+
+\subsection{Andor}
+
+Controls an Andor camera, directly from \textsc{CsPyController}, so no external servers are necessary.  Requires prior installation of the Andor USB drivers.
+
+\begin{itemize}
+\item \texttt{enable}:  Enable or disable this instrument.
+\item \texttt{video mode}:  Shows an auto-triggering camera image on this page.  This mode cannot be used during an experiment.
+\item \texttt{stop video}:  Stops the video mode.
+\item \texttt{EMCCDGain}:  Set the electron multiplier gain value.  (Variables okay, must evaluate to int.)
+\item \texttt{preAmpGain}:   Set the pre-amp gain value.  (Variables okay, must evaluate to int.)
+\item \texttt{exposureTime}:  The camera exposure, when in edge trigger mode, time in seconds.  (Variables okay, must evaluate to float.)
+\item \texttt{trigger mode}:  Select the trigger mode.  \texttt{Edge} mode starts the exposure on the trigger edge, but then the exposure time is determined by the \texttt{exposureTime} setting.  In \texttt{Level} mode, the expose starts on the trigger edge, but then the exposure continues as long as the trigger stays high.
+\item \texttt{shotsPerMeasurement}:  The expected number of camera triggers, for error checking.
+\item \texttt{shot}:  Which shot to show on this page.
+\end{itemize}
+
+\subsection{Arroyo}
+
+For control and readout from Arroyo temperature controllers.  Not fully implemented.
+
+\subsection{Constants and Dependent Variables}
+
+Space to assign variables.  See Section~\ref{sec:Variables} for info.
+
+\subsection{Counters}
+
+Measurement of digital pulse counts via a DAQmx Counter task via the LabView \textbf{PXI\_server}.  Requires the \textbf{PXI\_server} program to be running.  Recorded data is saved to \texttt{results.hdf5} at \texttt{/iterations/\#/measurements/\#/data/counter/data}.
+
+\begin{itemize}
+\item \texttt{enable}: Enable or disable this instrument.
+\item \texttt{index}:  Use the + and - buttons to add or remove a channel specification at the index shown.
+\item \texttt{counter source}:  The LabView path for this counter channel.  Can be determined using the NI Measurement and Automation Explorer. (string)
+\item \texttt{clock source}:  The LabView path for the gate signal for this counter channel.  Can be determined using the NI Measurement and Automation Explorer. (string)
+\item \texttt{clock rate}:  If the \texttt{clock source} is internal, use this to specify the clock rate in Hz.  Unused for external clocks. (float)
+\end{itemize}
+
+\subsection{DAQmx Digital Output}
+
+The DAQmx Digital Output instrument controls lower-speed digital output through a DAQmx DO task via the LabView \textbf{PXI\_server}.  It requires the \textbf{PXI\_server} program to be running.  Sequencing of the DO events is done using the \textbf{functional waveforms}, where the method \texttt{experiment.LabView.DAQmxDOt.add\_transition(time, channel, state)} is available to set a given \texttt{channel} to \texttt{state} (True = high, False = low) at some \texttt{time}.  The \texttt{add\_transition} calls need not be done in order.  Unless otherwise specified, channels revert to low at \text{t = 0}, but hold their values after the last specified transition until the beginning of the next measurement.
+
+\begin{itemize}
+\item \texttt{enable}:  Enable or disable this instrument.
+\item \texttt{resourceName}:  The LabView path of the DAQmx DO output card.  Can be determined using the NI Measurement and Automation Explorer. (Variables okay, must evaluate to string.)
+\item \texttt{clockRate}:  The clock rate in Hz.  (Variables okay, must evaluate to float.)
+\item \texttt{units}:  The time units used in the \textbf{functional waveforms}.  (1 = seconds, .001 = milliseconds)  (Variables okay, must evaluate to float.)
+\item \texttt{Start Trigger)}:  Define when this instrument starts its output.
+\begin{itemize}
+\item \texttt{waitForStartTrigger}:  If \texttt{False} the output starts according to a software trigger at the beginning of the measurement.  If \texttt{True}, wait for a hardware trigger.  (Variables okay, must evaluate to bool.)
+\item \texttt{source}:  The LabView path to the hardware start trigger.  Can be determined using the NI Measurement and Automation explorer. (Variables okay, must evaluate to string.)
+\item \texttt{edge}: Choose the rising or falling edge of the hardware start trigger.  (Variables okay, must evaluate to string \texttt{"rising"} or \texttt{"falling"}.)
+\end{itemize}
+\end{itemize}
+
+\subsection{DC Noise Eaters}
+
+This instrument communicates with Saffmanlab custom DC (or Slow) Noise Eater boxes, which were designed by Alex Gill.  This instrument can handle any number of boxes.  Communication is over USB, and requires the \textit{Prop Plug} adapter to interface to the \textit{Parallax Propeller} microcontroller.  See the DC Noise Eater manual on the Saffmanlab Wiki for more info.
+
+\begin{itemize}
+\item \texttt{enable (instrument)}:  Enable or disable all the DC Noise Eater boxes.
+\item \texttt{add/remove box}:  Use the + and - buttons to add or remove a box, at the location defined by the spinbox index.  The spinbox also controls which box's settings are visible.
+\item \texttt{enable (box)}: Enable or disable this specific box.
+\item \texttt{channel index}:  Change this spinbox index to view the 3 channels available on each box.
+\item \texttt{Set}:  Allow the settings entered on the computer to overwrite those on the noise eater.  You will want this uncheck initially, when you first start using computer control of an existing box.
+\item \texttt{Get}:  Allow the settings on the noise eater to overwrite those on the computer.
+\item \texttt{mode}:  Sets the operation mode for the channel.
+\begin{itemize}
+\item \texttt{off}:  The channel output is off.
+\item \texttt{run}:  Normal PI feedback operation.
+\item \texttt{idle-hi}:  10 V output
+\item \texttt{idle-med}:  5 V output
+\item \texttt{idle-lo}:  0 V output
+\item \texttt{ramp}:  Scan output from 0 to 10 V.
+\end{itemize}
+\item \texttt{trigger warning?}:  Set the warning if this channel's absolute error signal is greater than \texttt{limit range}.
+\item \texttt{invert}:  Invert the channel PI behavior.
+\item \texttt{integration time}:  How long the box should integrate the current signal from the photodiode from this channel, in microseconds.
+\item \texttt{trigger number}:  The DC noise eater has one input for multiple photodiodes.  This selects which pulse on Trigger 2 corresponds to this channel.
+\item \texttt{measurements to average}  How many past measurements should be rolling averaged for the error signal, to smooth out noise.  (Note: set this to 1, it is not a good feedback principle to use this.  Use the I integration setting instead.)
+\item \texttt{Kp}:  The proportional feedback constant.
+\item \texttt{Ki}:  The integration feedback constant.
+\item \texttt{setpoint}:  The input level (in units of mV boxcar integrator output for the given \texttt{integration time} that the DC Noise eater tries to hold in \texttt{run} mode.
+\item \texttt{average}:  Read-only.  The averaged input level in mV.
+\item \texttt{error}:  Read-only.  The difference between the \texttt{average} and the \texttt{setpoint} in mV.
+\item \texttt{V in}:  Read-only.  The input voltage in mV.
+\item \texttt{V out}:  Read-only.  The output voltage in mV.
+\item \texttt{warning}:  Read-only.  Whether or not the \texttt{error} exceeded the \texttt{limit range}.
+\item \texttt{DC Noise Eater Filter}:  Provides the ability to discard measurements based on the DC Noise Eater data.
+\begin{itemize}
+\item \texttt{enable}:  Enable or disable the filtering.
+\item \texttt{What to filter}:  A list of tuples that defines the filter, in the form \texttt{[(box,channel,variable,low,high),(box,channel,variable,low,high),\dots]}, where \texttt{box} and \texttt{channel} define which signal is being monitored, \texttt{low} and \texttt{high} define the upper and lower bounds that will pass this filter, and variable is a code which defines which part of the data we are filtering on (some of these are more useful than others, usually you will use code 11 for the error signal):
+\begin{itemize}
+\item 0: mode
+\item 1: trigger warning?
+\item 2: limit range
+\item 3: invert
+\item 4: integration time
+\item 5: trigger number
+\item 6: measurements to average
+\item 7: Kp
+\item 8: Ki
+\item 9: setpoint
+\item 10: average
+\item 11: error
+\item 12: vin
+\item 13: vout
+\item 14: warning
+\end{itemize}
+For example, \texttt{[(0,1,11,-60,60)]} specifies that box 0, channel 1 will be filtered on the error signal being within $\pm 60$ mV.
+\item \texttt{filter level}:  The action to take if the filter fails.
+\end{itemize}
+\item \texttt{DC Noise Eater Plots}:  Plot the data returned by the DC Noise Eater.  This graph updates every measurement, and does not reset between experiments, unless you manually clear it with the \texttt{clear} button.
+\begin{itemize}
+\item \texttt{enable}:  Enable or disable the plotting.
+\item \texttt{What to plot}:  Program what to plot using a list of tuples in the format \texttt{[(box,channel variable),(box,channel,variable),\dots]} where \texttt{box} and \texttt{channel} specify the signal choice, and \texttt{variable} uses the same code as \texttt{variable} for the \texttt{DC Noise Eater Filter} (given above.  For example \texttt{[(0,0,11),(0,1,11),(0,2,11)]} plots the error signal for all three channels on box 0.
+\end{itemize}
+\end{itemize}
+
+\subsection{DDS}
+
+This instrument controls any number of Saffmanlab DDS boxes, each consisting four Analog Devices AD9910 Eval Boards.  It requires \textbf{DDS\_server.exe} to be running on the machine to which the DDS boxes are connected by USB.  See the DDS box manual on the Saffmanlab Wiki for more info.
+
+\begin{itemize}
+\item \texttt{open connection}:  Opens a connection to the \textbf{DDS\_server}.  The connection opens automatically when the experiment is run, and it is not usually necessary to use this button.  However it can be useful for diagnostics or error recovery.
+\item \texttt{close connection}:  Manually close the connection to the \textbf{DDS\_server}.  Not usually necessary, but useful sometimes for error recovery.
+\item \texttt{IP address}:  The IP address of the machine where the \textbf{DDS\_server} is running.  You can use \texttt{localhost} if it is on the same machine.
+\item \texttt{TCP port}:  The TCP/IP port used for communication with the \textbf{DDS\_server}.  Must match the setting in the \textbf{DDS\_server}.  Usually the default of \texttt{9001} is fine.
+\item \texttt{timeout}:  The amount of time to allow for communication with \textbf{DDS\_server} before it gives up and raises an error.  This setting should be in seconds, however it seems that there is an error in the \texttt{python.socket} documentation, and this setting is really in milliseconds.  Therefore a value of at least \texttt{100} is recommended.
+\item \texttt{enable (instrument)}:  Enable or disable communication with the \textbf{DDS\_server}.
+\item \texttt{initialized}:  Read only.  Indicates if the \textbf{DDS\_server} has been initialized yet.
+\item \texttt{Get DDS Device List}:  Requests the USB ID tags of all the DDS boxes running on the \textbf{DDS\_server} machine.  Pressing this button populates the \texttt{select USB device reference} combo box, but does not actually use those values without further action.  This function is a very useful feature to determine which USB boxes are communicating properly in case of error, because the malfuncitoning boxes will not show up on the list.  If running, pause the experiment before using this.
+\item \texttt{Initialize and Load}:  This initializes the DDS boxes and loads the current settings onto them.  Do not re-initialize when you just want to change settings, because this can unlock some lasers.  Initialization is done automatically at the beginning of an experiment if necessary.  If running, pause the experiment before using this.
+\item \texttt{Load}:  Load the current settings onto the DDS boxes.  Use this when the boxes have been previously initialized, and you just want to manually load the current settings.  It is less disruptive than 
+\texttt{Initialize and Load}.  If running, pause the experiment before using this.
+\item \texttt{DDS boxes}:  Use the combo box to select which DDS box you would like to view.  Use the + and - buttons to add a box, or remove the active box.
+\item \texttt{enable(box)}:  Enable or disable communication with a specific box.
+\item \texttt{Description}:  A description for the box, which is used to populate the box combo selector.
+\item \texttt{select USB device reference}:  This is a convenience feature for getting the right USB device reference.  Use the \texttt{Get DDS Device List} button to update this list.  After selecting the appropriate USB device reference for this box, click the \texttt{select USB device reference} button to copy this string to the \texttt{NI USB-8451 device reference}.  Merely selecting a choice without clicking the button does nothing.
+\item \texttt{NI USB-8451 device reference}:  The USB ID tag for this box.
+\item \texttt{DIO port}:  Leave this set to 0.
+\item \texttt{serialClockRate}:  Leave this set to 1000.
+\item \texttt{channels}:  Every box has four channels (i.e. four eval boards).  All channels are shown below at the same time.
+\item \texttt{channel}:  The settings for a particular channel, numbered 0 to 3.
+\begin{itemize}
+\item \texttt{channel parameters}:  The settings that apply to the entire channel.
+\begin{itemize}
+\item \texttt{description}:  Description for the channel.
+\item \texttt{power}:  Turn the RF output for this channel on (True) or off (False).  (Variables okay, must evaluate to bool.)
+\item \texttt{refClockRate}:  (Not editable.)  The clock rate of the reference.  Cannot be changed from 1 GHz.
+\item \texttt{fullScaleOutputPower}:  Scaling for the max output power, in dBm.  (Variables okay, must evaluate to float.)
+\item \texttt{RAMenable}:  Enable (True) or disable (False) the RAM mode.  (Variables okay, must evaluate to bool.
+\item \texttt{RAMDestType}:  A code that defines the RAM mode: 0: Frequency, 1: Phase, 2: Amplitude, 3: Polar.  (Variables okay, must evaluate to int.)
+\item \texttt{RAMDefaultFrequency}:  The default output frequency for RAM mode in MHz.  (Variables okay, must evaluate to float.)
+\item \texttt{RAMDefaultAmplitude}:  The default output amplitude for RAM mode in dBm.  (Variables okay, must evaluate to float.)
+\item \texttt{RAMDefaultPhase}:  The default output phase for RAM mode in radians.  (Variables okay, must evaluate to float.)
+\end{itemize}
+\item \texttt{profiles}:  The eight settings profiles for this channel, numbered 0 to 7.  Use the combo box to select a profile to edit.
+\begin{itemize}
+\item \texttt{description}:  A description for this profile, used to populate the profile selector combo box.
+\item \texttt{frequency}:  The (non-RAM mode) output frequency for this profile, in MHz.  (Variables okay, must evaluate to float.)
+\item \texttt{amplitude}:  The (non-RAM mode) output amplitude for this profile, in dBm.  (Variables okay, must evaluate to float.)
+\item \texttt{phase}:  The (non-RAM mode) output phase for this profile, in radians.  (Variables okay, must evaluate to float.)
+\item \texttt{RAMMode}:  The RAM mode to use, if active.  Choose from 0: Direct Switch, 1: Ramp Up, 2: Bidirectional Ramp, 3: Continuous Bidirectional Ramp, 4: Continuous Recirculate, 5: Direct Switch 2, 6: Direct Switch 3.  (Variables okay, must evaluate to int.)
+\item \texttt{ZeroCrossing}:  Define if the Ramp ram modes cross zero.  (Variables okay, must evaluate to bool.)
+\item \texttt{NoDwellHigh}:  For the non-recirculating RAM modes, define if the state at the end stays at the last setting (False) or returns to the beginning (True).  (Variables okay, must evaluate to bool.)
+\item  \texttt{FunctionOrStatic}:  True to evaluate the RAM mode steps using \texttt{RAMFunction} or False to specify the steps using the \texttt{RAMStaticArray}.
+\item \texttt{RAMFunction}:  A function of one variable \texttt{x}, which is evaluated to define the RAM mode steps.  Must be specified as a string, can use any python syntax.  The variable \texttt{x} is then swept from \texttt{RAMInitialValue} to \texttt{RAMStepValue * RAMNumSteps}.  Each step is held for \texttt{RAMTimeStep}.  (Variables okay, must evaluate to string.)
+\item \texttt{RAMInitialValue}:  The starting value for the RAMFunction.  (Variables okay, must evaluate to float.)
+\item \texttt{RAMStepValue}:  How much to increase \texttt{x} on each step.  (Variables okay, must evaluate to float.)
+\item \texttt{RAMTimeStep}:  How long to hold each step, in microseconds.  (Variables okay, must evaluate to float.)
+\item \texttt{RAMNumSteps}:  How many steps to make on the RAM function, before ending or recirculating.  Max is 1024 total for all profiles.
+\item \texttt{RAMStaticArray}:  Defines the RAM stepping when \texttt{FuncitonOrStatic} is False.  Use the + and - buttons and the index to add or remove steps.  Total number of steps is 1024 for all profiles.
+\begin{itemize}
+\item \texttt{f/phi/A}:  The frequency, phase or amplitude (depending on the mode) for this step.
+\item \texttt{Mag}:  The magnitude for this step, when using polar mode.
+\end{itemize}
+\end{itemize}
+\end{itemize}
+\item \texttt{connected}:  The state of the connection to the \textbf{DDS\_server}.
+\item \texttt{DDS error}:  The error log reported back from \textbf{DDS\_server}.
+\end{itemize}
+
+\subsection{Filters}
+
+A number of different filters that can be used to dump data that does not fit certain criteria.  There are also filters on some of the individual instrument pages.  Additional filters can be defined, as documented in the \textit{CsPyController Programmer's Manual}.
+
+\subsubsection{TTL Filters}
+
+Can be used to dump data when a TTL signal is low, such as for the laser lock monitors.  Requires the \textbf{PXI\_server} to be running.
+
+\begin{itemize}
+\item \texttt{enable}:  Enable or disable this filter.
+\item \texttt{lines}:  The LabView path for the TTL input.  Can be determined using the NI Measurement and Automation Explorer.  Lines are checked before and after each measurement, and if any line is low for either check, the filter fails.
+\item \texttt{filter level}:  The action to take if the filter fails.
+\item \texttt{Status}:  Read only.  The pass/fail status of the filter with info about which TTL line failed.
+\end{itemize}
+
+\subsubsection{Region of Interest Sum Filter}
+
+Filters on the brightness of the Hamamatsu regions of interest.
+
+\begin{itemize}
+\item \texttt{enable}:  Enable or disable the filter.
+\item \texttt{boolean filter expression}:  A boolean expression which evaluates to True or False and determines the action of the filter.  The variable \texttt{t} is provided which is an array containing the region of interest sums, and has shape \texttt{shots x region}.  All python logical expressions are valid here.  For example \texttt{t[0,27]>64000 and t[0,41]>89000} only passes measurements where region 27 has a summed brightness greater than 64000 and region 41 has a summed brightness greater than 89000.
+\item \texttt{filter level}:  The action to take if the filter fails.
+\item \texttt{Status}:  Read only.  The pass/fail status of the filter.
+\end{itemize}
+
+\subsubsection{Drop First N Measurements Filter}
+
+Drop the first \texttt{N} measurements of every iteration, to allow transients to settle.
+
+\begin{itemize}
+\item \texttt{enable}:  Enable or disable this filter.
+\item \texttt{N}:  The number of measurements to drop.
+\item \texttt{filter level}:  The action to take if the filter fails.
+\end{itemize}
+
+\subsection{Gaussian ROI}
+
+Automatically identifies the regions of interest for the \textit{AQuA} atom array.  Fits the mean Hamamatsu image to a 7x7 grid of gaussians.  The degrees of freedom are grid position in x and y, grid tilt, grid spacing, gaussian width in two directions, gaussian tilt, and background level.  The gaussians are normalized, and used as an image mask that acts as a region of interest.  Every new image that comes in is multiplied by each of these 49 gaussians, giving 49 arrays which each isolate one region of interest.  Each of these arrays is then summed, which gives 49 region of interest values.
+
+This analysis can perform the initial identification of the regions of interest, and that behavior can then be turned off so that only the region of interest sums continue to be evaluated on each measurement.
+
+\begin{itemize}
+\item \texttt{enable}:  Enable or disable the analysis.
+\item \texttt{perform gaussian grid fit}:  Enable or disable the finding of new regions of interest.  This does not control whether or not the new ROIs are adopted.
+\item \texttt{automatically use ROIs from valid fits}:  Newly calculated regions of interest can be adopted manually with the \texttt{use these ROIs} button, or they can be adopted automatically by selecting this option.  If the new ROIs need to be used in other analyses done on-the-fly this same iteration, then they will need to be adopted automatically.
+\item \texttt{calculate gaussian ROI sums}:  Use the gaussian ROIs to calculate region of interest sums.  This is generally always desired and can be done even when a new ROI fit is not being calculated.
+\item \texttt{shot}  Which camera shot to use to do the ROI fit.
+\item \texttt{subtract background?}:  Subtract the background image (chosen on the \textit{Live Images} page) before performing the ROI fit.
+\item \texttt{subtract background from sums?}:  Subtract the background image before calculating the ROI sums.
+\item \texttt{multiply sums by photoelectron scaling?}:  Multiply the sums by a calibration of $counts/photoelectron$, which is specified on the \textit{Hamamatsu} page.
+\item \texttt{clean up image with ICA?}:  Use independent component analysis to filter the image before finding new regions of interest.  ICA identifies sets of correlated pixels.  By using the 49 most correlated sets, we get a good identification of the atom sites with good rejection of background noise.
+\item \texttt{use these ROIs}:  If the new grid fit regions of interest were not adopted automatically, click this to manually adopt them.
+\item \texttt{initial guess}:  Give the grid fit algorithm an initial guess for the \texttt{top}, \texttt{left}, \texttt{bottom} and \texttt{right} pixel positions of the grid.
+\item \texttt{graph}:  The graph shows the raw mean image, ICA filtered mean image, the initial guess for the grid, the best fit for the grid, and the 1 sigma contours of the gaussian ROIs superimposed on top of the raw or ICA filtered image.
+\end{itemize}
+
+\subsection{HSDIO Digital Output}
+
+The HSDIO instrument controls an HSDIO DO task via the LabView \textbf{PXI\_server} and requires the \textbf{PXI\_server} program to be running.  Sequencing of the HSDIO events is done using the \textbf{functional waveforms}, where the method \texttt{experiment.LabView.HSDIO.add\_transition(time, channel, state)} is available to set a given \texttt{channel} to some \texttt{state} (True = high, False = low), at some \texttt{time}.  The \texttt{add\_transition} calls need not be done in order.  Unless otherwise specified, channels revert to low at \text{t = 0}, but hold their values after the last specified transition until the beginning of the next measurement.
+
+\begin{itemize}
+\item \texttt{enable}: Enable or disable this instrument.
+\item \texttt{resourceName}:  The LabView path of the HSDIO card, which can be determined using the NI Measurement and Automation Explorer.  If using more than one HSDIO card, separate them with a comma (e.g. \texttt{'PXI1Slot4,PXI1Slot5'}).  (Variables okay, must evaluate to string.)
+\item \texttt{clockRate}:  Clockrate in Hz.  (Variables okay, must evaluate to float.)
+\item \texttt{units}:  The time units to be used in the \textbf{functional waveforms}.  (1 = seconds, .001 = milliseconds).  (Variables okay, must evaluate to float.)
+\item \texttt{hardwareAlignmentQuantum}:  The minimum sample resolution, which is a specification for particular HSDIO hardware.  The HSDIO cards on the \textit{AQuA} PXI chassis have a hardware alignment quantum of 1, which means any length sequence can be specified.  The HSDIO card on the Square Cell PCI computer has a hardware alignment quantum of 2, which means waveforms and wait times must be an even number of samples.  (Variables okay, must evaluate to int.)
+\item \texttt{number of channels}:  Specify the total number of channels, in multiples of 32, which should match the number of cards.
+\item \texttt{waitForStartTrigger}:  If \texttt{True}, wait for a hardware start trigger.  If \texttt{False}, start via software trigger at the beginning of the measurement.  (Variables okay, must evaluate to bool.)
+\item \texttt{triggerSource}:  The source of the start trigger, if used.  Can be found using the NI Measurement and Automation Explorer.  (Variables okay, must evaluate to string.)
+\item \texttt{triggerEdge}:  Choose to trigger on the rising or falling edge.  (Variables okay, must evaluate to string "rising" or "falling".)
+\item \texttt{Script Triggers}:  An array of up to four programmable triggers which can be used in the HSDIO waveforms.  This is not implemented for \textbf{functional waveforms}.  Use the + and - buttons to add or remove a trigger at the index given by the spin box.
+\begin{itemize}
+\item \texttt{description}:  A helpful description of the trigger.
+\item \texttt{id}:  The name of the trigger as it will be used in the HSDIO waveforms.  (Variables okay, must evaluate to string "ScriptTrigger0", "ScriptTrigger1", "ScriptTrigger2" or "ScriptTrigger3".)
+\item \texttt{source}:  The hardware source for the trigger.  Can be determined using the NI Measurement and Automation Explorer. (Variables okay, must evaluate to string.)
+\item \texttt{type}:  If this is an edge or level trigger.  (Variables okay, must evaluate to string "edge" or "level".)
+\item \texttt{edge}:  If using an edge trigger, if this should be the rising or falling edge.  (Variables okay, must evaluate to string "rising" or "falling".)
+\item \texttt{level}:  If using a level trigger, if this should be a high level or low level.  (Variables okay, must evaluate to string "high" or "low".)
+\end{itemize}
+\item \texttt{channels}:  A list of the channels.
+\begin{itemize}
+\item \texttt{description}:  A description that is used on the \textbf{functional waveforms graph}.
+\item \texttt{active}:  Enable or disable this channel.  (Variables okay, must evaluate to bool.)
+\end{itemize}
+\end{itemize}
+
+\subsection{Hamamatsu}
+
+The settings for the Hamamatsu EMCCD camera.
+
+\begin{itemize}
+\item \texttt{enable}:  Enable or disable the camera.
+\item \texttt{saveAsPNG}:  Save each shot taken as a lossless \texttt{.png} file in the experiment directory.  Also requires \texttt{Save 2013 style files?} to be checked on the \textit{Experiment} page.  It is not recommended to use this, because all the image data is available in a more stable and more efficient format in \texttt{results.hdf5}.  (Variables okay, must evaluate to bool.)
+\item \texttt{saveAsASCII}:  Save each shot taken as a \texttt{.txt} file in the experiment directory.  Also requires \texttt{Save 2013 style files?} to be checked on the \textit{Experiment} page.  It is not recommended to use this, because it is an extremely inefficient way to store image data.
+\item \texttt{forceImagesToU16}:  All Hamamatsu C9100-13 data is unsigned 16-bit integers, however on certain CameraLink acquisition cards it reports as signed 16-bit.  Set this to True to cast the data to U16.  (Variables okay, must evaluate to bool.)
+\item \texttt{EMGain}:  Set the electron multiplier gain.  (Variables okay, must evaluate to int 0 to 255.)
+\item \texttt{analogGain}:  Set the analog gain. (Variables okay, must evaluate to int 0 to 4.)
+\item \texttt{exposureTime}:  When using edge or internal trigger mode, sets the exposure time in seconds. (Variables okay, must evaluate to float.)
+\item \texttt{scanSpeed}:  Choose the readout speed.  (Variables okay, must evaluate to string "Slow", "Middle" or "High".)
+\item \texttt{lowLightSensitivity}:  Set the low light sensitivity mode.  (Variables okay, must evaluate to string "Off", "5x", "13x" or "21x".)
+\item \texttt{externalTriggerMode}:  When using an external trigger, select if you want an edge trigger, where the exposure time is determined by the \texttt{exposureTime} setting, or a level trigger where the exposure time is determined by the length of the trigger pulse.  (Variables okay, must evaluate to string "Edge" or "Level".)
+\item \texttt{triggerPolarity}:  Select if you are looking for a high or low trigger.  (Variables okay, must evaluate to string "Positive" or "Negative".)
+\item \texttt{externalTriggerSoruce}:  Select the input source for the external trigger.  (Variables okay, must evaluate to string "Multi-Timing I/O Pin", "BNC on Power Supply", or "CameraLink Interface".)
+\item \texttt{cooling}:  Turn the TEC cooling on or off.  The appropriate DIP switches must also be set on the camera, see the Hamamatsu manual for details.  (Variables okay, must evaluate to string "On" or "Off".)
+\item \texttt{fan}:  Turn the camera fan on or off.  The appropriate DIP switches must also be set on the camera, see the Hamamatsu manual for details. (Variables okay, must evaluate to "On" or "Off".)
+\item \texttt{scanMode}:  Choose the pixel mode for the readout.  Normal to read out all pixels.  Super pixel to bin together groups of pixels.  Sub-array to read out a smaller region than the entire image sensor.  (Variables okay, must evaluate to "Normal, "Super pixel" or "Sub-array".)
+\item \texttt{photoelectronScaling}:  A calibration value for the number of counts per photoelectron.  Used to scale ROI sum data.  (Variables okay, must evaluate to float.)
+\item \texttt{subArray}:  Left, Top, Width and Height settings for use in the \texttt{Sub-array} \texttt{scanMode}.  Speeds up image readout by reducing the portion of the sensor used.  (Variables okay, must evaluate to int in steps of 16 up to sensor size.)
+\item \texttt{superPixelBinning}:  If selected in \texttt{scanMode}, choose how many pixels to bin together.  (Variables okay, must evaluate to string "1x1", "2x2" or "4x4".)
+\item \texttt{frameGrabberAcquisitionRegion}:  The image size can be cropped in the CameraLink frame grabber card.  Set the Left, Top, Right and Bottom crop borders.  (Variables okay, must evaluate to int in steps of 1 up to the sensor size.)
+\item \texttt{shotsPerMeasurement}:  The number of camera triggers to expect per measurement, for error checking.
+\end{itemize}
+
+\subsection{Histogram}
+
+Plots a histogram of the region of interest sum data for the current iteration, live updated every measurement.
+
+\begin{itemize}
+\item \texttt{enable}:  Enable or disable the plot.
+\item \texttt{what to plot}:  Use a list of tuples to specify what to plot in the format \texttt{[(shot,region),(shot,region)]}.  For example \texttt{[(0,17),(1,17)]} will plot region of interest 17 in both shots 0 and 1.
+\end{itemize}
+
+\subsection{Histogram Grid}
+
+Plot a histogram of region interest data every iteration.  Shows histograms for each of a 7x7 grid of regions of interest at the same time.  This analysis can find a brightness cutoff for atom loading data by fitting a gaussian above and below test cuttoffs, and finding the best fit to two gaussians.  In the plot, the 0 atom signal is shown in blue and the 1 atom signal is shown in red, with gaussian fits over-layed on top.  If \texttt{Save Data?} is selected on the \textit{Experiments} page, then the plots for every shot are saved to disk as \texttt{.pdf} files in the experiment directory.
+
+\begin{itemize}
+\item \texttt{enable}:  Enable or disable the plots.
+\item \texttt{shot to display}:  Which shot to show on screen.  All shots are still analyzed for saving to \texttt{.pdf} files.
+\item \texttt{roi type}:  Choose whether to use the \texttt{gaussian} or \texttt{square} regions of interest, which are defined on their own settings pages.
+\item \texttt{calculate new cutoffs}:  Choose whether to calculate the best fit cutoffs.  This alone is not enough for the new cutoffs to be used.
+\item \texttt{automatically use new cutoffs}:  If checked, newly calculated cutoffs will be adopted.
+\item \texttt{cutoff shot mapping list}:  This list specifies which shots to glean the cutoffs from.  For example, if there are two shots, then \texttt{[0,0]} always uses shot 0 for the cutoffs, \texttt{[0,1]} uses each shot for its own cutoff data, and \texttt{[1,1]} always uses shot 1 for the cutoffs.
+\item \texttt{use new cutoffs}:  If not automatically adopting newly calculated cutoffs, you can use this button to manually adopt the most recently calculated cutoffs. 
+\end{itemize}
+
+\subsection{Image Browser}
+
+You can use this window to browse through all the shots taken so far for the entire experiment.
+
+\begin{itemize}
+\item \texttt{Show ROIs?}: Click to show the region of interest outlines over the images.
+\item \texttt{independent variable values}:  Every independent variable is shown with a combo box for the possible values for that variable.  Select the values that you want for each independent variable, and the images available will be culled to only represent those settings.
+\item \texttt{measurement}:  Select the measurement you wish to view, for the iteration selected through the \texttt{independent variable values}.
+\item \texttt{shot}:  Select the shot to show, for the selected measurement and iteration.
+\end{itemize}
+
+\subsection{Iterations Graph}
+
+A plot that shows the averaged region of interest sum data versus iterations.  The scale on the x axis is iterations, and the scale on the y axis is region of interest sum brightness for the Hamamatsu camera data.
+
+\begin{itemize}
+\item \texttt{shots and regions to graph}:  Specify the shots and regions to graph using a list of tuples in the format \texttt{[(shot,region),(shot,region)]}.  For example \texttt{[(1,22),(1,23)]} plots regions 22 and 23 from shot 1.
+\item \texttt{update every measurement?}:  (deprecated)  Allows the plot to update live every measurement throughout the iteration.  Deprecated because it was too slow.
+\item \texttt{enable}:  Enable the plot.
+\item \texttt{draw connecting lines}:  Draw lines between the points.
+\item \texttt{only add data that has passed loading filter?}:  If checked, only plot data that has passed the \texttt{Region of Interest Sum} filter on the \textit{Filters} page.
+\item \texttt{draw error bars}:  Draw the 1 sigma error bars for the standard deviation of the mean.
+\item \texttt{ymin} and \texttt{ymax}:  Use to set the vertical range of the plot.  The plot range will be set automatically if these are blank.
+\end{itemize}
+
+\subsection{Laird Temperature Controllers}
+
+For readout from Laird temperature controllers.  Requires \textbf{box\_temperature\_server.py} to be running separately.
+
+\begin{itemize}
+\item \texttt{enable}:  Enable or disable communication with this instrument.
+\item \texttt{IP address}:  The IP address of the machine where \textbf{box\_temperature\_server.py} is running.
+\item \texttt{port}: The TCP/IP port number of the \textbf{box\_temperature\_server.py}.
+
+\end{itemize}
+
+\subsection{Live Images}
+
+This analysis shows the live incoming images for the Hamamatsu camera.  The left panel shows the most recent raw image, while the right panel shows the live updating average image for the current iteration.
+
+\subsubsection{Most Recent Image}
+\begin{itemize}
+\item \texttt{Show ROI?}: Overlay the square ROI outlines on the plot.
+\item \texttt{shot}:  Select which shot to show from the most recent measurement.
+\item \texttt{subtract background}:  Subtract the background from the image.  Does not affect stored data.
+\end{itemize}
+
+\subsubsection{Mean Image}
+\begin{itemize}
+\item \texttt{enable}: Enable or disable the mean image calculation and plotting.
+\item \texttt{Show ROIs?}:  Overlay the square ROIs onto the image.
+\item \texttt{shot}:  Select which shot to show the mean image for.
+\item \texttt{ymin} and \texttt{ymax}:  Use to set the intensity scale for the mean image.  The scale will be set automatically to the min/max for the visible shot if these are left blank.  The \textit{Most Recent Image} will scale according to the mean image.
+\item \texttt{subtract background}:  Subtract the background from the mean image.  This does not affect the stored data.
+\item \texttt{use this image as background}:  Click to use the currently showing mean image as the background.  The selected shot will be used, but it is applied as the background image to all shots.
+\end{itemize}
+
+
+\subsection{Measurements Graph}
+
+A plot that shows the region of interest sum data with a datapoint for every measurement.  The scale on the x axis is \# of measurements.
+
+\begin{itemize}
+\item \texttt{enable}:  Enable the plot.
+\item \texttt{shots and regions to graph}:  Specify the shots and regions to graph using a list of tuples in the format \texttt{[(shot,region),(shot,region)]}.  For example \texttt{[(1,22),(1,23)]} plots regions 22 and 23 from shot 1.
+\item \texttt{clear}:  The data points do not clear every iteration of experiment.  The continue to accumulate until cleared using this button.
+\end{itemize}
+
+\subsection{PI Piezo}
+
+Controls the Physik Instrumente (PI) 3 axis P-611.3 Nanocube piezo stages.  Requires the \textbf{PXI\_server} to be running on the machine where the PI piezo controller racks are connected via USB.  Can communicate with any number of PI controllers.  The spin box index selects which controller settings are visible.  Use the + and - buttons to add or remove a controller at the index selected.
+
+\begin{itemize}
+\item \texttt{enable (instrument)}:  Enable or disable this instrument.
+\item \texttt{description}:  A useful description for each controller.
+\item \texttt{enable (controller)}:  Enable or disable just a specific controller.
+\item \texttt{serial number set}:  Enter the serial number of the controller defined by the visible settings.
+\item \texttt{id and serial number read}:  Read only.  A readout of the serial number from the controller, to confirm communications are working.
+\item \texttt{setServo}:  Turn the closed loop servo feedback on for each channel.  (Variables okay, must evaluate to bool.)
+\item \texttt{setPosition}:  The (closed or open loop) position setting for each channel, in $\mu$m.  (Variables okay, must evaluate to float.)
+\item \texttt{read from piezo}:  Read only.  Status readout for each channel.
+\end{itemize}
+
+\subsection{PXI Communication}
+
+The \textit{HSDIO}, \textit{Analog Output}, \textit{DAQmx Digital Output}, \textit{Analog Input} and \textit{Counter} instruments all require the \textbf{PXI\_server} to be running.  Communication for these instruments is controlled on the \textit{PXI Communication} page.  The settings here are:
+
+\begin{itemize}
+\item \texttt{open connection}:  Opens a new connection to \textbf{PXI\_server} if there is not already one.  This is not usually necessary because this happens automatically if needed in the experiment sequence.
+\item \texttt{update settings}: Pushes the current settings to the \textbf{PXI\_server}.  This can be useful to enact some manual change in the equipment state, or the \textit{cycle continuously} setting.  If updating a setting you will want to force evaluation first (from the main window menu).
+\item \texttt{close connection}:  Forcibly close the TCP/IP connection to the \textbf{PXI\_server}.  This is useful if there has been some unrecoverable communications error and you would like to renew the connection.
+\item \texttt{enable}: A master enable for the TCP/IP communication for all these instruments.
+\item \texttt{IP address of LabView system}: The IP address of the machine where the \textbf{PXI\_server} is running.  You may use \texttt{localhost} if it is on the same machine.
+\item \texttt{communications port}: This must match the port selection in \textbf{PXI\_server}.  The default of \texttt{9000} usually works fine.
+\item \texttt{cycle experiment continuously even when not taking data}: If unchecked, the \textbf{PXI\_server} will only start to take a measurement when the \textbf{command center} requests it.  If checked, this setting causes the \textbf{PXI\_server} to keep taking measurements, even when they have not been requested.  This allows faster data taking, because the next measurement can be started before the previous one has been analyzed, and when the \textbf{command center} finally does request a measurement, it is given the results of the most recent completed measurement that it has not yet received.  Checking this setting also allows the experiment duty cycle to stay constant, keeping the temperature constant.
+\item \texttt{timeout}:  This puts a master timeout on the activity of the PXI instruments.  Make sure this value is longer than the requested measurement sequence.
+\end{itemize}
+
+\subsection{PID}
+
+A PID controller to replace the DC Noise Eater boxes, by using the Analog Input and Analog Output instruments.  Not yet fully implemented.
+
+\subsection{Picomotors}
+
+Control any number of Newport Picomotors.  Requires \textbf{picomotor\_server.exe}, a code written in C\#, to be running on the machine where the Picomotors are connected via USB.  This will be replaced in the future by direct HTTP communication to the Picomotor controllers.
+
+\begin{itemize}
+\item \texttt{enable}: Enable or disable this instrument.
+\item \texttt{IP address}:  The IP address of the machine where the \textbf{picomotor\_server} is running.
+\item \texttt{port}:  The TCP/IP port in use by \textbf{picomotor\_server}.  Usually 11000.
+\item \texttt{+ and - buttons}:  Use the index to change which motor settings are visible, and use the + and - buttons to add or remove a motor at the specified index.
+\item \texttt{serial number}:  The serial number of this controller where this motor is attached, which lets \textbf{picomotor\_server} direct the communications.
+\item \texttt{motor number}:  Specify the connection number of this motor on the controller.
+\item \texttt{position}:  The desired position to be set.  These are open loop devices, so an exact position is not guaranteed.  (Variables okay, must evaluate to int.)
+\end{itemize}
+
+\subsection{Princeton Camera}
+
+Control for the Princeton EMCCD GigE camera.  Added by Donald Booth, modeled from the Andor and Picomotor code.  Requires a server program to be running, which can be launched using this GUI.  Horizontal and vertical sliders change the image cropping.
+
+\begin{itemize}
+\item \texttt{video mode}:  Start showing internally triggered video images.
+\item \texttt{stop video}:  Stop triggering video images.
+\item \texttt{Start Server}:  Launch the external server program on this machine.
+\item \texttt{enable}:  Enable or disable this instrument.
+\item \texttt{AdcEMGain}:  The electron multiplier gain for the camera.  (Variables okay, must evaluate to integer.)
+\item \texttt{exposureTime}:  The length of the exposure when using edge trigger mode.  (Variables okay, must evaluate to float.)
+\item \texttt{trigger mode}:  Select Edge to allow the exposure time to be defined by the \texttt{exposureTime} setting.  Select Level to let the length of the trigger determine the exposure time.
+\item \texttt{shotsPerMeasurement}:  The expected number of camera triggers per measurement.  Used for error checking.  (Variables okay, must evaluate to int.)
+\item \texttt{shot}:  Select which shot to show in the plot window.
+\end{itemize}
+
+\subsection{RF Generators}
+
+This instrument allows control of Agilent/HP RF generators over GPIB.  Three models of generators are defined, but the communication protocol is very similar for all HP RF generators, and other models may work with the defined communications.  For each model, there is an array of settings that allows any number of boxes of that type to be used.  This instrument requires the \textbf{PXI\_server} to be running on the machine where the GPIB connection is made.
+
+\begin{itemize}
+\item \texttt{enable}:  Enable or disable this instrument.
+
+\item \texttt{HP83623A}
+Use the spinbox to view settings for different generators.  Add any number of boxes by using the  + and - buttons to add or remove a setting at the index shown on the spinbox.
+\begin{itemize}
+\item \texttt{enable}:  Enable or disable communication to this specific generator.
+\item \texttt{description}:  The purpose of this specific generator.
+\item \texttt{GPIB channel}:  The GPIB id number of this generator, set using the controls on the generator.  GPIB id numbers must be unique.
+\item \texttt{frequency}:  The frequency setting for this generator, in MHz.  (Variables okay, must evaluate to float.)
+\item \texttt{power}:  The power setting for this generator, in dBm.  (Variables okay, must evaluate to float.)
+\item \texttt{RFoutput}:  Turn the RF output for this generator on or off.  (Variables okay, must evaluate to bool.)
+\item \texttt{externalTrigger}:  Select whether or not to use an external trigger to control output of the generator.  (Variables okay, must evaluate to bool.)
+\end{itemize}
+
+\item \texttt{HP8662A}
+Use the spinbox to view settings for different generators.  Add any number of boxes by using the  + and - buttons to add or remove a setting at the index shown on the spinbox.
+\begin{itemize}
+\item \texttt{enable}:  Enable or disable communication to this specific generator.
+\item \texttt{description}:  The purpose of this specific generator.
+\item \texttt{GPIB channel}:  The GPIB id number of this generator, set using the controls on the generator.  GPIB id numbers must be unique.
+\item \texttt{frequency}:  The frequency setting for this generator, in MHz.  (Variables okay, must evaluate to float.)
+\item \texttt{power}:  The power setting for this generator, in dBm.  (Variables okay, must evaluate to float.)
+\end{itemize}
+
+\item \texttt{HP83712B}
+Use the spinbox to view settings for different generators.  Add any number of boxes by using the  + and - buttons to add or remove a setting at the index shown on the spinbox.
+\begin{itemize}
+\item \texttt{enable}:  Enable or disable communication to this specific generator.
+\item \texttt{description}:  The purpose of this specific generator.
+\item \texttt{GPIB channel}:  The GPIB id number of this generator, set using the controls on the generator.  GPIB id numbers must be unique.
+\item \texttt{frequency}:  The frequency setting for this generator, in MHz.  (Variables okay, must evaluate to float.)
+\item \texttt{power}:  The power setting for this generator, in dBm.  (Variables okay, must evaluate to float.)
+\end{itemize}
+
+\end{itemize}
+
+\subsection{Ramsey}
+
+This analysis is a plot of retention vs iterations, which also has a built in fit function to fit to a the function $\mathit{amplitude}*\cos(2 pi f t) e^{t/\mathit{decay}}+\mathit{offset}$.  The purpose is that this can be used in the optimizer to maximize some oscillation frequency.  This could be used not just Ramsey experiments, but also Rabi or any oscillation.  Results are saved into the HDF5 file under \texttt{/experiments/\#/analysis/Ramsey/frequency} and can be accessed in the optimizer cost function via \texttt{experimentResults['analysis/Ramsey/frequency']}.
+
+\begin{itemize}
+\item \texttt{enable}:  Enable or disable this analysis.
+\item \texttt{draw error bars}:  Draw the 1 sigma error bars for the standard deviation of the mean.
+\item \texttt{roi}:  Choose which region of interest to analyze.
+\item \texttt{time variable name}:  Give the name of the variable that represents time.  This will be used as \texttt{t} in the fit function.
+\item \texttt{fit}:  The fit parameters: \texttt{amplitude}, \texttt{frequency}, \texttt{offset} and \texttt{decay}.  Give a \texttt{guess} for each parameter.  The results will be updated into the \texttt{fit} box.
+\end{itemize}
+
+\subsection{Report}
+
+This analysis is used to print out any diagnostic information about the variables.  This can be used to make sure the variable iteration behavior is performing as expected, or to do some useful calculation.  There are two mutli-line text boxes:  The \texttt{Constant Report} is evaluated after the \textbf{constants}, once per experiment, and has access only to the \textbf{constants} namespace.  The \texttt{Variable Report} is evaluated after the \textbf{dependent variables}, and so has access to the full namespace of \textbf{constants}, \textbf{independent} and \textbf{dependent variables}.  To define the report, use python syntax that evaluates to a string.  The entire result of each box must evaluate to one string, so the entire box must be one python statement.  Concatenation of multiple lines is possible using parenthesis to contain the entire statement and + to denote string concatentation.
+
+See Appendix~\ref{AQuA Report} for a model example of the \textsc{AQuA} \textbf{report} code.
+
+\subsection{Retention Analysis}
+
+This analysis gives the loading, retention and reloading statistics for each region of interest.  This data is used in other analyses and so it is usually necessary to have this enabled.
+
+\begin{itemize}
+\item \texttt{enable}:  Enable or disable this analysis.
+\item \text{roi type}:  Choose whether to use the \textit{square ROI} or \textit{gaussian ROI} cutoffs.
+\end{itemize}
+
+\subsection{Retention Graph}
+
+This graph uses the retention data calculated in \textit{Retention Analysis} to plot retention vs iteration.
+
+\begin{itemize}
+\item \texttt{regions to graph}:  A list of tuples that specifies what to plot, using the format \texttt{[region1, region2]}.  For example \texttt{[2,7]} plots regions 2 and 7, which \texttt{range(49)} plots all 49 regions.
+\item \texttt{enable}:  Enable or disable the plot.
+\item \texttt{draw connection lines}:  Draw lines between the data points.
+\item \texttt{draw error bars}:  Draw the 1 sigma error bars of the standard deviation of the mean.
+\item \texttt{only add data that has passed loading filter}:  Only use data that passed the \textit{Region of Interest Sum Filter} on the \textit{Filters} page.
+\item \texttt{ymin} and \texttt{ymax}:  Use this to set vertical plot limits.  If left blank, the vertical range is determined automatically.
+\end{itemize}
+
+\subsection{Square ROI}
+A table for manually specifying square regions of interest for the Hamamatsu camera data.  The number of regions can by changed by modifying the ROI list length in the HDF5 file.  The plot on this page shows a digital representation of atom loading for the listed regions and cutoffs.  The positions of the regions themselves may be viewed on the \textit{Live Images} page.
+
+\begin{itemize}
+\item \texttt{enable}:  Enable or disable this analysis.
+\item \texttt{left, top, right, bottom}:  Specify the position of each region.
+\item \texttt{threshold}:  Specify a cutoff threshold where a summed region of interest brightness under this level is considered no atom, while above this level is considered 1 atom.
+\end{itemize}
+
+\section{Known bugs}
+
+\subsection{Independent Variables}
+
+Do not use multiple copies of the \textit{Independent Variables} page, because items added and removed will not be synced to other pages.  Also, the index shown on each variable listing is not necessarily correct after variables have been added and removed.  It is the position in the list that matters, not the printed variable index.  Closing and reopening the window will correct these problems.
+
+The order of the independent variables is important, as this defines which variable is the inner loop, and therefore the data order of the iterations.  However, the independent variables list is alphabetized in the HDF5 file, and therefore loading an old experiment, or quitting and restarting the program, will alphabetize the list, which can change the order.
+
+\subsection{HDF5}
+The iterations and measurements in the HDF5 files, although labeled \texttt{0}, \texttt{1}, etc, are ordered alphabetically, not numerically.  This means that when analyzing data you must sort the data properly according to the labels, and not take the default order.  Otherwise you you will get\\ \texttt{0,1,10,11,12,13,14,15,16,17,18,19,2,20,\dots}
+
+\subsection{Regions of Interest}
+
+Several of the analyses which are no longer used were  programmed to use the older square regions of interest, and have not been updated to enable the use of the gaussian regions of interest.  This includes the \textit{Region of Interest Sum Filter} and \textit{Iterations Graph}.
+
+\begin{appendices}
+
+These appendices which show the variable code from the \textit{AQuA} project, are provided as examples and best-practice references.
+
+\section{AQuA Constants} \label{AQuA Constants}
+\lstinputlisting{AQuA_constants.py}
+
+\section{AQuA Dependent Variables} \label{AQuA Dependent Variables}
+\lstinputlisting{AQuA_dependent_variables.py}
+
+\section{AQuA Functional Waveforms} \label{AQuA Functional Waveforms}
+\lstinputlisting{AQuA_functional_waveforms.py}
+
+\section{AQuA Cost Functions} \label{AQuA Cost Functions}
+\lstinputlisting{AQuA_cost_functions.py}
+
+\section{AQuA Report} \label{AQuA Report}
+\lstinputlisting{AQuA_report.py}
+
+\end{appendices}
+\end{document}

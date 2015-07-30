@@ -1,1 +1,0 @@
-* Good error behavior:  We can use small try-except blocks to catch common errors and handle them appropriately.  All errors are caught using a big try-except block on the whole measurement.  The small blocks often raise PauseError in their except clause to send the execution straight out of the loop, while not accidentally logging the error a second time.
