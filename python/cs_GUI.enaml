@@ -17,7 +17,7 @@ from cs_errors import PauseError
 
 from enaml.layout.api import vbox, hbox, align, horizontal, vertical, spacer, grid
 from enaml.widgets.api import (MainWindow, MenuBar, Menu, Action,
-                                Notebook, Page, Container, GroupBox, DualSlider, 
+                                Notebook, Page, Container, GroupBox, DualSlider, Slider,
                                 Form, Label, CheckBox, SpinBox, PushButton, MPLCanvas,
                                 MultilineField, ProgressBar, ScrollArea, Separator,
                                 FileDialog,Window, StatusBar, StatusItem,
