@@ -2,8 +2,9 @@
 roi_fitting.py
 Part of the CsPyController experiment control software
 author = Martin Lichtman
+housekeeper =  Y.S.
 created = 2014.07.01
-modified >= 2014.07.01
+modified >= 2015.10.19
 
 This file contains an analysis which tries to fit 49 gaussians to the atom array.
 
@@ -23,7 +24,8 @@ from atom.api import Bool, Float, Member, Int, Str
 from analysis import AnalysisWithFigure
 
 class GaussianROI(AnalysisWithFigure):
-    version = '2015.01.07'
+    #version = '2015.01.07'
+    version = '2015.10.19'
     enable = Bool()  # whether or not to activate this optimization
     useICA = Bool()  # whether or not to clean up the image
     shot = Int()
@@ -75,24 +77,27 @@ class GaussianROI(AnalysisWithFigure):
     def gaussian(self, a, w, rotation, xy0, xy):
         return self.rotated_gaussian(a, w, rotation, xy-xy0)
 
-    def fitFunc(self, xy, x0, y0, spacing, grid_angle, amplitude, wx, wy, spot_angle, blacklevel):
+    def fitFunc(self, xy, x0, y0, row_offset_x, row_offset_y, spacing, grid_angle, amplitude, wx, wy, spot_angle, blacklevel):
         """
         find the best fit to a square grid of gaussians of all the same height, equal spacing in x and y,
         allow for rotation of array, allow for different wx and wy, allow for uniform rotation of spots
+        also allow for each alternating row (half the array) to have a different uniform displacement.
         """
 
         # sum up the contribution of each gaussian to the total
         xy0 = np.array([[[x0]], [[y0]]])
+        xy_offset = np.array([[[row_offset_x]], [[row_offset_y]]])
         width = np.array([[[wx]], [[wy]]])
         spots = []
         for r in xrange(self.rows):
             for c in xrange(self.columns):
-                xy0i = xy0 + np.tensordot(self.rotation(grid_angle), np.array([[[r]], [[c]]]), axes=1)*spacing
+                # half of the rows will receive an offset.
+                xy0i = xy0 + np.tensordot(self.rotation(grid_angle), np.array([[[r]], [[c]]]), axes=1)*spacing + np.remainder(r,2)*xy_offset
                 spots.append(self.gaussian(amplitude, width, spot_angle, xy0i, xy))
         out = np.sum(spots, axis=0)+blacklevel
         return out.ravel()
 
-    def get_rois(self, image_shape, x0, y0, spacing, grid_angle, amplitude, wx, wy, spot_angle, blacklevel):
+    def get_rois(self, image_shape, x0, y0, row_offset_x, row_offset_y, spacing, grid_angle, amplitude, wx, wy, spot_angle, blacklevel):
         """Create a set of ROI masks from the fit parameters.
         Use 1 for all the amplitudes so they are weighted the same."""
 
@@ -100,12 +105,13 @@ class GaussianROI(AnalysisWithFigure):
 
         # sum up the contribution of each gaussian to the total
         xy0 = np.array([[[x0]], [[y0]]])
+        xy_offset = np.array([[[row_offset_x]], [[row_offset_y]]])
         width = np.array([[[wx]], [[wy]]])
         spots = np.empty((self.rows*self.columns, image_shape[0]*image_shape[1]))
         i = 0
         for r in xrange(self.rows):
             for c in xrange(self.columns):
-                xy0i = xy0 + np.tensordot(self.rotation(grid_angle), np.array([[[r]], [[c]]]), axes=1)*spacing
+                xy0i = xy0 + np.tensordot(self.rotation(grid_angle), np.array([[[r]], [[c]]]), axes=1)*spacing + np.remainder(r,2)*xy_offset
                 spots[i] = self.gaussian(1, width, spot_angle, xy0i, xy).flatten()
                 i += 1
         return spots.T
@@ -133,7 +139,7 @@ class GaussianROI(AnalysisWithFigure):
                     # note the error, set the amplitude to 0 and move on:
                     logger.warning("Exception in GaussianROI.postIteration:\n{}\n".format(e))
                     # set the amplitude to 0 and move on
-                    self.fitParams = (0, 0, 0, 0, 0, 0, 0, 0, 0)
+                    self.fitParams = (0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0)
                     self.fitCovariances = np.zeros(1)
                 # --- save analysis ---
                 iterationResults['analysis/gaussian_roi/fit_params'] = self.fitParams
@@ -200,7 +206,7 @@ class GaussianROI(AnalysisWithFigure):
         amplitude = np.amax(image_sum)
         blacklevel = np.amin(image_sum)
 
-        initial_guess = (top, left, spacing, angle, amplitude, width, width, 0, blacklevel)
+        initial_guess = (top, left, 0, 0, spacing, angle, amplitude, width, width, 0, blacklevel)
 
         # --- curve fit ---
 
@@ -219,8 +225,8 @@ class GaussianROI(AnalysisWithFigure):
         except Exception as e:
             # set the amplitude to 0 and move on
             logger.warning("Fit failed in GaussianROI:\n{}\n".format(e))
-            fitParams = (0, 0, 0, 0, 0, 0, 0, 0, 0)
-            fitCovariances = np.zeros((9, 9))
+            fitParams = (0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0)
+            fitCovariances = np.zeros((11, 11))
             # --- save analysis ---
             return fitParams, fitCovariances
 
@@ -255,15 +261,17 @@ class GaussianROI(AnalysisWithFigure):
         ax.set_title('fit')
 
         #plot the 1 sigma gaussian ellipses
-        x0, y0, spacing, grid_angle, amplitude, wx, wy, spot_angle, blacklevel = fitParams
+        # 11 parameters to be fitted from the
+        x0, y0, row_offset_x, row_offset_y, spacing, grid_angle, amplitude, wx, wy, spot_angle, blacklevel = fitParams
         xy0 = np.array([[[x0]], [[y0]]])
+        xy_offset = np.array([[[row_offset_x]], [[row_offset_y]]])
         width = np.array([[[wx]], [[wy]]])
         ax = fig.add_subplot(gs[1, 1])
         ax.matshow(image_sum)
         ax.set_title('1 sigma contour on data')
         for r in xrange(rows):
             for c in xrange(columns):
-                xy0i = xy0 + np.tensordot(self.rotation(grid_angle), np.array([[[r]], [[c]]]), axes=1)*spacing
+                xy0i = xy0 + np.tensordot(self.rotation(grid_angle), np.array([[[r]], [[c]]]), axes=1)*spacing + np.remainder(r,2)*xy_offset
                 patch = Ellipse(xy0i[::-1], width=2*wx, height=2*wy, angle=-spot_angle, edgecolor='white',
                                 facecolor='none', lw=1)
                 ax.add_patch(patch)
