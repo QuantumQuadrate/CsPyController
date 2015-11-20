@@ -3152,6 +3152,20 @@ enamldef Vaunix(Container):
             prop << item.frequency
         EvalProp: Power:
             prop << item.power
+        Form:
+                hug_width = 'strong'
+                hug_height = 'strong'
+                Label:
+                    text = 'RF enabled'
+                CheckBox: RFonoff:
+                    checked := item.rfonoff
+        Form:
+                hug_width = 'strong'
+                hug_height = 'strong'
+                Label:
+                    text = 'Use Internal Reference (External 10 MHz reference if Unchecked)'
+                CheckBox: internalref:
+                    checked := item.internalref
         Container:
             Label:
                 text = 'Pulse Modulation Mode'
@@ -3166,6 +3180,13 @@ enamldef Vaunix(Container):
                     text = 'Enable Pulse Mode'
                 CheckBox: PulseEnable:
                     checked := item.pulseenable
+            Form:
+                hug_width = 'strong'
+                hug_height = 'strong'
+                Label:
+                    text = 'Use external modulation'
+                CheckBox: ExternalMod:
+                    checked := item.useexternalmod
         Container:
             Label:
                 text = 'Frequency Sweep'
@@ -3175,6 +3196,34 @@ enamldef Vaunix(Container):
                 prop << item.endfreq
             EvalProp: SweepTime:
                 prop << item.sweeptime
+            Form:
+                hug_width = 'strong'
+                hug_height = 'strong'
+                Label:
+                    text = 'Enable Repetitive Sweep (Sweep Once if Unchecked)'
+                CheckBox: SweepMode:
+                    checked := item.sweepmode
+            Form:
+                hug_width = 'strong'
+                hug_height = 'strong'
+                Label:
+                    text = 'Sweep Positive (Negative if Unchecked)'
+                CheckBox: SweepDir:
+                    checked := item.sweepdir
+            Form:
+                hug_width = 'strong'
+                hug_height = 'strong'
+                Label:
+                    text = 'Enable Bidirectional Sweep (Unidirectional if Unchecked)'
+                CheckBox: SweepType:
+                    checked := item.sweeptype
+            Form:
+                hug_width = 'strong'
+                hug_height = 'strong'
+                Label:
+                    text = 'ENABLE SWEEP'
+                CheckBox: SweepEnable:
+                    checked := item.sweepenable
                 
                 
         
