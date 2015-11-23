@@ -3147,7 +3147,7 @@ enamldef Vaunix(Container):
         hug_width = 'strong'
         hug_height = 'strong'
         Label:
-            text := 'serial number: {}'.format(item.ID)
+            text := 'Model: {}, Serial Number: {}, DLL ID: {}'.format(item.model,item.serial, item.ID)
         EvalProp: Frequency:
             prop << item.frequency
         EvalProp: Power:

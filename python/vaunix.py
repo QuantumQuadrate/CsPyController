@@ -28,6 +28,8 @@ class Vaunix(Prop):
     isInitialized = Bool(False)
     ID = Int()
     va = Member()
+    model = Str()
+    serial = Int()
     
     frequency = Member()
     power = Member()
@@ -47,6 +49,9 @@ class Vaunix(Prop):
     rfonoff = Bool()
     
     maxPower = Int()
+    minPower = Int()
+    minFreq = Int()
+    maxFreq = Int()
     
 
     def __init__(self, name, experiment, description=''):
@@ -58,47 +63,89 @@ class Vaunix(Prop):
         self.startfreq = FloatProp('StartFreq', experiment, 'Start Frequency (MHz)', '0')
         self.endfreq = FloatProp('EndFreq', experiment, 'End Frequency (MHz)', '0')
         self.sweeptime = IntProp('SweepTime', experiment, 'Sweep Time (ms)', '0')
-        self.properties += ['ID', 'frequency','power','pulsewidth','pulserep','pulseenable','startfreq','endfreq','sweeptime',
+        self.properties += ['ID', 'model', 'serial', 'frequency','power','pulsewidth','pulserep','pulseenable','startfreq','endfreq','sweeptime',
                             'sweepmode', 'sweeptype', 'sweepdir', 'sweepenable', 'internalref', 'useexternalmod', 'rfonoff', 'maxPower']
     
     def initialize(self,va):
         self.va = va
-        self.maxPower = self.va.fnLMS_GetMaxPwr(self.ID)
+        errcode = self.va.fnLMS_InitDevice(self.ID)
+        if (errcode !=0):
+            errcodereset = self.va.fnLMS_CloseDevice(self.ID)
+            if (errcodereset != 0):     #if device fails to initialize, it may be because it was not closed previously. Try closing and reinitializing it.
+                logger.error("Failed to initialize Vaunix device {}. Error code {}.".format(self.ID,errcode))
+                raise PauseError
+            errcode = self.va.fnLMS_InitDevice(self.ID)
+            if (errcode != 0):
+                logger.error("Failed to initialize Vaunix device {}. Error code {}.".format(self.ID,errcode))
+                raise PauseError
+        self.maxPower = int(self.va.fnLMS_GetMaxPwr(self.ID)/4)
+        self.minPower = int(self.va.fnLMS_GetMinPwr(self.ID)/4)
+        self.minFreq = int(self.va.fnLMS_GetMinFreq(self.ID))
+        self.maxFreq = int(self.va.fnLMS_GetMaxFreq(self.ID))
+        
         return
     
     def freq_unit(self,val):
-        return int(val*10000)
+        return int(val*100000)
     
     def power_unit(self,value):
-        return int((self.maxPower - value)/0.25)
+        return int((self.maxPower - value)*4)
+        
+    def power_sanity_check(self,value):
+        if (value < self.minPower or value > self.maxPower):
+            logger.error("Vaunix device {} power ({} dBm) outside min/max range: {} dBm, {} dBm.".format(self.ID,value,self.minPower,self.maxPower))
+            raise PauseError
+        return
+
+    def freq_sanity_check(self,value):
+        if (value < self.minFreq or value > self.maxFreq):
+            logger.error("Vaunix device {} frequency ({} x10 Hz) outside min/max range: {} x10 Hz, {} x10 Hz.".format(self.ID,value,self.minFreq,self.maxFreq))
+            raise PauseError
+        return        
+
         
     def update(self):
-        #print "Setting Frequency to {}x10 Hz".format(self.freq_unit(self.frequency.value))
-        self.va.fnLMS_SetFrequency(self.ID, self.freq_unit(self.frequency.value))
-        #print "Setting Power Level to {} dBm. Max Power {} dBm.".format(self.power.value, self.maxPower)
-        self.va.fnLMS_SetPowerLevel(self.ID, self.power_unit(self.power.value))
-        #print "Setting Start Frequency to {}x10Hz".format(self.freq_unit(self.startfreq.value))
-        self.va.fnLMS_SetStartFrequency(self.ID, self.freq_unit(self.startfreq.value))
-        #print "Setting End Frequency to {}x10Hz".format(self.freq_unit(self.endfreq.value))
-        self.va.fnLMS_SetEndFrequency(self.ID, self.freq_unit(self.endfreq.value))
+        if (self.rfonoff):
+            self.freq_sanity_check(self.freq_unit(self.frequency.value))
+            self.va.fnLMS_SetFrequency(self.ID, self.freq_unit(self.frequency.value))
+            
+            self.power_sanity_check(self.power.value)
+            self.va.fnLMS_SetPowerLevel(self.ID, self.power_unit(self.power.value))
+            
+            if (self.sweepenable):
+                self.freq_sanity_check(self.freq_unit(self.startfreq.value))
+                self.va.fnLMS_SetStartFrequency(self.ID, self.freq_unit(self.startfreq.value))
+                
+                self.freq_sanity_check(self.freq_unit(self.endfreq.value))
+                self.va.fnLMS_SetEndFrequency(self.ID, self.freq_unit(self.endfreq.value))
+                
+                self.va.fnLMS_SetSweepTime(self.ID, self.sweeptime.value)
+
+                self.va.fnLMS_SetSweepDirection(self.ID, self.sweepdir)
+                
+                self.va.fnLMS_SetSweepMode(self.ID, self.sweepmode)  #True: Repeat Sweep, False: Sweep Once
+                
+                self.va.fnLMS_SetSweepType(self.ID, self.sweeptype)  #True: Bidirectional Sweep, False: Unidirectional Sweep
+                
+                self.va.fnLMS_StartSweep(self.ID, self.sweepenable)
+
+            self.va.fnLMS_SetFastPulsedOutput(self.ID, c_float(self.pulsewidth.value*1e-6), c_float(self.pulserep.value*1e-6), self.pulseenable)
+
+            self.va.fnLMS_SetUseExternalPulseMod(self.ID, self.useexternalmod)
+            
+            self.va.fnLMS_SetUseInternalRef(self.ID, self.internalref)  #True: internal ref, False: external ref
+            
+            self.va.fnLMS_SaveSettings(self.ID)
         
-        self.va.fnLMS_SetSweepTime(self.ID, self.sweeptime.value)
-        
-        self.va.fnLMS_SetUseInternalRef(self.ID, self.internalref)  #True: internal ref, False: external ref
-        
-        self.va.fnLMS_SetSweepDirection(self.ID, self.sweepdir)
-        
-        self.va.fnLMS_SetSweepMode(self.ID, self.sweepmode)  #True: Repeat Sweep, False: Sweep Once
-        
-        self.va.fnLMS_SetSweepType(self.ID, self.sweeptype)  #True: Bidirectional Sweep, False: Unidirectional Sweep
-        #print "Setting FastPulsedOutput"
-        self.va.fnLMS_SetFastPulsedOutput(self.ID, c_float(self.pulsewidth.value*1e-6), c_float(self.pulserep.value*1e-6), self.pulseenable)
-        #print "SetUseExternalPulseMod"
-        self.va.fnLMS_SetUseExternalPulseMod(self.ID, self.useexternalmod)
-        #print "SetRFOn"
         self.va.fnLMS_SetRFOn(self.ID, self.rfonoff)
-        self.va.fnLMS_StartSweep(self.ID, self.sweepenable)
+        
+        self.getparams()
         return
+        
+    def getparams(self):
+        print "Parameters for Vaunix # {}".format(self.ID)
+        print "Frequency: {} MHz".format(self.va.fnLMS_GetFrequency(self.ID)/100000)
+        print "Power Level: {} dBm".format(self.va.fnLMS_GetPowerLevel(self.ID)/4)
         
         
 
@@ -108,7 +155,7 @@ class Vaunixs(Instrument):
     isInitialized = Bool(False)
     va = Member()
     
-    testMode = Bool(True)
+    testMode = Bool(False)    #Test mode: Set to False for actual use.
 	
     def __init__(self, name, experiment, description=''):
         super(Vaunixs, self).__init__(name, experiment, description)
@@ -170,17 +217,25 @@ class Vaunixs(Instrument):
 	
 	#detect_generators: Calls DLL function to check for number of generators and their IDs.
     def detect_generators(self):
-        if (not self.isInitialized):
+        if (not self.isInitialized):    #test if DLL is already loaded. If not, load it.
             self.initialize()
-        num=self.va.fnLMS_GetNumDevices()
+        num=self.va.fnLMS_GetNumDevices()   #ask DLL for the number of connected devices
         logger.debug("Number of vaunix devices detected: {}".format(num))
-        while (num>len(self.motors)):
+        while (num>len(self.motors)):       #if num connected devices > number in array, add elements.
             self.motors.add()
-        while (num<len(self.motors)):
-            self.motors.remove(len(self.motors) - 1)
+        while (num<len(self.motors)):       #if <, subtract elements.
+            self.motors.pop(self.motors.length-1)
+            self.motors.length -= 1
         devinfotype = c_uint*num
         devinfo = devinfotype()
-        self.va.fnLMS_GetDevInfo(addressof(devinfo))
+        self.va.fnLMS_GetDevInfo(addressof(devinfo))   #get device IDs
         for mn, i in enumerate(self.motors):
-            i.ID = int(devinfo[mn])
+            i.ID = int(devinfo[mn])                    #copy device IDs to ID variable
+            modnumtype = c_char*100
+            modnum = modnumtype()
+            self.va.fnLMS_GetModelNameA(i.ID,addressof(modnum))   #get device model names
+            i.model = modnum.value
+            serial = c_int()
+            serial = self.va.fnLMS_GetSerialNumber(i.ID)   #get device serial numbers
+            i.serial = serial
         return num
