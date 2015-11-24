@@ -427,6 +427,11 @@ void DisplayError(
 	wsmessage formatmesg;
 	formatmessage(ack, len, formatmesg);
 	sendmessage(formatmesg);
+
+	std::ofstream outfile;
+
+	outfile.open("picam.log", std::ios_base::app);
+	outfile << details+"\n";
 }
 
 string ws2s(const std::wstring& wstr)
@@ -1212,12 +1217,18 @@ void Start()
     }
 
     // - cache information used to extract frames during acquisition
-    if( !CacheFrameNavigation() )
-        return;
+	if (!CacheFrameNavigation())
+	{
+		DisplayError(L"Failed to cache frames.", PicamError_None);
+		return;
+	}
 
     // - initialize image data and display
-    if( !InitializeImage() )
-        return;
+	if (!InitializeImage())
+	{
+		DisplayError(L"Failed to initialize image.", PicamError_None);
+		return;
+	}
 
     // - mark acquisition active just before acquisition begins
     ResetEvent( acquisitionInactive_ );
@@ -5069,7 +5080,7 @@ int ParseInput(char* buffer, int datalen)
 		PicamAcquisitionErrorsMask errormask;
 		PicamAvailableData avail;
 		PicamError error;
-		error = Picam_Acquire(device_, numreads, -1, &avail, &errormask);
+		error = Picam_Acquire(device_, numreads, 5000, &avail, &errormask);
 		test_picam_error(error, "Could not acquire images ");
 
 		if (errormask != 0)
@@ -5205,14 +5216,31 @@ int ParseInput(char* buffer, int datalen)
 	else if (strcmp(command, "STAQ") == 0)
 	{
 		//Start Acquisition
+		/*PicamError error =
+			PicamAdvanced_RegisterForAcquisitionUpdated(
+			device_,
+			AcquisitionUpdated);
+		if (error != PicamError_None)
+			DisplayError(L"Failed to register for acquisition updated.", error);*/
+		Start();
+		string ack = "ACK STAQ";
+		int len;
+		wsmessage formatmesg;
+		formatmessage(ack, len, formatmesg);
+		sendmessage(formatmesg);
+	}
+	else if (strcmp(command, "RFAU") == 0)
+	{
+		//Kill Callback (used in Experiment mode when shotsPerMeasurement > 1), 
+		//to prevent the callback function from clearing the acquisition buffer after each readout.
 		PicamError error =
 			PicamAdvanced_RegisterForAcquisitionUpdated(
 			device_,
 			AcquisitionUpdated);
 		if (error != PicamError_None)
 			DisplayError(L"Failed to register for acquisition updated.", error);
-		Start();
-		string ack = "ACK STAQ";
+
+		string ack = "ACK RFAU";
 		int len;
 		wsmessage formatmesg;
 		formatmessage(ack, len, formatmesg);
@@ -5227,7 +5255,7 @@ int ParseInput(char* buffer, int datalen)
 			device_,
 			AcquisitionUpdated);
 		if (error != PicamError_None)
-			DisplayError(L"Failed to register for acquisition updated.", error);
+			DisplayError(L"Failed to unregister for acquisition updated.", error);
 
 		string ack = "ACK KLCB";
 		int len;
@@ -5262,6 +5290,40 @@ int ParseInput(char* buffer, int datalen)
 		int len;
 		wsmessageimagedata formatmesg;
 		formatmessageimage(ack, len, formatmesg, (imageData_)[0], static_cast<int>((&imageData_)->size()));
+		sendmessageimage(formatmesg);
+
+
+	}
+	else if (strcmp(command, "ACQJ") == 0)
+	{
+		string arglist;
+		arglist = &buffer[13];
+		vector<string> splitarglist;
+		splitarglist = split(arglist, ' ');
+		if (splitarglist.size() != 2)
+		{
+			wsmessage formatmesg;
+			int len;
+			formatmessage("Incorrect number of arguments for Index Acquire Image (ACQJ). Expected 1.", len, formatmesg);
+			sendmessage(formatmesg);
+			return -2;
+		}
+		piint imnum = stoi(splitarglist[0]);
+		//Acquire Image
+		if (!bmpBits_)
+		{
+			wsmessage formatmesg;
+			int len;
+			formatmessage("bmpBits_ not initialized.", len, formatmesg);
+			sendmessage(formatmesg);
+			return -1;
+		}
+		Redraw();
+
+		string ack = "ACK ACQJ ";
+		int len;
+		wsmessageimagedata formatmesg;
+		formatmessageimage(ack, len, formatmesg, (imageData_)[imnum], static_cast<int>((&imageData_)->size()));
 		sendmessageimage(formatmesg);
 
 

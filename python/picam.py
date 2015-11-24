@@ -65,7 +65,7 @@ class PICam(Instrument):
     roimaxh = Int(512)
     roimaxv = Int(-512)
     
-    useDemo = True
+    useDemo = False
 
     width = Int()  # the number of columns
     height = Int()  # the number of rows
@@ -101,6 +101,8 @@ class PICam(Instrument):
     ROI = Member()
     
     sock = Member()
+
+    shotnum=Int()
     
     c_image_array = Member()
     data = Member()  # holds acquired images until they are written
@@ -153,7 +155,7 @@ class PICam(Instrument):
         return 0, int(value)
         
     def start_server(self):
-        subprocess.Popen(['..\\cpp\\Picam\\projects\\vs2010\\bin\\x64\\Release\\Advanced.exe'])
+        subprocess.Popen(['..\\cpp\\Picam\\projects\\vs2010\\bin\\x64\\Debug\\Advanced.exe'])
 
     
     def start(self):
@@ -172,6 +174,7 @@ class PICam(Instrument):
             #self.SetPreAmpGain(self.preAmpGain.value)
             self.SetAdcEMGain(self.AdcEMGain.value)
             self.SetExposureTime(self.exposureTime.value)
+            self.setPicamParameterLongInt(c_int(PicamParameter_ReadoutCount).value,0) #run continuously until Picam_StopAcquisition is called
             if self.triggerMode == 0:
                 # set edge trigger
                 '''
@@ -183,10 +186,13 @@ class PICam(Instrument):
                     PicamTriggerDetermination_FallingEdge      = 4
                 } PicamTriggerDetermination; /* (5) */
                 '''
-                self.SetTriggerDetermination(3)
+                self.SetTriggerDetermination(3)#3
+                self.SetTriggerResponse(4)     #5
             else:
                 # set level trigger
                 self.SetTriggerDetermination(1)
+                self.SetTriggerResponse(5)
+            self.SetReadoutControl(2)
             #self.SetImage(1, 1, 1, self.width, 1, self.height)  # full sensor, no binning
             
             self.setSingleROI(self.ROI[0], self.ROI[1], self.ROI[2], self.ROI[3], self.ROI[4], self.ROI[5])
@@ -204,6 +210,18 @@ class PICam(Instrument):
             if (returnedmessage[0:3]!='ACK'):
                 logger.error("Failed to commit parameters. Returned message: {}".format(returnedmessage))
                 raise PauseError
+            self.sock.sendmsg("RFAU")
+            returnedmessage = self.sock.receive()
+            if (returnedmessage[0:3]!='ACK'):
+                logger.error("Failed to commit parameters. Returned message: {}".format(returnedmessage))
+                raise PauseError
+            self.sock.sendmsg("STAQ")
+            returnedmessage = self.sock.receive()
+            if (returnedmessage[0:3]!='ACK'):
+                logger.error("Failed to commit parameters. Returned message: {}".format(returnedmessage))
+                raise PauseError
+            self.shotnum=0
+
 
     def setup_video_thread(self, analysis):
         thread = threading.Thread(target=self.setup_video, args=(analysis,))
@@ -394,16 +412,18 @@ class PICam(Instrument):
                 logger.error("Returned message to GetImages from C++ not matching Acquire Image request. Returned message: {}".format(returnedmessage))
                 return
         else:
-            acquiredimages = self.shotsPerMeasurement.value
+            acquiredimages = 1    #self.shotsPerMeasurement.value
             logger.debug("Requesting {} images".format(acquiredimages))
-            self.sock.sendmsg("AQMI {}".format(acquiredimages))
+            self.sock.sendmsg("ACQJ {} 0".format(0))
+            self.shotnum+=1
             returnedmessage = self.sock.receive()
             if (returnedmessage[0:3]!='ACK'):
                 logger.error("Failed to get images. Returned message: {}".format(returnedmessage))
                 raise PauseError
-            if (returnedmessage[4:8]!='AQMI'):
+            if (returnedmessage[4:8]!='ACQJ'):
                 logger.error("Returned message to GetImages from C++ not matching Acquire Multiple Image request. Returned message: {}".format(returnedmessage))
                 raise PauseError
+            logger.debug("Got {} images".format(acquiredimages))
 
         imagedatastr = returnedmessage[9:]
         imagedatalen = len(imagedatastr)/2  #16-bit data...
@@ -531,7 +551,7 @@ class PICam(Instrument):
     def StartAcquisition(self):
         self.sock.sendmsg("STAQ")
         returnedmessage = self.sock.receive()
-        if (returnedmessage[0:3] != "ACK"):
+        if (returnedmessage[0:8] != "ACK STAQ"):
             logger.error("Start Acquisition {} failed.\nMessage returned from C++: {}".format(param, returnedmessage))
             raise PauseError
 
@@ -564,6 +584,9 @@ class PICam(Instrument):
 
     def SetExposureTime(self, time):
         self.setPicamParameterFP(ctypes.c_int(PicamParameter_ExposureTime).value,time)
+
+    def SetReadoutControl(self, time):
+        self.setPicamParameterInt(ctypes.c_int(PicamParameter_ReadoutControlMode).value,time)
 
     def setPicamParameterInt(self, param, value):
         self.sock.sendmsg("SPIN {} {}".format(param,value))
@@ -642,23 +665,26 @@ class PICam(Instrument):
         
         
     def SetTriggerResponse(self,resp):
-        self.setPicamParameterInt(ctypes.c_int(PicamParameter_TriggerResonse).value,resp)
+        self.setPicamParameterInt(ctypes.c_int(PicamParameter_TriggerResponse).value,resp)
         
         
     def IsAcquisitionRunning(self):
         self.sock.sendmsg("ISAR")
         returnedmessage = self.sock.receive()
+        while(returnedmessage=="ACK COOL"):
+            returnedmessage = self.sock.receive()
         if (returnedmessage == "ACK ISAR 1"):
-            status = True
+            status = 1
             logger.warning("Acquisition is running.")
         elif (returnedmessage == "ACK ISAR 0"):
-            status = False
+            status = 0
             logger.warning("Acquisition is NOT running.")
         else:
-            status = False
+            status = -1
             logger.error("Received message from C++ code after sending IsAcquisitionRunning: {}".format(returnedmessage))
             raise PauseError
         return status
+
 
     """
     setROIs(rois) is a function which accepts as an argument a
