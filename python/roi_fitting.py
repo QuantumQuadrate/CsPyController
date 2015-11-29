@@ -2,7 +2,7 @@
 roi_fitting.py
 Part of the CsPyController experiment control software
 author = Martin Lichtman
-housekeeper =  Y.S.
+housekeeper =  Y.S.@AQuA
 created = 2014.07.01
 modified >= 2015.10.19
 
