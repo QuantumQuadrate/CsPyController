@@ -36,6 +36,12 @@ from analysis import AnalysisWithFigure
 
 
 class Optimization(AnalysisWithFigure):
+    """
+    self.xi: initial values of the x-axis, i.e. variables themselves
+    self.yi: initial values of the y-axis, i.e. the cost function values.
+    The basic logic layout of this class: the generator decides which x values to run for the next round (possibly
+    containing more than one iteration).
+    """
     version = '2014.05.07'
     enable_override = Bool()  # this must be true for optimizer to function, regardless of ivar.optimize settings
     enable = Bool()  # whether or not to activate this optimization
@@ -69,6 +75,13 @@ class Optimization(AnalysisWithFigure):
                             'cost_function', 'optimization_method', 'enable_override']
 
     def setup(self, hdf5):
+        """
+        A note about the two "enable" options: enable and enable_override. If enable_override is True and there is at
+        least one independent variable that the optimizer can work on, the "enable" option is automatically set to be
+        true.
+        :param hdf5:
+        :return:
+        """
         self.optimization_variables = []
         enable = False  # don't enable unless there are some optimization variables
         if self.enable_override:  # to enable you must both enable on the Optimization page and on each ivar
