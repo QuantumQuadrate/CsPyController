@@ -188,10 +188,12 @@ class PICam(Instrument):
                 '''
                 self.SetTriggerDetermination(3)#3
                 self.SetTriggerResponse(4)     #5
-            else:
+            elif self.triggerMode == 1:
                 # set level trigger
                 self.SetTriggerDetermination(1)
-                self.SetTriggerResponse(5)
+                self.SetTriggerResponse(4)
+            elif self.triggerMode == 2:
+                self.SetTriggerResponse(1)
             self.SetReadoutControl(2)
             #self.SetImage(1, 1, 1, self.width, 1, self.height)  # full sensor, no binning
             
@@ -382,7 +384,7 @@ class PICam(Instrument):
         data acquisition to write the obtained images to hdf5 file."""
         if self.enable:
             try:
-                hdf5['Picam'] = self.data
+                hdf5['Picam'] = numpy.array([self.data[len(self.data)-1]])
             except Exception as e:
                 logger.error('in Picam.writeResults:\n{}'.format(e))
                 raise PauseError
@@ -473,7 +475,6 @@ class PICam(Instrument):
         framedata = numpy.ctypeslib.as_array(c_image_array)
         framedata = numpy.reshape(framedata, (acquiredimages, self.height, self.width))
         if (len(self.data)>0):
-            #logger.warning("self.data: {}".format(self.data))
             data = numpy.append(self.data,framedata,axis=0)
         else:
             data = framedata
@@ -675,10 +676,10 @@ class PICam(Instrument):
             returnedmessage = self.sock.receive()
         if (returnedmessage == "ACK ISAR 1"):
             status = 1
-            logger.warning("Acquisition is running.")
+            logger.debug("Acquisition is running.")
         elif (returnedmessage == "ACK ISAR 0"):
             status = 0
-            logger.warning("Acquisition is NOT running.")
+            logger.debug("Acquisition is NOT running.")
         else:
             status = -1
             logger.error("Received message from C++ code after sending IsAcquisitionRunning: {}".format(returnedmessage))
@@ -734,11 +735,16 @@ class PICamViewer(AnalysisWithFigure):
         super(PICamViewer, self).__init__(name, experiment, description) 
         self.properties += ['shot']
 
-    def analyzeMeasurement(self, measurementResults, iterationResults, experimentResults):
+    def preIteration(self, iterationresults, hdf5):
         self.data = []
+        
+    def analyzeMeasurement(self, measurementResults, iterationResults, experimentResults):
         if 'data/Picam' in measurementResults:
             #for each image
-            self.data = measurementResults['data/Picam']
+            if (len(self.data) == 0):
+                self.data = measurementResults['data/Picam']
+            else:
+                self.data = numpy.append(self.data,measurementResults['data/Picam'],axis=0)
         self.updateFigure()  # only update figure if image was loaded
 
     @observe('shot')

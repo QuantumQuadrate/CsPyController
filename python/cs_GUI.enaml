@@ -1772,7 +1772,7 @@ enamldef PICam(Window):
                 EvalProp:
                     prop << camera.exposureTime
                 ComboBox:
-                    items = ['Edge', 'Level']
+                    items = ['Edge', 'Level', 'Auto']
                     index := camera.triggerMode
                 EvalProp:
                     prop<<camera.shotsPerMeasurement
