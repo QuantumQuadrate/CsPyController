@@ -2939,7 +2939,7 @@ enamldef Optimizer(Window):
                     Label:
                         text='update method'
                     ComboBox:
-                        items = ['Nelder-Mead', 'genetic', 'gradient descent', 'weighted Nelder-Mead']
+                        items = ['Nelder-Mead', 'genetic', 'gradient descent', 'weighted Nelder-Mead', 'smart Nelder-Mead']
                         index := analysis.optimization_method
 
                     # For the gradient method, the initial step size for each variable is used for determining the gradient.

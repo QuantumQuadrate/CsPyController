@@ -115,7 +115,7 @@ class Optimization(AnalysisWithFigure):
             hdf5['analysis/optimizer/best_experiment_number'] = 0
 
             #create a new generator to choose optimization points
-            methods = [self.simplex, self.genetic, self.gradient_descent, self.weighted_simplex]
+            methods = [self.simplex, self.genetic, self.gradient_descent, self.weighted_simplex, self.smart_simplex]
             self.generator = methods[self.optimization_method](self.xi)
 
             self.xlist = []
@@ -531,6 +531,114 @@ class Optimization(AnalysisWithFigure):
                     # simplex, bringing each point in halfway towards the best point
                     logger.info('simplex: reducing')
                     d = 0.9
+                    # we don't technically need to re-evaluate x[0] here, as it does not change
+                    # however, due to noise in the system it is preferable to re-evaluate x[0] occasionally,
+                    # and now is a good time to do it
+                    for i in xrange(axes):
+                        x[i] = x[0]+d*(x[i]-x[0])
+                        # yield so we can take a datapoint
+                        yield x[i]
+                        y[i] = self.yi
+
+    #Nelder-Mead downhill simplex method
+    def smart_simplex(self, x0):
+        """Perform the smart simplex algorithm: compared to the original downhill simplex method, this method is more
+          robust against the slow/sudden drift experienced a lot in this experimental project.
+        x is 2D array of settings.  y is a 1D array of costs at each of those settings.
+        When comparisons are made, lower is better."""
+
+        # x0 is assigned when this generator is created, but nothing else is done until the first time next() is called
+
+        axes = len(x0)
+        n = axes + 1
+        x = numpy.zeros((n, axes))
+        y = numpy.zeros(n)
+        x[0] = x0
+        y[0] = self.yi
+
+        # for the first several measurements, we just explore the cardinal axes to create the simplex
+        for i in xrange(axes):
+            logger.info('simplex: exploring axis' + str(i))
+            # for the new settings, start with the initial settings and then modify them by unit vectors
+            xi = x0.copy()
+            # add the initial step size as the first offset
+            xi[i] += self.initial_step[i]
+            yield xi
+            x[i+1] = xi
+            y[i+1] = self.yi
+
+        logger.debug('Finished simplex exploration.')
+
+        # loop until the simplex is smaller than the end tolerances on each axis
+        while numpy.any((numpy.amax(x, axis=0)-numpy.amin(x, axis=0)) > self.end_tolerances):
+
+            logger.debug('Starting new round of simplex algorithm.')
+
+            # order the values
+            order = numpy.argsort(y)
+            x[:] = x[order]
+            y[:] = y[order]
+
+            # find the mean of all except the worst point
+            x0 = numpy.mean(x[:-1], axis=0)
+
+            #reflection
+            logger.info('simplex: reflecting')
+            # reflect the worst point in the mean of the other points, to try and find a better point on the other side
+            a = 1
+            xr = x0+a*(x0-x[-1])
+            # yield so we can take a datapoint
+            yield xr
+            yr = self.yi
+
+            if y[0] <= yr < y[-2]:
+                #if the new point is no longer the worst, but not the best, use it to replace the worst point
+                logger.info('simplex: keeping reflection')
+                x[-1] = xr
+                y[-1] = yr
+
+            #expansion
+            elif yr < y[0]:
+                logger.info('simplex: expanding')
+                # if the new point is the best, keep going in that direction
+                b = 2
+                xe = x0+b*(x0-x[-1])
+                # yield so we can take a datapoint
+                yield xe
+                ye = self.yi
+                if ye < yr:
+                    #if this expanded point is even better than the initial reflection, keep it
+                    logger.info('simplex: keeping expansion')
+                    x[-1] = xe
+                    y[-1] = ye
+                else:
+                    #if the expanded point is not any better than the reflection, use the reflection
+                    logger.info('simplex: keeping reflection (after expansion)')
+                    x[-1] = xr
+                    y[-1] = yr
+
+            #contraction
+            else:
+                logger.info('simplex: contracting')
+                # The reflected point is still worse than all other points, so try not crossing over the mean,
+                # but instead go halfway between the original worst point and the mean.
+                c = -0.5
+                xc = x0+c*(x0-x[-1])
+                # yield so we can take a datapoint
+                yield xc
+                yc = self.yi
+                if yc < y[-1]:
+                    #if the contracted point is better than the original worst point, keep it
+                    logger.info('simplex: keeping contraction')
+                    x[-1] = xc
+                    y[-1] = yc
+
+                #reduction
+                else:
+                    # the contracted point is the worst of all points considered.  So reduce the size of the whole
+                    # simplex, bringing each point in halfway towards the best point
+                    logger.info('simplex: reducing')
+                    d = 0.5
                     # we don't technically need to re-evaluate x[0] here, as it does not change
                     # however, due to noise in the system it is preferable to re-evaluate x[0] occasionally,
                     # and now is a good time to do it
