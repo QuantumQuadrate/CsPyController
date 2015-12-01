@@ -42,7 +42,7 @@ class Optimization(AnalysisWithFigure):
     The basic logic layout of this class: the generator decides which x values to run for the next round (possibly
     containing more than one iteration).
     """
-    version = '2014.05.07'
+    version = '2015.11.30'
     enable_override = Bool()  # this must be true for optimizer to function, regardless of ivar.optimize settings
     enable = Bool()  # whether or not to activate this optimization
     enable_gui = Bool()  # shows the enable state on the gui checkbox
@@ -540,12 +540,14 @@ class Optimization(AnalysisWithFigure):
                         yield x[i]
                         y[i] = self.yi
 
-    #Nelder-Mead downhill simplex method
+    # Nelder-Mead downhill simplex method, with modifications to better suit AQuA reality
     def smart_simplex(self, x0):
         """Perform the smart simplex algorithm: compared to the original downhill simplex method, this method is more
           robust against the slow/sudden drift experienced a lot in this experimental project.
         x is 2D array of settings.  y is a 1D array of costs at each of those settings.
-        When comparisons are made, lower is better."""
+        When comparisons are made, lower is better.
+        A note about yield: always yield one set of x, and then get the corresponding y.
+        """
 
         # x0 is assigned when this generator is created, but nothing else is done until the first time next() is called
 
@@ -574,12 +576,13 @@ class Optimization(AnalysisWithFigure):
 
             logger.debug('Starting new round of simplex algorithm.')
 
-            # order the values
+            # order the values; what really matters is the mapping relation between x&y; actual indexing order does
+            # not matter.
             order = numpy.argsort(y)
             x[:] = x[order]
             y[:] = y[order]
 
-            # find the mean of all except the worst point
+            # find the mean of all except the worst point; x[:-1] means everything up to the second last term.
             x0 = numpy.mean(x[:-1], axis=0)
 
             #reflection
