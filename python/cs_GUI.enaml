@@ -1776,12 +1776,19 @@ enamldef PICam(Window):
                     index := camera.triggerMode
                 EvalProp:
                     prop<<camera.shotsPerMeasurement
+                LabelBox:
+                    text = 'Average measurements for each iteration'
+                    checked := camera.averagemeasurements
+                    checked >> analysis.averagemeasurements
                 Form:
                     Label:
                         text = 'shot'
                     SpinBox: shot:
                         minimum=0
-                        value := analysis.shot           
+                        value := analysis.shot 
+                LabelBox:
+                    text = 'Use Demo Camera'
+                    checked := camera.useDemo
                         
                         
 

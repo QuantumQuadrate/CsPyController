@@ -65,7 +65,7 @@ class PICam(Instrument):
     roimaxh = Int(512)
     roimaxv = Int(-512)
     
-    useDemo = False
+    useDemo = Bool()
 
     width = Int()  # the number of columns
     height = Int()  # the number of rows
@@ -96,6 +96,9 @@ class PICam(Instrument):
     videoStarted = Bool()
     ChildProcess = Member()
     
+    averagemeasurements = Bool()
+    measurementcount = Int(0)
+    
     updatelock = Bool()
     
     ROI = Member()
@@ -116,7 +119,7 @@ class PICam(Instrument):
         #self.preAmpGain = IntProp('preAmpGain', experiment, 'Picam analog gain', '0')
         self.exposureTime = FloatProp('exposureTime', experiment, 'exposure time for edge trigger', '0')
         self.shotsPerMeasurement = IntProp('shotsPerMeasurement', experiment, 'number of expected shots', '0')
-        self.properties += ['AdcEMGain', 'preAmpGain', 'exposureTime', 'triggerMode', 'shotsPerMeasurement']
+        self.properties += ['AdcEMGain', 'preAmpGain', 'exposureTime', 'triggerMode', 'shotsPerMeasurement', 'averagemeasurements', 'useDemo']
         #self.ChildProcess = subprocess.Popen(['picamAdvanced.exe',''])
 
     def __del__(self):
@@ -200,6 +203,7 @@ class PICam(Instrument):
             self.setSingleROI(self.ROI[0], self.ROI[1], self.ROI[2], self.ROI[3], self.ROI[4], self.ROI[5])
             self.CreateAcquisitionBuffer()
             self.data = []
+            self.measurementcount = 0
             #self.SetKineticCycleTime(0)  # no delay
             self.sock.sendmsg("CMTP")
             returnedmessage = self.sock.receive()
@@ -382,12 +386,13 @@ class PICam(Instrument):
     def writeResults(self, hdf5):
         """Overwritten from Instrument.  This function is called by the experiment after
         data acquisition to write the obtained images to hdf5 file."""
-        if self.enable:
+        if self.enable and ((not self.averagemeasurements) or self.experiment.measurement + 1 == self.experiment.measurementsPerIteration):
             try:
                 hdf5['Picam'] = numpy.array([self.data[len(self.data)-1]])
             except Exception as e:
                 logger.error('in Picam.writeResults:\n{}'.format(e))
                 raise PauseError
+        
 
     def InitializeCamera(self):
         #if useDemo is True, connect a demo camera
@@ -474,8 +479,12 @@ class PICam(Instrument):
         #logger.warning("Reshaping numpy array")
         framedata = numpy.ctypeslib.as_array(c_image_array)
         framedata = numpy.reshape(framedata, (acquiredimages, self.height, self.width))
+        self.measurementcount += 1
         if (len(self.data)>0):
-            data = numpy.append(self.data,framedata,axis=0)
+            if (self.averagemeasurements == False):
+                data = numpy.append(self.data,framedata,axis=0)
+            else:
+                data = (self.data*(self.measurementcount - 1))/self.measurementcount + framedata/self.measurementcount
         else:
             data = framedata
         return data
@@ -730,13 +739,19 @@ class PICamViewer(AnalysisWithFigure):
     shot = Int(0)
     update_lock = Bool(False)
     artist = Member()
+    
+    averagemeasurements = Bool()
 
     def __init__(self, name, experiment, description=''):
         super(PICamViewer, self).__init__(name, experiment, description) 
         self.properties += ['shot']
 
-    def preIteration(self, iterationresults, hdf5):
+    def preExperiment(self, hdf5):
         self.data = []
+        
+    def preIteration(self, iterationresults, hdf5):
+        if (self.averagemeasurements == False):
+            self.data = []
         
     def analyzeMeasurement(self, measurementResults, iterationResults, experimentResults):
         if 'data/Picam' in measurementResults:
