@@ -54,6 +54,7 @@ def pointer(x):
 class PICam(Instrument):
 
     AdcEMGain = Member()
+    AdcAnalogGain = Int()
     preAmpGain = Member()
     exposureTime = Member()
     triggerMode = Int()
@@ -116,11 +117,9 @@ class PICam(Instrument):
     def __init__(self, name, experiment, description=''):
         super(PICam, self).__init__(name, experiment, description)
         self.AdcEMGain = IntProp('AdcEMGain', experiment, 'Picam EM gain', '0')
-        #self.preAmpGain = IntProp('preAmpGain', experiment, 'Picam analog gain', '0')
         self.exposureTime = FloatProp('exposureTime', experiment, 'exposure time for edge trigger', '0')
         self.shotsPerMeasurement = IntProp('shotsPerMeasurement', experiment, 'number of expected shots', '0')
-        self.properties += ['AdcEMGain', 'preAmpGain', 'exposureTime', 'triggerMode', 'shotsPerMeasurement', 'averagemeasurements', 'useDemo']
-        #self.ChildProcess = subprocess.Popen(['picamAdvanced.exe',''])
+        self.properties += ['AdcEMGain', 'preAmpGain', 'exposureTime', 'triggerMode', 'shotsPerMeasurement', 'averagemeasurements', 'useDemo', 'AdcAnalogGain']
 
     def __del__(self):
         #print "Calling __del__ on Picam"
@@ -174,7 +173,7 @@ class PICam(Instrument):
                 self.AbortAcquisition()
             self.GetDetector()
             self.setROIvalues()
-            #self.SetPreAmpGain(self.preAmpGain.value)
+            self.SetAdcAnalogGain(self.AdcAnalogGain+1)
             self.SetAdcEMGain(self.AdcEMGain.value)
             self.SetExposureTime(self.exposureTime.value)
             self.setPicamParameterLongInt(c_int(PicamParameter_ReadoutCount).value,0) #run continuously until Picam_StopAcquisition is called
@@ -662,6 +661,9 @@ class PICam(Instrument):
 
     def GetAnalogGain(self):
         self.gain = self.getPicamParameterInt(ctypes.c_int(PicamParameter_AdcAnalogGain).value)
+        
+    def SetAdcAnalogGain(self, gain):
+        self.setPicamParameterInt(ctypes.c_int(PicamParameter_AdcAnalogGain).value,gain)
         
     def GetAdcEMGain(self):
         self.gain = self.getPicamParameterInt(ctypes.c_int(PicamParameter_AdcEMGain).value)

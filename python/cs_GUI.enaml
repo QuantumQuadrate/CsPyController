@@ -1765,17 +1765,18 @@ enamldef PICam(Window):
                 LabelBox:
                     text = 'enable'
                     checked := camera.enable
+                ComboBox:
+                    items = ['Analog Gain: Low', 'Analog Gain: Medium', 'Analog Gain: High']
+                    index := camera.AdcAnalogGain
                 EvalProp:
                     prop << camera.AdcEMGain
-                #EvalProp:
-                #    prop << camera.preAmpGain
                 EvalProp:
                     prop << camera.exposureTime
                 ComboBox:
                     items = ['Edge', 'Level', 'Auto']
                     index := camera.triggerMode
-                EvalProp:
-                    prop<<camera.shotsPerMeasurement
+                #EvalProp:
+                #    prop<<camera.shotsPerMeasurement
                 LabelBox:
                     text = 'Average measurements for each iteration'
                     checked := camera.averagemeasurements
