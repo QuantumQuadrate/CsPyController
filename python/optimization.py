@@ -236,7 +236,7 @@ class Optimization(AnalysisWithFigure):
 
         # plot cost with statistical error bars
         ax = fig.add_subplot(self.axes+2, 1, 2)
-        ax.errorbar(range(len(self.ylist)), self.ylist, yerr=self.y_stat_sigma_list)
+        ax.errorbar(range(len(self.ylist)), self.ylist, yerr=self.y_stat_sigma_list, fmt='o')
         ax.set_ylabel('cost with error bar')
 
         # plot settings
