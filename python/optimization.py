@@ -147,6 +147,8 @@ class Optimization(AnalysisWithFigure):
             if isnan(self.yi):
                 self.yi = numpy.inf
                 self.y_stat_sigma = 0
+            if isnan(self.y_stat_sigma):
+                self.y_stat_sigma = 0
 
             # store this data point
             self.xlist.append(self.xi)
@@ -233,11 +235,14 @@ class Optimization(AnalysisWithFigure):
         ax.set_ylabel('cost')
 
         # plot cost with statistical error bars
+        ax = fig.add_subplot(self.axes+2, 1, 2)
+        ax.errorbar(range(len(self.y_stat_sigma)), self.y_list, yerr=self.y_stat_sigma)
+        ax.set_ylabel('cost with error bar')
 
         # plot settings
         d = numpy.array(self.xlist).T
         for i in range(self.axes):
-            ax = fig.add_subplot(self.axes+2, 1, i+2)
+            ax = fig.add_subplot(self.axes+2, 1, i+3)
             ax.plot(d[i])
             ax.set_ylabel(self.optimization_variables[i].name)
 
