@@ -49,8 +49,10 @@ class Optimization(AnalysisWithFigure):
     axes = Member()
     xi = Member()  # the current settings (len=axes)
     yi = Member()  # the current cost
+    y_stat_sigma = Member()  # the statistical uncertainty of the current cost function
     xlist = Member()  # a history of the settings (shape=(iterations,axes))
     ylist = Member()  # a history of the costs (shape=(iterations))
+    y_stat_sigma_list = Member()  # a history of the statistical uncertainty of the current cost function
     best_xi = Member()
     best_yi = Member()
     best_yi_str = Str()  # for gui display, the best cost
@@ -110,6 +112,7 @@ class Optimization(AnalysisWithFigure):
             hdf5['analysis/optimizer/names'] = [i.name for i in self.optimization_variables]
             hdf5['analysis/optimizer'].create_dataset('values', [0, self.axes], maxshape=[None, self.axes])
             hdf5['analysis/optimizer'].create_dataset('costs', [0], maxshape=[None])
+            hdf5['analysis/optimizer'].create_dataset('statistical_uncertainty', [0], maxshape=[None])
             hdf5['analysis/optimizer/best_values'] = numpy.zeros(self.axes, dtype=float)
             hdf5['analysis/optimizer/best_cost'] = numpy.inf
             hdf5['analysis/optimizer/best_experiment_number'] = 0
@@ -120,6 +123,7 @@ class Optimization(AnalysisWithFigure):
 
             self.xlist = []
             self.ylist = []
+            self.y_stat_sigma_list = []
             self.best_xi = None
             self.best_yi = numpy.inf
         else:
@@ -138,13 +142,16 @@ class Optimization(AnalysisWithFigure):
             except Exception as e:
                 logger.error('Exception evaluating cost function:\n{}\n{}'.format(e, traceback.format_exc()))
                 self.yi = numpy.inf
+                self.y_stat_sigma = 0
             # if the evaluated value is nan, set it to inf so it will always be the worst point
             if isnan(self.yi):
                 self.yi = numpy.inf
+                self.y_stat_sigma = 0
 
             # store this data point
             self.xlist.append(self.xi)
             self.ylist.append(self.yi)
+            self.y_stat_sigma_list.append(self.y_stat_sigma)
             # expand the values array
             a = hdf5['analysis/optimizer/values']
             a.resize(a.len()+1, axis=0)
@@ -153,6 +160,10 @@ class Optimization(AnalysisWithFigure):
             b = hdf5['analysis/optimizer/costs']
             b.resize(b.len()+1, axis=0)
             b[-1] = self.yi
+            # expand the cost statistical uncertainty array
+            bb = hdf5['analysis/optimizer/statistical_uncertainty']
+            bb.resize(bb.len()+1, axis=0)
+            bb[-1] = self.y_stat_sigma
 
             if self.firstrun:
                 self.set_gui({'yi0_str': str(self.yi)})
@@ -160,7 +171,7 @@ class Optimization(AnalysisWithFigure):
 
             # check to see if this is the best point
             if self.yi < self.best_yi:
-                # update instance variables
+                # update instance variables; maybe it will be a good idea to establish a range to extract the best
                 self.best_xi = self.xi
                 self.best_yi = self.yi
                 self.best_experiment_number = experimentResults.attrs['experiment_number']
@@ -220,6 +231,8 @@ class Optimization(AnalysisWithFigure):
         ax = fig.add_subplot(self.axes+2, 1, 1)
         ax.plot(self.ylist)
         ax.set_ylabel('cost')
+
+        # plot cost with statistical error bars
 
         # plot settings
         d = numpy.array(self.xlist).T
