@@ -319,8 +319,12 @@ class PICam(Instrument):
         if not self.isInitialized:
             self.initialize()
         self.sock.clearbuffer()   #clear socket's buffer to kill off any old messages
-        #if self.IsAcquisitionRunning():
-        self.AbortAcquisition()
+        try:
+            #if self.IsAcquisitionRunning():
+            self.AbortAcquisition()
+        except:
+            self.isInitialized = False
+            self.initialize()
         
         self.GetDetector()
         self.setROIvalues()
@@ -358,6 +362,7 @@ class PICam(Instrument):
             self.analysis.redraw_video()
             time.sleep(.01)
             if (self.videoStarted != True):
+                self.AbortAcquisition()
                 self.StartVideo()
                 self.videoStarted = True
 
@@ -554,7 +559,7 @@ class PICam(Instrument):
         self.sock.sendmsg("STVD")   #Start Video
         returnedmessage = self.sock.receive()
         if (returnedmessage[0:3]!='ACK'):
-            logger.error("Failed to commit parameters. Returned message: {}".format(returnedmessage))
+            logger.error("Failed to start video. Returned message: {}".format(returnedmessage))
             raise PauseError  
 
     def StartAcquisition(self):
@@ -742,6 +747,9 @@ class PICamViewer(AnalysisWithFigure):
     update_lock = Bool(False)
     artist = Member()
     
+    maxPixel = Float(0)
+    meanPixel = Float(0)
+    
     averagemeasurements = Bool()
 
     def __init__(self, name, experiment, description=''):
@@ -778,6 +786,8 @@ class PICamViewer(AnalysisWithFigure):
                 if (self.data is not None) and (self.shot < len(self.data)):
                     ax = fig.add_subplot(111)
                     ax.matshow(self.data[self.shot], cmap=my_cmap)
+                    self.maxPixel = numpy.amax(self.data[self.shot])
+                    self.meanPixel = numpy.mean(self.data[self.shot])
                     ax.set_title('most recent shot '+str(self.shot))
                 #else:
                 #    logger.warning("self.data is None, or self.shot > len(self.data)\nself.data: {}\nlen(self.data): {}".format(self.data,len(self.data)))
@@ -800,6 +810,8 @@ class PICamViewer(AnalysisWithFigure):
     def redraw_video(self):
         """First update self.data using Andor methods, then redraw screen using this."""
         self.artist.autoscale()
+        self.maxPixel = numpy.amax(self.data)
+        self.meanPixel = numpy.mean(self.data)
         deferred_call(self.figure.canvas.draw)
         
         

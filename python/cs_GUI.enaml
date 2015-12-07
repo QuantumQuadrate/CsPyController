@@ -1752,6 +1752,8 @@ enamldef PICam(Window):
                     value :: camera.setSendROIvalues()
                     minimum = 0
                     maximum << camera.roimaxh
+                Label:
+                    text := "Max Pixel Value: {}. Mean Pixel Value: {}".format(analysis.maxPixel,analysis.meanPixel)
                 HGroup:
                     PushButton:
                         text = 'video mode'
