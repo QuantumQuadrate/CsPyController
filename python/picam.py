@@ -58,6 +58,7 @@ class PICam(Instrument):
     preAmpGain = Member()
     exposureTime = Member()
     triggerMode = Int()
+    shutterMode = Int()
     shotsPerMeasurement = Member()
     roilowh = Int(0)
     roihighh = Int(512)
@@ -119,7 +120,7 @@ class PICam(Instrument):
         self.AdcEMGain = IntProp('AdcEMGain', experiment, 'Picam EM gain', '0')
         self.exposureTime = FloatProp('exposureTime', experiment, 'exposure time for edge trigger', '0')
         self.shotsPerMeasurement = IntProp('shotsPerMeasurement', experiment, 'number of expected shots', '0')
-        self.properties += ['AdcEMGain', 'preAmpGain', 'exposureTime', 'triggerMode', 'shotsPerMeasurement', 'averagemeasurements', 'useDemo', 'AdcAnalogGain']
+        self.properties += ['AdcEMGain', 'preAmpGain', 'exposureTime', 'triggerMode', 'shutterMode', 'shotsPerMeasurement', 'averagemeasurements', 'useDemo', 'AdcAnalogGain']
 
     def __del__(self):
         #print "Calling __del__ on Picam"
@@ -166,17 +167,24 @@ class PICam(Instrument):
         #declare that we are done now
         self.isDone = True
 
+    def sendparameters(self):
+        self.GetDetector()
+        self.setROIvalues()
+        self.SetAdcAnalogGain(self.AdcAnalogGain+1)
+        self.SetAdcEMGain(self.AdcEMGain.value)
+        self.SetExposureTime(self.exposureTime.value)
+        self.setPicamParameterLongInt(c_int(PicamParameter_ReadoutCount).value,0) #run continuously until Picam_StopAcquisition is called
+        self.setSingleROI(self.ROI[0], self.ROI[1], self.ROI[2], self.ROI[3], self.ROI[4], self.ROI[5])
+        self.setPicamParameterInt(c_int(PicamParameter_CleanUntilTrigger).value,1) #run continuously until Picam_StopAcquisition is called
+        self.SetReadoutControl(1)    
+
+
     def update(self):
         if self.enable:
             self.mode = 'experiment'
             if self.IsAcquisitionRunning():
                 self.AbortAcquisition()
-            self.GetDetector()
-            self.setROIvalues()
-            self.SetAdcAnalogGain(self.AdcAnalogGain+1)
-            self.SetAdcEMGain(self.AdcEMGain.value)
-            self.SetExposureTime(self.exposureTime.value)
-            self.setPicamParameterLongInt(c_int(PicamParameter_ReadoutCount).value,0) #run continuously until Picam_StopAcquisition is called
+            self.sendparameters()
             if self.triggerMode == 0:
                 # set edge trigger
                 '''
@@ -187,19 +195,31 @@ class PICam(Instrument):
                     PicamTriggerDetermination_RisingEdge       = 3,
                     PicamTriggerDetermination_FallingEdge      = 4
                 } PicamTriggerDetermination; /* (5) */
+                
+                typedef enum PicamTriggerResponse
+                {
+                    PicamTriggerResponse_NoResponse               = 1,
+                    PicamTriggerResponse_ReadoutPerTrigger        = 2,
+                    PicamTriggerResponse_ShiftPerTrigger          = 3,
+                    PicamTriggerResponse_ExposeDuringTriggerPulse = 4,
+                    PicamTriggerResponse_StartOnSingleTrigger     = 5
+                } PicamTriggerResponse; /* (6) */
                 '''
                 self.SetTriggerDetermination(3)#3
-                self.SetTriggerResponse(4)     #5
+                self.SetTriggerResponse(2)     #5
             elif self.triggerMode == 1:
                 # set level trigger
                 self.SetTriggerDetermination(1)
-                self.SetTriggerResponse(4)
+                self.SetTriggerResponse(2)
             elif self.triggerMode == 2:
                 self.SetTriggerResponse(1)
-            self.SetReadoutControl(2)
+            
+            self.setPicamParameterInt(c_int(PicamParameter_ShutterTimingMode).value,self.shutterMode+1) #run continuously until Picam_StopAcquisition is called
+            #self.setPicamParameterInt(c_int(PicamParameter_CorrectPixelBias).value,0) #run continuously until Picam_StopAcquisition is called
+            
             #self.SetImage(1, 1, 1, self.width, 1, self.height)  # full sensor, no binning
             
-            self.setSingleROI(self.ROI[0], self.ROI[1], self.ROI[2], self.ROI[3], self.ROI[4], self.ROI[5])
+           
             self.CreateAcquisitionBuffer()
             self.data = []
             self.measurementcount = 0
@@ -326,14 +346,12 @@ class PICam(Instrument):
             self.isInitialized = False
             self.initialize()
         
-        self.GetDetector()
-        self.setROIvalues()
-        #self.SetPreAmpGain(self.preAmpGain.value)
-        self.SetAdcEMGain(self.AdcEMGain.value)
-        self.SetExposureTime(self.exposureTime.value)
-        #self.SetTriggerMode(0)
+        self.sendparameters()
+        
+        self.SetTriggerDetermination(4)#3
+        self.SetTriggerResponse(1)     #5
+        
         #self.SetImage(1, 1, 1, self.width, 1, self.height)  # full sensor, no binning
-        self.setSingleROI(self.ROI[0], self.ROI[1], self.ROI[2], self.ROI[3], self.ROI[4], self.ROI[5])
         self.setPicamParameterLongInt(c_int(PicamParameter_ReadoutCount).value,1) #run continuously until Picam_StopAcquisition is called
         #self.SetKineticCycleTime(0)  # no delay
 
