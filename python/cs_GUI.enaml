@@ -1775,7 +1775,7 @@ enamldef PICam(Window):
                 EvalProp:
                     prop << camera.exposureTime
                 ComboBox:
-                    items = ['Edge', 'Level', 'Auto']
+                    items = ['Rising Edge', 'Falling Edge', 'Level', 'Auto']
                     index := camera.triggerMode
                 ComboBox:
                     items = ['Shutter Normal', 'Shutter Always Closed', 'Shutter Always Open', 'Shutter Open Before Trigger']

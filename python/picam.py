@@ -208,10 +208,13 @@ class PICam(Instrument):
                 self.SetTriggerDetermination(3)#3
                 self.SetTriggerResponse(2)     #5
             elif self.triggerMode == 1:
+                self.SetTriggerDetermination(4)#3
+                self.SetTriggerResponse(2)     #5
+            elif self.triggerMode == 2:
                 # set level trigger
                 self.SetTriggerDetermination(1)
                 self.SetTriggerResponse(2)
-            elif self.triggerMode == 2:
+            elif self.triggerMode == 3:
                 self.SetTriggerResponse(1)
             
             self.setPicamParameterInt(c_int(PicamParameter_ShutterTimingMode).value,self.shutterMode+1) #run continuously until Picam_StopAcquisition is called
