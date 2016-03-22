@@ -135,6 +135,7 @@ int formatmessageimage(string message, int &length, wsmessageimagedata &formatte
 int sendmessage(wsmessage formatmesg);
 int sendmessageimage(wsmessageimagedata formatmesg);
 int test_picam_error(PicamError error, string errmess);
+string GetParametersAsString();
 
 int sendmessageimagemult(wsmessageimagedata formatmesg, vector<pi16u>* imgs, int imgssize);
 int formatmessageimagemult(string message, int &length, wsmessageimagedata &formattedmessage, vector<char16_t> &imagedat, int imagelen);
@@ -4884,6 +4885,81 @@ void Redraw()
     EndPaint( main_, &ps );
 }
 
+
+string GetParametersAsString() {
+
+	string returnstring = "";
+	// - get the camera model
+	PicamHandle model;
+	PicamError error = PicamAdvanced_GetCameraModel(device_, &model);
+	if (error != PicamError_None)
+	{
+		DisplayError(L"Failed to get camera model.", error);
+		return "Failed to get camera model.";
+	}
+
+	// - initialize the parameter combo box
+	const PicamParameter* parameters;
+	piint count;
+	error = Picam_GetParameters(model, &parameters, &count);
+	if (error != PicamError_None)
+	{
+		DisplayError(L"Failed to get camera parameters.", error);
+		return "Failed to get camera parameters.";
+	}
+	for (piint i = 0; i < count; ++i)
+	{
+		// - create a wstring version of the parameter
+		std::wstring item =
+			GetEnumString(PicamEnumeratedType_Parameter, parameters[i]) + L": ";
+		
+		// - show the format
+		PicamValueType valueType;
+		error = Picam_GetParameterValueType(model, parameters[i], &valueType);
+		if (error != PicamError_None)
+		{
+			DisplayError(L"Failed to get parameter value type.", error);
+			return "Failed to get parameter value type.";
+		}
+		wstring text = GetEnumString(PicamEnumeratedType_ValueType, valueType);
+		switch (valueType)
+		{
+		case PicamValueType_Integer:
+		case PicamValueType_LargeInteger:
+		case PicamValueType_FloatingPoint:
+			break;
+		case PicamValueType_Boolean:
+			text += L" (false = 0, true = non-0)";
+			break;
+		case PicamValueType_Enumeration:
+			text += L" (as integer value)";
+			break;
+		case PicamValueType_Rois:
+			text += L" (as 'x,y w,h xb,yb')";
+			break;
+		case PicamValueType_Pulse:
+			text += L" (as 'd,w')";
+			break;
+		case PicamValueType_Modulations:
+			text += L" (as 'd,f,p,osf d,f,p,osf...')";
+			break;
+		}
+		item=item+text+L": ";
+
+		// - show the value
+		std::wstring formatted;
+		if (!GetParameterValue(parameters[i], text, formatted))
+			break;
+		item = item + text + L" ";
+		item = item + formatted;
+
+		returnstring = returnstring + ws2s(item) + "\n";
+	}
+	Picam_DestroyParameters(parameters);
+
+	return returnstring;
+}
+
 //////////////////////////////////////////////////////////////////////////////////
 //   ListenOnPort(int PortNo)
 //
@@ -5058,6 +5134,16 @@ int ParseInput(char* buffer, int datalen)
 		formatmessage(ack, len, formatmesg);
 		sendmessage(formatmesg);
 
+	}
+	else if (strcmp(command,"PARS")==0)
+	{
+		//Get All Parameters As String
+		string parms;
+		parms = GetParametersAsString();
+		wsmessage formatmesg;
+		int len;
+		formatmessage(parms,len,formatmesg);
+		sendmessage(formatmesg);
 	}
 	else if (strcmp(command, "AQMI") == 0)
 	{

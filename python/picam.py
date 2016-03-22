@@ -66,6 +66,7 @@ class PICam(Instrument):
     roihighv = Int(0)
     roimaxh = Int(512)
     roimaxv = Int(-512)
+    CamParamStrings = Str()
     
     useDemo = Bool()
 
@@ -120,7 +121,7 @@ class PICam(Instrument):
         self.AdcEMGain = IntProp('AdcEMGain', experiment, 'Picam EM gain', '0')
         self.exposureTime = FloatProp('exposureTime', experiment, 'exposure time for edge trigger', '0')
         self.shotsPerMeasurement = IntProp('shotsPerMeasurement', experiment, 'number of expected shots', '0')
-        self.properties += ['AdcEMGain', 'preAmpGain', 'exposureTime', 'triggerMode', 'shutterMode', 'shotsPerMeasurement', 'averagemeasurements', 'useDemo', 'AdcAnalogGain']
+        self.properties += ['AdcEMGain', 'preAmpGain', 'exposureTime', 'triggerMode', 'shutterMode', 'shotsPerMeasurement', 'averagemeasurements', 'useDemo', 'AdcAnalogGain', 'CamParamStrings']
 
     def __del__(self):
         #print "Calling __del__ on Picam"
@@ -241,14 +242,17 @@ class PICam(Instrument):
             self.sock.sendmsg("RFAU")
             returnedmessage = self.sock.receive()
             if (returnedmessage[0:3]!='ACK'):
-                logger.error("Failed to commit parameters. Returned message: {}".format(returnedmessage))
+                logger.error("Failed to register for acquisition updates. Returned message: {}".format(returnedmessage))
                 raise PauseError
             self.sock.sendmsg("STAQ")
             returnedmessage = self.sock.receive()
             if (returnedmessage[0:3]!='ACK'):
-                logger.error("Failed to commit parameters. Returned message: {}".format(returnedmessage))
+                logger.error("Failed to start acquisition. Returned message: {}".format(returnedmessage))
                 raise PauseError
             self.shotnum=0
+            self.sock.sendmsg("PARS")
+            self.CamParamStrings = self.sock.receive()
+            logger.debug("Parameters:\n"+self.CamParamStrings)
 
 
     def setup_video_thread(self, analysis):
