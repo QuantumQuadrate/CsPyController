@@ -5168,7 +5168,7 @@ int ParseInput(char* buffer, int datalen)
 		int len;
 		formatmessage(parms,len,formatmesg);
 		sendmessage(formatmesg);
-		RefreshParametersNoDialog();
+		//RefreshParametersNoDialog();
 	}
 	else if (strcmp(command, "AQMI") == 0)
 	{

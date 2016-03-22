@@ -1,4 +1,4 @@
-﻿Build started 3/22/2016 5:30:38 PM.
+﻿Build started 3/22/2016 5:43:13 PM.
      1>Project "Z:\users\DonaldBooth\CodeStuff\CsPyController\cpp\Picam\projects\vs2010\Advanced.vcxproj" on node 2 (Build target(s)).
      1>ClCompile:
          C:\Program Files (x86)\Microsoft Visual Studio 12.0\VC\bin\x86_amd64\CL.exe /c /I"C:\Program Files\Princeton Instruments\Picam\\Includes" /Zi /nologo /W4 /WX /Od /D _MBCS /Gm /EHsc /RTC1 /MDd /GS /fp:precise /Zc:wchar_t /Zc:forScope /Fo"obj\Advanced\x64\Debug\\" /Fd"obj\Advanced\x64\Debug\vc120.pdb" /Gd /TP /errorReport:prompt "..\..\Source Code\Windows\Advanced.cpp"
@@ -11,4 +11,4 @@
 
 Build succeeded.
 
-Time Elapsed 00:00:24.54
+Time Elapsed 00:00:20.62
