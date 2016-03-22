@@ -136,6 +136,7 @@ int sendmessage(wsmessage formatmesg);
 int sendmessageimage(wsmessageimagedata formatmesg);
 int test_picam_error(PicamError error, string errmess);
 string GetParametersAsString();
+void RefreshParametersNoDialog();
 
 int sendmessageimagemult(wsmessageimagedata formatmesg, vector<pi16u>* imgs, int imgssize);
 int formatmessageimagemult(string message, int &length, wsmessageimagedata &formattedmessage, vector<char16_t> &imagedat, int imagelen);
@@ -3817,7 +3818,7 @@ pibool CommitParameters()
 // RefreshParameters
 // - refreshes the camera model and shows results in the parameters dialog
 ////////////////////////////////////////////////////////////////////////////////
-void RefreshParameters( HWND dialog )
+void RefreshParameters( HWND dialog ) 
 {
     // - get the camera model
     PicamHandle model;
@@ -4958,6 +4959,29 @@ string GetParametersAsString() {
 	Picam_DestroyParameters(parameters);
 
 	return returnstring;
+} 
+
+void RefreshParametersNoDialog()
+{
+	// - get the camera model
+	PicamHandle model;
+	PicamError error = PicamAdvanced_GetCameraModel(device_, &model);
+	if (error != PicamError_None)
+	{
+		DisplayError(L"Failed to get camera model.", error);
+		return;
+	}
+
+	// - revert changes on the model
+	// - any changes to the model will be handled through change callbacks
+	error = PicamAdvanced_RefreshParametersFromCameraDevice(model);
+	if (error != PicamError_None)
+	{
+		DisplayError(L"Failed to refresh camera model.", error);
+		return;
+	}
+
+	return;
 }
 
 //////////////////////////////////////////////////////////////////////////////////
@@ -5144,6 +5168,7 @@ int ParseInput(char* buffer, int datalen)
 		int len;
 		formatmessage(parms,len,formatmesg);
 		sendmessage(formatmesg);
+		RefreshParametersNoDialog();
 	}
 	else if (strcmp(command, "AQMI") == 0)
 	{
