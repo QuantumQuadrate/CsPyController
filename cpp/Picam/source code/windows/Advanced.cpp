@@ -135,6 +135,8 @@ int formatmessageimage(string message, int &length, wsmessageimagedata &formatte
 int sendmessage(wsmessage formatmesg);
 int sendmessageimage(wsmessageimagedata formatmesg);
 int test_picam_error(PicamError error, string errmess);
+string GetParametersAsString();
+void RefreshParametersNoDialog();
 
 int sendmessageimagemult(wsmessageimagedata formatmesg, vector<pi16u>* imgs, int imgssize);
 int formatmessageimagemult(string message, int &length, wsmessageimagedata &formattedmessage, vector<char16_t> &imagedat, int imagelen);
@@ -427,6 +429,11 @@ void DisplayError(
 	wsmessage formatmesg;
 	formatmessage(ack, len, formatmesg);
 	sendmessage(formatmesg);
+
+	std::ofstream outfile;
+
+	outfile.open("picam.log", std::ios_base::app);
+	outfile << details+"\n";
 }
 
 string ws2s(const std::wstring& wstr)
@@ -1212,12 +1219,18 @@ void Start()
     }
 
     // - cache information used to extract frames during acquisition
-    if( !CacheFrameNavigation() )
-        return;
+	if (!CacheFrameNavigation())
+	{
+		DisplayError(L"Failed to cache frames.", PicamError_None);
+		return;
+	}
 
     // - initialize image data and display
-    if( !InitializeImage() )
-        return;
+	if (!InitializeImage())
+	{
+		DisplayError(L"Failed to initialize image.", PicamError_None);
+		return;
+	}
 
     // - mark acquisition active just before acquisition begins
     ResetEvent( acquisitionInactive_ );
@@ -3805,7 +3818,7 @@ pibool CommitParameters()
 // RefreshParameters
 // - refreshes the camera model and shows results in the parameters dialog
 ////////////////////////////////////////////////////////////////////////////////
-void RefreshParameters( HWND dialog )
+void RefreshParameters( HWND dialog ) 
 {
     // - get the camera model
     PicamHandle model;
@@ -4873,6 +4886,104 @@ void Redraw()
     EndPaint( main_, &ps );
 }
 
+
+string GetParametersAsString() {
+
+	string returnstring = "";
+	// - get the camera model
+	PicamHandle model;
+	PicamError error = PicamAdvanced_GetCameraModel(device_, &model);
+	if (error != PicamError_None)
+	{
+		DisplayError(L"Failed to get camera model.", error);
+		return "Failed to get camera model.";
+	}
+
+	// - initialize the parameter combo box
+	const PicamParameter* parameters;
+	piint count;
+	error = Picam_GetParameters(model, &parameters, &count);
+	if (error != PicamError_None)
+	{
+		DisplayError(L"Failed to get camera parameters.", error);
+		return "Failed to get camera parameters.";
+	}
+	for (piint i = 0; i < count; ++i)
+	{
+		// - create a wstring version of the parameter
+		std::wstring item =
+			GetEnumString(PicamEnumeratedType_Parameter, parameters[i]) + L": ";
+		
+		// - show the format
+		PicamValueType valueType;
+		error = Picam_GetParameterValueType(model, parameters[i], &valueType);
+		if (error != PicamError_None)
+		{
+			DisplayError(L"Failed to get parameter value type.", error);
+			return "Failed to get parameter value type.";
+		}
+		wstring text = GetEnumString(PicamEnumeratedType_ValueType, valueType);
+		switch (valueType)
+		{
+		case PicamValueType_Integer:
+		case PicamValueType_LargeInteger:
+		case PicamValueType_FloatingPoint:
+			break;
+		case PicamValueType_Boolean:
+			text += L" (false = 0, true = non-0)";
+			break;
+		case PicamValueType_Enumeration:
+			text += L" (as integer value)";
+			break;
+		case PicamValueType_Rois:
+			text += L" (as 'x,y w,h xb,yb')";
+			break;
+		case PicamValueType_Pulse:
+			text += L" (as 'd,w')";
+			break;
+		case PicamValueType_Modulations:
+			text += L" (as 'd,f,p,osf d,f,p,osf...')";
+			break;
+		}
+		item=item+text+L": ";
+
+		// - show the value
+		std::wstring formatted;
+		if (!GetParameterValue(parameters[i], text, formatted))
+			break;
+		item = item + text + L" ";
+		item = item + formatted;
+
+		returnstring = returnstring + ws2s(item) + "\n";
+	}
+	Picam_DestroyParameters(parameters);
+
+	return returnstring;
+} 
+
+void RefreshParametersNoDialog()
+{
+	// - get the camera model
+	PicamHandle model;
+	PicamError error = PicamAdvanced_GetCameraModel(device_, &model);
+	if (error != PicamError_None)
+	{
+		DisplayError(L"Failed to get camera model.", error);
+		return;
+	}
+
+	// - revert changes on the model
+	// - any changes to the model will be handled through change callbacks
+	error = PicamAdvanced_RefreshParametersFromCameraDevice(model);
+	if (error != PicamError_None)
+	{
+		DisplayError(L"Failed to refresh camera model.", error);
+		return;
+	}
+
+	return;
+}
+
 //////////////////////////////////////////////////////////////////////////////////
 //   ListenOnPort(int PortNo)
 //
@@ -5048,6 +5159,17 @@ int ParseInput(char* buffer, int datalen)
 		sendmessage(formatmesg);
 
 	}
+	else if (strcmp(command,"PARS")==0)
+	{
+		//Get All Parameters As String
+		string parms;
+		parms = GetParametersAsString();
+		wsmessage formatmesg;
+		int len;
+		formatmessage(parms,len,formatmesg);
+		sendmessage(formatmesg);
+		//RefreshParametersNoDialog();
+	}
 	else if (strcmp(command, "AQMI") == 0)
 	{
 		//Acquire multiple images
@@ -5069,7 +5191,7 @@ int ParseInput(char* buffer, int datalen)
 		PicamAcquisitionErrorsMask errormask;
 		PicamAvailableData avail;
 		PicamError error;
-		error = Picam_Acquire(device_, numreads, -1, &avail, &errormask);
+		error = Picam_Acquire(device_, numreads, 5000, &avail, &errormask);
 		test_picam_error(error, "Could not acquire images ");
 
 		if (errormask != 0)
@@ -5205,14 +5327,31 @@ int ParseInput(char* buffer, int datalen)
 	else if (strcmp(command, "STAQ") == 0)
 	{
 		//Start Acquisition
+		/*PicamError error =
+			PicamAdvanced_RegisterForAcquisitionUpdated(
+			device_,
+			AcquisitionUpdated);
+		if (error != PicamError_None)
+			DisplayError(L"Failed to register for acquisition updated.", error);*/
+		Start();
+		string ack = "ACK STAQ";
+		int len;
+		wsmessage formatmesg;
+		formatmessage(ack, len, formatmesg);
+		sendmessage(formatmesg);
+	}
+	else if (strcmp(command, "RFAU") == 0)
+	{
+		//Kill Callback (used in Experiment mode when shotsPerMeasurement > 1), 
+		//to prevent the callback function from clearing the acquisition buffer after each readout.
 		PicamError error =
 			PicamAdvanced_RegisterForAcquisitionUpdated(
 			device_,
 			AcquisitionUpdated);
 		if (error != PicamError_None)
 			DisplayError(L"Failed to register for acquisition updated.", error);
-		Start();
-		string ack = "ACK STAQ";
+
+		string ack = "ACK RFAU";
 		int len;
 		wsmessage formatmesg;
 		formatmessage(ack, len, formatmesg);
@@ -5227,7 +5366,7 @@ int ParseInput(char* buffer, int datalen)
 			device_,
 			AcquisitionUpdated);
 		if (error != PicamError_None)
-			DisplayError(L"Failed to register for acquisition updated.", error);
+			DisplayError(L"Failed to unregister for acquisition updated.", error);
 
 		string ack = "ACK KLCB";
 		int len;
@@ -5262,6 +5401,40 @@ int ParseInput(char* buffer, int datalen)
 		int len;
 		wsmessageimagedata formatmesg;
 		formatmessageimage(ack, len, formatmesg, (imageData_)[0], static_cast<int>((&imageData_)->size()));
+		sendmessageimage(formatmesg);
+
+
+	}
+	else if (strcmp(command, "ACQJ") == 0)
+	{
+		string arglist;
+		arglist = &buffer[13];
+		vector<string> splitarglist;
+		splitarglist = split(arglist, ' ');
+		if (splitarglist.size() != 2)
+		{
+			wsmessage formatmesg;
+			int len;
+			formatmessage("Incorrect number of arguments for Index Acquire Image (ACQJ). Expected 1.", len, formatmesg);
+			sendmessage(formatmesg);
+			return -2;
+		}
+		piint imnum = stoi(splitarglist[0]);
+		//Acquire Image
+		if (!bmpBits_)
+		{
+			wsmessage formatmesg;
+			int len;
+			formatmessage("bmpBits_ not initialized.", len, formatmesg);
+			sendmessage(formatmesg);
+			return -1;
+		}
+		Redraw();
+
+		string ack = "ACK ACQJ ";
+		int len;
+		wsmessageimagedata formatmesg;
+		formatmessageimage(ack, len, formatmesg, (imageData_)[imnum], static_cast<int>((&imageData_)->size()));
 		sendmessageimage(formatmesg);
 
 

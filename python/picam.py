@@ -54,9 +54,11 @@ def pointer(x):
 class PICam(Instrument):
 
     AdcEMGain = Member()
+    AdcAnalogGain = Int()
     preAmpGain = Member()
     exposureTime = Member()
     triggerMode = Int()
+    shutterMode = Int()
     shotsPerMeasurement = Member()
     roilowh = Int(0)
     roihighh = Int(512)
@@ -64,8 +66,9 @@ class PICam(Instrument):
     roihighv = Int(0)
     roimaxh = Int(512)
     roimaxv = Int(-512)
+    CamParamStrings = Str()
     
-    useDemo = True
+    useDemo = Bool()
 
     width = Int()  # the number of columns
     height = Int()  # the number of rows
@@ -96,11 +99,16 @@ class PICam(Instrument):
     videoStarted = Bool()
     ChildProcess = Member()
     
+    averagemeasurements = Bool()
+    measurementcount = Int(0)
+    
     updatelock = Bool()
     
     ROI = Member()
     
     sock = Member()
+
+    shotnum=Int()
     
     c_image_array = Member()
     data = Member()  # holds acquired images until they are written
@@ -111,11 +119,9 @@ class PICam(Instrument):
     def __init__(self, name, experiment, description=''):
         super(PICam, self).__init__(name, experiment, description)
         self.AdcEMGain = IntProp('AdcEMGain', experiment, 'Picam EM gain', '0')
-        #self.preAmpGain = IntProp('preAmpGain', experiment, 'Picam analog gain', '0')
         self.exposureTime = FloatProp('exposureTime', experiment, 'exposure time for edge trigger', '0')
         self.shotsPerMeasurement = IntProp('shotsPerMeasurement', experiment, 'number of expected shots', '0')
-        self.properties += ['AdcEMGain', 'preAmpGain', 'exposureTime', 'triggerMode', 'shotsPerMeasurement']
-        #self.ChildProcess = subprocess.Popen(['picamAdvanced.exe',''])
+        self.properties += ['AdcEMGain', 'preAmpGain', 'exposureTime', 'triggerMode', 'shutterMode', 'shotsPerMeasurement', 'averagemeasurements', 'useDemo', 'AdcAnalogGain', 'CamParamStrings']
 
     def __del__(self):
         #print "Calling __del__ on Picam"
@@ -153,7 +159,7 @@ class PICam(Instrument):
         return 0, int(value)
         
     def start_server(self):
-        subprocess.Popen(['..\\cpp\\Picam\\projects\\vs2010\\bin\\x64\\Release\\Advanced.exe'])
+        subprocess.Popen(['..\\cpp\\Picam\\projects\\vs2010\\bin\\x64\\Debug\\Advanced.exe'])
 
     
     def start(self):
@@ -162,16 +168,24 @@ class PICam(Instrument):
         #declare that we are done now
         self.isDone = True
 
+    def sendparameters(self):
+        self.GetDetector()
+        self.setROIvalues()
+        self.SetAdcAnalogGain(self.AdcAnalogGain+1)
+        self.SetAdcEMGain(self.AdcEMGain.value)
+        self.SetExposureTime(self.exposureTime.value)
+        self.setPicamParameterLongInt(c_int(PicamParameter_ReadoutCount).value,0) #run continuously until Picam_StopAcquisition is called
+        self.setSingleROI(self.ROI[0], self.ROI[1], self.ROI[2], self.ROI[3], self.ROI[4], self.ROI[5])
+        self.setPicamParameterInt(c_int(PicamParameter_CleanUntilTrigger).value,1) #run continuously until Picam_StopAcquisition is called
+        self.SetReadoutControl(1)    
+
+
     def update(self):
         if self.enable:
             self.mode = 'experiment'
             if self.IsAcquisitionRunning():
                 self.AbortAcquisition()
-            self.GetDetector()
-            self.setROIvalues()
-            #self.SetPreAmpGain(self.preAmpGain.value)
-            self.SetAdcEMGain(self.AdcEMGain.value)
-            self.SetExposureTime(self.exposureTime.value)
+            self.sendparameters()
             if self.triggerMode == 0:
                 # set edge trigger
                 '''
@@ -182,16 +196,37 @@ class PICam(Instrument):
                     PicamTriggerDetermination_RisingEdge       = 3,
                     PicamTriggerDetermination_FallingEdge      = 4
                 } PicamTriggerDetermination; /* (5) */
+                
+                typedef enum PicamTriggerResponse
+                {
+                    PicamTriggerResponse_NoResponse               = 1,
+                    PicamTriggerResponse_ReadoutPerTrigger        = 2,
+                    PicamTriggerResponse_ShiftPerTrigger          = 3,
+                    PicamTriggerResponse_ExposeDuringTriggerPulse = 4,
+                    PicamTriggerResponse_StartOnSingleTrigger     = 5
+                } PicamTriggerResponse; /* (6) */
                 '''
-                self.SetTriggerDetermination(3)
-            else:
+                self.SetTriggerDetermination(3)#3
+                self.SetTriggerResponse(2)     #5
+            elif self.triggerMode == 1:
+                self.SetTriggerDetermination(4)#3
+                self.SetTriggerResponse(2)     #5
+            elif self.triggerMode == 2:
                 # set level trigger
                 self.SetTriggerDetermination(1)
+                self.SetTriggerResponse(2)
+            elif self.triggerMode == 3:
+                self.SetTriggerResponse(1)
+            
+            self.setPicamParameterInt(c_int(PicamParameter_ShutterTimingMode).value,self.shutterMode+1) #run continuously until Picam_StopAcquisition is called
+            #self.setPicamParameterInt(c_int(PicamParameter_CorrectPixelBias).value,0) #run continuously until Picam_StopAcquisition is called
+            
             #self.SetImage(1, 1, 1, self.width, 1, self.height)  # full sensor, no binning
             
-            self.setSingleROI(self.ROI[0], self.ROI[1], self.ROI[2], self.ROI[3], self.ROI[4], self.ROI[5])
+           
             self.CreateAcquisitionBuffer()
             self.data = []
+            self.measurementcount = 0
             #self.SetKineticCycleTime(0)  # no delay
             self.sock.sendmsg("CMTP")
             returnedmessage = self.sock.receive()
@@ -199,11 +234,27 @@ class PICam(Instrument):
                 logger.error("Failed to commit parameters. Returned message: {}".format(returnedmessage))
                 raise PauseError
             #self.StartAcquisition()
+            self.sock.sendmsg("PARS")
+            self.CamParamStrings = self.sock.receive()
+            logger.debug("Parameters:\n"+self.CamParamStrings)
             self.sock.sendmsg("KLCB")
             returnedmessage = self.sock.receive()
             if (returnedmessage[0:3]!='ACK'):
                 logger.error("Failed to commit parameters. Returned message: {}".format(returnedmessage))
                 raise PauseError
+            self.sock.sendmsg("RFAU")
+            returnedmessage = self.sock.receive()
+            if (returnedmessage[0:3]!='ACK'):
+                logger.error("Failed to register for acquisition updates. Returned message: {}".format(returnedmessage))
+                raise PauseError
+            self.sock.sendmsg("STAQ")
+            returnedmessage = self.sock.receive()
+            if (returnedmessage[0:3]!='ACK'):
+                logger.error("Failed to start acquisition. Returned message: {}".format(returnedmessage))
+                raise PauseError
+            self.shotnum=0
+            
+
 
     def setup_video_thread(self, analysis):
         thread = threading.Thread(target=self.setup_video, args=(analysis,))
@@ -212,6 +263,9 @@ class PICam(Instrument):
     
 
     def setROIvalues(self):
+        if (self.ROI is None):
+            logger.warning("self.ROI undeclared. Declaring it.")
+            self.ROI = [0, self.width, 1, 0, self.height, 1 ]
         if (self.roilowh < self.roihighh):
             self.ROI[0] = self.roilowh   #x
             self.ROI[1] = self.roihighh - self.roilowh   #width
@@ -242,47 +296,54 @@ class PICam(Instrument):
         
     def setSendROIvalues(self):
         if self.updatelock == False:
-            try:
-                self.updatelock = True
-                modeorig = ''
-                if self.mode == 'video':
-                    modeorig = 'video'
-                    self.stop_video()
-                time.sleep(1)
-                if (self.roilowh < self.roihighh):
-                    self.ROI[0] = self.roilowh   #x
-                    self.ROI[1] = self.roihighh - self.roilowh   #width
-                elif (self.roilowh > self.roihighh):
-                    self.ROI[0] = self.roihighh   #x
-                    self.ROI[1] = self.roilowh - self.roihighh   #width
-                else:
-                    self.ROI[0] = self.roihighh
-                    self.ROI[1] = 1
-                self.ROI[2] = 1   #x-binning
-                
-                if (self.roilowv < self.roihighv):
-                    self.ROI[3] = -self.roihighv   #x
-                    self.ROI[4] = self.roihighv - self.roilowv   #width
-                elif (self.roilowv > self.roihighv):
-                    self.ROI[3] = -self.roilowv   #x
-                    self.ROI[4] = self.roilowv - self.roihighv   #width
-                else:
-                    self.ROI[3] = self.roihighv
-                    self.ROI[4] = 1
-                self.ROI[5] = 1   #y-binning
-                self.width = self.ROI[1]
-                self.height = self.ROI[4]
-                self.dim = self.width*self.height
-                self.setSingleROI(self.ROI[0], self.ROI[1], self.ROI[2], self.ROI[3], self.ROI[4], self.ROI[5])
-                time.sleep(1)
-                if modeorig == 'video':
-                    self.setup_video_thread(self.analysis)
-                #print "ROI values are: {} {} {} {} {} {}".format(*self.ROI)
-            except:
-                logger.error("Exception in setSendROIValues")
-                raise PauseError
-            finally:
-                self.updatelock = False
+            #try:
+            self.updatelock = True
+            modeorig = ''
+            if self.mode == 'video':
+                modeorig = 'video'
+                self.stop_video()
+            time.sleep(1)
+            if (self.ROI is None):
+                logger.warning("self.ROI undeclared. Declaring it.")
+                self.ROI = [0, self.width, 1, 0, self.height, 1 ]
+            if (self.sock is None):
+                logger.warning("Connection to camera not yet established. Connecting.")
+                self.initialize()
+            if (self.roilowh < self.roihighh):
+                self.ROI[0] = self.roilowh   #x
+                self.ROI[1] = self.roihighh - self.roilowh   #width
+            elif (self.roilowh > self.roihighh):
+                self.ROI[0] = self.roihighh   #x
+                self.ROI[1] = self.roilowh - self.roihighh   #width
+            else:
+                self.ROI[0] = self.roihighh
+                self.ROI[1] = 1
+            self.ROI[2] = 1   #x-binning
+            
+            if (self.roilowv < self.roihighv):
+                self.ROI[3] = -self.roihighv   #x
+                self.ROI[4] = self.roihighv - self.roilowv   #width
+            elif (self.roilowv > self.roihighv):
+                self.ROI[3] = -self.roilowv   #x
+                self.ROI[4] = self.roilowv - self.roihighv   #width
+            else:
+                self.ROI[3] = self.roihighv
+                self.ROI[4] = 1
+            self.ROI[5] = 1   #y-binning
+            self.width = self.ROI[1]
+            self.height = self.ROI[4]
+            self.dim = self.width*self.height
+            #try:
+            self.setSingleROI(self.ROI[0], self.ROI[1], self.ROI[2], self.ROI[3], self.ROI[4], self.ROI[5])
+            time.sleep(1)
+            if modeorig == 'video':
+                self.setup_video_thread(self.analysis)
+            logger.warning( "ROI values are: {} {} {} {} {} {}".format(*self.ROI))
+            #except Exception as e:
+            #    logger.error("Exception in setSendROIValues: {}".format(type(e)))
+            #    raise PauseError
+            #finally:
+            self.updatelock = False
                 
         
     def setup_video(self, analysis):
@@ -296,17 +357,26 @@ class PICam(Instrument):
         if not self.isInitialized:
             self.initialize()
         self.sock.clearbuffer()   #clear socket's buffer to kill off any old messages
-        #if self.IsAcquisitionRunning():
-        self.AbortAcquisition()
+        try:
+            #if self.IsAcquisitionRunning():
+            self.AbortAcquisition()
+        except:
+            self.isInitialized = False
+            self.initialize()
         
-        self.GetDetector()
-        self.setROIvalues()
-        #self.SetPreAmpGain(self.preAmpGain.value)
-        self.SetAdcEMGain(self.AdcEMGain.value)
-        self.SetExposureTime(self.exposureTime.value)
-        #self.SetTriggerMode(0)
+        #logger.warning("self.experiment.allow_evaluation: {}".format(self.experiment.allow_evaluation))
+        previouslyenabled=self.enable
+        self.enable = True
+        self.experiment.evaluate()
+        self.enable=previouslyenabled
+        
+        
+        self.sendparameters()
+        
+        self.SetTriggerDetermination(4)#3
+        self.SetTriggerResponse(1)     #5
+        
         #self.SetImage(1, 1, 1, self.width, 1, self.height)  # full sensor, no binning
-        self.setSingleROI(self.ROI[0], self.ROI[1], self.ROI[2], self.ROI[3], self.ROI[4], self.ROI[5])
         self.setPicamParameterLongInt(c_int(PicamParameter_ReadoutCount).value,1) #run continuously until Picam_StopAcquisition is called
         #self.SetKineticCycleTime(0)  # no delay
 
@@ -335,6 +405,7 @@ class PICam(Instrument):
             self.analysis.redraw_video()
             time.sleep(.01)
             if (self.videoStarted != True):
+                self.AbortAcquisition()
                 self.StartVideo()
                 self.videoStarted = True
 
@@ -362,12 +433,13 @@ class PICam(Instrument):
     def writeResults(self, hdf5):
         """Overwritten from Instrument.  This function is called by the experiment after
         data acquisition to write the obtained images to hdf5 file."""
-        if self.enable:
+        if self.enable and ((not self.averagemeasurements) or self.experiment.measurement + 1 == self.experiment.measurementsPerIteration):
             try:
-                hdf5['Picam'] = self.data
+                hdf5['Picam'] = numpy.array([self.data[len(self.data)-1]])
             except Exception as e:
                 logger.error('in Picam.writeResults:\n{}'.format(e))
                 raise PauseError
+        
 
     def InitializeCamera(self):
         #if useDemo is True, connect a demo camera
@@ -394,16 +466,18 @@ class PICam(Instrument):
                 logger.error("Returned message to GetImages from C++ not matching Acquire Image request. Returned message: {}".format(returnedmessage))
                 return
         else:
-            acquiredimages = self.shotsPerMeasurement.value
+            acquiredimages = 1    #self.shotsPerMeasurement.value
             logger.debug("Requesting {} images".format(acquiredimages))
-            self.sock.sendmsg("AQMI {}".format(acquiredimages))
+            self.sock.sendmsg("ACQJ {} 0".format(0))
+            self.shotnum+=1
             returnedmessage = self.sock.receive()
             if (returnedmessage[0:3]!='ACK'):
                 logger.error("Failed to get images. Returned message: {}".format(returnedmessage))
                 raise PauseError
-            if (returnedmessage[4:8]!='AQMI'):
+            if (returnedmessage[4:8]!='ACQJ'):
                 logger.error("Returned message to GetImages from C++ not matching Acquire Multiple Image request. Returned message: {}".format(returnedmessage))
                 raise PauseError
+            logger.debug("Got {} images".format(acquiredimages))
 
         imagedatastr = returnedmessage[9:]
         imagedatalen = len(imagedatastr)/2  #16-bit data...
@@ -432,7 +506,7 @@ class PICam(Instrument):
                 i=i+1
             #ctypes.memmove(self.c_image_array, (ctypes.c_int * len(imagedata))(*imagedata), self.width*self.height*ctypes.sizeof(ctypes.c_int))
             endtime = time.clock()
-            logger.debug("Time elapsed while copying into c_image_array: {} seconds".format(endtime-starttime))
+            #logger.debug("Time elapsed while copying into c_image_array: {} seconds".format(endtime-starttime))
             return imagedata
         if (self.mode == 'idle'):
             return self.data
@@ -452,9 +526,12 @@ class PICam(Instrument):
         #logger.warning("Reshaping numpy array")
         framedata = numpy.ctypeslib.as_array(c_image_array)
         framedata = numpy.reshape(framedata, (acquiredimages, self.height, self.width))
+        self.measurementcount += 1
         if (len(self.data)>0):
-            #logger.warning("self.data: {}".format(self.data))
-            data = numpy.append(self.data,framedata,axis=0)
+            if (self.averagemeasurements == False):
+                data = numpy.append(self.data,framedata,axis=0)
+            else:
+                data = (self.data*(self.measurementcount - 1))/self.measurementcount + framedata/self.measurementcount
         else:
             data = framedata
         return data
@@ -525,13 +602,13 @@ class PICam(Instrument):
         self.sock.sendmsg("STVD")   #Start Video
         returnedmessage = self.sock.receive()
         if (returnedmessage[0:3]!='ACK'):
-            logger.error("Failed to commit parameters. Returned message: {}".format(returnedmessage))
+            logger.error("Failed to start video. Returned message: {}".format(returnedmessage))
             raise PauseError  
 
     def StartAcquisition(self):
         self.sock.sendmsg("STAQ")
         returnedmessage = self.sock.receive()
-        if (returnedmessage[0:3] != "ACK"):
+        if (returnedmessage[0:8] != "ACK STAQ"):
             logger.error("Start Acquisition {} failed.\nMessage returned from C++: {}".format(param, returnedmessage))
             raise PauseError
 
@@ -564,6 +641,9 @@ class PICam(Instrument):
 
     def SetExposureTime(self, time):
         self.setPicamParameterFP(ctypes.c_int(PicamParameter_ExposureTime).value,time)
+
+    def SetReadoutControl(self, time):
+        self.setPicamParameterInt(ctypes.c_int(PicamParameter_ReadoutControlMode).value,time)
 
     def setPicamParameterInt(self, param, value):
         self.sock.sendmsg("SPIN {} {}".format(param,value))
@@ -630,6 +710,9 @@ class PICam(Instrument):
     def GetAnalogGain(self):
         self.gain = self.getPicamParameterInt(ctypes.c_int(PicamParameter_AdcAnalogGain).value)
         
+    def SetAdcAnalogGain(self, gain):
+        self.setPicamParameterInt(ctypes.c_int(PicamParameter_AdcAnalogGain).value,gain)
+        
     def GetAdcEMGain(self):
         self.gain = self.getPicamParameterInt(ctypes.c_int(PicamParameter_AdcEMGain).value)
 
@@ -642,23 +725,26 @@ class PICam(Instrument):
         
         
     def SetTriggerResponse(self,resp):
-        self.setPicamParameterInt(ctypes.c_int(PicamParameter_TriggerResonse).value,resp)
+        self.setPicamParameterInt(ctypes.c_int(PicamParameter_TriggerResponse).value,resp)
         
         
     def IsAcquisitionRunning(self):
         self.sock.sendmsg("ISAR")
         returnedmessage = self.sock.receive()
+        while(returnedmessage=="ACK COOL"):
+            returnedmessage = self.sock.receive()
         if (returnedmessage == "ACK ISAR 1"):
-            status = True
-            logger.warning("Acquisition is running.")
+            status = 1
+            logger.debug("Acquisition is running.")
         elif (returnedmessage == "ACK ISAR 0"):
-            status = False
-            logger.warning("Acquisition is NOT running.")
+            status = 0
+            logger.debug("Acquisition is NOT running.")
         else:
-            status = False
+            status = -1
             logger.error("Received message from C++ code after sending IsAcquisitionRunning: {}".format(returnedmessage))
             raise PauseError
         return status
+
 
     """
     setROIs(rois) is a function which accepts as an argument a
@@ -703,16 +789,30 @@ class PICamViewer(AnalysisWithFigure):
     shot = Int(0)
     update_lock = Bool(False)
     artist = Member()
+    
+    maxPixel = Float(0)
+    meanPixel = Float(0)
+    
+    averagemeasurements = Bool()
 
     def __init__(self, name, experiment, description=''):
         super(PICamViewer, self).__init__(name, experiment, description) 
         self.properties += ['shot']
 
-    def analyzeMeasurement(self, measurementResults, iterationResults, experimentResults):
+    def preExperiment(self, hdf5):
         self.data = []
+        
+    def preIteration(self, iterationresults, hdf5):
+        if (self.averagemeasurements == False):
+            self.data = []
+        
+    def analyzeMeasurement(self, measurementResults, iterationResults, experimentResults):
         if 'data/Picam' in measurementResults:
             #for each image
-            self.data = measurementResults['data/Picam']
+            if (len(self.data) == 0):
+                self.data = measurementResults['data/Picam']
+            else:
+                self.data = numpy.append(self.data,measurementResults['data/Picam'],axis=0)
         self.updateFigure()  # only update figure if image was loaded
 
     @observe('shot')
@@ -729,6 +829,8 @@ class PICamViewer(AnalysisWithFigure):
                 if (self.data is not None) and (self.shot < len(self.data)):
                     ax = fig.add_subplot(111)
                     ax.matshow(self.data[self.shot], cmap=my_cmap)
+                    self.maxPixel = numpy.amax(self.data[self.shot])
+                    self.meanPixel = numpy.mean(self.data[self.shot])
                     ax.set_title('most recent shot '+str(self.shot))
                 #else:
                 #    logger.warning("self.data is None, or self.shot > len(self.data)\nself.data: {}\nlen(self.data): {}".format(self.data,len(self.data)))
@@ -751,6 +853,8 @@ class PICamViewer(AnalysisWithFigure):
     def redraw_video(self):
         """First update self.data using Andor methods, then redraw screen using this."""
         self.artist.autoscale()
+        self.maxPixel = numpy.amax(self.data)
+        self.meanPixel = numpy.mean(self.data)
         deferred_call(self.figure.canvas.draw)
         
         
