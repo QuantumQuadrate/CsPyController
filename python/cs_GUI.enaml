@@ -1666,11 +1666,40 @@ enamldef CameraPage(Window):
                 EvalProp:
                     prop<<camera.shotsPerMeasurement
 
-enamldef Andor(Window):
-    attr camera
-    attr analysis
+enamldef Andors(Window):
+    attr andors
 
-    title = 'Andor Camera'
+    title = 'Andor Cameras'
+    style_class << 'valid' if experiment.valid else 'invalid'
+    Container:
+        padding = 0
+        style_class << 'valid' if experiment.valid else 'invalid'
+        ScrollArea:
+            style_class << 'valid' if experiment.valid else 'invalid'
+            Container:
+                style_class << 'valid' if experiment.valid else 'invalid'
+
+                Container:
+                    hug_width = 'strong'
+                    hug_height = 'strong'
+                    Form:
+                        hug_width = 'strong'
+                        hug_height = 'strong'
+                        #Label:
+                        #    text = 'enable'
+                        #CheckBox:
+                        #    checked := andors.enable
+
+                    IndexedContainer:
+                        iterable << andors.motors
+                        viewType = Andor
+
+enamldef Andor(Form):
+    attr item
+
+    constraints = [width >= 1000, height >= 1000]
+
+    #title = 'Andor Camera'
     style_class << 'valid' if experiment.valid else 'invalid'
     Container:
         padding = 0
@@ -1681,37 +1710,66 @@ enamldef Andor(Window):
                 style_class << 'valid' if experiment.valid else 'invalid'
 
                 MPLCanvas:
-                    figure << analysis.figure
+                    figure << item.analysis.figure
                 HGroup:
                     PushButton:
                         text = 'video mode'
-                        clicked :: camera.setup_video_thread(analysis)
+                        clicked :: item.camera.setup_video_thread(item.analysis)
                     PushButton:
                         text = 'stop video'
-                        clicked :: camera.stop_video()
+                        clicked :: item.camera.stop_video()
+                HGroup:
+                    EvalProp:
+                        prop << item.camera.currentCamera
+                    PushButton:
+                        text = 'Select Camera'
+                        clicked :: item.camera.setCamera()
+                HGroup:
+                    padding = 0
+                    Label:
+                        text := 'Camera Serial Number: {}'.format(str(item.camera.CurrentHandle))
+                    Label:
+                        text := 'CCD Temperature (C): {:.4}'.format(item.camera.temperature)
+                    Label:
+                        text := 'Maximum Pixel Value: {}, Mean Pixel Value: {}'.format(item.analysis.maxPixel,item.analysis.meanPixel)
                 LabelBox:
                     text = 'enable'
-                    checked := camera.enable
+                    checked := item.camera.enable
                 EvalProp:
-                    prop << camera.EMCCDGain
+                    prop << item.camera.EMCCDGain
                 EvalProp:
-                    prop << camera.preAmpGain
+                    prop << item.camera.preAmpGain
                 EvalProp:
-                    prop << camera.exposureTime
-                ComboBox:
-                    items = ['Edge', 'Level']
-                    index := camera.triggerMode
+                    prop << item.camera.exposureTime
+                HGroup:
+                    padding = 0
+                    ComboBox:
+                        items = ['External Start', 'External Level/Bulb', 'External', 'Internal']
+                        index := item.camera.triggerMode
+                    ComboBox:
+                        items = ['Single Scan', 'Accumulate', 'Kinetics', 'Fast Kinetics', 'Run Until Abort']
+                        index := item.camera.acquisitionMode
+                    ComboBox:
+                        items = ['Bin Mode: 1x1', 'Bin Mode: 2x2', 'Bin Mode: 4x4']
+                        index := item.camera.binMode
+                HGroup:
+                    padding = 0
+                    ComboBox:
+                        items = ['Advanced EMGain OFF', 'Advanced EMGain ON']
+                        index := item.camera.AdvancedEMGain
+                    ComboBox:
+                        items = ['EM Gain Mode: DAC 0-255', 'EM Gain Mode: DAC 0-4095', 'EM Gain Mode: Linear', 'EM Gain Mode: Real EM Gain']
+                        index := item.camera.EMGainMode
                 EvalProp:
-                    prop<<camera.shotsPerMeasurement
+                    prop<<item.camera.shotsPerMeasurement
                 Form:
                     Label:
                         text = 'shot'
                     SpinBox: shot:
                         minimum=0
-                        value := analysis.shot
+                        value := item.analysis.shot
 
-                        
-
+               
             
 enamldef PICam(Window):
     attr camera
@@ -1754,6 +1812,10 @@ enamldef PICam(Window):
                     maximum << camera.roimaxh
                 Label:
                     text := "Max Pixel Value: {}. Mean Pixel Value: {}".format(analysis.maxPixel,analysis.meanPixel)
+                Label:
+                    text := "ROI Horiz Min: {}. Max: {}".format(camera.roilowh,camera.roihighh)
+                Label:
+                    text := "ROI Vert Min: {}. Max: {}".format(camera.roilowv-camera.roimaxv,camera.roihighv-camera.roimaxv)
                 HGroup:
                     PushButton:
                         text = 'video mode'
@@ -3288,7 +3350,7 @@ window_dictionary = {'':'',
                      'DDS': 'DDS_Page(DDS = main.experiment.DDS)',
                      'RF Generators': 'RFGenPage(LabView = main.experiment.LabView)',
                      'Hamamatsu': 'CameraPage(camera = main.experiment.LabView.camera)',
-                     'Andor': 'Andor(camera = main.experiment.Andor, analysis=main.experiment.andor_viewer)',
+                     'Andor Cameras': 'Andors(andors = main.experiment.Andors)',
                      'Princeton Instruments Camera': 'PICam(camera = main.experiment.PICam, analysis=main.experiment.picam_viewer)',
                      'Analog Output': 'AnalogOutput(AO = main.experiment.LabView.AnalogOutput)',
                      'Analog Input': 'AnalogInput(AI = main.experiment.LabView.AnalogInput, filters = main.experiment.AI_filter, analysis = main.experiment.AI_graph)',

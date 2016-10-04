@@ -234,6 +234,9 @@ class PICam(Instrument):
                 logger.error("Failed to commit parameters. Returned message: {}".format(returnedmessage))
                 raise PauseError
             #self.StartAcquisition()
+            self.sock.sendmsg("PARS")
+            self.CamParamStrings = self.sock.receive()
+            logger.debug("Parameters:\n"+self.CamParamStrings)
             self.sock.sendmsg("KLCB")
             returnedmessage = self.sock.receive()
             if (returnedmessage[0:3]!='ACK'):
@@ -250,9 +253,7 @@ class PICam(Instrument):
                 logger.error("Failed to start acquisition. Returned message: {}".format(returnedmessage))
                 raise PauseError
             self.shotnum=0
-            self.sock.sendmsg("PARS")
-            self.CamParamStrings = self.sock.receive()
-            logger.debug("Parameters:\n"+self.CamParamStrings)
+            
 
 
     def setup_video_thread(self, analysis):
@@ -262,6 +263,9 @@ class PICam(Instrument):
     
 
     def setROIvalues(self):
+        if (self.ROI is None):
+            logger.warning("self.ROI undeclared. Declaring it.")
+            self.ROI = [0, self.width, 1, 0, self.height, 1 ]
         if (self.roilowh < self.roihighh):
             self.ROI[0] = self.roilowh   #x
             self.ROI[1] = self.roihighh - self.roilowh   #width
@@ -292,47 +296,54 @@ class PICam(Instrument):
         
     def setSendROIvalues(self):
         if self.updatelock == False:
-            try:
-                self.updatelock = True
-                modeorig = ''
-                if self.mode == 'video':
-                    modeorig = 'video'
-                    self.stop_video()
-                time.sleep(1)
-                if (self.roilowh < self.roihighh):
-                    self.ROI[0] = self.roilowh   #x
-                    self.ROI[1] = self.roihighh - self.roilowh   #width
-                elif (self.roilowh > self.roihighh):
-                    self.ROI[0] = self.roihighh   #x
-                    self.ROI[1] = self.roilowh - self.roihighh   #width
-                else:
-                    self.ROI[0] = self.roihighh
-                    self.ROI[1] = 1
-                self.ROI[2] = 1   #x-binning
-                
-                if (self.roilowv < self.roihighv):
-                    self.ROI[3] = -self.roihighv   #x
-                    self.ROI[4] = self.roihighv - self.roilowv   #width
-                elif (self.roilowv > self.roihighv):
-                    self.ROI[3] = -self.roilowv   #x
-                    self.ROI[4] = self.roilowv - self.roihighv   #width
-                else:
-                    self.ROI[3] = self.roihighv
-                    self.ROI[4] = 1
-                self.ROI[5] = 1   #y-binning
-                self.width = self.ROI[1]
-                self.height = self.ROI[4]
-                self.dim = self.width*self.height
-                self.setSingleROI(self.ROI[0], self.ROI[1], self.ROI[2], self.ROI[3], self.ROI[4], self.ROI[5])
-                time.sleep(1)
-                if modeorig == 'video':
-                    self.setup_video_thread(self.analysis)
-                #print "ROI values are: {} {} {} {} {} {}".format(*self.ROI)
-            except:
-                logger.error("Exception in setSendROIValues")
-                raise PauseError
-            finally:
-                self.updatelock = False
+            #try:
+            self.updatelock = True
+            modeorig = ''
+            if self.mode == 'video':
+                modeorig = 'video'
+                self.stop_video()
+            time.sleep(1)
+            if (self.ROI is None):
+                logger.warning("self.ROI undeclared. Declaring it.")
+                self.ROI = [0, self.width, 1, 0, self.height, 1 ]
+            if (self.sock is None):
+                logger.warning("Connection to camera not yet established. Connecting.")
+                self.initialize()
+            if (self.roilowh < self.roihighh):
+                self.ROI[0] = self.roilowh   #x
+                self.ROI[1] = self.roihighh - self.roilowh   #width
+            elif (self.roilowh > self.roihighh):
+                self.ROI[0] = self.roihighh   #x
+                self.ROI[1] = self.roilowh - self.roihighh   #width
+            else:
+                self.ROI[0] = self.roihighh
+                self.ROI[1] = 1
+            self.ROI[2] = 1   #x-binning
+            
+            if (self.roilowv < self.roihighv):
+                self.ROI[3] = -self.roihighv   #x
+                self.ROI[4] = self.roihighv - self.roilowv   #width
+            elif (self.roilowv > self.roihighv):
+                self.ROI[3] = -self.roilowv   #x
+                self.ROI[4] = self.roilowv - self.roihighv   #width
+            else:
+                self.ROI[3] = self.roihighv
+                self.ROI[4] = 1
+            self.ROI[5] = 1   #y-binning
+            self.width = self.ROI[1]
+            self.height = self.ROI[4]
+            self.dim = self.width*self.height
+            #try:
+            self.setSingleROI(self.ROI[0], self.ROI[1], self.ROI[2], self.ROI[3], self.ROI[4], self.ROI[5])
+            time.sleep(1)
+            if modeorig == 'video':
+                self.setup_video_thread(self.analysis)
+            logger.warning( "ROI values are: {} {} {} {} {} {}".format(*self.ROI))
+            #except Exception as e:
+            #    logger.error("Exception in setSendROIValues: {}".format(type(e)))
+            #    raise PauseError
+            #finally:
+            self.updatelock = False
                 
         
     def setup_video(self, analysis):
@@ -352,6 +363,13 @@ class PICam(Instrument):
         except:
             self.isInitialized = False
             self.initialize()
+        
+        #logger.warning("self.experiment.allow_evaluation: {}".format(self.experiment.allow_evaluation))
+        previouslyenabled=self.enable
+        self.enable = True
+        self.experiment.evaluate()
+        self.enable=previouslyenabled
+        
         
         self.sendparameters()
         
@@ -488,7 +506,7 @@ class PICam(Instrument):
                 i=i+1
             #ctypes.memmove(self.c_image_array, (ctypes.c_int * len(imagedata))(*imagedata), self.width*self.height*ctypes.sizeof(ctypes.c_int))
             endtime = time.clock()
-            logger.debug("Time elapsed while copying into c_image_array: {} seconds".format(endtime-starttime))
+            #logger.debug("Time elapsed while copying into c_image_array: {} seconds".format(endtime-starttime))
             return imagedata
         if (self.mode == 'idle'):
             return self.data
