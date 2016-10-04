@@ -16,9 +16,11 @@ class AQuA(Experiment):
     """A subclass of Experiment which knows about all our particular hardware"""
 
     picomotors = Member()
+    instekpsts = Member()
     aerotechs = Member()
     conexes = Member()
     Andors = Member()
+    vaunixs = Member()
     PICam = Member()
     LabView = Member()
     DDS = Member()
@@ -66,6 +68,7 @@ class AQuA(Experiment):
         self.conexes = conex.Conexes('conexes', self, 'CONEX-CC')
         self.picomotors = picomotors.Picomotors('picomotors', self, 'Newport Picomotors')
         self.Andors = andor.Andors('Andors', self, 'Andor Luca Cameras')
+        self.vaunixs = vaunix.Vaunixs('vaunixs', self, 'Vaunix Signal Generator')
         self.PICam = picam.PICam('PICam', self, 'Princeton Instruments Camera')
         self.LabView = LabView.LabView(self)
         self.DDS = DDS.DDS('DDS', self, 'server for homemade DDS boxes')
@@ -110,11 +113,12 @@ class AQuA(Experiment):
                           self.histogramAnalysis, self.histogram_grid, self.measurements_graph, self.iterations_graph,
                           self.picam_viewer, self.DC_noise_eater_graph, self.DC_noise_eater_filter, self.Andors,
                           self.Ramsey, self.retention_analysis, self.retention_graph, self.counter_graph,
-                          self.save_notes, self.save2013Analysis, self.aerotechs, self.conexes,self.counter_hist]
+                          self.save_notes, self.save2013Analysis, self.aerotechs, self.conexes,self.counter_hist,
+                          self.instekpsts, self.vaunixs]
         
         self.properties += ['functional_waveforms', 'LabView', 'functional_waveforms_graph', 'DDS', 'aerotechs', 'picomotors', 'conexes',
-                            'Andors', 'PICam', 'DC_noise_eaters', 'box_temperature', 'squareROIAnalysis', 'gaussian_roi',
-                            'TTL_filters', 'AI_graph', 'AI_filter', 'loading_filters', 'first_measurements_filter',
+                            'Andors', 'PICam', 'DC_noise_eaters', 'box_temperature', 'squareROIAnalysis', 'gaussian_roi', 'instekpsts', 
+                            'TTL_filters', 'AI_graph', 'AI_filter', 'loading_filters', 'first_measurements_filter', 'vaunixs', 
                             'imageSumAnalysis', 'recent_shot_analysis', 'shotBrowserAnalysis', 'histogramAnalysis',
                             'histogram_grid', 'retention_analysis', 'measurements_graph', 'iterations_graph',
                             'retention_graph', 'picam_viewer', 'DC_noise_eater_filter',
