@@ -143,13 +143,14 @@ class AndorCamera(Instrument):
         #    self.AbortAcquisition()
         #self.DumpImages()
         #declare that we are done now
-        self.setCamera()
-        self.GetTemperature()
-        if self.GetStatus() == 'DRV_ACQUIRING':
-                self.GetAcquiredData(True)
-                self.AbortAcquisition()
-        self.StartAcquisition()
-        self.isDone = True
+        if (self.acquisitionChoices[self.acquisitionMode]!=2 or (self.acquisitionChoices[self.acquisitionMode]==2 and self.experiment.measurement == 0)):
+            self.setCamera()
+            self.GetTemperature()
+            if self.GetStatus() == 'DRV_ACQUIRING':
+                    self.GetAcquiredData(True)
+                    self.AbortAcquisition()
+            self.StartAcquisition()
+            self.isDone = True
 
     def update(self):
         if self.enable:
@@ -192,6 +193,8 @@ class AndorCamera(Instrument):
             if (self.acquisitionChoices[self.acquisitionMode]!=1 and self.acquisitionChoices[self.acquisitionMode]!=4):
                 self.SetFrameTransferMode(0)
                 #print "done SetFrameTransferMode"
+            if (self.acquisitionChoices[self.acquisitionMode]==2):
+                self.SetNumberAccumulations(self.experiment.measurementsPerIteration)
             self.SetKineticCycleTime(0)  # no delay
             self.SetEMGainMode(self.EMGainMode)
             self.SetEMAdvanced(self.AdvancedEMGain)
@@ -301,19 +304,21 @@ class AndorCamera(Instrument):
         """Overwritten from Instrument, this function is called by the experiment after
                 each measurement run to make sure all pictures have been acquired."""
         if self.enable:
-            self.setCamera()
-            self.data = self.GetImages()
+            if (self.acquisitionChoices[self.acquisitionMode]!=2 or (self.acquisitionChoices[self.acquisitionMode]==2 and self.experiment.measurement == self.experiment.measurementsPerIteration - 1)):
+                self.setCamera()
+                self.data = self.GetImages()
 
     def writeResults(self, hdf5):
         """Overwritten from Instrument.  This function is called by the experiment after
         data acquisition to write the obtained images to hdf5 file."""
         logger.debug("Writing results from Andor to Andor_{}".format(self.CurrentHandle))
         if self.enable:
-            try:
-                hdf5['Andor_{}'.format(self.CurrentHandle)] = self.data
-            except Exception as e:
-                logger.error('in Andor.writeResults:\n{}'.format(e))
-                raise PauseError
+            if (self.acquisitionChoices[self.acquisitionMode]!=2 or (self.acquisitionChoices[self.acquisitionMode]==2 and self.experiment.measurement == self.experiment.measurementsPerIteration - 1)):
+                try:
+                    hdf5['Andor_{}'.format(self.CurrentHandle)] = self.data
+                except Exception as e:
+                    logger.error('in Andor.writeResults:\n{}'.format(e))
+                    raise PauseError
 
     def SetSingleScan(self):
         self.SetReadMode(4)
@@ -447,13 +452,15 @@ class AndorCamera(Instrument):
         return first.value, last.value
 
     def GetImages(self):
-        self.setCamera()
-        #print "Waiting for acquisition"
-        self.WaitForAcquisition()
-        #print "calling GetAcquiredData"
-        data = self.GetAcquiredData()
-        #print data.shape
-        return data
+        if (self.acquisitionChoices[self.acquisitionMode]!=2 or (self.acquisitionChoices[self.acquisitionMode]==2 and self.experiment.measurement == self.experiment.measurementsPerIteration - 1)):
+            self.setCamera()
+            #print "Waiting for acquisition"
+            self.WaitForAcquisition()
+            #print "calling GetAcquiredData"
+            data = self.GetAcquiredData()
+            #self.StartAcquisition()
+            return data
+        return 0
 
     def setROIvalues(self):
         if self.ROI is None:
