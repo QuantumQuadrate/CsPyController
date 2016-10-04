@@ -74,6 +74,8 @@ class HSDIO(Instrument):
     times = Member()  # an array of the compiled transition times
     index_durations = Member()  # an array of the compiled transition durations (in terms of indexes)
     time_durations = Member()  # an array of compiled transition durations (in terms of time)
+    repeat_list = Member() # This will store HSDIO repeat [t_start,dt,t_finish, repeats] times so that we can edit transitions before they go to LabVIEW
+
 
     def __init__(self, name, experiment):
         super(HSDIO, self).__init__(name, experiment)
@@ -88,6 +90,7 @@ class HSDIO(Instrument):
                             'channels', 'startTrigger', 'numChannels']
         self.doNotSendToHardware += ['units', 'numChannels']  # script and waveforms are handled specially in HSDIO.toHardware()
         self.transition_list=[]  # an empty list to store
+        self.repeat_list = []
 
     def evaluate(self):
         if self.enable and self.experiment.allow_evaluation:
@@ -96,6 +99,8 @@ class HSDIO(Instrument):
             self.parse_transition_list()
             # reset the transition list so it starts empty for the next usage
             self.transition_list = []
+            #print 'Evaluating {}\n'.format(self.repeat_list)
+
 
     def add_transition(self, time, channel, state):
         """Append a transition to the list of transitions.  The values are not processed until evaluate is called.
@@ -106,6 +111,34 @@ class HSDIO(Instrument):
         :return: Nothing.
         """
         self.transition_list.append((time, channel, state))
+
+    def add_repeat(self, time, function, repeats):
+        """The add_repeat function allows one to take advantage of the HSDIO's builtin "Repeat"
+        functionality.
+
+        MUST USE CAREFULLY SO THAT NO CONFLICTS ARISE WITH NORMAL HSDIO USAGE!!!
+
+        2015/09/07 Joshua Isaacs
+
+        :param time: The start time of the repeat
+        :param function: Some function that takes in a time t and returns t+dt
+        :param repeats: Number of times func should be repeated
+        :return elapsed time for all repetitions:
+        """
+        logger.debug('add_repeat Called')
+        #print '*************DEBUG func={}*************'.format(function)
+        time = function(time)
+        t0 = time
+        #print repeats
+        for i in range(repeats-2):
+            time=function(time)
+            if i == 0: dt = time-t0
+        tf = time
+        time = function(time)
+        #Check t0 times to make sure each repeat in repeat_list is unique
+        if len(self.repeat_list)==0 or sum([self.repeat_list[i][0]==t0 for i in range(len(self.repeat_list))]) == 0:
+            self.repeat_list.append([t0,dt,tf,repeats-2])
+        return time
 
     def parse_transition_list(self):
         if self.transition_list:
@@ -154,12 +187,17 @@ class HSDIO(Instrument):
             self.indices = index_list
             self.states = state_list
             self.index_durations = durations
+
         else:
             self.times = np.zeros(0, dtype=np.float64)
             self.time_durations = np.zeros(0, dtype=np.float64)
             self.indices = np.zeros(0, dtype=np.uint64)
             self.states = np.zeros((0, self.numChannels), dtype=np.bool)
             self.index_durations = np.zeros_like(self.indices)
+        try:
+            print self.times[1],self.times[2]-self.times[1]
+        except Exception as e:
+            print "Exception in HSDIO: {}".format(e)
 
     def toHardware(self):
         """
@@ -169,6 +207,13 @@ class HSDIO(Instrument):
         satisfy hardwareAlignmentQuantum).  The timing is specified by placing 'wait' commands between these 1 sample
         waveforms.
         Only the necessary waveforms are created and passed to the HSDIO hardware.
+        ______________________________________________________________________________________________________________
+
+        2015/09/07 Joshua Isaacs
+
+        Now checks for HSDIO.add_repeat and modifies script to remove explicit repetitions and replaces them with
+        memory friendly HSDIO "Repeat"s
+
         """
 
         if self.enable:
@@ -207,6 +252,74 @@ class HSDIO(Instrument):
             # then upload scriptOut instead of script.toHardware, waveformXML instead of waveforms.toHardware (those toHardware methods will return an empty string and so will not interfere)
             # then process the rest of the properties as usual
 
+            # Check to see if any of the Repeat regions overlap
+            sorted_rpt = np.sort(self.repeat_list, axis=0)
+
+            overlap=[]
+            for i in xrange(len(self.repeat_list)-1):
+                if sorted_rpt[i][2] > sorted_rpt[i+1][0]:
+                    overlap.append(i)
+                    print 'HSDIO Repeat Overlap at ts={}'.format(sorted_rpt[i+1][0])
+            #print overlap
+            if len(overlap)>0:
+                try:
+                    self.repeat_list=[]
+                    raise Exception
+                except Exception as e:
+                    logger.error('HSDIO Repeat Overlap Error: make sure HSDIO Repeat calls do not overlap')
+                    raise PauseError
+            if len(self.repeat_list)>0:
+                ctr = 0
+                for i in xrange(len(self.repeat_list)):
+                    #print 'Requested repeats: {}'.format(self.repeat_list[i][-1])
+                    if self.repeat_list[i][-1] > 2:
+
+                        #print 'Repeat #{}'.format(ctr)
+
+                        tunits=self.clockRate.value*self.units.value
+
+                        #print 'ClockRate={}, Units={}'.format(self.clockRate.value,self.units.value)
+                        #print self.repeat_list[0][0]
+                        #print self.repeat_list[0][0]*self.clockRate.value
+                        t0,dt,tf = [np.uint64(np.ceil(j*self.clockRate.value)*tunits/self.clockRate.value) for j in self.repeat_list[i][:-1]]
+                        repeats = self.repeat_list[i][-1]
+                        if ctr == 0:
+                            print self.indices
+                            script_list = script.split('\n')
+
+                        #print ctr
+                        #print script_list
+                        #print self.repeat_list
+                        #print self.times
+                        #print self.indices
+                        #print t0,dt,tf,repeats
+
+                        # Ignore first line of script_list. For each single sample waveform there
+                        # is a waveform and a wait line so double the # of indices. Preserve indices correlation with script
+                        # so that iterating over repeats doesn't break. np.NaN out any lines that aren't used so we can dump
+                        # them at the end!
+                        idx_start = 2*np.where(self.indices == t0)[0][0] + 1 + 2*ctr
+                        #print idx_start
+                        idx_func  = 2*np.where(self.indices == dt+t0)[0][0] + 1 + 2*ctr
+                        #print idx_func
+                        idx_end = 2*np.where(self.indices == tf)[0][0] + 1 + 2*ctr
+                        #print idx_end
+
+                        #print idx_start, idx_end, idx_func
+                        #start by np.NaNing out repititions
+
+                        for idx in range(idx_func,idx_end): script_list[idx] = np.NaN
+
+
+                        script_list.insert(idx_start, 'Repeat {}'.format(int(repeats)))
+                        script_list.insert(idx_func+1, 'end Repeat')
+                        ctr += 1
+                        #print script_list
+                cleaned_list = [j for j in script_list if str(j) != 'nan']
+                #np.savetxt('script_clean.txt',cleaned_list)
+                script = '\n'.join(cleaned_list)
+            #print script
+            self.repeat_list = []
             return '<HSDIO><script>{}</script>\n<waveforms>{}</waveforms>\n'.format(script, waveformXML)+super(HSDIO, self).toHardware()[7:]  # [7:] removes the <HSDIO> on what is returned from super.toHardware
         else:
             # let Instrument.toHardware send <name><enable>False</enable><name>

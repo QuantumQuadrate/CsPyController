@@ -42,7 +42,7 @@ class FunctionalWaveforms(Instrument):
     def evaluate(self):
         if self.enable and self.experiment.allow_evaluation:
             logger.debug('FunctionalWaveforms.evaluate()')
-
+            self.experiment.LabView.HSDIO.repeat_list = [] # Prevents buildup
             #localvars = self.experiment.vars.copy()
             cs_evaluate.execWithGlobalDict(self.text) #, localvars)
 
@@ -78,6 +78,8 @@ class FunctionalWaveformGraph(AnalysisWithFigure):
                             'draw_AO_ticks', 'draw_DO_ticks', 'draw_label_ticks']
         self.labels = []
         self.spans = []
+        self.experiment.LabView.HSDIO.repeat_list = []
+
 
     def label(self, time, text):
         self.labels += [(time, text)]
@@ -87,7 +89,6 @@ class FunctionalWaveformGraph(AnalysisWithFigure):
 
     def evaluate(self):
         if self.enable and self.experiment.allow_evaluation:
-
             # save the labels for plotting
             self.saved_labels = self.labels
             self.saved_spans = self.spans
@@ -97,6 +98,7 @@ class FunctionalWaveformGraph(AnalysisWithFigure):
             self.spans = []
 
             self.updateFigure()
+
 
     @observe('plotmin_str', 'plotmax_str', 'units', 'HSDIO_channels_to_plot', 'AO_channels_to_plot',
              'DAQmxDO_channels_to_plot', 'AO_scale', 'draw_HSDIO_ticks', 'draw_AO_ticks', 'draw_DO_ticks',

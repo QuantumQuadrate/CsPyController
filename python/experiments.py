@@ -11,7 +11,7 @@ logger = logging.getLogger(__name__)
 from cs_errors import PauseError
 
 # import core python modules
-import threading, time, datetime, traceback, os, shutil, cStringIO, numpy, h5py
+import threading, time, datetime, traceback, os, shutil, cStringIO, numpy, h5py, zipfile, cStringIO
 
 #set numpy print options to limit to 2 digits
 numpy.set_printoptions(formatter=dict(float=lambda t: "%.2e" % t))
@@ -428,11 +428,7 @@ class Experiment(Prop):
             logger.debug('Experiment.evaluate() ...')
 
             # start with the constants
-            # modified so that if constants contain arrays, they will be re-evaluated every iteration
-            # otherwise, because self.constants() is a dict() namespace that actually only contains pointers to the\
-            # arrays, and not the value of the arrays themselves, the arrays do not reset every iteration.
-            self.evaluate_constants()  # added
-            #self.vars = self.constants.copy()  # removed
+            self.vars = self.constants.copy()
 
             # add the independent variables current values to the dict
             self.updateIndependentVariables()
@@ -676,6 +672,15 @@ class Experiment(Prop):
             logger.debug('Settings file {} does not exist'.format(path))
             raise PauseError
 
+        #check if the requested file is a zip file, and if so, convert it to a form h5py can read
+        if zipfile.is_zipfile(path):
+            zf = zipfile.ZipFile(path)
+            filecontents = zf.read(os.path.basename(os.path.splitext(path)[0]))
+            tempfile = open("unzipped.hdf5","wb")
+            tempfile.write(filecontents)
+            tempfile.close()
+            path = "unzipped.hdf5"
+
         try:
             f = h5py.File(path, 'r')
         except Exception as e:
@@ -743,8 +748,7 @@ class Experiment(Prop):
 
         # give each instrument a chance to acquire final data
         for i in self.instruments:
-            if i.enable:
-                i.acquire_data()
+            i.acquire_data()
 
         # record results to hdf5
         self.measurementResults = self.hdf5.create_group('iterations/'+str(self.iteration)+'/measurements/'+str(self.measurement))

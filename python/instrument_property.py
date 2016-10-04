@@ -741,7 +741,7 @@ class Numpy1DProp(Prop):
 
     def toHDF5(self, hdf, name=None):
         try:
-            hdf.create_dataset(self.name, data=self.array, dtype=self.hdf_dtype)
+            hdf.create_dataset(self.name, data=self.array, dtype=self.hdf_dtype)#, compression="gzip", chunks=True)
         except Exception as e:
             logger.warning('While trying to create dataset in Numpy1DProp.toHDF5() in '+self.name+'.\n'+str(e)+'\n'+str(traceback.format_exc())+'\n')
             raise PauseError
@@ -789,7 +789,7 @@ class Numpy2DProp(Prop):
     
     def toHDF5(self, hdf, name=None):
         try:
-            hdf.create_dataset(self.name, data=self.array, dtype=self.hdf_dtype)
+            hdf.create_dataset(self.name, data=self.array, dtype=self.hdf_dtype)#, compression="gzip", chunks=True)
         except Exception as e:
             logger.warning('While trying to create dataset in Numpy2DProp.toHDF5() in '+self.name+'.\n'+str(e)+'\n'+str(traceback.format_exc())+'\n')
             raise PauseError

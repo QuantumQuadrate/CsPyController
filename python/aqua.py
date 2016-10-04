@@ -8,7 +8,7 @@ import traceback
 from atom.api import Member
 
 # Bring in other files in this package
-import functional_waveforms, analysis, save2013style, TTL, LabView, DDS, roi_fitting, picomotors, andor, picam, DCNoiseEater, Laird_temperature, AnalogInput, instek_pst, vaunix
+import functional_waveforms, analysis, save2013style, TTL, LabView, DDS, roi_fitting, picomotors, andor, picam, DCNoiseEater, Laird_temperature, AnalogInput, Counter, conex, aerotech
 from experiments import Experiment
 
 
@@ -16,8 +16,8 @@ class AQuA(Experiment):
     """A subclass of Experiment which knows about all our particular hardware"""
 
     picomotors = Member()
-    instekpsts = Member()
-    vaunixs = Member()
+    aerotechs = Member()
+    conexes = Member()
     Andors = Member()
     PICam = Member()
     LabView = Member()
@@ -50,6 +50,8 @@ class AQuA(Experiment):
     DC_noise_eater_filter = Member()
     Ramsey = Member()
     retention_analysis = Member()
+    counter_graph = Member()
+    counter_hist = Member()
     save_notes = Member()
     save2013Analysis = Member()
     ROI_rows = 7
@@ -60,9 +62,9 @@ class AQuA(Experiment):
 
         # instruments
         self.functional_waveforms = functional_waveforms.FunctionalWaveforms('functional_waveforms', self, 'Waveforms for HSDIO, DAQmx DIO, and DAQmx AO; defined as functions')
+        self.aerotechs = aerotech.Aerotechs('aerotechs', self, 'Aerotech Ensemble')
+        self.conexes = conex.Conexes('conexes', self, 'CONEX-CC')
         self.picomotors = picomotors.Picomotors('picomotors', self, 'Newport Picomotors')
-        self.instekpsts = instek_pst.InstekPSTs('instekpsts', self, 'Instek PST power supply')
-        self.vaunixs = vaunix.Vaunixs('vaunixs', self, 'Vaunix Signal Generator')
         self.Andors = andor.Andors('Andors', self, 'Andor Luca Cameras')
         self.PICam = picam.PICam('PICam', self, 'Princeton Instruments Camera')
         self.LabView = LabView.LabView(self)
@@ -97,6 +99,8 @@ class AQuA(Experiment):
         self.DC_noise_eater_filter = DCNoiseEater.DCNoiseEaterFilter('DC_noise_eater_filter', self, 'DC Noise Eater Filter')
         self.Ramsey = analysis.Ramsey('Ramsey', self, 'Fit a cosine to retention results')
         self.retention_analysis = analysis.RetentionAnalysis('retention_analysis', self, 'calculate the loading and retention')
+        self.counter_graph = Counter.CounterAnalysis('counter_graph', self, 'Graphs the counter data after each measurement.')
+        self.counter_hist = Counter.CounterHistogramAnalysis('counter_hist', self, 'Fits histograms of counter data and plots hist and fits.')
         self.save_notes = save2013style.SaveNotes('save_notes', self, 'save a separate notes.txt')
         self.save2013Analysis = save2013style.Save2013Analysis(self)
         # do not include functional_waveforms_graph in self.analyses because it need not update on iterations, etc.
@@ -104,17 +108,17 @@ class AQuA(Experiment):
                           self.loading_filters, self.first_measurements_filter, self.text_analysis,
                           self.imageSumAnalysis, self.recent_shot_analysis, self.shotBrowserAnalysis,
                           self.histogramAnalysis, self.histogram_grid, self.measurements_graph, self.iterations_graph,
-                          self.Andors, self.picam_viewer, self.DC_noise_eater_graph, self.DC_noise_eater_filter,
-                          self.Ramsey, self.retention_analysis, self.retention_graph, self.save_notes,
-                          self.save2013Analysis, self.instekpsts, self.vaunixs]
+                          self.picam_viewer, self.DC_noise_eater_graph, self.DC_noise_eater_filter, self.Andors,
+                          self.Ramsey, self.retention_analysis, self.retention_graph, self.counter_graph,
+                          self.save_notes, self.save2013Analysis, self.aerotechs, self.conexes,self.counter_hist]
         
-        self.properties += ['functional_waveforms', 'LabView', 'functional_waveforms_graph', 'DDS', 'picomotors',
-                            'Andors', 'PICam', 'DC_noise_eaters', 'box_temperature', 'squareROIAnalysis', 'gaussian_roi','instekpsts', 'vaunixs',
+        self.properties += ['functional_waveforms', 'LabView', 'functional_waveforms_graph', 'DDS', 'aerotechs', 'picomotors', 'conexes',
+                            'Andors', 'PICam', 'DC_noise_eaters', 'box_temperature', 'squareROIAnalysis', 'gaussian_roi',
                             'TTL_filters', 'AI_graph', 'AI_filter', 'loading_filters', 'first_measurements_filter',
                             'imageSumAnalysis', 'recent_shot_analysis', 'shotBrowserAnalysis', 'histogramAnalysis',
                             'histogram_grid', 'retention_analysis', 'measurements_graph', 'iterations_graph',
                             'retention_graph', 'picam_viewer', 'DC_noise_eater_filter',
-                            'DC_noise_eater_graph', 'Ramsey']
+                            'DC_noise_eater_graph', 'Ramsey', 'counter_graph', 'counter_hist']
 
         try:
             self.allow_evaluation = False

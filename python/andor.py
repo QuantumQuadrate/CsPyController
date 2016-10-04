@@ -91,6 +91,19 @@ class AndorCamera(Instrument):
     analysis = Member()  # holds a link to the GUI display
     dll = Member()
 
+    roilowh = Int(0)
+    roihighh = Int(512)
+    roilowv = Int(-512)
+    roihighv = Int(0)
+    roimaxh = Int(512)
+    roimaxv = Int(-512)
+    ROI = Member()
+    enableROI = False
+
+    autoscale = Bool(True)
+    minPlot = Member()
+    maxPlot = Member()
+
     triggerChoices = (6,7,1,0)     #6: edge trigger, 7: level trigger, 1: external, 0: internal
     acquisitionChoices = (1,2,3,4,5)
     binChoices = (1,2,4)
@@ -102,8 +115,11 @@ class AndorCamera(Instrument):
         self.exposureTime = FloatProp('exposureTime', experiment, 'exposure time for edge trigger', '0')
         self.shotsPerMeasurement = IntProp('shotsPerMeasurement', experiment, 'number of expected shots', '0')
         self.currentCamera = IntProp('currentCamera', experiment, 'Current Camera', '0')
-        self.properties += ['EMCCDGain', 'preAmpGain', 'exposureTime', 'triggerMode', 'shotsPerMeasurement',
-                            'currentCamera', 'acquisitionMode', 'binMode', 'AdvancedEMGain', 'EMGainMode', 'numPixX', 'numPixY']
+        self.minPlot = IntProp('minPlot', experiment, 'Minimum Plot Scale Value', '0')
+        self.maxPlot = IntProp('maxPlot', experiment, 'Maximum Plot Scale Value', '32768')
+        self.properties += ['EMCCDGain', 'preAmpGain', 'exposureTime', 'triggerMode', 'shotsPerMeasurement', 'minPlot', 'maxPlot',
+                            'currentCamera', 'acquisitionMode', 'binMode', 'AdvancedEMGain', 'EMGainMode', 'numPixX', 'numPixY',
+                            'ROI', 'roilowv', 'roilowh', 'roihighv', 'roihighh']
 
     def __del__(self):
         if self.isInitialized:
@@ -127,14 +143,13 @@ class AndorCamera(Instrument):
         #    self.AbortAcquisition()
         #self.DumpImages()
         #declare that we are done now
-        if (self.acquisitionChoices[self.acquisitionMode]!=2 or (self.acquisitionChoices[self.acquisitionMode]==2 and self.experiment.measurement == 0)):
-            self.setCamera()
-            self.GetTemperature()
-            if self.GetStatus() == 'DRV_ACQUIRING':
-                    self.GetAcquiredData(True)
-                    self.AbortAcquisition()
-            self.StartAcquisition()
-            self.isDone = True
+        self.setCamera()
+        self.GetTemperature()
+        if self.GetStatus() == 'DRV_ACQUIRING':
+                self.GetAcquiredData(True)
+                self.AbortAcquisition()
+        self.StartAcquisition()
+        self.isDone = True
 
     def update(self):
         if self.enable:
@@ -177,8 +192,6 @@ class AndorCamera(Instrument):
             if (self.acquisitionChoices[self.acquisitionMode]!=1 and self.acquisitionChoices[self.acquisitionMode]!=4):
                 self.SetFrameTransferMode(0)
                 #print "done SetFrameTransferMode"
-            if (self.acquisitionChoices[self.acquisitionMode]==2):
-                self.SetNumberAccumulations(self.experiment.measurementsPerIteration)
             self.SetKineticCycleTime(0)  # no delay
             self.SetEMGainMode(self.EMGainMode)
             self.SetEMAdvanced(self.AdvancedEMGain)
@@ -190,7 +203,6 @@ class AndorCamera(Instrument):
             gain_range = self.GetEMGainRange()
             #print "EMGainRange: {}".format(gain_range)
             exposure,accumulate , kinetic = self.GetAcquisitionTimings()
-            print "Values returned by GetAcquisitionTimings: exposure: {}, accumulate:{}, kinetic: {}".format(exposure,accumulate,kinetic)
         #else:
         #    print "Andor camera {} is not enabled".format(self.CurrentHandle)
 
@@ -224,13 +236,33 @@ class AndorCamera(Instrument):
         self.SetTriggerMode(0)
         self.SetReadMode(4)  # image mode
         #print "bin size: {}".format(self.binChoices[self.binMode])
-        self.SetImage(
-            self.binChoices[self.binMode],
-            self.binChoices[self.binMode],
-            1,
-            (self.width / self.binChoices[self.binMode]) * self.binChoices[self.binMode],
-            1,
-            (self.height / self.binChoices[self.binMode]) * self.binChoices[self.binMode])  # full sensor, no binning
+
+
+        if self.enableROI:
+            self.setROIvalues()
+            p6 = self.ROI[4]
+            print "p6 = {}".format(p6)
+            self.SetImage(
+                self.binChoices[self.binMode],
+                self.binChoices[self.binMode],
+                max(self.ROI[0],1),
+                self.ROI[1],
+                max(self.ROI[3],1),
+                p6)  # full sensor, no binning
+        else:
+            if self.binChoices[self.binMode] > 1:
+                wid=(self.width / self.binChoices[self.binMode]) * self.binChoices[self.binMode]
+                high=(self.height / self.binChoices[self.binMode]) * self.binChoices[self.binMode]
+            else:
+                wid=self.width
+                high = self.height
+            self.SetImage(
+                self.binChoices[self.binMode],
+                self.binChoices[self.binMode],
+                1,
+                wid,
+                1,
+                high)  # full sensor, no binning
         self.SetAcquisitionMode(5)  # run till abort
         self.SetKineticCycleTime(0)  # no delay
 
@@ -269,22 +301,19 @@ class AndorCamera(Instrument):
         """Overwritten from Instrument, this function is called by the experiment after
                 each measurement run to make sure all pictures have been acquired."""
         if self.enable:
-            if (self.acquisitionChoices[self.acquisitionMode]!=2 or (self.acquisitionChoices[self.acquisitionMode]==2 and self.experiment.measurement == self.experiment.measurementsPerIteration - 1)):
-                logger.warning("Acquiring from Andor")
-                self.setCamera()
-                self.data = self.GetImages()
+            self.setCamera()
+            self.data = self.GetImages()
 
     def writeResults(self, hdf5):
         """Overwritten from Instrument.  This function is called by the experiment after
         data acquisition to write the obtained images to hdf5 file."""
         logger.debug("Writing results from Andor to Andor_{}".format(self.CurrentHandle))
         if self.enable:
-            if (self.acquisitionChoices[self.acquisitionMode]!=2 or (self.acquisitionChoices[self.acquisitionMode]==2 and self.experiment.measurement == self.experiment.measurementsPerIteration - 1)):
-                try:
-                    hdf5['Andor_{}'.format(self.CurrentHandle)] = self.data
-                except Exception as e:
-                    logger.error('in Andor.writeResults:\n{}'.format(e))
-                    raise PauseError
+            try:
+                hdf5['Andor_{}'.format(self.CurrentHandle)] = self.data
+            except Exception as e:
+                logger.error('in Andor.writeResults:\n{}'.format(e))
+                raise PauseError
 
     def SetSingleScan(self):
         self.SetReadMode(4)
@@ -418,16 +447,33 @@ class AndorCamera(Instrument):
         return first.value, last.value
 
     def GetImages(self):
-        if (self.acquisitionChoices[self.acquisitionMode]!=2 or (self.acquisitionChoices[self.acquisitionMode]==2 and self.experiment.measurement == self.experiment.measurementsPerIteration - 1)):
-            self.setCamera()
-            #print "Waiting for acquisition"
-            self.WaitForAcquisition()
-            #print "calling GetAcquiredData"
-            data = self.GetAcquiredData()
-            #self.StartAcquisition()
-            return data
-        return 0
+        self.setCamera()
+        #print "Waiting for acquisition"
+        self.WaitForAcquisition()
+        #print "calling GetAcquiredData"
+        data = self.GetAcquiredData()
+        #print data.shape
+        return data
 
+    def setROIvalues(self):
+        if self.ROI is None:
+            self.setCamera()
+            self.GetDetector()
+
+        self.ROI[2] = 1   #x-binning
+
+        self.ROI[0] = min(self.roihighh,self.roilowh)   #x
+        self.ROI[1] = max(self.roihighh,self.roilowh)   #width
+        self.ROI[3] = min(-1*self.roihighv,-1*self.roilowv)   #x
+        self.ROI[4] = max(-1*self.roihighv,-1*self.roilowv)   #width
+
+        self.ROI[5] = 1   #y-binning
+
+        self.width = self.ROI[1] - self.ROI[0]
+        self.height = self.ROI[4] - self.ROI[3]
+        self.dim = self.width*self.height
+        #print "self.width: {} self.height: {}".format(self.width,self.height)
+        #print "ROI: {}".format(self.ROI)
 
     def DumpImages(self):
         self.setCamera()
@@ -454,9 +500,16 @@ class AndorCamera(Instrument):
             logger.error('Error getting Andor camera sensor size:\n{}'.format(ERROR_CODE[error]))
             raise PauseError
 
+
         self.width = width.value
         self.height = height.value  # -2 because height gets reported as 1004 instead of 1002 for Luca
         self.dim = self.width * self.height
+
+        self.roimaxv = -self.height
+        self.roimaxh = self.width
+        #self.width = self.width - 1
+        #self.height = self.height - 1   # -2 because height gets reported as 1004 instead of 1002 for Luca
+        self.ROI = [0, self.width, 1, 0, self.height, 1 ]
         #print 'Andor: width {}, height {}'.format(self.width, self.height)
         return self.width, self.height
 
@@ -556,11 +609,17 @@ class AndorCamera(Instrument):
         automatically updated whenever new data is available.  All that needs to be done is for the
         plot to be redrawn whenever a new image is captured."""
 
-        c_image_array_type = c_int * self.dim
-        self.c_image_array = c_image_array_type()
+        try:
+            c_image_array_type = c_int * self.dim
+            self.c_image_array = c_image_array_type()
 
-        data = numpy.ctypeslib.as_array(self.c_image_array)
-        data = numpy.reshape(data, (self.height, self.width))
+            data = numpy.ctypeslib.as_array(self.c_image_array)
+            data = numpy.reshape(data, (self.height, self.width))
+        except Exception as e:
+            logger.error("Exception in CreateAcquisitionBuffer: {}".format(e))
+            logger.error("dim={} height={} width={}".format(self.dim,self.height,self.width))
+            logger.error("data shape: {}".format(data.shape))
+            raise PauseError
         self.data = data
         return data
 
@@ -869,13 +928,15 @@ class AndorViewer(AnalysisWithFigure):
     update_lock = Bool(False)
     artist = Member()
     mycam=Member()
+    ax = Member()
+    bgsub = Bool(False)
 
     maxPixel = Int(0)
     meanPixel = Int(0)
 
     def __init__(self, name, experiment, description,camera):
         super(AndorViewer, self).__init__(name, experiment, description)
-        self.properties += ['shot']
+        self.properties += ['shot', 'bgsub']
         self.mycam=camera
 
     def analyzeMeasurement(self, measurementResults, iterationResults, experimentResults):
@@ -894,13 +955,34 @@ class AndorViewer(AnalysisWithFigure):
         if not self.update_lock and (self.mycam.mode != 'video'):
             try:
                 self.update_lock = True
+                try:
+                    xlimit = numpy.array(self.ax.get_xlim(), dtype = int)
+                    ylimit = numpy.array(self.ax.get_ylim(), dtype = int)
+                    limits = True
+                except:
+                    limits = False
                 fig = self.backFigure
                 fig.clf()
 
                 if (self.data is not None) and (self.shot < len(self.data)):
                     ax = fig.add_subplot(111)
-                    ax.matshow(self.data[self.shot], cmap=my_cmap)
-                    ax.set_title('most recent shot '+str(self.shot))
+                    self.ax = ax
+                    if self.bgsub and len(self.data)>1:
+                        mydat = - self.data[1] + self.data[0]
+                    else:
+                        mydat = self.data[self.shot]
+                    if (not self.mycam.autoscale):
+                        ax.matshow(mydat, cmap=my_cmap, vmin=self.mycam.minPlot.value, vmax=self.mycam.maxPlot.value)
+                    else:
+                        ax.matshow(mydat, cmap=my_cmap)
+                    if self.bgsub and len(self.data)>1:
+                        ax.set_title('Background-subtracted shot')
+                    else:
+                        ax.set_title('most recent shot '+str(self.shot))
+
+                    if limits:
+                        ax.set_xlim(xlimit[0],xlimit[1])
+                        ax.set_ylim(ylimit[0],ylimit[1])
 
                     self.maxPixel = numpy.max(self.data[self.shot])
                     self.meanPixel = int(numpy.mean(self.data[self.shot]))
@@ -918,12 +1000,15 @@ class AndorViewer(AnalysisWithFigure):
         fig.clf()
         ax = fig.add_subplot(111)
 
-        self.artist = ax.imshow(data)
+        self.artist = ax.imshow(data, vmin=self.mycam.minPlot.value, vmax=self.mycam.maxPlot.value)
         super(AndorViewer, self).updateFigure()
 
     def redraw_video(self):
         """First update self.data using Andor methods, then redraw screen using this."""
-        self.artist.autoscale()
+        if (self.mycam.autoscale):
+            self.artist.autoscale()
+        else:
+            self.artist.set_data(self.data)
         deferred_call(self.figure.canvas.draw)
         self.maxPixel = numpy.max(self.data[self.shot])              #What does "shot" mean in video mode?
         self.meanPixel = int(numpy.mean(self.data[self.shot]))
@@ -967,7 +1052,7 @@ class Andors(Instrument,Analysis):
 
     def initialize(self, cameras=False):
         msg=''
-        self.dll = CDLL(os.path.join("D:\git\CsPyController\python\Andor", "atmcd64d.dll"))
+        self.dll = CDLL(os.path.join("D:\Git Repositories\CsPyController\python\Andor", "atmcd64d.dll"))
         self.enable = True
         self.isInitialized = True
         if (cameras):
@@ -985,6 +1070,8 @@ class Andors(Instrument,Analysis):
             raise PauseError
 
         self.isDone = True
+
+
 
 
     def update(self):

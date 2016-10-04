@@ -154,13 +154,12 @@ class Analysis(Prop):
     
     def analyzeExperiment(self, experimentResults):
         """This is called at the end of the experiment.
-        The parameter experimentResults is a reference to the HDF5 node for the experiment.
+        The parameter experimentResults is a reference to the HDF5 file for the experiment.
         Subclass this to update the analysis appropriately."""
         pass
 
     def finalize(self, hdf5):
-        """To be run after all optimization loops are complete, so as to close files and such.
-        The parameter hdf5 is a reference to the entire hdf5 file."""
+        """To be run after all optimization loops are complete, so as to close files and such."""
         pass
 
 
@@ -479,6 +478,7 @@ class ImageSumAnalysis(AnalysisWithFigure):
                     self.min_minus_bg = numpy.amin(self.mean_array[self.shot]-self.background_array)
                 except:
                     logger.warning('Could not subtract background array to create min in ImageSumAnalysis.analyzeMeasurement')
+                    logger.warning('array shapes: mean_array: {} background_array: {}'.format(self.mean_array[self.shot].shape, self.background_array.shape))
             else:
                 try:
                     self.min = float(self.min_str)
@@ -1011,14 +1011,9 @@ class HistogramGrid(AnalysisWithFigure):
         return self.gaussian1D(x, x0, a0, w0) + self.gaussian1D(x, x1, a1, w1)
 
     def calculate_histogram(self, ROI_sums, bins, cutoff=None):
+        """Takes in ROI_sums which is size (measurements) and contains the data to be histogrammed.
         """
-        Takes a single histogram.
 
-        :param ROI_sums: the data to be histogrammed.  Length = number of measurements
-        :param bins: the number of histogram bins to make
-        :param cutoff: The cutoff to use.  If None, a new cutoff will be calculated.
-        :return: a tuple of histogram results
-        """
         # first numerically take histograms
         hist, bin_edges = numpy.histogram(ROI_sums, bins=bins)
         bin_size = (bin_edges[1:]-bin_edges[:-1])
@@ -1112,7 +1107,7 @@ class HistogramGrid(AnalysisWithFigure):
 
         # calculate the loading based on the cuts (updated if specified) and the actual atom data
 
-        total = len(ROI_sums)
+        total = len(ROI_sums.shape)
         # make a boolean array of loading
         atoms = ROI_sums >= cutoff
         # find the loading for each roi
@@ -1149,13 +1144,13 @@ class HistogramGrid(AnalysisWithFigure):
         #   repeat each x twice, and two different y values
         #   repeat each y twice, at two different x values
         #   extra +1 length of verts array allows for CLOSEPOLY code
-        verts = np.zeros((2*len(x)+1, 2), dtype=float)
+        verts = np.zeros((2*len(x)+1, 2))
         verts[0:-1:2, 0] = x
         verts[1:-1:2, 0] = x
         verts[1:-2:2, 1] = y
         verts[2:-2:2, 1] = y
         # create codes for histogram patch
-        codes = np.ones(2*len(x)+1, dtype=int) * mpl.path.Path.LINETO
+        codes = np.ones(2*len(x)+1, int) * mpl.path.Path.LINETO
         codes[0] = mpl.path.Path.MOVETO
         codes[-1] = mpl.path.Path.CLOSEPOLY
         # create patch and add it to axes
@@ -1167,7 +1162,7 @@ class HistogramGrid(AnalysisWithFigure):
 
         # plot histogram for data below the cutoff
         # It is intentional that len(x1)=len(y1)+1 and len(x2)=len(y2)+1 because y=0 is added at the beginning and
-        # end of the below and above segments when plotted in histogram_patch, so we require 1 more x point than y.
+        # end of the below and above segments when plotted in histogram_patch, and we require 1 more x point than y.
         x = data['bin_edges']
         x1 = x[x < data['cutoff']]  # take only data below the cutoff
         xc = len(x1)
@@ -1287,13 +1282,12 @@ class HistogramGrid(AnalysisWithFigure):
             fontsize=font)
 
         # add note about photoelectron scaling and exposure time
-        figtext = 'cutoffs from {}, target # measurements = {}'.format(
-            self.cutoffs_from_which_experiment, self.experiment.measurementsPerIteration)
         if photoelectronScaling is not None:
-            figtext += ', scaling applied = {} photoelectrons/count'.format(photoelectronScaling)
+            fig.text(.05, .985,'scaling applied = {} photoelectrons/count'.format(photoelectronScaling))
         if exposure_time is not None:
-            figtext += ', exposure_time = {} ms'.format(exposure_time)
-        fig.text(.05, .985, figtext)
+            fig.text(.05, .97,'exposure_time = {} s'.format(exposure_time))
+        fig.text(.05, .955,'cutoffs from {}'.format(self.cutoffs_from_which_experiment))
+        fig.text(.05, .94, 'target # measurements = {}'.format(self.experiment.measurementsPerIteration))
 
 class MeasurementsGraph(AnalysisWithFigure):
     """Plots a region of interest sum after every measurement"""

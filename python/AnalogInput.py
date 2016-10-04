@@ -15,7 +15,6 @@ from __future__ import division
 __author__ = 'Martin Lichtman'
 import logging
 logger = logging.getLogger(__name__)
-from cs_errors import PauseError
 
 import numpy
 import h5py
