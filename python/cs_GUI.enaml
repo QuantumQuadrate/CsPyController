@@ -3110,7 +3110,7 @@ enamldef Optimizer(Window):
                     Label:
                         text='update method'
                     ComboBox:
-                        items = ['Nelder-Mead', 'genetic', 'gradient descent', 'weighted Nelder-Mead']
+                        items = ['Nelder-Mead', 'genetic', 'gradient descent', 'weighted Nelder-Mead', 'smart Nelder-Mead']
                         index := analysis.optimization_method
 
                     # For the gradient method, the initial step size for each variable is used for determining the gradient.
@@ -3148,6 +3148,138 @@ enamldef Optimizer(Window):
                     constraints << [(height==150*(len(experiment.independentVariables)+1))|'strong'] #,(width==1000)|'strong']
                     figure << analysis.figure
 
+                    
+                    
+                    
+                    
+enamldef Vaunix(Container):
+    attr item
+
+    hug_width = 'strong'
+    hug_height = 'strong'
+
+    Container:
+        hug_width = 'strong'
+        hug_height = 'strong'
+        Label:
+            text := 'Model: {}, Serial Number: {}, DLL ID: {}'.format(item.model,item.serial, item.ID)
+        EvalProp: Frequency:
+            prop << item.frequency
+        EvalProp: Power:
+            prop << item.power
+        Form:
+                hug_width = 'strong'
+                hug_height = 'strong'
+                Label:
+                    text = 'RF enabled'
+                CheckBox: RFonoff:
+                    checked := item.rfonoff
+        Form:
+                hug_width = 'strong'
+                hug_height = 'strong'
+                Label:
+                    text = 'Use Internal Reference (External 10 MHz reference if Unchecked)'
+                CheckBox: internalref:
+                    checked := item.internalref
+        Container:
+            Label:
+                text = 'Pulse Modulation Mode'
+            EvalProp: PulseWidth:
+                prop << item.pulsewidth
+            EvalProp: PulseRepRate:
+                prop << item.pulserep
+            Form:
+                hug_width = 'strong'
+                hug_height = 'strong'
+                Label:
+                    text = 'Enable Pulse Mode'
+                CheckBox: PulseEnable:
+                    checked := item.pulseenable
+            Form:
+                hug_width = 'strong'
+                hug_height = 'strong'
+                Label:
+                    text = 'Use external modulation'
+                CheckBox: ExternalMod:
+                    checked := item.useexternalmod
+        Container:
+            Label:
+                text = 'Frequency Sweep'
+            EvalProp: StartFreq:
+                prop << item.startfreq
+            EvalProp: EndFreq:
+                prop << item.endfreq
+            EvalProp: SweepTime:
+                prop << item.sweeptime
+            Form:
+                hug_width = 'strong'
+                hug_height = 'strong'
+                Label:
+                    text = 'Enable Repetitive Sweep (Sweep Once if Unchecked)'
+                CheckBox: SweepMode:
+                    checked := item.sweepmode
+            Form:
+                hug_width = 'strong'
+                hug_height = 'strong'
+                Label:
+                    text = 'Sweep Positive (Negative if Unchecked)'
+                CheckBox: SweepDir:
+                    checked := item.sweepdir
+            Form:
+                hug_width = 'strong'
+                hug_height = 'strong'
+                Label:
+                    text = 'Enable Bidirectional Sweep (Unidirectional if Unchecked)'
+                CheckBox: SweepType:
+                    checked := item.sweeptype
+            Form:
+                hug_width = 'strong'
+                hug_height = 'strong'
+                Label:
+                    text = 'ENABLE SWEEP'
+                CheckBox: SweepEnable:
+                    checked := item.sweepenable
+                
+                
+        
+
+enamldef Vaunixs(Window):
+    attr vaunixs
+
+    title = 'Vaunix signal generators'
+    style_class << 'valid' if experiment.valid else 'invalid'
+    Container:
+        padding = 0
+        style_class << 'valid' if experiment.valid else 'invalid'
+        ScrollArea:
+            style_class << 'valid' if experiment.valid else 'invalid'
+            Container:
+                style_class << 'valid' if experiment.valid else 'invalid'
+
+                Container:
+                    hug_width = 'strong'
+                    hug_height = 'strong'
+                    Form:
+                        hug_width = 'strong'
+                        hug_height = 'strong'
+                        Label:
+                            text = 'enable'
+                        CheckBox:
+                            checked := vaunixs.enable
+                        PushButton: Detect:
+                            text = 'Detect Signal Generators'
+                            clicked :: vaunixs.detect_generators()  
+                    IndexedContainer:
+                        iterable << vaunixs.motors
+                        viewType = Vaunix                    
+                    
+                    
+                    
+                    
+                    
+                    
+                    
+                    
 enamldef Aerotechs(Window):
     attr aerotechs
 
@@ -3508,6 +3640,7 @@ window_dictionary = {'':'',
                      'Hamamatsu': 'CameraPage(camera = main.experiment.LabView.camera)',
                      'Andor Cameras': 'Andors(andors = main.experiment.Andors)',
                      'Princeton Instruments Camera': 'PICam(camera = main.experiment.PICam, analysis=main.experiment.picam_viewer)',
+                     'Vaunix Signal Generators': 'Vaunixs(vaunixs = main.experiment.vaunixs)',
                      'Analog Output': 'AnalogOutput(AO = main.experiment.LabView.AnalogOutput)',
                      'Analog Input': 'AnalogInput(AI = main.experiment.LabView.AnalogInput, filters = main.experiment.AI_filter, analysis = main.experiment.AI_graph)',
                      'Arroyo': 'Arroyo(experiment = main.experiment)',

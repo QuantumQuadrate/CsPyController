@@ -2,6 +2,7 @@
 optimization.py
 Part of the CsPyController experiment control software
 author = Martin Lichtman
+housekeeper =  Y.S.@AQuA
 created = 2014.05.22
 modified >= 2014.05.22
 
@@ -35,15 +36,23 @@ from analysis import AnalysisWithFigure
 
 
 class Optimization(AnalysisWithFigure):
-    version = '2014.05.07'
+    """
+    self.xi: initial values of the x-axis, i.e. variables themselves
+    self.yi: initial values of the y-axis, i.e. the cost function values.
+    The basic logic layout of this class: the generator decides which x values to run for the next round (possibly
+    containing more than one iteration).
+    """
+    version = '2015.11.30'
     enable_override = Bool()  # this must be true for optimizer to function, regardless of ivar.optimize settings
     enable = Bool()  # whether or not to activate this optimization
     enable_gui = Bool()  # shows the enable state on the gui checkbox
     axes = Member()
     xi = Member()  # the current settings (len=axes)
     yi = Member()  # the current cost
+    y_stat_sigma = Member()  # the statistical uncertainty of the current cost function
     xlist = Member()  # a history of the settings (shape=(iterations,axes))
     ylist = Member()  # a history of the costs (shape=(iterations))
+    y_stat_sigma_list = Member()  # a history of the statistical uncertainty of the current cost function
     best_xi = Member()
     best_yi = Member()
     best_yi_str = Str()  # for gui display, the best cost
@@ -68,6 +77,13 @@ class Optimization(AnalysisWithFigure):
                             'cost_function', 'optimization_method', 'enable_override']
 
     def setup(self, hdf5):
+        """
+        A note about the two "enable" options: enable and enable_override. If enable_override is True and there is at
+        least one independent variable that the optimizer can work on, the "enable" option is automatically set to be
+        true.
+        :param hdf5:
+        :return:
+        """
         self.optimization_variables = []
         enable = False  # don't enable unless there are some optimization variables
         if self.enable_override:  # to enable you must both enable on the Optimization page and on each ivar
@@ -96,16 +112,18 @@ class Optimization(AnalysisWithFigure):
             hdf5['analysis/optimizer/names'] = [i.name for i in self.optimization_variables]
             hdf5['analysis/optimizer'].create_dataset('values', [0, self.axes], maxshape=[None, self.axes])
             hdf5['analysis/optimizer'].create_dataset('costs', [0], maxshape=[None])
+            hdf5['analysis/optimizer'].create_dataset('statistical_uncertainty', [0], maxshape=[None])
             hdf5['analysis/optimizer/best_values'] = numpy.zeros(self.axes, dtype=float)
             hdf5['analysis/optimizer/best_cost'] = numpy.inf
             hdf5['analysis/optimizer/best_experiment_number'] = 0
 
             #create a new generator to choose optimization points
-            methods = [self.simplex, self.genetic, self.gradient_descent, self.weighted_simplex]
+            methods = [self.simplex, self.genetic, self.gradient_descent, self.weighted_simplex, self.smart_simplex]
             self.generator = methods[self.optimization_method](self.xi)
 
             self.xlist = []
             self.ylist = []
+            self.y_stat_sigma_list = []
             self.best_xi = None
             self.best_yi = numpy.inf
         else:
@@ -124,13 +142,18 @@ class Optimization(AnalysisWithFigure):
             except Exception as e:
                 logger.error('Exception evaluating cost function:\n{}\n{}'.format(e, traceback.format_exc()))
                 self.yi = numpy.inf
+                self.y_stat_sigma = 0
             # if the evaluated value is nan, set it to inf so it will always be the worst point
             if isnan(self.yi):
                 self.yi = numpy.inf
+                self.y_stat_sigma = 0
+            if isnan(self.y_stat_sigma):
+                self.y_stat_sigma = 0
 
             # store this data point
             self.xlist.append(self.xi)
             self.ylist.append(self.yi)
+            self.y_stat_sigma_list.append(self.y_stat_sigma)
             # expand the values array
             a = hdf5['analysis/optimizer/values']
             a.resize(a.len()+1, axis=0)
@@ -139,6 +162,10 @@ class Optimization(AnalysisWithFigure):
             b = hdf5['analysis/optimizer/costs']
             b.resize(b.len()+1, axis=0)
             b[-1] = self.yi
+            # expand the cost statistical uncertainty array
+            bb = hdf5['analysis/optimizer/statistical_uncertainty']
+            bb.resize(bb.len()+1, axis=0)
+            bb[-1] = self.y_stat_sigma
 
             if self.firstrun:
                 self.set_gui({'yi0_str': str(self.yi)})
@@ -146,7 +173,7 @@ class Optimization(AnalysisWithFigure):
 
             # check to see if this is the best point
             if self.yi < self.best_yi:
-                # update instance variables
+                # update instance variables; maybe it will be a good idea to establish a range to extract the best
                 self.best_xi = self.xi
                 self.best_yi = self.yi
                 self.best_experiment_number = experimentResults.attrs['experiment_number']
@@ -207,10 +234,15 @@ class Optimization(AnalysisWithFigure):
         ax.plot(self.ylist)
         ax.set_ylabel('cost')
 
+        # plot cost with statistical error bars
+        ax = fig.add_subplot(self.axes+2, 1, 2)
+        ax.errorbar(range(len(self.ylist)), self.ylist, yerr=self.y_stat_sigma_list, fmt='o')
+        ax.set_ylabel('cost with error bar')
+
         # plot settings
         d = numpy.array(self.xlist).T
         for i in range(self.axes):
-            ax = fig.add_subplot(self.axes+2, 1, i+2)
+            ax = fig.add_subplot(self.axes+2, 1, i+3)
             ax.plot(d[i])
             ax.set_ylabel(self.optimization_variables[i].name)
 
@@ -517,6 +549,117 @@ class Optimization(AnalysisWithFigure):
                     # simplex, bringing each point in halfway towards the best point
                     logger.info('simplex: reducing')
                     d = 0.9
+                    # we don't technically need to re-evaluate x[0] here, as it does not change
+                    # however, due to noise in the system it is preferable to re-evaluate x[0] occasionally,
+                    # and now is a good time to do it
+                    for i in xrange(axes):
+                        x[i] = x[0]+d*(x[i]-x[0])
+                        # yield so we can take a datapoint
+                        yield x[i]
+                        y[i] = self.yi
+
+    # Nelder-Mead downhill simplex method, with modifications to better suit AQuA reality
+    def smart_simplex(self, x0):
+        """Perform the smart simplex algorithm: compared to the original downhill simplex method, this method is more
+          robust against the slow/sudden drift experienced a lot in this experimental project.
+        x is 2D array of settings.  y is a 1D array of costs at each of those settings.
+        When comparisons are made, lower is better.
+        A note about yield: always yield one set of x, and then get the corresponding y.
+        """
+
+        # x0 is assigned when this generator is created, but nothing else is done until the first time next() is called
+
+        axes = len(x0)
+        n = axes + 1
+        x = numpy.zeros((n, axes))
+        y = numpy.zeros(n)
+        x[0] = x0
+        y[0] = self.yi
+
+        # for the first several measurements, we just explore the cardinal axes to create the simplex
+        for i in xrange(axes):
+            logger.info('simplex: exploring axis' + str(i))
+            # for the new settings, start with the initial settings and then modify them by unit vectors
+            xi = x0.copy()
+            # add the initial step size as the first offset
+            xi[i] += self.initial_step[i]
+            yield xi
+            x[i+1] = xi
+            y[i+1] = self.yi
+
+        logger.debug('Finished simplex exploration.')
+
+        # loop until the simplex is smaller than the end tolerances on each axis
+        while numpy.any((numpy.amax(x, axis=0)-numpy.amin(x, axis=0)) > self.end_tolerances):
+
+            logger.debug('Starting new round of simplex algorithm.')
+
+            # order the values; what really matters is the mapping relation between x&y; actual indexing order does
+            # not matter.
+            order = numpy.argsort(y)
+            x[:] = x[order]
+            y[:] = y[order]
+
+            # find the mean of all except the worst point; x[:-1] means everything up to the second last term.
+            x0 = numpy.mean(x[:-1], axis=0)
+
+            #reflection
+            logger.info('simplex: reflecting')
+            # reflect the worst point in the mean of the other points, to try and find a better point on the other side
+            a = 1
+            xr = x0+a*(x0-x[-1])
+            # yield so we can take a datapoint
+            yield xr
+            yr = self.yi
+
+            if y[0] <= yr < y[-2]:
+                #if the new point is no longer the worst, but not the best, use it to replace the worst point
+                logger.info('simplex: keeping reflection')
+                x[-1] = xr
+                y[-1] = yr
+
+            #expansion
+            elif yr < y[0]:
+                logger.info('simplex: expanding')
+                # if the new point is the best, keep going in that direction
+                b = 2
+                xe = x0+b*(x0-x[-1])
+                # yield so we can take a datapoint
+                yield xe
+                ye = self.yi
+                if ye < yr:
+                    #if this expanded point is even better than the initial reflection, keep it
+                    logger.info('simplex: keeping expansion')
+                    x[-1] = xe
+                    y[-1] = ye
+                else:
+                    #if the expanded point is not any better than the reflection, use the reflection
+                    logger.info('simplex: keeping reflection (after expansion)')
+                    x[-1] = xr
+                    y[-1] = yr
+
+            #contraction
+            else:
+                logger.info('simplex: contracting')
+                # The reflected point is still worse than all other points, so try not crossing over the mean,
+                # but instead go halfway between the original worst point and the mean.
+                c = -0.5
+                xc = x0+c*(x0-x[-1])
+                # yield so we can take a datapoint
+                yield xc
+                yc = self.yi
+                if yc < y[-1]:
+                    #if the contracted point is better than the original worst point, keep it
+                    logger.info('simplex: keeping contraction')
+                    x[-1] = xc
+                    y[-1] = yc
+
+                #reduction
+                else:
+                    # the contracted point is the worst of all points considered.  So reduce the size of the whole
+                    # simplex, bringing each point in halfway towards the best point
+                    logger.info('simplex: reducing')
+                    d = 0.5
                     # we don't technically need to re-evaluate x[0] here, as it does not change
                     # however, due to noise in the system it is preferable to re-evaluate x[0] occasionally,
                     # and now is a good time to do it
