@@ -825,8 +825,13 @@ class Experiment(Prop):
 
     def preExperiment(self):
         #run analyses
-        for i in self.analyses:
-            i.preExperiment(self.hdf5)
+        for count, i in enumerate(self.analyses):
+            try:
+                i.preExperiment(self.hdf5)
+            except Exception as e:
+                logger.error("In evaluation of Analysis {}".format(count))
+                logger.error("Error: {}".format(e))
+                raise PauseError
 
     def preIteration(self):
         #run analyses

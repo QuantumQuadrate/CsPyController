@@ -8,7 +8,7 @@ import traceback
 from atom.api import Member
 
 # Bring in other files in this package
-import functional_waveforms, analysis, save2013style, TTL, LabView, DDS, roi_fitting, picomotors, andor, picam, DCNoiseEater, Laird_temperature, AnalogInput, Counter, conex, aerotech
+import functional_waveforms, analysis, instek_pst, save2013style, TTL, LabView, DDS, roi_fitting, picomotors, andor, picam, vaunix, DCNoiseEater, Laird_temperature, AnalogInput, Counter, conex, aerotech
 from experiments import Experiment
 
 
@@ -67,6 +67,7 @@ class AQuA(Experiment):
         self.aerotechs = aerotech.Aerotechs('aerotechs', self, 'Aerotech Ensemble')
         self.conexes = conex.Conexes('conexes', self, 'CONEX-CC')
         self.picomotors = picomotors.Picomotors('picomotors', self, 'Newport Picomotors')
+        self.instekpsts = instek_pst.InstekPSTs('instekpsts', self, 'Instek PST power supply')
         self.Andors = andor.Andors('Andors', self, 'Andor Luca Cameras')
         self.vaunixs = vaunix.Vaunixs('vaunixs', self, 'Vaunix Signal Generator')
         self.PICam = picam.PICam('PICam', self, 'Princeton Instruments Camera')
