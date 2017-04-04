@@ -1059,7 +1059,7 @@ class Andors(Instrument,Analysis):
 
     def initialize(self, cameras=False):
         msg=''
-        self.dll = CDLL(os.path.join("D:\Git Repositories\CsPyController\python\Andor", "atmcd64d.dll"))
+        self.dll = CDLL(os.path.join(".\Andor", "atmcd64d.dll"))
         self.enable = True
         self.isInitialized = True
         if (cameras):

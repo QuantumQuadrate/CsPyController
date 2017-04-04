@@ -168,7 +168,7 @@ class Vaunixs(Instrument):
 
     #Initialize: loads and initializes DLL
     def initialize(self):
-        CDLL_file = os.path.join(os.path.dirname(__file__),"vaunix/VNX_fmsynth.dll")
+        CDLL_file = "./vaunix/VNX_fmsynth.dll"
         self.va = CDLL(CDLL_file)
         if (self.testMode):
             logger.warning("Warning: Vaunix in test mode. Set testMode=False in vaunix.py to turn off test mode.")
