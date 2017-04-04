@@ -168,13 +168,15 @@ class Vaunixs(Instrument):
 
     #Initialize: loads and initializes DLL
     def initialize(self):
-        CDLL_file = "./vaunix/VNX_fmsynth.dll"
-        self.va = CDLL(CDLL_file)
-        if (self.testMode):
-            logger.warning("Warning: Vaunix in test mode. Set testMode=False in vaunix.py to turn off test mode.")
-        self.va.fnLMS_SetTestMode(self.testMode)   #Test mode... this needs to be set False for actual run. Do not remove this command (default setting is True).
-        self.isInitialized = True
-        num = self.detect_generators()
+        num = 0
+        if self.enable:
+            CDLL_file = "./vaunix/VNX_fmsynth.dll"
+            self.va = CDLL(CDLL_file)
+            if (self.testMode):
+                logger.warning("Warning: Vaunix in test mode. Set testMode=False in vaunix.py to turn off test mode.")
+            self.va.fnLMS_SetTestMode(self.testMode)   #Test mode... this needs to be set False for actual run. Do not remove this command (default setting is True).
+            self.isInitialized = True
+            num = self.detect_generators()
         return num
 		
     def preExperiment(self, hdf5):

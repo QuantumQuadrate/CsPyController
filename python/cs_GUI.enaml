@@ -3799,7 +3799,7 @@ window_dictionary = {'':'',
                      'Functional Waveforms': 'FunctionalWaveforms(waveforms = main.experiment.functional_waveforms)',
                      'Functional Waveforms Graph': 'FunctionalWaveformsGraph(graph = main.experiment.functional_waveforms_graph)',
                      'CounterGraph': 'CounterGraph(analysis = main.experiment.counter_graph)',
-                     'CounterHistAnalysis': 'CounterHistAnalysis(analysis = main.experiment.counter_hist)'
+                     'CounterHistAnalysis': 'CounterHistAnalysis(analysis = main.experiment.counter_hist)',
                      'Unlock Monitor': 'Unlock_Pause(unlock_pause = main.experiment.unlock_pause)'
                      }
 window_keys = window_dictionary.keys()
