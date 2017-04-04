@@ -73,6 +73,7 @@ class AQuA(Experiment):
         self.instruments += [self.box_temperature, self.picomotors, self.Andors, self.PICam, self.DC_noise_eaters,
                              self.LabView, self.DDS, self.unlock_pause]
 
+
         # analyses
         self.functional_waveforms_graph = functional_waveforms.FunctionalWaveformGraph('functional_waveform_graph', self, 'Graph the HSDIO, DAQmx DO, and DAQmx AO settings')
         self.TTL_filters = TTL.TTL_filters('TTL_filters', self)
@@ -115,6 +116,7 @@ class AQuA(Experiment):
                             'histogram_grid', 'retention_analysis', 'measurements_graph', 'iterations_graph',
                             'retention_graph', 'picam_viewer', 'DC_noise_eater_filter',
                             'DC_noise_eater_graph', 'Ramsey', 'unlock_pause']
+
 
         try:
             self.allow_evaluation = False
