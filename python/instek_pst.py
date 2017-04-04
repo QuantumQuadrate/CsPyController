@@ -172,11 +172,12 @@ class InstekPSTs(Instrument):
                 
                 
     def postMeasurement(self, measurementresults, iterationresults, hdf5):
-        for i in self.motors:
-            i.measure_all_channels()
         return
 
     def postIteration(self, iterationresults, hdf5):
+        if self.enable:
+            for i in self.motors:
+                i.measure_all_channels()
         return
 
     def postExperiment(self, hdf5):

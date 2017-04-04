@@ -8,7 +8,7 @@ import traceback
 from atom.api import Member
 
 # Bring in other files in this package
-import functional_waveforms, analysis, instek_pst, save2013style, TTL, LabView, DDS, roi_fitting, picomotors, andor, picam, vaunix, DCNoiseEater, Laird_temperature, AnalogInput, Counter, conex, aerotech
+import functional_waveforms, analysis, instek_pst, save2013style, TTL, LabView, DDS, roi_fitting, picomotors, andor, picam, vaunix, DCNoiseEater, Laird_temperature, AnalogInput, Counter, conex, aerotech, unlock_pause
 from experiments import Experiment
 
 
@@ -26,6 +26,7 @@ class AQuA(Experiment):
     DDS = Member()
     DC_noise_eaters = Member()
     box_temperature = Member()
+    unlock_pause = Member()
 
     functional_waveforms = Member()
     functional_waveforms_graph = Member()
@@ -75,9 +76,11 @@ class AQuA(Experiment):
         self.DDS = DDS.DDS('DDS', self, 'server for homemade DDS boxes')
         self.DC_noise_eaters = DCNoiseEater.DCNoiseEaters('DC_noise_eaters', self)
         self.box_temperature = Laird_temperature.LairdTemperature('box_temperature', self)
+        self.unlock_pause = unlock_pause.UnlockMonitor('unlock_pause', self, 'Monitor for pausing when laser unlocks')
         # do not include functional_waveforms in self.instruments because it need not start/stop
         self.instruments += [self.box_temperature, self.picomotors, self.Andors, self.PICam, self.DC_noise_eaters,
-                             self.LabView, self.DDS]
+                             self.LabView, self.DDS, self.unlock_pause]
+
 
         # analyses
         self.functional_waveforms_graph = functional_waveforms.FunctionalWaveformGraph('functional_waveform_graph', self, 'Graph the HSDIO, DAQmx DO, and DAQmx AO settings')
@@ -115,7 +118,8 @@ class AQuA(Experiment):
                           self.picam_viewer, self.DC_noise_eater_graph, self.DC_noise_eater_filter, self.Andors,
                           self.Ramsey, self.retention_analysis, self.retention_graph, self.counter_graph,
                           self.save_notes, self.save2013Analysis, self.aerotechs, self.conexes,self.counter_hist,
-                          self.instekpsts, self.vaunixs]
+                          self.instekpsts, self.vaunixs, self.unlock_pause]
+
         
         self.properties += ['functional_waveforms', 'LabView', 'functional_waveforms_graph', 'DDS', 'aerotechs', 'picomotors', 'conexes',
                             'Andors', 'PICam', 'DC_noise_eaters', 'box_temperature', 'squareROIAnalysis', 'gaussian_roi', 'instekpsts', 
@@ -123,7 +127,8 @@ class AQuA(Experiment):
                             'imageSumAnalysis', 'recent_shot_analysis', 'shotBrowserAnalysis', 'histogramAnalysis',
                             'histogram_grid', 'retention_analysis', 'measurements_graph', 'iterations_graph',
                             'retention_graph', 'picam_viewer', 'DC_noise_eater_filter',
-                            'DC_noise_eater_graph', 'Ramsey', 'counter_graph', 'counter_hist']
+                            'DC_noise_eater_graph', 'Ramsey', 'counter_graph', 'counter_hist', 'unlock_pause']
+
 
         try:
             self.allow_evaluation = False

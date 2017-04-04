@@ -108,7 +108,12 @@ class AnalogOutput(Instrument):
                 # evaluate the sample index equivalent to the transition time
                 index = np.rint(times[i]*self.clockRate.value*self.units.value).astype(np.uint64)
                 # for all samples >= index set it to the new value
-                value_list[index:, channels[i]] = values[i]
+                try:
+                    value_list[index:, channels[i]] = values[i]
+                except Exception as e:
+                    print "probably invalid slice....... Exception: {}".format(e)
+                    print "index={}".format(index)
+                    raise PauseError
 
             # update the exposed variables
             self.times = time_list

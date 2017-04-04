@@ -3591,6 +3591,45 @@ enamldef Picomotors(Window):
                         iterable << picomotors.motors
                         viewType = Picomotor
 
+enamldef Unlock_Pause(Window):
+    attr unlock_pause
+
+    title = 'Laser Unlock Monitor'
+    style_class << 'valid' if experiment.valid else 'invalid'
+    Container:
+        padding = 0
+        style_class << 'valid' if experiment.valid else 'invalid'
+        Container:
+            style_class << 'valid' if experiment.valid else 'invalid'
+            Container:
+                hug_width = 'strong'
+                hug_height = 'strong'
+                Form:
+                    hug_width = 'strong'
+                    hug_height = 'strong'
+                    Label:
+                        text = 'enable'
+                    CheckBox:
+                        checked := unlock_pause.enable
+
+                    EvalProp:
+                        prop << unlock_pause.IP
+                    EvalProp:
+                        prop << unlock_pause.Port
+                    Label:
+                        text := 'Unlocked brightness = {}'.format(unlock_pause.unlocked_brightness)
+                    PushButton:
+                        text = 'Update unlocked brightness'
+                        clicked :: unlock_pause.get_brightness(0)
+                    Label:
+                        text := 'Locked brightness = {}'.format(unlock_pause.locked_brightness)
+                    PushButton:
+                        text = 'Update locked brightness'
+                        clicked :: unlock_pause.get_brightness(1)
+                    EvalProp:
+                        prop << unlock_pause.Threshold
+
+
 enamldef Filters(Window):
     attr experiment
 
@@ -3761,6 +3800,7 @@ window_dictionary = {'':'',
                      'Functional Waveforms Graph': 'FunctionalWaveformsGraph(graph = main.experiment.functional_waveforms_graph)',
                      'CounterGraph': 'CounterGraph(analysis = main.experiment.counter_graph)',
                      'CounterHistAnalysis': 'CounterHistAnalysis(analysis = main.experiment.counter_hist)'
+                     'Unlock Monitor': 'Unlock_Pause(unlock_pause = main.experiment.unlock_pause)'
                      }
 window_keys = window_dictionary.keys()
 window_keys.sort()
