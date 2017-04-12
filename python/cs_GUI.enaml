@@ -1855,6 +1855,12 @@ enamldef PICam(Window):
                     value :: camera.setSendROIvalues()
                     minimum = 0
                     maximum << camera.roimaxh
+                Label:
+                    text := "Max Pixel Value: {}. Mean Pixel Value: {}".format(analysis.maxPixel,analysis.meanPixel)
+                Label:
+                    text := "ROI Horiz Min: {}. Max: {}".format(camera.roilowh,camera.roihighh)
+                Label:
+                    text := "ROI Vert Min: {}. Max: {}".format(camera.roilowv-camera.roimaxv,camera.roihighv-camera.roimaxv)
                 HGroup:
                     PushButton:
                         text = 'video mode'
@@ -1868,23 +1874,34 @@ enamldef PICam(Window):
                 LabelBox:
                     text = 'enable'
                     checked := camera.enable
+                ComboBox:
+                    items = ['Analog Gain: Low', 'Analog Gain: Medium', 'Analog Gain: High']
+                    index := camera.AdcAnalogGain
                 EvalProp:
                     prop << camera.AdcEMGain
-                #EvalProp:
-                #    prop << camera.preAmpGain
                 EvalProp:
                     prop << camera.exposureTime
                 ComboBox:
-                    items = ['Edge', 'Level']
+                    items = ['Rising Edge', 'Falling Edge', 'Level', 'Auto']
                     index := camera.triggerMode
-                EvalProp:
-                    prop<<camera.shotsPerMeasurement
+                ComboBox:
+                    items = ['Shutter Normal', 'Shutter Always Closed', 'Shutter Always Open', 'Shutter Open Before Trigger']
+                    index := camera.shutterMode
+                #EvalProp:
+                #    prop<<camera.shotsPerMeasurement
+                LabelBox:
+                    text = 'Average measurements for each iteration'
+                    checked := camera.averagemeasurements
+                    checked >> analysis.averagemeasurements
                 Form:
                     Label:
                         text = 'shot'
                     SpinBox: shot:
                         minimum=0
-                        value := analysis.shot                        
+                        value := analysis.shot 
+                LabelBox:
+                    text = 'Use Demo Camera'
+                    checked := camera.useDemo                     
                             
                             
                         
