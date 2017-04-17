@@ -34,7 +34,16 @@ from instrument_property import IntProp, FloatProp, ListProp, StrProp
 from cs_instruments import Instrument
 
 from PiParameterLookup import *
-from PythonForPicam import *
+try:
+    from PythonForPicam import *
+except:
+    logger.warning('''PythonForPicam not installed. Picam will not work. Run the following commands to install it:
+    
+    cd PythonForPicam
+    python setup.py build
+    python setup.py install
+    
+    ''')
 
 # imports for viewer
 from analysis import AnalysisWithFigure, Analysis
