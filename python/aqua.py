@@ -8,7 +8,7 @@ import traceback
 from atom.api import Member
 
 # Bring in other files in this package
-import functional_waveforms, analysis, instek_pst, save2013style, TTL, LabView, DDS, roi_fitting, picomotors, andor, picam, vaunix, DCNoiseEater, Laird_temperature, AnalogInput, Counter, conex, aerotech, unlock_pause
+import functional_waveforms, analysis, instek_pst, save2013style, TTL, LabView, DDS, roi_fitting, picomotors, andor, picampython, vaunix, DCNoiseEater, Laird_temperature, AnalogInput, Counter, conex, aerotech, unlock_pause
 from experiments import Experiment
 
 
@@ -21,7 +21,7 @@ class AQuA(Experiment):
     conexes = Member()
     Andors = Member()
     vaunixs = Member()
-    PICam = Member()
+    PICams = Member()
     LabView = Member()
     DDS = Member()
     DC_noise_eaters = Member()
@@ -71,14 +71,14 @@ class AQuA(Experiment):
         self.instekpsts = instek_pst.InstekPSTs('instekpsts', self, 'Instek PST power supply')
         self.Andors = andor.Andors('Andors', self, 'Andor Luca Cameras')
         self.vaunixs = vaunix.Vaunixs('vaunixs', self, 'Vaunix Signal Generator')
-        self.PICam = picam.PICam('PICam', self, 'Princeton Instruments Camera')
+        self.PICams = picampython.PICams('PICams', self, 'Princeton Instruments Cameras')
         self.LabView = LabView.LabView(self)
         self.DDS = DDS.DDS('DDS', self, 'server for homemade DDS boxes')
         self.DC_noise_eaters = DCNoiseEater.DCNoiseEaters('DC_noise_eaters', self)
         self.box_temperature = Laird_temperature.LairdTemperature('box_temperature', self)
         self.unlock_pause = unlock_pause.UnlockMonitor('unlock_pause', self, 'Monitor for pausing when laser unlocks')
         # do not include functional_waveforms in self.instruments because it need not start/stop
-        self.instruments += [self.box_temperature, self.picomotors, self.Andors, self.PICam, self.DC_noise_eaters,
+        self.instruments += [self.box_temperature, self.picomotors, self.Andors, self.PICams, self.DC_noise_eaters,
                              self.LabView, self.DDS, self.unlock_pause]
 
 
@@ -101,7 +101,7 @@ class AQuA(Experiment):
         self.iterations_graph = analysis.IterationsGraph('iterations_graph', self, 'plot the average of ROI sums vs iterations')
         self.retention_graph = analysis.RetentionGraph('retention_graph', self, 'plot occurence of binary result (i.e. whether or not atoms are there in the 2nd shot)')
         #self.andor_viewer = andor.AndorViewer('andor_viewer', self, 'show the most recent Andor image')
-        self.picam_viewer = picam.PICamViewer('picam_viewer', self, 'show the most recent PICam image')
+        #self.picam_viewer = picam.PICamViewer('picam_viewer', self, 'show the most recent PICam image')
         self.DC_noise_eater_graph = DCNoiseEater.DCNoiseEaterGraph('DC_noise_eater_graph', self, 'DC Noise Eater graph')
         self.DC_noise_eater_filter = DCNoiseEater.DCNoiseEaterFilter('DC_noise_eater_filter', self, 'DC Noise Eater Filter')
         self.Ramsey = analysis.Ramsey('Ramsey', self, 'Fit a cosine to retention results')
@@ -114,19 +114,18 @@ class AQuA(Experiment):
         self.analyses += [self.TTL_filters, self.AI_graph, self.AI_filter, self.squareROIAnalysis, self.gaussian_roi,
                           self.loading_filters, self.first_measurements_filter, self.text_analysis,
                           self.imageSumAnalysis, self.recent_shot_analysis, self.shotBrowserAnalysis,
-                          self.histogramAnalysis, self.histogram_grid, self.measurements_graph, self.iterations_graph,
-                          self.picam_viewer, self.DC_noise_eater_graph, self.DC_noise_eater_filter, self.Andors,
+                          self.histogramAnalysis, self.histogram_grid, self.measurements_graph, self.iterations_graph, self.DC_noise_eater_graph, self.DC_noise_eater_filter, self.Andors, self.PICams,
                           self.Ramsey, self.retention_analysis, self.retention_graph, self.counter_graph,
                           self.save_notes, self.save2013Analysis, self.aerotechs, self.conexes,self.counter_hist,
                           self.instekpsts, self.vaunixs, self.unlock_pause]
 
         
         self.properties += ['functional_waveforms', 'LabView', 'functional_waveforms_graph', 'DDS', 'aerotechs', 'picomotors', 'conexes',
-                            'Andors', 'PICam', 'DC_noise_eaters', 'box_temperature', 'squareROIAnalysis', 'gaussian_roi', 'instekpsts', 
+                            'Andors', 'PICams', 'DC_noise_eaters', 'box_temperature', 'squareROIAnalysis', 'gaussian_roi', 'instekpsts', 
                             'TTL_filters', 'AI_graph', 'AI_filter', 'loading_filters', 'first_measurements_filter', 'vaunixs', 
                             'imageSumAnalysis', 'recent_shot_analysis', 'shotBrowserAnalysis', 'histogramAnalysis',
                             'histogram_grid', 'retention_analysis', 'measurements_graph', 'iterations_graph',
-                            'retention_graph', 'picam_viewer', 'DC_noise_eater_filter',
+                            'retention_graph', 'DC_noise_eater_filter',
                             'DC_noise_eater_graph', 'Ramsey', 'counter_graph', 'counter_hist', 'unlock_pause']
 
 
@@ -146,6 +145,6 @@ class AQuA(Experiment):
         self.allow_evaluation = True
 
     def exiting(self):
-        self.PICam.__del__()
+        self.PICams.__del__()
         self.Andors.__del__()
         return

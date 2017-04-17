@@ -1059,7 +1059,12 @@ class Andors(Instrument,Analysis):
 
     def initialize(self, cameras=False):
         msg=''
-        self.dll = CDLL(os.path.join(".\Andor", "atmcd64d.dll"))
+        try:
+            self.dll = CDLL(r"D:\git\cspycontroller\python\Andor\atmcd64d.dll")
+        except Exception as e:
+            logger.warning('Failed to load DLL for Andor (check path?): {}. Andor disabled.'.format(e))
+            self.enable = False
+            return
         self.enable = True
         self.isInitialized = True
         if (cameras):
