@@ -173,9 +173,7 @@ class PICamCamera(Instrument):
         if self.isAcquisitionRunning():
             logger.warning('Aborting old acquisition')
             self.AbortAcquisition()
-        logger.warning('jbsjbkjds')
         self.StartAcquisition()
-        logger.warning('Acquisition started')
         self.isDone = True
 
     def update(self):
@@ -339,7 +337,6 @@ class PICamCamera(Instrument):
         error = Picam_SetParameterLargeIntegerValue(self.currentHandle, PicamParameter_ReadoutCount, piint(1))
         self.DLLError(sys._getframe().f_code.co_name, error)
 
-        logger.warning('About to commit parameters.')
         self.commitParameters()
         
         if self.enableROI:
@@ -374,17 +371,13 @@ class PICamCamera(Instrument):
             self.height = self.height / self.binChoices[self.binMode]
             self.dim = self.width * self.height
 
-        logger.warning('Getting Readout Stride')
         self.getReadoutStride()
         
-        logger.warning('Creating Acquisition Buffer')
         self.data = self.CreateAcquisitionBuffer()
         
-        logger.warning('Setting up video')
         analysis.setup_video(self.data)
         # run the video loop in a new thread
         
-        logger.warning('Starting video thread')
         self.start_video_thread()
         #thread = threading.Thread(target=self.start_video_thread)
         #thread.daemon = True
@@ -423,7 +416,6 @@ class PICamCamera(Instrument):
     def writeResults(self, hdf5):
         """Overwritten from Instrument.  This function is called by the experiment after
         data acquisition to write the obtained images to hdf5 file."""
-        logger.debug("Writing results from PICam to PICam_{}".format(self.currentHandle))
         if self.enable:
             try:
                 hdf5['PICam_{}'.format(self.currentHandle)] = self.data
@@ -455,8 +447,7 @@ class PICamCamera(Instrument):
         currentHandleListType = ctypes.POINTER(PicamCameraID)  #arbitrarily setting length = 10, since we don't know yet the number of cameras, and nobody would have more than 10 cameras, right?
         self.currentHandleList = currentHandleListType()
         self.num_cameras = piint(0)
-        logger.warning( "Getting Available Camera IDs: {}".format(Picam_GetAvailableCameraIDs(byref(self.currentHandleList),byref(self.num_cameras))))
-        logger.warning("Number of Princeton Instruments cameras detected: {}".format(self.num_cameras.value))
+
         self.printCameraID(self.currentHandleList[0])
         self.cameraIDDict = dict(zip([self.currentHandleList[i].serial_number for i in range(self.num_cameras.value)],range(self.num_cameras.value)))
         
@@ -524,16 +515,12 @@ class PICamCamera(Instrument):
     def GetDetector(self):
         width = piint(0)
         height = piint(0)
-        logger.warning('self.currentHandle: {}'.format(self.currentHandle))
-        logger.warning('Getting detector width')
         error = Picam_GetParameterIntegerValue(self.currentHandle, c_int(PicamParameter_SensorActiveWidth), byref(width))
         self.DLLError(sys._getframe().f_code.co_name, error)
         
-        logger.warning('Width={}. Getting detector height'.format(width.value))
         error = Picam_GetParameterIntegerValue(self.currentHandle, PicamParameter_SensorActiveHeight, byref(height))
         self.DLLError(sys._getframe().f_code.co_name, error)
 
-        logger.warning('Height={}. Setting ROI'.format(height.value))
         self.width = width.value
         self.height = height.value  # -2 because height gets reported as 1004 instead of 1002 for Luca
         self.dim = self.width * self.height
@@ -587,15 +574,11 @@ class PICamCamera(Instrument):
         
         
     def StartAcquisition(self):
-        logger.warning('Getting Readout Stride')
         self.getReadoutStride()
         
-        logger.warning('Committing Parameters')
         self.commitParameters()
         
-        logger.warning('Starting Acquisition')
         error = Picam_StartAcquisition(self.currentHandle) 
-        logger.warning('Started Acquisition')
         self.DLLError(sys._getframe().f_code.co_name, error)
 
     
@@ -610,7 +593,6 @@ class PICamCamera(Instrument):
         while status.running and readoutnum < self.shotsPerMeasurement.value:
             available = PicamAvailableData(0,0)
             error = Picam_WaitForAcquisitionUpdate(self.currentHandle, readout_time_out, byref(available), byref(status))
-            logger.warning('Acquisition status: {}'.format(status.running))
             if status.errors != 0:
                 logger.warning('Acquisition error {}'.format(status.errors))
             self.DLLError(sys._getframe().f_code.co_name, error, dump)
@@ -620,20 +602,11 @@ class PICamCamera(Instrument):
             sz = self.framesize/2
             DataArrayType = pi16u*sz*available.readout_count
             
-            logger.warning('Getting DataPointer. Readout_count={}'.format(available.readout_count))
-            
             DataArrayPointerType = ctypes.POINTER(pi16u*sz)
             DataPointer = ctypes.cast(available.initial_readout,DataArrayPointerType)
             
-            logger.warning('DataPointer={}'.format(DataPointer))
-            
             dat = DataPointer.contents
-            
-            logger.warning('DataPointer.contents = {}'.format(dat))
-            logger.warning('self.dim = {}'.format(self.dim))
-            
-            logger.warning('DataPointer.shape: {}'.format(numpy.array(dat).shape))
-            
+                       
             try:
                 data = numpy.append(data, numpy.reshape(dat, (available.readout_count, self.height, self.width)),axis=0)
             except:
@@ -642,14 +615,11 @@ class PICamCamera(Instrument):
         carp = PicamAvailableData(0,0)
         while status.running:
             error = Picam_WaitForAcquisitionUpdate(self.currentHandle, readout_time_out, byref(carp), byref(status))
-            logger.warning('Acquisition status: {}'.format(status.running))
             if status.errors != 0:
                 logger.warning('Acquisition error {}'.format(status.errors))
         if carp.readout_count > 0:
             logger.warning ('{} Discarded Readout. Triggering issue?'.format(carp.readout_count))
-        
-            
-        logger.warning('data.shape = {}'.format(data.shape))
+
         return data
 
     def CreateAcquisitionBuffer(self):
@@ -681,9 +651,7 @@ class PICamCamera(Instrument):
         The image data is put into self.c_image_array, which must already be allocated (by Create AcquisitionBuffer)."""
         errors = PicamAcquisitionErrorsMask()
         self.available = PicamAvailableData(0,0)
-        logger.warning('About to acquire image')
         error = Picam_Acquire(self.currentHandle, piint(1), piint(10000), byref(self.available), byref(errors))
-        logger.warning('Acquired image')
 
         sz = self.framesize/2
         DataArrayType = pi16u*sz
@@ -835,7 +803,7 @@ class PICams(Instrument,Analysis):
         msg=''
         dllpath = 'C:/Program Files/Common Files/Princeton Instruments/Picam/Runtime/Picam.dll'
         #self.dll = load(dllpath)
-        logger.warning("Initializing Picam library: {}".format(Picam_InitializeLibrary()))
+        logger.debug("Initializing Picam library: {}".format(Picam_InitializeLibrary()))
         self.enable = True
         self.isInitialized = True
         if (cameras):
@@ -894,7 +862,6 @@ class PICams(Instrument,Analysis):
         try:
             for i in self.motors:
                 if i.camera.enable:
-                    logger.debug( "Acquiring data from camera {}".format(i.camera.currentHandle))
                     msg = i.camera.acquire_data()
         except Exception as e:
             logger.error('Problem acquiring Princeton Instruments camera data:\n{}\n{}\n'.format(msg, e))
@@ -922,7 +889,6 @@ class PICams(Instrument,Analysis):
         try:
             for i in self.motors:
                 if i.camera.enable:
-                    logger.debug("Displaying data from camera {}".format(i.camera.currentHandle))
                     msg = i.analysis.analyzeMeasurement(measurementresults,iterationresults,hdf5)
         except Exception as e:
             logger.error('Problem displaying Princeton Instruments camera data:\n{}\n{}\n'.format(msg, e))
