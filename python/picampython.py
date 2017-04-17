@@ -340,6 +340,7 @@ class PICamCamera(Instrument):
         self.DLLError(sys._getframe().f_code.co_name, error)
 
         logger.warning('About to commit parameters.')
+        self.commitParameters()
         
         if self.enableROI:
             self.setROIvalues()
@@ -519,21 +520,6 @@ class PICamCamera(Instrument):
         #print "self.width: {} self.height: {}".format(self.width,self.height)
         #print "ROI: {}".format(self.ROI)
 
-    def DumpImages(self):
-        self.setCamera()
-        #logger.warning("Dumping old images for camera {}".format(self.currentHandle))
-        while True:
-            first, last = self.GetNumberNewImages(dump=True)
-            n = (last-first)
-            #logger.warning("Dumping {} images".format(n))
-            if n==0:
-                break
-            size = self.dim * n
-            c_image_array_type = c_int * size
-            c_image_array = c_image_array_type()
-            validfirst = c_long()
-            validlast = c_long()
-            error = self.dll.GetImages(first, last, byref(c_image_array), size, byref(validfirst), byref(validlast))
 
     def GetDetector(self):
         width = piint(0)
@@ -694,6 +680,7 @@ class PICamCamera(Instrument):
         It must be preceded by a call to CreateAcquisitionBuffer() and StartAcquisition().
         The image data is put into self.c_image_array, which must already be allocated (by Create AcquisitionBuffer)."""
         errors = PicamAcquisitionErrorsMask()
+        self.available = PicamAvailableData(0,0)
         logger.warning('About to acquire image')
         error = Picam_Acquire(self.currentHandle, piint(1), piint(10000), byref(self.available), byref(errors))
         logger.warning('Acquired image')
