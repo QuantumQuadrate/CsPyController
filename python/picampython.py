@@ -598,19 +598,20 @@ class PICamCamera(Instrument):
             self.DLLError(sys._getframe().f_code.co_name, error, dump)
             readoutnum += available.readout_count
             
-            self.getReadoutStride()
-            sz = self.framesize/2
-            DataArrayType = pi16u*sz*available.readout_count
-            
-            DataArrayPointerType = ctypes.POINTER(pi16u*sz)
-            DataPointer = ctypes.cast(available.initial_readout,DataArrayPointerType)
-            
-            dat = DataPointer.contents
-                       
-            try:
-                data = numpy.append(data, numpy.reshape(dat, (available.readout_count, self.height, self.width)),axis=0)
-            except:
-                data = numpy.reshape(dat, (available.readout_count, self.height, self.width))
+            if available.readout_count > 0:
+                self.getReadoutStride()
+                sz = self.framesize/2
+                DataArrayType = pi16u*sz*available.readout_count
+                
+                DataArrayPointerType = ctypes.POINTER(pi16u*sz)
+                DataPointer = ctypes.cast(available.initial_readout,DataArrayPointerType)
+                
+                dat = DataPointer.contents
+                           
+                try:
+                    data = numpy.append(data, numpy.reshape(dat, (available.readout_count, self.height, self.width)),axis=0)
+                except:
+                    data = numpy.reshape(dat, (available.readout_count, self.height, self.width))
         self.AbortAcquisition()
         carp = PicamAvailableData(0,0)
         while status.running:
