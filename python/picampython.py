@@ -447,7 +447,8 @@ class PICamCamera(Instrument):
         currentHandleListType = ctypes.POINTER(PicamCameraID)  #arbitrarily setting length = 10, since we don't know yet the number of cameras, and nobody would have more than 10 cameras, right?
         self.currentHandleList = currentHandleListType()
         self.num_cameras = piint(0)
-
+        logger.debug( "Getting Available Camera IDs: {}".format(Picam_GetAvailableCameraIDs(byref(self.currentHandleList),byref(self.num_cameras))))
+        logger.debug("Number of Princeton Instruments cameras detected: {}".format(self.num_cameras.value))
         self.printCameraID(self.currentHandleList[0])
         self.cameraIDDict = dict(zip([self.currentHandleList[i].serial_number for i in range(self.num_cameras.value)],range(self.num_cameras.value)))
         
@@ -515,12 +516,16 @@ class PICamCamera(Instrument):
     def GetDetector(self):
         width = piint(0)
         height = piint(0)
+        logger.debug('self.currentHandle: {}'.format(self.currentHandle))
+        logger.debug('Getting detector width')
         error = Picam_GetParameterIntegerValue(self.currentHandle, c_int(PicamParameter_SensorActiveWidth), byref(width))
         self.DLLError(sys._getframe().f_code.co_name, error)
         
+        logger.debug('Width={}. Getting detector height'.format(width.value))
         error = Picam_GetParameterIntegerValue(self.currentHandle, PicamParameter_SensorActiveHeight, byref(height))
         self.DLLError(sys._getframe().f_code.co_name, error)
 
+        logger.debug('Height={}. Setting ROI'.format(height.value))
         self.width = width.value
         self.height = height.value  # -2 because height gets reported as 1004 instead of 1002 for Luca
         self.dim = self.width * self.height
@@ -574,12 +579,15 @@ class PICamCamera(Instrument):
         
         
     def StartAcquisition(self):
+        logger.debug('Getting Readout Stride')
         self.getReadoutStride()
         
+        logger.debug('Committing Parameters')
         self.commitParameters()
         
+        logger.debug('Starting Acquisition')
         error = Picam_StartAcquisition(self.currentHandle) 
-
+        logger.debug('Started Acquisition')
         self.DLLError(sys._getframe().f_code.co_name, error)
 
     
