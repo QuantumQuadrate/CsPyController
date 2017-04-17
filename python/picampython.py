@@ -373,11 +373,17 @@ class PICamCamera(Instrument):
             self.height = self.height / self.binChoices[self.binMode]
             self.dim = self.width * self.height
 
+        logger.warning('Getting Readout Stride')
         self.getReadoutStride()
         
+        logger.warning('Creating Acquisition Buffer')
         self.data = self.CreateAcquisitionBuffer()
+        
+        logger.warning('Setting up video')
         analysis.setup_video(self.data)
         # run the video loop in a new thread
+        
+        logger.warning('Starting video thread')
         self.start_video_thread()
         #thread = threading.Thread(target=self.start_video_thread)
         #thread.daemon = True
