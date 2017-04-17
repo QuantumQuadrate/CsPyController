@@ -694,7 +694,9 @@ class PICamCamera(Instrument):
         It must be preceded by a call to CreateAcquisitionBuffer() and StartAcquisition().
         The image data is put into self.c_image_array, which must already be allocated (by Create AcquisitionBuffer)."""
         errors = PicamAcquisitionErrorsMask()
+        logger.warning('About to acquire image')
         error = Picam_Acquire(self.currentHandle, piint(1), piint(10000), byref(self.available), byref(errors))
+        logger.warning('Acquired image')
 
         sz = self.framesize/2
         DataArrayType = pi16u*sz
