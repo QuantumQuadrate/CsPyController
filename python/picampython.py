@@ -579,6 +579,7 @@ class PICamCamera(Instrument):
         self.commitParameters()
         
         error = Picam_StartAcquisition(self.currentHandle) 
+
         self.DLLError(sys._getframe().f_code.co_name, error)
 
     
@@ -593,34 +594,46 @@ class PICamCamera(Instrument):
         while status.running and readoutnum < self.shotsPerMeasurement.value:
             available = PicamAvailableData(0,0)
             error = Picam_WaitForAcquisitionUpdate(self.currentHandle, readout_time_out, byref(available), byref(status))
+            logger.debug('Acquisition status: {}'.format(status.running))
             if status.errors != 0:
                 logger.warning('Acquisition error {}'.format(status.errors))
             self.DLLError(sys._getframe().f_code.co_name, error, dump)
             readoutnum += available.readout_count
             
-            if available.readout_count > 0:
-                self.getReadoutStride()
-                sz = self.framesize/2
-                DataArrayType = pi16u*sz*available.readout_count
-                
-                DataArrayPointerType = ctypes.POINTER(pi16u*sz)
-                DataPointer = ctypes.cast(available.initial_readout,DataArrayPointerType)
-                
-                dat = DataPointer.contents
-                           
-                try:
-                    data = numpy.append(data, numpy.reshape(dat, (available.readout_count, self.height, self.width)),axis=0)
-                except:
-                    data = numpy.reshape(dat, (available.readout_count, self.height, self.width))
+            self.getReadoutStride()
+            sz = self.framesize/2
+            DataArrayType = pi16u*sz*available.readout_count
+            
+            logger.debug('Getting DataPointer. Readout_count={}'.format(available.readout_count))
+            
+            DataArrayPointerType = ctypes.POINTER(pi16u*sz)
+            DataPointer = ctypes.cast(available.initial_readout,DataArrayPointerType)
+            
+            logger.debug('DataPointer={}'.format(DataPointer))
+            
+            dat = DataPointer.contents
+            
+            logger.debug('DataPointer.contents = {}'.format(dat))
+            logger.debug('self.dim = {}'.format(self.dim))
+            
+            logger.debug('DataPointer.shape: {}'.format(numpy.array(dat).shape))
+            
+            try:
+                data = numpy.append(data, numpy.reshape(dat, (available.readout_count, self.height, self.width)),axis=0)
+            except:
+                data = numpy.reshape(dat, (available.readout_count, self.height, self.width))
         self.AbortAcquisition()
         carp = PicamAvailableData(0,0)
         while status.running:
             error = Picam_WaitForAcquisitionUpdate(self.currentHandle, readout_time_out, byref(carp), byref(status))
+            logger.debug('Acquisition status: {}'.format(status.running))
             if status.errors != 0:
                 logger.warning('Acquisition error {}'.format(status.errors))
         if carp.readout_count > 0:
             logger.warning ('{} Discarded Readout. Triggering issue?'.format(carp.readout_count))
-
+        
+            
+        logger.debug('data.shape = {}'.format(data.shape))
         return data
 
     def CreateAcquisitionBuffer(self):
@@ -652,7 +665,9 @@ class PICamCamera(Instrument):
         The image data is put into self.c_image_array, which must already be allocated (by Create AcquisitionBuffer)."""
         errors = PicamAcquisitionErrorsMask()
         self.available = PicamAvailableData(0,0)
+        logger.debug('About to acquire image')
         error = Picam_Acquire(self.currentHandle, piint(1), piint(10000), byref(self.available), byref(errors))
+        logger.debug('Acquired image')
 
         sz = self.framesize/2
         DataArrayType = pi16u*sz
