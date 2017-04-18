@@ -121,6 +121,8 @@ class PICamCamera(Instrument):
 
     currentHandle = Member()
     currentID = Member()
+    averageMeasurements = Bool()
+    mostrecentresult = Member()
 
     data = Member()  # holds acquired images until they are written
     mode = Str('experiment')  # experiment vs. video
@@ -154,7 +156,7 @@ class PICamCamera(Instrument):
         self.minPlot = IntProp('minPlot', experiment, 'Minimum Plot Scale Value', '0')
         self.maxPlot = IntProp('maxPlot', experiment, 'Maximum Plot Scale Value', '32768')
         self.properties += ['AdcEMGain', 'AdcAnalogGain', 'exposureTime', 'triggerMode', 'shotsPerMeasurement', 'minPlot', 'maxPlot',
-                            'currentCamera', 'acquisitionMode', 'binMode', 'AdvancedEMGain', 'EMGainMode', 'numPixX', 'numPixY', 'useDemo', 'ReadoutControl', 'shutterMode',
+                            'currentCamera', 'acquisitionMode', 'binMode', 'AdvancedEMGain', 'EMGainMode', 'numPixX', 'numPixY', 'useDemo', 'ReadoutControl', 'shutterMode', 'averageMeasurements',
                             'ROI', 'roilowv', 'roilowh', 'roihighv', 'roihighh']
 
     def __del__(self):
@@ -216,7 +218,8 @@ class PICamCamera(Instrument):
             self.DLLError(str(sys._getframe().f_code.co_name) + ' (parameter ReadoutCount)', error)
 
             self.CreateAcquisitionBuffer()
-            self.data = []
+            if not self.averageMeasurements:
+                self.data = []
             
             failed_parameter_array_type = ctypes.POINTER(piint)
             failed_parameter_array = failed_parameter_array_type()
@@ -411,14 +414,23 @@ class PICamCamera(Instrument):
         """Overwritten from Instrument, this function is called by the experiment after
                 each measurement run to make sure all pictures have been acquired."""
         if self.enable:
-            self.data = self.GetImages()
+            if not self.averageMeasurements:
+                self.data = self.GetImages()
+            else:
+                data = self.GetImages()
+                if self.mostrecentresult is not None:
+                    self.data = self.mostrecentresult+numpy.array(data,dtype='u4')
+                else:
+                    self.data = numpy.array(data,dtype='u4')
 
     def writeResults(self, hdf5):
         """Overwritten from Instrument.  This function is called by the experiment after
         data acquisition to write the obtained images to hdf5 file."""
         if self.enable:
             try:
-                hdf5['PICam_{}'.format(self.currentSerial)] = self.data
+                self.mostrecentresult = self.data
+                if (not self.averageMeasurements) or (self.averageMeasurements and self.experiment.measurement + 1 == self.experiment.measurementsPerIteration):
+                    hdf5['PICam_{}'.format(self.currentSerial)] = self.data
             except Exception as e:
                 logger.error('in PICam.writeResults:\n{}'.format(e))
                 raise PauseError
@@ -610,26 +622,25 @@ class PICamCamera(Instrument):
             
             self.getReadoutStride()
             sz = self.framesize/2
-            DataArrayType = pi16u*sz*available.readout_count
             
             logger.debug('Getting DataPointer. Readout_count={}'.format(available.readout_count))
             
             DataArrayPointerType = ctypes.POINTER(pi16u*sz)
-            DataPointer = ctypes.cast(available.initial_readout,DataArrayPointerType)
             
-            logger.debug('DataPointer={}'.format(DataPointer))
-            
-            dat = DataPointer.contents
-            
-            logger.debug('DataPointer.contents = {}'.format(dat))
-            logger.debug('self.dim = {}'.format(self.dim))
-            
-            logger.debug('DataPointer.shape: {}'.format(numpy.array(dat).shape))
-            
-            try:
-                data = numpy.append(data, numpy.reshape(dat, (available.readout_count, self.height, self.width)),axis=0)
-            except:
-                data = numpy.reshape(dat, (available.readout_count, self.height, self.width))
+            readout=0
+            while readout < available.readout_count:
+                DataPointer = ctypes.cast(available.initial_readout+self.framestride/2*readout,DataArrayPointerType)
+                dat = DataPointer.contents
+                
+                try:
+                    data = numpy.append(data, numpy.reshape(dat, (1, self.height, self.width)),axis=0)
+                except:
+                    try:
+                        data = numpy.reshape(dat, (1, self.height, self.width))
+                    except:
+                        print "dat.shape={}".format(numpy.array(dat).shape)
+                        print "available.readout_count={}, self.height={}, self.width={}, a*h*w={}".format(available.readout_count, self.height, self.width,available.readout_count*self.height*self.width)
+                readout += 1
         self.AbortAcquisition()
         carp = PicamAvailableData(0,0)
         while status.running:
@@ -716,6 +727,8 @@ class PICamViewer(AnalysisWithFigure):
         if 'data/PICam_{}'.format(self.mycam.currentSerial) in measurementResults:
             #for each image
             self.data = measurementResults['data/PICam_{}'.format(self.mycam.currentSerial)]
+        elif self.mycam.averageMeasurements:
+            self.data = self.mycam.mostrecentresult
         self.updateFigure()  # only update figure if image was loaded
 
     @observe('shot')

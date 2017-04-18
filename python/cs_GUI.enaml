@@ -1843,7 +1843,7 @@ enamldef PICams(Window):
 enamldef Picam(Form):
     attr item
 
-    constraints = [width >= 1000, height >= 1000]
+    constraints = [width >= 1000, height >= 1500]
 
     #title = 'Princeton Instruments Camera'
     style_class << 'valid' if experiment.valid else 'invalid'
@@ -1942,6 +1942,9 @@ enamldef Picam(Form):
                     #    index := item.camera.EMGainMode
                 EvalProp:
                     prop<<item.camera.shotsPerMeasurement
+                LabelBox:
+                    text = 'Sum Measurements'
+                    checked := item.camera.averageMeasurements
                 Form:
                     Label:
                         text = 'shot'
