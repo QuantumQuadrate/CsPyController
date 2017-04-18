@@ -418,7 +418,7 @@ class PICamCamera(Instrument):
         data acquisition to write the obtained images to hdf5 file."""
         if self.enable:
             try:
-                hdf5['PICam_{}'.format(self.currentHandle.value)] = self.data
+                hdf5['PICam_{}'.format(self.currentSerial)] = self.data
             except Exception as e:
                 logger.error('in PICam.writeResults:\n{}'.format(e))
                 raise PauseError
@@ -713,9 +713,9 @@ class PICamViewer(AnalysisWithFigure):
     def analyzeMeasurement(self, measurementResults, iterationResults, experimentResults):
         self.data = []
         #print "analyzeMeasurement: Looking for 'data/PICam_{}'".format(self.mycam.currentHandle)
-        if 'data/PICam_{}'.format(self.mycam.currentHandle.value) in measurementResults:
+        if 'data/PICam_{}'.format(self.mycam.currentSerial) in measurementResults:
             #for each image
-            self.data = measurementResults['data/PICam_{}'.format(self.mycam.currentHandle.value)]
+            self.data = measurementResults['data/PICam_{}'.format(self.mycam.currentSerial)]
         self.updateFigure()  # only update figure if image was loaded
 
     @observe('shot')
