@@ -91,13 +91,24 @@ class AndorCamera(Instrument):
     analysis = Member()  # holds a link to the GUI display
     dll = Member()
 
+    # Change the number accordingly to the camera you are using.
+    
+    # Luca 1024*1024
     roilowh = Int(0)
     roihighh = Int(512)
     roilowv = Int(-512)
     roihighv = Int(0)
     roimaxh = Int(512)
     roimaxv = Int(-512)
-        
+    
+    # Ixon 128*128
+    #roilowh = Int(0)
+    #roihighh = Int(128)
+    #roilowv = Int(-128)
+    #roihighv = Int(0)
+    #roimaxh = Int(128)
+    #roimaxv = Int(-128)
+    
     ROI = Member()
     #enableROI = False
     enableROI = True # activates slider
@@ -136,7 +147,9 @@ class AndorCamera(Instrument):
         self.CoolerON()
         self.SetTemperature(-70) # Set camera temperature to -70
         self.dll.SetFanMode(0)
-
+        #self.rundiagnostics()
+        print 'opening shutter'
+        self.SetShutter(0, 2, 0, 0)
         #time.sleep(1)
         self.isInitialized = True
 
@@ -170,7 +183,7 @@ class AndorCamera(Instrument):
             self.SetReadMode(4)  # image mode
             self.SetExposureTime(self.exposureTime.value)
             exposure,accumulate , kinetic = self.GetAcquisitionTimings()
-            print "Values returned by GetAcquisitionTimings: exposure: {}, accumulate:{}, kinetic: {}".format(exposure,accumulate,kinetic)
+            #print "Values returned by GetAcquisitionTimings: exposure: {}, accumulate:{}, kinetic: {}".format(exposure,accumulate,kinetic)
             self.SetTriggerMode(self.triggerChoices[self.triggerMode])
 
             #print "bin size: {}".format(self.binChoices[self.binMode])
@@ -181,10 +194,10 @@ class AndorCamera(Instrument):
             if self.enableROI:
                 self.setROIvalues()
                 p6 = self.ROI[4]
-                print "roi0 = {}".format(self.ROI[0])
-                print "roi1 = {}".format(self.ROI[1])
-                print "roi3 = {}".format(self.ROI[3])
-                print "p6 = {}".format(p6)
+                #print "roi0 = {}".format(self.ROI[0])
+                #print "roi1 = {}".format(self.ROI[1])
+                #print "roi3 = {}".format(self.ROI[3])
+                #print "p6 = {}".format(p6)
                 self.SetImage(
                     self.binChoices[self.binMode], # hbin
                     self.binChoices[self.binMode], # vbin
@@ -225,10 +238,10 @@ class AndorCamera(Instrument):
             #print "done setImage. With binning of {}, new width and height are {}, {}".format(self.binChoices[self.binMode],self.width,self.height)
             if (self.acquisitionChoices[self.acquisitionMode]==3 or self.acquisitionChoices[self.acquisitionMode]==4):
                 self.SetNumberKinetics(self.shotsPerMeasurement.value)
-                print "done setNumberKinetics"
+                #print "done setNumberKinetics"
             if (self.acquisitionChoices[self.acquisitionMode]!=1 and self.acquisitionChoices[self.acquisitionMode]!=4):
                 self.SetFrameTransferMode(0)
-                print "done SetFrameTransferMode"
+                #print "done SetFrameTransferMode"
             if (self.acquisitionChoices[self.acquisitionMode]==2):
                 self.SetNumberAccumulations(self.experiment.measurementsPerIteration)
             self.SetKineticCycleTime(0)  # no delay
@@ -279,7 +292,7 @@ class AndorCamera(Instrument):
 
         if self.enableROI:
             self.setROIvalues()
-            print "self.ROI[4] = {}".format(self.ROI[4])
+            #print "self.ROI[4] = {}".format(self.ROI[4])
             self.SetImage(
                 self.binChoices[self.binMode],
                 self.binChoices[self.binMode],
@@ -338,7 +351,7 @@ class AndorCamera(Instrument):
     def acquire_data(self):
         """Overwritten from Instrument, this function is called by the experiment after
                 each measurement run to make sure all pictures have been acquired."""
-        print "acquire_data is called"
+        #print "acquire_data is called"
         if self.enable:
             if (self.acquisitionChoices[self.acquisitionMode]!=2 or (self.acquisitionChoices[self.acquisitionMode]==2 and self.experiment.measurement == self.experiment.measurementsPerIteration - 1)):
                 self.setCamera()
@@ -492,9 +505,9 @@ class AndorCamera(Instrument):
     def GetImages(self):
         if (self.acquisitionChoices[self.acquisitionMode]!=2 or (self.acquisitionChoices[self.acquisitionMode]==2 and self.experiment.measurement == self.experiment.measurementsPerIteration - 1)):
             self.setCamera()
-            print "Waiting for acquisition"
+            #print "Waiting for acquisition"
             self.WaitForAcquisition()
-            print "calling GetAcquiredData"
+            #print "calling GetAcquiredData"
             data = self.GetAcquiredData()
             #self.StartAcquisition()
             return data
@@ -507,18 +520,18 @@ class AndorCamera(Instrument):
 
         self.ROI[2] = 1   #x-binning
 
-        self.ROI[0] = min(self.roihighh,self.roilowh)   #x
-        self.ROI[1] = max(self.roihighh,self.roilowh)   #width
-        self.ROI[3] = min(-1*self.roihighv,-1*self.roilowv)   #x
-        self.ROI[4] = max(-1*self.roihighv,-1*self.roilowv)   #width
+        self.ROI[0] = min(self.roihighh,self.roilowh)   #x1
+        self.ROI[1] = max(self.roihighh,self.roilowh)   #x2
+        self.ROI[3] = min(-1*self.roihighv,-1*self.roilowv)   #y1
+        self.ROI[4] = max(-1*self.roihighv,-1*self.roilowv)   #y2
 
         self.ROI[5] = 1   #y-binning
         
         self.width = self.ROI[1] - max(self.ROI[0],1) +1
         self.height = self.ROI[4] - max(self.ROI[3],1) +1
         self.dim = self.width*self.height
-        print "self.width: {} self.height: {}".format(self.width,self.height)
-        print "ROI: {}".format(self.ROI)
+        #print "self.width: {} self.height: {}".format(self.width,self.height)
+        #print "ROI: {}".format(self.ROI)
 
     def DumpImages(self):
         self.setCamera()
@@ -638,14 +651,14 @@ class AndorCamera(Instrument):
         #print "declaring c_image_array"
         c_image_array_type = c_int * self.dim * self.shotsPerMeasurement.value
         c_image_array = c_image_array_type()
-        print "calling dll"
-        print "width = {}".format(self.width)
-        print "height = {}".format(self.height)
-        print "dim = {}".format(self.dim)
-        print "c_image_array ={}".format(c_image_array_type)
+        #print "calling dll"
+        #print "width = {}".format(self.width)
+        #print "height = {}".format(self.height)
+        #print "dim = {}".format(self.dim)
+        #print "c_image_array ={}".format(c_image_array_type)
         error = self.dll.GetAcquiredData(byref(c_image_array), self.dim * self.shotsPerMeasurement.value)
         self.DLLError(sys._getframe().f_code.co_name, error, dump)
-        print "copying c_imagearray to numpy"
+        #print "copying c_imagearray to numpy"
         data = numpy.ctypeslib.as_array(c_image_array)
         data = numpy.reshape(data, (self.shotsPerMeasurement.value, self.height, self.width))
         return data
@@ -776,8 +789,10 @@ class AndorCamera(Instrument):
         error = self.dll.GetNumberADChannels(byref(number_AD_channels))
         self.DLLError(sys._getframe().f_code.co_name, error)
         self.number_AD_channels = number_AD_channels.value
+        return self.number_AD_channels
 
     def GetBitDepth(self):
+        self.GetNumberADChannels()
         bit_depth = c_int()
         self.bit_depths = []
 
@@ -785,6 +800,7 @@ class AndorCamera(Instrument):
             error = self.dll.GetBitDepth(i, byref(bit_depth))
             self.DLLError(sys._getframe().f_code.co_name, error)
             self.bit_depths.append(bit_depth.value)
+        return self.bit_depths
 
     def SetADChannel(self, index):
         error = self.dll.SetADChannel(index)
@@ -801,8 +817,10 @@ class AndorCamera(Instrument):
         error = self.dll.GetNumberHSSpeeds(self.channel, self.outamp, byref(noHSSpeeds))
         self.DLLError(sys._getframe().f_code.co_name, error)
         self.noHSSpeeds = noHSSpeeds.value
+        return self.noHSSpeeds
 
     def GetHSSpeed(self):
+        self.GetNumberHSSpeeds()
         HSSpeed = c_float()
         self.HSSpeeds = []
 
@@ -810,6 +828,7 @@ class AndorCamera(Instrument):
             error = self.dll.GetHSSpeed(self.channel, self.outamp, i, byref(HSSpeed))
             self.DLLError(sys._getframe().f_code.co_name, error)
             self.HSSpeeds.append(HSSpeed.value)
+        return self.HSSpeeds
             
     def SetHSSpeed(self, index):
         error = self.dll.SetHSSpeed(index)
@@ -821,8 +840,10 @@ class AndorCamera(Instrument):
         error = self.dll.GetNumberVSSpeeds(byref(noVSSpeeds))
         self.DLLError(sys._getframe().f_code.co_name, error)
         self.noVSSpeeds = noVSSpeeds.value
+        return self.noVSSpeeds
 
     def GetVSSpeed(self):
+        self.GetNumberVSSpeeds()
         VSSpeed = c_float()
         self.VSSpeeds = []
 
@@ -830,6 +851,7 @@ class AndorCamera(Instrument):
             error = self.dll.GetVSSpeed(i, byref(VSSpeed))
             self.DLLError(sys._getframe().f_code.co_name, error)
             self.VSSpeeds.append(VSSpeed.value)
+        return self.VSSpeeds
 
     def SetVSSpeed(self, index):
         error = self.dll.SetVSSpeed(index)
@@ -841,14 +863,17 @@ class AndorCamera(Instrument):
         error = self.dll.GetNumberPreAmpGains(byref(noGains))
         self.DLLError(sys._getframe().f_code.co_name, error)
         self.noGains = noGains.value
-
+        return self.noGains
+        
     def GetPreAmpGain(self):
+        self.GetNumberPreAmpGains() # This needs to run first to get noGains variable
         gain = c_float()
         self.preAmpGains = []
 
         for i in range(self.noGains):
             self.dll.GetPreAmpGain(i, byref(gain))
             self.preAmpGains.append(gain.value)
+        return self.preAmpGains
 
     def SetPreAmpGain(self, index):
         error = self.dll.SetPreAmpGain(index)
@@ -884,6 +909,22 @@ class AndorCamera(Instrument):
         error = self.dll.SetSpool(active, method, c_char_p(path), framebuffersize)
         self.DLLError(sys._getframe().f_code.co_name, error)
 
+    def rundiagnostics(self):
+        print 'This camera supports the following settings'
+        print '%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%'
+        print 'Camera Temperature :{}'.format(self.GetTemperature())
+        #print 'noGain :{}'.format(self.GetNumberPreAmpGains())
+        print 'ADC channels: {}'.format(self.GetBitDepth())
+        print 'Preamp gain: {}'.format(self.GetPreAmpGain())
+        print 'Vertical Shift speed: {}'.format(self.GetVSSpeed())
+        print 'Horizontal Shift speed: {}'.format(self.GetHSSpeed())
+        print 'EMCCD Gain range:{}'.format(self.GetEMGainRange())
+        print 'Current EMCCD Gain:{}'.format(self.GetEMCCDGain())
+        print 'Current Camera Status :{}'.format(self.GetStatus())   
+        print '%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%'
+
+        
+        
 ERROR_CODE = {
     20001: "DRV_ERROR_CODES",
     20002: "DRV_SUCCESS",
@@ -1005,8 +1046,8 @@ class AndorViewer(AnalysisWithFigure):
             try:
                 self.update_lock = True
                 try:
-                    xlimit = numpy.array(self.ax.get_xlim(), dtype = int)
-                    ylimit = numpy.array(self.ax.get_ylim(), dtype = int)
+                    xlimit=numpy.array([0,self.width-1]) # Defines x limits one the figure.
+                    ylimit=numpy.array([0,self.height-1]) # Defines x limits one the figure.
                     limits = True
                 except:
                     limits = False
