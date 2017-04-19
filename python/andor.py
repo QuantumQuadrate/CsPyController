@@ -97,8 +97,10 @@ class AndorCamera(Instrument):
     roihighv = Int(0)
     roimaxh = Int(512)
     roimaxv = Int(-512)
+        
     ROI = Member()
-    enableROI = False
+    #enableROI = False
+    enableROI = True # activates slider
 
     autoscale = Bool(True)
     minPlot = Member()
@@ -132,6 +134,7 @@ class AndorCamera(Instrument):
         self.GetCameraSerialNumber()
         self.SetCoolerMode(1)
         self.CoolerON()
+        self.SetTemperature(-70) # Set camera temperature to -70
         self.dll.SetFanMode(0)
 
         #time.sleep(1)
@@ -145,7 +148,7 @@ class AndorCamera(Instrument):
         #declare that we are done now
         if (self.acquisitionChoices[self.acquisitionMode]!=2 or (self.acquisitionChoices[self.acquisitionMode]==2 and self.experiment.measurement == 0)):
             self.setCamera()
-            self.GetTemperature()
+            #self.GetTemperature()
             if self.GetStatus() == 'DRV_ACQUIRING':
                     self.GetAcquiredData(True)
                     self.AbortAcquisition()
@@ -153,46 +156,79 @@ class AndorCamera(Instrument):
             self.isDone = True
 
     def update(self):
-        if self.enable:
-            self.setCamera()
+        if self.enable: # If enable checkbox is checked,
+            self.setCamera() # Set the camera
             #print "Updating Andor camera {}".format(self.CurrentHandle)
-            self.mode = 'experiment'
+            self.mode = 'experiment' # set the mode to experiment.
             if self.GetStatus() == 'DRV_ACQUIRING':
                 self.GetAcquiredData(True)
                 self.AbortAcquisition()
             self.GetDetector()
-            self.GetTemperature()
-
+            if self.GetStatus() != 'DRV_ACQUIRING': # If camera is not acquiring data, get the temperature
+               self.GetTemperature()
             self.SetAcquisitionMode(self.acquisitionChoices[self.acquisitionMode])
             self.SetReadMode(4)  # image mode
             self.SetExposureTime(self.exposureTime.value)
             exposure,accumulate , kinetic = self.GetAcquisitionTimings()
-            #print "Values returned by GetAcquisitionTimings: exposure: {}, accumulate:{}, kinetic: {}".format(exposure,accumulate,kinetic)
+            print "Values returned by GetAcquisitionTimings: exposure: {}, accumulate:{}, kinetic: {}".format(exposure,accumulate,kinetic)
             self.SetTriggerMode(self.triggerChoices[self.triggerMode])
 
             #print "bin size: {}".format(self.binChoices[self.binMode])
             #self.SetImage(1,1,1,self.width,1,self.height)
             #print "done setImage"
-            self.SetImage(
-                self.binChoices[self.binMode],
-                self.binChoices[self.binMode],
-                1,
-                (self.width / self.binChoices[self.binMode]) * self.binChoices[self.binMode],
-                1,
-                (self.height / self.binChoices[self.binMode]) * self.binChoices[self.binMode])  # full sensor, no binning
-            self.numPixX = (self.width / self.binChoices[self.binMode]) * self.binChoices[self.binMode]
-            self.numPixY = (self.width / self.binChoices[self.binMode]) * self.binChoices[self.binMode]
-            if self.binChoices[self.binMode] > 1:
-                self.width = self.width / self.binChoices[self.binMode]
-                self.height = self.height / self.binChoices[self.binMode]
-                self.dim = self.width * self.height
+            ###############################################
+            
+            if self.enableROI:
+                self.setROIvalues()
+                p6 = self.ROI[4]
+                print "roi0 = {}".format(self.ROI[0])
+                print "roi1 = {}".format(self.ROI[1])
+                print "roi3 = {}".format(self.ROI[3])
+                print "p6 = {}".format(p6)
+                self.SetImage(
+                    self.binChoices[self.binMode], # hbin
+                    self.binChoices[self.binMode], # vbin
+                    max(self.ROI[0],1),            # hstart
+                    self.ROI[1],                   #hend
+                    max(self.ROI[3],1),            #vstart
+                    p6)                            #vend
+            else:
+                if self.binChoices[self.binMode] > 1:
+                    wid=(self.width / self.binChoices[self.binMode]) * self.binChoices[self.binMode]
+                    high=(self.height / self.binChoices[self.binMode]) * self.binChoices[self.binMode]
+                else:
+                    wid=self.width
+                    high = self.height
+                self.SetImage(
+                    self.binChoices[self.binMode],
+                    self.binChoices[self.binMode],
+                    1,
+                    wid,
+                    1,
+                    high)  # full sensor, no binning
+            ###########################
+            #self.SetImage(
+            #    self.binChoices[self.binMode],
+            #    self.binChoices[self.binMode],
+            #    1,
+            #    (self.width / self.binChoices[self.binMode]) * self.binChoices[self.binMode],
+            #    1,
+            #    (self.height / self.binChoices[self.binMode]) * self.binChoices[self.binMode])  # full sensor, no binning
+            #self.numPixX = (self.width / self.binChoices[self.binMode]) * self.binChoices[self.binMode]
+            #self.numPixY = (self.width / self.binChoices[self.binMode]) * self.binChoices[self.binMode]
+            #if self.binChoices[self.binMode] > 1:
+            #    self.width = self.width / self.binChoices[self.binMode]
+            #    self.height = self.height / self.binChoices[self.binMode]
+            #    self.dim = self.width * self.height
+                
+                ####################
             #print "done setImage. With binning of {}, new width and height are {}, {}".format(self.binChoices[self.binMode],self.width,self.height)
             if (self.acquisitionChoices[self.acquisitionMode]==3 or self.acquisitionChoices[self.acquisitionMode]==4):
                 self.SetNumberKinetics(self.shotsPerMeasurement.value)
-                #print "done setNumberKinetics"
+                print "done setNumberKinetics"
             if (self.acquisitionChoices[self.acquisitionMode]!=1 and self.acquisitionChoices[self.acquisitionMode]!=4):
                 self.SetFrameTransferMode(0)
-                #print "done SetFrameTransferMode"
+                print "done SetFrameTransferMode"
             if (self.acquisitionChoices[self.acquisitionMode]==2):
                 self.SetNumberAccumulations(self.experiment.measurementsPerIteration)
             self.SetKineticCycleTime(0)  # no delay
@@ -243,15 +279,14 @@ class AndorCamera(Instrument):
 
         if self.enableROI:
             self.setROIvalues()
-            p6 = self.ROI[4]
-            print "p6 = {}".format(p6)
+            print "self.ROI[4] = {}".format(self.ROI[4])
             self.SetImage(
                 self.binChoices[self.binMode],
                 self.binChoices[self.binMode],
                 max(self.ROI[0],1),
                 self.ROI[1],
                 max(self.ROI[3],1),
-                p6)  # full sensor, no binning
+                self.ROI[4])  # full sensor, no binning
         else:
             if self.binChoices[self.binMode] > 1:
                 wid=(self.width / self.binChoices[self.binMode]) * self.binChoices[self.binMode]
@@ -303,6 +338,7 @@ class AndorCamera(Instrument):
     def acquire_data(self):
         """Overwritten from Instrument, this function is called by the experiment after
                 each measurement run to make sure all pictures have been acquired."""
+        print "acquire_data is called"
         if self.enable:
             if (self.acquisitionChoices[self.acquisitionMode]!=2 or (self.acquisitionChoices[self.acquisitionMode]==2 and self.experiment.measurement == self.experiment.measurementsPerIteration - 1)):
                 self.setCamera()
@@ -434,9 +470,11 @@ class AndorCamera(Instrument):
                 raise PauseError
 
         self.checkSerial()
-        self.GetTemperature()
-
-
+        if self.GetStatus() != 'DRV_ACQUIRING':
+           self.GetTemperature()
+            #self.GetAcquiredData(True)
+            #self.AbortAcquisition()
+        
     def GetNumberNewImages(self, dump=False):
         first = c_long()
         last = c_long()
@@ -454,9 +492,9 @@ class AndorCamera(Instrument):
     def GetImages(self):
         if (self.acquisitionChoices[self.acquisitionMode]!=2 or (self.acquisitionChoices[self.acquisitionMode]==2 and self.experiment.measurement == self.experiment.measurementsPerIteration - 1)):
             self.setCamera()
-            #print "Waiting for acquisition"
+            print "Waiting for acquisition"
             self.WaitForAcquisition()
-            #print "calling GetAcquiredData"
+            print "calling GetAcquiredData"
             data = self.GetAcquiredData()
             #self.StartAcquisition()
             return data
@@ -475,12 +513,12 @@ class AndorCamera(Instrument):
         self.ROI[4] = max(-1*self.roihighv,-1*self.roilowv)   #width
 
         self.ROI[5] = 1   #y-binning
-
-        self.width = self.ROI[1] - self.ROI[0]
-        self.height = self.ROI[4] - self.ROI[3]
+        
+        self.width = self.ROI[1] - max(self.ROI[0],1) +1
+        self.height = self.ROI[4] - max(self.ROI[3],1) +1
         self.dim = self.width*self.height
-        #print "self.width: {} self.height: {}".format(self.width,self.height)
-        #print "ROI: {}".format(self.ROI)
+        print "self.width: {} self.height: {}".format(self.width,self.height)
+        print "ROI: {}".format(self.ROI)
 
     def DumpImages(self):
         self.setCamera()
@@ -600,10 +638,14 @@ class AndorCamera(Instrument):
         #print "declaring c_image_array"
         c_image_array_type = c_int * self.dim * self.shotsPerMeasurement.value
         c_image_array = c_image_array_type()
-        #print "calling dll"
+        print "calling dll"
+        print "width = {}".format(self.width)
+        print "height = {}".format(self.height)
+        print "dim = {}".format(self.dim)
+        print "c_image_array ={}".format(c_image_array_type)
         error = self.dll.GetAcquiredData(byref(c_image_array), self.dim * self.shotsPerMeasurement.value)
         self.DLLError(sys._getframe().f_code.co_name, error, dump)
-
+        print "copying c_imagearray to numpy"
         data = numpy.ctypeslib.as_array(c_image_array)
         data = numpy.reshape(data, (self.shotsPerMeasurement.value, self.height, self.width))
         return data
@@ -1059,7 +1101,8 @@ class Andors(Instrument,Analysis):
 
     def initialize(self, cameras=False):
         msg=''
-        self.dll = CDLL(os.path.join(".\Andor", "atmcd64d.dll"))
+        #self.dll = CDLL(os.path.join(r"C:\Users\Rb\LabSoftware\CsPyNewGit\CsPyController\python\Andor\Andor", "atmcd64d.dll"))
+        self.dll=CDLL("C:\\Users\\Rb\\LabSoftware\\CsPyNewGit\\CsPyController\\python\\Andor\\atmcd64d.dll")
         self.enable = True
         self.isInitialized = True
         if (cameras):
