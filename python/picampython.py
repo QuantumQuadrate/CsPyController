@@ -220,6 +220,8 @@ class PICamCamera(Instrument):
             self.CreateAcquisitionBuffer()
             if not self.averageMeasurements:
                 self.data = []
+            if self.averageMeasurements:
+                self.mostrecentresult = None
             
             failed_parameter_array_type = ctypes.POINTER(piint)
             failed_parameter_array = failed_parameter_array_type()
