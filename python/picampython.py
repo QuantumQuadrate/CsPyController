@@ -754,7 +754,7 @@ class PICamViewer(AnalysisWithFigure):
                     ax = fig.add_subplot(111)
                     self.ax = ax
                     if self.bgsub and len(self.data)>1:
-                        mydat = - self.data[1] + self.data[0]
+                        mydat = - numpy.array(self.data[1],dtype='u4').astype(numpy.int32) + numpy.array(self.data[0],dtype='u4').astype(numpy.int32)
                     else:
                         mydat = self.data[self.shot]
                     if (not self.mycam.autoscale):
@@ -770,6 +770,8 @@ class PICamViewer(AnalysisWithFigure):
                         ax.set_xlim(xlimit[0],xlimit[1])
                         ax.set_ylim(ylimit[0],ylimit[1])
 
+                    #print "Max: {}".format(numpy.max(mydat))
+                    #print "Min: {}".format(numpy.min(mydat))
                     self.maxPixel = int(numpy.max(self.data[self.shot]))
                     self.meanPixel = int(numpy.mean(self.data[self.shot]))
                 super(PICamViewer, self).updateFigure()
