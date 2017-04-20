@@ -74,7 +74,7 @@ class AndorCamera(Instrument):
     status = Str()
     accumulate = Float()
     kinetic = Float()
-
+#ddd
     numPixX = Int()
     numPixY = Int()
 
