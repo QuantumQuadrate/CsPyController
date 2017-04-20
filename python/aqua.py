@@ -9,6 +9,7 @@ from atom.api import Member
 
 # Bring in other files in this package
 import functional_waveforms, analysis, instek_pst, save2013style, TTL, LabView, DDS, roi_fitting, picomotors, andor, picampython, vaunix, DCNoiseEater, Laird_temperature, AnalogInput, Counter, conex, aerotech, unlock_pause
+import origin
 from experiments import Experiment
 
 
@@ -57,6 +58,7 @@ class AQuA(Experiment):
     counter_hist = Member()
     save_notes = Member()
     save2013Analysis = Member()
+    origin = Member()
     ROI_rows = 7
     ROI_columns = 7
 
@@ -110,6 +112,7 @@ class AQuA(Experiment):
         self.counter_hist = Counter.CounterHistogramAnalysis('counter_hist', self, 'Fits histograms of counter data and plots hist and fits.')
         self.save_notes = save2013style.SaveNotes('save_notes', self, 'save a separate notes.txt')
         self.save2013Analysis = save2013style.Save2013Analysis(self)
+        self.origin = origin.Origin('origin', self, 'saves selected data to the origin data server')
         # do not include functional_waveforms_graph in self.analyses because it need not update on iterations, etc.
         self.analyses += [self.TTL_filters, self.AI_graph, self.AI_filter, self.squareROIAnalysis, self.gaussian_roi,
                           self.loading_filters, self.first_measurements_filter, self.text_analysis,
@@ -117,7 +120,7 @@ class AQuA(Experiment):
                           self.histogramAnalysis, self.histogram_grid, self.measurements_graph, self.iterations_graph, self.DC_noise_eater_graph, self.DC_noise_eater_filter, self.Andors, self.PICams,
                           self.Ramsey, self.retention_analysis, self.retention_graph, self.counter_graph,
                           self.save_notes, self.save2013Analysis, self.aerotechs, self.conexes,self.counter_hist,
-                          self.instekpsts, self.vaunixs, self.unlock_pause]
+                          self.instekpsts, self.vaunixs, self.unlock_pause, self.origin]
 
         
         self.properties += ['functional_waveforms', 'LabView', 'functional_waveforms_graph', 'DDS', 'aerotechs', 'picomotors', 'conexes',
