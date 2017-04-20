@@ -101,14 +101,6 @@ class AndorCamera(Instrument):
     roimaxh = Int(512)
     roimaxv = Int(-512)
     
-    # Ixon 128*128
-    #roilowh = Int(0)
-    #roihighh = Int(128)
-    #roilowv = Int(-128)
-    #roihighv = Int(0)
-    #roimaxh = Int(128)
-    #roimaxv = Int(-128)
-    
     ROI = Member()
     #enableROI = False
     enableROI = True # activates slider
