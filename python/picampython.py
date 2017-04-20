@@ -844,11 +844,18 @@ class PICams(Instrument,Analysis):
         msg=''
         dllpath = 'C:/Program Files/Common Files/Princeton Instruments/Picam/Runtime/Picam.dll'
         #self.dll = load(dllpath)
-        logger.debug("Initializing Picam library: {}".format(Picam_InitializeLibrary()))
-        self.enable = True
-        self.isInitialized = True
-        if (cameras):
-            self.initializecameras()
+        try:
+            logger.debug("Initializing Picam library: {}".format(Picam_InitializeLibrary()))
+        except NameError:
+            # no dll found
+            logger.warning("Cannot Initialize Picam library: No dll found at {}".format(dllpath))
+            self.enable = False
+            self.isInitialized = False
+        else:
+            self.enable = True
+            self.isInitialized = True
+            if (cameras):
+                self.initializecameras()
 
     def start(self):
         msg = ''
