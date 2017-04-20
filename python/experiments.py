@@ -224,6 +224,10 @@ class Experiment(Prop):
         #we do not load in status as a variable, to allow old settings to be loaded without bringing in the status of
         #the saved experiments
 
+        # experiment variable should be excluded from the hdf5 file
+        # any variables added here should be csv format
+        self.variablesNotToSave='experiment'
+
     def applyToSelf(self, dict):
         """Used to apply a bunch of variables at once.  This function is called using an Enaml deferred_call so that the
          updates are done in the GUI thread."""
