@@ -92,7 +92,7 @@ class AndorCamera(Instrument):
     dll = Member()
 
     # Change the number accordingly to the camera you are using.
-    
+    #ddd
     # Luca 1024*1024
     roilowh = Int(0)
     roihighh = Int(512)
