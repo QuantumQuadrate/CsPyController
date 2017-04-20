@@ -20,7 +20,7 @@
    gain, gainRange, status etc. are stored in the class.
 
    """
-
+ # test
    # This code is written for Ixon. Will support other Andor cameras in the future.
 __author__ = 'Martin Lichtman'
 import logging
