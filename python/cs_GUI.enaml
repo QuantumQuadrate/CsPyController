@@ -1697,7 +1697,7 @@ enamldef Andors(Window):
 enamldef Andor(Form):
     attr item
 
-    constraints = [width >= 1000, height >= 1000]
+    constraints = [width >= 900, height >= 1000]
 
     #title = 'Andor Camera'
     style_class << 'valid' if experiment.valid else 'invalid'
@@ -1745,18 +1745,28 @@ enamldef Andor(Form):
                     maximum << item.camera.roimaxh
                     visible << item.camera.enableROI
                 HGroup:
+                    EvalProp:
+                        prop << item.camera.currentCamera
+                    PushButton:
+                        text = 'Select Camera'
+                        clicked :: item.camera.setCamera() 
+                HGroup:
+                    PushButton:
+                        text = 'Read camera config'
+                        clicked :: item.camera.rundiagnostics()  
+                    PushButton:
+                        text = 'Open Shutter'
+                        clicked :: item.camera.SetShutter(0, 2, 0, 0)
+                    PushButton:
+                        text = 'Close Shutter'
+                        clicked :: item.camera.SetShutter(0, 3, 0, 0)
+                HGroup:
                     PushButton:
                         text = 'video mode'
                         clicked :: item.camera.setup_video_thread(item.analysis)
                     PushButton:
                         text = 'stop video'
-                        clicked :: item.camera.stop_video()
-                HGroup:
-                    EvalProp:
-                        prop << item.camera.currentCamera
-                    PushButton:
-                        text = 'Select Camera'
-                        clicked :: item.camera.setCamera()
+                        clicked :: item.camera.stop_video() 
                 HGroup:
                     padding = 0
                     Label:
@@ -1771,9 +1781,15 @@ enamldef Andor(Form):
                 EvalProp:
                     prop << item.camera.EMCCDGain
                 EvalProp:
-                    prop << item.camera.preAmpGain
-                EvalProp:
                     prop << item.camera.exposureTime
+                HGroup:
+                    padding = 0
+                    Label:
+                        text='Trigger mode'
+                    Label:
+                        text='Acquisition mode'
+                    Label:
+                        text='Binmode'
                 HGroup:
                     padding = 0
                     ComboBox:
@@ -1785,6 +1801,25 @@ enamldef Andor(Form):
                     ComboBox:
                         items = ['Bin Mode: 1x1', 'Bin Mode: 2x2', 'Bin Mode: 4x4']
                         index := item.camera.binMode
+                HGroup:
+                    padding = 0
+                    Label:
+                        text='Horizontal readout rate'
+                    Label:
+                        text='Vertical shift speed(us)'
+                    Label:
+                        text='Preamp gain'
+                HGroup:
+                    padding = 0
+                    ComboBox:
+                        items = ['10MHz','5MHz','3MHz']
+                        index := item.camera.HSSpeed
+                    ComboBox:
+                        items = ['0.0875','0.10','0.15','0.25','0.45']
+                        index := item.camera.VSSpeed
+                    ComboBox:
+                        items = ['x1.0', 'x2.2', 'x4.6']
+                        index :=item.camera.preAmpGain.value
                 HGroup:
                     padding = 0
                     ComboBox:

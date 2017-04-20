@@ -147,9 +147,7 @@ class AndorCamera(Instrument):
         self.CoolerON()
         self.SetTemperature(-70) # Set camera temperature to -70
         self.dll.SetFanMode(0)
-        #self.rundiagnostics()
-        print 'opening shutter'
-        self.SetShutter(0, 2, 0, 0)
+        self.rundiagnostics()
         #time.sleep(1)
         self.isInitialized = True
 
@@ -913,7 +911,6 @@ class AndorCamera(Instrument):
         print 'This camera supports the following settings'
         print '%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%'
         print 'Camera Temperature :{}'.format(self.GetTemperature())
-        #print 'noGain :{}'.format(self.GetNumberPreAmpGains())
         print 'ADC channels: {}'.format(self.GetBitDepth())
         print 'Preamp gain: {}'.format(self.GetPreAmpGain())
         print 'Vertical Shift speed: {}'.format(self.GetVSSpeed())
@@ -921,6 +918,8 @@ class AndorCamera(Instrument):
         print 'EMCCD Gain range:{}'.format(self.GetEMGainRange())
         print 'Current EMCCD Gain:{}'.format(self.GetEMCCDGain())
         print 'Current Camera Status :{}'.format(self.GetStatus())   
+        print 'Current HS :{}'.format(self.HSSpeed)
+        print 'Current VS :{}'.format(self.VSSpeed)
         print '%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%'
 
         
