@@ -1697,7 +1697,7 @@ enamldef Andors(Window):
 enamldef Andor(Form):
     attr item
 
-    constraints = [width >= 900, height >= 1000]
+    constraints = [width >= 800, height >= 1500]
 
     #title = 'Andor Camera'
     style_class << 'valid' if experiment.valid else 'invalid'
@@ -1756,10 +1756,10 @@ enamldef Andor(Form):
                         clicked :: item.camera.rundiagnostics()  
                     PushButton:
                         text = 'Open Shutter'
-                        clicked :: item.camera.SetShutter(0, 2, 0, 0)
+                        clicked :: item.camera.SetShutterEx(0, 1, 0, 0, 1)
                     PushButton:
                         text = 'Close Shutter'
-                        clicked :: item.camera.SetShutter(0, 3, 0, 0)
+                        clicked :: item.camera.SetShutterEx(0, 2, 0, 0, 2)
                 HGroup:
                     PushButton:
                         text = 'video mode'

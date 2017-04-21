@@ -619,6 +619,10 @@ class AndorCamera(Instrument):
         self.DLLError(sys._getframe().f_code.co_name, error)
 
     def SetShutter(self, typ, mode, closingtime, openingtime):
+        if self.GetStatus() == 'DRV_ACQUIRING':
+            self.AbortAcquisition()
+            logger.error('Shutter control during acquisition. Acquisition aborted')            
+            self.mode = 'idle' # set the mode to idle.
         error = self.dll.SetShutter(typ, mode, closingtime, openingtime)
         self.DLLError(sys._getframe().f_code.co_name, error)
 
@@ -893,6 +897,10 @@ class AndorCamera(Instrument):
         self.DLLError(sys._getframe().f_code.co_name, error)
         
     def SetShutterEx(self, typ, mode, closingtime, openingtime, extmode):
+        if self.GetStatus() == 'DRV_ACQUIRING':
+            self.AbortAcquisition()
+            logger.error('Shutter control during acquisition. Acquisition aborted')            
+            self.mode = 'idle' # set the mode to idle.
         error = self.dll.SetShutterEx(typ, mode, closingtime, openingtime, extmode)
         self.DLLError(sys._getframe().f_code.co_name, error)
 
@@ -904,15 +912,16 @@ class AndorCamera(Instrument):
         print 'This camera supports the following settings'
         print '%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%'
         print 'Camera Temperature :{}'.format(self.GetTemperature())
-        print 'ADC channels: {}'.format(self.GetBitDepth())
-        print 'Preamp gain: {}'.format(self.GetPreAmpGain())
-        print 'Vertical Shift speed: {}'.format(self.GetVSSpeed())
-        print 'Horizontal Shift speed: {}'.format(self.GetHSSpeed())
-        print 'EMCCD Gain range:{}'.format(self.GetEMGainRange())
+        print 'Supporing ADC channels: {}'.format(self.GetBitDepth())
+        print 'Supporing Preamp gain: {}'.format(self.GetPreAmpGain())
+        print 'Supporing Vertical Shift speed: {}'.format(self.GetVSSpeed())
+        print 'Supporing Horizontal Shift speed: {}'.format(self.GetHSSpeed())
+        print 'SupporingEMCCD Gain range:{}'.format(self.GetEMGainRange())
         print 'Current EMCCD Gain:{}'.format(self.GetEMCCDGain())
         print 'Current Camera Status :{}'.format(self.GetStatus())   
-        print 'Current HS :{}'.format(self.HSSpeed)
-        print 'Current VS :{}'.format(self.VSSpeed)
+        print 'Current Horizontal Shift :{}'.format(self.GetHSSpeed()[self.HSSpeed])
+        print 'Current Vertical Shift :{}'.format(self.GetVSSpeed()[self.VSSpeed])
+        print 'Current preamp gain :{}'.format(self.GetPreAmpGain()[self.preAmpGain.value])
         print '%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%'
 
         
