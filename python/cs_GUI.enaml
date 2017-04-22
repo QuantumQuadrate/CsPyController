@@ -3762,6 +3762,7 @@ enamldef BoxTemperature(Window):
                     CheckBox:
                         checked << box_temperature.connected
                         enabled = False
+ 
 
 enamldef PID(Window):
     attr experiment
@@ -3837,6 +3838,35 @@ enamldef RetentionAnalysis(Window):
                     Label:
                         text << analysis.text
 
+enamldef Origin(Window):
+    attr origin
+
+    title = 'Origin Interface'
+    style_class << 'valid' if experiment.valid else 'invalid'
+    Container:
+        padding = 0
+        style_class << 'valid' if experiment.valid else 'invalid'
+        ScrollArea:
+            style_class << 'valid' if experiment.valid else 'invalid'
+            Container:
+                style_class << 'valid' if experiment.valid else 'invalid'
+
+                Form:
+                    Label:
+                        text = 'enable'
+                    CheckBox:
+                        checked := origin.enable
+                    Label:
+                        text = 'ip addr'
+                    Field:
+                        text := origin.IP
+                    Label:
+                        text = 'port'
+                    IntField:
+                        value := origin.port
+                EvalProp:
+                    prop << origin.timeout
+
 window_dictionary = {'':'',
                      'Experiment': 'ExperimentPage(experiment = main.experiment)',
                      'Independent Variables': 'IndependentVariables(independentVariables = main.experiment.independentVariables)',
@@ -3880,7 +3910,8 @@ window_dictionary = {'':'',
                      'Functional Waveforms Graph': 'FunctionalWaveformsGraph(graph = main.experiment.functional_waveforms_graph)',
                      'CounterGraph': 'CounterGraph(analysis = main.experiment.counter_graph)',
                      'CounterHistAnalysis': 'CounterHistAnalysis(analysis = main.experiment.counter_hist)',
-                     'Unlock Monitor': 'Unlock_Pause(unlock_pause = main.experiment.unlock_pause)'
+                     'Unlock Monitor': 'Unlock_Pause(unlock_pause = main.experiment.unlock_pause)',
+                     'Origin Interface': 'Origin(origin = main.experiment.origin)'
                      }
 window_keys = window_dictionary.keys()
 window_keys.sort()

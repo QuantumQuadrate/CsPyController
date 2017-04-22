@@ -20,16 +20,29 @@ __author__ = 'Matthew Ebert'
 from atom.api import Int, Float, Str, Member, Bool
 
 from analysis import Analysis
+from cs_instruments import TCP_Instrument
 
-class Origin(Analysis):
+from instrument_property import StrProp, IntProp
+
+class Origin(TCP_Instrument, Analysis):
     version = '2017.04.20'
-    #isInitialized = Bool()  # Set to True when 
 
     def __init__(self, name, experiment, description=''):
         super(Origin, self).__init__(name, experiment, description)
-        #self.isInitialized = False
-        #self.streams = []
-        #self.properties += ['version', 'motors']
+                #self.streams = []
+        #self.properties += ['enable','IP','port']
+        self.IP = ''
+        self.port = 0
+
+    def start(self):
+        print('hi')
+        if self.enable:
+            print('sending')
+            self.send('get')
+        self.isDone = True
+
+    def update(self):
+        pass
 
     def preExperiment(self, experimentResults):
         """This is called before an experiment.
@@ -41,12 +54,12 @@ class Origin(Analysis):
         # initialize any logged parameters that are on a per experiment basis
         # verify that all the streams are active
         # if not activate them
-        print "hdf5 file members"
-        for name in experimentResults:
-            print name
-        print "\nexperiment object properties"
-        print self.experiment.properties
         #self.isInitialized = True
+        print("does this get called?")
+        print "origin.enable state: ", self.enable
+        print "origin.IP: ", self.IP
+        print "origin.port: ", self.port
+        print "origin.timeout [s]: ", self.timeout.value
 
     def preIteration(self, iterationResults, experimentResults):
         # initialize any logged parameters that are on a per iteration basis
@@ -64,11 +77,6 @@ class Origin(Analysis):
 
     def postExperiment(self, experimentResults):
         # log any per experiment parameters here
-        print "hdf5 file members"
-        for name in experimentResults:
-            print name
-        print "\nexperiment object properties"
-        print self.experiment.properties
         return 0
 
     def finalize(self,experimentResults):
