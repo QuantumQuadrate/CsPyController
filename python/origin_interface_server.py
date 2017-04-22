@@ -38,9 +38,7 @@ class OriginInterfaceServer(TCP.CsServerSock):
     # override parsemsg to define what this CsServerSock will do with incoming messages
     def parsemsg(self, data):
         print data
-        msg = ''
-        if data.startswith('get'):
-            msg=TCP.makemsg('hello', 'world')
+        msg=TCP.makemsg('success', '0')
         return msg
 
 if __name__ == '__main__':
