@@ -20,12 +20,11 @@ __author__ = 'Matthew Ebert'
 from atom.api import Int, Float, Str, Member, Bool
 
 from analysis import Analysis
-from cs_instruments import TCP_Instrument
-from TCP import makemsg
 
-from instrument_property import StrProp, IntProp
-
+from h5py import Dataset
 import sys, traceback
+
+import time
 
 preExperimentMsg    = 'PEXP'
 postExperimentMsg   = 'EXPR'
@@ -33,63 +32,107 @@ preIterationMsg     = 'PITR'
 postIterationMsg    = 'ITER'
 postMeasurementMsg  = 'MEAS'
 
-class Origin(TCP_Instrument, Analysis):
-    version = '2017.04.20'
+dtype_list = [
+  "int","uint",
+  "int64","uint64",
+  "int32","uint32",
+  "int16","uint16",
+  "int8","uint8",
+  "float32","float64"
+  ]
 
-    def __init__(self, name, experiment, description=''):
-        super(Origin, self).__init__(name, experiment, description)
-                #self.streams = []
-        #self.properties += ['enable','IP','port']
-        self.IP = ''
-        self.port = 0
+def print_attrs(name, obj):
+  print name
+  for key, val in obj.attrs.iteritems():
+    print("    {}: {}".format(key, val))
 
-    def update(self):
-        """There is no need to send instrument updates
-        """
-        pass
+def print_dsets(name, obj):
+  if isinstance(obj, Dataset):
+    print '-'*10
+    print name
+    print obj.dtype
+    print obj[()]
+    print '-'*10
 
-    def sendEvent(self, experimentResults, iterationResults, measurementResults, eventStr):
-        if self.enable:
-            msg = eventStr
-            try:
-                msg+= makemsg('file',experimentResults.filename)
-                try: # if its a measurement then do that
-                    msg+= makemsg('group',measurementResults.name)
-                except Exception as e:
-                    # otherwise if its an iteration then do that
-                    # if not then just fail after the experiment
-                    msg+= makemsg('group',iterationResults.name)
+class Origin(Analysis):
+  version = '2017.04.20'
+  port = Member()
+  IP = Str()
+  measurementDataDict = Member()
+  iterationDataDict = Member()
+  ts = Member()  
 
-            except Exception as e:
-                #print "Exception in user code:"
-                #print '-'*60
-                #traceback.print_exc(file=sys.stdout)
-                #print '-'*60  
-                pass
 
-            resp = self.send(msg) 
-        return 0
+  def __init__(self, name, experiment, description=''):
+    super(Origin, self).__init__(name, experiment, description)
+        #self.streams = []
+    self.IP = ''
+    self.port = 0
+    self.measurementDataDict = {}
+    self.iterationDataDict = {}
 
-    def preExperiment(self, experimentResults):
-        """This is called before an experiment."""
-        return self.sendEvent(experimentResults, None, None, preExperimentMsg)
+    self.properties += ['measurementDataDict','iterationDataDict']
 
-    def preIteration(self, iterationResults, experimentResults):
-        # initialize any logged parameters that are on a per iteration basis
-        return self.sendEvent(experimentResults, iterationResults, None, preIterationMsg)
-     
-    def postMeasurement(self, measurementResults, iterationResults, experimentResults):
-        """Results is a tuple of (measurementResult,iterationResult,experimentResult) references to HDF5 nodes for this
-        measurement."""
-        return self.sendEvent(experimentResults, iterationResults, measurementResults, postMeasurementMsg)
+  def preExperiment(self, experimentResults):
+    """This is called before an experiment."""
+    return 0
 
-    def postIteration(self, iterationResults, experimentResults):
-        # log any per iteration parameters here
-        return self.sendEvent(experimentResults, iterationResults, None, postIterationMsg)
+  def preIteration(self, iterationResults, experimentResults):
+    # initialize any logged parameters that are on a per iteration basis
+    return 0
+   
+  def postMeasurement(self, measurementResults, iterationResults, experimentResults):
+    """Results is a tuple of (measurementResult,iterationResult,experimentResult) references to HDF5 nodes for this
+    measurement."""
+    # set timestamp
+    self.ts = long(time.time()*2**32)
+    # process measurement data from hdf5 file
+    measurementResults.visititems(self.processDatasets(self.measurementDataDict))
+    return 0
 
-    def postExperiment(self, experimentResults):
-        # log any per experiment parameters here
-        return self.sendEvent(experimentResults, None, None, postExperimentMsg)
+  def postIteration(self, iterationResults, experimentResults):
+    # log any per iteration parameters here
+    # set timestamp
+    self.ts = long(time.time()*2**32)
+    # process iteration data from hdf5 file
+    iterationResults.visititems(self.processDatasets(self.iterationDataDict))
+    return 0
 
-    def finalize(self,experimentResults):
-        return 0
+  def postExperiment(self, experimentResults):
+    # log any per experiment parameters here
+    return 0
+
+  def finalize(self,experimentResults):
+    return 0
+
+  def newEntry(self, dset):
+    return {
+      'dtype': dset.dtype,  
+      'time':self.ts, 
+      'data':dset[()],
+      'stream': False,
+      'streamName': ''
+    }
+
+  def processDatasets(self, data_dict):
+    def process(name, obj):
+      if isinstance(obj, Dataset):
+        print '='*10
+        print name
+        print obj.dtype
+        print '-'*10
+        if(obj.dtype in dtype_list):
+          print 'shape: ', obj.shape
+          if name in data_dict:
+            print "dataset `", name, "` already exists in dict"
+            if data_dict[name]['dtype'] == obj.dtype:
+              data_dict[name]['time'] = self.ts
+              data_dict[name]['data'] = obj[()]
+            else:
+              print "dataset type mismatch with stored type"
+          else:
+            data_dict[name] = self.newEntry(obj)
+        print '-'*10
+        print data_dict
+        print '='*10
+    return process

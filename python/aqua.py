@@ -82,7 +82,7 @@ class AQuA(Experiment):
         # do not include functional_waveforms in self.instruments because it need not start/stop
         self.origin = origin.Origin('origin', self, 'saves selected data to the origin data server')
         self.instruments += [self.box_temperature, self.picomotors, self.Andors, self.PICams, self.DC_noise_eaters,
-                             self.LabView, self.DDS, self.unlock_pause, self.origin]
+                             self.LabView, self.DDS, self.unlock_pause]
 
 
         # analyses

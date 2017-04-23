@@ -28,6 +28,9 @@ logger.addHandler(sh)
 import os, datetime, time, struct
 import numpy as np
 import TCP  # import from our package
+import h5py
+
+import sys, traceback
 
 class OriginInterfaceServer(TCP.CsServerSock):
     """A subclass of CsServerSock which handles incoming TCP requests for data"""
@@ -37,9 +40,24 @@ class OriginInterfaceServer(TCP.CsServerSock):
 
     # override parsemsg to define what this CsServerSock will do with incoming messages
     def parsemsg(self, data):
-        print data
+        result = super(OriginInterfaceServer, self).parsemsg(data)
+        try:
+            self.openFile(result)
+        except Exception as e:
+            print "Exception in user code:"
+            print '-'*60
+            traceback.print_exc(file=sys.stdout)
+            print '-'*60 
         msg=TCP.makemsg('success', '0')
         return msg
+
+    def openFile(self, data):
+        self.filepath = data['file']
+        print 'path: ', self.filepath
+        print(os.path.isfile(self.filepath))
+        f = h5py.File(self.filepath, 'r')
+        print(f.name)
+        print(f.keys())
 
 if __name__ == '__main__':
     # start TCP/IP server in a different thread
