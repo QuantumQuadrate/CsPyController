@@ -21,10 +21,13 @@ from atom.api import Int, Float, Str, Member, Bool
 
 from analysis import Analysis
 
-from h5py import Dataset
+from h5py import Dataset, File
 import sys, traceback
 
 import time
+
+import logging
+logger = logging.getLogger(__name__)
 
 preExperimentMsg    = 'PEXP'
 postExperimentMsg   = 'EXPR'
@@ -61,11 +64,12 @@ class Origin(Analysis):
   measurementDataDict = Member()
   iterationDataDict = Member()
   ts = Member()  
+  settings = Member() # hold the hdf5 group object so I can save resave the settigns after the experiment is finished
 
 
   def __init__(self, name, experiment, description=''):
     super(Origin, self).__init__(name, experiment, description)
-        #self.streams = []
+    #self.streams = []
     self.IP = ''
     self.port = 0
     self.measurementDataDict = {}
@@ -75,6 +79,8 @@ class Origin(Analysis):
 
   def preExperiment(self, experimentResults):
     """This is called before an experiment."""
+    print "measurementDataDict: ", self.measurementDataDict
+    print "iterationDataDict: ", self.iterationDataDict
     return 0
 
   def preIteration(self, iterationResults, experimentResults):
@@ -100,6 +106,18 @@ class Origin(Analysis):
 
   def postExperiment(self, experimentResults):
     # log any per experiment parameters here
+
+    # resave the properties now, since the dicts have been edited during the experiment
+    super(Origin, self).toHDF5(experimentResults[self.settings])
+    # open the settings.hdf5 file and resave this part
+    try:
+      f = File('settings.hdf5', 'a')
+      super(Origin, self).toHDF5(f['settings/experiment'])
+      f.flush() # write changes
+    except Exception as e:
+      logger.error('Uncaught Exception in origin.postExperiment:\n{}\n{}'.format(e, traceback.format_exc()))
+    finally:
+      f.close() #close the file
     return 0
 
   def finalize(self,experimentResults):
@@ -117,12 +135,12 @@ class Origin(Analysis):
   def processDatasets(self, data_dict):
     def process(name, obj):
       if isinstance(obj, Dataset):
-        print '='*10
-        print name
-        print obj.dtype
-        print '-'*10
+        #print '-'*10
         if(obj.dtype in dtype_list):
-          print 'shape: ', obj.shape
+          print '='*10
+          print name
+          print obj.dtype
+          #print 'shape: ', obj.shape
           if name in data_dict:
             print "dataset `", name, "` already exists in dict"
             if data_dict[name]['dtype'] == obj.dtype:
@@ -132,7 +150,17 @@ class Origin(Analysis):
               print "dataset type mismatch with stored type"
           else:
             data_dict[name] = self.newEntry(obj)
-        print '-'*10
-        print data_dict
-        print '='*10
+        
+          print data_dict
+          print '='*10
     return process
+
+  def toHDF5(self, hdf_parent_node, name):
+    print('hi I am here')
+    print "name: ", name
+    print "hdf_parent_node: ", hdf_parent_node
+    print "path: ", hdf_parent_node.name
+    # save the origin settings hdf5 object so we can rerun the toHDF5 method 
+    # after the experiment fills out the dicts
+    self.settings = hdf_parent_node.name
+    super(Origin, self).toHDF5(hdf_parent_node)

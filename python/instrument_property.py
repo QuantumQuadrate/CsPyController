@@ -87,7 +87,7 @@ class Prop(Atom):
             name = self.name
         
         #create the group that represents this Prop
-        my_node = hdf_parent_node.create_group(name)
+        my_node = hdf_parent_node.require_group(name)
         
         #go through the list of properties:
         for p in self.properties:
@@ -96,7 +96,7 @@ class Prop(Atom):
             try:
                 o = getattr(self, p)
             except:
-                logger.warning('In Prop.toXML() for class '+name+': item '+p+' in properties list does not exist.\n')
+                logger.warning('In Prop.toHDF5() for class '+name+': item '+p+' in properties list does not exist.\n')
                 continue
             
             #try to save it in various ways
@@ -125,8 +125,13 @@ class Prop(Atom):
                         except:
                             #else just pickle it
                             try:
-                                my_node[p]=pickle.dumps(o)
+                                my_node[p]=pickle.dumps(o)                               
+                            except RuntimeError:
+                                # we make it here if you try to overwrite an existing dataset
+                                my_node[p][()] = pickle.dumps(o)
+
                             except Exception as e:
+                                logger.warning(str(type(e)))
                                 logger.warning('While picking '+p+' in Prop.toHDF5() in '+name+'.\n'+str(e)+'\n')
                                 raise PauseError
         return my_node
