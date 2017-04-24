@@ -690,7 +690,7 @@ class AndorCamera(Instrument):
         return self.DLLError(sys._getframe().f_code.co_name, error, True)
 
     def SetExposureTime(self, time):
-        self.setCamera()
+        self.setCamera() # user enters time in unit of millisecond.
         error = self.dll.SetExposureTime(c_float(time/1000.0))
         self.DLLError(sys._getframe().f_code.co_name, error)
         
