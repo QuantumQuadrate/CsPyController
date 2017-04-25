@@ -3867,6 +3867,48 @@ enamldef Origin(Window):
                 EvalProp:
                     prop << origin.timeout
 
+                IndexedContainer:
+                        iterable << origin.iterationDataList
+                        viewType = Stream
+
+enamldef Stream(Form):
+    attr item
+
+    constraints = [width >= 500, height >= 200]
+
+    #title = 'Princeton Instruments Camera'
+    style_class << 'valid' if experiment.valid else 'invalid'
+    Container:
+        padding = 0
+        style_class << 'valid' if experiment.valid else 'invalid'
+        ScrollArea:
+            style_class << 'valid' if experiment.valid else 'invalid'
+            Container:
+                style_class << 'valid' if experiment.valid else 'invalid'
+
+                Form:
+                    Label:
+                        text = 'data name'
+                    Field:
+                        text := item.name
+                    Label:
+                        text = 'full path'
+                    Field:
+                        text := item.fullPath
+                    Label:
+                        text = 'data type'
+                    Field:
+                        text := item.dtype
+                    Label:
+                        text = 'stream name on server'
+                    Field:
+                        text := item.streamName
+                    Label:
+                        text = 'stream?'
+                    CheckBox:
+                        checked := item.stream                    
+
+
 window_dictionary = {'':'',
                      'Experiment': 'ExperimentPage(experiment = main.experiment)',
                      'Independent Variables': 'IndependentVariables(independentVariables = main.experiment.independentVariables)',

@@ -12,6 +12,9 @@
 
    for other purposes (i.e. not SaffmanLab) it can be found here:
    https://github.com/Orthogonal-Systems/Origin
+
+   TODO: detected values are not being read in from settings file on start because they are not
+   in the properties list
    """
 
 __author__ = 'Matthew Ebert'
@@ -65,22 +68,24 @@ class Stream(Prop):
   ''' an class representing an origin stream
   '''
   name   = Str()
+  fullPath = Str()
   dtype  = Str()  
   time   = Long()
   data   = Member()
-  stream = Member()
-  streamName = Member()
+  stream = Bool()
+  streamName = Str()
 
   def __init__(self, name, experiment):
     super(Stream, self).__init__(name, experiment)
-    self.stream = BoolProp('stream', experiment, 'Send data to server?', 'False')
-    self.streamName = StrProp('streamName', experiment, 'Data stream name (keep short)', '""')
+    self.stream = False
+    self.streamName = ""
     self.properties += ['name', 'dtype', 'stream', 'streamName']
     self.doNotSendToHardware = ['name', 'dtype', 'stream', 'streamName']
 
-  def new_entry(self, dset, timestamp):
+  def new_entry(self, name, dset, timestamp):
     # initialize the non-user settable parameters
-    self.name = dset.name
+    self.name = name
+    self.fullPath = dset.name
     self.dtype = str(dset.dtype)
     self.time = timestamp
     self.data = dset[()]
@@ -181,7 +186,7 @@ class Origin(Analysis):
           print obj.dtype
           append=True
           for item in data_list:
-            if item.name == obj.name:
+            if item.name == name:
               print "dataset `", name, "` already exists in list"
               if item.dtype == str(obj.dtype):
                 item.time = self.ts
@@ -193,7 +198,7 @@ class Origin(Analysis):
           if append:
             print "appending new entry"
             new_entry = data_list.add()
-            new_entry.new_entry(obj, self.ts)
+            new_entry.new_entry(name, obj, self.ts)
         
           print data_list
           print '='*10
