@@ -19,7 +19,7 @@
 __author__ = 'Matthew Ebert'
 
 # don't send to main server if we are testing
-TEST = True
+TEST = False
 
 # Use Atom traits to automate Enaml updating
 from atom.api import Int, Float, Str, Member, Bool, Long, Typed
@@ -263,7 +263,7 @@ class Origin(Analysis):
       logger.info('    Registering streams...done')
       logger.info('Origin streams successfully registered: {}'.format(cnt))
       logger.info('Initializing Origin server interface...done')
-      self.isInitialized = True
+      #self.isInitialized = True # just run the initialization every time right now
     return 0
 
   def preIteration(self, iterationResults, experimentResults):
