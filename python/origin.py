@@ -17,9 +17,9 @@
 __author__ = 'Matthew Ebert'
 
 # Use Atom traits to automate Enaml updating
-from atom.api import Int, Float, Str, Member, Bool, Long
+from atom.api import Int, Float, Str, Member, Bool, Long, Typed
 
-from instrument_property import Prop, ListProp, BoolProp, StrProp
+from instrument_property import Prop, ListProp, BoolProp, StrProp, FloatProp
 
 from analysis import Analysis
 
@@ -89,8 +89,10 @@ class Stream(Prop):
 
 class Origin(Analysis):
   version = '2017.04.20'
+  enable = Bool()
   port = Member()
   IP = Str()
+  timeout = Typed(FloatProp)
   measurementDataList = Member()
   iterationDataList = Member()
   ts = Member()  
@@ -102,6 +104,8 @@ class Origin(Analysis):
     #self.streams = []
     self.IP = ''
     self.port = 0
+    self.timeout = FloatProp('timeout', experiment, 'how long before TCP gives up [s]', '1.0')
+
     self.measurementDataList = ListProp(
       'measurementDataList', 
       experiment, 
@@ -117,7 +121,7 @@ class Origin(Analysis):
       listElementName='stream'
     )
 
-    self.properties += ['measurementDataList','iterationDataList']
+    self.properties += ['measurementDataList','iterationDataList','enable','IP','port','timeout']
 
   def preExperiment(self, experimentResults):
     """This is called before an experiment."""
