@@ -79,8 +79,8 @@ class Stream(Prop):
     super(Stream, self).__init__(name, experiment)
     self.stream = False
     self.streamName = ""
-    self.properties += ['name', 'dtype', 'stream', 'streamName']
-    self.doNotSendToHardware = ['name', 'dtype', 'stream', 'streamName']
+    self.properties += ['name', 'dtype', 'stream', 'streamName', 'fullPath']
+    self.doNotSendToHardware = ['name', 'dtype', 'stream', 'streamName', 'fullPath']
 
   def new_entry(self, name, dset, timestamp):
     # initialize the non-user settable parameters
@@ -182,12 +182,13 @@ class Origin(Analysis):
       if isinstance(obj, Dataset):
         if(obj.dtype in dtype_list):
           print '='*10
-          print name
+          parsedName = name.replace('/','_')
+          print parsedName
           print obj.dtype
           append=True
           for item in data_list:
-            if item.name == name:
-              print "dataset `", name, "` already exists in list"
+            if item.name == parsedName:
+              print "dataset `", parsedName, "` already exists in list"
               if item.dtype == str(obj.dtype):
                 item.time = self.ts
                 item.data = obj[()]
@@ -198,7 +199,7 @@ class Origin(Analysis):
           if append:
             print "appending new entry"
             new_entry = data_list.add()
-            new_entry.new_entry(name, obj, self.ts)
+            new_entry.new_entry(parsedName, obj, self.ts)
         
           print data_list
           print '='*10
