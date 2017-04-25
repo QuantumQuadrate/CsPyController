@@ -18,3 +18,27 @@ On the computer running the python controller:
  * In the HSDIO palette, the resource name field should be set to _name_
  * The number of channels should be specified e.g. 32 (increments of 32)
  * The same number of channels should be added (using the + button)
+
+### Origin Server
+You will need to download the origin package from github.
+You should first navigate to a directory outside of the CsPyController directory.
+The clone the package:
+
+```bash
+git clone https://github.com/QuantumQuadrate/Origin.git
+```
+
+Currently we are using the dev branch so switch to it
+
+```bash
+cd Origin
+git checkout dev
+```
+
+Now you need to add the path to the python path so it can find the package when you import it.
+To do this edit the path to the `CsPyController/python/origin.py` file to reflect the path of your installation.
+
+```python
+# first find ourself
+fullBasePath = "C:\\LabSoftware\\Origin"
+```

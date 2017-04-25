@@ -9,7 +9,7 @@ from atom.api import Member
 
 # Bring in other files in this package
 import functional_waveforms, analysis, instek_pst, save2013style, TTL, LabView, DDS, roi_fitting, picomotors, andor, picampython, vaunix, DCNoiseEater, Laird_temperature, AnalogInput, Counter, conex, aerotech, unlock_pause
-import origin
+import origin_interface
 from experiments import Experiment
 
 
@@ -80,7 +80,6 @@ class AQuA(Experiment):
         self.box_temperature = Laird_temperature.LairdTemperature('box_temperature', self)
         self.unlock_pause = unlock_pause.UnlockMonitor('unlock_pause', self, 'Monitor for pausing when laser unlocks')
         # do not include functional_waveforms in self.instruments because it need not start/stop
-        self.origin = origin.Origin('origin', self, 'saves selected data to the origin data server')
         self.instruments += [self.box_temperature, self.picomotors, self.Andors, self.PICams, self.DC_noise_eaters,
                              self.LabView, self.DDS, self.unlock_pause]
 
@@ -113,6 +112,7 @@ class AQuA(Experiment):
         self.counter_hist = Counter.CounterHistogramAnalysis('counter_hist', self, 'Fits histograms of counter data and plots hist and fits.')
         self.save_notes = save2013style.SaveNotes('save_notes', self, 'save a separate notes.txt')
         self.save2013Analysis = save2013style.Save2013Analysis(self)
+        self.origin = origin_interface.Origin('origin', self, 'saves selected data to the origin data server')
         # do not include functional_waveforms_graph in self.analyses because it need not update on iterations, etc.
         self.analyses += [self.TTL_filters, self.AI_graph, self.AI_filter, self.squareROIAnalysis, self.gaussian_roi,
                           self.loading_filters, self.first_measurements_filter, self.text_analysis,

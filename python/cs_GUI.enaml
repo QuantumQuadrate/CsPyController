@@ -3858,14 +3858,18 @@ enamldef Origin(Window):
                         checked := origin.enable
                     Label:
                         text = 'ip addr'
-                    Field:
+                    Label:
                         text := origin.IP
                     Label:
-                        text = 'port'
-                    IntField:
-                        value := origin.port
-                EvalProp:
-                    prop << origin.timeout
+                        text = 'ports (register, data)'
+                    Label:
+                        text = str(origin.port_register)
+                    Label:
+                        text = 'stream namespace'
+                    Field:
+                        text := origin.streamNameSpace
+                #EvalProp:
+                #    prop << origin.timeout
 
                 IndexedContainer:
                         iterable << origin.iterationDataList
@@ -3889,20 +3893,24 @@ enamldef Stream(Form):
                 Form:
                     Label:
                         text = 'data name'
-                    Field:
+                    Label:
                         text := item.name
                     Label:
                         text = 'full path'
-                    Field:
+                    Label:
                         text := item.fullPath
                     Label:
                         text = 'data type'
-                    Field:
+                    Label:
                         text := item.dtype
                     Label:
-                        text = 'stream name on server'
+                        text = 'stream name'
                     Field:
                         text := item.streamName
+                    Label:
+                        text = 'stream name on server'
+                    Label:
+                        text := item.streamNameFull
                     Label:
                         text = 'stream?'
                     CheckBox:
