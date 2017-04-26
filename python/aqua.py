@@ -8,8 +8,11 @@ import traceback
 from atom.api import Member
 
 # Bring in other files in this package
-import functional_waveforms, analysis, instek_pst, save2013style, TTL, LabView, DDS, roi_fitting, picomotors, andor, picampython, vaunix, DCNoiseEater, Laird_temperature, AnalogInput, Counter, conex, aerotech, unlock_pause
+import functional_waveforms, analysis, instek_pst, save2013style, TTL, LabView, DDS, roi_fitting
+import picomotors, andor, picampython, vaunix, DCNoiseEater, Laird_temperature, AnalogInput
+import Counter, conex, aerotech, unlock_pause
 import origin_interface
+import FakeInstrument
 from experiments import Experiment
 
 
@@ -28,6 +31,7 @@ class AQuA(Experiment):
     DC_noise_eaters = Member()
     box_temperature = Member()
     unlock_pause = Member()
+    Embezzletron = Member()
 
     functional_waveforms = Member()
     functional_waveforms_graph = Member()
@@ -79,9 +83,10 @@ class AQuA(Experiment):
         self.DC_noise_eaters = DCNoiseEater.DCNoiseEaters('DC_noise_eaters', self)
         self.box_temperature = Laird_temperature.LairdTemperature('box_temperature', self)
         self.unlock_pause = unlock_pause.UnlockMonitor('unlock_pause', self, 'Monitor for pausing when laser unlocks')
+        self.Embezzletron = FakeInstrument.Embezzletron('Embezzletron', self, 'Fake instrument that generates random data for testing')
         # do not include functional_waveforms in self.instruments because it need not start/stop
         self.instruments += [self.box_temperature, self.picomotors, self.Andors, self.PICams, self.DC_noise_eaters,
-                             self.LabView, self.DDS, self.unlock_pause]
+                             self.LabView, self.DDS, self.unlock_pause, self.Embezzletron]
 
 
         # analyses

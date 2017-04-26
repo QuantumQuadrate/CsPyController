@@ -76,6 +76,12 @@ def print_dsets(name, obj):
     print obj[()]
     print '-'*10
 
+def pass_measurement(dset):
+  return dset.dtype in dtype_list
+
+def pass_iteration(dset):
+  return (dset.dtype in dtype_list) and not ('/measurements/' in dset.name)
+
 ################################################################################
 ################################################################################
 ################################################################################
@@ -98,8 +104,9 @@ class Stream(Prop):
   server = Member()
   error = Bool()
   connection = Member()
+  channels = Int() # number of data entries to be logged in this stream
 
-  # these are logged ona new connection so we can detect a change in the stream
+  # these are logged on a new connection so we can detect a change in the stream
   # parameters
   old_streamNameFull = Str()
   old_dtype = Str()
@@ -114,7 +121,7 @@ class Stream(Prop):
     self.error = False
 
     self.properties += ['name', 'dtype', 'stream', 'streamName', 'fullPath']
-    self.properties += ['streamNameFull']
+    self.properties += ['streamNameFull', 'channels']
 
   #=============================================================================
   def new_entry(self, name, dset, ts):
@@ -124,6 +131,10 @@ class Stream(Prop):
     self.dtype = str(dset.dtype)
     self.time = ts # timestamp
     self.data = dset[()]
+    self.channels = 1
+    if type(self.data) is np.ndarray:
+      print "numpy array detected"
+      self.channels = self.data.size
 
   #=============================================================================
   def print_status(self):
@@ -169,9 +180,16 @@ class Stream(Prop):
       return False
 
     self.streamNameFull = namespace + self.streamName
+
+    records = { self.name: self.dtype }
+    if self.channels != 1:
+      records = {}
+      for i in xrange(self.channels):
+        records[str(i)] = self.dtype
+
     self.connection = server.registerStream(
       stream=self.streamNameFull,
-      records={ self.name: self.dtype }
+      records=records
     )
     if not self.connection:
       msg = 'There was a problem registering the stream: `{}` with the server.'
@@ -187,7 +205,13 @@ class Stream(Prop):
 
   #=============================================================================
   def logData(self):
-    data = { timestamp: self.time, self.name: self.data }
+    if self.channels == 1:
+      data = { timestamp: self.time, self.name: self.data }
+    else:
+      data = { timestamp: self.time }
+      for i, d in enumerate(self.data):
+        data[str(i)] = d
+      print data
     self.connection.send(**data)
     msg = 'Stream `{}` for dataset `{}` logged to Origin server.'
     logger.debug(msg.format(self.streamName, self.name))
@@ -336,7 +360,11 @@ class Origin(Analysis):
     # set timestamp
     self.ts = long(time.time()*2**32)
     # process measurement data from hdf5 file
-    measurementResults.visititems(self.processDatasets(self.measurementDataList))
+    measurementResults.visititems(self.processDatasets(self.measurementDataList, pass_measurement))
+
+    if not self.enable:
+      return 0
+
     for i in self.measurementDataList:
       if i.stream and not i.error:
         i.logData()
@@ -348,7 +376,11 @@ class Origin(Analysis):
     # set timestamp
     self.ts = long(time.time()*2**32)
     # process iteration data from hdf5 file
-    iterationResults.visititems(self.processDatasets(self.iterationDataList))
+    iterationResults.visititems(self.processDatasets(self.iterationDataList, pass_iteration))
+
+    if not self.enable:
+      return 0
+
     for i in self.iterationDataList:
       if i.stream and not i.error:
         i.logData()
@@ -380,10 +412,13 @@ class Origin(Analysis):
     return Stream(dset.name, self.experiment, dset, self.ts, '')
 
   #=============================================================================
-  def processDatasets(self, data_list):
+  def processDatasets(self, data_list, pass_func):
+    '''pass in the data list to be scaned and a pass function returning True if
+    the object should be kept
+    '''
     def process(name, obj):
       if isinstance(obj, Dataset):
-        if(obj.dtype in dtype_list):
+        if pass_func(obj):
           parsedName = name.replace('/','_')
           append=True
           for item in data_list:
@@ -392,6 +427,7 @@ class Origin(Analysis):
               if item.dtype == str(obj.dtype):
                 item.time = self.ts
                 item.data = obj[()]
+                print(type(item.data))               
               else:
                 try:
                   item.data = eval('np.'+item.dtype+'(obj[()])')
@@ -400,7 +436,7 @@ class Origin(Analysis):
                   logger.error('Uncaught Exception in origin.postExperiment:\n{}\n{}'.format(e, traceback.format_exc()))
                   msg = "Dataset `{}` type mismatch with stored type. new: `{}`, old: `{}`"
                   logger.error(msg.format(parsedName, obj.dtype, item.dtype))
-                  append = False
+              append = False
               break
           if append:
             logger.info("New dataset `{}` detected.".format(parsedName))

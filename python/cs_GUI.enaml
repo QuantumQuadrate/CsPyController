@@ -3920,6 +3920,10 @@ enamldef Stream(Form):
                     Label:
                         text := item.streamNameFull
                     Label:
+                        text = 'channels'
+                    Label:
+                        text := str(item.channels)
+                    Label:
                         text = 'stream?'
                     CheckBox:
                         checked := item.stream                    
