@@ -39,6 +39,7 @@ class AQuA(Experiment):
     first_measurements_filter = Member()
     text_analysis = Member()
     recent_shot_analysis = Member()
+    resource_selectable_analysis = Member()
     shotBrowserAnalysis = Member()
     imageSumAnalysis = Member()
     imageWithROIAnalysis = Member()
@@ -57,8 +58,8 @@ class AQuA(Experiment):
     counter_hist = Member()
     save_notes = Member()
     save2013Analysis = Member()
-    ROI_rows = 7
-    ROI_columns = 7
+    ROI_rows = 5
+    ROI_columns = 1
 
     def __init__(self):
         super(AQuA, self).__init__()
@@ -69,7 +70,7 @@ class AQuA(Experiment):
         self.conexes = conex.Conexes('conexes', self, 'CONEX-CC')
         self.picomotors = picomotors.Picomotors('picomotors', self, 'Newport Picomotors')
         self.instekpsts = instek_pst.InstekPSTs('instekpsts', self, 'Instek PST power supply')
-        self.Andors = andor.Andors('Andors', self, 'Andor Luca Cameras')
+        self.Andors = andor.Andors('Andors', self, 'Andor Luca measurementResults')
         self.vaunixs = vaunix.Vaunixs('vaunixs', self, 'Vaunix Signal Generator')
         self.PICam = picam.PICam('PICam', self, 'Princeton Instruments Camera')
         self.LabView = LabView.LabView(self)
@@ -94,6 +95,7 @@ class AQuA(Experiment):
         self.text_analysis = analysis.TextAnalysis('text_analysis', self, 'text results from the measurement')
         self.imageSumAnalysis = analysis.ImageSumAnalysis(self)
         self.recent_shot_analysis = analysis.RecentShotAnalysis('recent_shot_analysis', self, description='just show the most recent shot')
+        self.resource_selectable_analysis = analysis.ResourceSelectableAnalysis('resource_selectable_analysis', self, description='You can select which device to analyze')
         self.shotBrowserAnalysis = analysis.ShotsBrowserAnalysis(self)
         self.histogramAnalysis = analysis.HistogramAnalysis('histogramAnalysis', self, 'plot the histogram of any shot and roi')
         self.histogram_grid = analysis.HistogramGrid('histogram_grid', self, 'all 49 histograms for shot 0 at the same time')
@@ -113,18 +115,18 @@ class AQuA(Experiment):
         # do not include functional_waveforms_graph in self.analyses because it need not update on iterations, etc.
         self.analyses += [self.TTL_filters, self.AI_graph, self.AI_filter, self.squareROIAnalysis, self.gaussian_roi,
                           self.loading_filters, self.first_measurements_filter, self.text_analysis,
-                          self.imageSumAnalysis, self.recent_shot_analysis, self.shotBrowserAnalysis,
+                          self.imageSumAnalysis, self.recent_shot_analysis, self.resource_selectable_analysis,self.shotBrowserAnalysis,
                           self.histogramAnalysis, self.histogram_grid, self.measurements_graph, self.iterations_graph,
                           self.picam_viewer, self.DC_noise_eater_graph, self.DC_noise_eater_filter, self.Andors,
                           self.Ramsey, self.retention_analysis, self.retention_graph, self.counter_graph,
                           self.save_notes, self.save2013Analysis, self.aerotechs, self.conexes,self.counter_hist,
                           self.instekpsts, self.vaunixs, self.unlock_pause]
 
-        
+
         self.properties += ['functional_waveforms', 'LabView', 'functional_waveforms_graph', 'DDS', 'aerotechs', 'picomotors', 'conexes',
-                            'Andors', 'PICam', 'DC_noise_eaters', 'box_temperature', 'squareROIAnalysis', 'gaussian_roi', 'instekpsts', 
-                            'TTL_filters', 'AI_graph', 'AI_filter', 'loading_filters', 'first_measurements_filter', 'vaunixs', 
-                            'imageSumAnalysis', 'recent_shot_analysis', 'shotBrowserAnalysis', 'histogramAnalysis',
+                            'Andors', 'PICam', 'DC_noise_eaters', 'box_temperature', 'squareROIAnalysis', 'gaussian_roi', 'instekpsts',
+                            'TTL_filters', 'AI_graph', 'AI_filter', 'loading_filters', 'first_measurements_filter', 'vaunixs',
+                            'imageSumAnalysis', 'recent_shot_analysis', 'resource_selectable_analysis','shotBrowserAnalysis', 'histogramAnalysis',
                             'histogram_grid', 'retention_analysis', 'measurements_graph', 'iterations_graph',
                             'retention_graph', 'picam_viewer', 'DC_noise_eater_filter',
                             'DC_noise_eater_graph', 'Ramsey', 'counter_graph', 'counter_hist', 'unlock_pause']

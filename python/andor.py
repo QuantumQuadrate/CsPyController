@@ -101,7 +101,7 @@ class AndorCamera(Instrument):
     roihighv = Int(0)
     roimaxh = Int(512)
     roimaxv = Int(-512)
-    
+
     ROI = Member()
     #enableROI = False
     enableROI = True # activates slider
@@ -156,8 +156,11 @@ class AndorCamera(Instrument):
             if self.GetStatus() == 'DRV_ACQUIRING':
                     self.GetAcquiredData(True)
                     self.AbortAcquisition()
+            self.CoolerON()
             self.StartAcquisition()
             self.isDone = True
+
+
 
     def update(self):
         if self.enable: # If enable checkbox is checked,
@@ -181,7 +184,7 @@ class AndorCamera(Instrument):
             #self.SetImage(1,1,1,self.width,1,self.height)
             #print "done setImage"
             ###############################################
-            
+
             if self.enableROI:
                 self.setROIvalues()
                 p6 = self.ROI[4]
@@ -224,7 +227,7 @@ class AndorCamera(Instrument):
             #    self.width = self.width / self.binChoices[self.binMode]
             #    self.height = self.height / self.binChoices[self.binMode]
             #    self.dim = self.width * self.height
-                
+
                 ####################
             #print "done setImage. With binning of {}, new width and height are {}, {}".format(self.binChoices[self.binMode],self.width,self.height)
             if (self.acquisitionChoices[self.acquisitionMode]==3 or self.acquisitionChoices[self.acquisitionMode]==4):
@@ -278,6 +281,7 @@ class AndorCamera(Instrument):
         self.SetExposureTime(self.exposureTime.value)
         self.SetTriggerMode(0)
         self.SetReadMode(4)  # image mode
+        self.CoolerON()
         #print "bin size: {}".format(self.binChoices[self.binMode])
 
 
@@ -478,7 +482,7 @@ class AndorCamera(Instrument):
            self.GetTemperature()
             #self.GetAcquiredData(True)
             #self.AbortAcquisition()
-        
+
     def GetNumberNewImages(self, dump=False):
         first = c_long()
         last = c_long()
@@ -517,7 +521,7 @@ class AndorCamera(Instrument):
         self.ROI[4] = max(-1*self.roihighv,-1*self.roilowv)   #y2
 
         self.ROI[5] = 1   #y-binning
-        
+
         self.width = self.ROI[1] - max(self.ROI[0],1) +1
         self.height = self.ROI[4] - max(self.ROI[3],1) +1
         self.dim = self.width*self.height
@@ -601,19 +605,19 @@ class AndorCamera(Instrument):
     def SetAcquisitionMode(self, mode):
         error = self.dll.SetAcquisitionMode(mode)
         self.DLLError(sys._getframe().f_code.co_name, error)
-        
+
     def SetNumberKinetics(self, number):
         error = self.dll.SetNumberKinetics(number)
         self.DLLError(sys._getframe().f_code.co_name, error)
-        
+
     def SetNumberAccumulations(self, number):
         error = self.dll.SetNumberAccumulations(number)
         self.DLLError(sys._getframe().f_code.co_name, error)
-        
+
     def SetAccumulationCycleTime(self, time):
         error = self.dll.SetAccumulationCycleTime(c_float(time))
         self.DLLError(sys._getframe().f_code.co_name, error)
-        
+
     def SetKineticCycleTime(self, time):
         error = self.dll.SetKineticCycleTime(c_float(time))
         self.DLLError(sys._getframe().f_code.co_name, error)
@@ -621,7 +625,7 @@ class AndorCamera(Instrument):
     def SetShutter(self, typ, mode, closingtime, openingtime):
         if self.GetStatus() == 'DRV_ACQUIRING':
             self.AbortAcquisition()
-            logger.error('Shutter control during acquisition. Acquisition aborted')            
+            logger.error('Shutter control during acquisition. Acquisition aborted')
             self.mode = 'idle' # set the mode to idle.
         error = self.dll.SetShutter(typ, mode, closingtime, openingtime)
         self.DLLError(sys._getframe().f_code.co_name, error)
@@ -641,7 +645,7 @@ class AndorCamera(Instrument):
         self.setCamera()
         error = self.dll.WaitForAcquisition()
         self.DLLError(sys._getframe().f_code.co_name, error)
-    
+
     def GetAcquiredData(self, dump=False):
         #print "declaring c_image_array"
         c_image_array_type = c_int * self.dim * self.shotsPerMeasurement.value
@@ -693,7 +697,7 @@ class AndorCamera(Instrument):
         self.setCamera() # user enters time in unit of millisecond.
         error = self.dll.SetExposureTime(c_float(time/1000.0))
         self.DLLError(sys._getframe().f_code.co_name, error)
-        
+
     def GetAcquisitionTimings(self):
         exposure = c_float()
         accumulate = c_float()
@@ -762,11 +766,11 @@ class AndorCamera(Instrument):
     def SetEMGainMode(self, mode):
         error = self.dll.SetEMGainMode(mode)
         self.DLLError(sys._getframe().f_code.co_name, error)
-        
+
     def SetEMCCDGain(self, gain):
         error = self.dll.SetEMCCDGain(gain)
         self.DLLError(sys._getframe().f_code.co_name, error)
-        
+
     def SetEMAdvanced(self, state):
         error = self.dll.SetEMAdvanced(state)
         self.DLLError(sys._getframe().f_code.co_name, error)
@@ -824,7 +828,7 @@ class AndorCamera(Instrument):
             self.DLLError(sys._getframe().f_code.co_name, error)
             self.HSSpeeds.append(HSSpeed.value)
         return self.HSSpeeds
-            
+
     def SetHSSpeed(self, index):
         error = self.dll.SetHSSpeed(index)
         self.DLLError(sys._getframe().f_code.co_name, error)
@@ -859,7 +863,7 @@ class AndorCamera(Instrument):
         self.DLLError(sys._getframe().f_code.co_name, error)
         self.noGains = noGains.value
         return self.noGains
-        
+
     def GetPreAmpGain(self):
         self.GetNumberPreAmpGains() # This needs to run first to get noGains variable
         gain = c_float()
@@ -895,11 +899,11 @@ class AndorCamera(Instrument):
     def SetFrameTransferMode(self, frameTransfer):
         error = self.dll.SetFrameTransferMode(frameTransfer)
         self.DLLError(sys._getframe().f_code.co_name, error)
-        
+
     def SetShutterEx(self, typ, mode, closingtime, openingtime, extmode):
         if self.GetStatus() == 'DRV_ACQUIRING':
             self.AbortAcquisition()
-            logger.error('Shutter control during acquisition. Acquisition aborted')            
+            logger.error('Shutter control during acquisition. Acquisition aborted')
             self.mode = 'idle' # set the mode to idle.
         error = self.dll.SetShutterEx(typ, mode, closingtime, openingtime, extmode)
         self.DLLError(sys._getframe().f_code.co_name, error)
@@ -918,14 +922,14 @@ class AndorCamera(Instrument):
         print 'Supporing Horizontal Shift speed: {}'.format(self.GetHSSpeed())
         print 'SupporingEMCCD Gain range:{}'.format(self.GetEMGainRange())
         print 'Current EMCCD Gain:{}'.format(self.GetEMCCDGain())
-        print 'Current Camera Status :{}'.format(self.GetStatus())   
+        print 'Current Camera Status :{}'.format(self.GetStatus())
         print 'Current Horizontal Shift :{}'.format(self.GetHSSpeed()[self.HSSpeed])
         print 'Current Vertical Shift :{}'.format(self.GetVSSpeed()[self.VSSpeed])
         print 'Current preamp gain :{}'.format(self.GetPreAmpGain()[self.preAmpGain.value])
         print '%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%'
 
-        
-        
+
+
 ERROR_CODE = {
     20001: "DRV_ERROR_CODES",
     20002: "DRV_SUCCESS",
@@ -1036,6 +1040,7 @@ class AndorViewer(AnalysisWithFigure):
         if 'data/Andor_{}'.format(self.mycam.CurrentHandle) in measurementResults:
             #for each image
             self.data = measurementResults['data/Andor_{}'.format(self.mycam.CurrentHandle)]
+            print measurementResults['data/Andor_{}'.format(self.mycam.CurrentHandle)]
         self.updateFigure()  # only update figure if image was loaded
 
     @observe('shot')
@@ -1239,4 +1244,3 @@ class Andors(Instrument,Analysis):
             self.isInitialized = False
             raise PauseError
         return 0
-

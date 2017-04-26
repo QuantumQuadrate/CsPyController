@@ -26,7 +26,7 @@ from scipy.special import erf
 
 from colors import my_cmap, green_cmap
 
-from instrument_property import Prop
+from instrument_property import Prop,StrProp
 import cs_evaluate
 
 
@@ -71,12 +71,12 @@ class Analysis(Prop):
         2: med fail, continue with other analyses, do not increment measurement total, and delete measurement data after all analyses
         3: hard fail, do not continue with other analyses, do not increment measurement total, delete measurement data
     """
-    
+
     queueAfterMeasurement = Bool()  # Set to True to allow multi-threading on this analysis.  Only do this if you are NOT filtering on this analysis, and if you do NOT depend on the results of this analysis later. Default is False.
     dropMeasurementIfSlow = Bool()  # Set to True to skip measurements when slow.  Applies only to multi-threading.  Raw data can still be used post-iteration and post-experiment. Default is False.
     queueAfterIteration = Bool()  # Set to True to allow multi-threading on this analysis.  Only do this if you do NOT depend on the results of this analysis later. Default is False.
     dropIterationIfSlow = Bool()  # Set to True to skip iterations when slow.  Applies only to multi-threading.  Raw data can still be used in post-experiment.  Default is False.
-    
+
     #internal variables, user should not modify
     measurementProcessing = Bool()
     iterationProcessing = Bool()
@@ -86,7 +86,7 @@ class Analysis(Prop):
     def __init__(self, name, experiment, description=''):  # subclassing from Prop provides save/load mechanisms
         super(Analysis, self).__init__(name, experiment, description)
         self.properties += ['dropMeasurementIfSlow', 'dropIterationIfSlow']
-    
+
     def preExperiment(self, experimentResults):
         """This is called before an experiment.
         The parameter experimentResults is a reference to the HDF5 file for this experiment.
@@ -112,19 +112,19 @@ class Analysis(Prop):
                 self.measurementQueue.append((measurementResults, iterationResults, experimentResults))
         else:
             return self.analyzeMeasurement(measurementResults, iterationResults, experimentResults)
-    
+
     def measurementProcessLoop(self):
         while len(self.measurementQueue) > 0:
             self.analyzeMeasurement(*self.measurementQueue.pop(0))  # process the oldest element
         self.measurementProcessing = False
-    
+
     def analyzeMeasurement(self, measurementResults, iterationResults, experimentResults):
         """This is called after each measurement.
         The parameters (measurementResults, iterationResults, experimentResults)
         reference the HDF5 nodes for this measurement.
         Subclass this to update the analysis appropriately."""
         pass
-    
+
     def postIteration(self, iterationResults, experimentResults):
         if self.queueAfterIteration:
             if not self.iterationProcessing:  # check to see if a processing queue is already going
@@ -136,22 +136,22 @@ class Analysis(Prop):
                 self.iterationQueue.append((iterationResults, experimentResults))
         else:
             self.analyzeIteration(iterationResults, experimentResults)
-    
+
     def iterationProcessLoop(self):
         while len(self.iterationQueue) > 0:
             self.analyzeIteration(*self.iterationQueue.pop(0))  # process the oldest element
         self.iterationProcessing = False
-    
+
     def analyzeIteration(self, iterationResults, experimentResults):
         """This is called after each iteration.
         The parameters (iterationResults, experimentResults) reference the HDF5 nodes for this iteration.
         Subclass this to update the analysis appropriately."""
         pass
-    
+
     def postExperiment(self, experimentResults):
         #no queueing, must do post experiment processing at this time
         self.analyzeExperiment(experimentResults)
-    
+
     def analyzeExperiment(self, experimentResults):
         """This is called at the end of the experiment.
         The parameter experimentResults is a reference to the HDF5 file for the experiment.
@@ -164,27 +164,27 @@ class Analysis(Prop):
 
 
 class AnalysisWithFigure(Analysis):
-    
+
     #matplotlib figures
     figure = Typed(Figure)
     backFigure = Typed(Figure)
     figure1 = Typed(Figure)
     figure2 = Typed(Figure)
-    
+
     def __init__(self, name, experiment, description=''):
         super(AnalysisWithFigure, self).__init__(name, experiment, description)
-        
+
         #set up the matplotlib figures
         self.figure1 = Figure()
         self.figure2 = Figure()
         self.backFigure = self.figure2
         self.figure = self.figure1
-    
+
     def swapFigures(self):
         temp = self.backFigure
         self.backFigure = self.figure
         self.figure = temp
-    
+
     def updateFigure(self):
         #signal the GUI to redraw figure
         try:
@@ -313,7 +313,7 @@ class XYPlotAnalysis(AnalysisWithFigure):
     #### needs updating
     X=Member()
     Y=Member()
-    
+
     def updateFigure(self):
         fig=self.backFigure
         fig.clf()
@@ -325,7 +325,7 @@ class XYPlotAnalysis(AnalysisWithFigure):
 
 class SampleXYAnalysis(XYPlotAnalysis):
     #### needs updating
-    
+
     '''This analysis plots the sum of the whole camera image every measurement.'''
     def analyzeMeasurement(self,measurementResults,iterationResults,experimentResults):
         if 'data/Hamamatsu/shots' in measurementResults:
@@ -335,7 +335,7 @@ class SampleXYAnalysis(XYPlotAnalysis):
 
 
 class ShotsBrowserAnalysis(AnalysisWithFigure):
-    
+
     ivarNames=List(default=[])
     ivarValueLists=List(default=[])
     selection=List(default=[])
@@ -344,17 +344,17 @@ class ShotsBrowserAnalysis(AnalysisWithFigure):
     array=Member()
     experimentResults=Member()
     showROIs = Bool(False)
-    
+
     def __init__(self, experiment):
         super(ShotsBrowserAnalysis, self).__init__('ShotsBrowser', experiment, 'Shows a particular shot from the experiment')
         self.properties += ['measurement', 'shot', 'showROIs']
-    
+
     def preExperiment(self, experimentResults):
         self.experimentResults = experimentResults
         self.ivarValueLists = [i for i in self.experiment.ivarValueLists]  # this line used to access the hdf5 file, but I have temporarily removed ivarValueLists from the HDF5 because it could not handle arbitrary lists of lists
         self.selection = [0]*len(self.ivarValueLists)
         deferred_call(setattr, self, 'ivarNames', [i for i in experimentResults.attrs['ivarNames']])
-    
+
     def setIteration(self,ivarIndex,index):
         try:
             self.selection[ivarIndex] = index
@@ -362,11 +362,11 @@ class ShotsBrowserAnalysis(AnalysisWithFigure):
             logger.warning('Invalid ivarIndex in analysis.ShotsBrowserAnalysis.setSelection({},{})\n{}\n[]'.format(ivarIndex,index,e,traceback.format_exc()))
             raise PauseError
         self.load()
-    
+
     @observe('measurement','shot','showROIs')
     def reload(self,change):
         self.load()
-    
+
     def load(self):
         if self.experimentResults is not None:
             #find the first matching iteration
@@ -383,12 +383,12 @@ class ShotsBrowserAnalysis(AnalysisWithFigure):
                             logger.warning('Exception trying to plot measurement {}, shot {}, in analysis.ShotsBrowserAnalysis.load()\n{}\n'.format(m,s,e))
                             self.blankFigure()
                         break
-    
+
     def blankFigure(self):
         fig=self.backFigure
         fig.clf()
         super(ShotsBrowserAnalysis,self).updateFigure()
-    
+
     def updateFigure(self):
         fig=self.backFigure
         fig.clf()
@@ -616,9 +616,12 @@ class SquareROIAnalysis(AnalysisWithFigure):
     def analyzeMeasurement(self, measurementResults, iterationResults, experimentResults):
         if self.enable:
             if ('data/Hamamatsu/shots' in measurementResults):
+            #if 'data/Andor_4522'in measurementResults:
                 #here we want to live update a digital plot of atom loading as it happens
 
                 numShots = len(measurementResults['data/Hamamatsu/shots'])
+                #numShots = len(measurementResults['data/Andor_4522'])
+                print 'numshots: {}'.format(numShots)
                 # check to see that we got enough shots
                 if self.experiment.LabView.camera.enable and (numShots != self.experiment.LabView.camera.shotsPerMeasurement.value):
                     logger.warning('Camera expected {} shots, but instead got {}.'.format(
@@ -633,6 +636,7 @@ class SquareROIAnalysis(AnalysisWithFigure):
 
                 #for each image
                 for i, (name, shot) in enumerate(measurementResults['data/Hamamatsu/shots'].items()):
+                #for i, (name, shot) in enumerate(measurementResults['data/Andor_4522'].items()):
                     #calculate sum of pixels in each ROI
                     shot_sums = self.sums(self.ROIs, shot)
                     sum_array[i] = shot_sums
@@ -645,7 +649,7 @@ class SquareROIAnalysis(AnalysisWithFigure):
                 measurementResults['analysis/squareROIsums'] = sum_array
                 measurementResults['analysis/squareROIthresholded'] = thresholdArray
                 self.updateFigure()
-                
+
             # check to see if there were supposed to be images
             elif self.experiment.LabView.camera.enable and (self.experiment.LabView.camera.shotsPerMeasurement.value > 0):
                 logger.warning('Camera expected {} shots, but did not get any.'.format(self.experiment.LabView.camera.shotsPerMeasurement.value))
@@ -731,7 +735,7 @@ class LoadingFilters(Analysis):
 
 
 class DropFirstMeasurementsFilter(Analysis):
-    """This analysis allows the user to drop the first N measurements in an 
+    """This analysis allows the user to drop the first N measurements in an
     iteration, to ensure that all measurements are done at equivalent conditions
     ."""
 
@@ -1817,3 +1821,47 @@ class RetentionAnalysis(Analysis):
         text += '\n'.join(['\t'.join(map(lambda x: '{:.3f}'.format(x), reloading[row*columns:(row+1)*columns])) for row in xrange(rows)]) + '\n'
 
         return loaded, retained, reloaded, loading, retention, retention_sigma, reloading, text, atoms
+
+class ResourceSelectableAnalysis(AnalysisWithFigure):
+    """Based on RecentShotAnalysis, but gives freedom to choose resources """
+    #resource=Member()
+    resource=Typed(StrProp)
+    data = Member()
+    showROIs = Bool(False)
+    shot = Int(0)
+
+    def __init__(self, name, experiment, description=''):
+        super(ResourceSelectableAnalysis, self).__init__(name, experiment, description)
+        self.properties += ['resource','shot']
+        self.resource = StrProp('Resource', experiment, '', '"data/Hamamatsu/shots"')
+        #self.resource='data/Hamamatsu/shots'
+
+    def analyzeMeasurement(self, measurementResults, iterationResults, experimentResults):
+        self.data = []
+        #print self.resource.value
+        #if self.resource in measurementResults:
+        if self.resource.value in measurementResults:
+            #print 'resource found!'
+            print measurementResults[self.resource.value]
+            #for each image
+            #for shot in measurementResults[self.resource.value].values():
+            #    self.data.append(shot)
+            self.data=measurementResults[self.resource.value]
+            print 'dimension of data:{}'.format(np.size(self.data))
+        self.updateFigure()  # only update figure if image was loaded
+
+    @observe('resource','shot')
+    def reload(self, change):
+        self.updateFigure()
+
+    def updateFigure(self):
+        fig = self.backFigure
+        fig.clf()
+        if (self.data is not None) and (self.shot < len(self.data)):
+            ax = fig.add_subplot(111)
+            data = self.data[self.shot] # displayes shot 0?..
+            #vmin = self.experiment.imageSumAnalysis.min
+            #vmax = self.experiment.imageSumAnalysis.max
+            ax.matshow(data, cmap=my_cmap)
+            ax.set_title('shot! '+str(self.shot))
+            super(ResourceSelectableAnalysis, self).updateFigure()
