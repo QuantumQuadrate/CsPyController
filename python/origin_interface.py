@@ -394,7 +394,6 @@ class Origin(Analysis):
                 item.data = obj[()]
               else:
                 try:
-                  print(item.dtype+'(obj[()])')
                   item.data = eval('np.'+item.dtype+'(obj[()])')
                   item.time = self.ts
                 except Exception as e:
