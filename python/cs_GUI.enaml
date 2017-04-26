@@ -3857,10 +3857,6 @@ enamldef Origin(Window):
                     CheckBox:
                         checked := origin.enable
                     Label:
-                        text = 'test'
-                    CheckBox:
-                        checked := origin.test
-                    Label:
                         text = 'ip addr'
                     Label:
                         text := origin.IP
@@ -3908,7 +3904,7 @@ enamldef Stream(Form):
                     Label:
                         text := item.fullPath
                     Label:
-                        text = 'data type (int64, float64)'
+                        text = 'data type (numpy datatypes)'
                     Field:
                         text := item.dtype
                     Label:
@@ -3923,6 +3919,10 @@ enamldef Stream(Form):
                         text = 'channels'
                     Label:
                         text := str(item.channels)
+                    Label:
+                        text = 'fields names on server'
+                    Label:
+                        text := str(item.fieldsList)
                     Label:
                         text = 'stream?'
                     CheckBox:

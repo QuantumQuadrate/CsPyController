@@ -18,6 +18,9 @@
 
 __author__ = 'Matthew Ebert'
 
+#ORIGIN_TEST = False
+ORIGIN_TEST = True
+
 # Use Atom traits to automate Enaml updating
 from atom.api import Int, Float, Str, Member, Bool, Long, Typed
 
@@ -117,6 +120,8 @@ class Stream(Prop):
   error = Bool()
   connection = Member()
   channels = Int() # number of data entries to be logged in this stream
+  fieldsStr = Str() # str for displaying the stream's fields
+  fieldsList = Member() # list of field names, can be set to be updated in the GUI
 
   # these are logged on a new connection so we can detect a change in the stream
   # parameters
@@ -144,6 +149,13 @@ class Stream(Prop):
     self.time = ts # timestamp
     self.channels, self.data = formatData(dset[()])
 
+    # record the fields names
+    if self.channels == 1:
+      self.fieldsList = [self.name]
+    else:
+      self.fieldsList = range(0,self.channels)
+    self.fieldsStr = '[{}]'.format(', '.join(map(str, self.fieldsList)))
+
   #=============================================================================
   def print_status(self):
     '''returns a string listing the status'''
@@ -155,14 +167,19 @@ class Stream(Prop):
 
   #=============================================================================
   def is_streamed(self, server, namespace):
-    '''performs error checking and will deactivate a stream if there is an error.
+    '''performs error checking and will deactivate a stream for common user errors.
+    If no errors are detected will attempt to register the stream.
     Returns True if the stream registration succeeded.
     '''
+
+    # if we aren't attempting to stream go about your business
     if not self.stream:
       return False
 
+    # common messages
     msg = 'You have requested that the `{}` dataset be logged to the Origin data server, but'.format(self.name)
     msgDisabled = ' The stream has been disabled in the settings.'
+
     # the stream needs to have a name
     if not self.streamName:
       self.stream = False
@@ -187,18 +204,23 @@ class Stream(Prop):
       logger.warning(' The stream has been disabled in the settings.'.format(self.dtype))
       return False
 
+    # define the stream name with the experiment namespace
     self.streamNameFull = namespace + self.streamName
 
+    # build the records dictionary
     records = { self.name: self.dtype }
     if self.channels != 1:
       records = {}
       for i in xrange(self.channels):
         records[str(i)] = self.dtype
 
+    # register the stream
     self.connection = server.registerStream(
       stream=self.streamNameFull,
       records=records
     )
+
+    # error checking
     if not self.connection:
       msg = 'There was a problem registering the stream: `{}` with the server.'
       logger.error(msg.format(self.name))
@@ -260,7 +282,6 @@ class Origin(Analysis):
   server = Member() # holds the server object
   config = Member() # holds the origin configuration file
   streamNameSpace = Str() # this is a string that will be prepended to all stream names for the experiment
-  test = Bool() # don't send to main server if we are testing
 
   #=============================================================================
   def __init__(self, name, experiment, description=''):
@@ -268,7 +289,6 @@ class Origin(Analysis):
     #self.timeout = FloatProp('timeout', experiment, 'how long before TCP gives up [s]', '1.0')
     self.isInitialized = False
     self.streamNameSpace = ''
-    self.test = True # fine for now
 
     self.configure()
 
@@ -288,12 +308,12 @@ class Origin(Analysis):
     )
 
     self.properties += ['measurementDataList','iterationDataList','enable']
-    self.properties += ['streamNameSpace','test']
+    self.properties += ['streamNameSpace']
 
   #=============================================================================
   def configure(self):
     # read in the correct config file
-    if self.test:
+    if ORIGIN_TEST:
       configfile = os.path.join(fullCfgPath, "origin-server-test.cfg")
     else:
       configfile = os.path.join(fullCfgPath, "origin-server.cfg")
