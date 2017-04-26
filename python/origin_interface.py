@@ -36,7 +36,8 @@ import logging
 logger = logging.getLogger(__name__)
 
 # first find ourself
-fullBasePath = "D:\\projects\\Origin"
+fullBasePath = "C:\\LabSoftware\\Origin"
+#fullBasePath = "D:\\projects\\Origin"
 # do not change this
 fullLibPath  = os.path.join(fullBasePath, "lib")
 # use the default config file since we are all sharing a server
@@ -81,6 +82,17 @@ def pass_measurement(dset):
 
 def pass_iteration(dset):
   return (dset.dtype in dtype_list) and not ('/measurements/' in dset.name)
+
+def formatData(data):
+  '''returns data into relevant type
+  ND arrays to 1D arrays
+  '''
+  channels = 1
+  if type(data) is np.ndarray:
+    # flatten ND arrays to 1D
+    channels = data.size
+    data = data.flatten()
+  return (channels, data)
 
 ################################################################################
 ################################################################################
@@ -130,11 +142,7 @@ class Stream(Prop):
     self.fullPath = dset.name
     self.dtype = str(dset.dtype)
     self.time = ts # timestamp
-    self.data = dset[()]
-    self.channels = 1
-    if type(self.data) is np.ndarray:
-      print "numpy array detected"
-      self.channels = self.data.size
+    self.channels, self.data = formatData(dset[()])
 
   #=============================================================================
   def print_status(self):
@@ -211,7 +219,6 @@ class Stream(Prop):
       data = { timestamp: self.time }
       for i, d in enumerate(self.data):
         data[str(i)] = d
-      print data
     self.connection.send(**data)
     msg = 'Stream `{}` for dataset `{}` logged to Origin server.'
     logger.debug(msg.format(self.streamName, self.name))
@@ -426,11 +433,13 @@ class Origin(Analysis):
               logger.debug("dataset `{}` already exists in list".format(parsedName))
               if item.dtype == str(obj.dtype):
                 item.time = self.ts
-                item.data = obj[()]
-                print(type(item.data))               
+                channels, item.data = formatData(obj[()])
               else:
                 try:
-                  item.data = eval('np.'+item.dtype+'(obj[()])')
+                  msg = 'Attempting to cast dataset `{}` of type `{}` to type `{}` to match stream definition.'
+                  logger.debug(msg.format(parsedName, obj.dtype, item.dtype))
+                  data = eval('np.'+item.dtype+'(obj[()])')
+                  channels, item.data = formatData(data)
                   item.time = self.ts
                 except Exception as e:
                   logger.error('Uncaught Exception in origin.postExperiment:\n{}\n{}'.format(e, traceback.format_exc()))
@@ -439,9 +448,10 @@ class Origin(Analysis):
               append = False
               break
           if append:
-            logger.info("New dataset `{}` detected.".format(parsedName))
             new_entry = data_list.add()
             new_entry.new_entry(parsedName, obj, self.ts)
+            msg = "New dataset `{}` of type `{}` with `{}` channels detected."
+            logger.info(msg.format(parsedName, obj.dtype, new_entry.channels))
     return process
 
   #=============================================================================

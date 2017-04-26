@@ -12,7 +12,7 @@ __author__ = 'Matthew Ebert'
 import logging
 logger = logging.getLogger(__name__)
 
-from numpy.random import random_sample
+from numpy.random import random_sample, rand
 
 from cs_instruments import Instrument
 
@@ -24,14 +24,19 @@ class Embezzletron(Instrument):
         self.enable = False
 
     def start(self):
-    	self.isDone = True
+        self.isDone = True
 
     def generateData(self):
-    	return random_sample(5)
+        return random_sample(5)
+
+    def generateArray(self):
+        return rand(7,7)
 
     def writeResults(self, hdf5):
-    	try:
-    		hdf5['embezzletron/data'] = self.generateData()
-    	except Exception as e:
-    		logger.error('in embezzletron.writeResults() while making up data\n{}'.format(e))
-    		raise PauseError
+        try:
+            hdf5['embezzletron/dataList'] = self.generateData()
+            hdf5['embezzletron/dataArray'] = self.generateArray()
+
+        except Exception as e:
+            logger.error('in embezzletron.writeResults() while making up data\n{}'.format(e))
+            raise PauseError

@@ -195,7 +195,10 @@ class HSDIO(Instrument):
             self.states = np.zeros((0, self.numChannels), dtype=np.bool)
             self.index_durations = np.zeros_like(self.indices)
         try:
-            print self.times[1],self.times[2]-self.times[1]
+            #print self.times[1],self.times[2]-self.times[1]
+            # MFE2017: I dont know why the above line is here, but I killed the print statement, but
+            # kept the line that might throw an exception
+            delta = self.times[2]-self.times[1] 
         except Exception as e:
             print "Exception in HSDIO: {}".format(e)
 

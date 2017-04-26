@@ -722,7 +722,7 @@ class Experiment(Prop):
             if i.enable:
                 #check that the instruments are initalized
                 if not i.isInitialized:
-                    print 'experiment.measure() initializing '+i.name
+                    logger.info('experiment.measure() initializing '+i.name)
                     i.initialize()  # reinitialize
                     i.update()  # put the settings to where they should be at this iteration
                 else:
