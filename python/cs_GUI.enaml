@@ -3857,6 +3857,10 @@ enamldef Origin(Window):
                     CheckBox:
                         checked := origin.enable
                     Label:
+                        text = 'test'
+                    CheckBox:
+                        checked := origin.test
+                    Label:
                         text = 'ip addr'
                     Label:
                         text := origin.IP
@@ -3873,6 +3877,10 @@ enamldef Origin(Window):
 
                 IndexedContainer:
                         iterable << origin.iterationDataList
+                        viewType = Stream
+
+                IndexedContainer:
+                        iterable << origin.measurementDataList
                         viewType = Stream
 
 enamldef Stream(Form):
@@ -3900,8 +3908,8 @@ enamldef Stream(Form):
                     Label:
                         text := item.fullPath
                     Label:
-                        text = 'data type'
-                    Label:
+                        text = 'data type (int64, float64)'
+                    Field:
                         text := item.dtype
                     Label:
                         text = 'stream name'

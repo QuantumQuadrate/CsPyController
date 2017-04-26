@@ -18,9 +18,6 @@
 
 __author__ = 'Matthew Ebert'
 
-# don't send to main server if we are testing
-TEST = False
-
 # Use Atom traits to automate Enaml updating
 from atom.api import Int, Float, Str, Member, Bool, Long, Typed
 
@@ -39,7 +36,7 @@ import logging
 logger = logging.getLogger(__name__)
 
 # first find ourself
-fullBasePath = "C:\\LabSoftware\\Origin"
+fullBasePath = "D:\\projects\\Origin"
 # do not change this
 fullLibPath  = os.path.join(fullBasePath, "lib")
 # use the default config file since we are all sharing a server
@@ -79,6 +76,14 @@ def print_dsets(name, obj):
     print obj[()]
     print '-'*10
 
+################################################################################
+################################################################################
+################################################################################
+# ORIGIN DATA STREAM OBJECT
+################################################################################
+################################################################################
+################################################################################
+
 class Stream(Prop):
   ''' a class representing an origin stream
   '''
@@ -94,6 +99,12 @@ class Stream(Prop):
   error = Bool()
   connection = Member()
 
+  # these are logged ona new connection so we can detect a change in the stream
+  # parameters
+  old_streamNameFull = Str()
+  old_dtype = Str()
+
+  #=============================================================================
   def __init__(self, name, experiment):
     super(Stream, self).__init__(name, experiment)
     self.stream = False
@@ -102,9 +113,10 @@ class Stream(Prop):
     self.server = None
     self.error = False
 
-    self.properties += ['name', 'dtype', 'stream', 'streamName', 'fullPath','streamNameFull']
-    #self.doNotSendToHardware = ['name', 'dtype', 'stream', 'streamName', 'fullPath']
+    self.properties += ['name', 'dtype', 'stream', 'streamName', 'fullPath']
+    self.properties += ['streamNameFull']
 
+  #=============================================================================
   def new_entry(self, name, dset, ts):
     # initialize the non-user settable parameters
     self.name = name
@@ -113,6 +125,7 @@ class Stream(Prop):
     self.time = ts # timestamp
     self.data = dset[()]
 
+  #=============================================================================
   def print_status(self):
     '''returns a string listing the status'''
     streamStatus = self.stream
@@ -121,6 +134,7 @@ class Stream(Prop):
     
     return "*--- Dataset: {}, type: {}, streamName: {}, stream?: {}".format(self.name, self.dtype, self.streamName, streamStatus)
 
+  #=============================================================================
   def is_streamed(self, server, namespace):
     '''performs error checking and will deactivate a stream if there is an error.
     Returns True if the stream registration succeeded.
@@ -128,22 +142,30 @@ class Stream(Prop):
     if not self.stream:
       return False
 
+    msg = 'You have requested that the `{}` dataset be logged to the Origin data server, but'.format(self.name)
+    msgDisabled = ' The stream has been disabled in the settings.'
     # the stream needs to have a name
     if not self.streamName:
       self.stream = False
-      logger.warning('You have requested that the `{}` dataset be logged to the Origin data server, but you have not specified a stream name.  The stream has been disabled in the settings.'.format(self.name))
+      msg += 'you have not specified a stream name.'
+      msg += msgDisabled
+      logger.warning(msg)
       return False
 
     # the stream needs to have a namespace
     if not namespace:
       self.stream = False
-      logger.warning('You have requested that the `{}` dataset be logged to the Origin data server, but you have not specified a stream namespace.  The stream has been disabled in the settings.'.format(self.name))
+      msg += ' you have not specified a stream namespace.'
+      msg += msgDisabled
+      logger.warning(msg)
       return False
 
     # data type must be recognizable
     if not (self.dtype in dtype_list):
       self.stream = False
-      logger.warning('You have requested that the `{}` dataset be logged to the Origin data server, but the data type you specified `` is not recognized.  The stream has been disabled in the settings.'.format(self.name,self.dtype))
+      msg += ' the data type you specified `{}` is not recognized.'
+      msg += msgDisabled
+      logger.warning(' The stream has been disabled in the settings.'.format(self.dtype))
       return False
 
     self.streamNameFull = namespace + self.streamName
@@ -152,18 +174,43 @@ class Stream(Prop):
       records={ self.name: self.dtype }
     )
     if not self.connection:
-      logger.error('There was a problem registering the stream: `{}` with the server.'.format(self.name))
+      msg = 'There was a problem registering the stream: `{}` with the server.'
+      logger.error(msg.format(self.name))
       self.error = True
       return False
     else:
+      # record the settings on a successful registration so we can detect a change
+      self.old_streamNameFull = self.streamNameFull
+      self.old_dtype = self.dtype
       self.error = False
       return True
 
+  #=============================================================================
   def logData(self):
     data = { timestamp: self.time, self.name: self.data }
     self.connection.send(**data)
-    logger.info('Stream `{}` for dataset `{}` logged to Origin server.'.format(self.streamName, self.name))
+    msg = 'Stream `{}` for dataset `{}` logged to Origin server.'
+    logger.debug(msg.format(self.streamName, self.name))
 
+  #=============================================================================
+  def connected(self, namespace):
+    # if the stream name or data type has changed then we need to re-register
+    self.streamNameFull = namespace + self.streamName
+    if (self.old_streamNameFull == self.streamNameFull) and (self.dtype == self.old_dtype):
+      if self.connection:
+        return True
+    else:
+      if self.connection:
+        self.connection.close()
+    return False
+
+################################################################################
+################################################################################
+################################################################################
+# ORIGIN DATA SERVER INTERFACE
+################################################################################
+################################################################################
+################################################################################
 
 class Origin(Analysis):
   version = '2017.04.20'
@@ -182,29 +229,17 @@ class Origin(Analysis):
   server = Member() # holds the server object
   config = Member() # holds the origin configuration file
   streamNameSpace = Str() # this is a string that will be prepended to all stream names for the experiment
+  test = Bool() # don't send to main server if we are testing
 
+  #=============================================================================
   def __init__(self, name, experiment, description=''):
     super(Origin, self).__init__(name, experiment, description)
     #self.timeout = FloatProp('timeout', experiment, 'how long before TCP gives up [s]', '1.0')
     self.isInitialized = False
     self.streamNameSpace = ''
+    self.test = True # fine for now
 
-    # read in the correct config file
-    if TEST:
-      configfile = os.path.join(fullCfgPath, "origin-server-test.cfg")
-    else:
-      configfile = os.path.join(fullCfgPath, "origin-server.cfg")
-    # read in the configuration
-    self.config = ConfigParser.ConfigParser()
-    self.config.read(configfile)
-
-    # these are for display only
-    self.IP = self.config.get('Server','ip')
-    print self.IP
-    self.port_register = int(self.config.get('Server','register_port'))
-    self.port_measure  = int(self.config.get('Server','measure_port'))
-    self.port_register_json = int(self.config.get('Server','json_register_port'))
-    self.port_measure_json  = int(self.config.get('Server','json_measure_port'))
+    self.configure()
 
     self.measurementDataList = ListProp(
       'measurementDataList', 
@@ -221,12 +256,42 @@ class Origin(Analysis):
       listElementName='stream'
     )
 
-    self.properties += ['measurementDataList','iterationDataList','enable','IP','port','timeout','streamNameSpace']
+    self.properties += ['measurementDataList','iterationDataList','enable']
+    self.properties += ['streamNameSpace','test']
 
+  #=============================================================================
+  def configure(self):
+    # read in the correct config file
+    if self.test:
+      configfile = os.path.join(fullCfgPath, "origin-server-test.cfg")
+    else:
+      configfile = os.path.join(fullCfgPath, "origin-server.cfg")
+    # read in the configuration
+    self.config = ConfigParser.ConfigParser()
+    self.config.read(configfile)
+
+    # these are for display only
+    self.IP = self.config.get('Server','ip')
+    self.port_register = int(self.config.get('Server','register_port'))
+    self.port_measure  = int(self.config.get('Server','measure_port'))
+    self.port_register_json = int(self.config.get('Server','json_register_port'))
+    self.port_measure_json  = int(self.config.get('Server','json_measure_port'))
+
+  #=============================================================================
+  def register(self, list):
+    cnt=0
+    for i in list:
+      if not i.connected(self.streamNameSpace):
+        if i.is_streamed(self.server, self.streamNameSpace): #register the streams
+          cnt+=1
+        logger.debug(i.print_status())
+    return cnt
+    
+  #=============================================================================
   def preExperiment(self, experimentResults):
     """This is called before an experiment."""
-    print "measurementDataList: ", self.measurementDataList
-    print "iterationDataList: ", self.iterationDataList
+    #print "measurementDataList: ", self.measurementDataList
+    #print "iterationDataList: ", self.iterationDataList
 
     # just move on, done throw an error
     if not self.enable:
@@ -243,33 +308,28 @@ class Origin(Analysis):
     else:
       logger.info('Initializing Origin server interface...')
       self.server = server(self.config)
-      logger.info('    Registering streams...')
+      self.isInitialized = True
 
-      logger.info('        Registering per-measurement streams...')
-      cnt=0
-      for i in self.measurementDataList:
-        if i.is_streamed(self.server, self.streamNameSpace): #register the streams
-          cnt+=1
-        logger.info(i.print_status())
-      logger.info('        Registering per-measurement streams...done')
+    logger.debug('Registering streams...')
+    logger.debug('Registering per-measurement streams...')
+    cnt =  self.register(self.measurementDataList)
+    logger.debug('Registering per-measurement streams...done')
 
-      logger.info('        Registering per-iteration streams...')
-      for i in self.iterationDataList:
-        if i.is_streamed(self.server, self.streamNameSpace): #register the streams
-          cnt+=1
-        logger.info(i.print_status())
-      logger.info('        Registering per-iteration streams...done')
+    logger.debug('Registering per-iteration streams...')
+    cnt += self.register(self.iterationDataList)
+    logger.debug('Registering per-iteration streams...done')
 
-      logger.info('    Registering streams...done')
-      logger.info('Origin streams successfully registered: {}'.format(cnt))
-      logger.info('Initializing Origin server interface...done')
-      #self.isInitialized = True # just run the initialization every time right now
+    logger.debug('Registering streams...done')
+    logger.info('Origin streams registered: {}'.format(cnt))
+    logger.info('Initializing Origin server interface...done')    
     return 0
 
+  #=============================================================================
   def preIteration(self, iterationResults, experimentResults):
     # initialize any logged parameters that are on a per iteration basis
     return 0
-   
+  
+  #============================================================================= 
   def postMeasurement(self, measurementResults, iterationResults, experimentResults):
     """Results is a tuple of (measurementResult,iterationResult,experimentResult) references to HDF5 nodes for this
     measurement."""
@@ -282,6 +342,7 @@ class Origin(Analysis):
         i.logData()
     return 0
 
+  #=============================================================================
   def postIteration(self, iterationResults, experimentResults):
     # log any per iteration parameters here
     # set timestamp
@@ -293,6 +354,7 @@ class Origin(Analysis):
         i.logData()
     return 0
 
+  #=============================================================================
   def postExperiment(self, experimentResults):
     # log any per experiment parameters here
 
@@ -309,40 +371,45 @@ class Origin(Analysis):
       f.close() #close the file
     return 0
 
+  #=============================================================================
   def finalize(self,experimentResults):
     return 0
 
+  #=============================================================================
   def newEntry(self, dset):
     return Stream(dset.name, self.experiment, dset, self.ts, '')
 
+  #=============================================================================
   def processDatasets(self, data_list):
     def process(name, obj):
       if isinstance(obj, Dataset):
         if(obj.dtype in dtype_list):
-          print '='*10
           parsedName = name.replace('/','_')
-          print parsedName
-          print obj.dtype
           append=True
           for item in data_list:
             if item.name == parsedName:
-              print "dataset `", parsedName, "` already exists in list"
+              logger.debug("dataset `{}` already exists in list".format(parsedName))
               if item.dtype == str(obj.dtype):
                 item.time = self.ts
                 item.data = obj[()]
               else:
-                print "dataset type mismatch with stored type"
-              append = False
+                try:
+                  print(item.dtype+'(obj[()])')
+                  item.data = eval('np.'+item.dtype+'(obj[()])')
+                  item.time = self.ts
+                except Exception as e:
+                  logger.error('Uncaught Exception in origin.postExperiment:\n{}\n{}'.format(e, traceback.format_exc()))
+                  msg = "Dataset `{}` type mismatch with stored type. new: `{}`, old: `{}`"
+                  logger.error(msg.format(parsedName, obj.dtype, item.dtype))
+                  append = False
               break
           if append:
-            print "appending new entry"
+            logger.info("New dataset `{}` detected.".format(parsedName))
             new_entry = data_list.add()
             new_entry.new_entry(parsedName, obj, self.ts)
-        
-          print data_list
-          print '='*10
     return process
 
+  #=============================================================================
   def toHDF5(self, hdf_parent_node, name):
     #print "name: ", name
     #print "hdf_parent_node: ", hdf_parent_node
