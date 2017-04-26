@@ -138,7 +138,7 @@ class Stream(Prop):
     self.error = False
 
     self.properties += ['name', 'dtype', 'stream', 'streamName', 'fullPath']
-    self.properties += ['streamNameFull', 'channels']
+    self.properties += ['streamNameFull', 'channels','fieldsStr','fieldsList']
 
   #=============================================================================
   def new_entry(self, name, dset, ts):
