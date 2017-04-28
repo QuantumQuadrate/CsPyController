@@ -370,7 +370,7 @@ class AndorCamera(Instrument):
                     # self.data size has two dimensional array. T num of shots x (row*column)
                     # We need to reshape into two dim array having row x column, and each shots saved to different node under /shots/
                     for i in numpy.arange(0,self.shotsPerMeasurement.value):
-                        array=numpy.array(self.data[i]) #
+                        array=numpy.array(self.data[i],dtype=numpy.int32) #
                         array.resize(int(self.height),int(self.width))
                         hdf5['Andor_{0}/shots/{1}'.format(self.CurrentHandle,i)] = array#self.data # Defines the name of hdf5 node to write the results on.
                 except Exception as e:
@@ -663,11 +663,6 @@ class AndorCamera(Instrument):
         #print "declaring c_image_array"
         c_image_array_type = c_int * self.dim * self.shotsPerMeasurement.value
         c_image_array = c_image_array_type()
-        #print "calling dll"
-        #print "width = {}".format(self.width)
-        #print "height = {}".format(self.height)
-        #print "dim = {}".format(self.dim)
-        #print "c_image_array ={}".format(c_image_array_type)
         error = self.dll.GetAcquiredData(byref(c_image_array), self.dim * self.shotsPerMeasurement.value)
         self.DLLError(sys._getframe().f_code.co_name, error, dump)
         #print "copying c_imagearray to numpy"
@@ -1081,7 +1076,6 @@ class AndorViewer(AnalysisWithFigure):
                     else:
                         #mydat = self.data[self.shot]
                         mydat = self.data
-                        print 'mydat dimension: {}'.format(numpy.size(mydat))
                     if (not self.mycam.autoscale):
                         ax.matshow(mydat, cmap=my_cmap, vmin=self.mycam.minPlot.value, vmax=self.mycam.maxPlot.value)
                     else:

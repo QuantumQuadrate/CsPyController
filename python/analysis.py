@@ -266,9 +266,9 @@ class RecentShotAnalysis(AnalysisWithFigure):
 
     def analyzeMeasurement(self, measurementResults, iterationResults, experimentResults):
         self.data = []
-        if 'data/Hamamatsu/shots' in measurementResults:
+        if 'data/Andor_4522/shots' in measurementResults:
             #for each image
-            for shot in measurementResults['data/Hamamatsu/shots'].values():
+            for shot in measurementResults['data/Andor_4522/shots'].values():
                 self.data.append(shot)
         self.updateFigure()  # only update figure if image was loaded
 
@@ -292,7 +292,7 @@ class RecentShotAnalysis(AnalysisWithFigure):
                         vmax = self.experiment.imageSumAnalysis.max_minus_bg
                     else:
                         data = self.data[self.shot]
-                        vmin = self.experiment.imageSumAnalysis.min
+                        vmin = self.experiment.imageSumAnalysis.min # should allow users to change the limit.
                         vmax = self.experiment.imageSumAnalysis.max
 
                     ax.matshow(data, cmap=my_cmap, vmin=self.experiment.imageSumAnalysis.min, vmax=self.experiment.imageSumAnalysis.max)
@@ -328,8 +328,8 @@ class SampleXYAnalysis(XYPlotAnalysis):
 
     '''This analysis plots the sum of the whole camera image every measurement.'''
     def analyzeMeasurement(self,measurementResults,iterationResults,experimentResults):
-        if 'data/Hamamatsu/shots' in measurementResults:
-            self.Y = numpy.append(self.Y,numpy.sum(measurementResults['data/Hamamatsu/shots/0']))
+        if 'data/Andor_4522/shots' in measurementResults:
+            self.Y = numpy.append(self.Y,numpy.sum(measurementResults['data/Andor_4522/shots/0']))
             self.X = numpy.arange(len(self.Y))
         self.updateFigure()
 
@@ -377,7 +377,7 @@ class ShotsBrowserAnalysis(AnalysisWithFigure):
                     #find the first iteration that matches all the selected ivar indices
                     if numpy.all(i.attrs['ivarIndex'] == self.selection):
                         try:
-                            self.array = i['measurements/{}/data/Hamamatsu/shots/{}'.format(m,s)]
+                            self.array = i['measurements/{}/data/Andor_4522/shots/{}'.format(m,s)]
                             self.updateFigure()
                         except Exception as e:
                             logger.warning('Exception trying to plot measurement {}, shot {}, in analysis.ShotsBrowserAnalysis.load()\n{}\n'.format(m,s,e))
@@ -452,16 +452,19 @@ class ImageSumAnalysis(AnalysisWithFigure):
 
         self.iteration = iterationResults.attrs['iteration']
 
-        if 'data/Hamamatsu/shots' in measurementResults:
+        if 'data/Andor_4522/shots' in measurementResults:
+            print "found data/Andor_4522/shots" # Diag
             if self.mean_array is None:
                 #start a sum array of the right shape
-                self.sum_array = numpy.array([shot for shot in measurementResults['data/Hamamatsu/shots'].itervalues()], dtype=numpy.uint64)
-                self.count_array = numpy.zeros(len(self.sum_array), dtype=numpy.uint64)
+                #self.sum_array = numpy.array([shot for shot in measurementResults['data/Andor_4522/shots'].itervalues()], dtype=numpy.uint64)
+                #self.count_array = numpy.zeros(len(self.sum_array), dtype=numpy.uint64)
+                self.sum_array = numpy.array([shot for shot in measurementResults['data/Andor_4522/shots'].itervalues()], dtype=numpy.float64)
+                self.count_array = numpy.zeros(len(self.sum_array), dtype=numpy.float64)
                 self.mean_array = self.sum_array.astype(numpy.float64)
 
             else:
                 #add new data
-                for i, shot in enumerate(measurementResults['data/Hamamatsu/shots'].itervalues()):
+                for i, shot in enumerate(measurementResults['data/Andor_4522/shots'].itervalues()):
                     self.sum_array[i] += shot
                     self.count_array[i] += 1
                     self.mean_array[i] = self.sum_array[i]/self.count_array[i]
@@ -475,7 +478,8 @@ class ImageSumAnalysis(AnalysisWithFigure):
             if self.min_str == '':
                 self.min = numpy.amin(self.mean_array[self.shot])
                 try:
-                    self.min_minus_bg = numpy.amin(self.mean_array[self.shot]-self.background_array)
+                    if self.subtract_background:
+                        self.min_minus_bg = numpy.amin(self.mean_array[self.shot]-self.background_array)
                 except:
                     logger.warning('Could not subtract background array to create min in ImageSumAnalysis.analyzeMeasurement')
                     logger.warning('array shapes: mean_array: {} background_array: {}'.format(self.mean_array[self.shot].shape, self.background_array.shape))
@@ -488,7 +492,8 @@ class ImageSumAnalysis(AnalysisWithFigure):
             if self.max_str == '':
                 self.max = numpy.amax(self.mean_array[self.shot])
                 try:
-                    self.max_minus_bg = numpy.amax(self.mean_array[self.shot]-self.background_array)
+                    if self.subtract_background:
+                        self.max_minus_bg = numpy.amax(self.mean_array[self.shot]-self.background_array)
                 except:
                     logger.warning('Could not subtract background array to create max in ImageSumAnalysis.analyzeMeasurement')
             else:
@@ -615,11 +620,11 @@ class SquareROIAnalysis(AnalysisWithFigure):
 
     def analyzeMeasurement(self, measurementResults, iterationResults, experimentResults):
         if self.enable:
-            if ('data/Hamamatsu/shots' in measurementResults):
+            if ('data/Andor_4522/shots' in measurementResults):
             #if 'data/Andor_4522'in measurementResults:
                 #here we want to live update a digital plot of atom loading as it happens
 
-                numShots = len(measurementResults['data/Hamamatsu/shots'])
+                numShots = len(measurementResults['data/Andor_4522/shots'])
                 #numShots = len(measurementResults['data/Andor_4522'])
                 print 'numshots: {}'.format(numShots)
                 # check to see that we got enough shots
@@ -635,7 +640,7 @@ class SquareROIAnalysis(AnalysisWithFigure):
                 #loadingArray = numpy.zeros((numShots, self.ROI_rows, self.ROI_columns), dtype=numpy.bool_)
 
                 #for each image
-                for i, (name, shot) in enumerate(measurementResults['data/Hamamatsu/shots'].items()):
+                for i, (name, shot) in enumerate(measurementResults['data/Andor_4522/shots'].items()):
                 #for i, (name, shot) in enumerate(measurementResults['data/Andor_4522'].items()):
                     #calculate sum of pixels in each ROI
                     shot_sums = self.sums(self.ROIs, shot)
