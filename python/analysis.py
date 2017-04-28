@@ -1840,6 +1840,7 @@ class ResourceSelectableAnalysis(AnalysisWithFigure):
         self.data = []
         #print self.resource.value
         #if self.resource in measurementResults:
+
         if self.resource.value in measurementResults:
             #print 'resource found!'
             print measurementResults[self.resource.value]
@@ -1847,7 +1848,7 @@ class ResourceSelectableAnalysis(AnalysisWithFigure):
             #for shot in measurementResults[self.resource.value].values():
             #    self.data.append(shot)
             self.data=measurementResults[self.resource.value]
-            print 'dimension of data:{}'.format(np.size(self.data))
+            #print 'dimension of data:{}'.format(np.size(self.data))
         self.updateFigure()  # only update figure if image was loaded
 
     @observe('resource','shot')

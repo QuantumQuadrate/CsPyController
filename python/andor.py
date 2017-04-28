@@ -50,7 +50,7 @@ class AndorCamera(Instrument):
     EMGainMode = Int()
     binMode = Int()
     shotsPerMeasurement = Member()
-
+    shotsPerM=Int()
     width = Int()  # the number of columns
     height = Int()  # the number of rows
     dim = Int()  # the total number of pixels
@@ -359,7 +359,20 @@ class AndorCamera(Instrument):
         if self.enable:
             if (self.acquisitionChoices[self.acquisitionMode]!=2 or (self.acquisitionChoices[self.acquisitionMode]==2 and self.experiment.measurement == self.experiment.measurementsPerIteration - 1)):
                 try:
-                    hdf5['Andor_{}'.format(self.CurrentHandle)] = self.data
+                    #print "writing columns: {}".format(self.width)
+                    hdf5['Andor_{}/columns'.format(self.CurrentHandle)] = self.width
+                    #print "writing height: {}".format(self.height)
+                    hdf5['Andor_{}/rows'.format(self.CurrentHandle)] = self.height
+                    #print "numShots: {}".format(self.shotsPerMeasurement.value)
+                    hdf5['Andor_{}/numShots'.format(self.CurrentHandle)] = self.shotsPerMeasurement.value
+                    #print "Temperature"
+                    #hdf5['Andor_{}/temperature'.format(self.CurrentHandle)] = self.temperature
+                    # self.data size has two dimensional array. T num of shots x (row*column)
+                    # We need to reshape into two dim array having row x column, and each shots saved to different node under /shots/
+                    for i in numpy.arange(0,self.shotsPerMeasurement.value):
+                        array=numpy.array(self.data[i]) #
+                        array.resize(int(self.height),int(self.width))
+                        hdf5['Andor_{0}/shots/{1}'.format(self.CurrentHandle,i)] = array#self.data # Defines the name of hdf5 node to write the results on.
                 except Exception as e:
                     logger.error('in Andor.writeResults:\n{}'.format(e))
                     raise PauseError
@@ -1037,10 +1050,10 @@ class AndorViewer(AnalysisWithFigure):
     def analyzeMeasurement(self, measurementResults, iterationResults, experimentResults):
         self.data = []
         #print "analyzeMeasurement: Looking for 'data/Andor_{}'".format(self.mycam.CurrentHandle)
-        if 'data/Andor_{}'.format(self.mycam.CurrentHandle) in measurementResults:
+        if 'data/Andor_{0}/shots/{1}'.format(self.mycam.CurrentHandle,self.shot) in measurementResults:
             #for each image
-            self.data = measurementResults['data/Andor_{}'.format(self.mycam.CurrentHandle)]
-            print measurementResults['data/Andor_{}'.format(self.mycam.CurrentHandle)]
+            self.data = measurementResults['data/Andor_{0}/shots/{1}'.format(self.mycam.CurrentHandle,self.shot)]
+            print measurementResults['data/Andor_{0}/shots/{1}'.format(self.mycam.CurrentHandle,self.shot)]
         self.updateFigure()  # only update figure if image was loaded
 
     @observe('shot')
@@ -1060,13 +1073,15 @@ class AndorViewer(AnalysisWithFigure):
                 fig = self.backFigure
                 fig.clf()
 
-                if (self.data is not None) and (self.shot < len(self.data)):
+                if (self.data is not None) and (self.shot < self.mycam.shotsPerMeasurement.value):
                     ax = fig.add_subplot(111)
                     self.ax = ax
-                    if self.bgsub and len(self.data)>1:
+                    if self.bgsub and self.mycam.shotsPerMeasurement.value>1:
                         mydat = - self.data[1] + self.data[0]
                     else:
-                        mydat = self.data[self.shot]
+                        #mydat = self.data[self.shot]
+                        mydat = self.data
+                        print 'mydat dimension: {}'.format(numpy.size(mydat))
                     if (not self.mycam.autoscale):
                         ax.matshow(mydat, cmap=my_cmap, vmin=self.mycam.minPlot.value, vmax=self.mycam.maxPlot.value)
                     else:
@@ -1080,8 +1095,10 @@ class AndorViewer(AnalysisWithFigure):
                         ax.set_xlim(xlimit[0],xlimit[1])
                         ax.set_ylim(ylimit[0],ylimit[1])
 
-                    self.maxPixel = numpy.max(self.data[self.shot])
-                    self.meanPixel = int(numpy.mean(self.data[self.shot]))
+                    #self.maxPixel = numpy.max(self.data[self.shot])
+                    self.maxPixel = numpy.max(self.data)
+                    #self.meanPixel = int(numpy.mean(self.data[self.shot]))
+                    self.meanPixel = int(numpy.mean(self.data))
                 super(AndorViewer, self).updateFigure()
             except Exception as e:
                 logger.warning('Problem in AndorViewer.updateFigure()\n:{}'.format(e))
