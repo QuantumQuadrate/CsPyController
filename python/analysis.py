@@ -453,7 +453,6 @@ class ImageSumAnalysis(AnalysisWithFigure):
         self.iteration = iterationResults.attrs['iteration']
 
         if 'data/Andor_4522/shots' in measurementResults:
-            print "found data/Andor_4522/shots" # Diag
             if self.mean_array is None:
                 #start a sum array of the right shape
                 #self.sum_array = numpy.array([shot for shot in measurementResults['data/Andor_4522/shots'].itervalues()], dtype=numpy.uint64)
@@ -466,9 +465,8 @@ class ImageSumAnalysis(AnalysisWithFigure):
                 #add new data
                 for i, shot in enumerate(measurementResults['data/Andor_4522/shots'].itervalues()):
                     self.sum_array[i] += shot
-                    self.count_array[i] += 1
+                    self.count_array[i] += 1.0
                     self.mean_array[i] = self.sum_array[i]/self.count_array[i]
-
             self.update_min_max()
             self.updateFigure()  # only update figure if image was loaded
 
@@ -621,13 +619,8 @@ class SquareROIAnalysis(AnalysisWithFigure):
     def analyzeMeasurement(self, measurementResults, iterationResults, experimentResults):
         if self.enable:
             if ('data/Andor_4522/shots' in measurementResults):
-            #if 'data/Andor_4522'in measurementResults:
                 #here we want to live update a digital plot of atom loading as it happens
-
                 numShots = len(measurementResults['data/Andor_4522/shots'])
-                #numShots = len(measurementResults['data/Andor_4522'])
-                print 'numshots: {}'.format(numShots)
-                # check to see that we got enough shots
                 if self.experiment.LabView.camera.enable and (numShots != self.experiment.LabView.camera.shotsPerMeasurement.value):
                     logger.warning('Camera expected {} shots, but instead got {}.'.format(
                         self.experiment.LabView.camera.shotsPerMeasurement.value, numShots))
@@ -648,7 +641,7 @@ class SquareROIAnalysis(AnalysisWithFigure):
 
                     #compare each roi to threshold
                     thresholdArray[i] = (shot_sums >= self.ROIs['threshold'])
-
+                print "thresholdArray:{}".format(numpy.size(thresholdArray))
                 self.loadingArray = thresholdArray.reshape((numShots, self.ROI_rows, self.ROI_columns))
                 #data will be stored in hdf5 so that save2013style can then append to Camera Data Iteration0 (signal).txt
                 measurementResults['analysis/squareROIsums'] = sum_array
