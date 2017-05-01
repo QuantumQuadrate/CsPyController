@@ -2475,29 +2475,6 @@ enamldef MultiImage(Window):
                                 text = 'use this image as background'
                                 clicked :: analysis2.set_background()
 
-enamldef ResourceAnalysis(Window):
-    attr experiment
-    attr item
-
-    title = 'Resource Selectable analyis'
-    style_class << 'valid' if experiment.valid else 'invalid'
-    Container:
-        padding = 0
-        style_class << 'valid' if experiment.valid else 'invalid'
-        ScrollArea:
-            style_class << 'valid' if experiment.valid else 'invalid'
-            Container:
-                style_class << 'valid' if experiment.valid else 'invalid'
-                MPLCanvas:
-                    constraints = [(height==500)|'strong']
-                    figure << item.figure
-                EvalProp:
-                    prop << item.resource
-                PushButton:
-                  text = 'push me!'
-                  clicked :: item.analyzeMeasurement()
-
-
 enamldef ImageBrowser(Window):
     attr experiment
     attr analysis1
@@ -3839,7 +3816,6 @@ window_dictionary = {'':'',
                      'CONEX-CC': 'Conexes(conexes = main.experiment.conexes)',
                      'Live Images': 'MultiImage(experiment = main.experiment, analysis0 = main.experiment.recent_shot_analysis, analysis2 = main.experiment.imageSumAnalysis, analysis3 = main.experiment.text_analysis)',
                      'Image Browser': 'ImageBrowser(experiment = main.experiment, analysis1 = main.experiment.shotBrowserAnalysis)',
-                     'Resource Selectable analyis': 'ResourceAnalysis(experiment = main.experiment, item = main.experiment.resource_selectable_analysis)',
                      'Square ROI':  'SquareROIContainer(experiment = main.experiment, analysis = main.experiment.squareROIAnalysis)',
                      'Gaussian ROI': 'GaussianROI(analysis = main.experiment.gaussian_roi)',
                      'Histogram': 'Histogram(experiment = main.experiment, analysis = main.experiment.histogramAnalysis)',
