@@ -234,7 +234,7 @@ def get_save_file_callback(experiment):
 enamldef CsMenuBar(MenuBar): menuBar:
     attr experiment
     attr mainWindow
-    
+
     Menu:
         title = '&File'
         Action:
@@ -327,7 +327,7 @@ enamldef EvalProp(GroupBox):
     Label: val:
         text << prop.valueStr
 
-enamldef MultilineProp(GroupBox):        
+enamldef MultilineProp(GroupBox):
     attr prop
     flat=True
     title:=prop.name
@@ -343,7 +343,7 @@ enamldef MultilineProp(GroupBox):
 enamldef LabelBox(HGroup):
     alias checked: box.checked
     alias text: label.text
-    
+
     padding=0
     hug_height='strong'
     hug_width='strong'
@@ -780,7 +780,7 @@ enamldef DOchannel(Container):
 
 enamldef HSDIOScriptTrigger(StackItem):
     attr item
-    
+
     Container:
         padding=0
         Form:
@@ -803,7 +803,7 @@ enamldef HSDIOScriptTrigger(StackItem):
 enamldef StartTrigger(GroupBox):
     attr trigger
     title='Start Trigger'
-    
+
     EvalProp:
         prop<<trigger.waitForStartTrigger
     EvalProp:
@@ -818,7 +818,7 @@ class RefreshableMPLCanvas(MPLCanvas):
         def on_action_set_refresh(self, content):
             self.refresh_mpl_widget()
     """
-    
+
     #: Toggle this to refresh the canvas
     refresh = d_(Bool())
 
@@ -950,7 +950,7 @@ enamldef ChannelCombo(ComboBox):
     attr channels
     attr channelList
     attr position
-    
+
     items<<[str(i)+' '+x for i,x in enumerate(channels.array['description'])]
     index<<int(channelList[position])
     index::
@@ -969,7 +969,7 @@ enamldef TransitionsLabel(Container):
 enamldef DescriptionLabel(Label):
     constraints = [height == 20]
     text='description'
-    
+
 enamldef TimeLabel(Label):
     constraints = [height == 20]
     text='time'
@@ -986,9 +986,9 @@ enamldef TransitionTime(Form):
     attr transition
     attr value_str
     attr valid
-    
+
     padding=0
-    
+
     Field:
         constraints = [width == 100, height==20]
         placeholder = 'time'
@@ -1004,11 +1004,11 @@ enamldef TransitionTime(Form):
 
 enamldef NumpyWaveform(Container):
     attr waveform
-    
+
     hug_height='strong'
     hug_width='ignore'
     constraints=[vbox(plotcontrols,details),align('left',plotcontrols,details)]
-    
+
     Container: plotcontrols:
         hug_width='strong'
         hug_height='strong'
@@ -1034,7 +1034,7 @@ enamldef NumpyWaveform(Container):
                 else:
                     waveform.plotmax=float(text)
                 waveform.updateFigure()
-    
+
     Container: details:
         constraints=[vbox(hbox(nameField,timeControls,channelControls),transitions)]
         hug_height='strong'
@@ -1246,7 +1246,7 @@ enamldef DAQmxDigitalOutPage(Window):
 
 enamldef DDS_profile(Container):
     attr profile
-    
+
     hug_height='strong'
     hug_width='strong'
     padding=0
@@ -1312,7 +1312,7 @@ enamldef RAMStaticPoint(StackItem):
 
 enamldef ItemProp(StackItem):
     attr item
-    
+
     Container:
         padding=0
         EvalProp:
@@ -1321,7 +1321,7 @@ enamldef ItemProp(StackItem):
 enamldef DDS_channel(GroupBox):
     attr channel
     attr index
-    
+
     title='channel '+str(index)
     constraints=[hbox(vbox(parameters,RAM),profiles)]
 
@@ -1341,7 +1341,7 @@ enamldef DDS_channel(GroupBox):
             enabled = False
         EvalProp: fullScaleOutputPower:
             prop<<channel.fullScaleOutputPower
-    
+
     GroupBox: RAM:
         title='RAM defaults'
         flat=True
@@ -1510,7 +1510,7 @@ enamldef DDS_Page(Window):
 
 enamldef RF_gen(StackItem):
     attr item
-    
+
     Container:
         padding=0
         Form:
@@ -1534,7 +1534,7 @@ enamldef RF_gen(StackItem):
 
 enamldef HP83623A(StackItem):
     attr item
-    
+
     Container:
         padding=0
         Form:
@@ -1542,12 +1542,12 @@ enamldef HP83623A(StackItem):
                 text='enable'
             CheckBox:
                 checked:=item.enable
-            
+
             Label:
                 text='description'
             Field:
                 text:=item.description
-            
+
             Label:
                 text='GPIB channel'
             IntField:
@@ -1749,11 +1749,11 @@ enamldef Andor(Form):
                         prop << item.camera.currentCamera
                     PushButton:
                         text = 'Select Camera'
-                        clicked :: item.camera.setCamera() 
+                        clicked :: item.camera.setCamera()
                 HGroup:
                     PushButton:
                         text = 'Read camera config'
-                        clicked :: item.camera.rundiagnostics()  
+                        clicked :: item.camera.rundiagnostics()
                     PushButton:
                         text = 'Open Shutter'
                         clicked :: item.camera.SetShutterEx(0, 1, 0, 0, 1)
@@ -1766,7 +1766,7 @@ enamldef Andor(Form):
                         clicked :: item.camera.setup_video_thread(item.analysis)
                     PushButton:
                         text = 'stop video'
-                        clicked :: item.camera.stop_video() 
+                        clicked :: item.camera.stop_video()
                 HGroup:
                     padding = 0
                     Label:
@@ -1848,9 +1848,7 @@ enamldef Andor(Form):
                     EvalProp:
                         prop << item.camera.maxPlot
 
-                        
 
-            
 enamldef PICams(Window):
     attr picams
 
@@ -2002,8 +2000,6 @@ enamldef Picam(Form):
                     checked := item.camera.useDemo 
                             
                             
-                        
-                        
 
 enamldef FiltersPage(Page):
     title = 'Filters'
@@ -2395,7 +2391,7 @@ enamldef Arroyo(Window):
 
 enamldef PiezoChannel(Container):
     attr channel
-    
+
     hug_height = 'strong'
     hug_width = 'strong'
     constraints=[hbox(description, setServo,setPosition,label)]
@@ -2414,7 +2410,7 @@ enamldef PiezoChannel(Container):
 
 enamldef PiezoController(StackItem):
     attr item
-    
+
     Container:
         hug_height = 'strong'
         hug_width = 'strong'
@@ -2469,7 +2465,7 @@ enamldef PI_Piezo(Window):
 
 enamldef AnalysisImage(Container):
     attr analysis
-    
+
     padding=0
     constraints=[(height==550)|'strong',(width==550)|'strong']
     MPLCanvas:
@@ -2682,7 +2678,7 @@ enamldef SquareROIContainer(Window):
                     Include: dyno:
                         objects<<[SquareROI(item=x,num=i) for i,x in enumerate(analysis.ROIs)]
                 MPLCanvas: canvas:
-                    constraints=[(height==1000)|'strong',(width==1000)|'strong']
+                    constraints=[(height==512)|'strong',(width==512)|'strong']
                     hug_width='ignore'
                     figure<<analysis.figure
 
@@ -3263,7 +3259,7 @@ enamldef Optimizer(Window):
                     constraints << [(height==150*(len(experiment.independentVariables)+1))|'strong'] #,(width==1000)|'strong']
                     figure << analysis.figure
 
-                    
+
 enamldef Instek_PST(Container):
     attr item
 
@@ -3356,8 +3352,8 @@ enamldef Instek_PSTs(Window):
                     IndexedContainer:
                         iterable << instek_psts.motors
                         viewType = Instek_PST
-                    
-                    
+
+
 enamldef Vaunix(Container):
     attr item
 
@@ -3445,9 +3441,9 @@ enamldef Vaunix(Container):
                     text = 'ENABLE SWEEP'
                 CheckBox: SweepEnable:
                     checked := item.sweepenable
-                
-                
-        
+
+
+
 
 enamldef Vaunixs(Window):
     attr vaunixs
@@ -3474,18 +3470,18 @@ enamldef Vaunixs(Window):
                             checked := vaunixs.enable
                         PushButton: Detect:
                             text = 'Detect Signal Generators'
-                            clicked :: vaunixs.detect_generators()  
+                            clicked :: vaunixs.detect_generators()
                     IndexedContainer:
                         iterable << vaunixs.motors
-                        viewType = Vaunix                    
-                    
-                    
-                    
-                    
-                    
-                    
-                    
-                    
+                        viewType = Vaunix
+
+
+
+
+
+
+
+
 enamldef Aerotechs(Window):
     attr aerotechs
 
@@ -3548,7 +3544,7 @@ enamldef Aerotechs(Window):
                     #IndexedContainer:
                     #    iterable << aerotechs.motors
                     #    viewType = Aerotech
-                    
+
 enamldef Aerotech(Container):
     attr item
 
@@ -3559,23 +3555,23 @@ enamldef Aerotech(Container):
         hug_width = 'strong'
         hug_height = 'strong'
         EvalProp:
-            prop << item.Xi 
+            prop << item.Xi
         EvalProp:
-            prop << item.Xend 
+            prop << item.Xend
         EvalProp:
-            prop << item.Xvmx 
+            prop << item.Xvmx
         EvalProp:
-            prop << item.Xamx 
+            prop << item.Xamx
         EvalProp:
-            prop << item.Zi 
+            prop << item.Zi
         EvalProp:
-            prop << item.Zend 
+            prop << item.Zend
         EvalProp:
-            prop << item.Zvmx 
+            prop << item.Zvmx
         EvalProp:
-            prop << item.Zamx 
+            prop << item.Zamx
         EvalProp:
-            prop << item.XretTrig             
+            prop << item.XretTrig
 
 
 
@@ -3617,8 +3613,8 @@ enamldef Conexes(Window):
 
                     IndexedContainer:
                         iterable << conexes.motors
-                        viewType = Conex                    
-                    
+                        viewType = Conex
+
 enamldef Conex(Container):
     attr item
 
@@ -3635,9 +3631,9 @@ enamldef Conex(Container):
         Label:
             text = 'Velocity: '
         CheckBox:
-            checked := item.enableVel            
+            checked := item.enableVel
         EvalProp:
-            prop << item.Vel     
+            prop << item.Vel
         EvalProp:
             prop << item.Threshold
 
@@ -3647,7 +3643,7 @@ enamldef Conex(Container):
 
 
 
-            
+
 enamldef Picomotor(Container):
     attr item
 
@@ -4039,9 +4035,9 @@ enamldef Main(MainWindow): main:
                 minimum=0
                 maximum=100
                 value<<int(experiment.progressGUI)
-                
-                
-                
+
+
+
 
     HGroup:
         align_widths = False

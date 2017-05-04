@@ -75,7 +75,7 @@ class AQuA(Experiment):
         self.conexes = conex.Conexes('conexes', self, 'CONEX-CC')
         self.picomotors = picomotors.Picomotors('picomotors', self, 'Newport Picomotors')
         self.instekpsts = instek_pst.InstekPSTs('instekpsts', self, 'Instek PST power supply')
-        self.Andors = andor.Andors('Andors', self, 'Andor Luca Cameras')
+        self.Andors = andor.Andors('Andors', self, 'Andor Luca measurementResults')
         self.vaunixs = vaunix.Vaunixs('vaunixs', self, 'Vaunix Signal Generator')
         self.PICams = picampython.PICams('PICams', self, 'Princeton Instruments Cameras')
         self.LabView = LabView.LabView(self)
@@ -122,19 +122,22 @@ class AQuA(Experiment):
         self.analyses += [self.TTL_filters, self.AI_graph, self.AI_filter, self.squareROIAnalysis, self.gaussian_roi,
                           self.loading_filters, self.first_measurements_filter, self.text_analysis,
                           self.imageSumAnalysis, self.recent_shot_analysis, self.shotBrowserAnalysis,
-                          self.histogramAnalysis, self.histogram_grid, self.measurements_graph, self.iterations_graph, self.DC_noise_eater_graph, self.DC_noise_eater_filter, self.Andors, self.PICams,
+                          self.histogramAnalysis, self.histogram_grid, self.measurements_graph, self.iterations_graph, 
+                          self.DC_noise_eater_graph, self.DC_noise_eater_filter, self.Andors, self.PICams,
                           self.Ramsey, self.retention_analysis, self.retention_graph, self.counter_graph,
                           self.save_notes, self.save2013Analysis, self.aerotechs, self.conexes,self.counter_hist,
                           self.instekpsts, self.vaunixs, self.unlock_pause, self.origin]
 
-        
-        self.properties += ['functional_waveforms', 'LabView', 'functional_waveforms_graph', 'DDS', 'aerotechs', 'picomotors', 'conexes',
-                            'Andors', 'PICams', 'DC_noise_eaters', 'box_temperature', 'squareROIAnalysis', 'gaussian_roi', 'instekpsts', 
-                            'TTL_filters', 'AI_graph', 'AI_filter', 'loading_filters', 'first_measurements_filter', 'vaunixs', 
-                            'imageSumAnalysis', 'recent_shot_analysis', 'shotBrowserAnalysis', 'histogramAnalysis',
-                            'histogram_grid', 'retention_analysis', 'measurements_graph', 'iterations_graph',
-                            'retention_graph', 'DC_noise_eater_filter',
-                            'DC_noise_eater_graph', 'Ramsey', 'counter_graph', 'counter_hist', 'unlock_pause','origin']
+
+        self.properties += [
+                'functional_waveforms', 'LabView', 'functional_waveforms_graph', 'DDS', 'aerotechs', 'picomotors', 
+                'conexes', 'Andors', 'PICams', 'DC_noise_eaters', 'box_temperature', 'squareROIAnalysis', 
+                'gaussian_roi', 'instekpsts', 'TTL_filters', 'AI_graph', 'AI_filter', 'loading_filters', 
+                'first_measurements_filter', 'vaunixs', 'imageSumAnalysis', 'recent_shot_analysis', 
+                'shotBrowserAnalysis', 'histogramAnalysis', 'histogram_grid', 'retention_analysis', 
+                'measurements_graph', 'iterations_graph', 'retention_graph', 'DC_noise_eater_filter',
+                'DC_noise_eater_graph', 'Ramsey', 'counter_graph', 'counter_hist', 'unlock_pause','origin'
+        ]
 
 
         try:

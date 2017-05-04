@@ -5,7 +5,7 @@ author=Martin Lichtman
 created=2014-01-17
 modified>=2015-05-24
 
-This file holds everything needed to model the high speed digital output from the National Instruments HSDIO card.  It communicates to LabView via the higher up LabView(Instrument) class.
+Hamamatsu camera communicating with Labview.py
 """
 
 from __future__ import division
@@ -22,7 +22,7 @@ from cs_instruments import Instrument
 class Camera(Instrument):
     saveAsPNG=Typed(BoolProp)
     saveAsASCII=Typed(BoolProp)
-    
+
     def __init__(self, experiment):
         super(Camera, self).__init__('camera',experiment)
         self.saveAsPNG=BoolProp('saveAsPNG',experiment,'save pictures as PNG','False')
@@ -56,13 +56,13 @@ class HamamatsuC9100_13(Camera):
     frameGrabberAcquisitionRegionBottom=Typed(IntRangeProp)
     numImageBuffers=Typed(IntRangeProp)
     shotsPerMeasurement=Typed(IntRangeProp)
-    
+
     #regions of interest will be dealt with in a post-processing filter
-    
-    
+
+
     def __init__(self,experiment):
         super(HamamatsuC9100_13,self).__init__(experiment)
-        
+
         self.forceImagesToU16=BoolProp('forceImagesToU16',experiment,'convert images to U16 (necessary on Aquarius hardware)','False')
         self.EMGain=IntRangeProp('EMGain',experiment,'EMCCD gain','0',low=0,high=255)
         self.analogGain=IntRangeProp('analogGain',experiment,'analog gain','0',low=0,high=5)
@@ -87,7 +87,7 @@ class HamamatsuC9100_13(Camera):
         self.frameGrabberAcquisitionRegionBottom=IntRangeProp('frameGrabberAcquisitionRegionBottom',experiment,'frameGrabberAcquisitionRegion.Bottom','512',low=0,high=512)
         self.numImageBuffers=IntRangeProp('numImageBuffers',experiment,'number of image buffers','300',low=0)
         self.shotsPerMeasurement=IntRangeProp('shotsPerMeasurement',experiment,'shots per measurement','1',low=0)
-        
+
         self.properties+=['version','forceImagesToU16','EMGain','analogGain','exposureTime','scanSpeed','lowLightSensitivity',
         'externalTriggerMode','triggerPolarity','externalTriggerSource','cooling','fan','scanMode','photoelectronScaling',
         'subArrayLeft','subArrayTop','subArrayWidth','subArrayHeight','superPixelBinning','frameGrabberAcquisitionRegionLeft',
@@ -101,12 +101,12 @@ class HamamatsuC9100_13(Camera):
             return super(HamamatsuC9100_13, self).evaluate()
 
 
-class Andor(Camera):
-    andorPath=Typed(StrProp)
-    copyAndorFiles=Typed(BoolProp)
-    msWaitTimeBeforeCopyingAndorFiles=Typed(FloatProp)
-    
-    def __init__(self):
-            andorPath=StrProp('andorPath',experiment,'Where to find the saved Andor image files',r'C:\Users\QC\Documents\Cesium_project\Andor_picutres_temp')
-            copyAndorFiles=BoolProp('copyAndorFiles',experiment,'should we copy Ander files into the experiment directory?','False')
-            msWaitTimeBeforeCopyingAndorFiles=FloatProp('msWaitTimeBeforeCopyingAndorFiles',experiment,'how long to wait before copying Andor files (in ms)','0')
+# class Andor(Camera):
+#     andorPath=Typed(StrProp)
+#     copyAndorFiles=Typed(BoolProp)
+#     msWaitTimeBeforeCopyingAndorFiles=Typed(FloatProp)
+#
+#     def __init__(self):
+#             andorPath=StrProp('andorPath',experiment,'Where to find the saved Andor image files',r'C:\Users\QC\Documents\Cesium_project\Andor_picutres_temp')
+#             copyAndorFiles=BoolProp('copyAndorFiles',experiment,'should we copy Ander files into the experiment directory?','False')
+#             msWaitTimeBeforeCopyingAndorFiles=FloatProp('msWaitTimeBeforeCopyingAndorFiles',experiment,'how long to wait before copying Andor files (in ms)','0')

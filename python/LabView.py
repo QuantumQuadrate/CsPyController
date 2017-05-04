@@ -43,6 +43,7 @@ class LabView(Instrument):
     piezo = Member()
     RF_generators = Member()
     AnalogOutput = Member()
+    #AnalogOutput2 = Member() # Secondary analog output instrument.
     AnalogInput = Member()
     DAQmxDO = Member()
     Counters = Member()
@@ -69,6 +70,7 @@ class LabView(Instrument):
         self.piezo = piezo.Piezo(experiment)
         self.RF_generators = RF_generators.RF_generators(experiment)
         self.AnalogOutput = AnalogOutput.AnalogOutput(experiment)
+        #self.AnalogOutput2 = AnalogOutput.AnalogOutput(experiment)
         self.AnalogInput = AnalogInput.AnalogInput(experiment)
         self.Counters = Counter.Counters('Counters', experiment)
         self.DAQmxDO = DAQmxDO.DAQmxDO(experiment)
@@ -78,12 +80,12 @@ class LabView(Instrument):
 
         self.instruments = [self.HSDIO, self.piezo, self.RF_generators, self.AnalogOutput, self.AnalogInput,
                             self.Counters, self.DAQmxDO, self.camera, self.TTL]
-        
+
         self.sock = None
         self.connected = False
-        
+
         self.timeout = FloatProp('timeout', experiment, 'how long before LabView gives up and returns [s]', '1.0')
-        
+
         self.properties += ['IP', 'port', 'timeout', 'AnalogOutput', 'AnalogInput', 'HSDIO',
                             'piezo', 'RF_generators', 'DAQmxDO', 'camera', 'TTL', 'Counters', 'cycleContinuously']
         self.doNotSendToHardware += ['IP', 'port', 'enable']
@@ -151,11 +153,11 @@ class LabView(Instrument):
 
             if key.startswith('Hamamatsu/shots/'):
                 #specific protocol for images: turn them into 2D numpy arrays
-                
+
                 #unpack the image in 2 byte chunks
                 #print "len(value)={}".format(len(value))
                 array = numpy.array(struct.unpack('!'+str(int(len(value)/2))+'H', value), dtype=numpy.uint16)
-                
+
                 #the dictionary is unpacked alphabetically, so if width and height were
                 #transmitted they should be loaded already
                 try: #if ('Hamamatsu/rows' in hdf5) and ('Hamamtsu/columns' in hdf5):
