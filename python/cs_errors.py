@@ -12,6 +12,8 @@ __author__ = 'Martin Lichtman'
 import logging
 import logging.handlers
 
+import colorlog
+
 class PauseError(Exception):
     """This class is defined so we can raise an exception to have the experiment pause immediately.
     Usually this will be raised in the except clause after another error is caught.
@@ -50,9 +52,23 @@ def setup_log():
     logger.setLevel(logging.DEBUG)
 
     #set up logging to console for INFO and worse
-    sh = logging.StreamHandler()
+    sh = colorlog.StreamHandler()
     sh.setLevel(logging.INFO)
-    sh_formatter = logging.Formatter(fmt='%(asctime)s\n%(message)s\n\n', datefmt='%H:%M:%S')
+    #sh_formatter = colorlog.Formatter(fmt='%(log_color)s%(levelname):%(asctime)s\n%(message)s', datefmt='%H:%M:%S')
+    sh_formatter = colorlog.ColoredFormatter(
+    "%(log_color)s%(levelname)-8s - %(name)-25s - %(asctime)s - %(cyan)s \n  %(message)s\n",
+    datefmt=None,
+    reset=True,
+    log_colors={
+        'DEBUG':    'cyan',
+        'INFO':     'green',
+        'WARNING':  'yellow',
+        'ERROR':    'red',
+        'CRITICAL': 'red,bg_white',
+    },
+    secondary_log_colors={},
+    style='%'
+)
     sh.setFormatter(sh_formatter)
 
     #set up logging to file for ALL messages

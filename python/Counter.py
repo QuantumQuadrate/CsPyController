@@ -171,7 +171,7 @@ class CounterHistogramAnalysis(AnalysisWithFigure):
 
 
     update_lock = Bool(False)
-    enable = Bool(True)
+    enable = Bool(False)
     hbins = Int(30)
     hist1 = None
     hist2 = None

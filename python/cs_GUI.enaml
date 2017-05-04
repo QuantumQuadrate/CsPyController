@@ -1851,75 +1851,155 @@ enamldef Andor(Form):
                         
 
             
-enamldef PICam(Window):
-    attr camera
-    attr analysis
+enamldef PICams(Window):
+    attr picams
 
-    title = 'Princeton Instruments Camera'
+    title = 'Princeton Instruments Cameras'
+    style_class << 'valid' if experiment.valid else 'invalid'
     Container:
         padding = 0
+        style_class << 'valid' if experiment.valid else 'invalid'
         ScrollArea:
+            style_class << 'valid' if experiment.valid else 'invalid'
             Container:
+                style_class << 'valid' if experiment.valid else 'invalid'
+
+                Container:
+                    hug_width = 'strong'
+                    hug_height = 'strong'
+                    Form:
+                        hug_width = 'strong'
+                        hug_height = 'strong'
+
+                    IndexedContainer:
+                        iterable << picams.motors
+                        viewType = Picam
+
+enamldef Picam(Form):
+    attr item
+
+    constraints = [width >= 1000, height >= 1500]
+
+    #title = 'Princeton Instruments Camera'
+    style_class << 'valid' if experiment.valid else 'invalid'
+    Container:
+        padding = 0
+        style_class << 'valid' if experiment.valid else 'invalid'
+        ScrollArea:
+            style_class << 'valid' if experiment.valid else 'invalid'
+            Container:
+                style_class << 'valid' if experiment.valid else 'invalid'
+
                 HGroup:
                     align_widths = False
                     MPLCanvas:
-                        figure << analysis.figure
+                        figure << item.analysis.figure
+                        toolbar_visible = True
                     Slider:
                         orientation = 'vertical'
                         tracking = False
-                        value := camera.roilowv
-                        value :: camera.setSendROIvalues()
-                        minimum << camera.roimaxv
+                        value := item.camera.roilowv
+                        value :: item.camera.setROIvalues()
+                        minimum << item.camera.roimaxv
+                        visible << item.camera.enableROI
                         maximum = 0
                     Slider:
                         orientation = 'vertical'
                         tracking = False
-                        value := camera.roihighv
-                        value :: camera.setSendROIvalues()
-                        minimum << camera.roimaxv
+                        value := item.camera.roihighv
+                        value :: item.camera.setROIvalues()
+                        minimum << item.camera.roimaxv
+                        visible << item.camera.enableROI
                         maximum = 0
                 Slider:
                     tracking = False
-                    value := camera.roilowh
-                    value :: camera.setSendROIvalues()
+                    value := item.camera.roilowh
+                    value :: item.camera.setROIvalues()
                     minimum = 0
-                    maximum << camera.roimaxh
+                    maximum << item.camera.roimaxh
+                    visible << item.camera.enableROI
                 Slider:
                     tracking = False
-                    value := camera.roihighh
-                    value :: camera.setSendROIvalues()
+                    value := item.camera.roihighh
+                    value :: item.camera.setROIvalues()
                     minimum = 0
-                    maximum << camera.roimaxh
+                    maximum << item.camera.roimaxh
+                    visible << item.camera.enableROI
                 HGroup:
                     PushButton:
                         text = 'video mode'
-                        clicked :: camera.setup_video_thread(analysis)
+                        clicked :: item.camera.setup_video_thread(item.analysis)
                     PushButton:
                         text = 'stop video'
-                        clicked :: camera.stop_video()
+                        clicked :: item.camera.stop_video()
+                HGroup:
+                    EvalProp:
+                        prop << item.camera.currentCamera
                     PushButton:
-                        text = 'Start Server'
-                        clicked :: camera.start_server()
+                        text = 'Select Camera'
+                        clicked :: item.camera.setCamera()
+                HGroup:
+                    padding = 0
+                    Label:
+                        text := 'Camera Serial Number: {}'.format(str(item.camera.currentSerial))
+                    #Label:
+                    #    text := 'CCD Temperature (C): {:.4}'.format(item.camera.temperature)
+                    Label:
+                        text := 'Maximum Pixel Value: {}, Mean Pixel Value: {}'.format(item.analysis.maxPixel,item.analysis.meanPixel)
                 LabelBox:
                     text = 'enable'
-                    checked := camera.enable
+                    checked := item.camera.enable
                 EvalProp:
-                    prop << camera.AdcEMGain
-                #EvalProp:
-                #    prop << camera.preAmpGain
-                EvalProp:
-                    prop << camera.exposureTime
+                    prop << item.camera.AdcEMGain
                 ComboBox:
-                    items = ['Edge', 'Level']
-                    index := camera.triggerMode
+                    items = ['Low Analog Gain', 'Medium Analog Gain', 'High Analog Gain']
+                    index := item.camera.AdcAnalogGain
                 EvalProp:
-                    prop<<camera.shotsPerMeasurement
+                    prop << item.camera.exposureTime
+                HGroup:
+                    padding = 0
+                    ComboBox:
+                        items = ['Rising Edge', 'Falling Edge', 'Level', 'Auto']
+                        index := item.camera.triggerMode
+                    ComboBox:
+                        items = ['Shutter Normal', 'Shutter Always Closed', 'Shutter Always Open', 'Shutter Open Before Trigger']
+                        index := item.camera.shutterMode
+                    ComboBox:
+                        items = ['Bin Mode: 1x1', 'Bin Mode: 2x2', 'Bin Mode: 4x4']
+                        index := item.camera.binMode
+                    ComboBox:
+                        items = ['Readout Control: Dual Imaging', 'Readout Control: Frame Transfer', 'Readout Control: Full Frame', 'Readout Control: Kinetics', 'Readout Control: Spectra Kinetics']
+                        index := item.camera.ReadoutControl
+                #HGroup:
+                    #padding = 0
+                    #ComboBox:
+                    #    items = ['EM Gain Mode: DAC 0-255', 'EM Gain #Mode: DAC 0-4095', 'EM Gain Mode: Linear', 'EM Gain #Mode: Real EM Gain']
+                    #    index := item.camera.EMGainMode
+                EvalProp:
+                    prop<<item.camera.shotsPerMeasurement
+                LabelBox:
+                    text = 'Sum Measurements'
+                    checked := item.camera.averageMeasurements
                 Form:
                     Label:
                         text = 'shot'
                     SpinBox: shot:
                         minimum=0
-                        value := analysis.shot                        
+                        value := item.analysis.shot
+                Container:
+                    LabelBox:
+                        text = 'Autoscale'
+                        checked := item.camera.autoscale
+                    LabelBox:
+                        text = 'Background Subtraction'
+                        checked := item.analysis.bgsub
+                    EvalProp:
+                        prop << item.camera.minPlot
+                    EvalProp:
+                        prop << item.camera.maxPlot    
+                LabelBox:
+                    text = 'Use Demo Camera'
+                    checked := item.camera.useDemo 
                             
                             
                         
@@ -3717,6 +3797,7 @@ enamldef BoxTemperature(Window):
                     CheckBox:
                         checked << box_temperature.connected
                         enabled = False
+ 
 
 enamldef PID(Window):
     attr experiment
@@ -3792,6 +3873,97 @@ enamldef RetentionAnalysis(Window):
                     Label:
                         text << analysis.text
 
+enamldef Origin(Window):
+    attr origin
+
+    title = 'Origin Interface'
+    style_class << 'valid' if experiment.valid else 'invalid'
+    Container:
+        padding = 0
+        style_class << 'valid' if experiment.valid else 'invalid'
+        ScrollArea:
+            style_class << 'valid' if experiment.valid else 'invalid'
+            Container:
+                style_class << 'valid' if experiment.valid else 'invalid'
+
+                Form:
+                    Label:
+                        text = 'enable'
+                    CheckBox:
+                        checked := origin.enable
+                    Label:
+                        text = 'ip addr'
+                    Label:
+                        text := origin.IP
+                    Label:
+                        text = 'ports (register, data)'
+                    Label:
+                        text = str(origin.port_register)
+                    Label:
+                        text = 'stream namespace'
+                    Field:
+                        text := origin.streamNameSpace
+                #EvalProp:
+                #    prop << origin.timeout
+
+                IndexedContainer:
+                        iterable << origin.iterationDataList
+                        viewType = Stream
+
+                IndexedContainer:
+                        iterable << origin.measurementDataList
+                        viewType = Stream
+
+enamldef Stream(Form):
+    attr item
+
+    constraints = [width >= 500, height >= 200]
+
+    #title = 'Princeton Instruments Camera'
+    style_class << 'valid' if experiment.valid else 'invalid'
+    Container:
+        padding = 0
+        style_class << 'valid' if experiment.valid else 'invalid'
+        ScrollArea:
+            style_class << 'valid' if experiment.valid else 'invalid'
+            Container:
+                style_class << 'valid' if experiment.valid else 'invalid'
+
+                Form:
+                    Label:
+                        text = 'data name'
+                    Label:
+                        text := item.name
+                    Label:
+                        text = 'full path'
+                    Label:
+                        text := item.fullPath
+                    Label:
+                        text = 'data type (numpy datatypes)'
+                    Field:
+                        text := item.dtype
+                    Label:
+                        text = 'stream name'
+                    Field:
+                        text := item.streamName
+                    Label:
+                        text = 'stream name on server'
+                    Label:
+                        text := item.streamNameFull
+                    Label:
+                        text = 'channels'
+                    Label:
+                        text := str(item.channels)
+                    Label:
+                        text = 'fields names on server'
+                    Label:
+                        text := str(item.fieldsList)
+                    Label:
+                        text = 'stream?'
+                    CheckBox:
+                        checked := item.stream                    
+
+
 window_dictionary = {'':'',
                      'Experiment': 'ExperimentPage(experiment = main.experiment)',
                      'Independent Variables': 'IndependentVariables(independentVariables = main.experiment.independentVariables)',
@@ -3804,7 +3976,7 @@ window_dictionary = {'':'',
                      'RF Generators': 'RFGenPage(LabView = main.experiment.LabView)',
                      'Hamamatsu': 'CameraPage(camera = main.experiment.LabView.camera)',
                      'Andor Cameras': 'Andors(andors = main.experiment.Andors)',
-                     'Princeton Instruments Camera': 'PICam(camera = main.experiment.PICam, analysis=main.experiment.picam_viewer)',
+                     'Princeton Instruments Camera': 'PICams(picams = main.experiment.PICams)',
                      'Vaunix Signal Generators': 'Vaunixs(vaunixs = main.experiment.vaunixs)',
                      'Analog Output': 'AnalogOutput(AO = main.experiment.LabView.AnalogOutput)',
                      'Analog Input': 'AnalogInput(AI = main.experiment.LabView.AnalogInput, filters = main.experiment.AI_filter, analysis = main.experiment.AI_graph)',
@@ -3835,7 +4007,8 @@ window_dictionary = {'':'',
                      'Functional Waveforms Graph': 'FunctionalWaveformsGraph(graph = main.experiment.functional_waveforms_graph)',
                      'CounterGraph': 'CounterGraph(analysis = main.experiment.counter_graph)',
                      'CounterHistAnalysis': 'CounterHistAnalysis(analysis = main.experiment.counter_hist)',
-                     'Unlock Monitor': 'Unlock_Pause(unlock_pause = main.experiment.unlock_pause)'
+                     'Unlock Monitor': 'Unlock_Pause(unlock_pause = main.experiment.unlock_pause)',
+                     'Origin Interface': 'Origin(origin = main.experiment.origin)'
                      }
 window_keys = window_dictionary.keys()
 window_keys.sort()
