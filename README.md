@@ -32,7 +32,7 @@ To install PyQt4 in virtual environment, first install globally:
 ```bash
 $ sudo apt-get install python-qt4
 ```
-Then copy from `/usr/lib/python2.7/dist-packages/PyQt4` to `<virtual_enviroment_dir>/lib/python2.7/dist-packages`.
+Then copy from `/usr/lib/python2.7/dist-packages/PyQt4` to `<virtual_enviroment_dir>/lib/python2.7/site-packages`.
 Also copy `/usr/lib/python2.7/dist-packages/sip.<architecture>.so` to the same path.
 
 ## Usage Notes
