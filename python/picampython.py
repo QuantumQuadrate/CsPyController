@@ -50,6 +50,10 @@ from analysis import AnalysisWithFigure, Analysis
 from colors import my_cmap
 from enaml.application import deferred_call
 
+# import config file
+import ConfigParser
+config = ConfigParser.ConfigParser()
+config.read('config.cfg')
 
 def pointer(x):
     """Returns a ctypes pointer"""
@@ -842,7 +846,7 @@ class PICams(Instrument,Analysis):
 
     def initialize(self, cameras=False):
         msg=''
-        dllpath = 'C:/Program Files/Common Files/Princeton Instruments/Picam/Runtime/Picam.dll'
+        dllpath = config.get('PICAM', 'PICAM_DLL')
         #self.dll = load(dllpath)
         try:
             logger.debug("Initializing Picam library: {}".format(Picam_InitializeLibrary()))

@@ -18,8 +18,8 @@
 
 __author__ = 'Matthew Ebert'
 
-#ORIGIN_TEST = False
-ORIGIN_TEST = True
+ORIGIN_TEST = False
+#ORIGIN_TEST = True
 
 # Use Atom traits to automate Enaml updating
 from atom.api import Int, Float, Str, Member, Bool, Long, Typed
@@ -38,19 +38,15 @@ import numpy as np
 import logging
 logger = logging.getLogger(__name__)
 
-# first find ourself
-fullBasePath = "C:\\LabSoftware\\Origin"
-#fullBasePath = "D:\\projects\\Origin"
-# do not change this
-fullLibPath  = os.path.join(fullBasePath, "lib")
-# use the default config file since we are all sharing a server
-fullCfgPath  = os.path.join(fullBasePath, "config")
-sys.path.append(fullLibPath)
+# append origin path 
+import ConfigParser
+config = ConfigParser.ConfigParser()
+config.read("config.cfg")
+sys.path.append(config.get('ORIGIN','OriginLibPath'))
+print config.get('ORIGIN','OriginLibPath')
 
 from origin.client import server
 from origin import current_time, timestamp
-
-import ConfigParser
 
 preExperimentMsg    = 'PEXP'
 postExperimentMsg   = 'EXPR'
@@ -313,11 +309,12 @@ class Origin(Analysis):
   #=============================================================================
   def configure(self):
     # read in the correct config file
+    cfg_path = config.get('ORIGIN','OriginCfgPath')
     if ORIGIN_TEST:
-      configfile = os.path.join(fullCfgPath, "origin-server-test.cfg")
+      configfile = os.path.join(cfg_path, "origin-server-test.cfg")
     else:
-      configfile = os.path.join(fullCfgPath, "origin-server.cfg")
-    # read in the configuration
+      configfile = os.path.join(cfg_path, "origin-server.cfg")
+    # read in the configuration file from the origin lib
     self.config = ConfigParser.ConfigParser()
     self.config.read(configfile)
 

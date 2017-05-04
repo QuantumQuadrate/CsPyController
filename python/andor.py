@@ -39,6 +39,11 @@ from analysis import AnalysisWithFigure, Analysis
 from colors import my_cmap
 from enaml.application import deferred_call
 
+# import config file
+import ConfigParser
+config = ConfigParser.ConfigParser()
+config.read('config.cfg')
+
 class AndorCamera(Instrument):
 
     EMCCDGain = Member()
@@ -1144,14 +1149,11 @@ class Andors(Instrument,Analysis):
     def initialize(self, cameras=False):
         msg=''
         try:
-            self.dll = CDLL(r"D:\git\cspycontroller\python\Andor\atmcd64d.dll")
+            self.dll = CDLL(config.get('ANDOR', 'ATMCD64D_DLL'))
         except Exception as e:
-            try:
-                self.dll = CDLL("C:\\Users\\Rb\\LabSoftware\\CsPyNewGit\\CsPyController\\python\\Andor\\atmcd64d.dll")
-            except Exception as e:
-                logger.warning('Failed to load DLL for Andor (check path?): {}. Andor disabled.'.format(e))
-                self.enable = False
-                return
+            logger.warning('Failed to load DLL for Andor (check path?): {}. Andor disabled.'.format(e))
+            self.enable = False
+            return
 
         self.enable = True
         self.isInitialized = True
