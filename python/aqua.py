@@ -103,7 +103,7 @@ class AQuA(Experiment):
         self.AI_filter = AnalogInput.AI_Filter('AI_filter', self, 'Analog Input filter')
         self.loading_filters = analysis.LoadingFilters('loading_filters', self, 'drop measurements with no atom loaded')
         self.first_measurements_filter = analysis.DropFirstMeasurementsFilter('first_measurements_filter', self, 'drop the first N measurements')
-        self.squareROIAnalysis = SquareROIAnalysis(self, ROI_rows=self.ROI_rows, ROI_columns=self.ROI_columns)
+        self.squareROIAnalysis = SquareROIAnalysis(self, roi_rows=self.ROI_rows, roi_columns=self.ROI_columns)
         self.gaussian_roi = roi_fitting.GaussianROI('gaussian_roi', self, rows=self.ROI_rows, columns=self.ROI_columns)
         self.text_analysis = analysis.TextAnalysis('text_analysis', self, 'text results from the measurement')
         self.imageSumAnalysis = analysis.ImageSumAnalysis(self)
