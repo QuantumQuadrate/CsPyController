@@ -29,7 +29,6 @@ from colors import my_cmap, green_cmap
 from instrument_property import Prop,StrProp
 import cs_evaluate
 
-
 def mpl_rectangle(ax, ROI):
     """Draws a rectangle, for use in drawing ROIs on images"""
     #left, top, right, bottom, threshold = (0, 1, 2, 3, 4)  # column ordering of ROI boundaries in each ROI in ROIs
@@ -587,95 +586,6 @@ class ImageSumAnalysis(AnalysisWithFigure):
     #def finalize(self, experimentResults):
     #    if self.enable and self.experiment.saveData:
     #        self.pdf.close()
-
-class SquareROIAnalysis(AnalysisWithFigure):
-    """Add up the sums of pixels in a region, and evaluate whether or not an atom is present based on the totals."""
-
-    version = '2014.05.01'
-    ROI_rows = Int()
-    ROI_columns = Int()
-    ROIs = Member()  # a numpy array holding an ROI in each row
-    filter_level = Int()
-    #left, top, right, bottom, threshold = (0, 1, 2, 3, 4)  # column ordering of ROI boundaries in each ROI in ROIs
-    loadingArray = Member()
-    enable = Bool()
-    cutoffs_from_which_experiment = Str()
-
-    def __init__(self, experiment, ROI_rows=1, ROI_columns=1):
-        super(SquareROIAnalysis, self).__init__('SquareROIAnalysis', experiment, 'Does analysis on square regions of interest')
-        self.loadingArray = numpy.zeros((0, ROI_rows, ROI_columns), dtype=numpy.bool_)  # blank array that will hold digital representation of atom loading
-        self.ROI_rows = ROI_rows
-        self.ROI_columns = ROI_columns
-        dtype = [('left', numpy.uint16), ('top', numpy.uint16), ('right', numpy.uint16), ('bottom', numpy.uint16), ('threshold', numpy.uint32)]
-        self.ROIs = numpy.zeros(ROI_rows*ROI_columns, dtype=dtype)  # initialize with a blank array
-        self.properties += ['version', 'ROIs', 'filter_level', 'enable', 'cutoffs_from_which_experiment']
-
-    def sum(self, roi, shot):
-        return numpy.sum(shot[roi['top']:roi['bottom'], roi['left']:roi['right']])
-
-    def sums(self, rois, shot):
-        return numpy.array([self.sum(roi, shot) for roi in rois], dtype=numpy.uint32)
-
-    def analyzeMeasurement(self, measurementResults, iterationResults, experimentResults):
-        if self.enable:
-            if ('data/Andor_4522/shots' in measurementResults):
-                #here we want to live update a digital plot of atom loading as it happens
-                numShots = len(measurementResults['data/Andor_4522/shots'])
-                if self.experiment.LabView.camera.enable and (numShots != self.experiment.LabView.camera.shotsPerMeasurement.value):
-                    logger.warning('Camera expected {} shots, but instead got {}.'.format(
-                        self.experiment.LabView.camera.shotsPerMeasurement.value, numShots))
-                    return 3  # hard fail, delete measurement
-
-                numROIs=len(self.ROIs)
-
-                sum_array = numpy.zeros((numShots, numROIs), dtype=numpy.uint32)  # uint32 allows for summing ~65535 regions
-                thresholdArray = numpy.zeros((numShots, numROIs), dtype=numpy.bool_)
-                #loadingArray = numpy.zeros((numShots, self.ROI_rows, self.ROI_columns), dtype=numpy.bool_)
-
-                #for each image
-                for i, (name, shot) in enumerate(measurementResults['data/Andor_4522/shots'].items()):
-                #for i, (name, shot) in enumerate(measurementResults['data/Andor_4522'].items()):
-                    #calculate sum of pixels in each ROI
-                    shot_sums = self.sums(self.ROIs, shot)
-                    sum_array[i] = shot_sums
-
-                    #compare each roi to threshold
-                    thresholdArray[i] = (shot_sums >= self.ROIs['threshold'])
-                print "thresholdArray:{}".format(numpy.size(thresholdArray))
-                self.loadingArray = thresholdArray.reshape((numShots, self.ROI_rows, self.ROI_columns))
-                #data will be stored in hdf5 so that save2013style can then append to Camera Data Iteration0 (signal).txt
-                measurementResults['analysis/squareROIsums'] = sum_array
-                measurementResults['analysis/squareROIthresholded'] = thresholdArray
-                self.updateFigure()
-
-            # check to see if there were supposed to be images
-            elif self.experiment.LabView.camera.enable and (self.experiment.LabView.camera.shotsPerMeasurement.value > 0):
-                logger.warning('Camera expected {} shots, but did not get any.'.format(self.experiment.LabView.camera.shotsPerMeasurement.value))
-                return 3  # hard fail, delete measurement
-
-    def analyzeIteration(self, iterationResults, experimentResults):
-        """
-        create a big array of the results from each measurement for convenience
-        data is stored in iterationResults['analysis/square_roi/sums']
-        as an array of size (measurements x shots x roi) array
-        """
-        if self.enable:
-            measurements = map(int, iterationResults['measurements'].keys())
-            measurements.sort()
-            iterationResults['analysis/square_roi/sums'] = numpy.array([iterationResults['measurements/{}/analysis/squareROIsums'.format(m)] for m in measurements])
-
-    def updateFigure(self):
-        fig = self.backFigure
-        fig.clf()
-        if self.loadingArray.size > 0:
-            n = len(self.loadingArray)
-            for i in range(n):
-                ax = fig.add_subplot(n, 1, i+1)
-                #make the digital plot here
-                ax.matshow(self.loadingArray[i], cmap=green_cmap)
-                ax.set_title('shot '+str(i))
-        super(SquareROIAnalysis, self).updateFigure()
-
 
 class LoadingFilters(Analysis):
     """This analysis monitors the brightess in the regions of interest, to decide if an atom was loaded or not"""

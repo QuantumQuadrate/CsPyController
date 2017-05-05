@@ -2,10 +2,13 @@ from __future__ import division
 __author__ = 'Martin Lichtman'
 import logging
 logger = logging.getLogger(__name__)
-from cs_errors import PauseError
 
+import ConfigParser
 import traceback
+
+from cs_errors import PauseError
 from atom.api import Member
+
 
 # Bring in other files in this package
 import functional_waveforms, analysis, instek_pst, save2013style, TTL, LabView, DDS, roi_fitting
@@ -13,8 +16,12 @@ import picomotors, andor, picampython, vaunix, DCNoiseEater, Laird_temperature, 
 import Counter, conex, aerotech, unlock_pause
 import origin_interface
 import FakeInstrument
+from SquareROIAnalysis import SquareROIAnalysis
 from experiments import Experiment
 
+# import config file
+config = ConfigParser.ConfigParser()
+config.read('config.cfg')
 
 class AQuA(Experiment):
     """A subclass of Experiment which knows about all our particular hardware"""
@@ -63,8 +70,8 @@ class AQuA(Experiment):
     save_notes = Member()
     save2013Analysis = Member()
     origin = Member()
-    ROI_rows = 7
-    ROI_columns = 7
+    ROI_rows = config.getint('EXPERIMENT', 'SiteRows')
+    ROI_columns = config.getint('EXPERIMENT', 'SiteColumns')
 
     def __init__(self):
         super(AQuA, self).__init__()
@@ -96,7 +103,7 @@ class AQuA(Experiment):
         self.AI_filter = AnalogInput.AI_Filter('AI_filter', self, 'Analog Input filter')
         self.loading_filters = analysis.LoadingFilters('loading_filters', self, 'drop measurements with no atom loaded')
         self.first_measurements_filter = analysis.DropFirstMeasurementsFilter('first_measurements_filter', self, 'drop the first N measurements')
-        self.squareROIAnalysis = analysis.SquareROIAnalysis(self, ROI_rows=self.ROI_rows, ROI_columns=self.ROI_columns)
+        self.squareROIAnalysis = SquareROIAnalysis(self, ROI_rows=self.ROI_rows, ROI_columns=self.ROI_columns)
         self.gaussian_roi = roi_fitting.GaussianROI('gaussian_roi', self, rows=self.ROI_rows, columns=self.ROI_columns)
         self.text_analysis = analysis.TextAnalysis('text_analysis', self, 'text results from the measurement')
         self.imageSumAnalysis = analysis.ImageSumAnalysis(self)
