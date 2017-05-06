@@ -19,6 +19,25 @@ Written by Martin Lichtman
  * colorlog (pip install colorlog) -> for colored output logs
  * origin (see below)
 
+## Configuration files
+
+Some parameters need to be specified before the controller is started, sich as DLL paths and python modules not installed globally.
+Additionally there are experiment specific parameters that rarely or never change.
+These are all good candidates for entries in a config file.
+Basically if you ever thought hey I wish X experiment would stop overwriting my Y whenever they makes changes, Y should be moved to the config file.
+
+To prevent everyone form just overwriting each others config files perpetuating the cycle, everyone makes their own config file with a discriptive name such as `config_FNODE.cfg` or `config_AQUA.cfg`.
+You then, on your Windows machine, run cmd.exe as administrator, navigate to the python folder for the controller and run the following code:
+```bash
+mklink config.cfg config_<EXPERIMENT TAG>.cfg
+```
+which makes a symbolic (soft) link to your actual `config_<EXPERIMENT TAG>.cfg.cfg` file whenever the experiment looks for `config.cfg` and no one has to yell at anyone else anymore.
+
+On a linux machine run:
+```bash
+ln -s config.cfg config_<EXPERIMENT TAG>.cfg
+```
+
 ## Usage Notes
 
 ### HSDIO
