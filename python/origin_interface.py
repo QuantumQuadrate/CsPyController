@@ -422,7 +422,7 @@ class Origin(Analysis):
       super(Origin, self).toHDF5(f['settings/experiment'])
       f.flush() # write changes
     except Exception as e:
-      logger.error('Uncaught Exception in origin.postExperiment:\n{}\n{}'.format(e, traceback.format_exc()))
+      logger.exception('Uncaught Exception in origin.postExperiment.')
     finally:
       f.close() #close the file
     return 0
@@ -480,4 +480,5 @@ class Origin(Analysis):
     # save the origin settings hdf5 object so we can rerun the toHDF5 method 
     # after the experiment fills out the dicts
     self.settings = hdf_parent_node.name
-    super(Origin, self).toHDF5(hdf_parent_node)
+    # dont save to hdf5 when everyone else is
+    logger.debug("This is the pre-experiment save event.  Origin reruns its save event at the end.")

@@ -7,7 +7,7 @@ Written by Martin Lichtman
 
  * enaml (0.9.8-3 or later)
  * h5py (2.5.0-3 or later)
- * matplotlib (1.4.3-5 or later)
+ * matplotlib (1.4.3-5 or later, 2 is not supported)
  * numpy (1.9.2-1 or later)
  * pyaudio (0.2.4-3 or later)
  * pypng (0.0.15-1 or later)
@@ -18,6 +18,22 @@ Written by Martin Lichtman
  * colorama (pip install colorama) -> for colored output logs
  * colorlog (pip install colorlog) -> for colored output logs
  * origin (see below)
+
+### On Ubuntu
+
+To install pyaudio in virtual environment: 
+
+```bash
+$ sudo apt-get install libjack-jackd2-dev portaudio19-dev
+```
+Then you can `pip install pyaudio` as normal.
+
+To install PyQt4 in virtual environment, first install globally:
+```bash
+$ sudo apt-get install python-qt4
+```
+Then copy from `/usr/lib/python2.7/dist-packages/PyQt4` to `<virtual_enviroment_dir>/lib/python2.7/site-packages`.
+Also copy `/usr/lib/python2.7/dist-packages/sip.<architecture>.so` to the same path.
 
 ## Usage Notes
 

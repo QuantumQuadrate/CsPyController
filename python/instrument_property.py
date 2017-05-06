@@ -116,7 +116,7 @@ class Prop(Atom):
                     raise PauseError
             else:
                 if p == 'version':
-                    #save the version tag as an attribte
+                    #save the version tag as an attribute
                     my_node.attrs['version'] = o
                 else:
                     #try to save it as a dataset, then as an attribute.  If that fails, save its pickle
@@ -130,10 +130,17 @@ class Prop(Atom):
                         except:
                             #else just pickle it
                             try:
+                                logger.debug("Preparing to pickle field name.property: `{}.{}`".format(name, p))
                                 my_node[p]=pickle.dumps(o)                               
                             except RuntimeError:
+                                logger.debug("Preparing to overwrite field name.property: `{}.{}`".format(name, p))
                                 # we make it here if you try to overwrite an existing dataset
-                                my_node[p][()] = pickle.dumps(o)
+                                try:
+                                    my_node[p][()] = pickle.dumps(o)
+                                except MemoryError:
+                                    logger.warning("Problem overwriting dataset: `{}.{}`. Deleting and inserting new dataset.".format(name, p))
+                                    del my_node[p]
+                                    my_node[p]=pickle.dumps(o) 
 
                             except Exception as e:
                                 logger.warning(str(type(e)))

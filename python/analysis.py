@@ -149,6 +149,7 @@ class Analysis(Prop):
 
     def postExperiment(self, experimentResults):
         #no queueing, must do post experiment processing at this time
+        logger.debug("I am running %s analysis after the experiment", self.name)
         self.analyzeExperiment(experimentResults)
 
     def analyzeExperiment(self, experimentResults):
