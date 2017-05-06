@@ -158,7 +158,7 @@ class AndorCamera(Instrument):
             #print "Updating Andor camera {}".format(self.CurrentHandle)
             self.mode = 'experiment'
             if self.GetStatus() == 'DRV_ACQUIRING':
-                self.GetAcquiredData(True)
+                #self.GetAcquiredData(True)
                 self.AbortAcquisition()
             self.GetDetector()
             self.GetTemperature()
@@ -167,7 +167,7 @@ class AndorCamera(Instrument):
             self.SetReadMode(4)  # image mode
             self.SetExposureTime(self.exposureTime.value)
             exposure,accumulate , kinetic = self.GetAcquisitionTimings()
-            #print "Values returned by GetAcquisitionTimings: exposure: {}, accumulate:{}, kinetic: {}".format(exposure,accumulate,kinetic)
+            
             self.SetTriggerMode(self.triggerChoices[self.triggerMode])
 
             #print "bin size: {}".format(self.binChoices[self.binMode])
@@ -206,6 +206,7 @@ class AndorCamera(Instrument):
             gain_range = self.GetEMGainRange()
             #print "EMGainRange: {}".format(gain_range)
             exposure,accumulate , kinetic = self.GetAcquisitionTimings()
+            #print "Values returned by GetAcquisitionTimings: exposure: {}, accumulate:{}, kinetic: {}".format(exposure,accumulate,kinetic)
         #else:
         #    print "Andor camera {} is not enabled".format(self.CurrentHandle)
 
@@ -338,7 +339,6 @@ class AndorCamera(Instrument):
             self.experiment.Andors.initialize()
         self.dll = self.experiment.Andors.dll
         self.isInitialized=True
-
 
         error = self.experiment.Andors.dll.GetAvailableCameras(byref(self.num_cameras))
         if ERROR_CODE[error] != 'DRV_SUCCESS':
@@ -522,7 +522,7 @@ class AndorCamera(Instrument):
 
     def DLLError(self, func, error, NoPause=False):
         if ERROR_CODE[error] != 'DRV_SUCCESS':
-            logger.error('Error in {} on camera {}:\n{}'.format(func,ERROR_CODE[error],self.currentCamera.value))
+            logger.error('Error in {} on camera {}:\n{}'.format(func,self.currentCamera.value,ERROR_CODE[error]))
             if not NoPause:
                 raise PauseError
             return False
@@ -602,10 +602,13 @@ class AndorCamera(Instrument):
         c_image_array = c_image_array_type()
         #print "calling dll"
         error = self.dll.GetAcquiredData(byref(c_image_array), self.dim * self.shotsPerMeasurement.value)
+        #print "returned from DLL, checking for errors"
         self.DLLError(sys._getframe().f_code.co_name, error, dump)
-
+        #print "copying data"
         data = numpy.ctypeslib.as_array(c_image_array)
+        #print "reshaping data"
         data = numpy.reshape(data, (self.shotsPerMeasurement.value, self.height, self.width))
+        #print "returning data"
         return data
 
     def CreateAcquisitionBuffer(self):
@@ -1060,7 +1063,7 @@ class Andors(Instrument,Analysis):
     def initialize(self, cameras=False):
         msg=''
         try:
-            self.dll = CDLL(r"D:\git\cspycontroller\python\Andor\atmcd64d.dll")
+            self.dll = CDLL("C:/Program Files/Andor SOLIS/Drivers/atmcd64d.dll")
         except Exception as e:
             logger.warning('Failed to load DLL for Andor (check path?): {}. Andor disabled.'.format(e))
             self.enable = False
