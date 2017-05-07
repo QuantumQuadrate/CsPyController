@@ -38,10 +38,14 @@ import numpy as np
 import logging
 logger = logging.getLogger(__name__)
 
-# append origin path 
+
+# get the config file
+from __init__ import import_config
+config = import_config()
+
+#still need to import config parser for origin
 import ConfigParser
-config = ConfigParser.ConfigParser()
-config.read("config.cfg")
+
 sys.path.append(config.get('ORIGIN','OriginLibPath'))
 print config.get('ORIGIN','OriginLibPath')
 

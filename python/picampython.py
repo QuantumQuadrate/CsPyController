@@ -50,10 +50,9 @@ from analysis import AnalysisWithFigure, Analysis
 from colors import my_cmap
 from enaml.application import deferred_call
 
-# import config file
-import ConfigParser
-config = ConfigParser.ConfigParser()
-config.read('config.cfg')
+# get the config file
+from __init__ import import_config
+config = import_config()
 
 def pointer(x):
     """Returns a ctypes pointer"""

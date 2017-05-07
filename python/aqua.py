@@ -3,12 +3,14 @@ __author__ = 'Martin Lichtman'
 import logging
 logger = logging.getLogger(__name__)
 
-import ConfigParser
 import traceback
 
 from cs_errors import PauseError
 from atom.api import Member
 
+# get the config file
+from __init__ import import_config
+config = import_config()
 
 # Bring in other files in this package
 import functional_waveforms, analysis, instek_pst, save2013style, TTL, LabView, DDS, roi_fitting
@@ -18,10 +20,6 @@ import origin_interface
 import FakeInstrument
 from SquareROIAnalysis import SquareROIAnalysis
 from experiments import Experiment
-
-# import config file
-config = ConfigParser.ConfigParser()
-config.read('config.cfg')
 
 class AQuA(Experiment):
     """A subclass of Experiment which knows about all our particular hardware"""

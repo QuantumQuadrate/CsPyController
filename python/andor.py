@@ -39,10 +39,10 @@ from analysis import AnalysisWithFigure, Analysis
 from colors import my_cmap
 from enaml.application import deferred_call
 
-# import config file
+# get the config file
+from __init__ import import_config
+config = import_config()
 import ConfigParser
-config = ConfigParser.ConfigParser()
-config.read('config.cfg')
 
 class AndorCamera(Instrument):
 
@@ -138,7 +138,7 @@ class AndorCamera(Instrument):
         self.maxPlot = IntProp('maxPlot', experiment, 'Maximum Plot Scale Value', '32768')
         self.properties += ['EMCCDGain', 'preAmpGain', 'exposureTime', 'triggerMode', 'shotsPerMeasurement', 'minPlot', 'maxPlot',
                             'currentCamera', 'acquisitionMode', 'binMode', 'AdvancedEMGain', 'EMGainMode', 'numPixX', 'numPixY',
-                            'ROI', 'roilowv', 'roilowh', 'roihighv', 'roihighh']
+                            'ROI', 'roilowv', 'roilowh', 'roihighv', 'roihighh', 'set_T', 'serial']
 
     def __del__(self):
         if self.isInitialized:
@@ -151,7 +151,10 @@ class AndorCamera(Instrument):
         self.GetCameraSerialNumber()
         self.SetCoolerMode(1)
         self.CoolerON()
-        self.SetTemperature(-70) # Set camera temperature to -70
+        try: # the Luca throws a DLL error when attempting to set the temperature.
+            self.SetTemperature(self.getTemperatureSP())
+        except PauseError:
+            logger.warning("Problem setting temperate for camera with serial no: %d", self.serial)
         self.dll.SetFanMode(0)
         self.rundiagnostics()
         #time.sleep(1)
@@ -414,7 +417,10 @@ class AndorCamera(Instrument):
         if ERROR_CODE[error] != 'DRV_SUCCESS':
             logger.error('Error getting number of Andor cameras:\n{}'.format(ERROR_CODE[error]))
             raise PauseError
-        logger.warning("Number of Andor cameras detected: {}".format(self.num_cameras.value))
+        if self.num_cameras.value > 0:
+            logger.info("Number of Andor cameras detected: {}".format(self.num_cameras.value))
+        else:
+            logger.warning("Number of Andor cameras detected: {}".format(self.num_cameras.value))
 
         cameraHandleListType = c_long * self.num_cameras.value
         self.cameraHandleList = cameraHandleListType()
@@ -430,6 +436,32 @@ class AndorCamera(Instrument):
         self.getAllSerials()
 
         self.setCamera()
+
+    def getTemperatureSP(self):
+        '''Gets the camera setpoint with the following priority: setting.hdf5 > config.cfg > 0
+        If both file reads fail to return a setpoint, the 0 C default setpoint is not written to a settings file
+        to prevent propagation of the error without a warning message.
+        The config file option is ANDOR.SetTemp_<serial no> with leading zeros removed.
+        Returns the setpoint in deg C.
+        '''
+        if self.set_T:
+            logger.info("Using camera setpoint temperature from previous settings file.")
+        else:
+            cam_temp_option = "SetTemp_{}".format(self.serial)
+            logger.info(
+                "Using default camera setpoint temperature from config file `ANDOR.%s`.",
+                cam_temp_option
+            )
+            try:
+                self.set_T = config.getint('ANDOR', '{}'.format(cam_temp_option))
+            except ConfigParser.NoOptionError:
+                logger.warning(
+                    "No camera temperature and no config file entry found for `ANDOR.%s`, setting temperature to 0 C.",
+                    cam_temp_option
+                )
+                return 0 # dont set set_T so it doesnt get saved and propagated
+        return self.set_T       
+
 
     def getAllSerials(self):
         self.cameraSerialList = numpy.zeros(self.num_cameras.value, dtype=numpy.int)
@@ -448,7 +480,7 @@ class AndorCamera(Instrument):
 
             error = self.dll.GetCameraSerialNumber(byref(camSerial))
             if ERROR_CODE[error] != 'DRV_SUCCESS':
-                logger.warning("Initializing camera.".format(camSerial.value))
+                logger.info("Initializing camera.".format(camSerial.value))
                 error = self.dll.Initialize(".")
                 if ERROR_CODE[error] != 'DRV_SUCCESS':
                     logger.error('Error initializing Andor camera in getAllSerials:\n{} ({})'.format(ERROR_CODE[error],error))
@@ -458,7 +490,7 @@ class AndorCamera(Instrument):
                     logger.error('Error getting Andor camera serial number in getAllSerials:\n{} ({})'.format(ERROR_CODE[error],error))
                     raise PauseError
             self.cameraSerialList[camnum] = camSerial.value
-            logger.warning("Serial for camera {}: {}".format(camnum,camSerial.value))
+            logger.info("Serial for camera {}: {}".format(camnum,camSerial.value))
         #set up dictionary
 
         self.cameraHandleDict = dict(zip(self.cameraSerialList,self.cameraHandleList))
@@ -480,9 +512,9 @@ class AndorCamera(Instrument):
             self.getAllSerials()
 
         try:
-            error = self.dll.SetCurrentCamera(self.cameraHandleDict[self.currentCamera.value])
+            error = self.dll.SetCurrentCamera(self.cameraHandleDict[self.serial])
         except Exception as e:
-            logger.error("Invalid camera number: {}. Exception: {}".format(self.cameraHandleDict[self.currentCamera.value],e))
+            logger.exception("Invalid camera number: {}.".format(self.cameraHandleDict[self.serial]))
             raise PauseError
         if ERROR_CODE[error] != 'DRV_SUCCESS':
             logger.error('Error setting current camera:\n{}'.format(ERROR_CODE[error]))
@@ -776,9 +808,10 @@ class AndorCamera(Instrument):
         return self.temperature
 
     def SetTemperature(self, temperature):
+        logger.info("Attempting to set camera temperature to %d C", temperature)
         error = self.dll.SetTemperature(temperature)
         self.DLLError(sys._getframe().f_code.co_name, error)
-        self.set_T = temperature
+        #self.set_T = temperature
 
     def GetEMCCDGain(self):
         gain = c_int()
@@ -937,20 +970,22 @@ class AndorCamera(Instrument):
         self.DLLError(sys._getframe().f_code.co_name, error)
 
     def rundiagnostics(self):
-        print 'This camera supports the following settings'
-        print '%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%'
-        print 'Camera Temperature :{}'.format(self.GetTemperature())
-        print 'Supporing ADC channels: {}'.format(self.GetBitDepth())
-        print 'Supporing Preamp gain: {}'.format(self.GetPreAmpGain())
-        print 'Supporing Vertical Shift speed: {}'.format(self.GetVSSpeed())
-        print 'Supporing Horizontal Shift speed: {}'.format(self.GetHSSpeed())
-        print 'SupporingEMCCD Gain range:{}'.format(self.GetEMGainRange())
-        print 'Current EMCCD Gain:{}'.format(self.GetEMCCDGain())
-        print 'Current Camera Status :{}'.format(self.GetStatus())
-        print 'Current Horizontal Shift :{}'.format(self.GetHSSpeed()[self.HSSpeed])
-        print 'Current Vertical Shift :{}'.format(self.GetVSSpeed()[self.VSSpeed])
-        print 'Current preamp gain :{}'.format(self.GetPreAmpGain()[self.preAmpGain.value])
-        print '%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%'
+        logger.info( '\n  '.join([
+            'This camera supports the following settings',
+            '%'*40,
+            'Camera Temperature :{}'.format(self.GetTemperature()),
+            'Supporing ADC channels: {}'.format(self.GetBitDepth()),
+            'Supporing Preamp gain: {}'.format(self.GetPreAmpGain()),
+            'Supporing Vertical Shift speed: {}'.format(self.GetVSSpeed()),
+            'Supporing Horizontal Shift speed: {}'.format(self.GetHSSpeed()),
+            'SupporingEMCCD Gain range:{}'.format(self.GetEMGainRange()),
+            'Current EMCCD Gain:{}'.format(self.GetEMCCDGain()),
+            'Current Camera Status :{}'.format(self.GetStatus()),
+            'Current Horizontal Shift :{}'.format(self.GetHSSpeed()[self.HSSpeed]),
+            'Current Vertical Shift :{}'.format(self.GetVSSpeed()[self.VSSpeed]),
+            'Current preamp gain :{}'.format(self.GetPreAmpGain()[self.preAmpGain.value]),
+            '%'*40
+        ]))
 
 
 
@@ -1064,7 +1099,7 @@ class AndorViewer(AnalysisWithFigure):
         if 'data/Andor_{0}/shots/{1}'.format(self.mycam.CurrentHandle,self.shot) in measurementResults:
             #for each image
             self.data = measurementResults['data/Andor_{0}/shots/{1}'.format(self.mycam.CurrentHandle,self.shot)]
-            print measurementResults['data/Andor_{0}/shots/{1}'.format(self.mycam.CurrentHandle,self.shot)]
+            #print measurementResults['data/Andor_{0}/shots/{1}'.format(self.mycam.CurrentHandle,self.shot)]
         self.updateFigure()  # only update figure if image was loaded
 
     @observe('shot')
@@ -1161,7 +1196,6 @@ class Andors(Instrument,Analysis):
         self.motors = ListProp('motors', experiment, 'A list of individual Andor cameras', listElementType=Andor,
                                listElementName='motor')
         self.properties += ['version', 'motors']
-        self.initialize(True)
 
     def initializecameras(self):
         try:
@@ -1169,7 +1203,7 @@ class Andors(Instrument,Analysis):
                 if i.camera.enable:
                     msg = i.camera.initialize()
         except Exception as e:
-            logger.error('Problem initializing Andor camera:\n{}\n{}\n'.format(msg,e))
+            logger.exception('Problem initializing Andor camera.')
             self.isInitialized = False
             raise PauseError
 
@@ -1199,9 +1233,6 @@ class Andors(Instrument,Analysis):
             raise PauseError
 
         self.isDone = True
-
-
-
 
     def update(self):
         msg = ''
@@ -1276,3 +1307,7 @@ class Andors(Instrument,Analysis):
             self.isInitialized = False
             raise PauseError
         return 0
+
+    def fromHDF5(self, hdf):
+        super(Andors, self).fromHDF5(hdf)
+        self.initialize(True)
