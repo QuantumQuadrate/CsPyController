@@ -251,64 +251,6 @@ class TTL_filters(Analysis):
                 text = 'okay'
         self.set_gui({'text': text})
 
-
-class RecentShotAnalysis(AnalysisWithFigure):
-    """Plots the currently incoming shot"""
-    data = Member()
-    showROIs = Bool(False)
-    shot = Int(0)
-    update_lock = Bool(False)
-    subtract_background = Bool()
-
-    def __init__(self, name, experiment, description=''):
-        super(RecentShotAnalysis, self).__init__(name, experiment, description)
-        self.properties += ['showROIs', 'shot', 'subtract_background']
-
-    def analyzeMeasurement(self, measurementResults, iterationResults, experimentResults):
-        self.data = []
-        if 'data/Andor_4522/shots' in measurementResults:
-            #for each image
-            for shot in measurementResults['data/Andor_4522/shots'].values():
-                self.data.append(shot)
-        self.updateFigure()  # only update figure if image was loaded
-
-    @observe('shot', 'showROIs', 'subtract_background')
-    def reload(self, change):
-        self.updateFigure()
-
-    def updateFigure(self):
-        if not self.update_lock:
-            try:
-                self.update_lock = True
-                fig = self.backFigure
-                fig.clf()
-
-                if (self.data is not None) and (self.shot < len(self.data)):
-                    ax = fig.add_subplot(111)
-
-                    if self.subtract_background:
-                        data = self.data[self.shot] - self.experiment.imageSumAnalysis.background_array
-                        vmin = self.experiment.imageSumAnalysis.min_minus_bg
-                        vmax = self.experiment.imageSumAnalysis.max_minus_bg
-                    else:
-                        data = self.data[self.shot]
-                        vmin = self.experiment.imageSumAnalysis.min # should allow users to change the limit.
-                        vmax = self.experiment.imageSumAnalysis.max
-
-                    ax.matshow(data, cmap=my_cmap, vmin=self.experiment.imageSumAnalysis.min, vmax=self.experiment.imageSumAnalysis.max)
-                    ax.set_title('most recent shot '+str(self.shot))
-                    if self.showROIs:
-                        #overlay ROIs
-                        for ROI in self.experiment.squareROIAnalysis.ROIs:
-                            mpl_rectangle(ax, ROI)
-
-                super(RecentShotAnalysis, self).updateFigure()
-            except Exception as e:
-                logger.warning('Problem in RecentShotAnalysis.updateFigure()\n:{}'.format(e))
-            finally:
-                self.update_lock = False
-
-
 class XYPlotAnalysis(AnalysisWithFigure):
     #### needs updating
     X=Member()

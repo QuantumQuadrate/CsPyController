@@ -17,8 +17,9 @@ import functional_waveforms, analysis, instek_pst, save2013style, TTL, LabView, 
 import picomotors, andor, picampython, vaunix, DCNoiseEater, Laird_temperature, AnalogInput
 import Counter, conex, aerotech, unlock_pause
 import origin_interface
-import FakeInstrument
+import FakeInstrument # for testing
 from SquareROIAnalysis import SquareROIAnalysis
+from recent_shot_analysis import RecentShotAnalysis
 from experiments import Experiment
 
 class AQuA(Experiment):
@@ -105,7 +106,7 @@ class AQuA(Experiment):
         self.gaussian_roi = roi_fitting.GaussianROI('gaussian_roi', self, rows=self.ROI_rows, columns=self.ROI_columns)
         self.text_analysis = analysis.TextAnalysis('text_analysis', self, 'text results from the measurement')
         self.imageSumAnalysis = analysis.ImageSumAnalysis(self)
-        self.recent_shot_analysis = analysis.RecentShotAnalysis('recent_shot_analysis', self, description='just show the most recent shot')
+        self.recent_shot_analysis = RecentShotAnalysis('recent_shot_analysis', self, description='just show the most recent shot')
         self.shotBrowserAnalysis = analysis.ShotsBrowserAnalysis(self)
         self.histogramAnalysis = analysis.HistogramAnalysis('histogramAnalysis', self, 'plot the histogram of any shot and roi')
         self.histogram_grid = analysis.HistogramGrid('histogram_grid', self, 'all 49 histograms for shot 0 at the same time')

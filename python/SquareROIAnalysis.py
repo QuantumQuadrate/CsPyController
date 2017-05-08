@@ -63,8 +63,7 @@ class SquareROIAnalysis(AnalysisWithFigure):
             ('left', np.uint16),      #pylint: disable=E1101
             ('top', np.uint16),       #pylint: disable=E1101
             ('right', np.uint16),     #pylint: disable=E1101
-            ('bottom', np.uint16),    #pylint: disable=E1101
-            ('threshold', np.uint32)  #pylint: disable=E1101
+            ('bottom', np.uint16)     #pylint: disable=E1101
         ]
         self.ROIs = np.zeros(roi_rows*roi_columns, dtype=dtype)  # initialize with a blank array
         self.sum_array = np.zeros((0, roi_rows, roi_columns), dtype=np.uint32)
@@ -76,7 +75,6 @@ class SquareROIAnalysis(AnalysisWithFigure):
 
     def find_camera(self):
         '''find camera instrument object in experiment properties tree
-        Returns camera object
         '''
         # get the property tree path to the camera object from the configuration file
         prop_tree = config.get('CAMERA', 'CameraObj').split(',')
@@ -98,7 +96,7 @@ class SquareROIAnalysis(AnalysisWithFigure):
                 )
                 self.enable = False
 
-        return camera
+        self.camera = camera
 
     def analyzeMeasurement(self, measurementResults, iterationResults, experimentResults):
         if self.enable:
@@ -152,7 +150,7 @@ class SquareROIAnalysis(AnalysisWithFigure):
         '''
         super(SquareROIAnalysis, self).fromHDF5(hdf)
         # I am here because the camera needs to be setup first
-        self.camera = self.find_camera()
+        self.find_camera()
 
     def updateFigure(self):
         fig = self.backFigure
