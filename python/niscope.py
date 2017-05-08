@@ -106,6 +106,10 @@ class NIScopeInstrument(Instrument):
         self.HorizRecordLength = IntProp('HorizRecordLength', experiment, 'Number of points to take per trigger', '0')
         self.Chan0Offset = FloatProp('Chan0Offset', experiment, 'CH0 Offset (V)', '0')
         self.Chan1Offset = FloatProp('Chan1Offset', experiment, 'CH1 Offset (V)', '0')
+        self.properties += ['DeviceName','TrigLevel','TrigDelay','HorizRecordLength','Chan0Offset',
+                            'Chan1Offset','Chan1Atten','Chan1Impedance','Chan1Coupling','Chan1VertScale',
+                            'Chan0Atten','Chan0Impedance','Chan0Coupling','Chan0VertScale',
+                            'HorizScale','TrigSource','TrigMode','TrigSlope']
 
     def initialize(self):
         try:
@@ -330,14 +334,13 @@ class NIScopes(Instrument,Analysis):
 
     def initialize(self, cameras=False):
         msg=''
-        try:      
-            self.dll = CDLL(r"D:\git\cspycontroller\python\NIScope\atmcd64d.dll")
-        except Exception as e:
-            logger.warning('Failed to load DLL for NIScope (check path?): {}. NIScope disabled.'.format(e))
+        if niScopeImported:
+            self.enable = True
+            self.isInitialized = True
+        else:
             self.enable = False
+            self.isInitialized = False
             return
-        self.enable = True
-        self.isInitialized = True
         if (cameras):
             self.initializecameras()
 
