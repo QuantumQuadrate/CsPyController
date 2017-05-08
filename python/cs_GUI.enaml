@@ -1813,6 +1813,141 @@ enamldef Andor(Form):
                     EvalProp:
                         prop << item.camera.maxPlot
 
+
+enamldef NIScopes(Window):
+    attr niscopes
+
+    title = 'National Instruments Scopes'
+    style_class << 'valid' if experiment.valid else 'invalid'
+    Container:
+        padding = 0
+        style_class << 'valid' if experiment.valid else 'invalid'
+        ScrollArea:
+            style_class << 'valid' if experiment.valid else 'invalid'
+            Container:
+                style_class << 'valid' if experiment.valid else 'invalid'
+
+                Container:
+                    hug_width = 'strong'
+                    hug_height = 'strong'
+                    Form:
+                        hug_width = 'strong'
+                        hug_height = 'strong'
+
+                    IndexedContainer:
+                        iterable << niscopes.motors
+                        viewType = NIScope
+
+
+
+enamldef NIScope(Form):
+    attr item
+    
+    constraints = [width >= 1500, height >= 1500]
+    style_class << 'valid' if experiment.valid else 'invalid'
+    Container:
+        padding = 0
+        style_class << 'valid' if experiment.valid else 'invalid'
+        ScrollArea:
+            style_class << 'valid' if experiment.valid else 'invalid'
+            Container:
+                constraints = [
+                    vbox(Fig,DeviceSettings,Trigger,Horizontal,Channels,Measurements),
+                    Fig.width <= 1000,
+                    DeviceSettings.width == Fig.width,
+                    Trigger.width == Fig.width,
+                    Horizontal.width == Fig.width,
+                    Channels.width == Fig.width,
+                    Measurements.width == Fig.width
+                ]
+                style_class << 'valid' if experiment.valid else 'invalid'
+                MPLCanvas: Fig:
+                    figure << item.analysis.figure
+                    toolbar_visible = False
+                GroupBox: DeviceSettings:
+                    title = "Device"
+                    EvalProp:
+                        prop << item.scope.DeviceName
+                GroupBox: Trigger:
+                    title << "Trigger"
+                    #HGroup:
+                    #constraints = [
+                    #    contents_left == TSlope.left,
+                    #    TMode.left == TSlope.right+10,
+                    #    TSource.left == TMode.right+10,
+                    #    TLevel.left == TSource.right+10,
+                    #    TDelay.left == TLevel.right+10,
+                    #    TDelay.right == contents_right
+                    #]
+                    ComboBox: TSlope:
+                        items = ['Rising Edge', 'Falling Edge']
+                        index := item.scope.TrigSlope
+                    ComboBox: TMode:
+                        items = ['Normal', 'Auto', 'Single']
+                        index := item.scope.TrigMode
+                    ComboBox: TSource:
+                        items = ['CH0', 'CH1', 'Ext']
+                        index := item.scope.TrigSource
+                    EvalProp: TLevel:
+                        prop << item.scope.TrigLevel
+                    EvalProp: TDelay:
+                        prop << item.scope.TrigDelay
+                GroupBox: Horizontal:
+                    title << "Horizontal Axis"
+                    HGroup:
+                        ComboBox:
+                            items = ['0.33 s', '0.20 s', '0.10 s', '50.0 ms', '20.0 ms', '10.0 ms', '5.0 ms', '2.0 ms', '1.0 ms', '0.50 ms', '0.20 ms', '0.10 ms', '50 us', '20 us', '10 us', '*5.0 us', '*2.0 us', '*1.0 us', '*0.50 us', '*0.25 us']
+                            index := item.scope.HorizScale
+                        EvalProp:
+                            prop << item.scope.HorizRecordLength
+                HGroup: Channels:
+                    constraints = [
+                        hbox(CH0, CH1),
+                        CH0.width == 490,
+                        CH1.width == CH0.width,
+                    ]
+                    GroupBox: CH0:
+                        title << "Channel 0"
+                        ComboBox:
+                            items = ['2.5 V', '2.0 V', '1.0 V', '0.50 V', '0.20 V', '0.10 V']
+                            index := item.scope.Chan0VertScale
+                        ComboBox:
+                            items = ['DC', 'AC', 'Ground']
+                            index := item.scope.Chan0Coupling
+                        ComboBox:
+                            items = ['1 MOhm', '*50 Ohm']
+                            index := item.scope.Chan0Impedance
+                        ComboBox:
+                            items = ['1:1', '10:1']
+                            index := item.scope.Chan0Atten
+                        EvalProp:
+                            prop << item.scope.Chan0Offset
+                    GroupBox: CH1:
+                        title << "Channel 1"
+                        ComboBox:
+                            items = ['2.5 V', '2.0 V', '1.0 V', '0.50 V', '0.20 V', '0.10 V']
+                            index := item.scope.Chan1VertScale
+                        ComboBox:
+                            items = ['DC', 'AC', 'Ground']
+                            index := item.scope.Chan1Coupling
+                        ComboBox:
+                            items = ['1 MOhm', '*50 Ohm']
+                            index := item.scope.Chan1Impedance
+                        ComboBox:
+                            items = ['1:1', '10:1']
+                            index := item.scope.Chan1Atten
+                        EvalProp:
+                            prop << item.scope.Chan1Offset
+                GroupBox: Measurements:
+                    HGroup:
+                        Label:
+                            text := 'CH0 Maximum: {}, CH0 Mean: {}'.format(item.analysis.maxPixel0,item.analysis.meanPixel0)
+                    HGroup:
+                        Label:
+                            text := 'CH1 Maximum: {}, CH1 Mean: {}'.format(item.analysis.maxPixel1,item.analysis.meanPixel1)
+
+
+
                         
 
             
@@ -3973,7 +4108,8 @@ window_dictionary = {'':'',
                      'CounterGraph': 'CounterGraph(analysis = main.experiment.counter_graph)',
                      'CounterHistAnalysis': 'CounterHistAnalysis(analysis = main.experiment.counter_hist)',
                      'Unlock Monitor': 'Unlock_Pause(unlock_pause = main.experiment.unlock_pause)',
-                     'Origin Interface': 'Origin(origin = main.experiment.origin)'
+                     'Origin Interface': 'Origin(origin = main.experiment.origin)',
+                     'National Instruments Scopes': 'NIScopes(niscopes = main.experiment.NIScopes)'
                      }
 window_keys = window_dictionary.keys()
 window_keys.sort()

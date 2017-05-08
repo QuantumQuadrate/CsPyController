@@ -10,7 +10,7 @@ from atom.api import Member
 # Bring in other files in this package
 import functional_waveforms, analysis, instek_pst, save2013style, TTL, LabView, DDS, roi_fitting
 import picomotors, andor, picampython, vaunix, DCNoiseEater, Laird_temperature, AnalogInput
-import Counter, conex, aerotech, unlock_pause
+import Counter, conex, aerotech, unlock_pause, niscope
 import origin_interface
 import FakeInstrument
 from experiments import Experiment
@@ -32,6 +32,7 @@ class AQuA(Experiment):
     box_temperature = Member()
     unlock_pause = Member()
     Embezzletron = Member()
+    NIScopes = Member()
 
     functional_waveforms = Member()
     functional_waveforms_graph = Member()
@@ -84,9 +85,10 @@ class AQuA(Experiment):
         self.box_temperature = Laird_temperature.LairdTemperature('box_temperature', self)
         self.unlock_pause = unlock_pause.UnlockMonitor('unlock_pause', self, 'Monitor for pausing when laser unlocks')
         self.Embezzletron = FakeInstrument.Embezzletron('Embezzletron', self, 'Fake instrument that generates random data for testing')
+        self.NIScopes = niscope.NIScopes('NIScopes',self,'National Instruments Scopes')
         # do not include functional_waveforms in self.instruments because it need not start/stop
         self.instruments += [self.box_temperature, self.picomotors, self.Andors, self.PICams, self.DC_noise_eaters,
-                             self.LabView, self.DDS, self.unlock_pause, self.Embezzletron]
+                             self.LabView, self.DDS, self.unlock_pause, self.Embezzletron, self.NIScopes]
 
 
         # analyses
@@ -125,7 +127,7 @@ class AQuA(Experiment):
                           self.histogramAnalysis, self.histogram_grid, self.measurements_graph, self.iterations_graph, self.DC_noise_eater_graph, self.DC_noise_eater_filter, self.Andors, self.PICams,
                           self.Ramsey, self.retention_analysis, self.retention_graph, self.counter_graph,
                           self.save_notes, self.save2013Analysis, self.aerotechs, self.conexes,self.counter_hist,
-                          self.instekpsts, self.vaunixs, self.unlock_pause, self.origin]
+                          self.instekpsts, self.vaunixs, self.unlock_pause, self.origin, self.NIScopes]
 
         
         self.properties += ['functional_waveforms', 'LabView', 'functional_waveforms_graph', 'DDS', 'aerotechs', 'picomotors', 'conexes',
@@ -134,7 +136,7 @@ class AQuA(Experiment):
                             'imageSumAnalysis', 'recent_shot_analysis', 'shotBrowserAnalysis', 'histogramAnalysis',
                             'histogram_grid', 'retention_analysis', 'measurements_graph', 'iterations_graph',
                             'retention_graph', 'DC_noise_eater_filter',
-                            'DC_noise_eater_graph', 'Ramsey', 'counter_graph', 'counter_hist', 'unlock_pause','origin']
+                            'DC_noise_eater_graph', 'Ramsey', 'counter_graph', 'counter_hist', 'unlock_pause','origin', 'NIScopes']
 
 
         try:

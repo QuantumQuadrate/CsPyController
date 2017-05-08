@@ -39,7 +39,7 @@ import logging
 logger = logging.getLogger(__name__)
 
 # first find ourself
-fullBasePath = "C:\\LabSoftware\\Origin"
+fullBasePath = "..\\..\\Origin"
 #fullBasePath = "D:\\projects\\Origin"
 # do not change this
 fullLibPath  = os.path.join(fullBasePath, "lib")
