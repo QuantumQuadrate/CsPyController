@@ -2587,30 +2587,26 @@ enamldef SquareROI(Container):
     attr num
     hug_height='strong'
     hug_width='strong'
-    constraints=[hbox(l0,f0,f1,f2,f3,f4)]
+    constraints=[hbox(l0,f0,f1,f2,f3)]
     Label: l0:
         constraints = [(width==50)|'strong']
         text=str(num)
     MyIntField: f0:
-        constraints = [(width==100)|'strong']
+        constraints = [(width==50)|'strong']
         placeholder='left'
         value:=item['left']
     MyIntField: f1:
-        constraints = [(width==100)|'strong']
+        constraints = [(width==50)|'strong']
         placeholder='top'
         value:=item['top']
     MyIntField: f2:
-        constraints = [(width==100)|'strong']
+        constraints = [(width==50)|'strong']
         placeholder='right'
         value:=item['right']
     MyIntField: f3:
-        constraints = [(width==100)|'strong']
+        constraints = [(width==50)|'strong']
         placeholder='bottom'
         value:=item['bottom']
-    MyFloatField: f4:
-        constraints = [(width==100)|'strong']
-        placeholder='threshold'
-        value:=item['threshold']
 
 enamldef SquareROIContainer(Window):
     attr experiment
@@ -2638,25 +2634,22 @@ enamldef SquareROIContainer(Window):
                     Container:
                         hug_height='strong'
                         hug_width='strong'
-                        constraints=[hbox(l0,l1,l2,l3,l4,l5)]
+                        constraints=[hbox(l0,l1,l2,l3,l4)]
                         Label: l0:
                             constraints = [(width==50)|'strong']
                             text = 'ROI#'
                         Label: l1:
-                            constraints = [(width==100)|'strong']
+                            constraints = [(width==50)|'strong']
                             text = 'left'
                         Label: l2:
-                            constraints = [(width==100)|'strong']
+                            constraints = [(width==50)|'strong']
                             text = 'top'
                         Label: l3:
-                            constraints = [(width==100)|'strong']
+                            constraints = [(width==50)|'strong']
                             text = 'right'
                         Label: l4:
-                            constraints = [(width==100)|'strong']
+                            constraints = [(width==50)|'strong']
                             text = 'bottom'
-                        Label: l5:
-                            constraints = [(width==100)|'strong']
-                            text = 'threshold'
                     Include: dyno:
                         objects<<[SquareROI(item=x,num=i) for i,x in enumerate(analysis.ROIs)]
                 MPLCanvas: canvas:
