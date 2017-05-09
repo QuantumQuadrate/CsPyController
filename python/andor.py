@@ -44,6 +44,18 @@ from __init__ import import_config
 config = import_config()
 import ConfigParser
 
+def intialize_numpy_array(array, default):
+    '''Helper for initializing a numpy array.
+    Returns tuple of (changed, array). 
+    if array exists then changed=False and array=array
+    if array doesn't exist then changed=True and array=default
+    '''
+    try:
+        _ = array.shape
+    except (AttributeError, NameError):
+        return (True, default)
+    return (False, array)
+
 class AndorCamera(Instrument):
 
     EMCCDGain = Member()
@@ -88,8 +100,6 @@ class AndorCamera(Instrument):
     accumulate = Float()
     kinetic = Float()
 #ddd
-    numPixX = Int()
-    numPixY = Int()
 
     num_cameras = c_long()
     cameraHandleList = Member()
@@ -129,10 +139,11 @@ class AndorCamera(Instrument):
         self.currentCamera = IntProp('currentCamera', experiment, 'Current Camera', '0')
         self.minPlot = IntProp('minPlot', experiment, 'Minimum Plot Scale Value', '0')
         self.maxPlot = IntProp('maxPlot', experiment, 'Maximum Plot Scale Value', '32768')
-        self.properties += ['EMCCDGain', 'preAmpGain', 'exposureTime', 'triggerMode', 'shotsPerMeasurement', 'minPlot', 'maxPlot',
-                            'currentCamera', 'acquisitionMode', 'binMode', 'AdvancedEMGain', 'EMGainMode', 'numPixX', 'numPixY',
-                            'ROI', 'set_T', 'serial',
-                            'subimage_position', 'subimage_size']
+        self.properties += ['EMCCDGain', 'preAmpGain', 'exposureTime', 'triggerMode', 
+                            'shotsPerMeasurement', 'minPlot', 'maxPlot', 'currentCamera', 
+                            'acquisitionMode', 'binMode', 'AdvancedEMGain', 'EMGainMode', 
+                            'ROI', 'set_T', 'serial', 'subimage_position', 'subimage_size'
+                            ]
 
     def __del__(self):
         if self.isInitialized:
@@ -326,7 +337,7 @@ class AndorCamera(Instrument):
                     # We need to reshape into two dim array having row x column, and each shots saved to different node under /shots/
                     for i in numpy.arange(0,self.shotsPerMeasurement.value):
                         array=numpy.array(self.data[i],dtype=numpy.int32) #
-                        array.resize(int(self.subimage_size[1]),int(self.subimage_size[0]))
+                        array.resize(int(self.subimage_size[1]), int(self.subimage_size[0]))
                         hdf5['Andor_{0}/shots/{1}'.format(self.CurrentHandle,i)] = array#self.data # Defines the name of hdf5 node to write the results on.
                 except Exception as e:
                     logger.error('in Andor.writeResults:\n{}'.format(e))
@@ -507,37 +518,37 @@ class AndorCamera(Instrument):
 
     def setROIvalues(self):
         '''Set the ROI variable to define a subimage'''
-        if self.ccd_size:
+        changed, self.ccd_size = intialize_numpy_array(self.ccd_size, numpy.zeros(2, dtype=int))
+        if changed or self.ccd_size[0] == 0: # ccd_size does not exist
+            self.setCamera()
+            self.GetDetector()
+        else:
             self.width = self.ccd_size[0]/self.binChoices[self.binMode]
             self.height = self.ccd_size[1]/self.binChoices[self.binMode]
-            if type(self.subimage_position) != list:
-                self.subimage_position = [0, 0]
-            if type(self.subimage_size) != list:
-                self.subimage_size = [self.ccd_size[i] - self.subimage_position[i] for i in range(2)]
+            self.subimage_position = intialize_numpy_array(self.subimage_position, numpy.zeros(2, dtype=int))[1]
+            default_size = numpy.subtract(self.ccd_size, self.subimage_position)
+            self.subimage_size = intialize_numpy_array(self.subimage_size, default_size)[1]
 
             # use temporary variables for the binned position and size to not overrite the settings
             sub_pos = [max(self.subimage_position[i]/self.binChoices[self.binMode], 0) for i in range(2)]
             sub_size = [self.subimage_size[i]/self.binChoices[self.binMode] for i in range(2)]
             self.dim = (sub_size[0])*(sub_size[1])
             h_end, v_end = [min(sub_pos[i]+sub_size[i], self.ccd_size[i]) for i in range(2)]
-            self.ROI = [
+            self.ROI = map(int, [
                 sub_pos[0],                     # hstart
                 h_end-1,                        # hend
                 self.binChoices[self.binMode],  # h pixel binning
                 sub_pos[1],                     # vstart
                 v_end-1,                        # vend
                 self.binChoices[self.binMode],  # v pixel binning
-            ]
+            ])
             logger.debug('ROI: %s', self.ROI)
-        else:
-            self.setCamera()
-            self.GetDetector()
 
     def unsetROIvalues(self):
         '''Set the ROI variable to the full image'''
         self.width = self.ccd_size[0]
         self.height = self.ccd_size[1]
-        self.subimage_position = [0, 0]
+        self.subimage_position = numpy.array([0, 0])
         self.subimage_size = self.ccd_size
         self.dim = self.width*self.height
         self.binMode = 0
@@ -566,7 +577,7 @@ class AndorCamera(Instrument):
             logger.error('Error getting Andor camera sensor size:\n{}'.format(ERROR_CODE[error]))
             raise PauseError
 
-        self.ccd_size = [width.value, height.value]
+        self.ccd_size = numpy.array([width.value, height.value])
         self.dim = self.width * self.height
 
         self.ROI = [0, self.width, 1, 0, self.height, 1 ]
@@ -665,7 +676,8 @@ class AndorCamera(Instrument):
         #print "copying c_imagearray to numpy"
         data = numpy.ctypeslib.as_array(c_image_array)
         #print "reshaping data"
-        data = numpy.reshape(data, (self.shotsPerMeasurement.value, self.subimage_size[1], self.subimage_size[0]))
+        subimg_size = map(int, self.subimage_size)
+        data = numpy.reshape(data, (self.shotsPerMeasurement.value, subimg_size[1], subimg_size[0]))
         #print "returning data"
         return data
 
@@ -938,6 +950,10 @@ class AndorCamera(Instrument):
             '%'*40
         ]))
 
+    def fromHDF5(self, hdf):
+        logger.info('Reading from camera hdf5 object')
+        super(AndorCamera, self).fromHDF5(hdf)
+
 
 
 ERROR_CODE = {
@@ -1193,7 +1209,7 @@ class Andors(Instrument,Analysis):
                     #logger.warning( "Updating camera {}".format(i.camera.CurrentHandle))
                     msg = i.camera.update()
         except Exception as e:
-            logger.error('Problem updating Andor camera:\n{}\n{}\n'.format(msg, e))
+            logger.exception('Problem updating Andor camera.')
             self.isInitialized = False
             raise PauseError
 
@@ -1261,4 +1277,5 @@ class Andors(Instrument,Analysis):
 
     def fromHDF5(self, hdf):
         super(Andors, self).fromHDF5(hdf)
+        logger.info('Initializing cameras')
         self.initialize(True)
