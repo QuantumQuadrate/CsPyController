@@ -23,6 +23,8 @@ from analysis import AnalysisWithFigure, mpl_rectangle
 
 from colors import my_cmap
 
+import numpy as np
+
 # get the config file
 from __init__ import import_config
 config = import_config()
@@ -71,12 +73,17 @@ class RecentShotAnalysis(AnalysisWithFigure):
                         data = self.data[self.shot]
                         vmin = self.experiment.imageSumAnalysis.min # should allow users to change the limit.
                         vmax = self.experiment.imageSumAnalysis.max
+                        print 'in recentShotAnalysis'
+                        print(vmin, vmax)
+                        print(np.amin(self.data), np.amax(self.data))
 
                     ax.matshow(data, cmap=my_cmap, vmin=self.experiment.imageSumAnalysis.min, vmax=self.experiment.imageSumAnalysis.max)
                     ax.set_title('most recent shot '+str(self.shot))
                     if self.showROIs:
                         #overlay ROIs
                         for ROI in self.experiment.squareROIAnalysis.ROIs:
+                            mpl_rectangle(ax, ROI)
+                        for ROI in self.experiment.squareROIAnalysis.ROIs_bg:
                             mpl_rectangle(ax, ROI)
 
                 super(RecentShotAnalysis, self).updateFigure()
