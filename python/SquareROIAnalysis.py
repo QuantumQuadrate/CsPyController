@@ -2,7 +2,8 @@
 SquareROIAnalysis.py
 Part of the CsPyController package.
 
-This analysis integrates the signal in rectangular ROIs and saves the data to the
+This analysis integrates the signal in rectangular signal ROIs, substracts the average 
+background per pixel measured in the background ROIs and saves the data to the
 HDF5 file
 
 author = 'Martin Lichtman'
@@ -33,15 +34,30 @@ def roi_sums(rois, shot):
     '''Sum over a list of ROIs'''
     return np.array([roi_sum(roi, shot) for roi in rois], dtype=np.uint32) #pylint: disable=E1101
 
+def roi_pixels(roi):
+    '''return the number of pixels in the roi'''
+    return abs((roi[2]-roi[0])*(roi[3]-roi[1]))
+
+def roi_pixel_cnt(rois):
+    '''List of pixels in each ROI'''
+    return np.array([roi_pixels(roi) for roi in rois], dtype=np.uint32)
+
 class SquareROIAnalysis(AnalysisWithFigure):
     """Add up the sums of pixels in a region, and evaluate whether or not an 
     atom is present based on the totals.
     """
 
     version = '2017.05.04'
+
+    # signal ROIs
     ROI_rows = Int()
     ROI_columns = Int()
     ROIs = Member()  # a numpy array holding an ROI in each row
+    # background ROIs
+    ROI_bg_rows = Int()
+    ROI_bg_columns = Int()
+    ROIs_bg = Member()  # a numpy array holding an ROI in each row
+
     filter_level = Int()
     enable = Bool()
     cutoffs_from_which_experiment = Str()
@@ -51,7 +67,7 @@ class SquareROIAnalysis(AnalysisWithFigure):
     meas_analysis_path = Member()
     iter_analysis_path = Member()
 
-    def __init__(self, experiment, roi_rows=1, roi_columns=1):
+    def __init__(self, experiment, roi_rows=1, roi_columns=1, roi_bg_rows=0, roi_bg_columns=0):
         super(SquareROIAnalysis, self).__init__(
             'SquareROIAnalysis', 
             experiment, 
@@ -59,19 +75,28 @@ class SquareROIAnalysis(AnalysisWithFigure):
         )
         self.ROI_rows = roi_rows
         self.ROI_columns = roi_columns
+        self.ROI_bg_rows = roi_bg_rows
+        self.ROI_bg_columns = roi_bg_columns
         dtype = [
             ('left', np.uint16),      #pylint: disable=E1101
             ('top', np.uint16),       #pylint: disable=E1101
             ('right', np.uint16),     #pylint: disable=E1101
             ('bottom', np.uint16)     #pylint: disable=E1101
         ]
-        self.ROIs = np.zeros(roi_rows*roi_columns, dtype=dtype)  # initialize with a blank array
-        self.sum_array = np.zeros((0, roi_rows, roi_columns), dtype=np.uint32)
+        # initialize with a blank array
+        self.ROIs = np.zeros(roi_rows*roi_columns, dtype=dtype)
+        self.ROIs_bg = np.zeros(roi_bg_rows*roi_bg_columns, dtype=dtype)
+        # create sum_array in the shot, row, column format
+        # will be resized to the expected number of shots later
+        self.sum_array = np.zeros((0, roi_rows, roi_columns), dtype=np.int32)
+        # HDF5 data paths
+        # where the camera data is expected to be stored
         self.shots_path = 'data/' + config.get('CAMERA', 'DataGroup') + '/shots'
+        # where we are going to dump data after analysis
         self.meas_analysis_path = 'analysis/squareROIsums'
         self.iter_analysis_path = 'analysis/square_roi/sums'
 
-        self.properties += ['version', 'filter_level', 'enable', 'ROIs']
+        self.properties += ['version', 'filter_level', 'enable', 'ROIs', 'ROIs_bg']
 
     def find_camera(self):
         '''find camera instrument object in experiment properties tree
@@ -110,14 +135,20 @@ class SquareROIAnalysis(AnalysisWithFigure):
                     )
                     return 3  # hard fail, delete measurement
 
+                bg_pixel_cnt = np.sum(roi_pixel_cnt(self.ROIs_bg))
+                sig_pixel_cnt = roi_pixel_cnt(self.ROIs)
                 num_rois = len(self.ROIs)
-
-                sum_array = np.zeros((num_shots, num_rois), dtype=np.uint32) #pylint: disable=E1101
+                sum_array = np.zeros((num_shots, num_rois), dtype=np.int32) #pylint: disable=E1101
 
                 #for each image
                 for i, (name, shot) in enumerate(measurementResults[self.shots_path].items()):
-                    shot_sums = roi_sums(self.ROIs, shot)
-                    sum_array[i] = shot_sums
+                    # generate background normalized per pixel
+                    bg_per_pix = 0
+                    if bg_pixel_cnt != 0:
+                        bg_per_pix = np.divide(np.sum(roi_sums(self.ROIs_bg, shot)), bg_pixel_cnt, dtype='float32')
+                    # subtract the average background signal per pixel from each signal pixel
+                    shot_sums = np.subtract(roi_sums(self.ROIs, shot), bg_per_pix*sig_pixel_cnt)
+                    sum_array[i] = np.rint(shot_sums) # round to nearest integer
 
                 self.sum_array = sum_array.reshape((num_shots, self.ROI_rows, self.ROI_columns))
                 measurementResults[self.meas_analysis_path] = sum_array

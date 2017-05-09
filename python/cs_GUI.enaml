@@ -2652,6 +2652,15 @@ enamldef SquareROIContainer(Window):
                             text = 'bottom'
                     Include: dyno:
                         objects<<[SquareROI(item=x,num=i) for i,x in enumerate(analysis.ROIs)]
+                    Container:
+                        hug_height='strong'
+                        hug_width='strong'
+                        constraints=[hbox(l5,l1,l2,l3,l4)]
+                        Label: l5:
+                            constraints = [(width==50)|'strong']
+                            text = 'BG ROI#'
+                    Include: dyno1:
+                        objects<<[SquareROI(item=x,num=i) for i,x in enumerate(analysis.ROIs_bg)]
                 MPLCanvas: canvas:
                     constraints=[(height==512)|'strong',(width==512)|'strong']
                     hug_width='ignore'
