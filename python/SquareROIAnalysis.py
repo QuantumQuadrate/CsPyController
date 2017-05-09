@@ -48,7 +48,6 @@ class SquareROIAnalysis(AnalysisWithFigure):
     """
 
     version = '2017.05.04'
-
     # signal ROIs
     ROI_rows = Int()
     ROI_columns = Int()
@@ -58,9 +57,7 @@ class SquareROIAnalysis(AnalysisWithFigure):
     ROI_bg_columns = Int()
     ROIs_bg = Member()  # a numpy array holding an ROI in each row
 
-    filter_level = Int()
     enable = Bool()
-    cutoffs_from_which_experiment = Str()
     sum_array = Member()
     camera = Member()
     shots_path = Member()
@@ -94,9 +91,9 @@ class SquareROIAnalysis(AnalysisWithFigure):
         self.shots_path = 'data/' + config.get('CAMERA', 'DataGroup') + '/shots'
         # where we are going to dump data after analysis
         self.meas_analysis_path = 'analysis/squareROIsums'
-        self.iter_analysis_path = 'analysis/square_roi/sums'
+        self.iter_analysis_path = 'analysis/squareROI/sums'
 
-        self.properties += ['version', 'filter_level', 'enable', 'ROIs', 'ROIs_bg']
+        self.properties += ['version', 'enable', 'ROIs', 'ROIs_bg']
 
     def find_camera(self):
         '''find camera instrument object in experiment properties tree

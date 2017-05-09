@@ -21,6 +21,7 @@ import FakeInstrument # for testing
 from SquareROIAnalysis import SquareROIAnalysis
 from recent_shot_analysis import RecentShotAnalysis
 from image_sum_analysis import ImageSumAnalysis
+from threshold_analysis import ThresholdROIAnalysis
 from experiments import Experiment
 
 class AQuA(Experiment):
@@ -46,6 +47,7 @@ class AQuA(Experiment):
     AI_graph = Member()
     AI_filter = Member()
     squareROIAnalysis = Member()
+    thresholdROIAnalysis = Member()
     gaussian_roi = Member()
     loading_filters = Member()
     first_measurements_filter = Member()
@@ -106,6 +108,7 @@ class AQuA(Experiment):
         self.loading_filters = analysis.LoadingFilters('loading_filters', self, 'drop measurements with no atom loaded')
         self.first_measurements_filter = analysis.DropFirstMeasurementsFilter('first_measurements_filter', self, 'drop the first N measurements')
         self.squareROIAnalysis = SquareROIAnalysis(self, roi_rows=self.ROI_rows, roi_columns=self.ROI_columns, roi_bg_rows=self.ROI_bg_rows, roi_bg_columns=self.ROI_bg_columns)
+        self.thresholdROIAnalysis = ThresholdROIAnalysis(self, roi_rows=self.ROI_rows, roi_columns=self.ROI_columns)
         self.gaussian_roi = roi_fitting.GaussianROI('gaussian_roi', self, rows=self.ROI_rows, columns=self.ROI_columns)
         self.text_analysis = analysis.TextAnalysis('text_analysis', self, 'text results from the measurement')
         self.imageSumAnalysis = ImageSumAnalysis(self)
@@ -128,19 +131,20 @@ class AQuA(Experiment):
         self.save2013Analysis = save2013style.Save2013Analysis(self)
         self.origin = origin_interface.Origin('origin', self, 'saves selected data to the origin data server')
         # do not include functional_waveforms_graph in self.analyses because it need not update on iterations, etc.
-        self.analyses += [self.TTL_filters, self.AI_graph, self.AI_filter, self.squareROIAnalysis, self.gaussian_roi,
-                          self.loading_filters, self.first_measurements_filter, self.text_analysis,
+        self.analyses += [self.TTL_filters, self.AI_graph, self.AI_filter, self.squareROIAnalysis, self.thresholdROIAnalysis, 
+                          self.gaussian_roi, self.loading_filters, self.first_measurements_filter, self.text_analysis,
                           self.imageSumAnalysis, self.recent_shot_analysis, self.shotBrowserAnalysis,
                           self.histogramAnalysis, self.histogram_grid, self.measurements_graph, self.iterations_graph, 
                           self.DC_noise_eater_graph, self.DC_noise_eater_filter, self.Andors, self.PICams,
                           self.Ramsey, self.retention_analysis, self.retention_graph, self.counter_graph,
                           self.save_notes, self.save2013Analysis, self.aerotechs, self.conexes,self.counter_hist,
-                          self.instekpsts, self.vaunixs, self.unlock_pause, self.origin]
+                          self.instekpsts, self.vaunixs, self.unlock_pause, self.origin
+                        ]
 
 
         self.properties += [
                 'functional_waveforms', 'LabView', 'functional_waveforms_graph', 'DDS', 'aerotechs', 'picomotors', 
-                'conexes', 'Andors', 'PICams', 'DC_noise_eaters', 'box_temperature', 'squareROIAnalysis', 
+                'conexes', 'Andors', 'PICams', 'DC_noise_eaters', 'box_temperature', 'squareROIAnalysis', 'thresholdROIAnalysis',
                 'gaussian_roi', 'instekpsts', 'TTL_filters', 'AI_graph', 'AI_filter', 'loading_filters', 
                 'first_measurements_filter', 'vaunixs', 'imageSumAnalysis', 'recent_shot_analysis', 
                 'shotBrowserAnalysis', 'histogramAnalysis', 'histogram_grid', 'retention_analysis', 

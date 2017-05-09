@@ -73,9 +73,9 @@ class RecentShotAnalysis(AnalysisWithFigure):
                         data = self.data[self.shot]
                         vmin = self.experiment.imageSumAnalysis.min # should allow users to change the limit.
                         vmax = self.experiment.imageSumAnalysis.max
-                        print 'in recentShotAnalysis'
-                        print(vmin, vmax)
-                        print(np.amin(self.data), np.amax(self.data))
+                        # print 'in recentShotAnalysis'
+                        # print(vmin, vmax)
+                        # print(np.amin(self.data), np.amax(self.data))
 
                     ax.matshow(data, cmap=my_cmap, vmin=self.experiment.imageSumAnalysis.min, vmax=self.experiment.imageSumAnalysis.max)
                     ax.set_title('most recent shot '+str(self.shot))

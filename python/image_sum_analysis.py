@@ -127,7 +127,6 @@ class ImageSumAnalysis(AnalysisWithFigure):
                     self.max_minus_bg = self.max
                 except:
                     logger.warning('Could not cast string to float in to create max in ImageSumAnalysis.analyzeMeasurement')
-            print(self.min, self.max)
 
     def analyzeIteration(self, iterationResults, experimentResults):
         if self.enable:

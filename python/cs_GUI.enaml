@@ -2666,6 +2666,61 @@ enamldef SquareROIContainer(Window):
                     hug_width='ignore'
                     figure<<analysis.figure
 
+enamldef ThresholdROI(Container):
+    attr item
+    attr num
+    hug_height='strong'
+    hug_width='strong'
+    constraints=[hbox(l0,f0)]
+    Label: l0:
+        constraints = [(width==50)|'strong']
+        text=str(num)
+    MyIntField: f0:
+        constraints = [(width==50)|'strong']
+        placeholder='1'
+        value := item['1']
+
+enamldef ThresholdROIContainer(Window):
+    attr experiment
+    attr analysis
+
+    title = 'Threshold ROIs'
+    style_class << 'valid' if experiment.valid else 'invalid'
+    Container:
+        padding = 0
+        style_class << 'valid' if experiment.valid else 'invalid'
+        ScrollArea:
+            style_class << 'valid' if experiment.valid else 'invalid'
+            Container:
+                style_class << 'valid' if experiment.valid else 'invalid'
+
+                hug_height='ignore'
+                hug_width='ignore'
+                constraints=[hbox(dynoCont,canvas),align('top',dynoCont,canvas)]
+                Container: dynoCont:
+                    Form:
+                        Label:
+                            text = 'enable'
+                        CheckBox:
+                            checked := analysis.enable
+                    Container:
+                        hug_height='strong'
+                        hug_width='strong'
+                        constraints=[hbox(l0,l1)]
+                        Label: l0:
+                            constraints = [(width==50)|'strong']
+                            text = 'ROI#'
+                        Label: l1:
+                            constraints = [(width==50)|'strong']
+                            text = 'threshold'
+                    Include: dyno:
+                        objects<<[ThresholdROI(item=x,num=i) for i,x in enumerate(analysis.threshold_array)]
+                MPLCanvas: canvas:
+                    constraints=[(height==512)|'strong',(width==512)|'strong']
+                    hug_width='ignore'
+                    figure<<analysis.figure
+
+
 enamldef GaussianROI(Window):
     attr analysis
 
@@ -3969,6 +4024,7 @@ window_dictionary = {'':'',
                      'Live Images': 'MultiImage(experiment = main.experiment, analysis0 = main.experiment.recent_shot_analysis, analysis2 = main.experiment.imageSumAnalysis, analysis3 = main.experiment.text_analysis)',
                      'Image Browser': 'ImageBrowser(experiment = main.experiment, analysis1 = main.experiment.shotBrowserAnalysis)',
                      'Square ROI':  'SquareROIContainer(experiment = main.experiment, analysis = main.experiment.squareROIAnalysis)',
+                     'Threshold ROI':  'ThresholdROIContainer(experiment = main.experiment, analysis = main.experiment.thresholdROIAnalysis)',
                      'Gaussian ROI': 'GaussianROI(analysis = main.experiment.gaussian_roi)',
                      'Histogram': 'Histogram(experiment = main.experiment, analysis = main.experiment.histogramAnalysis)',
                      'Histogram Grid': 'HistogramGrid(experiment = main.experiment, analysis = main.experiment.histogram_grid)',
