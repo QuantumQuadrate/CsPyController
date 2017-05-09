@@ -1697,7 +1697,7 @@ enamldef Andors(Window):
 enamldef Andor(Form):
     attr item
 
-    constraints = [width >= 800, height >= 1500]
+    constraints = [width >= 900, height >= 1500]
 
     #title = 'Andor Camera'
     style_class << 'valid' if experiment.valid else 'invalid'
@@ -1710,40 +1710,22 @@ enamldef Andor(Form):
                 style_class << 'valid' if experiment.valid else 'invalid'
 
                 HGroup:
-                    align_widths = False
                     MPLCanvas:
                         figure << item.analysis.figure
                         toolbar_visible = True
-                    Slider:
-                        orientation = 'vertical'
-                        tracking = False
-                        value := item.camera.roilowv
-                        value :: item.camera.setROIvalues()
-                        minimum << item.camera.roimaxv
-                        visible << item.camera.enableROI
-                        maximum = 0
-                    Slider:
-                        orientation = 'vertical'
-                        tracking = False
-                        value := item.camera.roihighv
-                        value :: item.camera.setROIvalues()
-                        minimum << item.camera.roimaxv
-                        visible << item.camera.enableROI
-                        maximum = 0
-                Slider:
-                    tracking = False
-                    value := item.camera.roilowh
-                    value :: item.camera.setROIvalues()
-                    minimum = 0
-                    maximum << item.camera.roimaxh
-                    visible << item.camera.enableROI
-                Slider:
-                    tracking = False
-                    value := item.camera.roihighh
-                    value :: item.camera.setROIvalues()
-                    minimum = 0
-                    maximum << item.camera.roimaxh
-                    visible << item.camera.enableROI
+                HGroup:
+                    Label:
+                        text = 'ROI offset (H,V)'
+                    IntField:
+                        value := item.camera.subimage_position[0]
+                    IntField:
+                        value := item.camera.subimage_position[1]
+                    Label:
+                        text = 'ROI size (' + ','.join(map(str,item.camera.ccd_size)) +')' 
+                    IntField:
+                        value := item.camera.subimage_size[0]
+                    IntField:
+                        value := item.camera.subimage_size[1]
                 HGroup:
                     EvalProp:
                         prop << item.camera.currentCamera

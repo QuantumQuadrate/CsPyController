@@ -57,12 +57,11 @@ class AndorCamera(Instrument):
     #AdvancedEMGain = Member()
     EMGainMode = Int()
     #EMGainMode = Member()
-    binMode = Int()
-    #binMode = Member()
+    binMode = Int(0)
     shotsPerMeasurement = Member()
     shotsPerM=Int()
-    width = Int()  # the number of columns
-    height = Int()  # the number of rows
+    width = Int()  # the number of columns after binning
+    height = Int()  # the number of rows after binning
     dim = Int()  # the total number of pixels
     serial = Int()  # the serial number of the camera
     c_image_array = Member()  # a c_int array to store incoming image data
@@ -104,16 +103,10 @@ class AndorCamera(Instrument):
     mode = Str('experiment')  # experiment vs. video
     analysis = Member()  # holds a link to the GUI display
     dll = Member()
-
-    # Change the number accordingly to the camera you are using.
-    #ddd
-    # Luca 1024*1024
-    roilowh = Int(0)
-    roihighh = Int(512)
-    roilowv = Int(-512)
-    roihighv = Int(0)
-    roimaxh = Int(512)
-    roimaxv = Int(-512)
+    
+    ccd_size = Member() # size of CCD, width and height can change depending on binning
+    subimage_position = Member() # position of subimage corner (H,V)
+    subimage_size = Member() # size of subimage
 
     ROI = Member()
     #enableROI = False
@@ -138,7 +131,8 @@ class AndorCamera(Instrument):
         self.maxPlot = IntProp('maxPlot', experiment, 'Maximum Plot Scale Value', '32768')
         self.properties += ['EMCCDGain', 'preAmpGain', 'exposureTime', 'triggerMode', 'shotsPerMeasurement', 'minPlot', 'maxPlot',
                             'currentCamera', 'acquisitionMode', 'binMode', 'AdvancedEMGain', 'EMGainMode', 'numPixX', 'numPixY',
-                            'ROI', 'roilowv', 'roilowh', 'roihighv', 'roihighh', 'set_T', 'serial']
+                            'ROI', 'set_T', 'serial',
+                            'subimage_position', 'subimage_size']
 
     def __del__(self):
         if self.isInitialized:
@@ -154,8 +148,17 @@ class AndorCamera(Instrument):
         try: # the Luca throws a DLL error when attempting to set the temperature.
             self.SetTemperature(self.getTemperatureSP())
         except PauseError:
-            logger.warning("Problem setting temperate for camera with serial no: %d", self.serial)
+            logger.warning(
+                "Problem setting temperature for camera with serial no: %d", 
+                self.serial
+            )
         self.dll.SetFanMode(0)
+        self.setCamera()
+        # for some reason the first get detector doesnt seem to work unless I have run set image first
+        # MFE 5/2017
+        for i in range(2):
+            self.GetDetector()
+            self.setROIvalues()
         self.rundiagnostics()
         #time.sleep(1)
         self.isInitialized = True
@@ -196,56 +199,14 @@ class AndorCamera(Instrument):
             
             self.SetTriggerMode(self.triggerChoices[self.triggerMode])
 
-            #print "bin size: {}".format(self.binChoices[self.binMode])
-            #self.SetImage(1,1,1,self.width,1,self.height)
-            #print "done setImage"
-            ###############################################
+            # set the ROI field
+            self.setROIvalues()
+            # propagate ROI info to camera
+            self.SetImage()
 
-            if self.enableROI:
-                self.setROIvalues()
-                p6 = self.ROI[4]
-                #print "roi0 = {}".format(self.ROI[0])
-                #print "roi1 = {}".format(self.ROI[1])
-                #print "roi3 = {}".format(self.ROI[3])
-                #print "p6 = {}".format(p6)
-                self.SetImage(
-                    self.binChoices[self.binMode], # hbin
-                    self.binChoices[self.binMode], # vbin
-                    max(self.ROI[0],1),            # hstart
-                    self.ROI[1],                   #hend
-                    max(self.ROI[3],1),            #vstart
-                    p6)                            #vend
-            else:
-                if self.binChoices[self.binMode] > 1:
-                    wid=(self.width / self.binChoices[self.binMode]) * self.binChoices[self.binMode]
-                    high=(self.height / self.binChoices[self.binMode]) * self.binChoices[self.binMode]
-                else:
-                    wid=self.width
-                    high = self.height
-                self.SetImage(
-                    self.binChoices[self.binMode],
-                    self.binChoices[self.binMode],
-                    1,
-                    wid,
-                    1,
-                    high)  # full sensor, no binning
-            ###########################
-            #self.SetImage(
-            #    self.binChoices[self.binMode],
-            #    self.binChoices[self.binMode],
-            #    1,
-            #    (self.width / self.binChoices[self.binMode]) * self.binChoices[self.binMode],
-            #    1,
-            #    (self.height / self.binChoices[self.binMode]) * self.binChoices[self.binMode])  # full sensor, no binning
-            #self.numPixX = (self.width / self.binChoices[self.binMode]) * self.binChoices[self.binMode]
-            #self.numPixY = (self.width / self.binChoices[self.binMode]) * self.binChoices[self.binMode]
-            #if self.binChoices[self.binMode] > 1:
-            #    self.width = self.width / self.binChoices[self.binMode]
-            #    self.height = self.height / self.binChoices[self.binMode]
-            #    self.dim = self.width * self.height
+            msg = "done setImage. With binning of {}, new width and height are {}, {}"
+            logger.debug(msg.format(self.binChoices[self.binMode],self.width,self.height))
 
-                ####################
-            #print "done setImage. With binning of {}, new width and height are {}, {}".format(self.binChoices[self.binMode],self.width,self.height)
             if (self.acquisitionChoices[self.acquisitionMode]==3 or self.acquisitionChoices[self.acquisitionMode]==4):
                 self.SetNumberKinetics(self.shotsPerMeasurement.value)
                 #print "done setNumberKinetics"
@@ -301,31 +262,8 @@ class AndorCamera(Instrument):
         self.CoolerON()
         #print "bin size: {}".format(self.binChoices[self.binMode])
 
-
-        if self.enableROI:
-            self.setROIvalues()
-            #print "self.ROI[4] = {}".format(self.ROI[4])
-            self.SetImage(
-                self.binChoices[self.binMode],
-                self.binChoices[self.binMode],
-                max(self.ROI[0],1),
-                self.ROI[1],
-                max(self.ROI[3],1),
-                self.ROI[4])  # full sensor, no binning
-        else:
-            if self.binChoices[self.binMode] > 1:
-                wid=(self.width / self.binChoices[self.binMode]) * self.binChoices[self.binMode]
-                high=(self.height / self.binChoices[self.binMode]) * self.binChoices[self.binMode]
-            else:
-                wid=self.width
-                high = self.height
-            self.SetImage(
-                self.binChoices[self.binMode],
-                self.binChoices[self.binMode],
-                1,
-                wid,
-                1,
-                high)  # full sensor, no binning
+        self.setROIvalues()
+        self.SetImage()
         self.SetAcquisitionMode(5)  # run till abort
         self.SetKineticCycleTime(0)  # no delay
 
@@ -388,7 +326,7 @@ class AndorCamera(Instrument):
                     # We need to reshape into two dim array having row x column, and each shots saved to different node under /shots/
                     for i in numpy.arange(0,self.shotsPerMeasurement.value):
                         array=numpy.array(self.data[i],dtype=numpy.int32) #
-                        array.resize(int(self.height),int(self.width))
+                        array.resize(int(self.subimage_size[1]),int(self.subimage_size[0]))
                         hdf5['Andor_{0}/shots/{1}'.format(self.CurrentHandle,i)] = array#self.data # Defines the name of hdf5 node to write the results on.
                 except Exception as e:
                     logger.error('in Andor.writeResults:\n{}'.format(e))
@@ -396,13 +334,14 @@ class AndorCamera(Instrument):
 
     def SetSingleScan(self):
         self.SetReadMode(4)
-        self.SetImage(1, 1, 1, self.width, 1, self.height)
+        self.unsetROI()
+        self.SetImage()
         self.SetAcquisitionMode(1)
         self.SetTriggerMode(0)
 
     def SetVideoMode(self):
         self.SetReadMode(4)
-        self.SetImage(1, 1, 1, self.width, 1, self.height)
+        self.unsetROI()
         self.SetAcquisitionMode(5)
         self.SetKineticCycleTime(0)  # for run till abort mode
         self.SetTriggerMode(0)  # internal trigger
@@ -567,24 +506,41 @@ class AndorCamera(Instrument):
         return 0
 
     def setROIvalues(self):
-        if self.ROI is None:
+        '''Set the ROI variable to define a subimage'''
+        if self.ccd_size:
+            self.width = self.ccd_size[0]/self.binChoices[self.binMode]
+            self.height = self.ccd_size[1]/self.binChoices[self.binMode]
+            if type(self.subimage_position) != list:
+                self.subimage_position = [0, 0]
+            if type(self.subimage_size) != list:
+                self.subimage_size = [self.ccd_size[i] - self.subimage_position[i] for i in range(2)]
+
+            # use temporary variables for the binned position and size to not overrite the settings
+            sub_pos = [max(self.subimage_position[i]/self.binChoices[self.binMode], 0) for i in range(2)]
+            sub_size = [self.subimage_size[i]/self.binChoices[self.binMode] for i in range(2)]
+            self.dim = (sub_size[0])*(sub_size[1])
+            h_end, v_end = [min(sub_pos[i]+sub_size[i], self.ccd_size[i]) for i in range(2)]
+            self.ROI = [
+                sub_pos[0],                     # hstart
+                h_end-1,                        # hend
+                self.binChoices[self.binMode],  # h pixel binning
+                sub_pos[1],                     # vstart
+                v_end-1,                        # vend
+                self.binChoices[self.binMode],  # v pixel binning
+            ]
+            logger.debug('ROI: %s', self.ROI)
+        else:
             self.setCamera()
             self.GetDetector()
 
-        self.ROI[2] = 1   #x-binning
-
-        self.ROI[0] = min(self.roihighh,self.roilowh)   #x1
-        self.ROI[1] = max(self.roihighh,self.roilowh)   #x2
-        self.ROI[3] = min(-1*self.roihighv,-1*self.roilowv)   #y1
-        self.ROI[4] = max(-1*self.roihighv,-1*self.roilowv)   #y2
-
-        self.ROI[5] = 1   #y-binning
-
-        self.width = self.ROI[1] - max(self.ROI[0],1) +1
-        self.height = self.ROI[4] - max(self.ROI[3],1) +1
+    def unsetROIvalues(self):
+        '''Set the ROI variable to the full image'''
+        self.width = self.ccd_size[0]
+        self.height = self.ccd_size[1]
+        self.subimage_position = [0, 0]
+        self.subimage_size = self.ccd_size
         self.dim = self.width*self.height
-        #print "self.width: {} self.height: {}".format(self.width,self.height)
-        #print "ROI: {}".format(self.ROI)
+        self.binMode = 0
 
     def DumpImages(self):
         self.setCamera()
@@ -605,21 +561,14 @@ class AndorCamera(Instrument):
     def GetDetector(self):
         width = c_int()
         height = c_int()
-
         error = self.dll.GetDetector(byref(width), byref(height))
         if ERROR_CODE[error] != 'DRV_SUCCESS':
             logger.error('Error getting Andor camera sensor size:\n{}'.format(ERROR_CODE[error]))
             raise PauseError
 
-
-        self.width = width.value
-        self.height = height.value  # -2 because height gets reported as 1004 instead of 1002 for Luca
+        self.ccd_size = [width.value, height.value]
         self.dim = self.width * self.height
 
-        self.roimaxv = -self.height
-        self.roimaxh = self.width
-        #self.width = self.width - 1
-        #self.height = self.height - 1   # -2 because height gets reported as 1004 instead of 1002 for Luca
         self.ROI = [0, self.width, 1, 0, self.height, 1 ]
         #print 'Andor: width {}, height {}'.format(self.width, self.height)
         return self.width, self.height
@@ -688,8 +637,10 @@ class AndorCamera(Instrument):
         error = self.dll.SetShutter(typ, mode, closingtime, openingtime)
         self.DLLError(sys._getframe().f_code.co_name, error)
 
-    def SetImage(self, hbin, vbin, hstart, hend, vstart, vend):
-        error = self.dll.SetImage(hbin, vbin, hstart, hend, vstart, vend)
+    def SetImage(self):
+        hstart, hend, hbin, vstart, vend, vbin = self.ROI
+        # andor expects first pixel = 1, python has first pixel = 0
+        error = self.dll.SetImage(hbin, vbin, hstart+1, hend+1, vstart+1, vend+1)
         self.DLLError(sys._getframe().f_code.co_name, error)
 
     def StartAcquisition(self):
@@ -714,7 +665,7 @@ class AndorCamera(Instrument):
         #print "copying c_imagearray to numpy"
         data = numpy.ctypeslib.as_array(c_image_array)
         #print "reshaping data"
-        data = numpy.reshape(data, (self.shotsPerMeasurement.value, self.height, self.width))
+        data = numpy.reshape(data, (self.shotsPerMeasurement.value, self.subimage_size[1], self.subimage_size[0]))
         #print "returning data"
         return data
 
@@ -731,10 +682,10 @@ class AndorCamera(Instrument):
             self.c_image_array = c_image_array_type()
 
             data = numpy.ctypeslib.as_array(self.c_image_array)
-            data = numpy.reshape(data, (self.height, self.width))
+            data = numpy.reshape(data, (self.subimage_size[1], self.subimage_size[0]))
         except Exception as e:
             logger.error("Exception in CreateAcquisitionBuffer: {}".format(e))
-            logger.error("dim={} height={} width={}".format(self.dim,self.height,self.width))
+            logger.error("dim={} height={} width={}".format(self.dim, self.subimage_size[1], self.subimage_size[0]))
             logger.error("data shape: {}".format(data.shape))
             raise PauseError
         self.data = data
@@ -1111,8 +1062,8 @@ class AndorViewer(AnalysisWithFigure):
             try:
                 self.update_lock = True
                 try:
-                    xlimit=numpy.array([0,self.width-1]) # Defines x limits one the figure.
-                    ylimit=numpy.array([0,self.height-1]) # Defines x limits one the figure.
+                    xlimit=numpy.array([0,self.subimage_size[0]-1]) # Defines x limits one the figure.
+                    ylimit=numpy.array([0,self.subimage_size[1]-1]) # Defines x limits one the figure.
                     limits = True
                 except:
                     limits = False
@@ -1275,7 +1226,7 @@ class Andors(Instrument,Analysis):
                     logger.debug( "Acquiring data from camera {}".format(i.camera.CurrentHandle))
                     msg = i.camera.acquire_data()
         except Exception as e:
-            logger.error('Problem acquiring Andor camera data:\n{}\n{}\n'.format(msg, e))
+            logger.exception('Problem acquiring Andor camera data.')
             self.isInitialized = False
             raise PauseError
 
