@@ -198,20 +198,21 @@ class ImageSumAnalysis(AnalysisWithFigure):
                     mpl_rectangle(ax, ROI)
 
     def updateFigure(self):
-        if not self.update_lock:
-            try:
-                self.update_lock = True
+        if self.draw_fig:
+            if not self.update_lock:
+                try:
+                    self.update_lock = True
 
-                fig = self.backFigure
-                fig.clf()
+                    fig = self.backFigure
+                    fig.clf()
 
-                self.draw_fig(fig, self.iteration, self.shot)
+                    self.draw_fig(fig, self.iteration, self.shot)
 
-                super(ImageSumAnalysis, self).updateFigure()
-            except Exception as e:
-                logger.warning('Problem in ImageSumAnalysis.updateFigure()\n:{}'.format(e))
-            finally:
-                self.update_lock = False
+                    super(ImageSumAnalysis, self).updateFigure()
+                except Exception as e:
+                    logger.warning('Problem in ImageSumAnalysis.updateFigure()\n:{}'.format(e))
+                finally:
+                    self.update_lock = False
 
     #def finalize(self, experimentResults):
     #    if self.enable and self.experiment.saveData:

@@ -1153,6 +1153,9 @@ enamldef FunctionalWaveformsGraph(Window):
                     LabelBox:
                         text = 'enable'
                         checked := graph.enable
+                    LabelBox:
+                        text = 'draw_fig'
+                        checked := graph.draw_fig
                     Label: text = 'HSDIO'
                     Field:
                         placeholder = 'HSDIO channels to plot'
@@ -1760,6 +1763,9 @@ enamldef Andor(Form):
                 LabelBox:
                     text = 'enable'
                     checked := item.camera.enable
+                LabelBox:
+                    text = 'draw_fig'
+                    checked := item.analysis.draw_fig
                 EvalProp:
                     prop << item.camera.EMCCDGain
                 EvalProp:
@@ -1929,6 +1935,9 @@ enamldef Picam(Form):
                 LabelBox:
                     text = 'enable'
                     checked := item.camera.enable
+                LabelBox:
+                    text = 'draw_fig'
+                    checked := item.analysis.draw_fig
                 EvalProp:
                     prop << item.camera.AdcEMGain
                 ComboBox:
@@ -2125,6 +2134,10 @@ enamldef AnalogInput(Window):
                             text = 'enable'
                         CheckBox:
                             checked := analysis.enable
+                        Label:
+                            text = 'draw fig'
+                        CheckBox:
+                            checked := analysis.draw_fig    
                         Label:
                             text = 'specify what to graph with a list of tuples: [(channel,samples_list),(channel, samples_list)...]\nSamples in samples_list will be averaged.'
                         Field:
@@ -2344,6 +2357,10 @@ enamldef DCNoiseEaters(Window):
                         CheckBox:
                             checked := analysis.enable
                         Label:
+                            text = 'draw_fig'
+                        CheckBox:
+                            checked := analysis.draw_fig
+                        Label:
                             text = 'specify box, channel and variable (see indices below) to graph with a list of tuples: [(box,channel,variable),(box,channel,variable)]\n 0:mode, 1:warnSetting, 2:limitRange, 3:invert, 4:integrationTime, 5:trigNum, 6:measNum, 7:kp, 8:ki, 9:setpoint, 10:average, 11:error, 12:vin, 13:vout, 14:warning'
                         Field:
                             text := analysis.list_of_what_to_plot
@@ -2484,6 +2501,10 @@ enamldef MultiImage(Window):
                             figure << analysis0.figure
                         Form:
                             Label:
+                                text = 'draw_fig'
+                            CheckBox:
+                                checked := analysis0.draw_fig
+                            Label:
                                 text = 'Show ROIs?'
                             CheckBox:
                                 checked := analysis0.showROIs
@@ -2506,6 +2527,10 @@ enamldef MultiImage(Window):
                                 text = 'enable'
                             CheckBox:
                                 checked := analysis2.enable
+                            Label:
+                                text = 'draw_fig'
+                            CheckBox:
+                                checked := analysis2.draw_fig
                             Label:
                                 text='Show ROIs?'
                             CheckBox:
@@ -2631,6 +2656,10 @@ enamldef SquareROIContainer(Window):
                             text = 'enable'
                         CheckBox:
                             checked := analysis.enable
+                        Label:
+                            text = 'draw_fig'
+                        CheckBox:
+                            checked := analysis.draw_fig
                     Container:
                         hug_height='strong'
                         hug_width='strong'
@@ -2703,6 +2732,10 @@ enamldef ThresholdROIContainer(Window):
                             text = 'enable'
                         CheckBox:
                             checked := analysis.enable
+                        Label:
+                            text = 'draw_fig'
+                        CheckBox:
+                            checked := analysis.draw_fig
                     Container:
                         hug_height='strong'
                         hug_width='strong'
@@ -2740,6 +2773,10 @@ enamldef GaussianROI(Window):
                         text = 'enable'
                     CheckBox:
                         checked := analysis.enable
+                    Label:
+                        text = 'draw_fig'
+                    CheckBox:
+                        checked := analysis.draw_fig
                     Label:
                         text = 'perform gaussian grid fit'
                     CheckBox:
@@ -2874,6 +2911,10 @@ enamldef Histogram(Window):
                     CheckBox:
                         checked := analysis.enable
                     Label:
+                        text = 'draw_fig'
+                    CheckBox:
+                        checked := analysis.draw_fig
+                    Label:
                         text = 'specify shots and regions to graph with a list of pairs: [(shot,region),(shot,region)]'
                     Field:
                         text := analysis.list_of_what_to_plot
@@ -2900,6 +2941,10 @@ enamldef HistogramGrid(Window):
                         text = 'enable'
                     CheckBox:
                         checked := analysis.enable
+                    Label:
+                        text = 'draw_fig'
+                    CheckBox:
+                        checked := analysis.draw_fig
                     Label:
                         text = 'shot to display'
                     SpinBox:
@@ -2949,6 +2994,10 @@ enamldef MeasurementsGraph(Window):
                     CheckBox:
                         checked := analysis.enable
                     Label:
+                        text = 'draw_fig'
+                    CheckBox:
+                        checked := analysis.draw_fig
+                    Label:
                         text = 'specify shots and regions to graph with a list of pairs: [(shot,region),(shot,region)]'
                     Field:
                         text := analysis.list_of_what_to_plot
@@ -2988,6 +3037,10 @@ enamldef IterationsGraph(Window):
                         text = 'enable'
                     CheckBox: cb5:
                         checked := analysis.enable
+                    Label:
+                        text = 'draw_fig'
+                    CheckBox:
+                        checked := analysis.draw_fig
                     Label: l0:
                         text = 'draw connecting lines'
                     CheckBox: cb0:
@@ -3038,6 +3091,10 @@ enamldef RetentionGraph(Window):
                         text = 'enable'
                     CheckBox: cb5:
                         checked := analysis.enable
+                    Label:
+                        text = 'draw_fig'
+                    CheckBox:
+                        checked := analysis.draw_fig
                     Label: l0:
                         text = 'draw connecting lines'
                     CheckBox: cb0:
@@ -3083,6 +3140,10 @@ enamldef CounterGraph(Window):
                     CheckBox:
                         checked := analysis.enable
                     Label:
+                        text = 'draw_fig'
+                    CheckBox:
+                        checked := analysis.draw_fig
+                    Label:
                         text = 'pre-Data Bins'
                     IntField:
                         value := analysis.drops
@@ -3114,6 +3175,10 @@ enamldef CounterHistAnalysis(Window):
                         text = 'enable'
                     CheckBox:
                         checked := analysis.enable
+                    Label:
+                        text = 'draw_fig'
+                    CheckBox:
+                        checked := analysis.draw_fig
 
                     Label:
                         text = 'Data Bins'
@@ -3143,6 +3208,10 @@ enamldef Ramsey(Window):
                         text = 'enable'
                     CheckBox:
                         checked := analysis.enable
+                    Label:
+                        text = 'draw_fig'
+                    CheckBox:
+                        checked := analysis.draw_fig
                     Label:
                         text = 'draw error bars (1 sigma binomial std dev of mean using normal approximation)'
                     CheckBox:
@@ -3256,6 +3325,10 @@ enamldef Optimizer(Window):
                     CheckBox:
                         checked << analysis.enable_gui
                         enabled = False
+                    Label:
+                        text = 'draw_fig'
+                    CheckBox:
+                        checked := analysis.draw_fig
 
                     Label:
                         text='update method'

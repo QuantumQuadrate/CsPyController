@@ -60,13 +60,14 @@ class ThresholdROIAnalysis(AnalysisWithFigure):
         pass
 
     def updateFigure(self):
-        fig = self.backFigure
-        fig.clf()
-        if self.loading_array.size > 0:
-            n = len(self.loading_array)
-            for i in range(n):
-                ax = fig.add_subplot(n, 1, i+1)
-                #make the digital plot here
-                ax.matshow(self.loading_array[i], cmap=green_cmap)
-                ax.set_title('shot '+str(i))
-        super(ThresholdROIAnalysis, self).updateFigure()
+        if self.draw_fig:
+            fig = self.backFigure
+            fig.clf()
+            if self.loading_array.size > 0:
+                n = len(self.loading_array)
+                for i in range(n):
+                    ax = fig.add_subplot(n, 1, i+1)
+                    #make the digital plot here
+                    ax.matshow(self.loading_array[i], cmap=green_cmap)
+                    ax.set_title('shot '+str(i))
+            super(ThresholdROIAnalysis, self).updateFigure()

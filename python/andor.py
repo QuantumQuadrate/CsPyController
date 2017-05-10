@@ -1078,48 +1078,49 @@ class AndorViewer(AnalysisWithFigure):
         self.updateFigure()
 
     def updateFigure(self):
-        if not self.update_lock and (self.mycam.mode != 'video'):
-            try:
-                self.update_lock = True
+        if self.draw_fig:
+            if not self.update_lock and (self.mycam.mode != 'video'):
                 try:
-                    xlimit=numpy.array([0,self.subimage_size[0]-1]) # Defines x limits one the figure.
-                    ylimit=numpy.array([0,self.subimage_size[1]-1]) # Defines x limits one the figure.
-                    limits = True
-                except:
-                    limits = False
-                fig = self.backFigure
-                fig.clf()
+                    self.update_lock = True
+                    try:
+                        xlimit=numpy.array([0,self.subimage_size[0]-1]) # Defines x limits one the figure.
+                        ylimit=numpy.array([0,self.subimage_size[1]-1]) # Defines x limits one the figure.
+                        limits = True
+                    except:
+                        limits = False
+                    fig = self.backFigure
+                    fig.clf()
 
-                if (self.data is not None) and (self.shot < self.mycam.shotsPerMeasurement.value):
-                    ax = fig.add_subplot(111)
-                    self.ax = ax
-                    if self.bgsub and self.mycam.shotsPerMeasurement.value>1:
-                        mydat = - self.data[1] + self.data[0]
-                    else:
-                        #mydat = self.data[self.shot]
-                        mydat = self.data
-                    if (not self.mycam.autoscale):
-                        ax.matshow(mydat, cmap=my_cmap, vmin=self.mycam.minPlot.value, vmax=self.mycam.maxPlot.value)
-                    else:
-                        ax.matshow(mydat, cmap=my_cmap)
-                    if self.bgsub and len(self.data)>1:
-                        ax.set_title('Background-subtracted shot')
-                    else:
-                        ax.set_title('most recent shot '+str(self.shot))
+                    if (self.data is not None) and (self.shot < self.mycam.shotsPerMeasurement.value):
+                        ax = fig.add_subplot(111)
+                        self.ax = ax
+                        if self.bgsub and self.mycam.shotsPerMeasurement.value>1:
+                            mydat = - self.data[1] + self.data[0]
+                        else:
+                            #mydat = self.data[self.shot]
+                            mydat = self.data
+                        if (not self.mycam.autoscale):
+                            ax.matshow(mydat, cmap=my_cmap, vmin=self.mycam.minPlot.value, vmax=self.mycam.maxPlot.value)
+                        else:
+                            ax.matshow(mydat, cmap=my_cmap)
+                        if self.bgsub and len(self.data)>1:
+                            ax.set_title('Background-subtracted shot')
+                        else:
+                            ax.set_title('most recent shot '+str(self.shot))
 
-                    if limits:
-                        ax.set_xlim(xlimit[0],xlimit[1])
-                        ax.set_ylim(ylimit[0],ylimit[1])
+                        if limits:
+                            ax.set_xlim(xlimit[0],xlimit[1])
+                            ax.set_ylim(ylimit[0],ylimit[1])
 
-                    #self.maxPixel = numpy.max(self.data[self.shot])
-                    self.maxPixel = numpy.max(self.data)
-                    #self.meanPixel = int(numpy.mean(self.data[self.shot]))
-                    self.meanPixel = int(numpy.mean(self.data))
-                super(AndorViewer, self).updateFigure()
-            except Exception as e:
-                logger.warning('Problem in AndorViewer.updateFigure()\n:{}'.format(e))
-            finally:
-                self.update_lock = False
+                        #self.maxPixel = numpy.max(self.data[self.shot])
+                        self.maxPixel = numpy.max(self.data)
+                        #self.meanPixel = int(numpy.mean(self.data[self.shot]))
+                        self.meanPixel = int(numpy.mean(self.data))
+                    super(AndorViewer, self).updateFigure()
+                except Exception as e:
+                    logger.warning('Problem in AndorViewer.updateFigure()\n:{}'.format(e))
+                finally:
+                    self.update_lock = False
 
     def setup_video(self, data):
         """Use this method to connect the analysis figure to an array that will be rapidly updated

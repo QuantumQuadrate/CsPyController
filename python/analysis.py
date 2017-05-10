@@ -170,6 +170,7 @@ class AnalysisWithFigure(Analysis):
     backFigure = Typed(Figure)
     figure1 = Typed(Figure)
     figure2 = Typed(Figure)
+    draw_fig = Bool(False) # do not draw the figure unless told to
 
     def __init__(self, name, experiment, description=''):
         super(AnalysisWithFigure, self).__init__(name, experiment, description)
@@ -179,6 +180,8 @@ class AnalysisWithFigure(Analysis):
         self.figure2 = Figure()
         self.backFigure = self.figure2
         self.figure = self.figure1
+
+        self.properties += ['draw_fig']
 
     def swapFigures(self):
         temp = self.backFigure
@@ -257,12 +260,13 @@ class XYPlotAnalysis(AnalysisWithFigure):
     Y=Member()
 
     def updateFigure(self):
-        fig=self.backFigure
-        fig.clf()
-        ax=fig.add_subplot(111)
-        if (self.X is not None) and (self.Y is not None):
-            ax.plot(self.X, self.Y)
-        super(XYPlotAnalysis, self).updateFigure()
+        if self.draw_fig:
+            fig=self.backFigure
+            fig.clf()
+            ax=fig.add_subplot(111)
+            if (self.X is not None) and (self.Y is not None):
+                ax.plot(self.X, self.Y)
+            super(XYPlotAnalysis, self).updateFigure()
 
 
 class SampleXYAnalysis(XYPlotAnalysis):
@@ -332,17 +336,18 @@ class ShotsBrowserAnalysis(AnalysisWithFigure):
         super(ShotsBrowserAnalysis,self).updateFigure()
 
     def updateFigure(self):
-        fig=self.backFigure
-        fig.clf()
-        ax=fig.add_subplot(111)
-        ax.matshow(self.array, cmap=my_cmap, vmin=self.experiment.imageSumAnalysis.min, vmax=self.experiment.imageSumAnalysis.max)
-        ax.set_title('browser')
-        if self.showROIs:
-            #overlay ROIs
-            for ROI in self.experiment.squareROIAnalysis.ROIs:
-                mpl_rectangle(ax, ROI)
+        if self.draw_fig:        
+            fig=self.backFigure
+            fig.clf()
+            ax=fig.add_subplot(111)
+            ax.matshow(self.array, cmap=my_cmap, vmin=self.experiment.imageSumAnalysis.min, vmax=self.experiment.imageSumAnalysis.max)
+            ax.set_title('browser')
+            if self.showROIs:
+                #overlay ROIs
+                for ROI in self.experiment.squareROIAnalysis.ROIs:
+                    mpl_rectangle(ax, ROI)
 
-        super(ShotsBrowserAnalysis,self).updateFigure() #makes a deferred_call to swap_figures()
+            super(ShotsBrowserAnalysis,self).updateFigure() #makes a deferred_call to swap_figures()
 
 class LoadingFilters(Analysis):
     """This analysis monitors the brightess in the regions of interest, to decide if an atom was loaded or not"""
@@ -453,33 +458,34 @@ class HistogramAnalysis(AnalysisWithFigure):
             self.updateFigure()
 
     def updateFigure(self):
-        if not self.update_lock:
-            try:
-                self.update_lock = True
-                fig = self.backFigure
-                fig.clf()
+        if self.draw_fig:
+            if not self.update_lock:
+                try:
+                    self.update_lock = True
+                    fig = self.backFigure
+                    fig.clf()
 
-                if (self.all_shots_array is not None) and (len(self.all_shots_array) > 1):
+                    if (self.all_shots_array is not None) and (len(self.all_shots_array) > 1):
 
-                    #parse the list of what to plot from a string to a list of numbers
-                    try:
-                        plotlist = eval(self.list_of_what_to_plot)
-                    except Exception as e:
-                        logger.warning('Could not eval plotlist in HistogramAnalysis:\n{}\n'.format(e))
-                        return
+                        #parse the list of what to plot from a string to a list of numbers
+                        try:
+                            plotlist = eval(self.list_of_what_to_plot)
+                        except Exception as e:
+                            logger.warning('Could not eval plotlist in HistogramAnalysis:\n{}\n'.format(e))
+                            return
 
-                    ax = fig.add_subplot(111)
-                    shots = [i[0] for i in plotlist]
-                    rois = [i[1] for i in plotlist]
-                    data = self.all_shots_array[:, shots, rois]
-                    bins = int(1.2*numpy.rint(numpy.sqrt(len(data))))
-                    ax.hist(data, bins, histtype='step', label=['({},{})'.format(i[0], i[1]) for i in plotlist])
-                    ax.legend()
-                super(HistogramAnalysis, self).updateFigure()
-            except Exception as e:
-                logger.warning('Problem in HistogramAnalysis.updateFigure()\n:{}'.format(e))
-            finally:
-                self.update_lock = False
+                        ax = fig.add_subplot(111)
+                        shots = [i[0] for i in plotlist]
+                        rois = [i[1] for i in plotlist]
+                        data = self.all_shots_array[:, shots, rois]
+                        bins = int(1.2*numpy.rint(numpy.sqrt(len(data))))
+                        ax.hist(data, bins, histtype='step', label=['({},{})'.format(i[0], i[1]) for i in plotlist])
+                        ax.legend()
+                    super(HistogramAnalysis, self).updateFigure()
+                except Exception as e:
+                    logger.warning('Problem in HistogramAnalysis.updateFigure()\n:{}'.format(e))
+                finally:
+                    self.update_lock = False
 
 
 class HistogramGrid(AnalysisWithFigure):
@@ -574,22 +580,23 @@ class HistogramGrid(AnalysisWithFigure):
             logger.warning('Problem in HistogramGrid.savefig():\n{}\n{}\n'.format(e, traceback.format_exc()))
 
     def updateFigure(self):
-        try:
-            fig = self.backFigure
-            fig.clf()
+        if self.draw_fig:
+            try:
+                fig = self.backFigure
+                fig.clf()
 
-            if self.histogram_results is not None:
-                fig.suptitle('shot {}'.format(self.shot))
-                if self.experiment.gaussian_roi.multiply_sums_by_photoelectron_scaling:
-                    photoelectronScaling = self.experiment.LabView.camera.photoelectronScaling.value
-                else:
-                    photoelectronScaling = None
-                self.histogram_grid_plot(fig, self.shot, photoelectronScaling=photoelectronScaling, exposure_time=self.experiment.LabView.camera.exposureTime.value, )
+                if self.histogram_results is not None:
+                    fig.suptitle('shot {}'.format(self.shot))
+                    if self.experiment.gaussian_roi.multiply_sums_by_photoelectron_scaling:
+                        photoelectronScaling = self.experiment.LabView.camera.photoelectronScaling.value
+                    else:
+                        photoelectronScaling = None
+                    self.histogram_grid_plot(fig, self.shot, photoelectronScaling=photoelectronScaling, exposure_time=self.experiment.LabView.camera.exposureTime.value, )
 
-            super(HistogramGrid, self).updateFigure()
+                super(HistogramGrid, self).updateFigure()
 
-        except Exception as e:
-            logger.warning('Problem in HistogramGrid.updateFigure():\n{}\n{}\n'.format(e, traceback.format_exc()))
+            except Exception as e:
+                logger.warning('Problem in HistogramGrid.updateFigure():\n{}\n{}\n'.format(e, traceback.format_exc()))
 
     def use_cutoffs(self):
         """Set the cutoffs.  Because they are stored in a numpy field, but we need to set them using a deferred_call,
@@ -995,36 +1002,37 @@ class MeasurementsGraph(AnalysisWithFigure):
         self.updateFigure()
 
     def updateFigure(self):
-        if not self.update_lock:
-            try:
-                self.update_lock = True
-                fig = self.backFigure
-                fig.clf()
+        if self.draw_fig:
+            if not self.update_lock:
+                try:
+                    self.update_lock = True
+                    fig = self.backFigure
+                    fig.clf()
 
-                if self.data is not None:
-                    #parse the list of what to plot from a string to a list of numbers
-                    try:
-                        plotlist = eval(self.list_of_what_to_plot)
-                    except Exception as e:
-                        logger.warning('Could not eval plotlist in MeasurementsGraph:\n{}\n'.format(e))
-                        return
-                    #make one plot
-                    ax = fig.add_subplot(111)
-                    for i in plotlist:
+                    if self.data is not None:
+                        #parse the list of what to plot from a string to a list of numbers
                         try:
-                            data = self.data[:, i[0], i[1]]
-                        except:
-                            logger.warning('Trying to plot data that does not exist in MeasurementsGraph: shot {} roi {}'.format(i[0], i[1]))
-                            continue
-                        label = '({},{})'.format(i[0], i[1])
-                        ax.plot(data, 'o', label=label)
-                    #add legend using the labels assigned during ax.plot()
-                    ax.legend()
-                super(MeasurementsGraph, self).updateFigure()
-            except Exception as e:
-                logger.warning('Problem in MeasurementsGraph.updateFigure()\n:{}'.format(e))
-            finally:
-                self.update_lock = False
+                            plotlist = eval(self.list_of_what_to_plot)
+                        except Exception as e:
+                            logger.warning('Could not eval plotlist in MeasurementsGraph:\n{}\n'.format(e))
+                            return
+                        #make one plot
+                        ax = fig.add_subplot(111)
+                        for i in plotlist:
+                            try:
+                                data = self.data[:, i[0], i[1]]
+                            except:
+                                logger.warning('Trying to plot data that does not exist in MeasurementsGraph: shot {} roi {}'.format(i[0], i[1]))
+                                continue
+                            label = '({},{})'.format(i[0], i[1])
+                            ax.plot(data, 'o', label=label)
+                        #add legend using the labels assigned during ax.plot()
+                        ax.legend()
+                    super(MeasurementsGraph, self).updateFigure()
+                except Exception as e:
+                    logger.warning('Problem in MeasurementsGraph.updateFigure()\n:{}'.format(e))
+                finally:
+                    self.update_lock = False
 
 
 class IterationsGraph(AnalysisWithFigure):
@@ -1139,47 +1147,48 @@ class IterationsGraph(AnalysisWithFigure):
         self.updateFigure()
 
     def updateFigure(self):
-        if not self.update_lock:
-            try:
-                self.update_lock = True
-                fig = self.backFigure
-                fig.clf()
+        if self.draw_fig:
+            if not self.update_lock:
+                try:
+                    self.update_lock = True
+                    fig = self.backFigure
+                    fig.clf()
 
-                if self.mean is not None:
-                    #parse the list of what to plot from a string to a list of numbers
-                    try:
-                        plotlist = eval(self.list_of_what_to_plot)
-                    except Exception as e:
-                        logger.warning('Could not eval plotlist in IterationsGraph:\n{}\n'.format(e))
-                        return
-                    #make one plot
-                    ax = fig.add_subplot(111)
-                    for i in plotlist:
+                    if self.mean is not None:
+                        #parse the list of what to plot from a string to a list of numbers
                         try:
-                            mean = self.mean[:, i[0], i[1]]
-                            sigma = self.sigma[:, i[0], i[1]]
-                        except:
-                            logger.warning('Trying to plot data that does not exist in IterationsGraph: shot {} roi {}'.format(i[0], i[1]))
-                            continue
-                        label = '({},{})'.format(i[0], i[1])
-                        linestyle = '-o' if self.draw_connecting_lines else 'o'
-                        if self.draw_error_bars:
-                            ax.errorbar(numpy.arange(len(mean)), mean, yerr=sigma, fmt=linestyle, label=label)
-                        else:
-                            ax.plot(numpy.arange(len(mean)), mean, linestyle, label=label)
-                    #adjust the limits so that the data isn't right on the edge of the graph
-                    ax.set_xlim(-.5, len(self.mean)+0.5)
-                    if self.ymin != '':
-                        ax.set_ylim(bottom=float(self.ymin))
-                    if self.ymax != '':
-                        ax.set_ylim(top=float(self.ymax))
-                    #add legend using the labels assigned during ax.plot() or ax.errorbar()
-                    ax.legend()
-                super(IterationsGraph, self).updateFigure()
-            except Exception as e:
-                logger.warning('Problem in IterationsGraph.updateFigure()\n{}\n{}\n'.format(e, traceback.format_exc()))
-            finally:
-                self.update_lock = False
+                            plotlist = eval(self.list_of_what_to_plot)
+                        except Exception as e:
+                            logger.warning('Could not eval plotlist in IterationsGraph:\n{}\n'.format(e))
+                            return
+                        #make one plot
+                        ax = fig.add_subplot(111)
+                        for i in plotlist:
+                            try:
+                                mean = self.mean[:, i[0], i[1]]
+                                sigma = self.sigma[:, i[0], i[1]]
+                            except:
+                                logger.warning('Trying to plot data that does not exist in IterationsGraph: shot {} roi {}'.format(i[0], i[1]))
+                                continue
+                            label = '({},{})'.format(i[0], i[1])
+                            linestyle = '-o' if self.draw_connecting_lines else 'o'
+                            if self.draw_error_bars:
+                                ax.errorbar(numpy.arange(len(mean)), mean, yerr=sigma, fmt=linestyle, label=label)
+                            else:
+                                ax.plot(numpy.arange(len(mean)), mean, linestyle, label=label)
+                        #adjust the limits so that the data isn't right on the edge of the graph
+                        ax.set_xlim(-.5, len(self.mean)+0.5)
+                        if self.ymin != '':
+                            ax.set_ylim(bottom=float(self.ymin))
+                        if self.ymax != '':
+                            ax.set_ylim(top=float(self.ymax))
+                        #add legend using the labels assigned during ax.plot() or ax.errorbar()
+                        ax.legend()
+                    super(IterationsGraph, self).updateFigure()
+                except Exception as e:
+                    logger.warning('Problem in IterationsGraph.updateFigure()\n{}\n{}\n'.format(e, traceback.format_exc()))
+                finally:
+                    self.update_lock = False
 
 
 class RetentionGraph(AnalysisWithFigure):
@@ -1273,48 +1282,49 @@ class RetentionGraph(AnalysisWithFigure):
         self.updateFigure()
 
     def updateFigure(self):
-        if not self.update_lock:
-            try:
-                self.update_lock = True
-                fig = self.backFigure
-                fig.clf()
+        if self.draw_fig:
+            if not self.update_lock:
+                try:
+                    self.update_lock = True
+                    fig = self.backFigure
+                    fig.clf()
 
-                if self.mean is not None:
-                    #parse the list of what to plot from a string to a list of numbers
-                    try:
-                        plotlist = eval(self.list_of_what_to_plot)
-                    except Exception as e:
-                        logger.warning('Could not eval plotlist in RetentionGraph:\n{}\n'.format(e))
-                        return
-                    #make one plot
-                    ax = fig.add_subplot(111)
-                    for i in plotlist:
+                    if self.mean is not None:
+                        #parse the list of what to plot from a string to a list of numbers
                         try:
-                            mean = self.mean[:, i]
-                            sigma = self.sigma[:, i]
-                        except:
-                            logger.warning('Trying to plot data that does not exist in RetentionGraph: roi {}'.format(i))
-                            continue
-                        label = '({})'.format(i)
-                        linestyle = '-o' if self.draw_connecting_lines else 'o'
-                        if self.draw_error_bars:
-                            ax.errorbar(numpy.arange(len(mean)), mean, yerr=sigma, fmt=linestyle, label=label)
-                        else:
-                            ax.plot(numpy.arange(len(mean)), mean, linestyle, label=label)
-                    #adjust the limits so that the data isn't right on the edge of the graph
-                    ax.set_xlim(-.5, len(self.mean)+0.5)
-                    if self.ymin != '':
-                        ax.set_ylim(bottom=float(self.ymin))
-                    if self.ymax != '':
-                        ax.set_ylim(top=float(self.ymax))
-                    #add legend using the labels assigned during ax.plot() or ax.errorbar()
-                    ax.legend(bbox_to_anchor=(0., 1.02, 1., .102), loc=3, ncol=7, mode="expand", borderaxespad=0.)
+                            plotlist = eval(self.list_of_what_to_plot)
+                        except Exception as e:
+                            logger.warning('Could not eval plotlist in RetentionGraph:\n{}\n'.format(e))
+                            return
+                        #make one plot
+                        ax = fig.add_subplot(111)
+                        for i in plotlist:
+                            try:
+                                mean = self.mean[:, i]
+                                sigma = self.sigma[:, i]
+                            except:
+                                logger.warning('Trying to plot data that does not exist in RetentionGraph: roi {}'.format(i))
+                                continue
+                            label = '({})'.format(i)
+                            linestyle = '-o' if self.draw_connecting_lines else 'o'
+                            if self.draw_error_bars:
+                                ax.errorbar(numpy.arange(len(mean)), mean, yerr=sigma, fmt=linestyle, label=label)
+                            else:
+                                ax.plot(numpy.arange(len(mean)), mean, linestyle, label=label)
+                        #adjust the limits so that the data isn't right on the edge of the graph
+                        ax.set_xlim(-.5, len(self.mean)+0.5)
+                        if self.ymin != '':
+                            ax.set_ylim(bottom=float(self.ymin))
+                        if self.ymax != '':
+                            ax.set_ylim(top=float(self.ymax))
+                        #add legend using the labels assigned during ax.plot() or ax.errorbar()
+                        ax.legend(bbox_to_anchor=(0., 1.02, 1., .102), loc=3, ncol=7, mode="expand", borderaxespad=0.)
 
-                super(RetentionGraph, self).updateFigure()
-            except Exception as e:
-                logger.warning('Problem in RetentionGraph.updateFigure()\n{}\n{}\n'.format(e, traceback.format_exc()))
-            finally:
-                self.update_lock = False
+                    super(RetentionGraph, self).updateFigure()
+                except Exception as e:
+                    logger.warning('Problem in RetentionGraph.updateFigure()\n{}\n{}\n'.format(e, traceback.format_exc()))
+                finally:
+                    self.update_lock = False
 
 class Ramsey(AnalysisWithFigure):
     """Plots the average of a region of interest sum for an iteration, after each iteration.  Can be used with the
@@ -1394,29 +1404,30 @@ class Ramsey(AnalysisWithFigure):
             self.set_gui({'amplitude_guess': self.fitParams[0], 'frequency_guess': self.fitParams[1], 'offset_guess': self.fitParams[2], 'decay_guess': self.fitParams[3]})
 
     def updateFigure(self):
-        try:
-            fig = self.backFigure
-            fig.clf()
-            ax = fig.add_subplot(111)
+        if self.draw_fig:
+            try:
+                fig = self.backFigure
+                fig.clf()
+                ax = fig.add_subplot(111)
 
-            # plot the data points
-            linestyle = 'o'
-            if self.draw_error_bars:
-                ax.errorbar(self.t, self.y, yerr=self.sigma, fmt=linestyle)
-            else:
-                ax.plot(self.t, self.y, linestyle)
-            #adjust the limits so that the data isn't right on the edge of the graph
-            span = numpy.amax(self.t) - numpy.amin(self.t)
-            xmin = numpy.amin(self.t)-.02*span
-            xmax = numpy.amax(self.t)+.02*span
-            ax.set_xlim(xmin, xmax)
+                # plot the data points
+                linestyle = 'o'
+                if self.draw_error_bars:
+                    ax.errorbar(self.t, self.y, yerr=self.sigma, fmt=linestyle)
+                else:
+                    ax.plot(self.t, self.y, linestyle)
+                #adjust the limits so that the data isn't right on the edge of the graph
+                span = numpy.amax(self.t) - numpy.amin(self.t)
+                xmin = numpy.amin(self.t)-.02*span
+                xmax = numpy.amax(self.t)+.02*span
+                ax.set_xlim(xmin, xmax)
 
-            # draw the fit
-            t = numpy.linspace(xmin, xmax, 200)
-            ax.plot(t, self.fitFunc(t, *self.fitParams), '-')
-            super(Ramsey, self).updateFigure()
-        except Exception as e:
-            logger.warning('Problem in Ramsey.updateFigure()\n{}\n{}\n'.format(e, traceback.format_exc()))
+                # draw the fit
+                t = numpy.linspace(xmin, xmax, 200)
+                ax.plot(t, self.fitFunc(t, *self.fitParams), '-')
+                super(Ramsey, self).updateFigure()
+            except Exception as e:
+                logger.warning('Problem in Ramsey.updateFigure()\n{}\n{}\n'.format(e, traceback.format_exc()))
 
 class RetentionAnalysis(Analysis):
 

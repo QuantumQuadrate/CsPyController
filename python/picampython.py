@@ -741,47 +741,48 @@ class PICamViewer(AnalysisWithFigure):
         self.updateFigure()
 
     def updateFigure(self):
-        if not self.update_lock and (self.mycam.mode != 'video'):
-            try:
-                self.update_lock = True
+        if self.draw_fig:
+            if not self.update_lock and (self.mycam.mode != 'video'):
                 try:
-                    xlimit = numpy.array(self.ax.get_xlim(), dtype = int)
-                    ylimit = numpy.array(self.ax.get_ylim(), dtype = int)
-                    limits = True
-                except:
-                    limits = False
-                fig = self.backFigure
-                fig.clf()
+                    self.update_lock = True
+                    try:
+                        xlimit = numpy.array(self.ax.get_xlim(), dtype = int)
+                        ylimit = numpy.array(self.ax.get_ylim(), dtype = int)
+                        limits = True
+                    except:
+                        limits = False
+                    fig = self.backFigure
+                    fig.clf()
 
-                if (self.data is not None) and (self.shot < len(self.data)):
-                    ax = fig.add_subplot(111)
-                    self.ax = ax
-                    if self.bgsub and len(self.data)>1:
-                        mydat = - numpy.array(self.data[1],dtype='u4').astype(numpy.int32) + numpy.array(self.data[0],dtype='u4').astype(numpy.int32)
-                    else:
-                        mydat = self.data[self.shot]
-                    if (not self.mycam.autoscale):
-                        ax.matshow(mydat, cmap=my_cmap, vmin=self.mycam.minPlot.value, vmax=self.mycam.maxPlot.value)
-                    else:
-                        ax.matshow(mydat, cmap=my_cmap)
-                    if self.bgsub and len(self.data)>1:
-                        ax.set_title('Background-subtracted shot')
-                    else:
-                        ax.set_title('most recent shot '+str(self.shot))
+                    if (self.data is not None) and (self.shot < len(self.data)):
+                        ax = fig.add_subplot(111)
+                        self.ax = ax
+                        if self.bgsub and len(self.data)>1:
+                            mydat = - numpy.array(self.data[1],dtype='u4').astype(numpy.int32) + numpy.array(self.data[0],dtype='u4').astype(numpy.int32)
+                        else:
+                            mydat = self.data[self.shot]
+                        if (not self.mycam.autoscale):
+                            ax.matshow(mydat, cmap=my_cmap, vmin=self.mycam.minPlot.value, vmax=self.mycam.maxPlot.value)
+                        else:
+                            ax.matshow(mydat, cmap=my_cmap)
+                        if self.bgsub and len(self.data)>1:
+                            ax.set_title('Background-subtracted shot')
+                        else:
+                            ax.set_title('most recent shot '+str(self.shot))
 
-                    if limits:
-                        ax.set_xlim(xlimit[0],xlimit[1])
-                        ax.set_ylim(ylimit[0],ylimit[1])
+                        if limits:
+                            ax.set_xlim(xlimit[0],xlimit[1])
+                            ax.set_ylim(ylimit[0],ylimit[1])
 
-                    #print "Max: {}".format(numpy.max(mydat))
-                    #print "Min: {}".format(numpy.min(mydat))
-                    self.maxPixel = int(numpy.max(self.data[self.shot]))
-                    self.meanPixel = int(numpy.mean(self.data[self.shot]))
-                super(PICamViewer, self).updateFigure()
-            except Exception as e:
-                logger.warning('Problem in PICamViewer.updateFigure()\n:{}'.format(e))
-            finally:
-                self.update_lock = False
+                        #print "Max: {}".format(numpy.max(mydat))
+                        #print "Min: {}".format(numpy.min(mydat))
+                        self.maxPixel = int(numpy.max(self.data[self.shot]))
+                        self.meanPixel = int(numpy.mean(self.data[self.shot]))
+                    super(PICamViewer, self).updateFigure()
+                except Exception as e:
+                    logger.warning('Problem in PICamViewer.updateFigure()\n:{}'.format(e))
+                finally:
+                    self.update_lock = False
 
     def setup_video(self, data):
         """Use this method to connect the analysis figure to an array that will be rapidly updated
