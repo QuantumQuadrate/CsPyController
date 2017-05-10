@@ -1727,8 +1727,8 @@ enamldef Andor(Form):
                     IntField:
                         value := item.camera.subimage_size[1]
                 HGroup:
-                    EvalProp:
-                        prop << item.camera.currentCamera
+                    IntField:
+                        value := item.camera.serial
                     PushButton:
                         text = 'Select Camera'
                         clicked :: item.camera.setCamera()
@@ -1914,7 +1914,7 @@ enamldef Picam(Form):
                         clicked :: item.camera.stop_video()
                 HGroup:
                     EvalProp:
-                        prop << item.camera.currentCamera
+                        prop << item.camera.serial
                     PushButton:
                         text = 'Select Camera'
                         clicked :: item.camera.setCamera()

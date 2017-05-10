@@ -105,7 +105,6 @@ class AndorCamera(Instrument):
     cameraHandleList = Member()
     cameraHandleDict = Member()
     cameraSerialList = Member()
-    currentCamera = Member()
 
     CurrentHandle = Int()
 
@@ -136,11 +135,16 @@ class AndorCamera(Instrument):
         self.preAmpGain = IntProp('preAmpGain', experiment, 'Andor analog gain', '0')
         self.exposureTime = FloatProp('exposureTime', experiment, 'exposure time for edge trigger', '0')
         self.shotsPerMeasurement = IntProp('shotsPerMeasurement', experiment, 'number of expected shots', '0')
-        self.currentCamera = IntProp('currentCamera', experiment, 'Current Camera', '0')
+        self.serial = 0
         self.minPlot = IntProp('minPlot', experiment, 'Minimum Plot Scale Value', '0')
         self.maxPlot = IntProp('maxPlot', experiment, 'Maximum Plot Scale Value', '32768')
+        self.subimage_position = [0,0]
+        self.subimage_size = [1,1]
+        self.ccd_size = [1,1]
+        self.width = 1
+        self.height = 1
         self.properties += ['EMCCDGain', 'preAmpGain', 'exposureTime', 'triggerMode', 
-                            'shotsPerMeasurement', 'minPlot', 'maxPlot', 'currentCamera', 
+                            'shotsPerMeasurement', 'minPlot', 'maxPlot', 
                             'acquisitionMode', 'binMode', 'AdvancedEMGain', 'EMGainMode', 
                             'ROI', 'set_T', 'serial', 'subimage_position', 'subimage_size'
                             ]
@@ -586,7 +590,7 @@ class AndorCamera(Instrument):
 
     def DLLError(self, func, error, NoPause=False):
         if ERROR_CODE[error] != 'DRV_SUCCESS':
-            logger.error('Error in {} on camera {}:\n{}'.format(func,self.currentCamera.value,ERROR_CODE[error]))
+            logger.error('Error in {} on camera {}:\n{}'.format(func,self.serial,ERROR_CODE[error]))
             if not NoPause:
                 raise PauseError
             return False
@@ -1168,6 +1172,7 @@ class Andors(Instrument,Analysis):
         try:
             for i in self.motors:
                 if i.camera.enable:
+                    logger.info('Initializing camera ser. no.: %d', i.camera.serial)
                     msg = i.camera.initialize()
         except Exception as e:
             logger.exception('Problem initializing Andor camera.')
