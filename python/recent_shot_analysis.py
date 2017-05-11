@@ -71,8 +71,8 @@ class RecentShotAnalysis(AnalysisWithFigure):
                         vmax = self.experiment.imageSumAnalysis.max_minus_bg
                     else:
                         data = self.data[self.shot]
-                        vmin = self.experiment.imageSumAnalysis.min # should allow users to change the limit.
-                        vmax = self.experiment.imageSumAnalysis.max
+                        vmin = 100 #self.experiment.imageSumAnalysis.min # should allow users to change the limit.
+                        vmax = 150 #self.experiment.imageSumAnalysis.max
                         # print 'in recentShotAnalysis'
                         # print(vmin, vmax)
                         # print(np.amin(self.data), np.amax(self.data))

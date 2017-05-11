@@ -154,7 +154,7 @@ class ImageSumAnalysis(AnalysisWithFigure):
                     fig = plt.figure(figsize=(8, 6))
                     dpi = 80
                     fig.set_dpi(dpi)
-                    self.draw_fig(fig, iteration, shot)
+                    self.draw_figure(fig, iteration, shot)
                     plt.savefig('{}_{}_{}.pdf'.format(self.pdf_path, iteration, shot),
                                 format='pdf', dpi=dpi, transparent=True, bbox_inches='tight',
                                 pad_inches=.25, frameon=False)
@@ -163,7 +163,7 @@ class ImageSumAnalysis(AnalysisWithFigure):
             logger.exception('Problem in HistogramGrid.savefig()')
 
 
-    def draw_fig(self, fig, iteration, shot):
+    def draw_figure(self, fig, iteration, shot):
         if (self.mean_array is not None) and (shot < len(self.mean_array)):
             #gs = GridSpec(1, 2, width_ratios=[20, 1])
             #ax = fig.add_subplot(gs[0, 0])

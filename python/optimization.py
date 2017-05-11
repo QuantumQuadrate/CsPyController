@@ -220,7 +220,7 @@ class Optimization(AnalysisWithFigure):
                     dpi = 80
                     fig.set_dpi(dpi)
                     fig.suptitle(self.experiment.experimentPath)
-                    self.draw_fig(fig)
+                    self.draw_figure(fig)
                     plt.savefig(filename,
                                 format='pdf', dpi=dpi, transparent=True, bbox_inches='tight',
                                 pad_inches=.25, frameon=False)
@@ -228,7 +228,7 @@ class Optimization(AnalysisWithFigure):
                 except Exception as e:
                     logger.warning('Problem saving optimizer pdf:\n{}\n'.format(e))
 
-    def draw_fig(self, fig):
+    def draw_figure(self, fig):
         # plot cost
         ax = fig.add_subplot(self.axes+2, 1, 1)
         ax.plot(self.ylist)
@@ -253,7 +253,7 @@ class Optimization(AnalysisWithFigure):
         # fig.set_dpi(100)
         # fig.set_size_inches(18, len(self.optimization_variables), forward=False)
 
-        self.draw_fig(fig)
+        self.draw_figure(fig)
 
         super(Optimization, self).updateFigure()
 

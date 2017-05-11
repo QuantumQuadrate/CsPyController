@@ -46,7 +46,7 @@ import ConfigParser
 
 def intialize_numpy_array(array, default):
     '''Helper for initializing a numpy array.
-    Returns tuple of (changed, array). 
+    Returns tuple of (changed, array).
     if array exists then changed=False and array=array
     if array doesn't exist then changed=True and array=default
     '''
@@ -99,6 +99,7 @@ class AndorCamera(Instrument):
     status = Str()
     accumulate = Float()
     kinetic = Float()
+    SupportedModes=List()
 #ddd
 
     num_cameras = c_long()
@@ -112,7 +113,7 @@ class AndorCamera(Instrument):
     mode = Str('experiment')  # experiment vs. video
     analysis = Member()  # holds a link to the GUI display
     dll = Member()
-    
+
     ccd_size = Member() # size of CCD, width and height can change depending on binning
     subimage_position = Member() # position of subimage corner (H,V)
     subimage_size = Member() # size of subimage
@@ -143,9 +144,9 @@ class AndorCamera(Instrument):
         self.ccd_size = [1,1]
         self.width = 1
         self.height = 1
-        self.properties += ['EMCCDGain', 'preAmpGain', 'exposureTime', 'triggerMode', 
-                            'shotsPerMeasurement', 'minPlot', 'maxPlot', 
-                            'acquisitionMode', 'binMode', 'AdvancedEMGain', 'EMGainMode', 
+        self.properties += ['EMCCDGain', 'preAmpGain', 'exposureTime', 'triggerMode',
+                            'shotsPerMeasurement', 'minPlot', 'maxPlot',
+                            'acquisitionMode', 'binMode', 'AdvancedEMGain', 'EMGainMode',
                             'ROI', 'set_T', 'serial', 'subimage_position', 'subimage_size'
                             ]
 
@@ -164,7 +165,7 @@ class AndorCamera(Instrument):
             self.SetTemperature(self.getTemperatureSP())
         except PauseError:
             logger.warning(
-                "Problem setting temperature for camera with serial no: %d", 
+                "Problem setting temperature for camera with serial no: %d",
                 self.serial
             )
         self.dll.SetFanMode(0)
@@ -211,7 +212,7 @@ class AndorCamera(Instrument):
             self.SetReadMode(4)  # image mode
             self.SetExposureTime(self.exposureTime.value)
             exposure,accumulate , kinetic = self.GetAcquisitionTimings()
-            
+
             self.SetTriggerMode(self.triggerChoices[self.triggerMode])
 
             # set the ROI field
@@ -414,7 +415,7 @@ class AndorCamera(Instrument):
                     cam_temp_option
                 )
                 return 0 # dont set set_T so it doesnt get saved and propagated
-        return self.set_T       
+        return self.set_T
 
 
     def getAllSerials(self):
@@ -771,7 +772,7 @@ class AndorCamera(Instrument):
         ctemperature = c_float()
         error = self.dll.GetTemperatureF(byref(ctemperature))
         self.DLLErrorTemp(sys._getframe().f_code.co_name, error, True)
-        self.temperature = ctemperature.value
+        self.temperature = round(ctemperature.value,1) # Rounds the temperature value
         return self.temperature
 
     def SetTemperature(self, temperature):
@@ -850,7 +851,7 @@ class AndorCamera(Instrument):
         for i in range(self.noHSSpeeds):
             error = self.dll.GetHSSpeed(self.channel, self.outamp, i, byref(HSSpeed))
             self.DLLError(sys._getframe().f_code.co_name, error)
-            self.HSSpeeds.append(HSSpeed.value)
+            self.HSSpeeds.append(str(round(HSSpeed.value,0))) # Float numbers are rounded then converted to string.
         return self.HSSpeeds
 
     def SetHSSpeed(self, index):
@@ -873,7 +874,7 @@ class AndorCamera(Instrument):
         for i in range(self.noVSSpeeds):
             error = self.dll.GetVSSpeed(i, byref(VSSpeed))
             self.DLLError(sys._getframe().f_code.co_name, error)
-            self.VSSpeeds.append(VSSpeed.value)
+            self.VSSpeeds.append(str(round(VSSpeed.value,4))) # Float numbers are rounded then converted to string.
         return self.VSSpeeds
 
     def SetVSSpeed(self, index):
@@ -895,7 +896,7 @@ class AndorCamera(Instrument):
 
         for i in range(self.noGains):
             self.dll.GetPreAmpGain(i, byref(gain))
-            self.preAmpGains.append(gain.value)
+            self.preAmpGains.append(str(round(gain.value,1))) # Float numbers are rounded then converted to string.
         return self.preAmpGains
 
     def SetPreAmpGain(self, index):
@@ -940,17 +941,17 @@ class AndorCamera(Instrument):
         logger.info( '\n  '.join([
             'This camera supports the following settings',
             '%'*40,
-            'Camera Temperature :{}'.format(self.GetTemperature()),
-            'Supporing ADC channels: {}'.format(self.GetBitDepth()),
-            'Supporing Preamp gain: {}'.format(self.GetPreAmpGain()),
-            'Supporing Vertical Shift speed: {}'.format(self.GetVSSpeed()),
-            'Supporing Horizontal Shift speed: {}'.format(self.GetHSSpeed()),
-            'SupporingEMCCD Gain range:{}'.format(self.GetEMGainRange()),
+            'Supporting ADC channels: {}'.format(self.GetBitDepth()),
+            'Supporting Preamp gain: {}'.format(self.GetPreAmpGain()),
+            'Supporting Vertical Shift speed: {}'.format(self.GetVSSpeed()),
+            'Supporting Horizontal Shift speed: {}'.format(self.GetHSSpeed()),
+            'SupportingEMCCD Gain range:{}'.format(self.GetEMGainRange()),
             'Current EMCCD Gain:{}'.format(self.GetEMCCDGain()),
             'Current Camera Status :{}'.format(self.GetStatus()),
             'Current Horizontal Shift :{}'.format(self.GetHSSpeed()[self.HSSpeed]),
             'Current Vertical Shift :{}'.format(self.GetVSSpeed()[self.VSSpeed]),
             'Current preamp gain :{}'.format(self.GetPreAmpGain()[self.preAmpGain.value]),
+            'Current Camera Temperature :{}'.format(self.GetTemperature()),
             '%'*40
         ]))
 

@@ -1724,7 +1724,7 @@ enamldef Andor(Form):
                     IntField:
                         value := item.camera.subimage_position[1]
                     Label:
-                        text = 'ROI size (' + ','.join(map(str,item.camera.ccd_size)) +')' 
+                        text = 'ROI size (' + ','.join(map(str,item.camera.ccd_size)) +')'
                     IntField:
                         value := item.camera.subimage_size[0]
                     IntField:
@@ -1735,7 +1735,6 @@ enamldef Andor(Form):
                     PushButton:
                         text = 'Select Camera'
                         clicked :: item.camera.setCamera()
-                HGroup:
                     PushButton:
                         text = 'Read camera config'
                         clicked :: item.camera.rundiagnostics()
@@ -1745,7 +1744,6 @@ enamldef Andor(Form):
                     PushButton:
                         text = 'Close Shutter'
                         clicked :: item.camera.SetShutterEx(0, 2, 0, 0, 2)
-                HGroup:
                     PushButton:
                         text = 'video mode'
                         clicked :: item.camera.setup_video_thread(item.analysis)
@@ -1792,21 +1790,21 @@ enamldef Andor(Form):
                 HGroup:
                     padding = 0
                     Label:
-                        text='Horizontal readout rate'
+                        text='Horizontal readout rate(MHz)'
                     Label:
                         text='Vertical shift speed(us)'
                     Label:
-                        text='Preamp gain'
+                        text='Preamp gain(x)'
                 HGroup:
                     padding = 0
                     ComboBox:
-                        items = ['10MHz','5MHz','3MHz']
+                        items = item.camera.HSSpeeds
                         index := item.camera.HSSpeed
                     ComboBox:
-                        items = ['0.0875','0.10','0.15','0.25','0.45']
+                        items = item.camera.VSSpeeds
                         index := item.camera.VSSpeed
                     ComboBox:
-                        items = ['x1.0', 'x2.2', 'x4.6']
+                        items = item.camera.preAmpGains
                         index :=item.camera.preAmpGain.value
                 HGroup:
                     padding = 0
@@ -1985,12 +1983,12 @@ enamldef Picam(Form):
                     EvalProp:
                         prop << item.camera.minPlot
                     EvalProp:
-                        prop << item.camera.maxPlot    
+                        prop << item.camera.maxPlot
                 LabelBox:
                     text = 'Use Demo Camera'
-                    checked := item.camera.useDemo 
-                            
-                            
+                    checked := item.camera.useDemo
+
+
 
 enamldef FiltersPage(Page):
     title = 'Filters'
@@ -2137,7 +2135,7 @@ enamldef AnalogInput(Window):
                         Label:
                             text = 'draw fig'
                         CheckBox:
-                            checked := analysis.draw_fig    
+                            checked := analysis.draw_fig
                         Label:
                             text = 'specify what to graph with a list of tuples: [(channel,samples_list),(channel, samples_list)...]\nSamples in samples_list will be averaged.'
                         Field:
@@ -3905,7 +3903,7 @@ enamldef BoxTemperature(Window):
                     CheckBox:
                         checked << box_temperature.connected
                         enabled = False
- 
+
 
 enamldef PID(Window):
     attr experiment
@@ -4069,7 +4067,7 @@ enamldef Stream(Form):
                     Label:
                         text = 'stream?'
                     CheckBox:
-                        checked := item.stream                    
+                        checked := item.stream
 
 
 window_dictionary = {'':'',
