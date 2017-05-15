@@ -45,9 +45,8 @@ config = import_config()
 
 #still need to import config parser for origin
 import ConfigParser
-
 sys.path.append(config.get('ORIGIN','OriginLibPath'))
-print config.get('ORIGIN','OriginLibPath')
+#print config.get('ORIGIN','OriginLibPath')
 
 from origin.client import server
 from origin import current_time, timestamp

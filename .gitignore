@@ -4,6 +4,7 @@ log.txt*
 *.hdf5
 *.pyc
 *.swp
+*.swo
 venv
 python/config/config.cfg
 __enamlcache__
