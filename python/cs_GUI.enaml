@@ -1789,25 +1789,6 @@ enamldef Andor(Form):
                         index := item.camera.binMode
                 HGroup:
                     padding = 0
-                    Label:
-                        text='Horizontal readout rate(MHz)'
-                    Label:
-                        text='Vertical shift speed(us)'
-                    Label:
-                        text='Preamp gain(x)'
-                HGroup:
-                    padding = 0
-                    ComboBox:
-                        items = item.camera.HSSpeeds
-                        index := item.camera.HSSpeed
-                    ComboBox:
-                        items = item.camera.VSSpeeds
-                        index := item.camera.VSSpeed
-                    ComboBox:
-                        items = item.camera.preAmpGains
-                        index :=item.camera.preAmpGain.value
-                HGroup:
-                    padding = 0
                     ComboBox:
                         items = ['Advanced EMGain OFF', 'Advanced EMGain ON']
                         index := item.camera.AdvancedEMGain

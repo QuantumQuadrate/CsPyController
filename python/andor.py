@@ -59,16 +59,11 @@ def intialize_numpy_array(array, default):
 class AndorCamera(Instrument):
 
     EMCCDGain = Member()
-    preAmpGain = Member()
     exposureTime = Member()
     triggerMode = Int()
-    #triggerMode = Member()
     acquisitionMode = Int()
-    #acquisitionMode = Member()
     AdvancedEMGain = Int()
-    #AdvancedEMGain = Member()
     EMGainMode = Int()
-    #EMGainMode = Member()
     binMode = Int(0)
     shotsPerMeasurement = Member()
     shotsPerM=Int()
@@ -86,21 +81,20 @@ class AndorCamera(Instrument):
     channel = Int()
     outamp = Int()
     noHSSpeeds = Int()
-    #noHSSpeeds = Member()
+    HSIndex = Int() # Setpoint, read from cfg
     HSSpeeds = List()
-    HSSpeed = Int()
-    noVSSpeeds = Int()
-    #noVSSpeeds = Member()
-    VSSpeeds = List()
-    VSSpeed = Int()
+    HSSpeed = Member() # Actual index that the camera sees
+    noVSSpeeds = Int()  # total number of supported speeds
+    VSIndex = Int() # Setpoint, read from cfg
+    VSSpeeds = List() # A list of VS speeds.
+    VSSpeed = Member() # Actual number (float) of the speed.
     noGains = Int()
-    #noGains = Member()
     preAmpGains = List()
+    preAmpGain = Member() # Actual number
+    preAmpGainIndex = Int() # Setpoint, read from cfg
     status = Str()
     accumulate = Float()
     kinetic = Float()
-    SupportedModes=List()
-#ddd
 
     num_cameras = c_long()
     cameraHandleList = Member()
@@ -139,13 +133,15 @@ class AndorCamera(Instrument):
         self.serial = 0
         self.minPlot = IntProp('minPlot', experiment, 'Minimum Plot Scale Value', '0')
         self.maxPlot = IntProp('maxPlot', experiment, 'Maximum Plot Scale Value', '32768')
+        self.VSSpeed = IntProp('VSSpeed',experiment,'Index for Vertical Shift','0')
+        self.HSSpeed = IntProp('HSSpeed',experiment,'Index for Horizontal Shift','0')
         self.subimage_position = [0,0]
         self.subimage_size = [1,1]
         self.ccd_size = [1,1]
         self.width = 1
         self.height = 1
         self.properties += ['EMCCDGain', 'preAmpGain', 'exposureTime', 'triggerMode',
-                            'shotsPerMeasurement', 'minPlot', 'maxPlot',
+                            'shotsPerMeasurement', 'minPlot', 'maxPlot','VSSpeed','HSSpeed',
                             'acquisitionMode', 'binMode', 'AdvancedEMGain', 'EMGainMode',
                             'ROI', 'set_T', 'serial', 'subimage_position', 'subimage_size'
                             ]
@@ -170,6 +166,7 @@ class AndorCamera(Instrument):
             )
         self.dll.SetFanMode(0)
         self.setCamera()
+        self.GetandSetHSVSPreamp()
         # for some reason the first get detector doesnt seem to work unless I have run set image first
         # MFE 5/2017
         for i in range(2):
@@ -234,10 +231,10 @@ class AndorCamera(Instrument):
             self.SetKineticCycleTime(0)  # no delay
             self.SetEMGainMode(self.EMGainMode)
             self.SetEMAdvanced(self.AdvancedEMGain)
-            self.SetPreAmpGain(self.preAmpGain.value)
+            self.GetandSetHSVSPreamp()
             self.SetEMCCDGain(self.EMCCDGain.value)
             self.dll.EnableKeepCleans(1)
-            self.SetImageFlip(0,1)
+            self.SetImageFlip(0,0)
             currentgain = self.GetEMCCDGain()
             gain_range = self.GetEMGainRange()
             #print "EMGainRange: {}".format(gain_range)
@@ -270,7 +267,7 @@ class AndorCamera(Instrument):
         if self.GetStatus() == 'DRV_ACQUIRING':
             self.AbortAcquisition()
         self.GetDetector()
-        self.SetPreAmpGain(self.preAmpGain.value)
+        self.GetandSetHSVSPreamp()
         self.SetEMCCDGain(self.EMCCDGain.value)
         self.SetExposureTime(self.exposureTime.value)
         self.SetTriggerMode(0)
@@ -289,7 +286,7 @@ class AndorCamera(Instrument):
             self.height = self.height / self.binChoices[self.binMode]
             self.dim = self.width * self.height
         self.data = self.CreateAcquisitionBuffer()
-        self.SetImageFlip(0,1)
+        self.SetImageFlip(0,0)
         analysis.setup_video(self.data)
 
         self.StartAcquisition()
@@ -855,9 +852,10 @@ class AndorCamera(Instrument):
         return self.HSSpeeds
 
     def SetHSSpeed(self, index):
-        error = self.dll.SetHSSpeed(index)
+        #error = self.dll.SetHSSpeed(index)
+        error = self.dll.SetHSSpeed(0,index) # According to Andor SDK, first variable sets output amplification. 0 for electron muliplcation/conventional, 1 for conventional/extendeed NIR mode
         self.DLLError(sys._getframe().f_code.co_name, error)
-        self.HSSpeed = index
+        self.HSSpeed.value = index # update the index if it succesfully updated the setting
 
     def GetNumberVSSpeeds(self):
         noVSSpeeds = c_int()
@@ -880,7 +878,39 @@ class AndorCamera(Instrument):
     def SetVSSpeed(self, index):
         error = self.dll.SetVSSpeed(index)
         self.DLLError(sys._getframe().f_code.co_name, error)
-        self.VSSpeed = index
+        self.VSSpeed.value = index # Update VSSpeed once it is set correctly.
+
+    def GetandSetHSVSPreamp(self): # Read config and set Vertical, Horizontal readout rate and preamp gain
+        try:
+            cam_VS_option = "VSIndex_{}".format(self.serial)
+            self.VSIndex = config.getint('ANDOR', '{}'.format(cam_VS_option))
+            self.SetVSSpeed(self.VSIndex)
+        except ConfigParser.NoOptionError:
+                logger.warning(
+                    "No Vertical readout shift rate and no config file entry found for `ANDOR.%s`, setting to index 0",
+                    cam_VS_option
+                )
+                self.SetVSSpeed(0)
+        try:
+            cam_HS_option = "HSIndex_{}".format(self.serial)
+            self.HSIndex = config.getint('ANDOR', '{}'.format(cam_HS_option))
+            self.SetHSSpeed(self.HSIndex)
+        except ConfigParser.NoOptionError:
+                logger.warning(
+                    "No Horizontal readout shift rate and no config file entry found for `ANDOR.%s`, setting to index 0",
+                    cam_HS_option
+                )
+                self.SetHSSpeed(0)
+        try:
+            cam_preamp_option = "PreampGainIndex_{}".format(self.serial)
+            self.preAmpGainIndex = config.getint('ANDOR', '{}'.format(cam_preamp_option))
+            self.SetPreAmpGain(self.preAmpGainIndex)
+        except ConfigParser.NoOptionError:
+                logger.warning(
+                    "No preamp gain and no config file entry found for `ANDOR.%s`, setting to index 0",
+                    cam_preamp_option
+                )
+                self.SetPreAmpGain(0)
 
     def GetNumberPreAmpGains(self):
         noGains = c_int()
@@ -902,6 +932,7 @@ class AndorCamera(Instrument):
     def SetPreAmpGain(self, index):
         error = self.dll.SetPreAmpGain(index)
         self.DLLError(sys._getframe().f_code.co_name, error)
+        self.preAmpGain.value=index # Upon succesful set, update the preampgain.value
 
     def SetTriggerMode(self, mode):
         error = self.dll.SetTriggerMode(mode)
@@ -939,6 +970,7 @@ class AndorCamera(Instrument):
 
     def rundiagnostics(self):
         logger.info( '\n  '.join([
+            '%'*40,
             'This camera supports the following settings',
             '%'*40,
             'Supporting ADC channels: {}'.format(self.GetBitDepth()),
@@ -946,10 +978,13 @@ class AndorCamera(Instrument):
             'Supporting Vertical Shift speed: {}'.format(self.GetVSSpeed()),
             'Supporting Horizontal Shift speed: {}'.format(self.GetHSSpeed()),
             'SupportingEMCCD Gain range:{}'.format(self.GetEMGainRange()),
+            '%'*40,
+            'Currently set to',
+            '%'*40,
             'Current EMCCD Gain:{}'.format(self.GetEMCCDGain()),
             'Current Camera Status :{}'.format(self.GetStatus()),
-            'Current Horizontal Shift :{}'.format(self.GetHSSpeed()[self.HSSpeed]),
-            'Current Vertical Shift :{}'.format(self.GetVSSpeed()[self.VSSpeed]),
+            'Current Horizontal Shift :{}'.format(self.GetHSSpeed()[self.HSSpeed.value]),
+            'Current Vertical Shift :{}'.format(self.GetVSSpeed()[self.VSSpeed.value]),
             'Current preamp gain :{}'.format(self.GetPreAmpGain()[self.preAmpGain.value]),
             'Current Camera Temperature :{}'.format(self.GetTemperature()),
             '%'*40
