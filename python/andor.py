@@ -121,7 +121,7 @@ class AndorCamera(Instrument):
     maxPlot = Member()
 
     triggerChoices = (6,7,1,0)     #6: edge trigger, 7: level trigger, 1: external, 0: internal
-    acquisitionChoices = (1,2,3,4,5)
+    acquisitionChoices = (1,2,3,4,5) #1 : Single Scan, 2: Accumulate, 3:Kinetics, 4: Fast Kinetics, 5:Run till abort
     binChoices = (1,2,4)
 
     def __init__(self, name, experiment, description=''):
@@ -177,22 +177,23 @@ class AndorCamera(Instrument):
         self.isInitialized = True
 
     def start(self):
-        #get images to clear out any old images
-        #if self.GetStatus() == 'DRV_ACQUIRING':
-        #    self.AbortAcquisition()
-        #self.DumpImages()
-        #declare that we are done now
-        if (self.acquisitionChoices[self.acquisitionMode]!=2 or (self.acquisitionChoices[self.acquisitionMode]==2 and self.experiment.measurement == 0)):
+
+        # if(self.acquisitionChoices[self.acquisitionMode]==5):
+        #     self.CoolerON()
+        #     if self.GetStatus() != 'DRV_ACQUIRING':
+        #         self.setCamera()
+        #         self.StartAcquisition()
+        #     self.isDone = True
+        #     # Runs when the camera is not in accumulate mode, or even in the mode accumulation count is 0.
+        #elif (self.acquisitionChoices[self.acquisitionMode]!=2 or (self.acquisitionChoices[self.acquisitionMode]==2 and self.experiment.measurement == 0)):
+        if(self.acquisitionChoices[self.acquisitionMode]!=2 or (self.acquisitionChoices[self.acquisitionMode]==2 and self.experiment.measurement == 0)):
             self.setCamera()
-            #self.GetTemperature()
             if self.GetStatus() == 'DRV_ACQUIRING':
                     self.GetAcquiredData(True)
                     self.AbortAcquisition()
             self.CoolerON()
             self.StartAcquisition()
             self.isDone = True
-
-
 
     def update(self):
         if self.enable: # If enable checkbox is checked,
@@ -497,11 +498,13 @@ class AndorCamera(Instrument):
         first = c_long()
         last = c_long()
         error = self.dll.GetNumberNewImages(byref(first), byref(last))
+        print "first index : {}".format(first.value)
+        print "last index : {}".format(last.value)
         if not dump:
             if ERROR_CODE[error] != 'DRV_SUCCESS':
                 logger.error('Error in GetNumberNewImages:\n{}'.format(ERROR_CODE[error]))
                 raise PauseError
-            n = (last.value-first.value)
+            n = (last.value-first.value)+1
             if n != self.shotsPerMeasurement.value:
                 logger.warning('Andor camera acquired {} images, but was expecting {}.'.format(n, self.shotsPerMeasurement.value))
                 raise PauseError
@@ -510,11 +513,8 @@ class AndorCamera(Instrument):
     def GetImages(self):
         if (self.acquisitionChoices[self.acquisitionMode]!=2 or (self.acquisitionChoices[self.acquisitionMode]==2 and self.experiment.measurement == self.experiment.measurementsPerIteration - 1)):
             self.setCamera()
-            #print "Waiting for acquisition"
             self.WaitForAcquisition()
-            #print "calling GetAcquiredData"
             data = self.GetAcquiredData()
-            #self.StartAcquisition()
             return data
         return 0
 
@@ -669,18 +669,24 @@ class AndorCamera(Instrument):
         self.DLLError(sys._getframe().f_code.co_name, error)
 
     def GetAcquiredData(self, dump=False):
-        #print "declaring c_image_array"
         c_image_array_type = c_int * self.dim * self.shotsPerMeasurement.value
         c_image_array = c_image_array_type()
-        error = self.dll.GetAcquiredData(byref(c_image_array), self.dim * self.shotsPerMeasurement.value)
-        #print "returned from DLL, checking for errors"
-        self.DLLError(sys._getframe().f_code.co_name, error, dump)
-        #print "copying c_imagearray to numpy"
+
+        if self.acquisitionChoices[self.acquisitionMode]!=5:
+            error = self.dll.GetAcquiredData(byref(c_image_array), self.dim * self.shotsPerMeasurement.value)
+            self.DLLError(sys._getframe().f_code.co_name, error, dump)
+
+        elif self.acquisitionChoices[self.acquisitionMode]==5: # If acqusition mode is Run till abort, data must be read from circular buffer. Attempting dll.GetAcquiredData will not run as it is still acquiring.
+            first, last = self.GetNumberNewImages(dump)
+            validfirst = c_long()
+            validlast = c_long()
+            size=self.dim * self.shotsPerMeasurement.value
+            error = self.dll.GetImages(first, last, byref(c_image_array), size, byref(validfirst), byref(validlast))
+            self.DLLError(sys._getframe().f_code.co_name, error, dump)
+
         data = numpy.ctypeslib.as_array(c_image_array)
-        #print "reshaping data"
         subimg_size = map(int, self.subimage_size)
         data = numpy.reshape(data, (self.shotsPerMeasurement.value, subimg_size[1], subimg_size[0]))
-        #print "returning data"
         return data
 
     def CreateAcquisitionBuffer(self):
@@ -938,6 +944,13 @@ class AndorCamera(Instrument):
         error = self.dll.SetTriggerMode(mode)
         self.DLLError(sys._getframe().f_code.co_name, error)
 
+    def GetTriggerLevelRange(self):
+        minimum=c_float()
+        maximum=c_float()
+        error = self.dll.GetTriggerLevelRange(byref(minimum),byref(maximum))
+        self.DLLError(sys._getframe().f_code.co_name, error)
+        return minimum, maximum
+
     def GetStatus(self):
         status = c_int()
         error = self.dll.GetStatus(byref(status))
@@ -987,7 +1000,7 @@ class AndorCamera(Instrument):
             'Current Vertical Shift :{}'.format(self.GetVSSpeed()[self.VSSpeed.value]),
             'Current preamp gain :{}'.format(self.GetPreAmpGain()[self.preAmpGain.value]),
             'Current Camera Temperature :{}'.format(self.GetTemperature()),
-            '%'*40
+            '%'*40,
         ]))
 
     def fromHDF5(self, hdf):

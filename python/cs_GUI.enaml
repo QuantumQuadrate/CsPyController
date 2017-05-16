@@ -1700,7 +1700,7 @@ enamldef Andors(Window):
 enamldef Andor(Form):
     attr item
 
-    constraints = [width >= 900, height >= 1500]
+    constraints = [width >= 900, height >= 1300]
 
     #title = 'Andor Camera'
     style_class << 'valid' if experiment.valid else 'invalid'
@@ -1730,6 +1730,13 @@ enamldef Andor(Form):
                     IntField:
                         value := item.camera.subimage_size[1]
                 HGroup:
+                    LabelBox:
+                        text = 'enable'
+                        checked := item.camera.enable
+                    LabelBox:
+                        text = 'draw_fig'
+                        checked := item.analysis.draw_fig
+                HGroup:
                     IntField:
                         value := item.camera.serial
                     PushButton:
@@ -1758,16 +1765,11 @@ enamldef Andor(Form):
                         text := 'CCD Temperature (C): {:.4}'.format(item.camera.temperature)
                     Label:
                         text := 'Maximum Pixel Value: {}, Mean Pixel Value: {}'.format(item.analysis.maxPixel,item.analysis.meanPixel)
-                LabelBox:
-                    text = 'enable'
-                    checked := item.camera.enable
-                LabelBox:
-                    text = 'draw_fig'
-                    checked := item.analysis.draw_fig
-                EvalProp:
-                    prop << item.camera.EMCCDGain
-                EvalProp:
-                    prop << item.camera.exposureTime
+                HGroup:
+                    EvalProp:
+                        prop << item.camera.EMCCDGain
+                    EvalProp:
+                        prop << item.camera.exposureTime
                 HGroup:
                     padding = 0
                     Label:
@@ -1795,25 +1797,27 @@ enamldef Andor(Form):
                     ComboBox:
                         items = ['EM Gain Mode: DAC 0-255', 'EM Gain Mode: DAC 0-4095', 'EM Gain Mode: Linear', 'EM Gain Mode: Real EM Gain']
                         index := item.camera.EMGainMode
-                EvalProp:
-                    prop<<item.camera.shotsPerMeasurement
-                Form:
-                    Label:
-                        text = 'shot'
-                    SpinBox: shot:
-                        minimum=0
-                        value := item.analysis.shot
-                Container:
-                    LabelBox:
-                        text = 'Autoscale'
-                        checked := item.camera.autoscale
-                    LabelBox:
-                        text = 'Background Subtraction'
-                        checked := item.analysis.bgsub
+                HGroup:
+                    EvalProp:
+                        prop<<item.camera.shotsPerMeasurement
+                    Form:
+                        Label:
+                            text = 'shot'
+                        SpinBox: shot:
+                            minimum=0
+                            value := item.analysis.shot
+                HGroup:
                     EvalProp:
                         prop << item.camera.minPlot
                     EvalProp:
                         prop << item.camera.maxPlot
+                LabelBox:
+                    text = 'Autoscale'
+                    checked := item.camera.autoscale
+                LabelBox:
+                    text = 'Background Subtraction'
+                    checked := item.analysis.bgsub
+
 
 
 enamldef PICams(Window):
