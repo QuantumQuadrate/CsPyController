@@ -35,7 +35,8 @@ class RecentShotAnalysis(AnalysisWithFigure):
     data_path = Member()
     showROIs = Bool(False)
     shot = Int(0)
-    update_lock = Bool(False)
+    #update_lock = Bool(False)
+    draw_fig = Bool(False)
     subtract_background = Bool()
 
     def __init__(self, name, experiment, description=''):
@@ -56,9 +57,9 @@ class RecentShotAnalysis(AnalysisWithFigure):
         self.updateFigure()
 
     def updateFigure(self):
-        if not self.update_lock:
+        if self.draw_fig:
             try:
-                self.update_lock = True
+                #self.update_lock = True
                 fig = self.backFigure
                 fig.clf()
 
@@ -89,5 +90,5 @@ class RecentShotAnalysis(AnalysisWithFigure):
                 super(RecentShotAnalysis, self).updateFigure()
             except Exception as e:
                 logger.warning('Problem in RecentShotAnalysis.updateFigure()\n:{}'.format(e))
-            finally:
-                self.update_lock = False
+            #finally:
+                #self.update_lock = False
