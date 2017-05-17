@@ -1341,7 +1341,7 @@ enamldef DDS_channel(GroupBox):
             prop<<channel.power
         EvalProp: refClockRate:
             prop<<channel.refClockRate
-            enabled = False
+            enabled = True
         EvalProp: fullScaleOutputPower:
             prop<<channel.fullScaleOutputPower
 
