@@ -386,11 +386,12 @@ class Origin(Analysis):
     measurement."""
     # set timestamp
     self.ts = long(time.time()*2**32)
+    # build list of per measurement loggable datasets
+    measurementResults.visititems(self.processDatasets(self.measurementDataList, pass_measurement))
+
     # process measurement data from hdf5 file
     if not self.enable:
       return 0
-
-      measurementResults.visititems(self.processDatasets(self.measurementDataList, pass_measurement))
 
     for i in self.measurementDataList:
       if i.stream and not i.error:
