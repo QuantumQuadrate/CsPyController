@@ -12,13 +12,13 @@ MOT2D_shutter = switch(
 '''
 
 class Switch(object):
-    """A single HSDIO channel that controls a switch.  
+    """A single HSDIO channel that controls a switch.
     Unlike DDS(), this does not use any grey coding or delays.
     Default profile is active high output.
     If this is not correct override teh default setting.
     A positive delay makes the channel fire later
     """
-    
+
     def __init__(self, HSDIO, channel, profiles={'on':1, 'off':0}, delay=0):
         """
         channel: the HSDIO channel that controls this device
@@ -28,7 +28,7 @@ class Switch(object):
         self.channel = channel
         self.profiles = profiles
         self.delay = delay
-    
+
     def profile(self, t, profile):
         """Set the HSDIO channel to the requested state"""
         t_actual = t + self.delay
@@ -37,4 +37,3 @@ class Switch(object):
             logger.warning('Channel `%d` change event set to negative time, moving to 0.', self.channel)
         self.HSDIO(t + self.delay, self.channel, self.profiles[profile])
         return t
-

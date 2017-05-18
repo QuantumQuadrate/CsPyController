@@ -49,7 +49,7 @@ sys.path.append(config.get('ORIGIN','OriginLibPath'))
 #print config.get('ORIGIN','OriginLibPath')
 
 from origin.client import server
-from origin import current_time, timestamp
+from origin import current_time, TIMESTAMP, data_types
 
 preExperimentMsg    = 'PEXP'
 postExperimentMsg   = 'EXPR'
@@ -57,14 +57,10 @@ preIterationMsg     = 'PITR'
 postIterationMsg    = 'ITER'
 postMeasurementMsg  = 'MEAS'
 
-dtype_list = [
-  "int","uint",
-  "int64","uint64",
-  "int32","uint32",
-  "int16","uint16",
-  "int8","uint8",
-  "float32","float64"
-  ]
+dtype_list = []
+for dtype in data_types.keys():
+    if data_types[dtype]["binary_allowed"]:
+        dtype_list.append(dtype)
 
 def print_attrs(name, obj):
   print name
@@ -145,7 +141,7 @@ class Stream(Prop):
     self.name = name
     self.fullPath = dset.name
     self.dtype = str(dset.dtype)
-    self.time = ts # timestamp
+    self.time = ts # TIMESTAMP
     self.channels, self.data = formatData(dset[()])
 
     # record the fields names
@@ -235,9 +231,9 @@ class Stream(Prop):
   #=============================================================================
   def logData(self):
     if self.channels == 1:
-      data = { timestamp: self.time, self.name: self.data }
+      data = { TIMESTAMP: self.time, self.name: self.data }
     else:
-      data = { timestamp: self.time }
+      data = { TIMESTAMP: self.time }
       for i, d in enumerate(self.data):
         data[str(i)] = d
     self.connection.send(**data)
@@ -384,7 +380,7 @@ class Origin(Analysis):
   def postMeasurement(self, measurementResults, iterationResults, experimentResults):
     """Results is a tuple of (measurementResult,iterationResult,experimentResult) references to HDF5 nodes for this
     measurement."""
-    # set timestamp
+    # set TIMESTAMP
     self.ts = long(time.time()*2**32)
     # build list of per measurement loggable datasets
     measurementResults.visititems(self.processDatasets(self.measurementDataList, pass_measurement))
@@ -401,7 +397,7 @@ class Origin(Analysis):
   #=============================================================================
   def postIteration(self, iterationResults, experimentResults):
     # log any per iteration parameters here
-    # set timestamp
+    # set TIMESTAMP
     self.ts = long(time.time()*2**32)
     # process iteration data from hdf5 file
     iterationResults.visititems(self.processDatasets(self.iterationDataList, pass_iteration))

@@ -150,8 +150,10 @@ class Rb(object):
         )
 
         self.camera = Camera(
-            HSDIO,
-            andor_trigger_chan
+            HSDIO=HSDIO,
+            channel=andor_trigger_chan,
+            delay=andor_trigger_delay,
+            pulse_length=5 # in millisecond. this can be overwrttten in functional waveform window
         )
 
 #    def mot_dds(self):
