@@ -70,7 +70,6 @@ class LabView(Instrument):
         self.piezo = piezo.Piezo(experiment)
         self.RF_generators = RF_generators.RF_generators(experiment)
         self.AnalogOutput = AnalogOutput.AnalogOutput(experiment)
-        #self.AnalogOutput2 = AnalogOutput.AnalogOutput(experiment)
         self.AnalogInput = AnalogInput.AnalogInput(experiment)
         self.Counters = Counter.Counters('Counters', experiment)
         self.DAQmxDO = DAQmxDO.DAQmxDO(experiment)
