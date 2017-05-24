@@ -62,7 +62,7 @@ class DDS(object):
 
     def delay(self, t):
         """Add a DDS delay if it is needed, and update the last_change parameter."""
-        DDS_profile_delay=0 # DDS delay set to 0. It needs to be accessible externally.
+        DDS_profile_delay=0.001 # DDS delay set to 0. It needs to be accessible externally.
         if t <= (self.last_change + DDS_profile_delay):
             t += DDS_profile_delay
         # update the last_change parameter
