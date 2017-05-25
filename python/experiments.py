@@ -25,12 +25,12 @@ from instrument_property import Prop, EvalProp, ListProp, StrProp
 
 class IndependentVariable(EvalProp):
     """A class to hold the independent variables for an experiment.  These are
-    the variables that get stepped through during the iterations.  Each 
+    the variables that get stepped through during the iterations.  Each
     independent variable is defined by a valueList which holds an array of values.
     Using this technique, the valueList can be assigned as single value, an arange, linspace,
     logspace, sin(logspace), as complicated as you like, so long as it can be eval()'d and then
     cast to an array."""
-    
+
     valueListStr = Str()
     steps = Member()
     index = Member()
@@ -44,7 +44,7 @@ class IndependentVariable(EvalProp):
     optimizer_min = Float()
     optimizer_max = Float()
     optimizer_end_tolerance = Float()
-    
+
     def __init__(self, name, experiment, description='', function=''):
         super(IndependentVariable, self).__init__(name, experiment, description, function)
         self.steps = 0
@@ -148,14 +148,14 @@ class Experiment(Prop):
     timeRemainingStr = Str()
     completionTime = Float()
     completionTimeStr = Str()
-    
+
     #variables traits
     dependentVariablesStr = Str()
     constantsStr = Str()
     constantReport = Member()
     variableReport = Member()
     variablesNotToSave = Str()
-    
+
     #list of Analysis objects
     analyses = Member()
 
@@ -797,7 +797,11 @@ class Experiment(Prop):
         good = True
         delete = False
         for i in self.analyses:
+            time_debug=time.time() # Start time measurement
             a = i.postMeasurement(self.measurementResults, self.iterationResults, self.hdf5)
+            time2_debug=1000.0*(time.time()-time_debug)
+            if (time2_debug>0.5): # Don't display if the process takes less than 0.5 ms
+                logger.info('Running :{0}, time usage : {1}ms'.format(i,round(time2_debug,0)))
             if (a is None) or (a == 0):
                 continue
             elif a == 1:
