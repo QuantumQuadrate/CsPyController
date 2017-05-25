@@ -13,7 +13,7 @@ config = import_config()
 logger = logging.getLogger(__name__)
 
 class ThresholdROIAnalysis(AnalysisWithFigure):
-    '''Compares the raw ROI from the selected source to a simple threshold cut to 
+    '''Compares the raw ROI from the selected source to a simple threshold cut to
     determine atom number
     '''
 

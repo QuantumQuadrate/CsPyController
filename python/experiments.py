@@ -800,8 +800,10 @@ class Experiment(Prop):
             time_debug=time.time() # Start time measurement
             a = i.postMeasurement(self.measurementResults, self.iterationResults, self.hdf5)
             time2_debug=1000.0*(time.time()-time_debug)
-            if (time2_debug>0.5): # Don't display if the process takes less than 0.5 ms
-                logger.info('Running :{0}, time usage : {1}ms'.format(i,round(time2_debug,0)))
+            # To measure how long do analyses take.
+            #if (time2_debug>0.5): # Don't display if the process takes less than 0.5 ms
+            #    logger.info('Running :{0}, time usage : {1}ms'.format(i,round(time2_debug,0)))
+
             if (a is None) or (a == 0):
                 continue
             elif a == 1:

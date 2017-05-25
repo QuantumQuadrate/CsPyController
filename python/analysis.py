@@ -336,7 +336,7 @@ class ShotsBrowserAnalysis(AnalysisWithFigure):
         super(ShotsBrowserAnalysis,self).updateFigure()
 
     def updateFigure(self):
-        if self.draw_fig:        
+        if self.draw_fig:
             fig=self.backFigure
             fig.clf()
             ax=fig.add_subplot(111)
@@ -1443,7 +1443,7 @@ class RetentionAnalysis(Analysis):
     def analyzeIteration(self, iterationResults, experimentResults):
         if self.enable:
             if self.roi_type == 0:  # square roi
-                cutoffs = self.experiment.squareROIAnalysis.ROIs['threshold']
+                cutoffs = self.experiment.thresholdROIAnalysis.threshold_array['1']                
                 ROI_sums = iterationResults['analysis/square_roi/sums'].value
             elif self.roi_type == 1:  # gaussian roi
                 cutoffs = self.experiment.gaussian_roi.cutoffs

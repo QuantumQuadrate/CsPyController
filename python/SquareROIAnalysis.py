@@ -2,7 +2,7 @@
 SquareROIAnalysis.py
 Part of the CsPyController package.
 
-This analysis integrates the signal in rectangular signal ROIs, substracts the average 
+This analysis integrates the signal in rectangular signal ROIs, substracts the average
 background per pixel measured in the background ROIs and saves the data to the
 HDF5 file
 
@@ -43,7 +43,7 @@ def roi_pixel_cnt(rois):
     return np.array([roi_pixels(roi) for roi in rois], dtype=np.uint32)
 
 class SquareROIAnalysis(AnalysisWithFigure):
-    """Add up the sums of pixels in a region, and evaluate whether or not an 
+    """Add up the sums of pixels in a region, and evaluate whether or not an
     atom is present based on the totals.
     """
 
@@ -66,8 +66,8 @@ class SquareROIAnalysis(AnalysisWithFigure):
 
     def __init__(self, experiment, roi_rows=1, roi_columns=1, roi_bg_rows=0, roi_bg_columns=0):
         super(SquareROIAnalysis, self).__init__(
-            'SquareROIAnalysis', 
-            experiment, 
+            'SquareROIAnalysis',
+            experiment,
             'Does analysis on square regions of interest'
         )
         self.ROI_rows = roi_rows
@@ -91,7 +91,8 @@ class SquareROIAnalysis(AnalysisWithFigure):
         self.shots_path = 'data/' + config.get('CAMERA', 'DataGroup') + '/shots'
         # where we are going to dump data after analysis
         self.meas_analysis_path = 'analysis/squareROIsums'
-        self.iter_analysis_path = 'analysis/squareROI/sums'
+        #self.iter_analysis_path = 'analysis/squareROI/sums'
+        self.iter_analysis_path = 'analysis/square_roi/sums'
 
         self.properties += ['version', 'enable', 'ROIs', 'ROIs_bg']
 
@@ -154,7 +155,7 @@ class SquareROIAnalysis(AnalysisWithFigure):
             # check to see if there were supposed to be images
             elif self.camera.enable and (self.camera.shotsPerMeasurement.value > 0):
                 logger.warning(
-                    'Camera expected %s shots, but did not get any.', 
+                    'Camera expected %s shots, but did not get any.',
                     self.camera.shotsPerMeasurement.value
                 )
                 return 3  # hard fail, delete measurement
