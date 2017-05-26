@@ -18,10 +18,14 @@ import picomotors, andor, picampython, vaunix, DCNoiseEater, Laird_temperature, 
 import Counter, conex, aerotech, unlock_pause
 import origin_interface
 import FakeInstrument # for testing
+from pypico import PyPicomotor # for communicating with a picomotor server
+
+# analyses
 from SquareROIAnalysis import SquareROIAnalysis
 from recent_shot_analysis import RecentShotAnalysis
 from image_sum_analysis import ImageSumAnalysis
 from threshold_analysis import ThresholdROIAnalysis
+
 from experiments import Experiment
 
 class AQuA(Experiment):
@@ -39,6 +43,7 @@ class AQuA(Experiment):
     DC_noise_eaters = Member()
     box_temperature = Member()
     unlock_pause = Member()
+    pyPicomotor = Member()
     Embezzletron = Member()
 
     functional_waveforms = Member()
@@ -94,6 +99,7 @@ class AQuA(Experiment):
         self.DC_noise_eaters = DCNoiseEater.DCNoiseEaters('DC_noise_eaters', self)
         self.box_temperature = Laird_temperature.LairdTemperature('box_temperature', self)
         self.unlock_pause = unlock_pause.UnlockMonitor('unlock_pause', self, 'Monitor for pausing when laser unlocks')
+        self.pyPicomotor = PyPicomotor('PyPicomotor', self, 'PyPico server interface for controlling closed loop picomotors')
         self.Embezzletron = FakeInstrument.Embezzletron('Embezzletron', self, 'Fake instrument that generates random data for testing')
         # do not include functional_waveforms in self.instruments because it need not start/stop
         self.instruments += [self.box_temperature, self.picomotors, self.Andors, self.PICams, self.DC_noise_eaters,
@@ -131,10 +137,10 @@ class AQuA(Experiment):
         self.save2013Analysis = save2013style.Save2013Analysis(self)
         self.origin = origin_interface.Origin('origin', self, 'saves selected data to the origin data server')
         # do not include functional_waveforms_graph in self.analyses because it need not update on iterations, etc.
-        self.analyses += [self.TTL_filters, self.AI_graph, self.AI_filter, self.squareROIAnalysis, self.thresholdROIAnalysis, 
+        self.analyses += [self.TTL_filters, self.AI_graph, self.AI_filter, self.squareROIAnalysis, self.thresholdROIAnalysis,
                           self.gaussian_roi, self.loading_filters, self.first_measurements_filter, self.text_analysis,
                           self.imageSumAnalysis, self.recent_shot_analysis, self.shotBrowserAnalysis,
-                          self.histogramAnalysis, self.histogram_grid, self.measurements_graph, self.iterations_graph, 
+                          self.histogramAnalysis, self.histogram_grid, self.measurements_graph, self.iterations_graph,
                           self.DC_noise_eater_graph, self.DC_noise_eater_filter, self.Andors, self.PICams,
                           self.Ramsey, self.retention_analysis, self.retention_graph, self.counter_graph,
                           self.save_notes, self.save2013Analysis, self.aerotechs, self.conexes,self.counter_hist,
@@ -143,11 +149,11 @@ class AQuA(Experiment):
 
 
         self.properties += [
-                'functional_waveforms', 'LabView', 'functional_waveforms_graph', 'DDS', 'aerotechs', 'picomotors', 
+                'functional_waveforms', 'LabView', 'functional_waveforms_graph', 'DDS', 'aerotechs', 'picomotors', 'pyPicomotor',
                 'conexes', 'Andors', 'PICams', 'DC_noise_eaters', 'box_temperature', 'squareROIAnalysis', 'thresholdROIAnalysis',
-                'gaussian_roi', 'instekpsts', 'TTL_filters', 'AI_graph', 'AI_filter', 'loading_filters', 
-                'first_measurements_filter', 'vaunixs', 'imageSumAnalysis', 'recent_shot_analysis', 
-                'shotBrowserAnalysis', 'histogramAnalysis', 'histogram_grid', 'retention_analysis', 
+                'gaussian_roi', 'instekpsts', 'TTL_filters', 'AI_graph', 'AI_filter', 'loading_filters',
+                'first_measurements_filter', 'vaunixs', 'imageSumAnalysis', 'recent_shot_analysis',
+                'shotBrowserAnalysis', 'histogramAnalysis', 'histogram_grid', 'retention_analysis',
                 'measurements_graph', 'iterations_graph', 'retention_graph', 'DC_noise_eater_filter',
                 'DC_noise_eater_graph', 'Ramsey', 'counter_graph', 'counter_hist', 'unlock_pause','origin'
         ]
