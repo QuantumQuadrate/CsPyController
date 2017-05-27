@@ -14,8 +14,10 @@ import logging
 logger = logging.getLogger(__name__)
 
 from cs_instruments import Instrument
+from instrument_property import ListProp, FloatProp
 import zmq
 from picomotors import Picomotor
+from cs_errors import PauseError
 
 # get the config file
 from __init__ import import_config
@@ -25,17 +27,18 @@ from atom.api import Float, Str, Int, Member
 
 def is_error_msg(msg):
     error_str = "Error : "
-    return message[:len(error_str)] == error_str
+    return msg[:len(error_str)] == error_str
 
 class PyPicomotor(Picomotor):
     current_position = Float()
 
     def __init__(self, name, experiment, description=''):
         super(PyPicomotor, self).__init__(name, experiment, description)
+        self.desired_position = FloatProp('desired_position', experiment, 'the desired position','0')
         self.properties += ['current_position']
 
-    def readPosition(self):
-        self.socket.send(request.format(i))
+    def readPosition(self, socket):
+        socket.send('READ:MOT{}'.format(self.motor_number))
         message = socket.recv()
         if is_error_msg(message):
             no_error = False
@@ -43,15 +46,19 @@ class PyPicomotor(Picomotor):
             logger.warn(msg.format(message))
             raise PauseError
         else:
-            logger.info(Pico)
+            try:
+                self.current_position = float(message)
+            except Exception:
+                msg = 'Exception when attempting to read motor `{}` position.'
+                logger.exception(msg.format(self.motor_number))
 
     def update(self):
-        return 'MOVE:MOTOR{}:{} DEG'.format(
+        return 'MOVE:ABS:MOT{}:{} DEG'.format(
             self.motor_number,
             self.desired_position.value
         )
 
-class PyPico(Instrument):
+class PyPicoServer(Instrument):
     version = '2017.05.25'
     IP = Str()
     port = Int()
@@ -60,7 +67,7 @@ class PyPico(Instrument):
     socket = Member()
 
     def __init__(self, name, experiment, description=''):
-        super(PyPico, self).__init__(name, experiment, description)
+        super(PyPicoServer, self).__init__(name, experiment, description)
         self.motors = ListProp(
             'motors',
             experiment,
@@ -76,9 +83,9 @@ class PyPico(Instrument):
         """Open the zmq socket"""
         if self.enable:
             self.context = zmq.Context()
-            self.socket = context.socket(zmq.REQ)
+            self.socket = self.context.socket(zmq.REQ)
             # set socket timeout in ms
-            self.socket.RCVTIMEO = config.get_int('PYPICO', 'Timeout')
+            self.socket.RCVTIMEO = config.getint('PYPICO', 'Timeout')
             self.socket.connect('tcp://{}:{}'.format(self.IP, self.port))
 
             try:
@@ -90,11 +97,11 @@ class PyPico(Instrument):
     def readPositions(self):
         '''Read the position of all picomotors in degrees'''
         logger.info('Reading picomotor positions...')
-        request = "READ:MOT{}" # READ:MOTor
+        request = "READ:MOT{}" # READ:MOTor#
         no_error = True
         i = 0
         for m in self.motors:
-            m.readPosition()
+            m.readPosition(self.socket)
 
     def update(self):
         """Every iteration, send the motors updated positions.
@@ -102,7 +109,7 @@ class PyPico(Instrument):
         if self.enable:
             msg = ''
             try:
-                for m in motors:
+                for m in self.motors:
                     # the motor class can make up its own commands
                     self.socket.send(m.update())
                     message = self.socket.recv()
@@ -114,7 +121,7 @@ class PyPico(Instrument):
                         # if that is the case try again at least once
                         raise PauseError
                     else:
-                        m.readPosition()
+                        m.readPosition(self.socket)
                         msg = (
                             'Motor `{}` moved to position `{}` with no error.'
                             ' Positional error is `{}` DEG.'
@@ -122,7 +129,7 @@ class PyPico(Instrument):
                         logger.info(msg.format(
                             m.motor_number,
                             m.current_position,
-                            m.desired_position - m.current_position
+                            m.desired_position.value - m.current_position
                         ))
 
             except Exception as e:

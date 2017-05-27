@@ -18,7 +18,7 @@ import picomotors, andor, picampython, vaunix, DCNoiseEater, Laird_temperature, 
 import Counter, conex, aerotech, unlock_pause
 import origin_interface
 import FakeInstrument # for testing
-from pypico import PyPicomotor # for communicating with a picomotor server
+from pypico import PyPicoServer # for communicating with a picomotor server
 
 # analyses
 from SquareROIAnalysis import SquareROIAnalysis
@@ -43,7 +43,7 @@ class AQuA(Experiment):
     DC_noise_eaters = Member()
     box_temperature = Member()
     unlock_pause = Member()
-    pyPicomotor = Member()
+    pyPicoServer = Member()
     Embezzletron = Member()
 
     functional_waveforms = Member()
@@ -99,11 +99,14 @@ class AQuA(Experiment):
         self.DC_noise_eaters = DCNoiseEater.DCNoiseEaters('DC_noise_eaters', self)
         self.box_temperature = Laird_temperature.LairdTemperature('box_temperature', self)
         self.unlock_pause = unlock_pause.UnlockMonitor('unlock_pause', self, 'Monitor for pausing when laser unlocks')
-        self.pyPicomotor = PyPicomotor('PyPicomotor', self, 'PyPico server interface for controlling closed loop picomotors')
+        self.pyPicoServer = PyPicoServer('PyPicomotor', self, 'PyPico server interface for controlling closed loop picomotors')
         self.Embezzletron = FakeInstrument.Embezzletron('Embezzletron', self, 'Fake instrument that generates random data for testing')
         # do not include functional_waveforms in self.instruments because it need not start/stop
-        self.instruments += [self.box_temperature, self.picomotors, self.Andors, self.PICams, self.DC_noise_eaters,
-                             self.LabView, self.DDS, self.unlock_pause, self.Embezzletron]
+        self.instruments += [
+            self.box_temperature, self.picomotors, self.pyPicoServer, self.Andors,
+            self.PICams, self.DC_noise_eaters, self.LabView, self.DDS,
+            self.unlock_pause, self.Embezzletron
+        ]
 
 
         # analyses
@@ -149,7 +152,7 @@ class AQuA(Experiment):
 
 
         self.properties += [
-                'functional_waveforms', 'LabView', 'functional_waveforms_graph', 'DDS', 'aerotechs', 'picomotors', 'pyPicomotor',
+                'functional_waveforms', 'LabView', 'functional_waveforms_graph', 'DDS', 'aerotechs', 'picomotors', 'pyPicoServer',
                 'conexes', 'Andors', 'PICams', 'DC_noise_eaters', 'box_temperature', 'squareROIAnalysis', 'thresholdROIAnalysis',
                 'gaussian_roi', 'instekpsts', 'TTL_filters', 'AI_graph', 'AI_filter', 'loading_filters',
                 'first_measurements_filter', 'vaunixs', 'imageSumAnalysis', 'recent_shot_analysis',
