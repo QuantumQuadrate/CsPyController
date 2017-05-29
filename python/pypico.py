@@ -53,10 +53,17 @@ class PyPicomotor(Picomotor):
                 logger.exception(msg.format(self.motor_number))
 
     def update(self):
-        return 'MOVE:ABS:MOT{}:{} DEG'.format(
+        '''generates command to move to desired position. If no movement is
+        necessary then it returns an empty string
+        '''
+        diff = (self.desired_position.value - self.current_position)
+        if abs(diff) < config.getfloat('PYPICO', 'MaxAngleErrors'):
+            return ''
+        cmd = 'MOVE:ABS:MOT{}:{} DEG'.format(
             self.motor_number,
             self.desired_position.value
         )
+        return cmd
 
 class PyPicoServer(Instrument):
     version = '2017.05.25'
@@ -111,26 +118,28 @@ class PyPicoServer(Instrument):
             try:
                 for m in self.motors:
                     # the motor class can make up its own commands
-                    self.socket.send(m.update())
-                    message = self.socket.recv()
-                    if is_error_msg(message):
-                        msg = 'When moving picomotor `{}`, recieved error msg: `{}`'
-                        logger.warn(msg.format(m.motor_number, message))
-                        # TODO: check to see if the error is because it didnt
-                        # meet the setpoint, within the specified error
-                        # if that is the case try again at least once
-                        raise PauseError
-                    else:
-                        m.readPosition(self.socket)
-                        msg = (
-                            'Motor `{}` moved to position `{}` with no error.'
-                            ' Positional error is `{}` DEG.'
-                        )
-                        logger.info(msg.format(
-                            m.motor_number,
-                            m.current_position,
-                            m.desired_position.value - m.current_position
-                        ))
+                    cmd = m.update()
+                    if cmd: # '' is falsy
+                        self.socket.send(cmd)
+                        message = self.socket.recv()
+                        if is_error_msg(message):
+                            msg = 'When moving picomotor `{}`, recieved error msg: `{}`'
+                            logger.warn(msg.format(m.motor_number, message))
+                            # TODO: check to see if the error is because it didnt
+                            # meet the setpoint, within the specified error
+                            # if that is the case try again at least once
+                            raise PauseError
+                        else:
+                            m.readPosition(self.socket)
+                            msg = (
+                                'Motor `{}` moved to position `{}` with no error.'
+                                ' Positional error is `{}` DEG.'
+                            )
+                            logger.info(msg.format(
+                                m.motor_number,
+                                m.current_position,
+                                m.desired_position.value - m.current_position
+                            ))
 
             except Exception as e:
                 logger.exception('Problem setting Picomotor position, closing socket.')
