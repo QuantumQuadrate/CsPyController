@@ -39,6 +39,10 @@ class ThresholdROIAnalysis(AnalysisWithFigure):
         self.meas_analysis_path = 'analysis/ROIThresholds'
         self.properties += ['version', 'ROI_source', 'threshold_array', 'enable']
 
+        # threading stuff
+        self.queueAfterMeasurement = True
+        self.measurementDependencies += [self.experiment.squareROIAnalysis]
+
     def analyzeMeasurement(self, measurementResults, iterationResults, experimentResults):
         if self.enable:
             shot_array = measurementResults[self.ROI_source.meas_analysis_path][()]

@@ -94,19 +94,22 @@ class SquareROIAnalysis(AnalysisWithFigure):
         #self.iter_analysis_path = 'analysis/squareROI/sums'
         self.iter_analysis_path = 'analysis/square_roi/sums'
 
+        # analyze in a separate thread
+        self.queueAfterMeasurement = True
+
         self.properties += ['version', 'enable', 'ROIs', 'ROIs_bg']
 
     def find_camera(self):
-        '''find camera instrument object in experiment properties tree
-        '''
-        # get the property tree path to the camera object from the configuration file
+        """Find camera instrument object in experiment properties tree."""
+        # get the property tree path to the camera object from the config file
         prop_tree = config.get('CAMERA', 'CameraObj').split(',')
 
         camera = self.experiment
         for lvl in prop_tree:
             camera = getattr(camera, lvl)
 
-        # if the camera is stored in a ListProp list then use the index function to retreive it
+        # if camera is stored in a ListProp list then use the index function
+        # to retreive it
         camera_idx = config.getint('CAMERA', 'CameraIdx')
         if camera_idx >= 0:
             try:
@@ -124,21 +127,22 @@ class SquareROIAnalysis(AnalysisWithFigure):
     def analyzeMeasurement(self, measurementResults, iterationResults, experimentResults):
         if self.enable:
             if self.shots_path in measurementResults:
-                #here we want to live update a digital plot of atom loading as it happens
+                # here we want to live update a digital plot of atom loading
                 num_shots = len(measurementResults[self.shots_path])
                 if self.camera.enable and (num_shots != self.camera.shotsPerMeasurement.value):
                     logger.warning(
                         'Camera expected %s shots, but instead got %s.',
-                        self.camera.shotsPerMeasurement, num_shots
+                        self.camera.shotsPerMeasurement.value, num_shots
                     )
                     return 3  # hard fail, delete measurement
 
                 bg_pixel_cnt = np.sum(roi_pixel_cnt(self.ROIs_bg))
                 sig_pixel_cnt = roi_pixel_cnt(self.ROIs)
-                num_rois = len(self.ROIs)
-                sum_array = np.zeros((num_shots, num_rois), dtype=np.int32) #pylint: disable=E1101
 
-                #for each image
+                num_rois = len(self.ROIs)
+                sum_array = np.zeros((num_shots, num_rois), dtype=np.int32)
+
+                # for each image
                 for i, (name, shot) in enumerate(measurementResults[self.shots_path].items()):
                     # generate background normalized per pixel
                     bg_per_pix = 0
@@ -146,9 +150,17 @@ class SquareROIAnalysis(AnalysisWithFigure):
                         bg_per_pix = np.divide(np.sum(roi_sums(self.ROIs_bg, shot)), bg_pixel_cnt, dtype='float32')
                     # subtract the average background signal per pixel from each signal pixel
                     shot_sums = np.subtract(roi_sums(self.ROIs, shot), bg_per_pix*sig_pixel_cnt)
-                    sum_array[i] = np.rint(shot_sums) # round to nearest integer
+                    # round to nearest integer
+                    sum_array[i] = np.rint(shot_sums)
 
                 self.sum_array = sum_array.reshape((num_shots, self.ROI_rows, self.ROI_columns))
+                logger.warning('measurementResults `{}`'.format(measurementResults.name))
+                for name in measurementResults:
+                    logger.warning(name)
+                    for n in measurementResults[name]:
+                        logger.warning(n)
+                logger.warning('done looking in group')
+                logger.warning(self.meas_analysis_path)
                 measurementResults[self.meas_analysis_path] = sum_array
                 self.updateFigure()
 
@@ -159,10 +171,15 @@ class SquareROIAnalysis(AnalysisWithFigure):
                     self.camera.shotsPerMeasurement.value
                 )
                 return 3  # hard fail, delete measurement
+            else:
+                logger.warning("enabled: {}".format(self.camera.enable))
+                logger.warning("shots: {}".format(self.camera.shotsPerMeasurement.value))
+                return 3
 
     def analyzeIteration(self, iterationResults, experimentResults):
-        """
-        create a big array of the results from each measurement for convenience
+        """Analyze all measurements taken in the iteration.
+
+        Create a big array of the results from each measurement for convenience
         data is stored in iterationResults['analysis/square_roi/sums']
         as an array of size (measurements x shots x roi) array
         """
@@ -174,9 +191,11 @@ class SquareROIAnalysis(AnalysisWithFigure):
             iterationResults[self.iter_analysis_path] = res
 
     def fromHDF5(self, hdf):
-        ''' I need to override this so I can call the find camera function after the camera
-        has been loaded
-        '''
+        """Override of the analysis fromHDF5 fcuntion.
+
+        I need to override this so I can call the find camera function after
+        the camera has been loaded.
+        """
         super(SquareROIAnalysis, self).fromHDF5(hdf)
         # I am here because the camera needs to be setup first
         self.find_camera()

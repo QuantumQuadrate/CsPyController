@@ -66,7 +66,6 @@ class AndorCamera(Instrument):
     EMGainMode = Int()
     binMode = Int(0)
     shotsPerMeasurement = Member()
-    shotsPerM=Int()
     width = Int()  # the number of columns after binning
     height = Int()  # the number of rows after binning
     dim = Int()  # the total number of pixels

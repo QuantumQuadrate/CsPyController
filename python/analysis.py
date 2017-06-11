@@ -5,7 +5,7 @@ logger = logging.getLogger(__name__)
 
 from cs_errors import PauseError
 
-import threading, numpy, traceback, os, datetime
+import threading, numpy, traceback, os, datetime, time
 
 #MPL plotting
 import matplotlib as mpl
@@ -57,6 +57,17 @@ def mpl_rectangle(ax, ROI):
     ax.add_patch(patch)
 
 
+def wait_for_dependency(dep, status):
+    """Waits until dep reaches the status tuple (iter, meas).
+
+    Used to synchronize between analysis threads.
+    """
+    (iter, meas) = status
+    # synchronize iteration
+    while (dep.analysisStatus[0] < iter) or (dep.analysisStatus[1] < meas):
+        time.sleep(0.01)
+
+
 class Analysis(Prop):
     """This is the parent class for all data analyses.  New analyses should subclass off this,
     and redefine at least one of preExperiment(), preIteration(), postMeasurement(), postIteration() or
@@ -71,12 +82,34 @@ class Analysis(Prop):
         3: hard fail, do not continue with other analyses, do not increment measurement total, delete measurement data
     """
 
-    queueAfterMeasurement = Bool()  # Set to True to allow multi-threading on this analysis.  Only do this if you are NOT filtering on this analysis, and if you do NOT depend on the results of this analysis later. Default is False.
-    dropMeasurementIfSlow = Bool()  # Set to True to skip measurements when slow.  Applies only to multi-threading.  Raw data can still be used post-iteration and post-experiment. Default is False.
-    queueAfterIteration = Bool()  # Set to True to allow multi-threading on this analysis.  Only do this if you do NOT depend on the results of this analysis later. Default is False.
-    dropIterationIfSlow = Bool()  # Set to True to skip iterations when slow.  Applies only to multi-threading.  Raw data can still be used in post-experiment.  Default is False.
+    # Set to True to allow multi-threading on this analysis.
+    # Only do this if you are NOT filtering on this analysis, and if you do NOT
+    # depend on the results of this analysis later. Default is False.
+    queueAfterMeasurement = Bool()
+    # Set to True to skip measurements when slow.
+    # Applies only to multi-threading. Raw data can still be used
+    # post-iteration and post-experiment. Default is False.
+    dropMeasurementIfSlow = Bool()
+    # Set to False if iteration analysis requires measurement data,
+    # default True
+    waitForMeasurements = Bool(default=True)
 
-    #internal variables, user should not modify
+    # Set to True to allow multi-threading on this analysis.  Only do this if
+    # you do NOT depend on the results of this analysis later.
+    # Default is False.
+    queueAfterIteration = Bool()
+    # Set to True to skip iterations when slow.
+    # Applies only to multi-threading.  Raw data can still be used in
+    # post-experiment.  Default is False.
+    dropIterationIfSlow = Bool()
+
+    # dependencies of analysis to wait to finish before continuing
+    measurementDependencies = Member()
+    # holds the analysis' last completed iteration and measurement numbers as
+    # a tuple (iter, meas)
+    analysisStatus = Member()
+
+    # internal variables, user should not modify
     measurementProcessing = Bool()
     iterationProcessing = Bool()
     measurementQueue = []
@@ -85,46 +118,131 @@ class Analysis(Prop):
     def __init__(self, name, experiment, description=''):  # subclassing from Prop provides save/load mechanisms
         super(Analysis, self).__init__(name, experiment, description)
         self.properties += ['dropMeasurementIfSlow', 'dropIterationIfSlow']
+        self.measurementDependencies = []
 
     def preExperiment(self, experimentResults):
-        """This is called before an experiment.
-        The parameter experimentResults is a reference to the HDF5 file for this experiment.
-        Subclass this to prepare the analysis appropriately."""
+        """Performs experiment initialization tasks.
+
+        This is called before an experiment.
+        The parameter experimentResults is a reference to the HDF5 file for
+        this experiment. Subclass this to prepare the analysis appropriately.
+        """
+        # reset the analysis status tracker
+        self.analysisStatus = (0, -1)
         pass
 
     def preIteration(self, iterationResults, experimentResults):
         """This is called before an iteration.
         The parameter experimentResults is a reference to the HDF5 file for this experiment.
         The parameter iterationResults is a reference to the HDF5 node for this coming iteration.
-        Subclass this to prepare the analysis appropriately."""
+        Subclass this to prepare the analysis appropriately.
+        """
         pass
 
     def postMeasurement(self, measurementResults, iterationResults, experimentResults):
-        """Results is a tuple of (measurementResult,iterationResult,experimentResult) references to HDF5 nodes for this
-        measurement."""
-        if self.queueAfterMeasurement:  # if self.updateAfterMeasurement:
-            if not self.measurementProcessing:  # check to see if a processing queue is already going
-                self.measurementProcessing  =True
-                self.measurementQueue.append((measurementResults, iterationResults, experimentResults))
-                threading.Thread(target=self.measurementProcessLoop).start()
-            elif not self.dropMeasurementIfSlow:  # if a queue is already going, add to it, unless we can't tolerate being behind
-                self.measurementQueue.append((measurementResults, iterationResults, experimentResults))
+        """Processes post-measurement analysis if defined.
+
+        Results is a tuple of:
+        (measurementResult, iterationResult, experimentResult)
+        references to HDF5 nodes for this measurement.
+        """
+
+        m_data = [
+            self.analyzeMeasurement,        # function pointer
+            measurementResults,
+            iterationResults,
+            experimentResults,
+            self.experiment.iteration,      # current iteration number
+            self.experiment.measurement,    # current measurement number
+            self.name
+        ]
+        # see if we can thread this analysis
+        if self.queueAfterMeasurement:
+            logger.warning('attempting to run `{}` in a separate thread'.format(self.name))
+            logger.warning('{}` assigned measurementResults: `{}`'.format(self.name, measurementResults.name))
+
+            # if we can't tolerate tardiness then drop the measurement with a
+            # warning
+            if self.measurementProcessing and self.dropMeasurementIfSlow:
+                msg = '`{}` dropped during i:m `{}:{}` due to tardiness'
+                logger.warning(msg.format(self.name, m_data[4], m_data[5]))
+                # increment the status I guess, anything that depends on it
+                # better check that the data is present
+                self.analysisStatus = (m_data[4], m_data[5])
+
+            else:
+                # otherwise queue it up
+                msg = '`{}` i:m `{}:{}`'
+                logger.critical(msg.format(self.name, m_data[4], m_data[5]))
+                logger.critical(len(self.measurementQueue))
+                self.measurementQueue.append(m_data)
+                logger.critical(len(self.measurementQueue))
+                # restart the processing loop if it has stopped
+                if not self.measurementProcessing:
+                    self.measurementProcessing = True
+                    threading.Thread(target=self.measurementProcessLoop).start()
+
         else:
-            return self.analyzeMeasurement(measurementResults, iterationResults, experimentResults)
+            result = self.analyzeMeasurement(*m_data[1:4])
+            # update the analysis status
+            self.analysisStatus = (m_data[4], m_data[5])
+            return result
 
     def measurementProcessLoop(self):
         while len(self.measurementQueue) > 0:
-            self.analyzeMeasurement(*self.measurementQueue.pop(0))  # process the oldest element
+            msg = 'measurementQueue depth: {}'
+            logger.warning(msg.format(len(self.measurementQueue)))
+            for i, q in enumerate(self.measurementQueue):
+                logger.warning('{}[{}]: {}, '.format(self.name, i, q[3:6]))
+            # process the oldest element
+            m_data = self.measurementQueue.pop(0)
+            msg = '`{}` has `{}` dependant analyses.'
+            logger.warning(msg.format(
+                            self.name,
+                            len(self.measurementDependencies)
+            ))
+            for dep in self.measurementDependencies:
+                logger.info('waiting for dep: `{}``'.format(dep.name))
+                wait_for_dependency(dep, (m_data[4], m_data[5]))
+                logger.info('dep: `{}` satidfied'.format(dep.name))
+            msg = '`{}` processing data from iteration:measurement : {}:{}'
+            logger.warning(msg.format(self.name, m_data[4], m_data[5]))
+
+            try:
+                # use the function pointer that was stored in the list
+                m_data[0](*m_data[1:4])
+            except:
+                msg = (
+                    'Measurement analysis thread encountered an error on'
+                    ' analysis `{}` at `{}:{}`.'
+                    ).format(self.name, m_data[4], m_data[5])
+                logger.exception(msg)
+
+            self.analysisStatus = (m_data[4], m_data[5])
         self.measurementProcessing = False
 
     def analyzeMeasurement(self, measurementResults, iterationResults, experimentResults):
         """This is called after each measurement.
-        The parameters (measurementResults, iterationResults, experimentResults)
+
+        The parameters
+        (measurementResults, iterationResults, experimentResults)
         reference the HDF5 nodes for this measurement.
-        Subclass this to update the analysis appropriately."""
+        Subclass this to update the analysis appropriately.
+        """
         pass
 
     def postIteration(self, iterationResults, experimentResults):
+        # block while any threaded measurements finish
+        if self.waitForMeasurements:
+            while self.measurementProcessing:
+                # TODO: add timeout
+
+                # with no sleep the standard threading library will not allow
+                # the threaded application to get processor time for a while
+                # TODO: switch to an actual threading library like
+                # multiprocessing
+                time.sleep(0.01)
+
         if self.queueAfterIteration:
             if not self.iterationProcessing:  # check to see if a processing queue is already going
                 self.iterationProcessing = True
@@ -142,14 +260,27 @@ class Analysis(Prop):
         self.iterationProcessing = False
 
     def analyzeIteration(self, iterationResults, experimentResults):
-        """This is called after each iteration.
-        The parameters (iterationResults, experimentResults) reference the HDF5 nodes for this iteration.
-        Subclass this to update the analysis appropriately."""
+        """Analyzes all measurements in an iteration.
+
+        This is called after each iteration.
+        The parameters (iterationResults, experimentResults) reference the HDF5
+        nodes for this iteration. Subclass this to update the analysis
+        appropriately.
+        """
         pass
 
     def postExperiment(self, experimentResults):
-        #no queueing, must do post experiment processing at this time
-        logger.debug("I am running %s analysis after the experiment", self.name)
+        # no queueing, must do post experiment processing at this time
+        # block while any threaded iterations finish
+        while self.iterationProcessing:
+            # TODO: add timeout
+
+            # with no sleep the standard threading library will not allow
+            # the threaded application to get processor time for a while
+            # TODO: switch to an actual threading library like
+            # multiprocessing
+            time.sleep(0.01)
+        logger.debug("Running %s analysis after the experiment", self.name)
         self.analyzeExperiment(experimentResults)
 
     def analyzeExperiment(self, experimentResults):
@@ -1443,7 +1574,7 @@ class RetentionAnalysis(Analysis):
     def analyzeIteration(self, iterationResults, experimentResults):
         if self.enable:
             if self.roi_type == 0:  # square roi
-                cutoffs = self.experiment.thresholdROIAnalysis.threshold_array['1']                
+                cutoffs = self.experiment.thresholdROIAnalysis.threshold_array['1']
                 ROI_sums = iterationResults['analysis/square_roi/sums'].value
             elif self.roi_type == 1:  # gaussian roi
                 cutoffs = self.experiment.gaussian_roi.cutoffs
