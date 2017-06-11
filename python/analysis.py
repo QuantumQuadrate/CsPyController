@@ -65,7 +65,8 @@ def wait_for_dependency(dep, status):
     (iter, meas) = status
     # synchronize iteration
     while (dep.analysisStatus[0] < iter) or (dep.analysisStatus[1] < meas):
-        time.sleep(0.01)
+        time.sleep(0.5)
+        logger.info("waiting for: `{}` at `{}`".format(status, dep.analysisStatus))
 
 
 class Analysis(Prop):
@@ -82,6 +83,8 @@ class Analysis(Prop):
         3: hard fail, do not continue with other analyses, do not increment measurement total, delete measurement data
     """
 
+    # holds the analysis thread that handles measurement analysis
+    measurementThread = Member()
     # Set to True to allow multi-threading on this analysis.
     # Only do this if you are NOT filtering on this analysis, and if you do NOT
     # depend on the results of this analysis later. Default is False.
@@ -112,13 +115,23 @@ class Analysis(Prop):
     # internal variables, user should not modify
     measurementProcessing = Bool()
     iterationProcessing = Bool()
-    measurementQueue = []
+    measurementQueue = Member()
+    measurementQueueEmpty = Bool()
     iterationQueue = []
 
     def __init__(self, name, experiment, description=''):  # subclassing from Prop provides save/load mechanisms
         super(Analysis, self).__init__(name, experiment, description)
         self.properties += ['dropMeasurementIfSlow', 'dropIterationIfSlow']
         self.measurementDependencies = []
+        self.measurementQueue = []
+        # set up the analysis thread
+        self.measurementThread = threading.Thread(
+            target=self.measurementProcessLoop,
+            name=self.name + '_meas_analysis'
+        )
+        self.measurementThread.daemon = True
+        self.measurementProcessing = False
+        self.measurementQueueEmpty = True
 
     def preExperiment(self, experimentResults):
         """Performs experiment initialization tasks.
@@ -129,7 +142,10 @@ class Analysis(Prop):
         """
         # reset the analysis status tracker
         self.analysisStatus = (0, -1)
-        pass
+        # begin the measurement analysis thread if indicated
+        if self.queueAfterMeasurement:
+            self.measurementProcessing = True
+            self.measurementThread.start()
 
     def preIteration(self, iterationResults, experimentResults):
         """This is called before an iteration.
@@ -149,11 +165,8 @@ class Analysis(Prop):
 
         m_data = [
             self.analyzeMeasurement,        # function pointer
-            measurementResults,
-            iterationResults,
-            experimentResults,
-            self.experiment.iteration,      # current iteration number
-            self.experiment.measurement,    # current measurement number
+            (measurementResults, iterationResults, experimentResults),  # args
+            (self.experiment.iteration, self.experiment.measurement),  # status
             self.name
         ]
         # see if we can thread this analysis
@@ -165,61 +178,71 @@ class Analysis(Prop):
             # warning
             if self.measurementProcessing and self.dropMeasurementIfSlow:
                 msg = '`{}` dropped during i:m `{}:{}` due to tardiness'
-                logger.warning(msg.format(self.name, m_data[4], m_data[5]))
+                logger.warning(msg.format(self.name, *m_data[2]))
                 # increment the status I guess, anything that depends on it
                 # better check that the data is present
-                self.analysisStatus = (m_data[4], m_data[5])
+                self.analysisStatus = m_data[2]
 
             else:
                 # otherwise queue it up
                 msg = '`{}` i:m `{}:{}`'
-                logger.critical(msg.format(self.name, m_data[4], m_data[5]))
+                logger.critical(msg.format(self.name, *m_data[2]))
                 logger.critical(len(self.measurementQueue))
                 self.measurementQueue.append(m_data)
                 logger.critical(len(self.measurementQueue))
-                # restart the processing loop if it has stopped
-                if not self.measurementProcessing:
-                    self.measurementProcessing = True
-                    threading.Thread(target=self.measurementProcessLoop).start()
 
         else:
-            result = self.analyzeMeasurement(*m_data[1:4])
+            result = self.analyzeMeasurement(*m_data[1])
             # update the analysis status
-            self.analysisStatus = (m_data[4], m_data[5])
+            self.analysisStatus = m_data[2]
             return result
 
     def measurementProcessLoop(self):
-        while len(self.measurementQueue) > 0:
-            msg = 'measurementQueue depth: {}'
-            logger.warning(msg.format(len(self.measurementQueue)))
-            for i, q in enumerate(self.measurementQueue):
-                logger.warning('{}[{}]: {}, '.format(self.name, i, q[3:6]))
-            # process the oldest element
-            m_data = self.measurementQueue.pop(0)
-            msg = '`{}` has `{}` dependant analyses.'
-            logger.warning(msg.format(
-                            self.name,
-                            len(self.measurementDependencies)
-            ))
-            for dep in self.measurementDependencies:
-                logger.info('waiting for dep: `{}``'.format(dep.name))
-                wait_for_dependency(dep, (m_data[4], m_data[5]))
-                logger.info('dep: `{}` satidfied'.format(dep.name))
-            msg = '`{}` processing data from iteration:measurement : {}:{}'
-            logger.warning(msg.format(self.name, m_data[4], m_data[5]))
+        while self.measurementProcessing or len(self.measurementQueue) > 0:
+            if len(self.measurementQueue) > 0:
+                self.measurementQueueEmpty = False
+                msg = 'measurementQueue depth: {}'
+                logger.warning(msg.format(len(self.measurementQueue)))
+                for i, q in enumerate(self.measurementQueue):
+                    msg = '{}[{}]: {}, '
+                    logger.warning(msg.format(self.name, i, q[2], q[3]))
+                # process the oldest element
+                m_data = self.measurementQueue.pop(0)
+                msg = '`{}` has `{}` dependant analyses.'
+                logger.warning(msg.format(
+                                self.name,
+                                len(self.measurementDependencies)
+                ))
+                logger.warning('hi')
+                logger.warning(m_data)
+                for dep in self.measurementDependencies:
+                    msg = '`{}` waiting for dep: `{}``'
+                    logger.info(msg.format(self.name, dep.name))
+                    wait_for_dependency(dep, m_data[2])
+                    logger.info('dep: `{}` satidfied'.format(dep.name))
+                msg = '`{}` processing data from iteration:measurement : {}:{}'
+                logger.warning(msg.format(self.name, *m_data[2]))
 
-            try:
-                # use the function pointer that was stored in the list
-                m_data[0](*m_data[1:4])
-            except:
+                try:
+                    # use the function pointer that was stored in the list
+                    m_data[0](*m_data[1])
+                except:
+                    msg = (
+                        'Measurement analysis thread encountered an error on'
+                        ' analysis `{}` at `{}:{}`.'
+                    ).format(self.name, *m_data[2])
+                    logger.exception(msg)
+
                 msg = (
-                    'Measurement analysis thread encountered an error on'
+                    'Measurement analysis thread finished'
                     ' analysis `{}` at `{}:{}`.'
-                    ).format(self.name, m_data[4], m_data[5])
-                logger.exception(msg)
-
-            self.analysisStatus = (m_data[4], m_data[5])
-        self.measurementProcessing = False
+                ).format(self.name, *m_data[2])
+                logger.warning(msg)
+                self.analysisStatus = m_data[2]
+            else:
+                self.measurementQueueEmpty = True
+                time.sleep(0.01)
+        logger.info('Analysis thread stopping.')
 
     def analyzeMeasurement(self, measurementResults, iterationResults, experimentResults):
         """This is called after each measurement.
@@ -232,9 +255,9 @@ class Analysis(Prop):
         pass
 
     def postIteration(self, iterationResults, experimentResults):
-        # block while any threaded measurements finish
+        # block while any threaded measurements for this analysis finish
         if self.waitForMeasurements:
-            while self.measurementProcessing:
+            while not self.measurementQueueEmpty:
                 # TODO: add timeout
 
                 # with no sleep the standard threading library will not allow
@@ -282,6 +305,11 @@ class Analysis(Prop):
             time.sleep(0.01)
         logger.debug("Running %s analysis after the experiment", self.name)
         self.analyzeExperiment(experimentResults)
+        # signal to analysis thread to stop
+        self.measurementProcessing = False
+        if self.queueAfterMeasurement:
+            # close analysis thread
+            self.measurementThread.join()
 
     def analyzeExperiment(self, experimentResults):
         """This is called at the end of the experiment.

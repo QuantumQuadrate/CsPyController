@@ -20,9 +20,9 @@ class PauseError(Exception):
     We want to be able to have try-except blocks for tricky parts of the code, but then still have the experiment pause
     as soon as possible.  We could just raise an Exception at this point, but this allows us to keep better track of what has
     happened, and to not log a second error.
-    
+
     The preferred usage is that try-except blocks will look like this:
-    
+
     try:
         some code
     except PauseError:
@@ -33,7 +33,7 @@ class PauseError(Exception):
         raise PauseError
     except Exception as e:
         logger.error('An exception occurred, and we don't know what to do about it.\n'+str(e))
-        
+
     If general Exceptions are not caught, then unexpected Exceptions will cause the code to stop and the error will be reported by the default mechanism.
     """
     pass
@@ -56,7 +56,7 @@ def setup_log():
     sh.setLevel(logging.INFO)
     #sh_formatter = colorlog.Formatter(fmt='%(log_color)s%(levelname):%(asctime)s\n%(message)s', datefmt='%H:%M:%S')
     sh_formatter = colorlog.ColoredFormatter(
-    "%(log_color)s%(levelname)-8s - %(name)-25s - %(asctime)s - %(cyan)s \n  %(message)s\n",
+    "%(log_color)s%(levelname)-8s - %(name)-25s - %(threadName)-15s - %(asctime)s - %(cyan)s \n  %(message)s\n",
     datefmt=None,
     reset=True,
     log_colors={
