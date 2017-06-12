@@ -154,13 +154,6 @@ class SquareROIAnalysis(AnalysisWithFigure):
                     sum_array[i] = np.rint(shot_sums)
 
                 self.sum_array = sum_array.reshape((num_shots, self.ROI_rows, self.ROI_columns))
-                # logger.warning('measurementResults `{}`'.format(measurementResults.name))
-                # for name in measurementResults:
-                #     logger.warning(name)
-                #     for n in measurementResults[name]:
-                #         logger.warning(n)
-                # logger.warning('done looking in group')
-                # logger.warning(self.meas_analysis_path)
                 measurementResults[self.meas_analysis_path] = sum_array
                 self.updateFigure()
 
