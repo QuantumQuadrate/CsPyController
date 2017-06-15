@@ -13,7 +13,8 @@ from __init__ import import_config
 config = import_config()
 
 # Bring in other files in this package
-import functional_waveforms, analysis, instek_pst, save2013style, TTL, LabView, DDS, roi_fitting
+import functional_waveforms, analysis, instek_pst, save2013style, TTL, LabView
+import DDS, roi_fitting
 import picomotors, andor, picampython, vaunix, DCNoiseEater, Laird_temperature, AnalogInput
 import Counter, conex, aerotech, unlock_pause
 import origin_interface
@@ -25,6 +26,7 @@ from SquareROIAnalysis import SquareROIAnalysis
 from recent_shot_analysis import RecentShotAnalysis
 from image_sum_analysis import ImageSumAnalysis
 from threshold_analysis import ThresholdROIAnalysis
+from retention_analysis import RetentionAnalysis, RetentionGraph
 
 from experiments import Experiment
 
@@ -127,13 +129,13 @@ class AQuA(Experiment):
         self.histogram_grid = analysis.HistogramGrid('histogram_grid', self, 'all 49 histograms for shot 0 at the same time')
         self.measurements_graph = analysis.MeasurementsGraph('measurements_graph', self, 'plot the ROI sum vs all measurements')
         self.iterations_graph = analysis.IterationsGraph('iterations_graph', self, 'plot the average of ROI sums vs iterations')
-        self.retention_graph = analysis.RetentionGraph('retention_graph', self, 'plot occurence of binary result (i.e. whether or not atoms are there in the 2nd shot)')
+        self.retention_graph = RetentionGraph('retention_graph', self, 'plot occurence of binary result (i.e. whether or not atoms are there in the 2nd shot)')
         #self.andor_viewer = andor.AndorViewer('andor_viewer', self, 'show the most recent Andor image')
         #self.picam_viewer = picam.PICamViewer('picam_viewer', self, 'show the most recent PICam image')
         self.DC_noise_eater_graph = DCNoiseEater.DCNoiseEaterGraph('DC_noise_eater_graph', self, 'DC Noise Eater graph')
         self.DC_noise_eater_filter = DCNoiseEater.DCNoiseEaterFilter('DC_noise_eater_filter', self, 'DC Noise Eater Filter')
         self.Ramsey = analysis.Ramsey('Ramsey', self, 'Fit a cosine to retention results')
-        self.retention_analysis = analysis.RetentionAnalysis('retention_analysis', self, 'calculate the loading and retention')
+        self.retention_analysis = RetentionAnalysis('retention_analysis', self, 'calculate the loading and retention')
         self.counter_graph = Counter.CounterAnalysis('counter_graph', self, 'Graphs the counter data after each measurement.')
         self.counter_hist = Counter.CounterHistogramAnalysis('counter_hist', self, 'Fits histograms of counter data and plots hist and fits.')
         self.save_notes = save2013style.SaveNotes('save_notes', self, 'save a separate notes.txt')

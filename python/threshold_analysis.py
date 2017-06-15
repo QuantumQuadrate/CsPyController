@@ -24,6 +24,7 @@ class ThresholdROIAnalysis(AnalysisWithFigure):
     threshold_array = Member()
     loading_array = Member()
     meas_analysis_path = Member()
+    iter_analysis_path = Member()
     enable = Bool()
 
     def __init__(self, experiment, roi_rows=1, roi_columns=1):
@@ -37,6 +38,7 @@ class ThresholdROIAnalysis(AnalysisWithFigure):
         self.ROI_columns = roi_columns
         self.ROI_source = getattr(self.experiment, config.get('CAMERA', 'ThresholdROISource'))
         self.meas_analysis_path = 'analysis/ROIThresholds'
+        self.iter_analysis_path = 'analysis/ROI_Thresholds/cuts'
         self.properties += ['version', 'ROI_source', 'threshold_array', 'enable']
 
         # threading stuff
@@ -52,7 +54,8 @@ class ThresholdROIAnalysis(AnalysisWithFigure):
             threshold_array = np.zeros((numShots, numROIs), dtype=np.bool_)
 
             for i, shot in enumerate(shot_array):
-                #TODO: more complicated threshold (per shot threshold & 2+ atom threshold)
+                # TODO: more complicated threshold
+                # (per shot threshold & 2+ atom threshold)
                 threshold_array[i] = shot >= self.threshold_array['1']
 
             self.loading_array = threshold_array.reshape((numShots, self.ROI_rows, self.ROI_columns))
@@ -60,8 +63,26 @@ class ThresholdROIAnalysis(AnalysisWithFigure):
             self.updateFigure()
 
     def analyzeIteration(self, iterationResults, experimentResults):
-        '''Calculate loading rates'''
-        pass
+        """Consoladates loading cuts."""
+        if self.enable:
+            meas = map(int, iterationResults['measurements'].keys())
+            meas.sort()
+            path = 'measurements/{}/' + self.meas_analysis_path
+            try:
+                res = np.array([iterationResults[path.format(m)] for m in meas])
+            except KeyError:
+                # I was having problem with the file maybe not being ready
+                logger.warning("Issue reading hdf5 file. Waiting then repeating.")
+                time.sleep(0.1)  # try again in a little
+                try:
+                    res = np.array([iterationResults[path.format(m)] for m in meas])
+                except KeyError:
+                    msg = (
+                        "Reading from hdf5 file during measurement `{}`"
+                        " failed."
+                    ).format(m)
+                    logger.exception(msg)
+            iterationResults[self.iter_analysis_path] = np.array(res)
 
     def updateFigure(self):
         if self.draw_fig:
@@ -71,7 +92,7 @@ class ThresholdROIAnalysis(AnalysisWithFigure):
                 n = len(self.loading_array)
                 for i in range(n):
                     ax = fig.add_subplot(n, 1, i+1)
-                    #make the digital plot here
+                    # make the digital plot here
                     ax.matshow(self.loading_array[i], cmap=green_cmap)
                     ax.set_title('shot '+str(i))
             super(ThresholdROIAnalysis, self).updateFigure()

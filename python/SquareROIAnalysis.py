@@ -17,6 +17,7 @@ from colors import my_cmap, green_cmap
 
 import numpy as np
 from atom.api import Bool, Str, Member, Int
+import time
 
 from analysis import AnalysisWithFigure
 
@@ -75,10 +76,10 @@ class SquareROIAnalysis(AnalysisWithFigure):
         self.ROI_bg_rows = roi_bg_rows
         self.ROI_bg_columns = roi_bg_columns
         dtype = [
-            ('left', np.uint16),      #pylint: disable=E1101
-            ('top', np.uint16),       #pylint: disable=E1101
-            ('right', np.uint16),     #pylint: disable=E1101
-            ('bottom', np.uint16)     #pylint: disable=E1101
+            ('left', np.uint16),
+            ('top', np.uint16),
+            ('right', np.uint16),
+            ('bottom', np.uint16)
         ]
         # initialize with a blank array
         self.ROIs = np.zeros(roi_rows*roi_columns, dtype=dtype)
@@ -180,8 +181,21 @@ class SquareROIAnalysis(AnalysisWithFigure):
             meas = map(int, iterationResults['measurements'].keys())
             meas.sort()
             path = 'measurements/{}/' + self.meas_analysis_path
-            res = np.array([iterationResults[path.format(m)] for m in meas])
-            iterationResults[self.iter_analysis_path] = res
+            try:
+                res = np.array([iterationResults[path.format(m)] for m in meas])
+            except KeyError:
+                # I was having problem with the file maybe not being ready
+                logger.warning("Issue reading hdf5 file. Waiting then repeating.")
+                time.sleep(0.1)  # try again in a little
+                try:
+                    res = np.array([iterationResults[path.format(m)] for m in meas])
+                except KeyError:
+                    msg = (
+                        "Reading from hdf5 file during measurement `{}`"
+                        " failed."
+                    ).format(m)
+                    logger.exception(msg)
+            iterationResults[self.iter_analysis_path] = np.array(res)
 
     def fromHDF5(self, hdf):
         """Override of the analysis fromHDF5 fcuntion.

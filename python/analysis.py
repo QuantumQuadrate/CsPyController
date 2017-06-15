@@ -147,6 +147,7 @@ class Analysis(Prop):
         # begin the measurement analysis thread if indicated
         if self.queueAfterMeasurement:
             self.measurementProcessing = True
+            self.measurementQueueEmpty = False
             if self.measurementThread and self.measurementThread.is_alive():
                 # send event to thread
                 self.restart.set()
@@ -249,14 +250,16 @@ class Analysis(Prop):
     def postIteration(self, iterationResults, experimentResults):
         # block while any threaded measurements for this analysis finish
         if self.waitForMeasurements:
-            while not self.measurementQueueEmpty:
+            while (not self.measurementQueueEmpty):
+                msg = "waiting for `{}`".format(self.name)
+                logger.info(msg)
                 # TODO: add timeout
 
                 # with no sleep the standard threading library will not allow
                 # the threaded application to get processor time for a while
                 # TODO: switch to an actual threading library like
                 # multiprocessing
-                time.sleep(0.01)
+                time.sleep(0.1)
 
         if self.queueAfterIteration:
             if not self.iterationProcessing:  # check to see if a processing queue is already going
@@ -1343,142 +1346,6 @@ class IterationsGraph(AnalysisWithFigure):
                 finally:
                     self.update_lock = False
 
-
-class RetentionGraph(AnalysisWithFigure):
-    """Plots the average of a region of interest sum for an iteration, after each iteration"""
-    enable = Bool()
-    mean = Member()
-    sigma = Member()
-    current_iteration_data = Member()
-    update_lock = Bool(False)
-    list_of_what_to_plot = Str()
-    draw_connecting_lines = Bool()
-    draw_error_bars = Bool()
-    add_only_filtered_data = Bool()
-    ymin = Str()
-    ymax = Str()
-
-    def __init__(self, name, experiment, description=''):
-        super(RetentionGraph, self).__init__(name, experiment, description)
-        self.properties += ['enable', 'list_of_what_to_plot', 'draw_connecting_lines', 'draw_error_bars', 'ymin', 'ymax']
-
-    def preExperiment(self, experimentResults):
-        #erase the old data at the start of the experiment
-        self.mean = None
-        self.sigma = None
-
-    def preIteration(self, iterationResults, experimentResults):
-        self.current_iteration_data = None
-
-    def analyzeIteration(self, iterationResults, experimentResults):
-        if self.enable:
-            # check to see if retention analysis was done
-            if 'analysis/loading_retention' in iterationResults:
-                # load retention, and pad arrays with an extra dimension so they can be concatenated
-                retention = iterationResults['analysis/loading_retention/retention'].value[np.newaxis]
-                sigma = iterationResults['analysis/loading_retention/retention_sigma'].value[np.newaxis]
-                if self.mean is None:
-                    #on first iteration start anew
-                    self.mean = retention
-                    self.sigma = sigma
-                else:
-                    #append
-                    self.mean = numpy.append(self.mean, retention, axis=0)
-                    self.sigma = numpy.append(self.sigma, sigma, axis=0)
-                self.updateFigure()
-
-    def analyzeMeasurement(self, measurementResults, iterationResults, experimentResults):
-        pass
-        # """Every measurement, update the results.  Plot the ratio of shots with an atom to shots without."""
-        # # Check to see if we want to do anything with this data, based on the LoadingFilters.
-        # # Careful here to use .value, otherwise it will always be True if the dataset exists.
-        # if self.enable:
-        #     if (not self.add_only_filtered_data) or (('analysis/loading_filter' in measurementResults) and measurementResults['analysis/loading_filter'].value):
-        #
-        #         # grab already thresholded data from SquareROIAnalysis
-        #         a = measurementResults['analysis/squareROIthresholded']
-        #         # add one dimension to the data to help with appending
-        #         d = numpy.reshape(a, (1, a.shape[0], a.shape[1]))
-        #
-        #         if self.current_iteration_data is None:
-        #             #on first measurement of an iteration, start anew
-        #             new_iteration = True
-        #             self.current_iteration_data = d
-        #         else:
-        #             #else append
-        #             new_iteration = False
-        #             self.current_iteration_data = numpy.append(self.current_iteration_data, d, axis=0)
-        #
-        #         # average across measurements
-        #         # keepdims gives result with size (1 x shots X rois)
-        #         mean = numpy.mean(self.current_iteration_data, axis=0, keepdims=True)
-        #         #find the 1 sigma confidence interval using the normal approximation: http://en.wikipedia.org/wiki/Binomial_proportion_confidence_interval
-        #         sigma = numpy.sqrt(mean*(1-mean)/len(self.current_iteration_data))
-        #
-        #         if self.mean is None:
-        #             #on first iteration start anew
-        #             self.mean = mean
-        #             self.sigma = sigma
-        #         else:
-        #             if new_iteration:
-        #                 #append
-        #                 self.mean = numpy.append(self.mean, mean, axis=0)
-        #                 self.sigma = numpy.append(self.sigma, sigma, axis=0)
-        #             else:
-        #                 #replace last entry
-        #                 self.mean[-1] = mean
-        #                 self.sigma[-1] = sigma
-        #         self.updateFigure()
-
-    @observe('list_of_what_to_plot', 'draw_connecting_lines', 'draw_error_bars', 'ymin', 'ymax')
-    def reload(self, change):
-        self.updateFigure()
-
-    def updateFigure(self):
-        if self.draw_fig:
-            if not self.update_lock:
-                try:
-                    self.update_lock = True
-                    fig = self.backFigure
-                    fig.clf()
-
-                    if self.mean is not None:
-                        #parse the list of what to plot from a string to a list of numbers
-                        try:
-                            plotlist = eval(self.list_of_what_to_plot)
-                        except Exception as e:
-                            logger.warning('Could not eval plotlist in RetentionGraph:\n{}\n'.format(e))
-                            return
-                        #make one plot
-                        ax = fig.add_subplot(111)
-                        for i in plotlist:
-                            try:
-                                mean = self.mean[:, i]
-                                sigma = self.sigma[:, i]
-                            except:
-                                logger.warning('Trying to plot data that does not exist in RetentionGraph: roi {}'.format(i))
-                                continue
-                            label = '({})'.format(i)
-                            linestyle = '-o' if self.draw_connecting_lines else 'o'
-                            if self.draw_error_bars:
-                                ax.errorbar(numpy.arange(len(mean)), mean, yerr=sigma, fmt=linestyle, label=label)
-                            else:
-                                ax.plot(numpy.arange(len(mean)), mean, linestyle, label=label)
-                        #adjust the limits so that the data isn't right on the edge of the graph
-                        ax.set_xlim(-.5, len(self.mean)+0.5)
-                        if self.ymin != '':
-                            ax.set_ylim(bottom=float(self.ymin))
-                        if self.ymax != '':
-                            ax.set_ylim(top=float(self.ymax))
-                        #add legend using the labels assigned during ax.plot() or ax.errorbar()
-                        ax.legend(bbox_to_anchor=(0., 1.02, 1., .102), loc=3, ncol=7, mode="expand", borderaxespad=0.)
-
-                    super(RetentionGraph, self).updateFigure()
-                except Exception as e:
-                    logger.warning('Problem in RetentionGraph.updateFigure()\n{}\n{}\n'.format(e, traceback.format_exc()))
-                finally:
-                    self.update_lock = False
-
 class Ramsey(AnalysisWithFigure):
     """Plots the average of a region of interest sum for an iteration, after each iteration.  Can be used with the
     optimizer with the cost function:
@@ -1581,72 +1448,3 @@ class Ramsey(AnalysisWithFigure):
                 super(Ramsey, self).updateFigure()
             except Exception as e:
                 logger.warning('Problem in Ramsey.updateFigure()\n{}\n{}\n'.format(e, traceback.format_exc()))
-
-class RetentionAnalysis(Analysis):
-
-    #Text output that can be updated back to the GUI
-    enable = Bool()
-    text = Str()
-    roi_type = Int()
-
-    def __init__(self, name, experiment, description=''):
-        super(RetentionAnalysis, self).__init__(name, experiment, description)
-        self.properties += ['enable', 'text', 'roi_type']
-
-    def analyzeIteration(self, iterationResults, experimentResults):
-        if self.enable:
-            if self.roi_type == 0:  # square roi
-                cutoffs = self.experiment.thresholdROIAnalysis.threshold_array['1']
-                ROI_sums = iterationResults['analysis/square_roi/sums'].value
-            elif self.roi_type == 1:  # gaussian roi
-                cutoffs = self.experiment.gaussian_roi.cutoffs
-                ROI_sums = iterationResults['analysis/gaussian_roi/sums'].value
-            else:
-                logger.warning('invalid roi type {} in RetentionAnalysis.analyzeIteration'.format(roi_type))
-
-            loaded, retained, reloaded, loading, retention, retention_sigma, reloading, text, atoms = self.retention(cutoffs, ROI_sums)
-
-            iterationResults['analysis/loading_retention/loaded'] = loaded
-            iterationResults['analysis/loading_retention/retained'] = retained
-            iterationResults['analysis/loading_retention/reloaded'] = reloaded
-            iterationResults['analysis/loading_retention/loading'] = loading
-            iterationResults['analysis/loading_retention/retention'] = retention
-            iterationResults['analysis/loading_retention/retention_sigma'] = retention_sigma
-            iterationResults['analysis/loading_retention/reloading'] = reloading
-            iterationResults['analysis/loading_retention/text'] = text
-            iterationResults['analysis/loading_retention/atoms'] = atoms
-
-            self.set_gui({'text': text})
-
-    def retention(self, cutoffs, ROI_sums, rows=7, columns=7):
-        # cutoffs has shape (rois)
-        # ROI_sums has shape (measurements, shots, rois)
-
-        total = ROI_sums.shape[0]
-
-        # make a boolean array of loading
-        atoms = ROI_sums >= cutoffs
-        # find the loading for each roi
-        loaded = numpy.sum(atoms[:, 0, :], axis=0)
-        # find the retention for each roi
-        retained = numpy.sum(numpy.logical_and(atoms[:, 0, :], atoms[:, 1, :]), axis=0)
-        # find the number of reloaded atoms
-        reloaded = numpy.sum(numpy.logical_and(numpy.logical_not(atoms[:, 0, :]), atoms[:, 1, :]), axis=0)
-
-        loading = loaded/total
-        retention = retained/loaded
-        # find the 1 sigma confidence interval for binomial data using the normal approximation:
-        # http://en.wikipedia.org/wiki/Binomial_proportion_confidence_interval
-        retention_sigma = numpy.sqrt(retention*(1-retention)/loaded)
-        reloading = reloaded/total
-
-        # write results to string
-        text = 'total: ' + str(total) +'\n\n'
-        text += 'loading:\tmax {:.3f},\tavg {:.3f}\n'.format(numpy.nanmax(loading), numpy.nanmean(loading))
-        text += '\n'.join(['\t'.join(map(lambda x: '{:.3f}'.format(x), loading[row*columns:(row+1)*columns])) for row in xrange(rows)]) + '\n\n'
-        text += 'retention:\tmax {:.3f},\tavg {:.3f}\n'.format(numpy.nanmax(retention), numpy.nanmean(retention))
-        text += '\n'.join(['\t'.join(map(lambda x: '{:.3f}'.format(x), retention[row*columns:(row+1)*columns])) for row in xrange(rows)]) + '\n\n'
-        text += 'reloading:\tmax {:.3f},\tavg {:.3f}\n'.format(numpy.nanmax(reloading), numpy.nanmean(reloading))
-        text += '\n'.join(['\t'.join(map(lambda x: '{:.3f}'.format(x), reloading[row*columns:(row+1)*columns])) for row in xrange(rows)]) + '\n'
-
-        return loaded, retained, reloaded, loading, retention, retention_sigma, reloading, text, atoms
