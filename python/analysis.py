@@ -593,6 +593,8 @@ class HistogramAnalysis(AnalysisWithFigure):
     def __init__(self, name, experiment, description=''):
         super(HistogramAnalysis, self).__init__(name, experiment, description)
         self.properties += ['enable', 'list_of_what_to_plot']
+        self.queueAfterMeasurement = True
+        self.measurementDependencies += [self.experiment.squareROIAnalysis]
 
     def preIteration(self, iterationResults, experimentResults):
         #reset the histogram data
@@ -666,7 +668,9 @@ class HistogramGrid(AnalysisWithFigure):
         super(HistogramGrid, self).__init__(name, experiment, description)
         self.properties += ['enable', 'shot', 'roi_type', 'calculate_new_cutoffs', 'automatically_use_cutoffs',
                             'cutoff_shot_mapping']
-
+        self.queueAfterMeasurement = True
+        self.measurementDependencies += [self.experiment.squareROIAnalysis]
+		
     def preExperiment(self, experimentResults):
         if self.enable and self.experiment.saveData:
             #self.pdf = PdfPages(os.path.join(self.experiment.path, 'histogram_grid_{}.pdf'.format(self.experiment.experimentPath)))
@@ -1210,6 +1214,8 @@ class IterationsGraph(AnalysisWithFigure):
         super(IterationsGraph, self).__init__(name, experiment, description)
         self.properties += ['enable', 'list_of_what_to_plot', 'draw_connecting_lines', 'draw_error_bars', 'ymin',
                             'ymax', 'update_every_measurement']
+        self.queueAfterMeasurement = True
+        self.measurementDependencies += [self.experiment.squareROIAnalysis]
 
     def preExperiment(self, experimentResults):
         #erase the old data at the start of the experiment

@@ -97,6 +97,7 @@ class SquareROIAnalysis(AnalysisWithFigure):
 
         # analyze in a separate thread
         self.queueAfterMeasurement = True
+		
 
         self.properties += ['version', 'enable', 'ROIs', 'ROIs_bg']
 

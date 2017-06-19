@@ -57,6 +57,8 @@ class ImageSumAnalysis(AnalysisWithFigure):
         self.min = 0
         self.max = 1
         self.shots_path = 'data/' + config.get('CAMERA', 'DataGroup') + '/shots'
+        self.queueAfterMeasurement = True
+        self.measurementDependencies += [self.experiment.squareROIAnalysis]
 
     def set_background(self):
         self.background_array = self.mean_array[self.shot]

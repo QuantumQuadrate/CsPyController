@@ -20,7 +20,7 @@ import Counter, conex, aerotech, unlock_pause
 import origin_interface
 import FakeInstrument # for testing
 from pypico import PyPicoServer # for communicating with a picomotor server
-
+#from vital_sign_sound import Vitalsign
 # analyses
 from SquareROIAnalysis import SquareROIAnalysis
 from recent_shot_analysis import RecentShotAnalysis
@@ -65,6 +65,7 @@ class AQuA(Experiment):
     imageWithROIAnalysis = Member()
     histogramAnalysis = Member()
     histogram_grid = Member()
+    #vitalsignsound=Member()
     measurements_graph = Member()
     iterations_graph = Member()
     retention_graph = Member()
@@ -141,6 +142,7 @@ class AQuA(Experiment):
         self.save_notes = save2013style.SaveNotes('save_notes', self, 'save a separate notes.txt')
         self.save2013Analysis = save2013style.Save2013Analysis(self)
         self.origin = origin_interface.Origin('origin', self, 'saves selected data to the origin data server')
+        #self.vitalsignsound=Vitalsign('vital_sign_sound',self,'beeps when atoms are loaded')
         # do not include functional_waveforms_graph in self.analyses because it need not update on iterations, etc.
         self.analyses += [self.TTL_filters, self.AI_graph, self.AI_filter, self.squareROIAnalysis, self.thresholdROIAnalysis,
                           self.gaussian_roi, self.loading_filters, self.first_measurements_filter, self.text_analysis,
@@ -149,7 +151,7 @@ class AQuA(Experiment):
                           self.DC_noise_eater_graph, self.DC_noise_eater_filter, self.Andors, self.PICams,
                           self.Ramsey, self.retention_analysis, self.retention_graph, self.counter_graph,
                           self.save_notes, self.save2013Analysis, self.aerotechs, self.conexes,self.counter_hist,
-                          self.instekpsts, self.vaunixs, self.unlock_pause, self.origin
+                          self.instekpsts, self.vaunixs, self.unlock_pause, self.origin,#self.vitalsignsound
                         ]
 
 

@@ -43,7 +43,9 @@ class RecentShotAnalysis(AnalysisWithFigure):
         super(RecentShotAnalysis, self).__init__(name, experiment, description)
         self.properties += ['showROIs', 'shot', 'subtract_background', 'data_path']
         self.data_path = 'data/' + config.get('CAMERA', 'DataGroup') + '/shots'
-
+        self.queueAfterMeasurement = True
+        self.measurementDependencies += [self.experiment.squareROIAnalysis]
+		
     def analyzeMeasurement(self, measurementResults, iterationResults, experimentResults):
         self.data = []
         if self.data_path in measurementResults:

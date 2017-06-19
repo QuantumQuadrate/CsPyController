@@ -20,7 +20,6 @@ class Vitalsign(Analysis):
     threshold_array = Member()
     enable = Bool()
     meas_analysis_path = Member()
-    queueAfterMeasurement=True
 
     def __init__(self, experiment, roi_rows=1, roi_columns=1):
         super(Vitalsign, self).__init__('Vitalsign', experiment, 'Atom heartbeat')
@@ -28,6 +27,8 @@ class Vitalsign(Analysis):
         self.properties += ['version', 'threshold_array', 'enable']
         self.enable=True
         self.meas_analysis_path = 'analysis/ROIThresholds'
+        self.queueAfterMeasurement=True
+        #self.measurementDependencies += [self.experiment.thresholdROIAnalysis]
 
     def analyzeMeasurement(self, measurementResults, iterationResults, experimentResults):
         if self.enable:
