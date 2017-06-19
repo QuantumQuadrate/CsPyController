@@ -22,10 +22,6 @@ class RetentionAnalysis(Analysis):
         super(RetentionAnalysis, self).__init__(name, experiment, description)
         self.properties += ['enable', 'text', 'roi_type']
 
-        # threading stuff
-        #self.queueAfterMeasurement = True
-        #self.measurementDependencies += [self.experiment.thresholdROIAnalysis]
-
     def analyzeIteration(self, iterationResults, experimentResults):
         if self.enable:
             self.retention(iterationResults)

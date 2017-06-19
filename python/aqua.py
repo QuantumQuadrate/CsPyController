@@ -104,24 +104,24 @@ class AQuA(Experiment):
         self.unlock_pause = unlock_pause.UnlockMonitor('unlock_pause', self, 'Monitor for pausing when laser unlocks')
         self.pyPicoServer = PyPicoServer('PyPicomotor', self, 'PyPico server interface for controlling closed loop picomotors')
         self.Embezzletron = FakeInstrument.Embezzletron('Embezzletron', self, 'Fake instrument that generates random data for testing')
-        # do not include functional_waveforms in self.instruments because it need not start/stop
+        # do not include functional_waveforms in self.instruments because it
+        # need not start/stop
         self.instruments += [
-            self.box_temperature, self.picomotors, self.pyPicoServer, self.Andors,
-            self.PICams, self.DC_noise_eaters, self.LabView, self.DDS,
-            self.unlock_pause, self.Embezzletron
+            self.box_temperature, self.picomotors, self.pyPicoServer,
+            self.Andors, self.PICams, self.DC_noise_eaters, self.LabView,
+            self.DDS, self.unlock_pause, self.Embezzletron
         ]
-
 
         # analyses
         self.functional_waveforms_graph = functional_waveforms.FunctionalWaveformGraph('functional_waveform_graph', self, 'Graph the HSDIO, DAQmx DO, and DAQmx AO settings')
         self.TTL_filters = TTL.TTL_filters('TTL_filters', self)
         self.AI_graph = AnalogInput.AI_Graph('AI_graph', self, 'Analog Input Graph')
         self.AI_filter = AnalogInput.AI_Filter('AI_filter', self, 'Analog Input filter')
-        self.loading_filters = analysis.LoadingFilters('loading_filters', self, 'drop measurements with no atom loaded')
         self.first_measurements_filter = analysis.DropFirstMeasurementsFilter('first_measurements_filter', self, 'drop the first N measurements')
         self.squareROIAnalysis = SquareROIAnalysis(self, roi_rows=self.ROI_rows, roi_columns=self.ROI_columns, roi_bg_rows=self.ROI_bg_rows, roi_bg_columns=self.ROI_bg_columns)
         self.thresholdROIAnalysis = ThresholdROIAnalysis(self, roi_rows=self.ROI_rows, roi_columns=self.ROI_columns)
         self.gaussian_roi = roi_fitting.GaussianROI('gaussian_roi', self, rows=self.ROI_rows, columns=self.ROI_columns)
+        self.loading_filters = analysis.LoadingFilters('loading_filters', self, 'drop measurements with no atom loaded')
         self.text_analysis = analysis.TextAnalysis('text_analysis', self, 'text results from the measurement')
         self.imageSumAnalysis = ImageSumAnalysis(self)
         self.recent_shot_analysis = RecentShotAnalysis('recent_shot_analysis', self, description='just show the most recent shot')
@@ -142,35 +142,46 @@ class AQuA(Experiment):
         self.save_notes = save2013style.SaveNotes('save_notes', self, 'save a separate notes.txt')
         self.save2013Analysis = save2013style.Save2013Analysis(self)
         self.origin = origin_interface.Origin('origin', self, 'saves selected data to the origin data server')
+
         #self.vitalsignsound=Vitalsign('vital_sign_sound',self,'beeps when atoms are loaded')
-        # do not include functional_waveforms_graph in self.analyses because it need not update on iterations, etc.
-        self.analyses += [self.TTL_filters, self.AI_graph, self.AI_filter, self.squareROIAnalysis, self.thresholdROIAnalysis,
-                          self.gaussian_roi, self.loading_filters, self.first_measurements_filter, self.text_analysis,
-                          self.imageSumAnalysis, self.recent_shot_analysis, self.shotBrowserAnalysis,
-                          self.histogramAnalysis, self.histogram_grid, self.measurements_graph, self.iterations_graph,
-                          self.DC_noise_eater_graph, self.DC_noise_eater_filter, self.Andors, self.PICams,
-                          self.Ramsey, self.retention_analysis, self.retention_graph, self.counter_graph,
-                          self.save_notes, self.save2013Analysis, self.aerotechs, self.conexes,self.counter_hist,
-                          self.instekpsts, self.vaunixs, self.unlock_pause, self.origin,#self.vitalsignsound
-                        ]
-
-
-        self.properties += [
-                'functional_waveforms', 'LabView', 'functional_waveforms_graph', 'DDS', 'aerotechs', 'picomotors', 'pyPicoServer',
-                'conexes', 'Andors', 'PICams', 'DC_noise_eaters', 'box_temperature', 'squareROIAnalysis', 'thresholdROIAnalysis',
-                'gaussian_roi', 'instekpsts', 'TTL_filters', 'AI_graph', 'AI_filter', 'loading_filters',
-                'first_measurements_filter', 'vaunixs', 'imageSumAnalysis', 'recent_shot_analysis',
-                'shotBrowserAnalysis', 'histogramAnalysis', 'histogram_grid', 'retention_analysis',
-                'measurements_graph', 'iterations_graph', 'retention_graph', 'DC_noise_eater_filter',
-                'DC_noise_eater_graph', 'Ramsey', 'counter_graph', 'counter_hist', 'unlock_pause','origin'
+        # do not include functional_waveforms_graph in self.analyses because it
+        # need not update on iterations, etc.
+        # origin needs to be the last analysis always
+        self.analyses += [
+            self.TTL_filters, self.AI_graph, self.AI_filter,
+            self.squareROIAnalysis, self.thresholdROIAnalysis,
+            self.gaussian_roi, self.loading_filters,
+            self.first_measurements_filter, self.text_analysis,
+            self.imageSumAnalysis, self.recent_shot_analysis,
+            self.shotBrowserAnalysis, self.histogramAnalysis,
+            self.histogram_grid, self.measurements_graph,
+            self.iterations_graph, self.DC_noise_eater_graph,
+            self.DC_noise_eater_filter, self.Andors, self.PICams, self.Ramsey,
+            self.retention_analysis, self.retention_graph, self.counter_graph,
+            self.save_notes, self.save2013Analysis, self.aerotechs,
+            self.conexes, self.counter_hist, self.instekpsts, self.vaunixs,
+            self.unlock_pause,  # self.vitalsignsound,
+            self.origin
         ]
 
+        self.properties += [
+            'functional_waveforms', 'LabView', 'functional_waveforms_graph',
+            'DDS', 'aerotechs', 'picomotors', 'pyPicoServer', 'conexes',
+            'Andors', 'PICams', 'DC_noise_eaters', 'box_temperature',
+            'squareROIAnalysis', 'thresholdROIAnalysis', 'gaussian_roi',
+            'instekpsts', 'TTL_filters', 'AI_graph', 'AI_filter',
+            'loading_filters', 'first_measurements_filter', 'vaunixs',
+            'imageSumAnalysis', 'recent_shot_analysis', 'shotBrowserAnalysis',
+            'histogramAnalysis', 'histogram_grid', 'retention_analysis',
+            'measurements_graph', 'iterations_graph', 'retention_graph',
+            'DC_noise_eater_filter', 'DC_noise_eater_graph', 'Ramsey',
+            'counter_graph', 'counter_hist', 'unlock_pause', 'origin'
+        ]
 
         try:
             self.allow_evaluation = False
             self.loadDefaultSettings()
-
-            #update variables
+            # update variables
             self.allow_evaluation = True
             self.evaluateAll()
         except PauseError:
@@ -178,7 +189,7 @@ class AQuA(Experiment):
         except Exception as e:
             logger.warning('Loading default settings aborted in AQuA.__init__().\n{}\n{}\n'.format(e, traceback.format_exc()))
 
-        #make sure evaluation is allowed now
+        # make sure evaluation is allowed now
         self.allow_evaluation = True
 
     def exiting(self):

@@ -80,17 +80,17 @@ class AndorCamera(Instrument):
     channel = Int()
     outamp = Int()
     noHSSpeeds = Int()
-    HSIndex = Int() # Setpoint, read from cfg
+    HSIndex = Int()  # Setpoint, read from cfg
     HSSpeeds = List()
-    HSSpeed = Member() # Actual index that the camera sees
+    HSSpeed = Member()  # Actual index that the camera sees
     noVSSpeeds = Int()  # total number of supported speeds
-    VSIndex = Int() # Setpoint, read from cfg
-    VSSpeeds = List() # A list of VS speeds.
-    VSSpeed = Member() # Actual number (float) of the speed.
+    VSIndex = Int()  # Setpoint, read from cfg
+    VSSpeeds = List()  # A list of VS speeds.
+    VSSpeed = Member()  # Actual number (float) of the speed.
     noGains = Int()
     preAmpGains = List()
-    preAmpGain = Member() # Actual number
-    preAmpGainIndex = Int() # Setpoint, read from cfg
+    preAmpGain = Member()  # Actual number
+    preAmpGainIndex = Int()  # Setpoint, read from cfg
     status = Str()
     accumulate = Float()
     kinetic = Float()
@@ -107,21 +107,24 @@ class AndorCamera(Instrument):
     analysis = Member()  # holds a link to the GUI display
     dll = Member()
 
-    ccd_size = Member() # size of CCD, width and height can change depending on binning
-    subimage_position = Member() # position of subimage corner (H,V)
-    subimage_size = Member() # size of subimage
+    # size of CCD, width and height can change depending on binning
+    ccd_size = Member()
+    subimage_position = Member()  # position of subimage corner (H,V)
+    subimage_size = Member()  # size of subimage
 
     ROI = Member()
-    #enableROI = False
-    enableROI = True # activates slider
+    enableROI = True  # activates slider
 
     autoscale = Bool(True)
     minPlot = Member()
     maxPlot = Member()
 
-    triggerChoices = (6,7,1,0)     #6: edge trigger, 7: level trigger, 1: external, 0: internal
-    acquisitionChoices = (1,2,3,4,5) #1 : Single Scan, 2: Accumulate, 3:Kinetics, 4: Fast Kinetics, 5:Run till abort
-    binChoices = (1,2,4)
+    # 6: edge trigger, 7: level trigger, 1: external, 0: internal
+    triggerChoices = (6, 7, 1, 0)
+    # 1 : Single Scan, 2 : Accumulate, 3 : Kinetics, 4 : Fast Kinetics,
+    # 5 : Run till abort
+    acquisitionChoices = (1, 2, 3, 4, 5)
+    binChoices = (1, 2, 4)
 
     def __init__(self, name, experiment, description=''):
         super(AndorCamera, self).__init__(name, experiment, description)
@@ -1171,8 +1174,9 @@ class AndorViewer(AnalysisWithFigure):
                     self.update_lock = False
 
     def setup_video(self, data):
-        """Use this method to connect the analysis figure to an array that will be rapidly updated
-        in video mode."""
+        """Use this method to connect the analysis figure to an array that will
+        be rapidly updated in video mode.
+        """
         self.data = data
         fig = self.backFigure
         fig.clf()
@@ -1182,7 +1186,9 @@ class AndorViewer(AnalysisWithFigure):
         super(AndorViewer, self).updateFigure()
 
     def redraw_video(self):
-        """First update self.data using Andor methods, then redraw screen using this."""
+        """First update self.data using Andor methods, then redraw screen using
+        this.
+        """
         if (self.mycam.autoscale):
             self.artist.autoscale()
         else:
@@ -1206,7 +1212,7 @@ class Andor(Instrument):
         self.camera.evaluate()
 
 
-class Andors(Instrument,Analysis):
+class Andors(Instrument, Analysis):
     version = '2016.06.02'
     motors = Member()
     dll = Member()

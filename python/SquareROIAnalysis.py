@@ -33,7 +33,7 @@ def roi_sum(roi, shot):
 
 def roi_sums(rois, shot):
     '''Sum over a list of ROIs'''
-    return np.array([roi_sum(roi, shot) for roi in rois], dtype=np.uint32) #pylint: disable=E1101
+    return np.array([roi_sum(roi, shot) for roi in rois], dtype=np.uint32)
 
 def roi_pixels(roi):
     '''return the number of pixels in the roi'''
@@ -92,12 +92,11 @@ class SquareROIAnalysis(AnalysisWithFigure):
         self.shots_path = 'data/' + config.get('CAMERA', 'DataGroup') + '/shots'
         # where we are going to dump data after analysis
         self.meas_analysis_path = 'analysis/squareROIsums'
-        #self.iter_analysis_path = 'analysis/squareROI/sums'
+        # self.iter_analysis_path = 'analysis/squareROI/sums'
         self.iter_analysis_path = 'analysis/square_roi/sums'
 
         # analyze in a separate thread
         self.queueAfterMeasurement = True
-		
 
         self.properties += ['version', 'enable', 'ROIs', 'ROIs_bg']
 

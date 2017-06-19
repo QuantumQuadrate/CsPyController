@@ -75,7 +75,7 @@ class CounterAnalysis(AnalysisWithFigure):
     def preExperiment(self, experimentResults):
         self.counter_array = None
         self.binned_array = None
-        #measurements x bins
+        # measurements x bins
 
     def analyzeMeasurement(self, measurementResults, iterationResults, experimentResults):
         if self.enable:

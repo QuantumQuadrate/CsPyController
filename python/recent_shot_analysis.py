@@ -6,8 +6,8 @@
    modified>=2014-07-30
    modified>=2017-05-08
 
-   The RecentShotAnalysis class updates a live view of the main experiment camera defined in the
-   experiment config file.
+   The RecentShotAnalysis class updates a live view of the main experiment
+   camera defined in the experiment config file.
 
    Updated by Matthew Ebert (5/2017)
    """
@@ -35,17 +35,19 @@ class RecentShotAnalysis(AnalysisWithFigure):
     data_path = Member()
     showROIs = Bool(False)
     shot = Int(0)
-    #update_lock = Bool(False)
+    # update_lock = Bool(False)
     draw_fig = Bool(False)
     subtract_background = Bool()
 
     def __init__(self, name, experiment, description=''):
         super(RecentShotAnalysis, self).__init__(name, experiment, description)
-        self.properties += ['showROIs', 'shot', 'subtract_background', 'data_path']
+        self.properties += [
+            'showROIs', 'shot', 'subtract_background', 'data_path'
+        ]
         self.data_path = 'data/' + config.get('CAMERA', 'DataGroup') + '/shots'
         self.queueAfterMeasurement = True
         self.measurementDependencies += [self.experiment.squareROIAnalysis]
-		
+
     def analyzeMeasurement(self, measurementResults, iterationResults, experimentResults):
         self.data = []
         if self.data_path in measurementResults:

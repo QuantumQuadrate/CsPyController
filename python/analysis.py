@@ -29,9 +29,14 @@ from colors import my_cmap, green_cmap
 from instrument_property import Prop,StrProp
 import cs_evaluate
 
+# get the config file
+from __init__ import import_config
+config = import_config()
+
 def mpl_rectangle(ax, ROI):
-    """Draws a rectangle, for use in drawing ROIs on images"""
-    #left, top, right, bottom, threshold = (0, 1, 2, 3, 4)  # column ordering of ROI boundaries in each ROI in ROIs
+    """Draws a rectangle, for use in drawing ROIs on images."""
+    # left, top, right, bottom, threshold = (0, 1, 2, 3, 4)
+    # column ordering of ROI boundaries in each ROI in ROIs
     left = ROI[0] - 0.5
     top = ROI[1] - 0.5
     right = ROI[2] - 0.5
@@ -42,14 +47,15 @@ def mpl_rectangle(ax, ROI):
         (right, top),  # right, top
         (right, bottom),  # right, bottom
         (0., 0.),  # ignored
-        ]
+    ]
 
-    codes = [Path.MOVETO,
-             Path.LINETO,
-             Path.LINETO,
-             Path.LINETO,
-             Path.CLOSEPOLY,
-             ]
+    codes = [
+        Path.MOVETO,
+        Path.LINETO,
+        Path.LINETO,
+        Path.LINETO,
+        Path.CLOSEPOLY,
+     ]
 
     path = Path(verts, codes)
 
@@ -446,9 +452,15 @@ class ShotsBrowserAnalysis(AnalysisWithFigure):
     array=Member()
     experimentResults=Member()
     showROIs = Bool(False)
+    data_path = Member()
 
     def __init__(self, experiment):
-        super(ShotsBrowserAnalysis, self).__init__('ShotsBrowser', experiment, 'Shows a particular shot from the experiment')
+        super(ShotsBrowserAnalysis, self).__init__(
+            'ShotsBrowser',
+            experiment,
+            'Shows a particular shot from the experiment'
+        )
+        self.data_path = 'data/' + config.get('CAMERA', 'DataGroup') + '/shots'
         self.properties += ['measurement', 'shot', 'showROIs']
 
     def preExperiment(self, experimentResults):
@@ -471,18 +483,20 @@ class ShotsBrowserAnalysis(AnalysisWithFigure):
 
     def load(self):
         if self.experimentResults is not None:
-            #find the first matching iteration
-            m=str(self.measurement)
-            s=str(self.shot)
+            # find the first matching iteration
+            m = str(self.measurement)
+            s = str(self.shot)
             if 'iterations' in self.experimentResults:
                 for i in self.experimentResults['iterations'].itervalues():
-                    #find the first iteration that matches all the selected ivar indices
+                    # find the first iteration that matches all the selected
+                    # ivar indices
                     if numpy.all(i.attrs['ivarIndex'] == self.selection):
                         try:
-                            self.array = i['measurements/{}/data/Andor_4522/shots/{}'.format(m,s)]
+                            path = 'measurements/{}' + self.data_path + '{}'
+                            self.array = i[path.format(m, s)]
                             self.updateFigure()
                         except Exception as e:
-                            logger.warning('Exception trying to plot measurement {}, shot {}, in analysis.ShotsBrowserAnalysis.load()\n{}\n'.format(m,s,e))
+                            logger.warning('Exception trying to plot measurement {}, shot {}, in analysis.ShotsBrowserAnalysis.load()\n{}\n'.format(m, s, e))
                             self.blankFigure()
                         break
 
@@ -517,7 +531,12 @@ class LoadingFilters(Analysis):
 
     def __init__(self, name, experiment, description=''):
         super(LoadingFilters, self).__init__(name, experiment, description)
-        self.properties += ['version', 'enable', 'filter_expression', 'filter_level']
+        self.properties += [
+            'version', 'enable', 'filter_expression', 'filter_level'
+        ]
+        # threading stuff
+        self.queueAfterMeasurement = True
+        self.measurementDependencies += [self.experiment.squareROIAnalysis]
 
     def analyzeMeasurement(self, measurementResults, iterationResults, experimentResults):
         text = 'none'
@@ -526,35 +545,38 @@ class LoadingFilters(Analysis):
             if self.filter_expression != '':
                 if ('analysis/squareROIsums' in measurementResults):
 
-                    #evaluate the boolean expression, with the squareROIsums as 't' in the namespace
-                    #This will overwrite any previous value, so we make a copy of the dictionary
+                    # evaluate the boolean expression, with the squareROIsums
+                    # as 't' in the namespace. This will overwrite any previous
+                    # value, so we make a copy of the dictionary
                     vars = self.experiment.vars.copy()
                     vars['t'] = measurementResults['analysis/squareROIsums']
                     value, valid = cs_evaluate.evalWithDict(self.filter_expression, varDict=vars)
                     if not valid:
-                        #raise an error
+                        # raise an error
                         text = 'Failed to evaluate loading filter: {}:\n'.format(self.filter_expression)
                         logger.error(text)
                         self.set_gui({'text': text,
                                       'valid': False})
                         raise PauseError
                     elif not ((value == True) or (value == False)):
-                        #Enforce that the expression must evaluate to a bool
+                        # Enforce that the expression must evaluate to a bool
                         text = 'Loading filter must be True or False, but it evaluated to: {}\nfor expression: {}:\n'.format(value, self.filter_expression)
                         logger.error(text)
                         self.set_gui({'text': text,
                                       'valid': False})
                         raise PauseError
                     else:
-                        #eval worked, save value
+                        # eval worked, save value
                         measurementResults['analysis/loading_filter'] = value
                         if not value:
-                            #Measurement did not pass filter (We do not need to take special action if the filter passes.)
+                            # Measurement did not pass filter (We do not need
+                            # to take special action if the filter passes.)
                             text = 'Loading filter failed.'
                             self.set_gui({'text': text,
                                           'valid': True})
                             # User chooses whether or not to delete data.
-                            # max takes care of ComboBox returning -1 for no selection
+                            # max takes care of ComboBox returning -1 for no
+                            # selection
                             return max(0, self.filter_level)
         self.set_gui({'text': text,
                       'valid': True})
@@ -670,7 +692,7 @@ class HistogramGrid(AnalysisWithFigure):
                             'cutoff_shot_mapping']
         self.queueAfterMeasurement = True
         self.measurementDependencies += [self.experiment.squareROIAnalysis]
-		
+
     def preExperiment(self, experimentResults):
         if self.enable and self.experiment.saveData:
             #self.pdf = PdfPages(os.path.join(self.experiment.path, 'histogram_grid_{}.pdf'.format(self.experiment.experimentPath)))
@@ -838,8 +860,11 @@ class HistogramGrid(AnalysisWithFigure):
         # TODO: do cutoff finding, analytical overlap and loading in a vectorized fashion
 
     def gaussian1D(self, x, x0, a, w):
-        """returns the height of a gaussian (with mean x0, amplitude, a and width w) at the value(s) x"""
-        g = a/(w*numpy.sqrt(2*numpy.pi))*numpy.exp(-0.5*(x-x0)**2/w**2)  # normalize
+        """returns the height of a gaussian (with mean x0, amplitude, a and
+        width w) at the value(s) x
+        """
+        # normalize
+        g = a/(w*numpy.sqrt(2*numpy.pi))*numpy.exp(-0.5*(x-x0)**2/w**2)
         g[numpy.isnan(g)] = 0  # eliminate bad elements
         return g
 
@@ -962,7 +987,6 @@ class HistogramGrid(AnalysisWithFigure):
 
     def analytic_cutoff(self, x1, x2, w1, w2, a1, a2):
         """Find the cutoffs analytically.  See MTL thesis for derivation."""
-
         return numpy.where(w1 == w2, self.intersection_of_two_gaussians_of_equal_width(x1, x2, w1, w2, a1, a2), self.intersection_of_two_gaussians(x1, x2, w1, w2, a1, a2))
 
     def intersection_of_two_gaussians_of_equal_width(self, x1, x2, w1, w2, a1, a2):
@@ -1136,10 +1160,14 @@ class MeasurementsGraph(AnalysisWithFigure):
         super(MeasurementsGraph, self).__init__(name, experiment, description)
         self.properties += ['enable', 'list_of_what_to_plot']
         self.data = None
+        self.queueAfterMeasurement = True
+        self.measurementDependencies += [self.experiment.squareROIAnalysis]
+        self.measurementDependencies += [self.experiment.gaussian_roi]
 
     def analyzeMeasurement(self, measurementResults, iterationResults, experimentResults):
         if self.enable:
-            #every measurement, update a big array of all the ROI sums, then histogram only the requested shot/site
+            # every measurement, update a big array of all the ROI sums, then
+            # histogram only the requested shot/site
             if 'analysis/gaussian_roi/sums' in measurementResults:
                 d = measurementResults['analysis/gaussian_roi/sums']
             elif 'analysis/squareROIsums' in measurementResults:
@@ -1212,13 +1240,17 @@ class IterationsGraph(AnalysisWithFigure):
 
     def __init__(self, name, experiment, description=''):
         super(IterationsGraph, self).__init__(name, experiment, description)
-        self.properties += ['enable', 'list_of_what_to_plot', 'draw_connecting_lines', 'draw_error_bars', 'ymin',
-                            'ymax', 'update_every_measurement']
+        self.properties += [
+            'enable', 'list_of_what_to_plot', 'draw_connecting_lines',
+            'draw_error_bars', 'ymin', 'ymax', 'update_every_measurement'
+        ]
         self.queueAfterMeasurement = True
-        self.measurementDependencies += [self.experiment.squareROIAnalysis]
+        self.measurementDependencies += [
+            self.experiment.squareROIAnalysis, self.experiment.loading_filters
+        ]
 
     def preExperiment(self, experimentResults):
-        #erase the old data at the start of the experiment
+        # erase the old data at the start of the experiment
         self.mean = None
         self.sigma = None
 
@@ -1226,39 +1258,41 @@ class IterationsGraph(AnalysisWithFigure):
         self.current_iteration_data = None
 
     def analyzeMeasurement(self, measurementResults, iterationResults, experimentResults):
-        # Check to see if we want to do anything with this data, based on the LoadingFilters.
-        # Careful here to use .value, otherwise it will always be True if the dataset exists.
+        # Check to see if we want to do anything with this data, based on the
+        # LoadingFilters.
+        # Careful here to use .value, otherwise it will always be True if the
+        # dataset exists.
         if self.enable:  # and self.update_every_measurement:
             if (not self.add_only_filtered_data) or (('analysis/loading_filter' in measurementResults) and measurementResults['analysis/loading_filter'].value):
 
                 d = numpy.array([measurementResults['analysis/squareROIsums']])
 
                 if self.current_iteration_data is None:
-                    #on first measurement of an iteration, start anew
+                    # on first measurement of an iteration, start anew
                     new_iteration = True
                     self.current_iteration_data = d
                 else:
-                    #else append
+                    # else append
                     new_iteration = False
                     self.current_iteration_data = numpy.append(self.current_iteration_data, d, axis=0)
 
                 # average across measurements
                 # keepdims gives result with size (1 x shots X rois)
                 mean = numpy.mean(self.current_iteration_data, axis=0, keepdims=True)
-                #find standard deviation of the mean
+                # find standard deviation of the mean
                 sigma = numpy.std(self.current_iteration_data, axis=0, keepdims=True)/numpy.sqrt(len(self.current_iteration_data))
 
                 if self.mean is None:
-                    #on first iteration start anew
+                    # on first iteration start anew
                     self.mean = mean
                     self.sigma = sigma
                 else:
                     if new_iteration:
-                        #append
+                        # append
                         self.mean = numpy.append(self.mean, mean, axis=0)
                         self.sigma = numpy.append(self.sigma, sigma, axis=0)
                     else:
-                        #replace last entry
+                        # replace last entry
                         self.mean[-1] = mean
                         self.sigma[-1] = sigma
                 self.updateFigure()
@@ -1381,7 +1415,10 @@ class Ramsey(AnalysisWithFigure):
 
     def __init__(self, name, experiment, description=''):
         super(Ramsey, self).__init__(name, experiment, description)
-        self.properties += ['enable', 'draw_error_bars', 'roi', 'time_variable_name', 'amplitude_guess', 'frequency_guess', 'offset_guess', 'decay_guess']
+        self.properties += [
+            'enable', 'draw_error_bars', 'roi', 'time_variable_name',
+            'amplitude_guess', 'frequency_guess', 'offset_guess', 'decay_guess'
+        ]
 
     def fitFunc(self, t, amplitude, frequency, offset, decay):
         return amplitude*numpy.cos(2*numpy.pi*frequency*t)*numpy.exp(t/decay)+offset
@@ -1442,7 +1479,8 @@ class Ramsey(AnalysisWithFigure):
                     ax.errorbar(self.t, self.y, yerr=self.sigma, fmt=linestyle)
                 else:
                     ax.plot(self.t, self.y, linestyle)
-                #adjust the limits so that the data isn't right on the edge of the graph
+                # adjust the limits so that the data isn't right on the edge of
+                # the graph
                 span = numpy.amax(self.t) - numpy.amin(self.t)
                 xmin = numpy.amin(self.t)-.02*span
                 xmax = numpy.amax(self.t)+.02*span
