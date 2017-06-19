@@ -3,32 +3,23 @@ They define the operation of the HSDIO, AO and DAQmxDO outputs.
 Use the functions HSDIO(time, channel, state), DO(time, channel, state), AO(time, channel, voltage) and label(time, text).
 The user should ensure that all waveform functions take in the start time as the first parameter,
 and return the end time.
-
 In order to use this class in the experiment does something like:
-
 ------------------------------------------------------------------
 import exp_functional_waveforms.functional_waveforms_rb as Rb
-
 HSDIO = experiment.LabView.HSDIO.add_transition
 AO = experiment.LabView.AnalogOutput.add_transition
 DO = experiment.LabView.DAQmxDO.add_transition
 label = experiment.functional_waveforms_graph.label
-
 print 'yo'
-
 exp = Rb.Rb(HSDIO, AO, DO, label)
 print 'yolo'
 t = 0 # start time
-
 # turn the mot on
 exp.mot_aom_switch.profile(t, 'on')
-
 t=60
-
 # turn the mot off
 exp.mot_aom_switch.profile(t, 'off')
 ------------------------------------------------------------------
-
 """
 
 
@@ -77,11 +68,19 @@ op_dds_profiles = {
     'on' : (0,0,0),
     'off' : (0,0,1)
 }
+################################################################################
+# Microwave DDS SETUP ################################################################
+################################################################################
+microwave_dds_pinout = (-1,28,29) # -1 indicates pins that are not being used. (P2, P1, P0)
+microwave_dds_profiles = {
+    'off' : (0,0,0),
+    'on' : (0,0,1),
+}
 
 ################################################################################
 # Ryd 780A DDS SETUP ################################################################
 ################################################################################
-ryd780a_dds_pinout = (-1,24,25) # -1 indicates pins that are not being used
+ryd780a_dds_pinout = (-1,30,31) # -1 indicates pins that are not being used
 ryd780a_dds_profiles = {
     'off' : (0,0,0),
     'r1' : (0,0,1),
@@ -92,7 +91,7 @@ ryd780a_dds_profiles = {
 ################################################################################
 # Ryd 780B DDS SETUP ################################################################
 ################################################################################
-ryd780b_dds_pinout = (-1,26,27) # -1 indicates pins that are not being used
+ryd780b_dds_pinout = (-1,-1,-1) # -1 indicates pins that are not being used
 ryd780b_dds_profiles = {
     'off' : (0,0,0),
     'r1' : (0,0,1),
@@ -102,7 +101,7 @@ ryd780b_dds_profiles = {
 ################################################################################
 # Red pointing AOM DDS SETUP ################################################################
 ################################################################################
-red_pointing_dds_pinout = (-1,28,29) # -1 indicates pins that are not being used
+red_pointing_dds_pinout = (-1,24,25) # -1 indicates pins that are not being used
 red_pointing_dds_profiles = {
     'off' : (0,0,0),
     'r1' : (0,0,1),
@@ -112,7 +111,7 @@ red_pointing_dds_profiles = {
 ################################################################################
 # Blue pointing AOM DDS SETUP ################################################################
 ################################################################################
-blue_pointing_dds_pinout = (-1,30,31) # -1 indicates pins that are not being used
+blue_pointing_dds_pinout = (-1,26,27) # -1 indicates pins that are not being used
 blue_pointing_dds_profiles = {
     'off' : (0,0,0),
     'r1' : (0,0,1),
@@ -152,7 +151,7 @@ mot_2d_aom_switch_delay = 0
 ################################################################################
 op_aom_switch_chan = 10
 # this is the default profile, we dont have to pass it in if we dont want to
-op_aom_switch_profile = {'on':1, 'off':0}
+op_aom_switch_profile = {'on':0, 'off':1}
 # timing delay parameter
 op_aom_switch_delay = 0
 
@@ -220,13 +219,13 @@ op_shutter_switch_profile = {'on':1, 'off':0}
 op_shutter_switch_delay = 0
 
 ################################################################################
-# scope external trigger SWITCH SETUP ##########################################################
+# microwaver SWITCH SETUP ##########################################################
 ################################################################################
-scope_trigger_switch_chan = 18
+microwave_switch_chan = 18
 # this is the default profile, we dont have to pass it in if we dont want to
-scope_trigger_switch_profile = {'on':1, 'off':0}
+microwave_switch_profile = {'on':0, 'off':1}
 # timing delay parameter
-scope_trigger_switch_delay = 0
+microwave_switch_delay = 0
 
 ################################################################################
 # Ground Raman AOM SWITCH SETUP ##########################################################
@@ -290,10 +289,12 @@ class Rb(object):
         self.mot_2d_dds = DDS(HSDIO, mot_2d_dds_pinout, mot_2d_dds_profiles)
         self.op_dds = DDS(HSDIO, op_dds_pinout, op_dds_profiles)
 
-        self.ryd780a_dds = DDS(HSDIO, ryd780a_dds_pinout, ryd780a_dds_profiles)
-        self.ryd780b_dds_dds = DDS(HSDIO, ryd780b_dds_pinout, ryd780b_dds_profiles)
+
+        #self.ryd780b_dds_dds = DDS(HSDIO, ryd780b_dds_pinout, ryd780b_dds_profiles)
         self.red_pointing_dds = DDS(HSDIO, red_pointing_dds_pinout, red_pointing_dds_profiles)
         self.blue_pointing_dds = DDS(HSDIO, blue_pointing_dds_pinout, blue_pointing_dds_profiles)
+        self.microwave_dds = DDS(HSDIO, microwave_dds_pinout, microwave_dds_profiles)
+        self.ryd780a_dds = DDS(HSDIO, ryd780a_dds_pinout, ryd780a_dds_profiles)
 
         # declare switches
 
@@ -375,11 +376,11 @@ class Rb(object):
             delay=op_shutter_switch_delay
         )
 
-        self.scope_trigger_switch = Switch(
+        self.microwave_switch = Switch(
             HSDIO,
-            scope_trigger_switch_chan,
-            profiles=scope_trigger_switch_profile,
-            delay=scope_trigger_switch_delay
+            microwave_switch_chan,
+            profiles=microwave_switch_profile,
+            delay=microwave_switch_delay
         )
 
         self.camera = Camera(
@@ -389,6 +390,33 @@ class Rb(object):
             pulse_length=5 # in millisecond. this can be overwrttten in functional waveform window
         )
 
+        self.red_pointing_aom_switch = Switch(
+            HSDIO,
+            red_pointing_aom_switch_chan,
+            profiles=red_pointing_aom_switch_profile,
+            delay=red_pointing_aom_switch_delay
+        )
+
+        self.blue_pointing_aom_switch = Switch(
+            HSDIO,
+            blue_pointing_aom_switch_chan,
+            profiles=blue_pointing_aom_switch_profile,
+            delay=blue_pointing_aom_switch_delay
+        )
+
+        self.ryd780a_aom_switch = Switch(
+            HSDIO,
+            ryd780a_aom_switch_chan,
+            profiles=ryd780a_aom_switch_profile,
+            delay=ryd780a_aom_switch_delay
+        )
+
+        self.ground_aom_switch = Switch(
+            HSDIO,
+            ground_aom_switch_chan,
+            profiles=ground_aom_switch_profile,
+            delay=ground_aom_switch_delay
+        )
 #    def mot_dds(self):
 #        return
 #
