@@ -109,7 +109,8 @@ class AQuA(Experiment):
         self.instruments += [
             self.box_temperature, self.picomotors, self.pyPicoServer,
             self.Andors, self.PICams, self.DC_noise_eaters, self.LabView,
-            self.DDS, self.unlock_pause, self.Embezzletron
+            self.DDS, self.unlock_pause, self.Embezzletron, self.aerotechs,
+            self.conexes, self.instekpsts, self.vaunixs, self.unlock_pause
         ]
 
         # analyses
@@ -158,9 +159,8 @@ class AQuA(Experiment):
             self.iterations_graph, self.DC_noise_eater_graph,
             self.DC_noise_eater_filter, self.Andors, self.PICams, self.Ramsey,
             self.retention_analysis, self.retention_graph, self.counter_graph,
-            self.save_notes, self.save2013Analysis, self.aerotechs,
-            self.conexes, self.counter_hist, self.instekpsts, self.vaunixs,
-            self.unlock_pause,  # self.vitalsignsound,
+            self.save_notes, self.save2013Analysis,
+            self.counter_hist,  # self.vitalsignsound,
             self.origin
         ]
 

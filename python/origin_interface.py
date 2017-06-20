@@ -307,7 +307,7 @@ class Origin(Analysis):
 
     # threading stuff
     self.queueAfterMeasurement = True
-    self.measurementDependencies = experiment.analyses
+    # dependencies are added pre experiment due to call order
 
   #=============================================================================
   def configure(self):
@@ -341,9 +341,16 @@ class Origin(Analysis):
   #=============================================================================
   def preExperiment(self, experimentResults):
     """This is called before an experiment."""
-    #print "measurementDataList: ", self.measurementDataList
-    #print "iterationDataList: ", self.iterationDataList
+    # this needs to be after the initialization so that variable has been
+    # defined
+    self.measurementDependencies = []
+    for a in self.experiment.analyses:
+        # filter out origin from the dependencies
+        if a.name != self.name:
+            self.measurementDependencies.append(a)
 
+    # call therading setup code
+    super(Origin, self).preExperiment(experimentResults)
     # just move on, done throw an error
     if not self.enable:
       return 0
@@ -381,12 +388,13 @@ class Origin(Analysis):
     return 0
 
   #=============================================================================
-  def postMeasurement(self, measurementResults, iterationResults, experimentResults):
-    """Results is a tuple of (measurementResult,iterationResult,experimentResult) references to HDF5 nodes for this
-    measurement."""
+  def analyzeMeasurement(self, measurementResults, iterationResults, experimentResults):
+    """Results is a tuple of
+    (measurementResult, iterationResult, experimentResult) references to HDF5
+    nodes for this measurement.
+    """
     # set TIMESTAMP
     self.ts = long(time.time()*2**32)
-    # build list of per measurement loggable datasets
     measurementResults.visititems(self.processDatasets(self.measurementDataList, pass_measurement))
 
     # process measurement data from hdf5 file
@@ -399,7 +407,7 @@ class Origin(Analysis):
     return 0
 
   #=============================================================================
-  def postIteration(self, iterationResults, experimentResults):
+  def analyzeIteration(self, iterationResults, experimentResults):
     # log any per iteration parameters here
     # set TIMESTAMP
     self.ts = long(time.time()*2**32)
@@ -415,7 +423,7 @@ class Origin(Analysis):
     return 0
 
   #=============================================================================
-  def postExperiment(self, experimentResults):
+  def analyzeExperiment(self, experimentResults):
     # log any per experiment parameters here
 
     # resave the properties now, since the dicts have been edited during the experiment
@@ -449,6 +457,7 @@ class Origin(Analysis):
         if pass_func(obj):
           parsedName = name.replace('/','_')
           append=True
+          #logger.warning('dataset: `{}` is acceptable.'.format(name))
           for item in data_list:
             if item.name == parsedName:
               logger.debug("dataset `{}` already exists in list".format(parsedName))
@@ -473,6 +482,8 @@ class Origin(Analysis):
             new_entry.new_entry(parsedName, obj, self.ts)
             msg = "New dataset `{}` of type `{}` with `{}` channels detected."
             logger.info(msg.format(parsedName, obj.dtype, new_entry.channels))
+        else:
+          logger.debug('dataset: `{}` not acceptable for some reason.'.format(name))
     return process
 
   #=============================================================================

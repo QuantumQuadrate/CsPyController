@@ -88,7 +88,7 @@ class Analysis(Prop):
         2: med fail, continue with other analyses, do not increment measurement total, and delete measurement data after all analyses
         3: hard fail, do not continue with other analyses, do not increment measurement total, delete measurement data
     """
-
+    enable = Bool(default=False)
     # holds the analysis thread that handles measurement analysis
     measurementThread = Member()
     # analysis thread wake event
@@ -129,7 +129,9 @@ class Analysis(Prop):
 
     def __init__(self, name, experiment, description=''):  # subclassing from Prop provides save/load mechanisms
         super(Analysis, self).__init__(name, experiment, description)
-        self.properties += ['dropMeasurementIfSlow', 'dropIterationIfSlow']
+        self.properties += [
+            'dropMeasurementIfSlow', 'dropIterationIfSlow', 'enable'
+        ]
         self.measurementDependencies = []
         self.measurementQueue = []
         # set up the analysis thread
@@ -216,7 +218,7 @@ class Analysis(Prop):
                         msg = '`{}` waiting for dep: `{}``'
                         logger.debug(msg.format(self.name, dep.name))
                         wait_for_dependency(dep, m_data[2])
-                        logger.debug('dep: `{}` satidfied'.format(dep.name))
+                        logger.debug('dep: `{}` satisfied'.format(dep.name))
                     msg = '`{}` processing data from {}:{} (iter:meas)'
                     logger.debug(msg.format(self.name, *m_data[2]))
 
@@ -464,6 +466,8 @@ class ShotsBrowserAnalysis(AnalysisWithFigure):
         self.properties += ['measurement', 'shot', 'showROIs']
 
     def preExperiment(self, experimentResults):
+        # call therading setup code
+        super(ShotsBrowserAnalysis, self).preExperiment(experimentResults)
         self.experimentResults = experimentResults
         self.ivarValueLists = [i for i in self.experiment.ivarValueLists]  # this line used to access the hdf5 file, but I have temporarily removed ivarValueLists from the HDF5 because it could not handle arbitrary lists of lists
         self.selection = [0]*len(self.ivarValueLists)
@@ -694,6 +698,9 @@ class HistogramGrid(AnalysisWithFigure):
         self.measurementDependencies += [self.experiment.squareROIAnalysis]
 
     def preExperiment(self, experimentResults):
+        # call therading setup code
+        super(HistogramGrid, self).preExperiment(experimentResults)
+
         if self.enable and self.experiment.saveData:
             #self.pdf = PdfPages(os.path.join(self.experiment.path, 'histogram_grid_{}.pdf'.format(self.experiment.experimentPath)))
 
@@ -1250,6 +1257,8 @@ class IterationsGraph(AnalysisWithFigure):
         ]
 
     def preExperiment(self, experimentResults):
+        # call therading setup code
+        super(IterationsGraph, self).preExperiment(experimentResults)
         # erase the old data at the start of the experiment
         self.mean = None
         self.sigma = None

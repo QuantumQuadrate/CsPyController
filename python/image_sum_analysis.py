@@ -64,6 +64,9 @@ class ImageSumAnalysis(AnalysisWithFigure):
         self.background_array = self.mean_array[self.shot]
 
     def preExperiment(self, experimentResults):
+        # call therading setup code
+        super(ImageSumAnalysis, self).preExperiment(experimentResults)
+
         if self.enable and self.experiment.saveData:
             #self.pdf = PdfPages(os.path.join(self.experiment.path, 'image_mean_{}.pdf'.format(self.experiment.experimentPath)))
 
