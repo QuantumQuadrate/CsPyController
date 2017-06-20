@@ -18,8 +18,8 @@
 
 __author__ = 'Matthew Ebert'
 
-ORIGIN_TEST = False
-#ORIGIN_TEST = True
+#ORIGIN_TEST = False
+ORIGIN_TEST = True
 
 # Use Atom traits to automate Enaml updating
 from atom.api import Int, Float, Str, Member, Bool, Long, Typed
@@ -304,6 +304,10 @@ class Origin(Analysis):
 
     self.properties += ['measurementDataList','iterationDataList','enable']
     self.properties += ['streamNameSpace']
+
+    # threading stuff
+    self.queueAfterMeasurement = True
+    self.measurementDependencies = experiment.analyses
 
   #=============================================================================
   def configure(self):
