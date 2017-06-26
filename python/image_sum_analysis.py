@@ -211,11 +211,11 @@ class ImageSumAnalysis(AnalysisWithFigure):
                     fig = self.backFigure
                     fig.clf()
 
-                    self.draw_fig(fig, self.iteration, self.shot)
+                    self.draw_figure(fig, self.iteration, self.shot)
 
                     super(ImageSumAnalysis, self).updateFigure()
                 except Exception as e:
-                    logger.warning('Problem in ImageSumAnalysis.updateFigure()\n:{}'.format(e))
+                    logger.exception('Problem in ImageSumAnalysis.updateFigure()\n:{}'.format(e))
                 finally:
                     self.update_lock = False
 

@@ -9,10 +9,11 @@ This instrument generates random data for testing purposes.
 
 from __future__ import division
 from atom.api import Member
-from numpy.random import random_sample, rand, randint
+from numpy.random import random_sample, randint
 from cs_instruments import Instrument
 from instrument_property import IntProp
 from cs_errors import PauseError
+import time
 
 __author__ = 'Matthew Ebert'
 import logging
@@ -33,6 +34,10 @@ class Embezzletron(Instrument):
                                 )
         self.shotsPerMeasurement.value = 2
 
+    def initialize(self):
+        # time.sleep(0.01)
+        pass
+
     def start(self):
         self.isDone = True
 
@@ -43,6 +48,7 @@ class Embezzletron(Instrument):
         return randint(10, size=(5, 5))
 
     def generateShots(self, hdf5):
+        time.sleep(0.1)
         for i in range(self.shotsPerMeasurement.value):
             hdf5['embezzletron/shots/'+str(i)] = self.generateArray()
 

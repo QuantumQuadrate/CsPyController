@@ -2829,7 +2829,7 @@ enamldef LoadingFilters(GroupBox):
             checked := filters.enable
 
         Label:
-            text = 'A boolean expression that evaluates the filter.\nUse t[shot,region] for the summation over any shot and region.\nFor example to require that sites 15 and 17 load: t[0,17]>20000 and t[0,15]>21000'
+            text = 'A boolean expression that evaluates the filter.\nUse t[shot,region] for the summation over any shot and region.\nFor example to require that sites 15 and 17 load: t[0,17] and t[0,15]'
         Field:
             text := filters.filter_expression
             style_class << 'valid' if filters.valid else 'invalid'

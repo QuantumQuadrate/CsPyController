@@ -172,7 +172,7 @@ class Analysis(Prop):
         """
         pass
 
-    def postMeasurement(self, measurementResults, iterationResults, experimentResults):
+    def postMeasurement(self, callback, measurementResults, iterationResults, experimentResults):
         """Processes post-measurement analysis if defined.
 
         Results is a tuple of:
@@ -184,7 +184,8 @@ class Analysis(Prop):
             self.analyzeMeasurement,        # function pointer
             (measurementResults, iterationResults, experimentResults),  # args
             (self.experiment.iteration, self.experiment.measurement),  # status
-            self.name
+            self.name,
+            callback        # callback function
         ]
         # see if we can thread this analysis
         if self.queueAfterMeasurement:
@@ -205,7 +206,7 @@ class Analysis(Prop):
             result = self.analyzeMeasurement(*m_data[1])
             # update the analysis status
             self.analysisStatus = m_data[2]
-            return result
+            callback(result)
 
     def measurementProcessLoop(self):
         while True:  # run forever
@@ -222,9 +223,10 @@ class Analysis(Prop):
                     msg = '`{}` processing data from {}:{} (iter:meas)'
                     logger.debug(msg.format(self.name, *m_data[2]))
 
+                    result = 0
                     try:
                         # use the function pointer that was stored in the list
-                        m_data[0](*m_data[1])
+                        result = m_data[0](*m_data[1])
                     except:
                         msg = (
                             'Measurement analysis thread encountered an error'
@@ -238,6 +240,9 @@ class Analysis(Prop):
                     ).format(self.name, *m_data[2])
                     logger.debug(msg)
                     self.analysisStatus = m_data[2]
+
+                    # run the callback function to increment counter
+                    m_data[4](result)
                 else:
                     self.measurementQueueEmpty = True
                     time.sleep(0.01)
@@ -532,6 +537,7 @@ class LoadingFilters(Analysis):
     filter_expression = Str()
     filter_level = Int()
     valid = Bool(True)
+    roi_source_path = Member()
 
     def __init__(self, name, experiment, description=''):
         super(LoadingFilters, self).__init__(name, experiment, description)
@@ -540,20 +546,21 @@ class LoadingFilters(Analysis):
         ]
         # threading stuff
         self.queueAfterMeasurement = True
-        self.measurementDependencies += [self.experiment.squareROIAnalysis]
+        self.measurementDependencies += [self.experiment.thresholdROIAnalysis]
+        self.roi_source_path = self.experiment.thresholdROIAnalysis.meas_analysis_path
 
     def analyzeMeasurement(self, measurementResults, iterationResults, experimentResults):
         text = 'none'
         if self.enable:
             text = 'okay'
             if self.filter_expression != '':
-                if ('analysis/squareROIsums' in measurementResults):
+                if (self.roi_source_path in measurementResults):
 
                     # evaluate the boolean expression, with the squareROIsums
                     # as 't' in the namespace. This will overwrite any previous
                     # value, so we make a copy of the dictionary
                     vars = self.experiment.vars.copy()
-                    vars['t'] = measurementResults['analysis/squareROIsums']
+                    vars['t'] = measurementResults[self.roi_source_path]
                     value, valid = cs_evaluate.evalWithDict(self.filter_expression, varDict=vars)
                     if not valid:
                         # raise an error

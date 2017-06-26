@@ -537,6 +537,7 @@ class Experiment(Prop):
                     self.create_optimizer_iteration()
 
                 #loop until the desired number of measurements are taken
+                #self.measurement = 0
                 while (self.goodMeasurements < self.measurementsPerIteration) and (self.status == 'running'):
                     self.set_gui({'valid': True})  # reset all the red error background graphics to show no-error
                     logger.info('iteration {} measurement {}'.format(self.iteration, self.measurement))
@@ -544,7 +545,7 @@ class Experiment(Prop):
                     self.updateTime()  # update the countdown/countup clocks
                     logger.debug('updating measurement count')
 
-                    #make sure results are written to disk
+                    # make sure results are written to disk
                     logger.debug('flushing hdf5')
                     self.hdf5.flush()
 
@@ -563,6 +564,7 @@ class Experiment(Prop):
                             sound.error_sound()
 
                     self.update_gui()
+                    logger.debug("completed measurement")
 
                 # Measurement loop exited, but that might mean we are paused, or an error.
                 # So check to see if we completed the iteration.
@@ -710,8 +712,11 @@ class Experiment(Prop):
         self.evaluateAll()
 
     def measure(self):
-        """Enables all instruments to begin a measurement.  Sent at the beginning of every measurement.
-        Actual output or input from the measurement may yet wait for a signal from another device."""
+        """Enables all instruments to begin a measurement.
+
+        Sent at the beginning of every measurement. Actual output or input from
+        the measurement may yet wait for a signal from another device.
+        """
 
         logger.debug('starting measurement')
         start_time = time.time()  # record start time of measurement
@@ -720,28 +725,28 @@ class Experiment(Prop):
         # start each instrument
         for i in self.instruments:
             if i.enable:
-                #check that the instruments are initalized
+                # check that the instruments are initalized
                 if not i.isInitialized:
-                    logger.info('experiment.measure() initializing '+i.name)
+                    logger.debug('experiment.measure() initializing '+i.name)
                     i.initialize()  # reinitialize
                     i.update()  # put the settings to where they should be at this iteration
                 else:
-                    #check that the instrument is not already occupied
+                    # check that the instrument is not already occupied
                     if not i.isDone:
                         logger.warning('Instrument '+i.name+' is already busy, and will be stopped and restarted.')
                         i.stop()
-                    #set a flag to indicate each instrument is now busy
+                    # set a flag to indicate each instrument is now busy
                     i.isDone = False
-                    #let each instrument begin measurement
-                    #put each in a different thread, so they can proceed simultaneously
+                    # let each instrument begin measurement
+                    # put each in a different thread, so they can proceed simultaneously
                     if self.enable_instrument_threads:
                         threading.Thread(target=i.start).start()
                     else:
                         i.start()
         logger.debug('all instruments started')
 
-        #loop until all instruments are done
-        #TODO: can we do this with a callback?
+        # loop until all instruments are done
+        # TODO: can we do this with a callback?
         while (not all([i.isDone for i in self.instruments])) and (self.status == 'running'):
             if time.time() - start_time > self.measurementTimeout:  # break if timeout exceeded
                 self.timeOutExpired = True
@@ -759,15 +764,15 @@ class Experiment(Prop):
         self.measurementResults.attrs['start_time'] = start_time
         self.measurementResults.attrs['start_time_str'] = self.date2str(start_time)
         self.measurementResults.attrs['measurement'] = self.measurement
-        self.measurementResults.create_group('data') #for storing data
+        self.measurementResults.create_group('data')  # for storing data
         for i in self.instruments:
-            #Pass the hdf5 group to each instrument so they can write results to it.  We do it here because h5py is not
-            # thread safe, and also this way we avoid saving results for aborted measurements.
+            # Pass the hdf5 group to each instrument so they can write results
+            # to it.  We do it here because h5py is not thread safe, and also
+            # this way we avoid saving results for aborted measurements.
             if i.enable:
                 i.writeResults(self.measurementResults['data'])
 
         self.postMeasurement()
-        logger.debug('finished measurement')
 
     def pause_now(self):
         """Pauses experiment as soon as possible.  It is much safer to use Pause after Measurement instead of this.
@@ -791,51 +796,127 @@ class Experiment(Prop):
         for i in self.analyses:
             i.postIteration(self.iterationResults, self.hdf5)
 
-    def postMeasurement(self):
-        logger.debug('starting post measurement analyses')
-        #run analysis
+    def finalizeMeasurement(self, analysisList, measResults, iterResults):
         good = True
         delete = False
+        # get the analysis iteration
+        iter = iterResults.attrs['iteration']
+        for analysis in analysisList:
+            # print "="*20
+            # print analysis['name']
+            # print analysis['good']
+            # print analysis['delete']
+            if analysis['delete']:
+                good = False
+                delete = True
+                break
+            if not analysis['good']:
+                good = False
+
+        if delete:
+            try:
+                # get the measurement number
+                m = measResults.attrs['measurement']
+                # remove the reference to the bad data
+                del measResults
+                # really remove the bad data
+                del iterResults['measurements/'+str(m)]
+            except:
+                logger.exception('error when trying to delete measurement')
+
+        if good:
+            self.goodMeasurements += 1
+            # add one to the last counter in the list
+            self.completedMeasurementsByIteration[iter] += 1
+
+    def postMeasurementCallBack(self, analysisList):
+        """Returns a function pointer to be passed to the analysis so that it
+        can be called when analysis finishes.
+
+        This callback function is in charge of incrementing the
+        goodMeasurements counter based on the results of the error parameter.
+
+        There error parameter follows the following definition:
+        None or 0   : no error, increment counter
+        1           : error, continue don't increment
+        2           : error, continue don't increment and purge data
+        3           : error, stop other analyses don't increment and purge data
+
+        Due to complexity of threading, error code 3 will be depricated.
+        """
+
+        # hdf5 datagroups as well
+        measResults = self.measurementResults
+        iterResults = self.iterationResults
+
+        def wrapper(analysis):
+            def callback(error):
+                good = True
+                delete = False
+                if not self.saveData:
+                    # we are not saving data so remove the measurement from the
+                    # hdf5
+                    delete = True
+
+                if error is None or error == 0:
+                    pass
+                elif error == 1:
+                    # continue, but do not increment goodMeasurements
+                    good = False
+                elif error == 2:
+                    # continue, but do not increment goodMeasurements
+                    # delete data when done
+                    good = False
+                    delete = True
+                elif error == 3:
+                    # stop, do not increment goodMeasurements
+                    # delete data when done
+                    good = False
+                    delete = True
+                    logger.warning('Analysis Error code 3 is no longer supported')
+                else:
+                    msg = (
+                        'bad return value {} in experiment.postMeasurement()'
+                    ).format(error)
+                    logger.warning(msg)
+
+                resultDict = {}
+                resultDict['name'] = analysis.name
+                resultDict['good'] = good
+                resultDict['delete'] = delete
+                analysisList.append(resultDict)
+                #print(analysisList)
+                logger.debug("{}: {}/{}".format(analysis.name, len(analysisList), len(self.analyses)))
+
+                if len(analysisList) == len(self.analyses):
+                    self.finalizeMeasurement(analysisList, measResults, iterResults)
+
+            return callback
+
+        return wrapper
+
+    def postMeasurement(self):
+        logger.debug('starting post measurement analyses')
+        # run analyses
+        analysisList = []
+        callback = self.postMeasurementCallBack(analysisList)
         for i in self.analyses:
-            time_debug=time.time() # Start time measurement
+            # print(i.name)
+            #time_debug=time.time()  # Start time measurement
             #logger.info('Running :{0}'.format(i))
-            a = i.postMeasurement(self.measurementResults, self.iterationResults, self.hdf5)
+            i.postMeasurement(
+                callback(i),
+                self.measurementResults,
+                self.iterationResults,
+                self.hdf5
+            )
             #time2_debug=1000.0*(time.time()-time_debug)
             # To measure how long do analyses take.
             #if (time2_debug>0.5): # Don't display if the process takes less than 0.5 ms
             #logger.info('Completed Running :{0}, time usage : {1}ms'.format(i,round(time2_debug,0)))
 
-            if (a is None) or (a == 0):
-                continue
-            elif a == 1:
-                # continue, but do not increment goodMeasurements
-                good = False
-                continue
-            elif a == 2:
-                # continue, but do not increment goodMeasurements, delete data when done
-                good = False
-                delete = True
-                continue
-            elif a == 3:
-                # stop, do not increment goodMeasurements, delete data when done
-                good = False
-                delete = True
-                break
-            else:
-                logger.warning('bad return value {} in experiment.postMeasurement() for analysis {}: {}'.format(a, i.name, i.description))
-        if not self.saveData:
-            #we are not saving data so remove the measurement from the hdf5
-            delete = True
-        if delete:
-            m = self.measurementResults.attrs['measurement']  # get the measurement number
-            del self.measurementResults  # remove the reference to the bad data
-            del self.iterationResults['measurements/'+str(m)]  # really remove the bad data
-        if good:
-            self.goodMeasurements += 1
-            self.completedMeasurementsByIteration[-1] += 1  # add one to the last counter in the list
-
     def preExperiment(self):
-        #run analyses
+        # run analyses
         for count, i in enumerate(self.analyses):
             try:
                 i.preExperiment(self.hdf5)
@@ -845,26 +926,26 @@ class Experiment(Prop):
                 raise PauseError
 
     def preIteration(self):
-        #run analyses
+        # run analyses
         for i in self.analyses:
             i.preIteration(self.iterationResults, self.hdf5)
 
     def reset(self):
         """Reset the iteration variables and timing."""
 
-        #check if we are ready to do an experiment
+        # check if we are ready to do an experiment
         if self.status != 'idle':
             logger.info('Current status is {}. Cannot reset experiment unless status is idle.  Try halting first.'.format(self.status))
             return  # exit
 
-        #reset the log
+        # reset the log
         self.reset_logger()
         logger.info('resetting experiment')
         self.set_gui({'valid': True})
 
         self.set_status('beginning experiment')
 
-        #reset experiment variables
+        # reset experiment variables
         self.timeStarted = time.time()
         self.iteration = 0
         self.measurement = 0
