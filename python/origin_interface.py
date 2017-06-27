@@ -4,7 +4,7 @@
    author=Matthew Ebert
    created=2017-04-20
 
-   This code saves registered parameters to the origin data sever on a per 
+   This code saves registered parameters to the origin data sever on a per
    measurement, iteration, or experiment cycle.
 
    The origin data server for SaffmanLab can be found here:
@@ -48,7 +48,7 @@ fullCfgPath  = os.path.join(fullBasePath, "config")
 sys.path.append(fullLibPath)
 
 from origin.client import server
-from origin import current_time, timestamp
+from origin import current_time, TIMESTAMP
 
 import ConfigParser
 
@@ -110,7 +110,7 @@ class Stream(Prop):
   '''
   name   = Str()
   fullPath = Str()
-  dtype  = Str()  
+  dtype  = Str()
   time   = Long()
   data   = Member()
   stream = Bool()
@@ -162,7 +162,7 @@ class Stream(Prop):
     streamStatus = self.stream
     if self.error:
       streamStatus = "Error"
-    
+
     return "*--- Dataset: {}, type: {}, streamName: {}, stream?: {}".format(self.name, self.dtype, self.streamName, streamStatus)
 
   #=============================================================================
@@ -236,9 +236,9 @@ class Stream(Prop):
   #=============================================================================
   def logData(self):
     if self.channels == 1:
-      data = { timestamp: self.time, self.name: self.data }
+      data = { TIMESTAMP: self.time, self.name: self.data }
     else:
-      data = { timestamp: self.time }
+      data = { TIMESTAMP: self.time }
       for i, d in enumerate(self.data):
         data[str(i)] = d
     self.connection.send(**data)
@@ -277,7 +277,7 @@ class Origin(Analysis):
   #timeout = Typed(FloatProp)
   measurementDataList = Member()
   iterationDataList = Member()
-  ts = Member()  
+  ts = Member()
   settings = Member() # hold the hdf5 group object so I can save resave the settigns after the experiment is finished
   server = Member() # holds the server object
   config = Member() # holds the origin configuration file
@@ -293,16 +293,16 @@ class Origin(Analysis):
     self.configure()
 
     self.measurementDataList = ListProp(
-      'measurementDataList', 
-      experiment, 
-      'A list of per-measurement values that can be sent to the origin data server', 
+      'measurementDataList',
+      experiment,
+      'A list of per-measurement values that can be sent to the origin data server',
       listElementType=Stream,
       listElementName='stream'
     )
     self.iterationDataList = ListProp(
-      'iterationDataList', 
-      experiment, 
-      'A list of per-iteration values that can be sent to the origin data server', 
+      'iterationDataList',
+      experiment,
+      'A list of per-iteration values that can be sent to the origin data server',
       listElementType=Stream,
       listElementName='stream'
     )
@@ -337,7 +337,7 @@ class Origin(Analysis):
           cnt+=1
         logger.debug(i.print_status())
     return cnt
-    
+
   #=============================================================================
   def preExperiment(self, experimentResults):
     """This is called before an experiment."""
@@ -372,15 +372,15 @@ class Origin(Analysis):
 
     logger.debug('Registering streams...done')
     logger.info('Origin streams registered: {}'.format(cnt))
-    logger.info('Initializing Origin server interface...done')    
+    logger.info('Initializing Origin server interface...done')
     return 0
 
   #=============================================================================
   def preIteration(self, iterationResults, experimentResults):
     # initialize any logged parameters that are on a per iteration basis
     return 0
-  
-  #============================================================================= 
+
+  #=============================================================================
   def postMeasurement(self, measurementResults, iterationResults, experimentResults):
     """Results is a tuple of (measurementResult,iterationResult,experimentResult) references to HDF5 nodes for this
     measurement."""
@@ -480,7 +480,7 @@ class Origin(Analysis):
     #print "hdf_parent_node: ", hdf_parent_node
     #print "path: ", hdf_parent_node.name
 
-    # save the origin settings hdf5 object so we can rerun the toHDF5 method 
+    # save the origin settings hdf5 object so we can rerun the toHDF5 method
     # after the experiment fills out the dicts
     self.settings = hdf_parent_node.name
     # dont save to hdf5 when everyone else is
