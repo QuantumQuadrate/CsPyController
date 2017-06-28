@@ -187,6 +187,11 @@ class Experiment(Prop):
     ivarBases = Member()
     instrument_update_needed = Bool(True)
 
+    # threading
+    exp_thread = Member()  # thread running the exp so gui is not blocked
+    restart = Member()  # threading event for communication
+    task = Member()  # signaling which task should be completed
+
     def __init__(self):
         """Defines a set of instruments, and a sequence of what to do with them."""
         logger.debug('experiment.__init__()')
@@ -228,9 +233,44 @@ class Experiment(Prop):
         # any variables added here should be csv format
         self.variablesNotToSave='experiment'
 
+        # setup the experiment thread
+        self.restart = threading.Event()
+        self.exp_thread = threading.Thread(target=self.exp_loop)
+        self.exp_thread.daemon = True
+        self.exp_thread.start()
+        self.task = 'none'
+
+    def exp_loop(self):
+        """Run the experimental loop sequence.
+
+        This is designed to be run in a separate thread.
+        """
+        while True:  # run forever
+            # wait for the cue to restart the experiment
+            self.restart.wait()
+
+            # check the task flag to see what to do
+            if self.task == 'go':
+                # now do that fancy experiment
+                self.go()
+            elif self.task == 'upload':
+                # upload the stuff to the instruments
+                self.upload()
+            elif self.task == 'end':
+                # end the current experiment
+                self.end()
+            else:
+                msg = 'Unrecognized task flag `{}` encountered. Doing nothing.'
+                self.error(msg.format(self.task))
+
+            # clear the task flag
+            self.task = 'none'
+
     def applyToSelf(self, dict):
-        """Used to apply a bunch of variables at once.  This function is called using an Enaml deferred_call so that the
-         updates are done in the GUI thread."""
+        """Used to apply a bunch of variables at once.  This function is called
+         using an Enaml deferred_call so that the updates are done in the GUI
+         thread.
+         """
 
         for key, value in dict.iteritems():
             try:
@@ -261,8 +301,9 @@ class Experiment(Prop):
         #you will need to do autosave().close() wherever this is called
 
     def create_data_files(self):
-        """Create a new HDF5 file to store results.  This is done at the beginning of
-        every experiment."""
+        """Create a new HDF5 file to store results.  This is done at the
+        beginning of every experiment.
+        """
 
         #if a prior HDF5 results file is open, then close it
         if hasattr(self, 'hdf5') and (self.hdf5 is not None):
@@ -374,14 +415,18 @@ class Experiment(Prop):
     def date2str(self, time):
         return datetime.datetime.fromtimestamp(time).strftime('%Y-%m-%d %H:%M:%S')
 
-    def endThread(self):
+    def end_now(self):
         """Launches end() in a new thread, to keep GUI free"""
         if self.status == 'running':
-            logger.warning('You cannot manually finish an experiment that is still running.  Pause first.')
+            msg = (
+                'You cannot manually finish an experiment that is still'
+                ' running.  Pause first.'
+            )
+            logger.warning(msg)
         else:
-            thread = threading.Thread(target=self.end)
-            thread.daemon = True
-            thread.start()
+            self.task = 'end'
+            self.restart.set()
+            self.restart.clear()
 
     def end(self):
         """Finishes the current experiment, and then uploads data"""
@@ -495,9 +540,9 @@ class Experiment(Prop):
                 self.ivarBases[0] = 1
 
     def goThread(self):
-        thread = threading.Thread(target=self.go)
-        thread.daemon = True
-        thread.start()
+        self.task = 'go'
+        self.restart.set()
+        self.restart.clear()
 
     def go(self):
         """Pick up the experiment wherever it was left off."""
@@ -990,18 +1035,11 @@ class Experiment(Prop):
     def resetAndGo(self):
         """Reset the iteration variables and timing, then proceed with an experiment."""
         if self.reset():
-            # if the reset succeeded, then go()
-            self.go()
-
-    def resetAndGoThread(self):
-        thread = threading.Thread(target=self.resetAndGo)
-        thread.daemon = True
-        thread.start()
-
-    def resetThread(self):
-        thread = threading.Thread(target=self.reset)
-        thread.daemon = True
-        thread.start()
+            self.task = 'go'
+            # if the reset succeeded, then set the thread event
+            self.restart.set()
+            # then clear it
+            self.restart.clear()
 
     def save(self, path):
         """This function saves all the settings."""
@@ -1153,22 +1191,15 @@ class Experiment(Prop):
         if self.enable_sounds:
             sound.complete_sound()
 
-    def uploadNowThread(self):
-        """Launches upload() in a new thread, to keep GUI free"""
-        if self.status == 'running':
-            logger.warning('You cannot manually finish an experiment that is still running.  Pause first.')
-        else:
-            thread = threading.Thread(target=self.upload)
-            thread.daemon = True
-            thread.start()
-
-    def uploadNow(self):
+    def upload_now(self):
         """Skip straight to uploading the current data."""
-
-        try:
-            self.upload()
-        except PauseError:
-            self.set_status('paused after error')
-        except Exception as e:
-            logger.warning('Uncaught Exception in experiment.upload:\n{}\n{}'.format(e, traceback.format_exc()))
-            self.set_status('paused after error')
+        if self.status == 'running':
+            msg = (
+                'You cannot manually finish an experiment that is still'
+                ' running.  Pause first.'
+            )
+            logger.warning(msg)
+        else:
+            self.task = 'upload'
+            self.restart.set()
+            self.restart.clear()
