@@ -235,7 +235,10 @@ class Experiment(Prop):
 
         # setup the experiment thread
         self.restart = threading.Event()
-        self.exp_thread = threading.Thread(target=self.exp_loop)
+        self.exp_thread = threading.Thread(
+            target=self.exp_loop,
+            name='exp_thread'
+        )
         self.exp_thread.daemon = True
         self.exp_thread.start()
         self.task = 'none'
