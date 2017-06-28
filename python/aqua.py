@@ -7,6 +7,7 @@ import traceback
 
 from cs_errors import PauseError
 from atom.api import Member
+import json
 
 # get the config file
 from __init__ import import_config
@@ -85,8 +86,13 @@ class AQuA(Experiment):
     ROI_bg_rows = config.getint('EXPERIMENT', 'BGRows')
     ROI_bg_columns = config.getint('EXPERIMENT', 'BGColumns')
 
+    # the static configuration file, stored as a dict
+    config_file = Member()
+
     def __init__(self):
         super(AQuA, self).__init__()
+        # save the config file as a dictionary
+        self.config_file = {s:dict(config.items(s)) for s in config.sections()}
 
         # instruments
         self.functional_waveforms = functional_waveforms.FunctionalWaveforms('functional_waveforms', self, 'Waveforms for HSDIO, DAQmx DIO, and DAQmx AO; defined as functions')
@@ -142,9 +148,9 @@ class AQuA(Experiment):
         self.counter_hist = Counter.CounterHistogramAnalysis('counter_hist', self, 'Fits histograms of counter data and plots hist and fits.')
         self.save_notes = save2013style.SaveNotes('save_notes', self, 'save a separate notes.txt')
         self.save2013Analysis = save2013style.Save2013Analysis(self)
+        #self.vitalsignsound=Vitalsign('vital_sign_sound',self,'beeps when atoms are loaded')
         self.origin = origin_interface.Origin('origin', self, 'saves selected data to the origin data server')
 
-        #self.vitalsignsound=Vitalsign('vital_sign_sound',self,'beeps when atoms are loaded')
         # do not include functional_waveforms_graph in self.analyses because it
         # need not update on iterations, etc.
         # origin needs to be the last analysis always
@@ -161,7 +167,7 @@ class AQuA(Experiment):
             self.retention_analysis, self.retention_graph, self.counter_graph,
             self.save_notes, self.save2013Analysis,
             self.counter_hist,  # self.vitalsignsound,
-            self.origin
+            self.origin  # origin has to be last
         ]
 
         self.properties += [
@@ -175,7 +181,8 @@ class AQuA(Experiment):
             'histogramAnalysis', 'histogram_grid', 'retention_analysis',
             'measurements_graph', 'iterations_graph', 'retention_graph',
             'DC_noise_eater_filter', 'DC_noise_eater_graph', 'Ramsey',
-            'counter_graph', 'counter_hist', 'unlock_pause', 'origin'
+            'counter_graph', 'counter_hist', 'unlock_pause', 'config_file',
+            'origin'
         ]
 
         try:
