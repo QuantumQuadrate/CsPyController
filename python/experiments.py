@@ -1,35 +1,50 @@
 """experiments.py
-This file contains the model to describe and experiment, and the machinery of how an iteration based experiment is run.
+This file contains the model to describe and experiment, and the machinery of
+how an iteration based experiment is run.
 
 author=Martin Lichtman
 """
 
 from __future__ import division
-__author__ = 'Martin Lichtman'
-import logging
-logger = logging.getLogger(__name__)
-from cs_errors import PauseError
 
 # import core python modules
-import threading, time, datetime, traceback, os, shutil, cStringIO, numpy, h5py, zipfile, cStringIO
-
-#set numpy print options to limit to 2 digits
-numpy.set_printoptions(formatter=dict(float=lambda t: "%.2e" % t))
+import threading
+import time
+import datetime
+import traceback
+import os
+import shutil
+import cStringIO
+import numpy
+import h5py
+import zipfile
 
 # Use Atom traits to automate Enaml updating
 from atom.api import Int, Float, Str, Member, Bool
 
 # Bring in other files in this package
-import cs_evaluate, sound, optimization
+from cs_errors import PauseError
+import cs_evaluate
+import sound
+import optimization
 from instrument_property import Prop, EvalProp, ListProp, StrProp
+
+import logging
+__author__ = 'Martin Lichtman'
+logger = logging.getLogger(__name__)
+
+# set numpy print options to limit to 2 digits
+numpy.set_printoptions(formatter=dict(float=lambda t: "%.2e" % t))
+
 
 class IndependentVariable(EvalProp):
     """A class to hold the independent variables for an experiment.  These are
     the variables that get stepped through during the iterations.  Each
-    independent variable is defined by a valueList which holds an array of values.
-    Using this technique, the valueList can be assigned as single value, an arange, linspace,
-    logspace, sin(logspace), as complicated as you like, so long as it can be eval()'d and then
-    cast to an array."""
+    independent variable is defined by a valueList which holds an array of
+    values. Using this technique, the valueList can be assigned as single
+    value, an arange, linspace, logspace, sin(logspace), as complicated as you
+    like, so long as it can be eval()'d and then cast to an array.
+    """
 
     valueListStr = Str()
     steps = Member()
