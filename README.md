@@ -17,9 +17,16 @@ Written by Martin Lichtman
  * scipy (0.15.1-2 or later)
  * colorama (pip install colorama) -> for colored output logs
  * colorlog (pip install colorlog) -> for colored output logs
+ * pyzmq (pip install zmq) -> zmq communication for origin and pypico server
  * origin (see below)
 
 ### On Ubuntu
+
+Alomost everything can be installed with:
+```bash
+$ pip install -r requirements.txt
+```
+First though install the system level pyaudio dependencies below.
 
 To install pyaudio in virtual environment: 
 
@@ -28,12 +35,16 @@ $ sudo apt-get install libjack-jackd2-dev portaudio19-dev
 ```
 Then you can `pip install pyaudio` as normal.
 
+The requirement.txt file does not include the PyQt4 dependency so install it by doing the following.
 To install PyQt4 in virtual environment, first install globally:
 ```bash
 $ sudo apt-get install python-qt4
 ```
 Then copy from `/usr/lib/python2.7/dist-packages/PyQt4` to `<virtual_enviroment_dir>/lib/python2.7/site-packages`.
 Also copy `/usr/lib/python2.7/dist-packages/sip.<architecture>.so` to the same path.
+
+If you use matplotlib 1.5.0 or greater there is an issue when importing `NavigationToolbar2QTAgg`.
+You can just edit the backend code to call `NavigationToolbar2QT` instead or downgrade to 1.4.
 
 ## Configuration files
 
@@ -47,11 +58,11 @@ You then, on your Windows machine, run cmd.exe as administrator, navigate to the
 ```bash
 mklink config\config.cfg config\config_<EXPERIMENT TAG>.cfg
 ```
-which makes a symbolic (soft) link to your actual `config_<EXPERIMENT TAG>.cfg.cfg` file whenever the experiment looks for `config.cfg` and no one has to yell at anyone else anymore.
+which makes a symbolic (soft) link to your actual `config_<EXPERIMENT TAG>.cfg` file whenever the experiment looks for `config.cfg` and no one has to yell at anyone else anymore.
 
 On a linux machine run:
 ```bash
-ln -s config/config.cfg config/config_<EXPERIMENT TAG>.cfg
+ln -s config_<EXPERIMENT TAG>.cfg config/config.cfg
 ```
 
 ## Usage Notes
@@ -81,19 +92,11 @@ The clone the package:
 git clone https://github.com/QuantumQuadrate/Origin.git
 ```
 
-Currently we are using the dev branch so switch to it
-
-```bash
-cd Origin
-git checkout dev
-```
-
 Now you need to add the path to the python path so it can find the package when you import it.
-To do this edit the path to the `CsPyController/python/origin.py` file to reflect the path of your installation.
+To do this edit the config file `CsPyController/python/config/config_<EXPTAG>.cfg` to reflect the path of your installation.
 
 ```python
-# first find ourself
-fullBasePath = "C:\\LabSoftware\\Origin" #example path
+OriginInstallPath = "C:\\LabSoftware\\Origin" ; example path
 ```
 
 #### Usage
