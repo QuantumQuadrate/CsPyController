@@ -265,10 +265,10 @@ enamldef CsMenuBar(MenuBar): menuBar:
         title = '&Experiment'
         Action:
             text = 'Reset and Run\tCtrl+R'
-            triggered::experiment.resetAndGoThread()
+            triggered::experiment.resetAndGo()
         Action:
             text = 'Reset'
-            triggered::experiment.resetThread()
+            triggered::experiment.reset()
         Action:
             text = 'Run/Continue\tCtrl+G'
             triggered::experiment.goThread()
@@ -291,10 +291,10 @@ enamldef CsMenuBar(MenuBar): menuBar:
                 triggered :: experiment.pause_now()
         Action:
             text = 'End and Upload'
-            triggered::experiment.endThread()
+            triggered::experiment.end_now()
         Action:
             text = 'Upload'
-            triggered::experiment.uploadNowThread()
+            triggered::experiment.upload_now()
         Action:
             text = 'Stop\tCtrl+H'
             triggered::experiment.stop()
