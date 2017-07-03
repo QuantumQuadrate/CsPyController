@@ -26,7 +26,7 @@ class Embezzletron(Instrument):
 
     def __init__(self, name, experiment, description=''):
         super(Embezzletron, self).__init__(name, experiment, description)
-        self.enable = True
+        self.enable = False
         self.shotsPerMeasurement = IntProp(
                                     'shotsPerMeasurement',
                                     experiment,

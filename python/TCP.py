@@ -13,12 +13,18 @@ receive a message with the correct format.
 
 from __future__ import division
 __author__ = 'Martin Lichtman'
+
+import socket
+import struct
+import threading
+import traceback
 import logging
-logger = logging.getLogger(__name__)
+import errno
+import time
 
 from cs_errors import PauseError
 
-import socket, struct, threading, traceback
+logger = logging.getLogger(__name__)
 
 def prefixLength(txt):
     """Append the byte length to some text."""
@@ -35,7 +41,7 @@ def makemsg(name, data):
 class CsSock(socket.socket):
     def __init__(self):
         super(CsSock,self).__init__(socket.AF_INET, socket.SOCK_STREAM)
-    
+
     def sendmsg(self,sock,msgtxt):
         message='MESG'+prefixLength(msgtxt)
         #print 'send: {}'.format(message)
@@ -56,43 +62,55 @@ class CsSock(socket.socket):
             #print 'draining: {}...'.format(data[:40])
             if not data: break
         sock.settimeout(timeout)
-        
+
     def receive(self,sock):
-        #every message should start with 'MESG'
-        try:
-            header = sock.recv(4)
-            #print 'header: {}'.format(header)
-        except Exception as e:
-            logger.error('Error trying to receive message header: '+str(e))
-            raise PauseError
+        # every message should start with 'MESG'
+        i = 0
+        while True:
+            try:
+                header = sock.recv(4)
+                logger.warning('header: {}'.format(header))
+                break
+            except socket.error as e:
+                if e.args[0] == errno.EWOULDBLOCK:
+                    logger.warning('EWOULDBLOCK')
+                    time.sleep(1)
+                    i += 1
+                else:
+                    logger.exception('Error trying to receive message header: '+str(e))
+                    raise PauseError
+                if i > 5:
+                    raise IOError
+
         if not header:
-            #buffer is empty, no message yet
+            # buffer is empty, no message yet
             return
-        if header!='MESG':
+        if header != 'MESG':
             logger.error('incorrectly formatted message does not being with "MESG".  Draining TCP input buffer')
-            #Clear the buffer so we aren't in the middle of a message
-            #TODO: There is some risk that this will result in lost messages, if
-            #a good one comes into the buffer before the bad one is cleared. We
-            #we may not want to do this.
+            # Clear the buffer so we aren't in the middle of a message
+            # TODO: There is some risk that this will result in lost messages, if
+            # a good one comes into the buffer before the bad one is cleared. We
+            # we may not want to do this.
             while 1:
                 data = sock.recv(4096)
-                #print 'draining: {}...'.format(data[:40])
-                if not data: break
+                # print 'draining: {}...'.format(data[:40])
+                if not data:
+                    break
 
-        #the next part of the message is a 4 byte unsigned long interger that contains the length (in bytes) of the rest of the message
+        # the next part of the message is a 4 byte unsigned long interger that contains the length (in bytes) of the rest of the message
         try:
             datalenmsg=sock.recv(4)
         except Exception as e:
             logger.warning('exception trying to read 4 byte message length')
             raise PauseError
-        #print 'data length msg: {}'.format(datalenmsg)
+        # print 'data length msg: {}'.format(datalenmsg)
         try:
-            datalen=struct.unpack("!L", datalenmsg)[0]
+            datalen = struct.unpack("!L", datalenmsg)[0]
         except Exception as e:
             logger.warning('incorrectly formatted message: does not have 4 byte unsigned long for length. '+str(e))
             raise PauseError
         #print 'data length: {}'.format(datalen)
-        
+
         #now get the real data
         remaining=datalen
         rawdata=''
@@ -131,26 +149,26 @@ class CsClientSock(CsSock):
             raise PauseError
         if self.parent is not None:
             self.parent.connected = True
-    
+
     def sendmsg(self, msgtxt):
         #reference the common message format, pass self as sock
         super(CsClientSock, self).sendmsg(self, msgtxt)
 
     def clearbuffer(self):
         #reference the common message format, pass self as sock
-        return super(CsClientSock, self).clearbuffer(self) 
-        
+        return super(CsClientSock, self).clearbuffer(self)
+
     def receive(self):
         #reference the common message format, pass self as sock
         return super(CsClientSock, self).receive(self)
-    
+
     def close(self):
         if self.parent is not None:
             self.parent.connected = False
             self.parent.isInitialized = False
         self.shutdown(socket.SHUT_RDWR)
         super(CsClientSock, self).close()
-    
+
     def parsemsg(self, msg):
         """Take apart an incoming message that is composed of a sequence of (namelength,name,datalength,data) sets.
         These are then stored in a dictionary under name:data."""
@@ -188,7 +206,7 @@ class CsServerSock(CsSock):
 
     def __init__(self, portNumber):
         super(CsServerSock, self).__init__()
-        
+
         self.echo=''
 
         self.portNumber=portNumber
@@ -206,15 +224,15 @@ class CsServerSock(CsSock):
         if self.connection is not None:
             self.connection.shutdown(socket.SHUT_RDWR)
             self.connection.close()
-    
+
     def sendmsg(self,msgtxt):
         #reference the common message format
         super(CsServerSock, self).sendmsg(self.connection, msgtxt)
-    
+
     def receive(self):
         #reference the common message format
         return super(CsServerSock, self).receive(self.connection)
-    
+
     def readLoop(self):
         self.listen(0) #the 0 means do not listen to any backlogged connections
         while True:
