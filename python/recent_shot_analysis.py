@@ -25,10 +25,6 @@ from colors import my_cmap
 
 import numpy as np
 
-# get the config file
-from __init__ import import_config
-config = import_config()
-
 class RecentShotAnalysis(AnalysisWithFigure):
     """Plots the currently incoming shot"""
     data = Member()
@@ -44,7 +40,7 @@ class RecentShotAnalysis(AnalysisWithFigure):
         self.properties += [
             'showROIs', 'shot', 'subtract_background', 'data_path'
         ]
-        self.data_path = 'data/' + config.get('CAMERA', 'DataGroup') + '/shots'
+        self.data_path = 'data/' + self.experiment.Config.config.get('CAMERA', 'DataGroup') + '/shots'
         self.queueAfterMeasurement = True
         self.measurementDependencies += [self.experiment.squareROIAnalysis]
 

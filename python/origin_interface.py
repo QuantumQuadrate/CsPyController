@@ -18,9 +18,6 @@
 
 __author__ = 'Matthew Ebert'
 
-#ORIGIN_TEST = False
-ORIGIN_TEST = True
-
 # Use Atom traits to automate Enaml updating
 from atom.api import Int, Float, Str, Member, Bool, Long, Typed
 
@@ -43,7 +40,7 @@ logger = logging.getLogger(__name__)
 from __init__ import import_config
 config = import_config()
 
-#still need to import config parser for origin
+# still need to import config parser for origin
 import ConfigParser
 sys.path.append(config.get('ORIGIN','OriginLibPath'))
 #print config.get('ORIGIN','OriginLibPath')
@@ -285,8 +282,6 @@ class Origin(Analysis):
     self.isInitialized = False
     self.streamNameSpace = ''
 
-    self.configure()
-
     self.measurementDataList = ListProp(
       'measurementDataList',
       experiment,
@@ -312,8 +307,9 @@ class Origin(Analysis):
   #=============================================================================
   def configure(self):
     # read in the correct config file
-    cfg_path = config.get('ORIGIN','OriginCfgPath')
-    if ORIGIN_TEST:
+    cfg_path = self.experiment.Config.config.get('ORIGIN','OriginCfgPath')
+    if self.experiment.Config.config.getboolean('ORIGIN','OriginTest'):
+      logger.warning("Origin is running in test mode")
       configfile = os.path.join(cfg_path, "origin-server-test.cfg")
     else:
       configfile = os.path.join(cfg_path, "origin-server.cfg")
@@ -497,3 +493,7 @@ class Origin(Analysis):
     self.settings = hdf_parent_node.name
     # dont save to hdf5 when everyone else is
     logger.debug("This is the pre-experiment save event.  Origin reruns its save event at the end.")
+
+  def fromHDF5(self, hdf):
+      super(Origin, self).fromHDF5(hdf)
+      self.configure()

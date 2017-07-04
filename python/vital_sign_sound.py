@@ -6,10 +6,6 @@ from atom.api import Bool, Str, Member, Int, observe
 from analysis import Analysis
 import winsound
 
-# get the config file
-from __init__ import import_config
-config = import_config()
-
 logger = logging.getLogger(__name__)
 
 class Vitalsign(Analysis):

@@ -38,21 +38,17 @@ try:
     from PythonForPicam import *
 except:
     logger.warning('''PythonForPicam not installed. Picam will not work. Run the following commands to install it:
-    
+
     cd PythonForPicam
     python setup.py build
     python setup.py install
-    
+
     ''')
 
 # imports for viewer
 from analysis import AnalysisWithFigure, Analysis
 from colors import my_cmap
 from enaml.application import deferred_call
-
-# get the config file
-from __init__ import import_config
-config = import_config()
 
 def pointer(x):
     """Returns a ctypes pointer"""
@@ -168,7 +164,7 @@ class PICamCamera(Instrument):
 
     def initialize(self):
         """Starts the dll and finds the camera."""
-            
+
         self.InitializeCamera()
 
         self.isInitialized = True
@@ -186,37 +182,37 @@ class PICamCamera(Instrument):
             self.mode = 'experiment'
             if not self.isInitialized:
                 self.initialize()
-                
+
             if self.isAcquisitionRunning():
                 self.AbortAcquisition()
-   
+
             self.sendparameters()
 
             if self.triggerMode == 0:
                 error = Picam_SetParameterIntegerValue(self.currentHandle, PicamParameter_TriggerDetermination, 3)
                 self.DLLError(sys._getframe().f_code.co_name, error)
-        
+
                 error = Picam_SetParameterIntegerValue(self.currentHandle, PicamParameter_TriggerResponse, 2)
                 self.DLLError(sys._getframe().f_code.co_name, error)
             elif self.triggerMode == 1:
                 error = Picam_SetParameterIntegerValue(self.currentHandle, PicamParameter_TriggerDetermination, 4)
                 self.DLLError(sys._getframe().f_code.co_name, error)
-                
+
                 error = Picam_SetParameterIntegerValue(self.currentHandle, PicamParameter_TriggerResponse, 2)
                 self.DLLError(sys._getframe().f_code.co_name, error)
             elif self.triggerMode == 2:
                 error = Picam_SetParameterIntegerValue(self.currentHandle, PicamParameter_TriggerDetermination, 1)
                 self.DLLError(sys._getframe().f_code.co_name, error)
-                
+
                 error = Picam_SetParameterIntegerValue(self.currentHandle, PicamParameter_TriggerResponse, 2)
                 self.DLLError(sys._getframe().f_code.co_name, error)
             elif self.triggerMode == 3:
                 error = Picam_SetParameterIntegerValue(self.currentHandle, PicamParameter_TriggerResponse, 1)
                 self.DLLError(sys._getframe().f_code.co_name, error)
-            
+
             error = Picam_SetParameterIntegerValue(self.currentHandle, PicamParameter_ShutterTimingMode, self.shutterMode+1)
             self.DLLError(sys._getframe().f_code.co_name, error)
-            
+
             error = Picam_SetParameterLargeIntegerValue(self.currentHandle, PicamParameter_ReadoutCount, piint(self.shotsPerMeasurement.value))
             self.DLLError(str(sys._getframe().f_code.co_name) + ' (parameter ReadoutCount)', error)
 
@@ -225,7 +221,7 @@ class PICamCamera(Instrument):
                 self.data = []
             if self.averageMeasurements:
                 self.mostrecentresult = None
-            
+
             failed_parameter_array_type = ctypes.POINTER(piint)
             failed_parameter_array = failed_parameter_array_type()
             failed_parameter_count = piint()
@@ -242,10 +238,10 @@ class PICamCamera(Instrument):
         thread = threading.Thread(target=self.setup_video, args=(analysis,))
         #thread.daemon = True
         thread.start()
-        
+
     def addDemoCamera(self):
         print 'Adding Demo Camera'
-        
+
         modelListType = ctypes.POINTER(PicamModel)
         modelList = modelListType()
         model_count = piint(0)
@@ -254,7 +250,7 @@ class PICamCamera(Instrument):
         for i in range(model_count.value):
             print modelList[i]
         print "\n"
-        
+
         model = c_int(604)
         serial_number = c_char_p('Demo Cam 1')
         PicamID = PicamCameraID()
@@ -270,31 +266,31 @@ class PICamCamera(Instrument):
         print "Camera computer interface is: {}".format(PicamID.computer_interface)
         print "Camera sensor name is: {}".format(PicamID.sensor_name)
         print "Camera serial number is: {}".format(PicamID.serial_number)
-        return        
-        
-        
-        
+        return
+
+
+
     def sendparameters(self):
         self.GetDetector()
         self.setROIvalues()
-        
+
         error = Picam_SetParameterIntegerValue(self.currentHandle, PicamParameter_AdcAnalogGain, self.AdcAnalogGain+1)
         self.DLLError(str(sys._getframe().f_code.co_name) + ' (parameter AdcAnalogGain)', error)
-        
+
         error = Picam_SetParameterIntegerValue(self.currentHandle, PicamParameter_AdcEMGain, self.AdcEMGain.value)
         self.DLLError(str(sys._getframe().f_code.co_name) + ' (parameter AdcEMGain)', error)
-        
+
         error = Picam_SetParameterFloatingPointValue(self.currentHandle, PicamParameter_ExposureTime, piflt(self.exposureTime.value))
         self.DLLError(str(sys._getframe().f_code.co_name) + ' (parameter ExposureTime)', error)
 
         self.setSingleROI()
-        
+
         error = Picam_SetParameterIntegerValue(self.currentHandle, PicamParameter_CleanUntilTrigger, piint(1))
         self.DLLError(str(sys._getframe().f_code.co_name) + ' (parameter CleanUntilTrigger)', error)
-        
+
         error = Picam_SetParameterIntegerValue(self.currentHandle, PicamParameter_ReadoutControlMode, self.ReadoutControl+1)
         self.DLLError(str(sys._getframe().f_code.co_name) + ' (parameter ReadoutControlMode)', error)
-    
+
     def setSingleROI(self):
         self.ROI = PicamRoi()
         self.ROI.x = 0
@@ -311,7 +307,7 @@ class PICamCamera(Instrument):
         running = pibln()
         error = Picam_IsAcquisitionRunning(self.currentHandle, byref(running))
         return running
-        
+
     def setup_video(self, analysis):
         if self.experiment.status != 'idle':
             logger.warning('Cannot start video mode unless experiment is idle.')
@@ -330,23 +326,23 @@ class PICamCamera(Instrument):
 
         if self.isAcquisitionRunning():
             self.AbortAcquisition()
-        
+
         self.sendparameters()
-        
+
         error = Picam_SetParameterLargeIntegerValue(self.currentHandle, PicamParameter_ReadoutCount, piint(0))
         self.DLLError(str(sys._getframe().f_code.co_name) + ' (parameter ReadoutCount)', error)
-        
+
         error = Picam_SetParameterIntegerValue(self.currentHandle, PicamParameter_TriggerDetermination, piint(4))
         self.DLLError(sys._getframe().f_code.co_name, error)
-        
+
         error = Picam_SetParameterIntegerValue(self.currentHandle, PicamParameter_TriggerResponse, piint(1))
         self.DLLError(sys._getframe().f_code.co_name, error)
-        
+
         error = Picam_SetParameterLargeIntegerValue(self.currentHandle, PicamParameter_ReadoutCount, piint(1))
         self.DLLError(sys._getframe().f_code.co_name, error)
 
         self.commitParameters()
-        
+
         if self.enableROI:
             self.setROIvalues()
             p6 = self.ROI[4]
@@ -380,12 +376,12 @@ class PICamCamera(Instrument):
             self.dim = self.width * self.height
 
         self.getReadoutStride()
-        
+
         self.data = self.CreateAcquisitionBuffer()
-        
+
         analysis.setup_video(self.data)
         # run the video loop in a new thread
-        
+
         self.start_video_thread()
         #thread = threading.Thread(target=self.start_video_thread)
         #thread.daemon = True
@@ -399,9 +395,9 @@ class PICamCamera(Instrument):
         if not err: #if DLLError reports an error
             if failed_parameter_count.value > 0:
                 logger.error('Parameter {} failed.'.format(failed_parameter_array[0]))
-                raise PauseError  
+                raise PauseError
         return
-        
+
     def start_video_thread(self):
         while self.mode == 'video':
             if self.GetMostRecentImage():
@@ -468,36 +464,36 @@ class PICamCamera(Instrument):
         logger.debug("Number of Princeton Instruments cameras detected: {}".format(self.num_cameras.value))
         self.printCameraID(self.currentHandleList[0])
         self.cameraIDDict = dict(zip([self.currentHandleList[i].serial_number for i in range(self.num_cameras.value)],range(self.num_cameras.value)))
-        
+
         #try:
         print self.cameraIDDict
         self.currentID = self.currentHandleList[self.cameraIDDict[self.currentCamera.value]]
-        
+
         #except Exception as e:
         #    logger.error("Invalid camera number: {}. Exception: {}".format(self.currentHandleDict[self.currentCamera.value],e))
         #    raise PauseError
-        
+
         self.currentHandle = PicamHandle()
-        
+
         error = Picam_OpenCamera(self.currentID, byref(self.currentHandle))
         self.DLLError(sys._getframe().f_code.co_name, error)
-        
+
         self.currentSerial = self.currentID.serial_number
-        
+
 
 
     def setCamera(self):
         if not self.isInitialized:
             self.initialize()
 
-            
+
     def getCurrentSerialNumber(self):
         try:
             sn = self.currentID.serial_number
             return sn
         except Exception as e:
             return 'No serial number detected'
-            
+
 
     def GetImages(self):
         #if (self.acquisitionChoices[self.acquisitionMode]!=2 or (self.acquisitionChoices[self.acquisitionMode]==2 and self.experiment.measurement == self.experiment.measurementsPerIteration - 1)):
@@ -524,7 +520,7 @@ class PICamCamera(Instrument):
 
         self.width = self.ROI[1] - self.ROI[0]
         self.height = self.ROI[4] - self.ROI[3]'''
-        
+
         self.dim = self.width*self.height
         #print "self.width: {} self.height: {}".format(self.width,self.height)
         #print "ROI: {}".format(self.ROI)
@@ -537,7 +533,7 @@ class PICamCamera(Instrument):
         logger.debug('Getting detector width')
         error = Picam_GetParameterIntegerValue(self.currentHandle, c_int(PicamParameter_SensorActiveWidth), byref(width))
         self.DLLError(sys._getframe().f_code.co_name, error)
-        
+
         logger.debug('Width={}. Getting detector height'.format(width.value))
         error = Picam_GetParameterIntegerValue(self.currentHandle, PicamParameter_SensorActiveHeight, byref(height))
         self.DLLError(sys._getframe().f_code.co_name, error)
@@ -582,32 +578,32 @@ class PICamCamera(Instrument):
     def getReadoutStride(self):
         readoutstride = piint(0);
         Picam_GetParameterIntegerValue( self.currentHandle, c_int(PicamParameter_ReadoutStride), byref(readoutstride) )
-        
+
         framestride = piint(0);
         Picam_GetParameterIntegerValue( self.currentHandle, c_int(PicamParameter_FrameStride), byref(framestride) )
-        
+
         framesize = piint(0);
         Picam_GetParameterIntegerValue( self.currentHandle, c_int(PicamParameter_FrameSize), byref(framesize) )
-        
-        self.readoutstride = readoutstride.value  
-        self.framestride = framestride.value  
-        self.framesize = framesize.value 
-   
-        
-        
+
+        self.readoutstride = readoutstride.value
+        self.framestride = framestride.value
+        self.framesize = framesize.value
+
+
+
     def StartAcquisition(self):
         logger.debug('Getting Readout Stride')
         self.getReadoutStride()
-        
+
         logger.debug('Committing Parameters')
         self.commitParameters()
-        
+
         logger.debug('Starting Acquisition')
-        error = Picam_StartAcquisition(self.currentHandle) 
+        error = Picam_StartAcquisition(self.currentHandle)
         logger.debug('Started Acquisition')
         self.DLLError(sys._getframe().f_code.co_name, error)
 
-    
+
     def GetAcquiredData(self, dump=False):
         #print "calling dll"
         status = PicamAcquisitionStatus()
@@ -624,19 +620,19 @@ class PICamCamera(Instrument):
                 logger.warning('Acquisition error {}'.format(status.errors))
             self.DLLError(sys._getframe().f_code.co_name, error, dump)
             readoutnum += available.readout_count
-            
+
             self.getReadoutStride()
             sz = self.framesize/2
-            
+
             logger.debug('Getting DataPointer. Readout_count={}'.format(available.readout_count))
-            
+
             DataArrayPointerType = ctypes.POINTER(pi16u*sz)
-            
+
             readout=0
             while readout < available.readout_count:
                 DataPointer = ctypes.cast(available.initial_readout+self.framestride/2*readout,DataArrayPointerType)
                 dat = DataPointer.contents
-                
+
                 try:
                     data = numpy.append(data, numpy.reshape(dat, (1, self.height, self.width)),axis=0)
                 except:
@@ -655,8 +651,8 @@ class PICamCamera(Instrument):
                 logger.warning('Acquisition error {}'.format(status.errors))
         if carp.readout_count > 0:
             logger.warning ('{} Discarded Readout. Triggering issue?'.format(carp.readout_count))
-        
-            
+
+
         logger.debug('data.shape = {}'.format(data.shape))
         return data
 
@@ -695,7 +691,7 @@ class PICamCamera(Instrument):
 
         sz = self.framesize/2
         DataArrayType = pi16u*sz
-        
+
         DataArrayPointerType = ctypes.POINTER(pi16u*sz)
         DataPointer = ctypes.cast(self.available.initial_readout,DataArrayPointerType)
 
@@ -703,7 +699,7 @@ class PICamCamera(Instrument):
             self.c_image_array[:] = DataPointer.contents
         except Exception as e:
             return False
-        
+
         return self.DLLError(sys._getframe().f_code.co_name, error, True)
 
 
@@ -805,7 +801,7 @@ class PICamViewer(AnalysisWithFigure):
         deferred_call(self.figure.canvas.draw)
         self.maxPixel = int(numpy.max(self.data))              #What does "shot" mean in video mode?
         self.meanPixel = int(numpy.mean(self.data))
-        
+
 
 
 class PICam(Instrument):
@@ -846,7 +842,9 @@ class PICams(Instrument,Analysis):
 
     def initialize(self, cameras=False):
         msg=''
-        dllpath = config.get('PICAM', 'PICAM_DLL')
+        # TODO: if you want to be able to dynamically change this it has to not
+        # set the DLL path during initialization
+        dllpath = self.experiment.Config.config.get('PICAM', 'PICAM_DLL')
         #self.dll = load(dllpath)
         try:
             logger.debug("Initializing Picam library: {}".format(Picam_InitializeLibrary()))
@@ -947,4 +945,3 @@ class PICams(Instrument,Analysis):
             self.isInitialized = False
             raise PauseError
         return 0
-

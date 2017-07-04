@@ -6,10 +6,6 @@ from analysis import AnalysisWithFigure
 
 from colors import my_cmap, green_cmap
 
-# get the config file
-from __init__ import import_config
-config = import_config()
-
 logger = logging.getLogger(__name__)
 
 class ThresholdROIAnalysis(AnalysisWithFigure):
@@ -36,7 +32,7 @@ class ThresholdROIAnalysis(AnalysisWithFigure):
         self.threshold_array = np.zeros((roi_rows*roi_columns), dtype=dtype)
         self.ROI_rows = roi_rows
         self.ROI_columns = roi_columns
-        self.ROI_source = getattr(self.experiment, config.get('CAMERA', 'ThresholdROISource'))
+        self.ROI_source = getattr(self.experiment, self.experiment.Config.config.get('CAMERA', 'ThresholdROISource'))
         self.meas_analysis_path = 'analysis/ROIThresholds'
         self.iter_analysis_path = 'analysis/ROI_Thresholds/cuts'
         self.properties += ['version', 'ROI_source', 'threshold_array', 'enable']

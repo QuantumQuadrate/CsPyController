@@ -23,10 +23,6 @@ from analysis import AnalysisWithFigure
 
 logger = logging.getLogger(__name__)
 
-# get the config file
-from __init__ import import_config
-config = import_config()
-
 def roi_sum(roi, shot):
     '''Sum over a single ROI'''
     return np.sum(shot[roi['top']:roi['bottom'], roi['left']:roi['right']])
@@ -89,7 +85,7 @@ class SquareROIAnalysis(AnalysisWithFigure):
         self.sum_array = np.zeros((0, roi_rows, roi_columns), dtype=np.int32)
         # HDF5 data paths
         # where the camera data is expected to be stored
-        self.shots_path = 'data/' + config.get('CAMERA', 'DataGroup') + '/shots'
+        self.shots_path = 'data/' + self.experiment.Config.config.get('CAMERA', 'DataGroup') + '/shots'
         # where we are going to dump data after analysis
         self.meas_analysis_path = 'analysis/squareROIsums'
         # self.iter_analysis_path = 'analysis/squareROI/sums'
@@ -103,7 +99,7 @@ class SquareROIAnalysis(AnalysisWithFigure):
     def find_camera(self):
         """Find camera instrument object in experiment properties tree."""
         # get the property tree path to the camera object from the config file
-        prop_tree = config.get('CAMERA', 'CameraObj').split(',')
+        prop_tree = self.experiment.Config.config.get('CAMERA', 'CameraObj').split(',')
 
         camera = self.experiment
         for lvl in prop_tree:
@@ -111,7 +107,7 @@ class SquareROIAnalysis(AnalysisWithFigure):
 
         # if camera is stored in a ListProp list then use the index function
         # to retreive it
-        camera_idx = config.getint('CAMERA', 'CameraIdx')
+        camera_idx = self.experiment.Config.config.getint('CAMERA', 'CameraIdx')
         if camera_idx >= 0:
             try:
                 camera = camera[camera_idx]

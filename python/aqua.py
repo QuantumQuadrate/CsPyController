@@ -14,14 +14,16 @@ from __init__ import import_config
 config = import_config()
 
 # Bring in other files in this package
+from ConfigInstrument import Config
 import functional_waveforms, analysis, instek_pst, save2013style, TTL, LabView
 import DDS, roi_fitting
 import picomotors, andor, picampython, vaunix, DCNoiseEater, Laird_temperature, AnalogInput
 import Counter, conex, aerotech, unlock_pause
 import origin_interface
 import FakeInstrument # for testing
-from pypico import PyPicoServer # for communicating with a picomotor server
-#from vital_sign_sound import Vitalsign
+from pypico import PyPicoServer  # for communicating with a picomotor server
+# from vital_sign_sound import Vitalsign
+
 # analyses
 from SquareROIAnalysis import SquareROIAnalysis
 from recent_shot_analysis import RecentShotAnalysis
@@ -34,6 +36,7 @@ from experiments import Experiment
 class AQuA(Experiment):
     """A subclass of Experiment which knows about all our particular hardware"""
 
+    Config = Member()
     picomotors = Member()
     instekpsts = Member()
     aerotechs = Member()
@@ -86,15 +89,11 @@ class AQuA(Experiment):
     ROI_bg_rows = config.getint('EXPERIMENT', 'BGRows')
     ROI_bg_columns = config.getint('EXPERIMENT', 'BGColumns')
 
-    # the static configuration file, stored as a dict
-    config_file = Member()
-
     def __init__(self):
         super(AQuA, self).__init__()
-        # save the config file as a dictionary
-        self.config_file = {s:dict(config.items(s)) for s in config.sections()}
 
-        # instruments
+        # instruments CONFIG MUST BE FIRST INSTRUMENT
+        self.Config = Config('Config', self, 'Configuration file')
         self.functional_waveforms = functional_waveforms.FunctionalWaveforms('functional_waveforms', self, 'Waveforms for HSDIO, DAQmx DIO, and DAQmx AO; defined as functions')
         self.aerotechs = aerotech.Aerotechs('aerotechs', self, 'Aerotech Ensemble')
         self.conexes = conex.Conexes('conexes', self, 'CONEX-CC')
@@ -171,6 +170,7 @@ class AQuA(Experiment):
         ]
 
         self.properties += [
+            'Config',
             'functional_waveforms', 'LabView', 'functional_waveforms_graph',
             'DDS', 'aerotechs', 'picomotors', 'pyPicoServer', 'conexes',
             'Andors', 'PICams', 'DC_noise_eaters', 'box_temperature',
@@ -181,7 +181,7 @@ class AQuA(Experiment):
             'histogramAnalysis', 'histogram_grid', 'retention_analysis',
             'measurements_graph', 'iterations_graph', 'retention_graph',
             'DC_noise_eater_filter', 'DC_noise_eater_graph', 'Ramsey',
-            'counter_graph', 'counter_hist', 'unlock_pause', 'config_file',
+            'counter_graph', 'counter_hist', 'unlock_pause',
             'origin'
         ]
 

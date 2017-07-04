@@ -39,9 +39,6 @@ from analysis import AnalysisWithFigure, Analysis
 from colors import my_cmap
 from enaml.application import deferred_call
 
-# get the config file
-from __init__ import import_config
-config = import_config()
 import ConfigParser
 
 def intialize_numpy_array(array, default):
@@ -408,7 +405,7 @@ class AndorCamera(Instrument):
                 cam_temp_option
             )
             try:
-                self.set_T = config.getint('ANDOR', '{}'.format(cam_temp_option))
+                self.set_T = self.experiment.Config.config.getint('ANDOR', '{}'.format(cam_temp_option))
             except ConfigParser.NoOptionError:
                 logger.warning(
                     "No camera temperature and no config file entry found for `ANDOR.%s`, setting temperature to 0 C.",
@@ -891,7 +888,7 @@ class AndorCamera(Instrument):
     def GetandSetHSVSPreamp(self): # Read config and set Vertical, Horizontal readout rate and preamp gain
         try:
             cam_VS_option = "VSIndex_{}".format(self.serial)
-            self.VSIndex = config.getint('ANDOR', '{}'.format(cam_VS_option))
+            self.VSIndex = self.experiment.Config.config.getint('ANDOR', '{}'.format(cam_VS_option))
             self.SetVSSpeed(self.VSIndex)
         except ConfigParser.NoOptionError:
                 logger.warning(
@@ -901,7 +898,7 @@ class AndorCamera(Instrument):
                 self.SetVSSpeed(0)
         try:
             cam_HS_option = "HSIndex_{}".format(self.serial)
-            self.HSIndex = config.getint('ANDOR', '{}'.format(cam_HS_option))
+            self.HSIndex = self.experiment.Config.config.getint('ANDOR', '{}'.format(cam_HS_option))
             self.SetHSSpeed(self.HSIndex)
         except ConfigParser.NoOptionError:
                 logger.warning(
@@ -911,7 +908,7 @@ class AndorCamera(Instrument):
                 self.SetHSSpeed(0)
         try:
             cam_preamp_option = "PreampGainIndex_{}".format(self.serial)
-            self.preAmpGainIndex = config.getint('ANDOR', '{}'.format(cam_preamp_option))
+            self.preAmpGainIndex = self.experiment.Config.config.getint('ANDOR', '{}'.format(cam_preamp_option))
             self.SetPreAmpGain(self.preAmpGainIndex)
         except ConfigParser.NoOptionError:
                 logger.warning(
@@ -1237,7 +1234,7 @@ class Andors(Instrument, Analysis):
     def initialize(self, cameras=False):
         msg=''
         try:
-            self.dll = CDLL(config.get('ANDOR', 'ATMCD64D_DLL'))
+            self.dll = CDLL(self.experiment.Config.config.get('ANDOR', 'ATMCD64D_DLL'))
         except Exception as e:
             logger.warning('Failed to load DLL for Andor (check path?): {}. Andor disabled.'.format(e))
             self.enable = False

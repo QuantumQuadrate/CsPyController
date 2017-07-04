@@ -24,10 +24,6 @@ from mpl_toolkits.axes_grid1 import make_axes_locatable
 
 logger = logging.getLogger(__name__)
 
-# get the config file
-from __init__ import import_config
-config = import_config()
-
 class ImageSumAnalysis(AnalysisWithFigure):
     data = Member()
     enable = Bool()
@@ -56,7 +52,7 @@ class ImageSumAnalysis(AnalysisWithFigure):
                             'max_str', 'min', 'max', 'min_minus_bg', 'max_minus_bg']
         self.min = 0
         self.max = 1
-        self.shots_path = 'data/' + config.get('CAMERA', 'DataGroup') + '/shots'
+        self.shots_path = 'data/' + self.experiment.Config.config.get('CAMERA', 'DataGroup') + '/shots'
         self.queueAfterMeasurement = True
         self.measurementDependencies += [self.experiment.squareROIAnalysis]
 

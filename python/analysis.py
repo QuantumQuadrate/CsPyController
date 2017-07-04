@@ -29,10 +29,6 @@ from colors import my_cmap, green_cmap
 from instrument_property import Prop,StrProp
 import cs_evaluate
 
-# get the config file
-from __init__ import import_config
-config = import_config()
-
 def mpl_rectangle(ax, ROI):
     """Draws a rectangle, for use in drawing ROIs on images."""
     # left, top, right, bottom, threshold = (0, 1, 2, 3, 4)
@@ -467,7 +463,7 @@ class ShotsBrowserAnalysis(AnalysisWithFigure):
             experiment,
             'Shows a particular shot from the experiment'
         )
-        self.data_path = 'data/' + config.get('CAMERA', 'DataGroup') + '/shots'
+        self.data_path = 'data/' + self.experiment.Config.config.get('CAMERA', 'DataGroup') + '/shots'
         self.properties += ['measurement', 'shot', 'showROIs']
 
     def preExperiment(self, experimentResults):

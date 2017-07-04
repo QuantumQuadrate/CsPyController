@@ -19,10 +19,6 @@ import zmq
 from picomotors import Picomotor
 from cs_errors import PauseError
 
-# get the config file
-from __init__ import import_config
-config = import_config()
-
 from atom.api import Float, Str, Int, Member
 
 def is_error_msg(msg):
@@ -57,7 +53,7 @@ class PyPicomotor(Picomotor):
         necessary then it returns an empty string
         '''
         diff = (self.desired_position.value - self.current_position)
-        if abs(diff) < config.getfloat('PYPICO', 'MaxAngleErrors'):
+        if abs(diff) < self.experiment.Config.config.getfloat('PYPICO', 'MaxAngleErrors'):
             return ''
         cmd = 'MOVE:ABS:MOT{}:{} DEG'.format(
             self.motor_number,
@@ -92,7 +88,7 @@ class PyPicoServer(Instrument):
             self.context = zmq.Context()
             self.socket = self.context.socket(zmq.REQ)
             # set socket timeout in ms
-            self.socket.RCVTIMEO = config.getint('PYPICO', 'Timeout')
+            self.socket.RCVTIMEO = self.experiment.Config.config.getint('PYPICO', 'Timeout')
             self.socket.connect('tcp://{}:{}'.format(self.IP, self.port))
 
             try:
