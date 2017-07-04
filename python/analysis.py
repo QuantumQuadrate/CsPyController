@@ -58,19 +58,6 @@ def mpl_rectangle(ax, ROI):
     patch = patches.PathPatch(path, edgecolor='orange', facecolor='none', lw=1)
     ax.add_patch(patch)
 
-
-def wait_for_dependency(dep, status):
-    """Waits until dep reaches the status tuple (iter, meas).
-
-    Used to synchronize between analysis threads.
-    """
-    (iter, meas) = status
-    # synchronize iteration
-    while (dep.analysisStatus[0] < iter) or (dep.analysisStatus[1] < meas):
-        time.sleep(0.02)
-        logger.debug("waiting for: `{}` at `{}`".format(status, dep.analysisStatus))
-
-
 class Analysis(Prop):
     """This is the parent class for all data analyses.  New analyses should subclass off this,
     and redefine at least one of preExperiment(), preIteration(), postMeasurement(), postIteration() or
@@ -112,6 +99,8 @@ class Analysis(Prop):
 
     # dependencies of analysis to wait to finish before continuing
     measurementDependencies = Member()
+    # things that on this analysis, filled automatically
+    measurementDependents = Member()
     # holds the analysis' last completed iteration and measurement numbers as
     # a tuple (iter, meas)
     analysisStatus = Member()
@@ -129,6 +118,7 @@ class Analysis(Prop):
             'dropMeasurementIfSlow', 'dropIterationIfSlow', 'enable'
         ]
         self.measurementDependencies = []
+        self.measurementDependents = []
         self.measurementQueue = []
         # set up the analysis thread
         self.measurementThread = threading.Thread(
@@ -159,6 +149,9 @@ class Analysis(Prop):
             else:
                 self.restart = threading.Event()
                 self.measurementThread.start()
+                # append the wake event obj to the parent analyses
+                for dep in self.measurementDependencies:
+                    dep.measurementDependents.append(self.restart)
 
     def preIteration(self, iterationResults, experimentResults):
         """This is called before an iteration.
@@ -214,7 +207,7 @@ class Analysis(Prop):
                     for dep in self.measurementDependencies:
                         msg = '`{}` waiting for dep: `{}``'
                         logger.debug(msg.format(self.name, dep.name))
-                        wait_for_dependency(dep, m_data[2])
+                        self.wait_for_dependency(dep, m_data[2])
                         logger.debug('dep: `{}` satisfied'.format(dep.name))
                     msg = '`{}` processing data from {}:{} (iter:meas)'
                     logger.debug(msg.format(self.name, *m_data[2]))
@@ -237,6 +230,11 @@ class Analysis(Prop):
                     logger.debug(msg)
                     self.analysisStatus = m_data[2]
 
+                    # fire threading wake events for sleeping analyses
+                    for a in self.measurementDependents:
+                        a.set()
+                        a.clear()
+
                     # run the callback function to increment counter
                     m_data[4](result)
                 else:
@@ -245,6 +243,17 @@ class Analysis(Prop):
             logger.debug('Analysis thread finished. Entering wait state.')
             self.restart.wait()
             logger.debug('Restarting analysis thread.')
+
+    def wait_for_dependency(self, dep, status):
+        """Waits until dep reaches the status tuple (iter, meas).
+
+        Used to synchronize between analysis threads.
+        """
+        (iter, meas) = status
+        # synchronize iteration
+        while (dep.analysisStatus[0] < iter) or (dep.analysisStatus[1] < meas):
+            # wait until woken up by dependent analysis
+            self.restart.wait()
 
     def analyzeMeasurement(self, measurementResults, iterationResults, experimentResults):
         """This is called after each measurement.
