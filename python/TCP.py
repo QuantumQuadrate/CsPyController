@@ -69,7 +69,7 @@ class CsSock(socket.socket):
         while True:
             try:
                 header = sock.recv(4)
-                logger.warning('header: {}'.format(header))
+                #logger.warning('header: {}'.format(header))
                 break
             except socket.error as e:
                 if e.args[0] == errno.EWOULDBLOCK:

@@ -212,8 +212,8 @@ class TCP_Instrument(Instrument):
             self.set_dict({'msg': msg})
 
             # send message
-            logger.info('{} sending message ...'.format(self.name))
-            logger.info('msg: `{}`'.format(msg))
+            #logger.info('{} sending message ...'.format(self.name))
+            #logger.info('msg: `{}`'.format(msg))
             try:
                 self.sock.settimeout(self.timeout.value)
                 self.sock.sendmsg(msg)
