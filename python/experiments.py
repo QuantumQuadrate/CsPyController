@@ -792,7 +792,8 @@ class Experiment(Prop):
                 if not i.isInitialized:
                     logger.debug('experiment.measure() initializing '+i.name)
                     i.initialize()  # reinitialize
-                    i.update()  # put the settings to where they should be at this iteration
+                    # Should i.update() be here?
+                    #i.update()  # put the settings to where they should be at this iteration
                 else:
                     # check that the instrument is not already occupied
                     if not i.isDone:

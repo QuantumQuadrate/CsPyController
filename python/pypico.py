@@ -19,7 +19,7 @@ import zmq
 from picomotors import Picomotor
 from cs_errors import PauseError
 
-from atom.api import Float, Str, Int, Member
+from atom.api import Float, Str, Int, Member, Bool
 
 def is_error_msg(msg):
     error_str = "Error : "
@@ -27,7 +27,6 @@ def is_error_msg(msg):
 
 class PyPicomotor(Picomotor):
     current_position = Float()
-
     def __init__(self, name, experiment, description=''):
         super(PyPicomotor, self).__init__(name, experiment, description)
         self.desired_position = FloatProp('desired_position', experiment, 'the desired position','0')
@@ -68,6 +67,9 @@ class PyPicoServer(Instrument):
     motors = Member()
     context = Member()
     socket = Member()
+    enable_measurement = Bool()
+    enable_iteration = Bool()
+
 
     def __init__(self, name, experiment, description=''):
         super(PyPicoServer, self).__init__(name, experiment, description)
@@ -80,11 +82,11 @@ class PyPicoServer(Instrument):
         )
         self.IP = '127.0.0.1'
         self.port = 5000
-        self.properties += ['version', 'IP', 'port', 'motors']
+        self.properties += ['version', 'IP', 'port', 'motors','enable_measurement','enable_iteration']
 
     def initialize(self):
         """Open the zmq socket"""
-        if self.enable:
+        if self.enable and self.enable_measurement:
             self.context = zmq.Context()
             self.socket = self.context.socket(zmq.REQ)
             # set socket timeout in ms
@@ -109,7 +111,19 @@ class PyPicoServer(Instrument):
     def update(self):
         """Every iteration, send the motors updated positions.
         """
-        if self.enable:
+        if self.enable and self.enable_iteration:
+            self.context = zmq.Context()
+            self.socket = self.context.socket(zmq.REQ)
+            # set socket timeout in ms
+            self.socket.RCVTIMEO = self.experiment.Config.config.getint('PYPICO', 'Timeout')
+            self.socket.connect('tcp://{}:{}'.format(self.IP, self.port))
+
+            try:
+                # read motor positions from server
+                self.readPositions()
+            except Exception:
+                logger.exception('Problem initializing sever communication in pypico.')
+
             msg = ''
             try:
                 for m in self.motors:

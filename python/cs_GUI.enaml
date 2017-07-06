@@ -3823,6 +3823,14 @@ enamldef PyPico(Window):
                         CheckBox:
                             checked := pypico.enable
                         Label:
+                            text = 'enable_measurement'
+                        CheckBox:
+                            checked := pypico.enable_measurement
+                        Label:
+                            text = 'enable_iteration'
+                        CheckBox:
+                            checked := pypico.enable_iteration
+                        Label:
                             text = 'IP Address'
                         Field:
                             text := pypico.IP
