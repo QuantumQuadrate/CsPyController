@@ -69,6 +69,7 @@ class PyPicoServer(Instrument):
     socket = Member()
     enable_measurement = Bool()
     enable_iteration = Bool()
+    enable_movement = Bool()
 
 
     def __init__(self, name, experiment, description=''):
@@ -82,22 +83,26 @@ class PyPicoServer(Instrument):
         )
         self.IP = '127.0.0.1'
         self.port = 5000
-        self.properties += ['version', 'IP', 'port', 'motors','enable_measurement','enable_iteration']
+        self.properties += ['version', 'IP', 'port', 'motors','enable_measurement','enable_iteration','enable_movement']
 
     def initialize(self):
-        """Open the zmq socket"""
+		# Reading position happens every measurement if they are both enabled.
         if self.enable and self.enable_measurement:
-            self.context = zmq.Context()
-            self.socket = self.context.socket(zmq.REQ)
-            # set socket timeout in ms
-            self.socket.RCVTIMEO = self.experiment.Config.config.getint('PYPICO', 'Timeout')
-            self.socket.connect('tcp://{}:{}'.format(self.IP, self.port))
-
+        #"""Open the zmq socket"""
+            self.opensocket()
             try:
-                # read motor positions from server
-                self.readPositions()
+                self.readPositions()# read motor positions from server
             except Exception:
                 logger.exception('Problem initializing sever communication in pypico.')
+        if self.enable and self.enable_measurement and self.enable_movement:
+            self.moveit()
+
+    def opensocket(self):
+		self.context = zmq.Context()
+		self.socket = self.context.socket(zmq.REQ)
+		# set socket timeout in ms
+		self.socket.RCVTIMEO = self.experiment.Config.config.getint('PYPICO', 'Timeout')
+		self.socket.connect('tcp://{}:{}'.format(self.IP, self.port))
 
     def readPositions(self):
         '''Read the position of all picomotors in degrees'''
@@ -108,51 +113,48 @@ class PyPicoServer(Instrument):
         for m in self.motors:
             m.readPosition(self.socket)
 
+    def moveit(self):
+        msg = ''
+        try:
+            for m in self.motors:
+                # the motor class can make up its own commands
+                cmd = m.update()
+                if cmd: # '' is falsy
+                    self.socket.send(cmd)
+                    message = self.socket.recv()
+                    if is_error_msg(message):
+                        msg = 'When moving picomotor `{}`, recieved error msg: `{}`'
+                        logger.warn(msg.format(m.motor_number, message))
+                        # TODO: check to see if the error is because it didnt
+                        # meet the setpoint, within the specified error
+                        # if that is the case try again at least once
+                        raise PauseError
+                    else:
+                        m.readPosition(self.socket)
+                        msg = (
+                            'Motor `{}` moved to position `{}` with no error.'
+                            ' Positional error is `{}` DEG.'
+                        )
+                        logger.info(msg.format(
+                            m.motor_number,
+                            m.current_position,
+                            m.desired_position.value - m.current_position
+                        ))
+        except Exception as e:
+            logger.exception('Problem setting Picomotor position, closing socket.')
+            self.socket.close()
+            self.isInitialized = False
+            raise PauseError
+
     def update(self):
         """Every iteration, send the motors updated positions.
         """
         if self.enable and self.enable_iteration:
-            self.context = zmq.Context()
-            self.socket = self.context.socket(zmq.REQ)
-            # set socket timeout in ms
-            self.socket.RCVTIMEO = self.experiment.Config.config.getint('PYPICO', 'Timeout')
-            self.socket.connect('tcp://{}:{}'.format(self.IP, self.port))
-
+            self.opensocket()
             try:
-                # read motor positions from server
-                self.readPositions()
+                self.readPositions()# read motor positions from server
             except Exception:
                 logger.exception('Problem initializing sever communication in pypico.')
 
-            msg = ''
-            try:
-                for m in self.motors:
-                    # the motor class can make up its own commands
-                    cmd = m.update()
-                    if cmd: # '' is falsy
-                        self.socket.send(cmd)
-                        message = self.socket.recv()
-                        if is_error_msg(message):
-                            msg = 'When moving picomotor `{}`, recieved error msg: `{}`'
-                            logger.warn(msg.format(m.motor_number, message))
-                            # TODO: check to see if the error is because it didnt
-                            # meet the setpoint, within the specified error
-                            # if that is the case try again at least once
-                            raise PauseError
-                        else:
-                            m.readPosition(self.socket)
-                            msg = (
-                                'Motor `{}` moved to position `{}` with no error.'
-                                ' Positional error is `{}` DEG.'
-                            )
-                            logger.info(msg.format(
-                                m.motor_number,
-                                m.current_position,
-                                m.desired_position.value - m.current_position
-                            ))
-
-            except Exception as e:
-                logger.exception('Problem setting Picomotor position, closing socket.')
-                self.socket.close()
-                self.isInitialized = False
-                raise PauseError
+        if self.enable and self.enable_iteration and self.enable_movement:
+            self.moveit()

@@ -3831,6 +3831,10 @@ enamldef PyPico(Window):
                         CheckBox:
                             checked := pypico.enable_iteration
                         Label:
+                            text = 'enable_movement'
+                        CheckBox:
+                            checked := pypico.enable_movement
+                        Label:
                             text = 'IP Address'
                         Field:
                             text := pypico.IP
