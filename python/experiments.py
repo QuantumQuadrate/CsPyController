@@ -984,8 +984,7 @@ class Experiment(Prop):
             try:
                 i.preExperiment(self.hdf5)
             except Exception as e:
-                logger.error("In evaluation of Analysis {}".format(count))
-                logger.error("Error: {}".format(e))
+                logger.exception("In evaluation of Analysis {}".format(count))
                 raise PauseError
 
     def preIteration(self):
