@@ -3735,10 +3735,6 @@ enamldef Conex(Container):
 
 
 
-
-
-
-
 enamldef Picomotor(Container):
     attr item
 
@@ -3762,6 +3758,12 @@ enamldef Picomotor(Container):
             prop << item.desired_position
         Label:
             text = str(item.current_position)
+        Label:
+            text = 'max error'
+        Field:
+            text := str(item.max_angle_error)
+
+
 
 enamldef Picomotors(Window):
     attr picomotors
@@ -3842,6 +3844,10 @@ enamldef PyPico(Window):
                             text = 'port'
                         IntField:
                             value := pypico.port
+                        Label:
+                            text = 'timeout (ms)'
+                        IntField:
+                            value := pypico.timeout
 
                     IndexedContainer:
                         iterable << pypico.motors

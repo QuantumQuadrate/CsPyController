@@ -21,12 +21,17 @@ from cs_errors import PauseError
 
 from atom.api import Float, Str, Int, Member, Bool
 
+
 def is_error_msg(msg):
     error_str = "Error : "
     return msg[:len(error_str)] == error_str
 
+
 class PyPicomotor(Picomotor):
     current_position = Float()
+    max_angle_error = Float(0.1)  # maximum error to accept without trying to correct
+
+
     def __init__(self, name, experiment, description=''):
         super(PyPicomotor, self).__init__(name, experiment, description)
         self.desired_position = FloatProp('desired_position', experiment, 'the desired position','0')
@@ -52,7 +57,7 @@ class PyPicomotor(Picomotor):
         necessary then it returns an empty string
         '''
         diff = (self.desired_position.value - self.current_position)
-        if abs(diff) < self.experiment.Config.config.getfloat('PYPICO', 'MaxAngleErrors'):
+        if abs(diff) < self.max_angle_error:
             return ''
         cmd = 'MOVE:ABS:MOT{}:{} DEG'.format(
             self.motor_number,
@@ -62,11 +67,12 @@ class PyPicomotor(Picomotor):
 
 class PyPicoServer(Instrument):
     version = '2017.05.25'
-    IP = Str()
-    port = Int()
+    IP = Str('127.0.0.1')
+    port = Int(5000)
     motors = Member()
     context = Member()
     socket = Member()
+    timeout = Int(10000)  # default is 10 secs, sincemote movement can take a while
     enable_measurement = Bool()
     enable_iteration = Bool()
     enable_movement = Bool()
@@ -81,9 +87,10 @@ class PyPicoServer(Instrument):
             listElementType=PyPicomotor,
             listElementName='motor'
         )
-        self.IP = '127.0.0.1'
-        self.port = 5000
-        self.properties += ['version', 'IP', 'port', 'motors','enable_measurement','enable_iteration','enable_movement']
+        self.properties += [
+            'version', 'IP', 'port', 'motors', 'enable_measurement',
+            'enable_iteration', 'enable_movement', 'timeout'
+        ]
 
     def initialize(self):
 		# Reading position happens every measurement if they are both enabled.
@@ -101,7 +108,7 @@ class PyPicoServer(Instrument):
 		self.context = zmq.Context()
 		self.socket = self.context.socket(zmq.REQ)
 		# set socket timeout in ms
-		self.socket.RCVTIMEO = self.experiment.Config.config.getint('PYPICO', 'Timeout')
+		self.socket.RCVTIMEO = self.timeout
 		self.socket.connect('tcp://{}:{}'.format(self.IP, self.port))
 
     def readPositions(self):
