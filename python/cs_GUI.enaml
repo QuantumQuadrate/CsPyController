@@ -398,6 +398,17 @@ enamldef ExperimentPage(Window):
 
             Form: form:
                 constraints = [(midline==left)|'strong'] #,(width==parent.contents_width)|'strong']
+
+                Label: text='ROI Rows'
+                IntField: value := experiment.ROI_rows
+                Label: text='ROI Columns'
+                IntField: value := experiment.ROI_columns
+
+                Label: text='ROI Background Rows'
+                IntField: value := experiment.ROI_bg_rows
+                Label: text='ROI Background Columns'
+                IntField: value := experiment.ROI_bg_columns
+
                 Label:
                     text="Status:"
                 Label:

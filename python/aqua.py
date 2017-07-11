@@ -6,7 +6,7 @@ logger = logging.getLogger(__name__)
 import traceback
 
 from cs_errors import PauseError
-from atom.api import Member
+from atom.api import Member, Int
 import json
 
 # get the config file
@@ -84,10 +84,10 @@ class AQuA(Experiment):
     save_notes = Member()
     save2013Analysis = Member()
     origin = Member()
-    ROI_rows = config.getint('EXPERIMENT', 'SiteRows')
-    ROI_columns = config.getint('EXPERIMENT', 'SiteColumns')
-    ROI_bg_rows = config.getint('EXPERIMENT', 'BGRows')
-    ROI_bg_columns = config.getint('EXPERIMENT', 'BGColumns')
+    ROI_rows = Int(1)
+    ROI_columns = Int(1)
+    ROI_bg_rows = Int(0)
+    ROI_bg_columns = Int(0)
 
     def __init__(self):
         super(AQuA, self).__init__()
@@ -124,8 +124,8 @@ class AQuA(Experiment):
         self.AI_graph = AnalogInput.AI_Graph('AI_graph', self, 'Analog Input Graph')
         self.AI_filter = AnalogInput.AI_Filter('AI_filter', self, 'Analog Input filter')
         self.first_measurements_filter = analysis.DropFirstMeasurementsFilter('first_measurements_filter', self, 'drop the first N measurements')
-        self.squareROIAnalysis = SquareROIAnalysis(self, roi_rows=self.ROI_rows, roi_columns=self.ROI_columns, roi_bg_rows=self.ROI_bg_rows, roi_bg_columns=self.ROI_bg_columns)
-        self.thresholdROIAnalysis = ThresholdROIAnalysis(self, roi_rows=self.ROI_rows, roi_columns=self.ROI_columns)
+        self.squareROIAnalysis = SquareROIAnalysis(self)
+        self.thresholdROIAnalysis = ThresholdROIAnalysis(self)
         self.gaussian_roi = roi_fitting.GaussianROI('gaussian_roi', self, rows=self.ROI_rows, columns=self.ROI_columns)
         self.loading_filters = analysis.LoadingFilters('loading_filters', self, 'drop measurements with no atom loaded')
         self.text_analysis = analysis.TextAnalysis('text_analysis', self, 'text results from the measurement')
@@ -181,7 +181,8 @@ class AQuA(Experiment):
             'histogramAnalysis', 'histogram_grid', 'retention_analysis',
             'measurements_graph', 'iterations_graph', 'retention_graph',
             'DC_noise_eater_filter', 'DC_noise_eater_graph', 'Ramsey',
-            'counter_graph', 'counter_hist', 'unlock_pause',
+            'counter_graph', 'counter_hist', 'unlock_pause', 'ROI_rows',
+            'ROI_columns', 'ROI_bg_rows', 'ROI_bg_columns',
             'origin'
         ]
 

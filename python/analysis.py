@@ -375,6 +375,26 @@ class AnalysisWithFigure(Analysis):
         self.updateFigure()
 
 
+class ROIAnalysis(AnalysisWithFigure):
+    """Parent class for analyses that depend on the number of ROIs"""
+
+    def set_rois(self):
+        """This function is called following the normal fromHDF5 call and
+        should be used to re-initialize anything that depends on the number
+        of ROIs.
+
+        The function should reference self.experiment.ROI_XXXXX to get the
+        updated number of ROIs.
+        """
+        raise NotImplementedError
+
+
+    def fromHDF5(self, hdf):
+        """Overrides fromHDF5 to call set_rois following the read"""
+        super(ROIAnalysis, self).fromHDF5(hdf)
+        self.set_rois()
+
+
 class TextAnalysis(Analysis):
     #Text output that can be updated back to the GUI
     text = Str()

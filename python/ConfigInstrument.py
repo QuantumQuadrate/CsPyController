@@ -138,7 +138,7 @@ class Config(Instrument):
             self.config_from_dict(new_conf_dict)
         else:
             logger.info("Using configuration from config file.")
-        print_conf(new_conf_dict, "CURRENT CONF")
+        print_conf(self.config_dict, "CURRENT CONF")
 
     def config_from_dict(self, conf_dict):
         """Creates a configuration file in memory based on a dictionary."""

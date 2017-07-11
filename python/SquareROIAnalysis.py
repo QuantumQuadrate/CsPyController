@@ -19,7 +19,7 @@ import numpy as np
 from atom.api import Bool, Str, Member, Int
 import time
 
-from analysis import AnalysisWithFigure
+from analysis import ROIAnalysis
 
 logger = logging.getLogger(__name__)
 
@@ -39,7 +39,8 @@ def roi_pixel_cnt(rois):
     '''List of pixels in each ROI'''
     return np.array([roi_pixels(roi) for roi in rois], dtype=np.uint32)
 
-class SquareROIAnalysis(AnalysisWithFigure):
+
+class SquareROIAnalysis(ROIAnalysis):
     """Add up the sums of pixels in a region, and evaluate whether or not an
     atom is present based on the totals.
     """
@@ -61,28 +62,30 @@ class SquareROIAnalysis(AnalysisWithFigure):
     meas_analysis_path = Member()
     iter_analysis_path = Member()
 
-    def __init__(self, experiment, roi_rows=1, roi_columns=1, roi_bg_rows=0, roi_bg_columns=0):
+
+    def __init__(self, experiment):
         super(SquareROIAnalysis, self).__init__(
             'SquareROIAnalysis',
             experiment,
             'Does analysis on square regions of interest'
         )
-        self.ROI_rows = roi_rows
-        self.ROI_columns = roi_columns
-        self.ROI_bg_rows = roi_bg_rows
-        self.ROI_bg_columns = roi_bg_columns
+        # initialize with blank arrays, will be filled in from settings if there
         dtype = [
             ('left', np.uint16),
             ('top', np.uint16),
             ('right', np.uint16),
             ('bottom', np.uint16)
         ]
-        # initialize with a blank array
-        self.ROIs = np.zeros(roi_rows*roi_columns, dtype=dtype)
-        self.ROIs_bg = np.zeros(roi_bg_rows*roi_bg_columns, dtype=dtype)
-        # create sum_array in the shot, row, column format
-        # will be resized to the expected number of shots later
-        self.sum_array = np.zeros((0, roi_rows, roi_columns), dtype=np.int32)
+        self.ROIs = np.zeros(
+            experiment.ROI_rows*experiment.ROI_columns,
+            dtype=dtype
+        )
+        self.ROIs_bg = np.zeros(
+            experiment.ROI_bg_rows*experiment.ROI_bg_columns,
+            dtype=dtype
+        )
+        # set up ROIs
+        self.set_rois()
         # HDF5 data paths
         # where the camera data is expected to be stored
         self.shots_path = 'data/' + self.experiment.Config.config.get('CAMERA', 'DataGroup') + '/shots'
@@ -95,6 +98,51 @@ class SquareROIAnalysis(AnalysisWithFigure):
         self.queueAfterMeasurement = True
 
         self.properties += ['version', 'enable', 'ROIs', 'ROIs_bg']
+
+
+    def set_rois(self):
+        """Initialize the ROI Call when number of ROIs changes"""
+
+        self.ROI_rows = self.experiment.ROI_rows
+        self.ROI_columns = self.experiment.ROI_columns
+        self.ROI_bg_rows = self.experiment.ROI_bg_rows
+        self.ROI_bg_columns = self.experiment.ROI_bg_columns
+        # create sum_array in the shot, row, column format
+        # will be resized to the expected number of shots later
+        self.sum_array = np.zeros((0, self.ROI_rows, self.ROI_columns), dtype=np.int32)
+        
+        warn = False
+        msg = 'The ROI definitions do not agree. Check relevant analyses. '
+        if len(self.ROIs) != self.ROI_rows*self.ROI_columns:
+            warn = True
+            msg += '\nROI definitions: `{}`, ROI rows(columns) `{}({})`'
+            msg = msg.format(len(self.ROIs), self.ROI_rows, self.ROI_columns)
+        if len(self.ROIs_bg) != self.ROI_bg_rows*self.ROI_bg_columns:
+            warn = True
+            msg += '\nROI bg definitions: `{}`, ROI bg rows(columns): `{}({})`'
+            msg = msg.format(len(self.ROIs_bg), self.ROI_bg_rows, self.ROI_bg_columns)
+
+        if warn:
+            logger.warning(msg)
+            dtype = [
+                ('left', np.uint16),
+                ('top', np.uint16),
+                ('right', np.uint16),
+                ('bottom', np.uint16)
+            ]
+            # make a new ROIs object from the old one as best as we can
+            ROIs = np.zeros(self.ROI_rows*self.ROI_columns, dtype=dtype)
+            for i in range(min(len(ROIs), len(self.ROIs))):
+                ROIs[i] = self.ROIs[i]
+            self.ROIs = ROIs
+            logger.warning('new ROIs: {}'.format(self.ROIs))
+            # make a new ROIs_bg object from the old one as best as we can
+            ROIs_bg = np.zeros(self.ROI_bg_rows*self.ROI_bg_columns, dtype=dtype)
+            for i in range(min(len(ROIs_bg), len(self.ROIs_bg))):
+                ROIs_bg[i] = self.ROIs_bg[i]
+            self.ROIs_bg = ROIs_bg
+            logger.warning('new ROIs_bg: {}'.format(self.ROIs_bg))
+
 
     def find_camera(self):
         """Find camera instrument object in experiment properties tree."""
