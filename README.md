@@ -62,8 +62,34 @@ which makes a symbolic (soft) link to your actual `config_<EXPERIMENT TAG>.cfg` 
 
 On a linux machine run:
 ```bash
-ln -s config_<EXPERIMENT TAG>.cfg config/config.cfg
+ln -s config_<EXPERIMENT TAG>.cfg config.cfg
 ```
+
+The configuration file is stored in the settings and data files as a JSON string.
+In the event that the configuration file differs from the saved JSON configuration in the settings, the user will be prompted at startup to choose which version they want to use.
+
+## Threaded Analysis
+
+Threaded analyses are now built into the CsPyController, but analyses are not threaded by default since I do not have the ability to test everyone's analyses.
+In order to enable threading for your analysis you need to add some code to the `__init__` class method for your analysis.
+To see how this works let's say we have two analyses `Analysis1` and `Analysis2`, and `Analysis2` depends on the results of `Analysis1`.
+`Analysis1` only depends on instrument data, and no other analysis.
+The contents of the `__init__` method for `Analysis1` would look like this:
+```python
+def __init__(self, experiment, desc=None):
+    super(Analysis1, self).__init__('Analysis1', experiment, 'description of Analysis1')
+    # initialize Analysis1 here
+    self.queueAfterMeasurement = True  # enable threading for analysis
+```
+`Analysis2` is then:
+```python
+def __init__(self, experiment, desc=None):
+    super(Analysis2, self).__init__('Analysis2', experiment, 'description of Analysis2')
+    # initialize Analysis2 here
+    self.queueAfterMeasurement = True  # enable threading for analysis
+    self.measurementDependencies += [self.experiment.Analysis1Obj]
+```
+Note that `self.experiment.Analysis1Obj` refers to the instantiation of the `Analysis1` class named `Analysis1Obj` in the main `aqua.py` file.
 
 ## Usage Notes
 
