@@ -34,21 +34,21 @@ import cs_evaluate
 
 class Prop(Atom):
     """The base class for all stored info about instruments and their properties."""
-    
+
     name = Str()
     description = Str()
     experiment = Member()
     properties = Member()
     #GUI = Member()  # an optional enaml object that represents this class in the GUI, and has an update() method, to be run on eval
     doNotSendToHardware = Member()
-    
+
     def __init__(self, name, experiment, description=''):
         self.experiment = experiment  # keep track of the experiment so we can get variables and such
         self.name = name  # name must be compatible with being a python variable name, and also an XML tag
         self.description = description  # English language description, including units and hints about possible values
         self.properties = ['description']  # things that are evaluated (if they define evaluate()) and saved to xml.  This is a list of the STRING of variable names (i.e. 'enable', not just: enable)
         self.doNotSendToHardware = ['description']
-    
+
     def evaluate(self):
         """This function goes through the properties list and evaluates any of them with their own evaluate() method.
         This function should be overridden in subclasses at the lowest level on the Prop tree."""
@@ -72,7 +72,7 @@ class Prop(Atom):
                         raise PauseError
             #if self.GUI is not None and hasattr(self.GUI, 'update'):
             #    self.GUI.update()
-    
+
     def toHDF5(self, hdf_parent_node, name=None):
         """This function provides generic behavior to save a Prop as an HDF5 group.  The choice of group has been made
         because a Prop in general can have subproperties, and using a dataset would limit this behavior.  We go through
@@ -81,11 +81,11 @@ class Prop(Atom):
         python's human readable pickling format. And saved to the HDF5 as a string dataset.  We assume that settings
         files will only ever be accessed as read-only and so variable length strings are not bothered with.  The node
         name is self.name, because nodes must have unique names (and so node type cannot be used as the name)."""
-        
+
         if name is None:
             #if no name suggestion is given (usually used for ListProps) then use self.name
             name = self.name
-        
+
         #create the group that represents this Prop
         try:
             my_node = hdf_parent_node.require_group(name)
@@ -93,17 +93,17 @@ class Prop(Atom):
             logger.warning('Incompatible object `{}` already exists in `{}`. Deleting the old object.'.format(name, hdf_parent_node.name))
             del hdf_parent_node[name]
             my_node = hdf_parent_node.create_group(name)
-        
+
         #go through the list of properties:
         for p in self.properties:
-            
+
             #convert the string name to an actual object
             try:
                 o = getattr(self, p)
             except:
                 logger.warning('In Prop.toHDF5() for class '+name+': item '+p+' in properties list does not exist.\n')
                 continue
-            
+
             #try to save it in various ways
             if hasattr(o, 'toHDF5'):
             #use toHDF5() of the object if available
@@ -131,7 +131,7 @@ class Prop(Atom):
                             #else just pickle it
                             try:
                                 logger.debug("Preparing to pickle field name.property: `{}.{}`".format(name, p))
-                                my_node[p]=pickle.dumps(o)                               
+                                my_node[p]=pickle.dumps(o)
                             except RuntimeError:
                                 logger.debug("Preparing to overwrite field name.property: `{}.{}`".format(name, p))
                                 # we make it here if you try to overwrite an existing dataset
@@ -140,14 +140,13 @@ class Prop(Atom):
                                 except MemoryError:
                                     logger.warning("Problem overwriting dataset: `{}.{}`. Deleting and inserting new dataset.".format(name, p))
                                     del my_node[p]
-                                    my_node[p]=pickle.dumps(o) 
+                                    my_node[p]=pickle.dumps(o)
 
                             except Exception as e:
-                                logger.warning(str(type(e)))
-                                logger.warning('While picking '+p+' in Prop.toHDF5() in '+name+'.\n'+str(e)+'\n')
+                                logger.exception('While picking '+p+' in Prop.toHDF5() in')
                                 raise PauseError
         return my_node
-    
+
     def fromHDF5(self, hdf):
         '''This function provides generic HDF5 loading behavior for this package.
         First, version tags are checked.
@@ -155,10 +154,10 @@ class Prop(Atom):
         If this fails we load it as whatever type the HDF5 dataset is stored as.  (The later is preferable to the python pickle, but we must try the pickle first,
         to distinguish between pickles and raw strings.
         self is the object corresponding to the top level tag in the parameter hdf, and its children are what will be loaded here.'''
-        
+
         #hdf node is guaranteed to have a name
         self.name = hdf.name.split('/')[-1]
-        
+
         #check version
         if 'version' in hdf.attrs:
             if hasattr(self, 'version'):
@@ -168,7 +167,7 @@ class Prop(Atom):
                 logger.info('Code object '+self.name+' has no version, but HDF5 node has version: '+hdf.attrs['version'])
         elif hasattr(self, 'version'):
             logger.info('Code object '+self.name+' has version '+self.version+' but HDF5 node has no version tag.')
-        
+
         #go through all attributes of hdf node and try to load them
         for i in hdf.attrs:
             if i != 'version':
@@ -292,7 +291,7 @@ class Prop(Atom):
         but in the end it puts out str(value) of each property, which is useful to the hardware, and does not put out any of the
         function information that leads to those values.'''
         output=''
-        
+
         #go through list of single properties:
         for p in self.properties: # I use a for loop instead of list comprehension so I can have more detailed error reporting.
             if p not in self.doNotSendToHardware:
@@ -302,7 +301,7 @@ class Prop(Atom):
                 except:
                     logger.warning('In Prop.toHardware() for class '+self.name+': item '+p+' in properties list does not exist.\n')
                     raise PauseError
-                
+
                 output += self.HardwareProtocol(o, p)
 
         try:
@@ -357,7 +356,7 @@ class Prop(Atom):
 class EvalProp(Prop):
 
     """The base class for any Prop that has a function, and can be evaluated to a value."""
-    
+
     function = Str()
     valid = Bool(True)
     placeholder = Str()
@@ -368,7 +367,7 @@ class EvalProp(Prop):
         self.function = function
         self.properties += ['function']
         self.observe('function', self.call_evaluate)
-    
+
     def evaluate(self):
         """This is the evaluation function that gets run programmatically during experiments and initialization.
         It will pause an experiment if an evaluation fails."""
@@ -441,7 +440,7 @@ class RangeProp(EvalProp):
     placeholder=Str('')
     hasLow=Bool(False)
     hasHigh=Bool(False)
-    
+
     def __init__(self,name,experiment,description='',function='',low=None,high=None):
         if low is not None:
             self.low=low
@@ -450,12 +449,12 @@ class RangeProp(EvalProp):
             self.high=high
             self.hasHigh=True
         super(RangeProp,self).__init__(name,experiment,description,function)
-        
+
         self.observe('low', self.set_placeholder)
         self.observe('high', self.set_placeholder)
         self.set_placeholder({})
         self.evaluate()
-    
+
     @observe('value')
     def value_changed(self,changed):
         if self.hasLow:
@@ -464,7 +463,7 @@ class RangeProp(EvalProp):
         if self.hasHigh:
             if changed['value'] > self.high:
                 raise TypeError('Attempt to assign {} to {}RangeProp {} but the maximum value is {}'.format(changed['value'],self.numberType,self.name,self.high))
-    
+
     @observe('low','high')
     def set_placeholder(self,changed):
         if self.hasLow:
@@ -501,7 +500,7 @@ class EnumProp(EvalProp):
     '''A homemade enum holder that allows us to set the possible values dynamically (unlike using a predefined Atom.Enum)'''
     value=Value()
     allowedValues=List()
-    
+
     def __init__(self,name,experiment,description='',function='',allowedValues=None):
         super(EnumProp,self).__init__(name,experiment,description,function)
         if allowedValues is None:
@@ -509,12 +508,12 @@ class EnumProp(EvalProp):
         else:
             self.allowedValues=allowedValues
         self.evaluate()
-    
+
     @observe('value')
     def value_changed(self,changed):
         if not (changed['value'] in self.allowedValues):
             raise TypeError('Attempt to assign {} to EnumProp {} but the only allowed values are: {}'.format(changed['value'],self.name,self.allowedValues))
-    
+
     @observe('allowedValues')
     def set_placeholder(self,changed):
         self.placeholder = ','.join([str(i) for i in self.allowedValues])
@@ -532,7 +531,7 @@ class ListProp(Prop):
     length = Int(0)
     names = List(Str())
     descriptions = List(Str())
-    
+
     def __init__(self, name, experiment, description='', listProperty=None, listElementType=None,
                  listElementName='element', listElementKwargs=None):
         """
@@ -578,17 +577,17 @@ class ListProp(Prop):
 
     def __iter__(self):
         return iter(self.listProperty)
-    
+
     def __len__(self):
         return len(self.listProperty)
 
     def __getitem__(self, i):
         return self.listProperty[i]
-    
+
     def append(self, x):
         self.listProperty.append(x)
         self.refreshGUI()
-    
+
     def pop(self, i):
         x = self.listProperty.pop(i)
         self.refreshGUI()
@@ -597,14 +596,14 @@ class ListProp(Prop):
     def remove(self, x):
         self.listProperty.remove(x)
         self.refreshGUI()
-    
+
     def copy(self, i):
         """Make a copy of element i of the list and append it to the end."""
         x = self.listProperty[i].copy()
         self.listProperty.append(x)
         self.refreshGUI()
         return x
-    
+
     def getNextAvailableName(self):
         #figure out unique name for a new item
         count = len(self.listProperty) #start naming after current length, so this will go faster
@@ -614,7 +613,7 @@ class ListProp(Prop):
             if not name in names:
                 return name
             count += 1
-    
+
     def add(self):
         new = self.listElementType(self.getNextAvailableName(), self.experiment, **self.listElementKwargs)
         self.listProperty.append(new)
@@ -633,7 +632,7 @@ class ListProp(Prop):
 
     def index(self, x):
         return self.listProperty.index(x)
-    
+
     def evaluate(self):
         if self.experiment.allow_evaluation:
             #go through the listProperty and evaluate each item
@@ -653,10 +652,10 @@ class ListProp(Prop):
           It would be confusing to do so, as that is not what a ListProp is for."""
 
         list_node=hdf.require_group(self.name)
-                
+
         #go through the listProperty and toHDF5 each item
         for i,o in enumerate(self.listProperty):
-            
+
             try:
             #attempt to use given name
                 name = o.name
@@ -698,7 +697,7 @@ class ListProp(Prop):
                     try:
                         list_node[name] = pickle.dumps(o)
                     except Exception as e:
-                        logger.warning('While picking list item {} in ListProp.toHDF5() in {}.\n{}\n'.format(name, self.name, str(e)) + '\n' + str(traceback.format_exc()) + '\n')
+                        logger.exception('While picking list item {} in ListProp.toHDF5() in')
                         raise PauseError
 
     def fromHDF5(self, hdf):
@@ -717,15 +716,15 @@ class ListProp(Prop):
             raise PauseError
         self.refreshGUI()
         return self
-    
+
     def toHardware(self):
         #go through the listProperty and toXML each item
         output = ''
-        
+
         for i, o in enumerate(self.listProperty):
             #give the index number as the XML tag, this will only be used if the item does not have its own toHardware()
             output += self.HardwareProtocol(o, self.listElementName+str(i))
-        
+
         return '<{}>{}</{}>\n'.format(self.name, output, self.name)
 
 
@@ -734,7 +733,7 @@ class Numpy1DProp(Prop):
     dtype = Member()
     hdf_dtype = Member()
     zero = Member()
-    
+
     def __init__(self, name, experiment, description='', dtype=float, hdf_dtype=float, zero=None):
         super(Numpy1DProp, self).__init__(name, experiment, description)
         self.dtype = dtype
@@ -752,7 +751,7 @@ class Numpy1DProp(Prop):
         if self.zero is not None:
             zero.fill(self.zero)
         self.array = numpy.insert(self.array, index, zero)
-    
+
     def remove(self, index):
         self.array = numpy.delete(self.array, index)
 
@@ -776,7 +775,7 @@ class Numpy2DProp(Prop):
     dtype = Member()
     hdf_dtype = Member()
     zero = Member()
-    
+
     def __init__(self, name, experiment, description='', dtype=float, hdf_dtype=float, zero=None):
         super(Numpy2DProp, self).__init__(name, experiment, description)
         self.dtype = dtype
@@ -791,19 +790,19 @@ class Numpy2DProp(Prop):
         if self.zero is not None:
             zero.fill(self.zero)
         self.array=numpy.insert(self.array, index, zero, axis=0)
-    
+
     def addColumn(self, index):
         zero=numpy.zeros(self.array.shape[0], dtype=self.dtype)
         if self.zero is not None:
             zero.fill(self.zero)
         self.array = numpy.insert(self.array, index, zero, axis=1)
-    
+
     def removeRow(self, index):
         self.array = numpy.delete(self.array, index, axis=0)
-    
+
     def removeColumn(self, index):
         self.array = numpy.delete(self.array, index, axis=1)
-    
+
     def toHDF5(self, hdf, name=None):
         try:
             hdf.create_dataset(self.name, data=self.array, dtype=self.hdf_dtype)#, compression="gzip", chunks=True)
@@ -821,4 +820,3 @@ class Numpy2DProp(Prop):
             logger.warning('Exception in Numpy2DProp.toHardware() in '+self.name+' .\n'+str(e))
             raise PauseError
         return '<{}>{}</{}>\n'.format(self.name, valueStr, self.name)
-

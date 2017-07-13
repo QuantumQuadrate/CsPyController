@@ -18,6 +18,7 @@ logger = logging.getLogger(__name__)
 
 import numpy
 import h5py
+import matplotlib.animation # For showing inputs over single experiment cycle
 from atom.api import Str, Typed, Member, Bool, observe, Int
 
 from instrument_property import BoolProp, FloatProp, StrProp, IntProp, Numpy1DProp
@@ -81,36 +82,38 @@ class AI_Graph(AnalysisWithFigure):
         self.updateFigure()
 
     def updateFigure(self):
-        if self.enable and (not self.update_lock):
-            try:
-                self.update_lock = True
-                fig = self.backFigure
-                fig.clf()
+        if self.draw_fig:
+            if self.enable and (not self.update_lock):
+                try:
+                    self.update_lock = True
+                    fig = self.backFigure
+                    fig.clf()
 
-                if self.data is not None:
-                    #parse the list of what to plot from a string to a list of numbers
-                    try:
-                        plotlist = eval(self.list_of_what_to_plot)
-                    except Exception as e:
-                        logger.warning('Could not eval plotlist in AIGraph:\n{}\n'.format(e))
-                        return
-                    #make one plot
-                    ax = fig.add_subplot(111)
-                    for i in plotlist:
+                    if self.data is not None:
+                        #parse the list of what to plot from a string to a list of numbers
                         try:
-                            data = numpy.average(self.data[:, i[0], i[1]], axis=1)  # All measurements. Selected channel, saverage over sampels.
-                        except:
-                            logger.warning('Trying to plot data that does not exist in AIGraph: channel {} samples {}-{}'.format(i[0], min(i[1]), max(i[1])))
-                            continue
-                        label = 'ch.{}'.format(i[0])
-                        ax.plot(data, 'o', label=label)
-                    #add legend using the labels assigned during ax.plot()
-                    ax.legend()
-                super(AI_Graph, self).updateFigure()
-            except Exception as e:
-                logger.warning('Problem in AIGraph.updateFigure()\n:{}'.format(e))
-            finally:
-                self.update_lock = False
+                            plotlist = eval(self.list_of_what_to_plot)
+                        except Exception as e:
+                            logger.warning('Could not eval plotlist in AIGraph:\n{}\n'.format(e))
+                            return
+                        #make one plot
+                        ax = fig.add_subplot(111)
+                        for i in plotlist:
+                            try:
+                                #data = numpy.average(self.data[:, i[0], i[1]], axis=1)  # All measurements. Selected channel, saverage over sampels.
+                                data=self.data[-1, i[0], i[1]] # Show only the latest
+                            except:
+                                logger.warning('Trying to plot data that does not exist in AIGraph: channel {} samples {}-{}'.format(i[0], min(i[1]), max(i[1])))
+                                continue
+                            label = 'ch.{}'.format(i[0])
+                            ax.plot(data, 'o', label=label)
+                        #add legend using the labels assigned during ax.plot()
+                        ax.legend()
+                    super(AI_Graph, self).updateFigure()
+                except Exception as e:
+                    logger.warning('Problem in AIGraph.updateFigure()\n:{}'.format(e))
+                finally:
+                    self.update_lock = False
 
 
 class AI_Filter(Analysis):

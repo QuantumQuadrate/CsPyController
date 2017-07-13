@@ -17,9 +17,16 @@ Written by Martin Lichtman
  * scipy (0.15.1-2 or later)
  * colorama (pip install colorama) -> for colored output logs
  * colorlog (pip install colorlog) -> for colored output logs
+ * pyzmq (pip install zmq) -> zmq communication for origin and pypico server
  * origin (see below)
 
 ### On Ubuntu
+
+Alomost everything can be installed with:
+```bash
+$ pip install -r requirements.txt
+```
+First though install the system level pyaudio dependencies below.
 
 To install pyaudio in virtual environment: 
 
@@ -28,12 +35,61 @@ $ sudo apt-get install libjack-jackd2-dev portaudio19-dev
 ```
 Then you can `pip install pyaudio` as normal.
 
+The requirement.txt file does not include the PyQt4 dependency so install it by doing the following.
 To install PyQt4 in virtual environment, first install globally:
 ```bash
 $ sudo apt-get install python-qt4
 ```
 Then copy from `/usr/lib/python2.7/dist-packages/PyQt4` to `<virtual_enviroment_dir>/lib/python2.7/site-packages`.
 Also copy `/usr/lib/python2.7/dist-packages/sip.<architecture>.so` to the same path.
+
+If you use matplotlib 1.5.0 or greater there is an issue when importing `NavigationToolbar2QTAgg`.
+You can just edit the backend code to call `NavigationToolbar2QT` instead or downgrade to 1.4.
+
+## Configuration files
+
+Some parameters need to be specified before the controller is started, sich as DLL paths and python modules not installed globally.
+Additionally there are experiment specific parameters that rarely or never change.
+These are all good candidates for entries in a config file.
+Basically if you ever thought hey I wish X experiment would stop overwriting my Y whenever they makes changes, Y should be moved to the config file.
+
+To prevent everyone form just overwriting each others config files perpetuating the cycle, everyone makes their own config file with a discriptive name such as `config_FNODE.cfg` or `config_AQUA.cfg`.
+You then, on your Windows machine, run cmd.exe as administrator, navigate to the python folder for the controller and run the following code:
+```bash
+mklink config\config.cfg config\config_<EXPERIMENT TAG>.cfg
+```
+which makes a symbolic (soft) link to your actual `config_<EXPERIMENT TAG>.cfg` file whenever the experiment looks for `config.cfg` and no one has to yell at anyone else anymore.
+
+On a linux machine run:
+```bash
+ln -s config_<EXPERIMENT TAG>.cfg config.cfg
+```
+
+The configuration file is stored in the settings and data files as a JSON string.
+In the event that the configuration file differs from the saved JSON configuration in the settings, the user will be prompted at startup to choose which version they want to use.
+
+## Threaded Analysis
+
+Threaded analyses are now built into the CsPyController, but analyses are not threaded by default since I do not have the ability to test everyone's analyses.
+In order to enable threading for your analysis you need to add some code to the `__init__` class method for your analysis.
+To see how this works let's say we have two analyses `Analysis1` and `Analysis2`, and `Analysis2` depends on the results of `Analysis1`.
+`Analysis1` only depends on instrument data, and no other analysis.
+The contents of the `__init__` method for `Analysis1` would look like this:
+```python
+def __init__(self, experiment, desc=None):
+    super(Analysis1, self).__init__('Analysis1', experiment, 'description of Analysis1')
+    # initialize Analysis1 here
+    self.queueAfterMeasurement = True  # enable threading for analysis
+```
+`Analysis2` is then:
+```python
+def __init__(self, experiment, desc=None):
+    super(Analysis2, self).__init__('Analysis2', experiment, 'description of Analysis2')
+    # initialize Analysis2 here
+    self.queueAfterMeasurement = True  # enable threading for analysis
+    self.measurementDependencies += [self.experiment.Analysis1Obj]
+```
+Note that `self.experiment.Analysis1Obj` refers to the instantiation of the `Analysis1` class named `Analysis1Obj` in the main `aqua.py` file.
 
 ## Usage Notes
 
@@ -62,19 +118,11 @@ The clone the package:
 git clone https://github.com/QuantumQuadrate/Origin.git
 ```
 
-Currently we are using the dev branch so switch to it
-
-```bash
-cd Origin
-git checkout dev
-```
-
 Now you need to add the path to the python path so it can find the package when you import it.
-To do this edit the path to the `CsPyController/python/origin.py` file to reflect the path of your installation.
+To do this edit the config file `CsPyController/python/config/config_<EXPTAG>.cfg` to reflect the path of your installation.
 
 ```python
-# first find ourself
-fullBasePath = "C:\\LabSoftware\\Origin" #example path
+OriginInstallPath = "C:\\LabSoftware\\Origin" ; example path
 ```
 
 #### Usage
