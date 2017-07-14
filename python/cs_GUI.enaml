@@ -1914,7 +1914,7 @@ enamldef Picam(Form):
                         clicked :: item.camera.stop_video()
                 HGroup:
                     EvalProp:
-                        prop << item.camera.serial
+                        prop << item.camera.currentCamera
                     PushButton:
                         text = 'Select Camera'
                         clicked :: item.camera.setCamera()
@@ -1929,9 +1929,6 @@ enamldef Picam(Form):
                 LabelBox:
                     text = 'enable'
                     checked := item.camera.enable
-                LabelBox:
-                    text = 'draw_fig'
-                    checked := item.analysis.draw_fig
                 EvalProp:
                     prop << item.camera.AdcEMGain
                 ComboBox:
@@ -1979,10 +1976,10 @@ enamldef Picam(Form):
                     EvalProp:
                         prop << item.camera.minPlot
                     EvalProp:
-                        prop << item.camera.maxPlot
+                        prop << item.camera.maxPlot    
                 LabelBox:
                     text = 'Use Demo Camera'
-                    checked := item.camera.useDemo
+                    checked := item.camera.useDemo 
 
 
 
