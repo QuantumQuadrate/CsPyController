@@ -240,6 +240,7 @@ class Analysis(Prop):
                 else:
                     self.measurementQueueEmpty = True
                     time.sleep(0.01)
+            self.measurementQueueEmpty = True
             logger.debug('Analysis thread finished. Entering wait state.')
             self.restart.wait()
             logger.debug('Restarting analysis thread.')
@@ -308,6 +309,7 @@ class Analysis(Prop):
     def postExperiment(self, experimentResults):
         # no queueing, must do post experiment processing at this time
         # block while any threaded iterations finish
+        
         while self.iterationProcessing:
             # TODO: add timeout
 
@@ -315,6 +317,7 @@ class Analysis(Prop):
             # the threaded application to get processor time for a while
             # TODO: switch to an actual threading library like
             # multiprocessing
+            
             time.sleep(0.01)
         # signal to analysis thread to stop
         self.measurementProcessing = False

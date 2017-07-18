@@ -133,11 +133,11 @@ class NIScopeInstrument(Instrument):
                 self.initialize()
              
             #logger.warning('Checking Acquisition Status')   
-            acqstat = self.scope.AcquisitionStatus()
+            #acqstat = self.scope.AcquisitionStatus()
             #logger.warning('Acquisition status = {}'.format(acqstat))
-            if acqstat:
+            #if acqstat:
                 #logger.warning('Aborting old acquisition')
-                self.scope.Abort()
+            self.scope.Abort()
             #logger.warning('Initiating Acquisition')
                 
             

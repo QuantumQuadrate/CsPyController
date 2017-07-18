@@ -240,7 +240,7 @@ class TCP_Instrument(Instrument):
                 raise PauseError
 
             # parse results
-            logger.debug('Parsing TCP results ...')
+            logger.info('Parsing TCP results ...')
             results = self.sock.parsemsg(rawdata)
             # for key, value in self.results.iteritems():
             #    print 'key: {} value: {}'.format(key,str(value)[:40])
