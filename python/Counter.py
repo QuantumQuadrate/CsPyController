@@ -75,7 +75,7 @@ class CounterAnalysis(AnalysisWithFigure):
     def preExperiment(self, experimentResults):
         self.counter_array = None
         self.binned_array = None
-        #measurements x bins
+        # measurements x bins
 
     def analyzeMeasurement(self, measurementResults, iterationResults, experimentResults):
         if self.enable:
@@ -99,46 +99,47 @@ class CounterAnalysis(AnalysisWithFigure):
         return
 
     def updateFigure(self):
-        if self.enable:
-            if not self.update_lock:
-                try:
-                    self.update_lock = True
+        if self.draw_fig:
+            if self.enable:
+                if not self.update_lock:
+                    try:
+                        self.update_lock = True
 
-                    # There are two figures in an AnalysisWithFigure.  Draw to the offscreen figure.
-                    fig = self.backFigure
-                    # Clear figure.
-                    fig.clf()
+                        # There are two figures in an AnalysisWithFigure.  Draw to the offscreen figure.
+                        fig = self.backFigure
+                        # Clear figure.
+                        fig.clf()
 
-                    #make one plot
-                    ax = fig.add_subplot(221)
-                    # Drop first 3 bins
+                        #make one plot
+                        ax = fig.add_subplot(221)
+                        # Drop first 3 bins
 
-                    ax.bar(np.arange(len(self.counter_array[-1, self.drops:])), self.counter_array[-1, self.drops:])
-                    ax.set_title('Shot: {}'.format(len(self.counter_array)))#Singlt shot
+                        ax.bar(np.arange(len(self.counter_array[-1, self.drops:])), self.counter_array[-1, self.drops:])
+                        ax.set_title('Shot: {}'.format(len(self.counter_array)))#Singlt shot
 
-                    ax = fig.add_subplot(222)
-                    ax.bar(np.arange(len(self.counter_array[-1, self.drops:])), self.counter_array[:, self.drops:].mean(0))
-                    ax.set_title('Iteration average') #Average over all shots/iteration
+                        ax = fig.add_subplot(222)
+                        ax.bar(np.arange(len(self.counter_array[-1, self.drops:])), self.counter_array[:, self.drops:].mean(0))
+                        ax.set_title('Iteration average') #Average over all shots/iteration
 
-                    ax = fig.add_subplot(223)
-                    ax.plot(self.binned_array.transpose(),'.')
-
-
-
-                    ax.legend(['shot 1', 'shot 2'], fontsize='small', loc=0)
-                    ax.set_title('Binned Data')
-
-                    ax = fig.add_subplot(224)
-                    ax.hist(self.binned_array[0], bins=30, histtype='step')
-                    ax.hist(self.binned_array[1], bins=30, histtype='step')
+                        ax = fig.add_subplot(223)
+                        ax.plot(self.binned_array.transpose(),'.')
 
 
-                    super(CounterAnalysis, self).updateFigure()
 
-                except Exception as e:
-                    logger.warning('Problem in RetentionGraph.updateFigure()\n{}\n{}\n'.format(e, traceback.format_exc()))
-                finally:
-                    self.update_lock = False
+                        ax.legend(['shot 1', 'shot 2'], fontsize='small', loc=0)
+                        ax.set_title('Binned Data')
+
+                        ax = fig.add_subplot(224)
+                        ax.hist(self.binned_array[0], bins=30, histtype='step')
+                        ax.hist(self.binned_array[1], bins=30, histtype='step')
+
+
+                        super(CounterAnalysis, self).updateFigure()
+
+                    except Exception as e:
+                        logger.warning('Problem in RetentionGraph.updateFigure()\n{}\n{}\n'.format(e, traceback.format_exc()))
+                    finally:
+                        self.update_lock = False
 
 class CounterHistogramAnalysis(AnalysisWithFigure):
     '''
@@ -227,29 +228,30 @@ class CounterHistogramAnalysis(AnalysisWithFigure):
         return
 
     def updateFigure(self, iterationResults):
-        if self.enable:
-            if not self.update_lock:
-                try:
-                    self.update_lock = True
+        if self.draw_fig:
+            if self.enable:
+                if not self.update_lock:
+                    try:
+                        self.update_lock = True
 
-                    # There are two figures in an AnalysisWithFigure.  Draw to the offscreen figure.
-                    fig = self.backFigure
-                    # Clear figure.
-                    fig.clf()
-                    shots = iterationResults['shotData']
-                    popts = iterationResults['analysis/dblGaussPopt']
-                    fits = iterationResults['analysis/dblGaussFit']
+                        # There are two figures in an AnalysisWithFigure.  Draw to the offscreen figure.
+                        fig = self.backFigure
+                        # Clear figure.
+                        fig.clf()
+                        shots = iterationResults['shotData']
+                        popts = iterationResults['analysis/dblGaussPopt']
+                        fits = iterationResults['analysis/dblGaussFit']
 
-                    #make one plot
-                    for i in range(len(shots)):
-                        ax = fig.add_subplot('21{}'.format(1+i))
-                        ax.hist(shots[i], bins=self.hbins, histtype='step', normed=True)
-                        h = np.histogram(shots[i],normed=True,bins=self.hbins)
-                        ax.plot(h[1][1:]-.5,self.dblgauss(h[1][1:],*popts[i]))
+                        #make one plot
+                        for i in range(len(shots)):
+                            ax = fig.add_subplot('21{}'.format(1+i))
+                            ax.hist(shots[i], bins=self.hbins, histtype='step', normed=True)
+                            h = np.histogram(shots[i],normed=True,bins=self.hbins)
+                            ax.plot(h[1][1:]-.5,self.dblgauss(h[1][1:],*popts[i]))
 
-                    super(CounterHistogramAnalysis, self).updateFigure()
+                        super(CounterHistogramAnalysis, self).updateFigure()
 
-                except Exception as e:
-                    logger.warning('Problem in RetentionGraph.updateFigure()\n{}\n{}\n'.format(e, traceback.format_exc()))
-                finally:
-                    self.update_lock = False
+                    except Exception as e:
+                        logger.warning('Problem in RetentionGraph.updateFigure()\n{}\n{}\n'.format(e, traceback.format_exc()))
+                    finally:
+                        self.update_lock = False

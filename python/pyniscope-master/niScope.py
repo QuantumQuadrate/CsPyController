@@ -14,7 +14,7 @@ from niScopeTypes import *
 from niScopeTypes import ViInt32
 
 
-libname = 'niScope_32'
+libname = 'niScope_64'
 #    include_niScope_h = os.environ['NIIVIPATH']+'Include\\niScope.h'
 lib = util.find_library(libname)
 if lib is None:

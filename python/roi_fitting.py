@@ -22,6 +22,7 @@ from scipy.optimize import curve_fit
 from atom.api import Bool, Float, Member, Int, Str
 from analysis import AnalysisWithFigure
 
+
 class GaussianROI(AnalysisWithFigure):
     version = '2015.01.07'
     enable = Bool()  # whether or not to activate this optimization
@@ -50,10 +51,15 @@ class GaussianROI(AnalysisWithFigure):
         super(GaussianROI, self).__init__(name, experiment, "a gaussian fit to the regions of interest")
         self.rows = rows
         self.columns = columns
-        self.properties += ['version', 'enable', 'useICA', 'shot', 'top', 'left', 'bottom', 'right', 'fitParams',
-                            'fitCovariances', 'image_shape', 'rois', 'enable_grid_fit', 'automatically_use_rois',
-                            'enable_calculate_sums', 'subtract_background', 'cutoffs', 'subtract_background_from_sums',
-                            'multiply_sums_by_photoelectron_scaling', 'cutoffs_from_which_experiment']
+        self.properties += [
+            'version', 'enable', 'useICA', 'shot', 'top', 'left', 'bottom',
+            'right', 'fitParams', 'fitCovariances', 'image_shape', 'rois',
+            'enable_grid_fit', 'automatically_use_rois',
+            'enable_calculate_sums', 'subtract_background', 'cutoffs',
+            'subtract_background_from_sums',
+            'multiply_sums_by_photoelectron_scaling',
+            'cutoffs_from_which_experiment'
+        ]
 
     # define functions for a gaussian with various degrees of freedom
 

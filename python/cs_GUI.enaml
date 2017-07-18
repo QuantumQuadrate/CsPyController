@@ -234,7 +234,7 @@ def get_save_file_callback(experiment):
 enamldef CsMenuBar(MenuBar): menuBar:
     attr experiment
     attr mainWindow
-    
+
     Menu:
         title = '&File'
         Action:
@@ -265,10 +265,10 @@ enamldef CsMenuBar(MenuBar): menuBar:
         title = '&Experiment'
         Action:
             text = 'Reset and Run\tCtrl+R'
-            triggered::experiment.resetAndGoThread()
+            triggered::experiment.resetAndGo()
         Action:
             text = 'Reset'
-            triggered::experiment.resetThread()
+            triggered::experiment.reset()
         Action:
             text = 'Run/Continue\tCtrl+G'
             triggered::experiment.goThread()
@@ -291,10 +291,10 @@ enamldef CsMenuBar(MenuBar): menuBar:
                 triggered :: experiment.pause_now()
         Action:
             text = 'End and Upload'
-            triggered::experiment.endThread()
+            triggered::experiment.end_now()
         Action:
             text = 'Upload'
-            triggered::experiment.uploadNowThread()
+            triggered::experiment.upload_now()
         Action:
             text = 'Stop\tCtrl+H'
             triggered::experiment.stop()
@@ -327,7 +327,7 @@ enamldef EvalProp(GroupBox):
     Label: val:
         text << prop.valueStr
 
-enamldef MultilineProp(GroupBox):        
+enamldef MultilineProp(GroupBox):
     attr prop
     flat=True
     title:=prop.name
@@ -343,7 +343,7 @@ enamldef MultilineProp(GroupBox):
 enamldef LabelBox(HGroup):
     alias checked: box.checked
     alias text: label.text
-    
+
     padding=0
     hug_height='strong'
     hug_width='strong'
@@ -398,6 +398,17 @@ enamldef ExperimentPage(Window):
 
             Form: form:
                 constraints = [(midline==left)|'strong'] #,(width==parent.contents_width)|'strong']
+
+                Label: text='ROI Rows'
+                IntField: value := experiment.ROI_rows
+                Label: text='ROI Columns'
+                IntField: value := experiment.ROI_columns
+
+                Label: text='ROI Background Rows'
+                IntField: value := experiment.ROI_bg_rows
+                Label: text='ROI Background Columns'
+                IntField: value := experiment.ROI_bg_columns
+
                 Label:
                     text="Status:"
                 Label:
@@ -780,7 +791,7 @@ enamldef DOchannel(Container):
 
 enamldef HSDIOScriptTrigger(StackItem):
     attr item
-    
+
     Container:
         padding=0
         Form:
@@ -803,7 +814,7 @@ enamldef HSDIOScriptTrigger(StackItem):
 enamldef StartTrigger(GroupBox):
     attr trigger
     title='Start Trigger'
-    
+
     EvalProp:
         prop<<trigger.waitForStartTrigger
     EvalProp:
@@ -818,7 +829,7 @@ class RefreshableMPLCanvas(MPLCanvas):
         def on_action_set_refresh(self, content):
             self.refresh_mpl_widget()
     """
-    
+
     #: Toggle this to refresh the canvas
     refresh = d_(Bool())
 
@@ -950,7 +961,7 @@ enamldef ChannelCombo(ComboBox):
     attr channels
     attr channelList
     attr position
-    
+
     items<<[str(i)+' '+x for i,x in enumerate(channels.array['description'])]
     index<<int(channelList[position])
     index::
@@ -969,7 +980,7 @@ enamldef TransitionsLabel(Container):
 enamldef DescriptionLabel(Label):
     constraints = [height == 20]
     text='description'
-    
+
 enamldef TimeLabel(Label):
     constraints = [height == 20]
     text='time'
@@ -986,9 +997,9 @@ enamldef TransitionTime(Form):
     attr transition
     attr value_str
     attr valid
-    
+
     padding=0
-    
+
     Field:
         constraints = [width == 100, height==20]
         placeholder = 'time'
@@ -1004,11 +1015,11 @@ enamldef TransitionTime(Form):
 
 enamldef NumpyWaveform(Container):
     attr waveform
-    
+
     hug_height='strong'
     hug_width='ignore'
     constraints=[vbox(plotcontrols,details),align('left',plotcontrols,details)]
-    
+
     Container: plotcontrols:
         hug_width='strong'
         hug_height='strong'
@@ -1034,7 +1045,7 @@ enamldef NumpyWaveform(Container):
                 else:
                     waveform.plotmax=float(text)
                 waveform.updateFigure()
-    
+
     Container: details:
         constraints=[vbox(hbox(nameField,timeControls,channelControls),transitions)]
         hug_height='strong'
@@ -1153,6 +1164,9 @@ enamldef FunctionalWaveformsGraph(Window):
                     LabelBox:
                         text = 'enable'
                         checked := graph.enable
+                    LabelBox:
+                        text = 'draw_fig'
+                        checked := graph.draw_fig
                     Label: text = 'HSDIO'
                     Field:
                         placeholder = 'HSDIO channels to plot'
@@ -1246,7 +1260,7 @@ enamldef DAQmxDigitalOutPage(Window):
 
 enamldef DDS_profile(Container):
     attr profile
-    
+
     hug_height='strong'
     hug_width='strong'
     padding=0
@@ -1312,7 +1326,7 @@ enamldef RAMStaticPoint(StackItem):
 
 enamldef ItemProp(StackItem):
     attr item
-    
+
     Container:
         padding=0
         EvalProp:
@@ -1321,7 +1335,7 @@ enamldef ItemProp(StackItem):
 enamldef DDS_channel(GroupBox):
     attr channel
     attr index
-    
+
     title='channel '+str(index)
     constraints=[hbox(vbox(parameters,RAM),profiles)]
 
@@ -1338,10 +1352,10 @@ enamldef DDS_channel(GroupBox):
             prop<<channel.power
         EvalProp: refClockRate:
             prop<<channel.refClockRate
-            enabled = False
+            enabled = True
         EvalProp: fullScaleOutputPower:
             prop<<channel.fullScaleOutputPower
-    
+
     GroupBox: RAM:
         title='RAM defaults'
         flat=True
@@ -1510,7 +1524,7 @@ enamldef DDS_Page(Window):
 
 enamldef RF_gen(StackItem):
     attr item
-    
+
     Container:
         padding=0
         Form:
@@ -1534,7 +1548,7 @@ enamldef RF_gen(StackItem):
 
 enamldef HP83623A(StackItem):
     attr item
-    
+
     Container:
         padding=0
         Form:
@@ -1542,12 +1556,12 @@ enamldef HP83623A(StackItem):
                 text='enable'
             CheckBox:
                 checked:=item.enable
-            
+
             Label:
                 text='description'
             Field:
                 text:=item.description
-            
+
             Label:
                 text='GPIB channel'
             IntField:
@@ -1697,7 +1711,7 @@ enamldef Andors(Window):
 enamldef Andor(Form):
     attr item
 
-    constraints = [width >= 1000, height >= 1000]
+    constraints = [width >= 1200, height >= 1300]
 
     #title = 'Andor Camera'
     style_class << 'valid' if experiment.valid else 'invalid'
@@ -1710,53 +1724,50 @@ enamldef Andor(Form):
                 style_class << 'valid' if experiment.valid else 'invalid'
 
                 HGroup:
-                    align_widths = False
                     MPLCanvas:
                         figure << item.analysis.figure
                         toolbar_visible = True
-                    Slider:
-                        orientation = 'vertical'
-                        tracking = False
-                        value := item.camera.roilowv
-                        value :: item.camera.setROIvalues()
-                        minimum << item.camera.roimaxv
-                        visible << item.camera.enableROI
-                        maximum = 0
-                    Slider:
-                        orientation = 'vertical'
-                        tracking = False
-                        value := item.camera.roihighv
-                        value :: item.camera.setROIvalues()
-                        minimum << item.camera.roimaxv
-                        visible << item.camera.enableROI
-                        maximum = 0
-                Slider:
-                    tracking = False
-                    value := item.camera.roilowh
-                    value :: item.camera.setROIvalues()
-                    minimum = 0
-                    maximum << item.camera.roimaxh
-                    visible << item.camera.enableROI
-                Slider:
-                    tracking = False
-                    value := item.camera.roihighh
-                    value :: item.camera.setROIvalues()
-                    minimum = 0
-                    maximum << item.camera.roimaxh
-                    visible << item.camera.enableROI
                 HGroup:
+                    Label:
+                        text = 'ROI offset (H,V)'
+                    IntField:
+                        value := item.camera.subimage_position[0]
+                    IntField:
+                        value := item.camera.subimage_position[1]
+                    Label:
+                        text = 'ROI size (' + ','.join(map(str,item.camera.ccd_size)) +')'
+                    IntField:
+                        value := item.camera.subimage_size[0]
+                    IntField:
+                        value := item.camera.subimage_size[1]
+                HGroup:
+                    LabelBox:
+                        text = 'enable'
+                        checked := item.camera.enable
+                    LabelBox:
+                        text = 'draw_fig'
+                        checked := item.analysis.draw_fig
+                HGroup:
+                    IntField:
+                        value := item.camera.serial
+                    PushButton:
+                        text = 'Select Camera'
+                        clicked :: item.camera.setCamera()
+                    PushButton:
+                        text = 'Read camera config'
+                        clicked :: item.camera.rundiagnostics()
+                    PushButton:
+                        text = 'Open Shutter'
+                        clicked :: item.camera.SetShutterEx(0, 1, 0, 0, 1)
+                    PushButton:
+                        text = 'Close Shutter'
+                        clicked :: item.camera.SetShutterEx(0, 2, 0, 0, 2)
                     PushButton:
                         text = 'video mode'
                         clicked :: item.camera.setup_video_thread(item.analysis)
                     PushButton:
                         text = 'stop video'
                         clicked :: item.camera.stop_video()
-                HGroup:
-                    EvalProp:
-                        prop << item.camera.currentCamera
-                    PushButton:
-                        text = 'Select Camera'
-                        clicked :: item.camera.setCamera()
                 HGroup:
                     padding = 0
                     Label:
@@ -1765,15 +1776,19 @@ enamldef Andor(Form):
                         text := 'CCD Temperature (C): {:.4}'.format(item.camera.temperature)
                     Label:
                         text := 'Maximum Pixel Value: {}, Mean Pixel Value: {}'.format(item.analysis.maxPixel,item.analysis.meanPixel)
-                LabelBox:
-                    text = 'enable'
-                    checked := item.camera.enable
-                EvalProp:
-                    prop << item.camera.EMCCDGain
-                EvalProp:
-                    prop << item.camera.preAmpGain
-                EvalProp:
-                    prop << item.camera.exposureTime
+                HGroup:
+                    EvalProp:
+                        prop << item.camera.EMCCDGain
+                    EvalProp:
+                        prop << item.camera.exposureTime
+                HGroup:
+                    padding = 0
+                    Label:
+                        text='Trigger mode'
+                    Label:
+                        text='Acquisition mode'
+                    Label:
+                        text='Binmode'
                 HGroup:
                     padding = 0
                     ComboBox:
@@ -1793,25 +1808,28 @@ enamldef Andor(Form):
                     ComboBox:
                         items = ['EM Gain Mode: DAC 0-255', 'EM Gain Mode: DAC 0-4095', 'EM Gain Mode: Linear', 'EM Gain Mode: Real EM Gain']
                         index := item.camera.EMGainMode
-                EvalProp:
-                    prop<<item.camera.shotsPerMeasurement
-                Form:
-                    Label:
-                        text = 'shot'
-                    SpinBox: shot:
-                        minimum=0
-                        value := item.analysis.shot
-                Container:
-                    LabelBox:
-                        text = 'Autoscale'
-                        checked := item.camera.autoscale
-                    LabelBox:
-                        text = 'Background Subtraction'
-                        checked := item.analysis.bgsub
+                HGroup:
+                    EvalProp:
+                        prop<<item.camera.shotsPerMeasurement
+                    Form:
+                        Label:
+                            text = 'shot'
+                        SpinBox: shot:
+                            minimum=0
+                            value := item.analysis.shot
+                HGroup:
                     EvalProp:
                         prop << item.camera.minPlot
                     EvalProp:
                         prop << item.camera.maxPlot
+                LabelBox:
+                    text = 'Autoscale'
+                    checked := item.camera.autoscale
+                LabelBox:
+                    text = 'Background Subtraction'
+                    checked := item.analysis.bgsub
+
+
 
 
 enamldef NIScopes(Window):
@@ -1868,6 +1886,9 @@ enamldef NIScope(Form):
                     title = "Device"
                     EvalProp:
                         prop << item.scope.DeviceName
+                    LabelBox:
+                        text = 'enable'
+                        checked := item.scope.enable
                 GroupBox: Trigger:
                     title << "Trigger"
                     #HGroup:
@@ -1882,11 +1903,11 @@ enamldef NIScope(Form):
                     ComboBox: TSlope:
                         items = ['Rising Edge', 'Falling Edge']
                         index := item.scope.TrigSlope
-                    ComboBox: TMode:
-                        items = ['Normal', 'Auto', 'Single']
-                        index := item.scope.TrigMode
+                    #ComboBox: TMode:
+                    #    items = ['Normal', 'Auto', 'Single']
+                    #    index := item.scope.TrigMode
                     ComboBox: TSource:
-                        items = ['CH0', 'CH1', 'Ext']
+                        items = ['CH0', 'CH1', 'Ext', 'Immediate']
                         index := item.scope.TrigSource
                     EvalProp: TLevel:
                         prop << item.scope.TrigLevel
@@ -1948,9 +1969,8 @@ enamldef NIScope(Form):
 
 
 
-                        
 
-            
+
 enamldef PICams(Window):
     attr picams
 
@@ -2100,10 +2120,8 @@ enamldef Picam(Form):
                 LabelBox:
                     text = 'Use Demo Camera'
                     checked := item.camera.useDemo 
-                            
-                            
-                        
-                        
+
+
 
 enamldef FiltersPage(Page):
     title = 'Filters'
@@ -2247,6 +2265,10 @@ enamldef AnalogInput(Window):
                             text = 'enable'
                         CheckBox:
                             checked := analysis.enable
+                        Label:
+                            text = 'draw fig'
+                        CheckBox:
+                            checked := analysis.draw_fig
                         Label:
                             text = 'specify what to graph with a list of tuples: [(channel,samples_list),(channel, samples_list)...]\nSamples in samples_list will be averaged.'
                         Field:
@@ -2466,6 +2488,10 @@ enamldef DCNoiseEaters(Window):
                         CheckBox:
                             checked := analysis.enable
                         Label:
+                            text = 'draw_fig'
+                        CheckBox:
+                            checked := analysis.draw_fig
+                        Label:
                             text = 'specify box, channel and variable (see indices below) to graph with a list of tuples: [(box,channel,variable),(box,channel,variable)]\n 0:mode, 1:warnSetting, 2:limitRange, 3:invert, 4:integrationTime, 5:trigNum, 6:measNum, 7:kp, 8:ki, 9:setpoint, 10:average, 11:error, 12:vin, 13:vout, 14:warning'
                         Field:
                             text := analysis.list_of_what_to_plot
@@ -2495,7 +2521,7 @@ enamldef Arroyo(Window):
 
 enamldef PiezoChannel(Container):
     attr channel
-    
+
     hug_height = 'strong'
     hug_width = 'strong'
     constraints=[hbox(description, setServo,setPosition,label)]
@@ -2514,7 +2540,7 @@ enamldef PiezoChannel(Container):
 
 enamldef PiezoController(StackItem):
     attr item
-    
+
     Container:
         hug_height = 'strong'
         hug_width = 'strong'
@@ -2569,7 +2595,7 @@ enamldef PI_Piezo(Window):
 
 enamldef AnalysisImage(Container):
     attr analysis
-    
+
     padding=0
     constraints=[(height==550)|'strong',(width==550)|'strong']
     MPLCanvas:
@@ -2606,6 +2632,10 @@ enamldef MultiImage(Window):
                             figure << analysis0.figure
                         Form:
                             Label:
+                                text = 'draw_fig'
+                            CheckBox:
+                                checked := analysis0.draw_fig
+                            Label:
                                 text = 'Show ROIs?'
                             CheckBox:
                                 checked := analysis0.showROIs
@@ -2628,6 +2658,10 @@ enamldef MultiImage(Window):
                                 text = 'enable'
                             CheckBox:
                                 checked := analysis2.enable
+                            Label:
+                                text = 'draw_fig'
+                            CheckBox:
+                                checked := analysis2.draw_fig
                             Label:
                                 text='Show ROIs?'
                             CheckBox:
@@ -2709,30 +2743,26 @@ enamldef SquareROI(Container):
     attr num
     hug_height='strong'
     hug_width='strong'
-    constraints=[hbox(l0,f0,f1,f2,f3,f4)]
+    constraints=[hbox(l0,f0,f1,f2,f3)]
     Label: l0:
         constraints = [(width==50)|'strong']
         text=str(num)
     MyIntField: f0:
-        constraints = [(width==100)|'strong']
+        constraints = [(width==50)|'strong']
         placeholder='left'
         value:=item['left']
     MyIntField: f1:
-        constraints = [(width==100)|'strong']
+        constraints = [(width==50)|'strong']
         placeholder='top'
         value:=item['top']
     MyIntField: f2:
-        constraints = [(width==100)|'strong']
+        constraints = [(width==50)|'strong']
         placeholder='right'
         value:=item['right']
     MyIntField: f3:
-        constraints = [(width==100)|'strong']
+        constraints = [(width==50)|'strong']
         placeholder='bottom'
         value:=item['bottom']
-    MyFloatField: f4:
-        constraints = [(width==100)|'strong']
-        placeholder='threshold'
-        value:=item['threshold']
 
 enamldef SquareROIContainer(Window):
     attr experiment
@@ -2757,34 +2787,103 @@ enamldef SquareROIContainer(Window):
                             text = 'enable'
                         CheckBox:
                             checked := analysis.enable
+                        Label:
+                            text = 'draw_fig'
+                        CheckBox:
+                            checked := analysis.draw_fig
                     Container:
                         hug_height='strong'
                         hug_width='strong'
-                        constraints=[hbox(l0,l1,l2,l3,l4,l5)]
+                        constraints=[hbox(l0,l1,l2,l3,l4)]
                         Label: l0:
                             constraints = [(width==50)|'strong']
                             text = 'ROI#'
                         Label: l1:
-                            constraints = [(width==100)|'strong']
+                            constraints = [(width==50)|'strong']
                             text = 'left'
                         Label: l2:
-                            constraints = [(width==100)|'strong']
+                            constraints = [(width==50)|'strong']
                             text = 'top'
                         Label: l3:
-                            constraints = [(width==100)|'strong']
+                            constraints = [(width==50)|'strong']
                             text = 'right'
                         Label: l4:
-                            constraints = [(width==100)|'strong']
+                            constraints = [(width==50)|'strong']
                             text = 'bottom'
-                        Label: l5:
-                            constraints = [(width==100)|'strong']
-                            text = 'threshold'
                     Include: dyno:
                         objects<<[SquareROI(item=x,num=i) for i,x in enumerate(analysis.ROIs)]
+                    Container:
+                        hug_height='strong'
+                        hug_width='strong'
+                        constraints=[hbox(l5,l1,l2,l3,l4)]
+                        Label: l5:
+                            constraints = [(width==50)|'strong']
+                            text = 'BG ROI#'
+                    Include: dyno1:
+                        objects<<[SquareROI(item=x,num=i) for i,x in enumerate(analysis.ROIs_bg)]
                 MPLCanvas: canvas:
-                    constraints=[(height==1000)|'strong',(width==1000)|'strong']
+                    constraints=[(height==512)|'strong',(width==512)|'strong']
                     hug_width='ignore'
                     figure<<analysis.figure
+
+enamldef ThresholdROI(Container):
+    attr item
+    attr num
+    hug_height='strong'
+    hug_width='strong'
+    constraints=[hbox(l0,f0)]
+    Label: l0:
+        constraints = [(width==50)|'strong']
+        text=str(num)
+    MyIntField: f0:
+        constraints = [(width==50)|'strong']
+        placeholder='1'
+        value := item['1']
+
+enamldef ThresholdROIContainer(Window):
+    attr experiment
+    attr analysis
+
+    title = 'Threshold ROIs'
+    style_class << 'valid' if experiment.valid else 'invalid'
+    Container:
+        padding = 0
+        style_class << 'valid' if experiment.valid else 'invalid'
+        ScrollArea:
+            style_class << 'valid' if experiment.valid else 'invalid'
+            Container:
+                style_class << 'valid' if experiment.valid else 'invalid'
+
+                hug_height='ignore'
+                hug_width='ignore'
+                constraints=[hbox(dynoCont,canvas),align('top',dynoCont,canvas)]
+                Container: dynoCont:
+                    Form:
+                        Label:
+                            text = 'enable'
+                        CheckBox:
+                            checked := analysis.enable
+                        Label:
+                            text = 'draw_fig'
+                        CheckBox:
+                            checked := analysis.draw_fig
+                    Container:
+                        hug_height='strong'
+                        hug_width='strong'
+                        constraints=[hbox(l0,l1)]
+                        Label: l0:
+                            constraints = [(width==50)|'strong']
+                            text = 'ROI#'
+                        Label: l1:
+                            constraints = [(width==50)|'strong']
+                            text = 'threshold'
+                    Include: dyno:
+                        objects<<[ThresholdROI(item=x,num=i) for i,x in enumerate(analysis.threshold_array)]
+                MPLCanvas: canvas:
+                    constraints=[(height==512)|'strong',(width==512)|'strong']
+                    hug_width='ignore'
+                    figure<<analysis.figure
+
 
 enamldef GaussianROI(Window):
     attr analysis
@@ -2805,6 +2904,10 @@ enamldef GaussianROI(Window):
                         text = 'enable'
                     CheckBox:
                         checked := analysis.enable
+                    Label:
+                        text = 'draw_fig'
+                    CheckBox:
+                        checked := analysis.draw_fig
                     Label:
                         text = 'perform gaussian grid fit'
                     CheckBox:
@@ -2874,7 +2977,7 @@ enamldef LoadingFilters(GroupBox):
             checked := filters.enable
 
         Label:
-            text = 'A boolean expression that evaluates the filter.\nUse t[shot,region] for the summation over any shot and region.\nFor example to require that sites 15 and 17 load: t[0,17]>20000 and t[0,15]>21000'
+            text = 'A boolean expression that evaluates the filter.\nUse t[shot,region] for the summation over any shot and region.\nFor example to require that sites 15 and 17 load: t[0,17] and t[0,15]'
         Field:
             text := filters.filter_expression
             style_class << 'valid' if filters.valid else 'invalid'
@@ -2939,6 +3042,10 @@ enamldef Histogram(Window):
                     CheckBox:
                         checked := analysis.enable
                     Label:
+                        text = 'draw_fig'
+                    CheckBox:
+                        checked := analysis.draw_fig
+                    Label:
                         text = 'specify shots and regions to graph with a list of pairs: [(shot,region),(shot,region)]'
                     Field:
                         text := analysis.list_of_what_to_plot
@@ -2965,6 +3072,10 @@ enamldef HistogramGrid(Window):
                         text = 'enable'
                     CheckBox:
                         checked := analysis.enable
+                    Label:
+                        text = 'draw_fig'
+                    CheckBox:
+                        checked := analysis.draw_fig
                     Label:
                         text = 'shot to display'
                     SpinBox:
@@ -3014,6 +3125,10 @@ enamldef MeasurementsGraph(Window):
                     CheckBox:
                         checked := analysis.enable
                     Label:
+                        text = 'draw_fig'
+                    CheckBox:
+                        checked := analysis.draw_fig
+                    Label:
                         text = 'specify shots and regions to graph with a list of pairs: [(shot,region),(shot,region)]'
                     Field:
                         text := analysis.list_of_what_to_plot
@@ -3053,6 +3168,10 @@ enamldef IterationsGraph(Window):
                         text = 'enable'
                     CheckBox: cb5:
                         checked := analysis.enable
+                    Label:
+                        text = 'draw_fig'
+                    CheckBox:
+                        checked := analysis.draw_fig
                     Label: l0:
                         text = 'draw connecting lines'
                     CheckBox: cb0:
@@ -3103,6 +3222,10 @@ enamldef RetentionGraph(Window):
                         text = 'enable'
                     CheckBox: cb5:
                         checked := analysis.enable
+                    Label:
+                        text = 'draw_fig'
+                    CheckBox:
+                        checked := analysis.draw_fig
                     Label: l0:
                         text = 'draw connecting lines'
                     CheckBox: cb0:
@@ -3148,6 +3271,10 @@ enamldef CounterGraph(Window):
                     CheckBox:
                         checked := analysis.enable
                     Label:
+                        text = 'draw_fig'
+                    CheckBox:
+                        checked := analysis.draw_fig
+                    Label:
                         text = 'pre-Data Bins'
                     IntField:
                         value := analysis.drops
@@ -3179,6 +3306,10 @@ enamldef CounterHistAnalysis(Window):
                         text = 'enable'
                     CheckBox:
                         checked := analysis.enable
+                    Label:
+                        text = 'draw_fig'
+                    CheckBox:
+                        checked := analysis.draw_fig
 
                     Label:
                         text = 'Data Bins'
@@ -3208,6 +3339,10 @@ enamldef Ramsey(Window):
                         text = 'enable'
                     CheckBox:
                         checked := analysis.enable
+                    Label:
+                        text = 'draw_fig'
+                    CheckBox:
+                        checked := analysis.draw_fig
                     Label:
                         text = 'draw error bars (1 sigma binomial std dev of mean using normal approximation)'
                     CheckBox:
@@ -3321,6 +3456,10 @@ enamldef Optimizer(Window):
                     CheckBox:
                         checked << analysis.enable_gui
                         enabled = False
+                    Label:
+                        text = 'draw_fig'
+                    CheckBox:
+                        checked := analysis.draw_fig
 
                     Label:
                         text='update method'
@@ -3363,7 +3502,7 @@ enamldef Optimizer(Window):
                     constraints << [(height==150*(len(experiment.independentVariables)+1))|'strong'] #,(width==1000)|'strong']
                     figure << analysis.figure
 
-                    
+
 enamldef Instek_PST(Container):
     attr item
 
@@ -3456,8 +3595,8 @@ enamldef Instek_PSTs(Window):
                     IndexedContainer:
                         iterable << instek_psts.motors
                         viewType = Instek_PST
-                    
-                    
+
+
 enamldef Vaunix(Container):
     attr item
 
@@ -3545,9 +3684,9 @@ enamldef Vaunix(Container):
                     text = 'ENABLE SWEEP'
                 CheckBox: SweepEnable:
                     checked := item.sweepenable
-                
-                
-        
+
+
+
 
 enamldef Vaunixs(Window):
     attr vaunixs
@@ -3574,18 +3713,18 @@ enamldef Vaunixs(Window):
                             checked := vaunixs.enable
                         PushButton: Detect:
                             text = 'Detect Signal Generators'
-                            clicked :: vaunixs.detect_generators()  
+                            clicked :: vaunixs.detect_generators()
                     IndexedContainer:
                         iterable << vaunixs.motors
-                        viewType = Vaunix                    
-                    
-                    
-                    
-                    
-                    
-                    
-                    
-                    
+                        viewType = Vaunix
+
+
+
+
+
+
+
+
 enamldef Aerotechs(Window):
     attr aerotechs
 
@@ -3648,7 +3787,7 @@ enamldef Aerotechs(Window):
                     #IndexedContainer:
                     #    iterable << aerotechs.motors
                     #    viewType = Aerotech
-                    
+
 enamldef Aerotech(Container):
     attr item
 
@@ -3659,23 +3798,23 @@ enamldef Aerotech(Container):
         hug_width = 'strong'
         hug_height = 'strong'
         EvalProp:
-            prop << item.Xi 
+            prop << item.Xi
         EvalProp:
-            prop << item.Xend 
+            prop << item.Xend
         EvalProp:
-            prop << item.Xvmx 
+            prop << item.Xvmx
         EvalProp:
-            prop << item.Xamx 
+            prop << item.Xamx
         EvalProp:
-            prop << item.Zi 
+            prop << item.Zi
         EvalProp:
-            prop << item.Zend 
+            prop << item.Zend
         EvalProp:
-            prop << item.Zvmx 
+            prop << item.Zvmx
         EvalProp:
-            prop << item.Zamx 
+            prop << item.Zamx
         EvalProp:
-            prop << item.XretTrig             
+            prop << item.XretTrig
 
 
 
@@ -3717,8 +3856,8 @@ enamldef Conexes(Window):
 
                     IndexedContainer:
                         iterable << conexes.motors
-                        viewType = Conex                    
-                    
+                        viewType = Conex
+
 enamldef Conex(Container):
     attr item
 
@@ -3735,19 +3874,15 @@ enamldef Conex(Container):
         Label:
             text = 'Velocity: '
         CheckBox:
-            checked := item.enableVel            
+            checked := item.enableVel
         EvalProp:
-            prop << item.Vel     
+            prop << item.Vel
         EvalProp:
             prop << item.Threshold
 
 
 
 
-
-
-
-            
 enamldef Picomotor(Container):
     attr item
 
@@ -3769,6 +3904,14 @@ enamldef Picomotor(Container):
             text = 'position'
         EvalProp:
             prop << item.desired_position
+        Label:
+            text = str(item.current_position)
+        Label:
+            text = 'max error'
+        Field:
+            text := str(item.max_angle_error)
+
+
 
 enamldef Picomotors(Window):
     attr picomotors
@@ -3805,6 +3948,59 @@ enamldef Picomotors(Window):
                     IndexedContainer:
                         iterable << picomotors.motors
                         viewType = Picomotor
+
+enamldef PyPico(Window):
+    attr pypico
+
+    title = 'PyPico Server'
+    style_class << 'valid' if experiment.valid else 'invalid'
+    Container:
+        padding = 0
+        style_class << 'valid' if experiment.valid else 'invalid'
+        ScrollArea:
+            style_class << 'valid' if experiment.valid else 'invalid'
+            Container:
+                style_class << 'valid' if experiment.valid else 'invalid'
+
+                Container:
+                    hug_width = 'strong'
+                    hug_height = 'strong'
+                    Form:
+                        hug_width = 'strong'
+                        hug_height = 'strong'
+                        Label:
+                            text = 'enable'
+                        CheckBox:
+                            checked := pypico.enable
+                        Label:
+                            text = 'enable_measurement'
+                        CheckBox:
+                            checked := pypico.enable_measurement
+                        Label:
+                            text = 'enable_iteration'
+                        CheckBox:
+                            checked := pypico.enable_iteration
+                        Label:
+                            text = 'enable_movement'
+                        CheckBox:
+                            checked := pypico.enable_movement
+                        Label:
+                            text = 'IP Address'
+                        Field:
+                            text := pypico.IP
+                        Label:
+                            text = 'port'
+                        IntField:
+                            value := pypico.port
+                        Label:
+                            text = 'timeout (ms)'
+                        IntField:
+                            value := pypico.timeout
+
+                    IndexedContainer:
+                        iterable << pypico.motors
+                        viewType = Picomotor
+
 
 enamldef Unlock_Pause(Window):
     attr unlock_pause
@@ -3897,7 +4093,7 @@ enamldef BoxTemperature(Window):
                     CheckBox:
                         checked << box_temperature.connected
                         enabled = False
- 
+
 
 enamldef PID(Window):
     attr experiment
@@ -4061,7 +4257,7 @@ enamldef Stream(Form):
                     Label:
                         text = 'stream?'
                     CheckBox:
-                        checked := item.stream                    
+                        checked := item.stream
 
 
 window_dictionary = {'':'',
@@ -4083,12 +4279,14 @@ window_dictionary = {'':'',
                      'Arroyo': 'Arroyo(experiment = main.experiment)',
                      'PI Piezo': 'PI_Piezo(piezo = main.experiment.LabView.piezo)',
                      'Picomotors': 'Picomotors(picomotors = main.experiment.picomotors)',
+                     'PyPico': 'PyPico(pypico = main.experiment.pyPicoServer)',
                      'Instek PST Power Supplies': 'Instek_PSTs(instek_psts = main.experiment.instekpsts)',
                      'Aerotech': 'Aerotechs(aerotechs = main.experiment.aerotechs)',
                      'CONEX-CC': 'Conexes(conexes = main.experiment.conexes)',
                      'Live Images': 'MultiImage(experiment = main.experiment, analysis0 = main.experiment.recent_shot_analysis, analysis2 = main.experiment.imageSumAnalysis, analysis3 = main.experiment.text_analysis)',
                      'Image Browser': 'ImageBrowser(experiment = main.experiment, analysis1 = main.experiment.shotBrowserAnalysis)',
                      'Square ROI':  'SquareROIContainer(experiment = main.experiment, analysis = main.experiment.squareROIAnalysis)',
+                     'Threshold ROI':  'ThresholdROIContainer(experiment = main.experiment, analysis = main.experiment.thresholdROIAnalysis)',
                      'Gaussian ROI': 'GaussianROI(analysis = main.experiment.gaussian_roi)',
                      'Histogram': 'Histogram(experiment = main.experiment, analysis = main.experiment.histogramAnalysis)',
                      'Histogram Grid': 'HistogramGrid(experiment = main.experiment, analysis = main.experiment.histogram_grid)',
@@ -4140,9 +4338,9 @@ enamldef Main(MainWindow): main:
                 minimum=0
                 maximum=100
                 value<<int(experiment.progressGUI)
-                
-                
-                
+
+
+
 
     HGroup:
         align_widths = False

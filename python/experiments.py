@@ -1,36 +1,51 @@
 """experiments.py
-This file contains the model to describe and experiment, and the machinery of how an iteration based experiment is run.
+This file contains the model to describe and experiment, and the machinery of
+how an iteration based experiment is run.
 
 author=Martin Lichtman
 """
 
 from __future__ import division
-__author__ = 'Martin Lichtman'
-import logging
-logger = logging.getLogger(__name__)
-from cs_errors import PauseError
 
 # import core python modules
-import threading, time, datetime, traceback, os, shutil, cStringIO, numpy, h5py, zipfile, cStringIO
-
-#set numpy print options to limit to 2 digits
-numpy.set_printoptions(formatter=dict(float=lambda t: "%.2e" % t))
+import threading
+import time
+import datetime
+import traceback
+import os
+import shutil
+import cStringIO
+import numpy
+import h5py
+import zipfile
 
 # Use Atom traits to automate Enaml updating
 from atom.api import Int, Float, Str, Member, Bool
 
 # Bring in other files in this package
-import cs_evaluate, sound, optimization
+from cs_errors import PauseError
+import cs_evaluate
+import sound
+import optimization
 from instrument_property import Prop, EvalProp, ListProp, StrProp
+
+import logging
+__author__ = 'Martin Lichtman'
+logger = logging.getLogger(__name__)
+
+# set numpy print options to limit to 2 digits
+numpy.set_printoptions(formatter=dict(float=lambda t: "%.2e" % t))
+
 
 class IndependentVariable(EvalProp):
     """A class to hold the independent variables for an experiment.  These are
-    the variables that get stepped through during the iterations.  Each 
-    independent variable is defined by a valueList which holds an array of values.
-    Using this technique, the valueList can be assigned as single value, an arange, linspace,
-    logspace, sin(logspace), as complicated as you like, so long as it can be eval()'d and then
-    cast to an array."""
-    
+    the variables that get stepped through during the iterations.  Each
+    independent variable is defined by a valueList which holds an array of
+    values. Using this technique, the valueList can be assigned as single
+    value, an arange, linspace, logspace, sin(logspace), as complicated as you
+    like, so long as it can be eval()'d and then cast to an array.
+    """
+
     valueListStr = Str()
     steps = Member()
     index = Member()
@@ -44,7 +59,7 @@ class IndependentVariable(EvalProp):
     optimizer_min = Float()
     optimizer_max = Float()
     optimizer_end_tolerance = Float()
-    
+
     def __init__(self, name, experiment, description='', function=''):
         super(IndependentVariable, self).__init__(name, experiment, description, function)
         self.steps = 0
@@ -148,14 +163,14 @@ class Experiment(Prop):
     timeRemainingStr = Str()
     completionTime = Float()
     completionTimeStr = Str()
-    
+
     #variables traits
     dependentVariablesStr = Str()
     constantsStr = Str()
     constantReport = Member()
     variableReport = Member()
     variablesNotToSave = Str()
-    
+
     #list of Analysis objects
     analyses = Member()
 
@@ -186,6 +201,11 @@ class Experiment(Prop):
     optimizer = Member()
     ivarBases = Member()
     instrument_update_needed = Bool(True)
+
+    # threading
+    exp_thread = Member()  # thread running the exp so gui is not blocked
+    restart = Member()  # threading event for communication
+    task = Member()  # signaling which task should be completed
 
     def __init__(self):
         """Defines a set of instruments, and a sequence of what to do with them."""
@@ -228,9 +248,47 @@ class Experiment(Prop):
         # any variables added here should be csv format
         self.variablesNotToSave='experiment'
 
+        # setup the experiment thread
+        self.restart = threading.Event()
+        self.exp_thread = threading.Thread(
+            target=self.exp_loop,
+            name='exp_thread'
+        )
+        self.exp_thread.daemon = True
+        self.exp_thread.start()
+        self.task = 'none'
+
+    def exp_loop(self):
+        """Run the experimental loop sequence.
+
+        This is designed to be run in a separate thread.
+        """
+        while True:  # run forever
+            # wait for the cue to restart the experiment
+            self.restart.wait()
+
+            # check the task flag to see what to do
+            if self.task == 'go':
+                # now do that fancy experiment
+                self.go()
+            elif self.task == 'upload':
+                # upload the stuff to the instruments
+                self.upload()
+            elif self.task == 'end':
+                # end the current experiment
+                self.end()
+            else:
+                msg = 'Unrecognized task flag `{}` encountered. Doing nothing.'
+                self.error(msg.format(self.task))
+
+            # clear the task flag
+            self.task = 'none'
+
     def applyToSelf(self, dict):
-        """Used to apply a bunch of variables at once.  This function is called using an Enaml deferred_call so that the
-         updates are done in the GUI thread."""
+        """Used to apply a bunch of variables at once.  This function is called
+         using an Enaml deferred_call so that the updates are done in the GUI
+         thread.
+         """
 
         for key, value in dict.iteritems():
             try:
@@ -261,8 +319,9 @@ class Experiment(Prop):
         #you will need to do autosave().close() wherever this is called
 
     def create_data_files(self):
-        """Create a new HDF5 file to store results.  This is done at the beginning of
-        every experiment."""
+        """Create a new HDF5 file to store results.  This is done at the
+        beginning of every experiment.
+        """
 
         #if a prior HDF5 results file is open, then close it
         if hasattr(self, 'hdf5') and (self.hdf5 is not None):
@@ -374,14 +433,18 @@ class Experiment(Prop):
     def date2str(self, time):
         return datetime.datetime.fromtimestamp(time).strftime('%Y-%m-%d %H:%M:%S')
 
-    def endThread(self):
+    def end_now(self):
         """Launches end() in a new thread, to keep GUI free"""
         if self.status == 'running':
-            logger.warning('You cannot manually finish an experiment that is still running.  Pause first.')
+            msg = (
+                'You cannot manually finish an experiment that is still'
+                ' running.  Pause first.'
+            )
+            logger.warning(msg)
         else:
-            thread = threading.Thread(target=self.end)
-            thread.daemon = True
-            thread.start()
+            self.task = 'end'
+            self.restart.set()
+            self.restart.clear()
 
     def end(self):
         """Finishes the current experiment, and then uploads data"""
@@ -495,9 +558,9 @@ class Experiment(Prop):
                 self.ivarBases[0] = 1
 
     def goThread(self):
-        thread = threading.Thread(target=self.go)
-        thread.daemon = True
-        thread.start()
+        self.task = 'go'
+        self.restart.set()
+        self.restart.clear()
 
     def go(self):
         """Pick up the experiment wherever it was left off."""
@@ -537,6 +600,7 @@ class Experiment(Prop):
                     self.create_optimizer_iteration()
 
                 #loop until the desired number of measurements are taken
+                #self.measurement = 0
                 while (self.goodMeasurements < self.measurementsPerIteration) and (self.status == 'running'):
                     self.set_gui({'valid': True})  # reset all the red error background graphics to show no-error
                     logger.info('iteration {} measurement {}'.format(self.iteration, self.measurement))
@@ -544,7 +608,7 @@ class Experiment(Prop):
                     self.updateTime()  # update the countdown/countup clocks
                     logger.debug('updating measurement count')
 
-                    #make sure results are written to disk
+                    # make sure results are written to disk
                     logger.debug('flushing hdf5')
                     self.hdf5.flush()
 
@@ -563,6 +627,7 @@ class Experiment(Prop):
                             sound.error_sound()
 
                     self.update_gui()
+                    logger.debug("completed measurement")
 
                 # Measurement loop exited, but that might mean we are paused, or an error.
                 # So check to see if we completed the iteration.
@@ -710,8 +775,11 @@ class Experiment(Prop):
         self.evaluateAll()
 
     def measure(self):
-        """Enables all instruments to begin a measurement.  Sent at the beginning of every measurement.
-        Actual output or input from the measurement may yet wait for a signal from another device."""
+        """Enables all instruments to begin a measurement.
+
+        Sent at the beginning of every measurement. Actual output or input from
+        the measurement may yet wait for a signal from another device.
+        """
 
         logger.debug('starting measurement')
         start_time = time.time()  # record start time of measurement
@@ -720,28 +788,29 @@ class Experiment(Prop):
         # start each instrument
         for i in self.instruments:
             if i.enable:
-                #check that the instruments are initalized
+                # check that the instruments are initalized
                 if not i.isInitialized:
-                    logger.info('experiment.measure() initializing '+i.name)
+                    logger.debug('experiment.measure() initializing '+i.name)
                     i.initialize()  # reinitialize
-                    i.update()  # put the settings to where they should be at this iteration
+                    # Minho: Should i.update() be here?
+                    #i.update()  # put the settings to where they should be at this iteration
                 else:
-                    #check that the instrument is not already occupied
+                    # check that the instrument is not already occupied
                     if not i.isDone:
                         logger.warning('Instrument '+i.name+' is already busy, and will be stopped and restarted.')
                         i.stop()
-                    #set a flag to indicate each instrument is now busy
+                    # set a flag to indicate each instrument is now busy
                     i.isDone = False
-                    #let each instrument begin measurement
-                    #put each in a different thread, so they can proceed simultaneously
+                    # let each instrument begin measurement
+                    # put each in a different thread, so they can proceed simultaneously
                     if self.enable_instrument_threads:
                         threading.Thread(target=i.start).start()
                     else:
                         i.start()
         logger.debug('all instruments started')
 
-        #loop until all instruments are done
-        #TODO: can we do this with a callback?
+        # loop until all instruments are done
+        # TODO: can we do this with a callback?
         while (not all([i.isDone for i in self.instruments])) and (self.status == 'running'):
             if time.time() - start_time > self.measurementTimeout:  # break if timeout exceeded
                 self.timeOutExpired = True
@@ -759,15 +828,15 @@ class Experiment(Prop):
         self.measurementResults.attrs['start_time'] = start_time
         self.measurementResults.attrs['start_time_str'] = self.date2str(start_time)
         self.measurementResults.attrs['measurement'] = self.measurement
-        self.measurementResults.create_group('data') #for storing data
+        self.measurementResults.create_group('data')  # for storing data
         for i in self.instruments:
-            #Pass the hdf5 group to each instrument so they can write results to it.  We do it here because h5py is not
-            # thread safe, and also this way we avoid saving results for aborted measurements.
+            # Pass the hdf5 group to each instrument so they can write results
+            # to it.  We do it here because h5py is not thread safe, and also
+            # this way we avoid saving results for aborted measurements.
             if i.enable:
                 i.writeResults(self.measurementResults['data'])
 
         self.postMeasurement()
-        logger.debug('finished measurement')
 
     def pause_now(self):
         """Pauses experiment as soon as possible.  It is much safer to use Pause after Measurement instead of this.
@@ -791,73 +860,155 @@ class Experiment(Prop):
         for i in self.analyses:
             i.postIteration(self.iterationResults, self.hdf5)
 
-    def postMeasurement(self):
-        logger.debug('starting post measurement analyses')
-        #run analysis
+    def finalizeMeasurement(self, analysisList, measResults, iterResults):
         good = True
         delete = False
-        for i in self.analyses:
-            a = i.postMeasurement(self.measurementResults, self.iterationResults, self.hdf5)
-            if (a is None) or (a == 0):
-                continue
-            elif a == 1:
-                # continue, but do not increment goodMeasurements
-                good = False
-                continue
-            elif a == 2:
-                # continue, but do not increment goodMeasurements, delete data when done
-                good = False
-                delete = True
-                continue
-            elif a == 3:
-                # stop, do not increment goodMeasurements, delete data when done
+        # get the analysis iteration
+        iter = iterResults.attrs['iteration']
+        for analysis in analysisList:
+            # print "="*20
+            # print analysis['name']
+            # print analysis['good']
+            # print analysis['delete']
+            if analysis['delete']:
                 good = False
                 delete = True
                 break
-            else:
-                logger.warning('bad return value {} in experiment.postMeasurement() for analysis {}: {}'.format(a, i.name, i.description))
-        if not self.saveData:
-            #we are not saving data so remove the measurement from the hdf5
-            delete = True
+            if not analysis['good']:
+                good = False
+
         if delete:
-            m = self.measurementResults.attrs['measurement']  # get the measurement number
-            del self.measurementResults  # remove the reference to the bad data
-            del self.iterationResults['measurements/'+str(m)]  # really remove the bad data
+            try:
+                # get the measurement number
+                m = measResults.attrs['measurement']
+                # remove the reference to the bad data
+                del measResults
+                # really remove the bad data
+                del iterResults['measurements/'+str(m)]
+            except:
+                logger.exception('error when trying to delete measurement')
+
         if good:
             self.goodMeasurements += 1
-            self.completedMeasurementsByIteration[-1] += 1  # add one to the last counter in the list
+            # add one to the last counter in the list
+            self.completedMeasurementsByIteration[iter] += 1
+
+    def postMeasurementCallBack(self, analysisList):
+        """Returns a function pointer to be passed to the analysis so that it
+        can be called when analysis finishes.
+
+        This callback function is in charge of incrementing the
+        goodMeasurements counter based on the results of the error parameter.
+
+        There error parameter follows the following definition:
+        None or 0   : no error, increment counter
+        1           : error, continue don't increment
+        2           : error, continue don't increment and purge data
+        3           : error, stop other analyses don't increment and purge data
+
+        Due to complexity of threading, error code 3 will be depricated.
+        """
+
+        # hdf5 datagroups as well
+        measResults = self.measurementResults
+        iterResults = self.iterationResults
+
+        def wrapper(analysis):
+            def callback(error):
+                good = True
+                delete = False
+                if not self.saveData:
+                    # we are not saving data so remove the measurement from the
+                    # hdf5
+                    delete = True
+
+                if error is None or error == 0:
+                    pass
+                elif error == 1:
+                    # continue, but do not increment goodMeasurements
+                    good = False
+                elif error == 2:
+                    # continue, but do not increment goodMeasurements
+                    # delete data when done
+                    good = False
+                    delete = True
+                elif error == 3:
+                    # stop, do not increment goodMeasurements
+                    # delete data when done
+                    good = False
+                    delete = True
+                    logger.warning('Analysis Error code 3 is no longer supported')
+                else:
+                    msg = (
+                        'bad return value {} in experiment.postMeasurement()'
+                    ).format(error)
+                    logger.warning(msg)
+
+                resultDict = {}
+                resultDict['name'] = analysis.name
+                resultDict['good'] = good
+                resultDict['delete'] = delete
+                analysisList.append(resultDict)
+                #print(analysisList)
+                logger.debug("{}: {}/{}".format(analysis.name, len(analysisList), len(self.analyses)))
+
+                if len(analysisList) == len(self.analyses):
+                    self.finalizeMeasurement(analysisList, measResults, iterResults)
+
+            return callback
+
+        return wrapper
+
+    def postMeasurement(self):
+        logger.debug('starting post measurement analyses')
+        # run analyses
+        analysisList = []
+        callback = self.postMeasurementCallBack(analysisList)
+        for i in self.analyses:
+            # print(i.name)
+            #time_debug=time.time()  # Start time measurement
+            #logger.info('Running :{0}'.format(i))
+            i.postMeasurement(
+                callback(i),
+                self.measurementResults,
+                self.iterationResults,
+                self.hdf5
+            )
+            #time2_debug=1000.0*(time.time()-time_debug)
+            # To measure how long do analyses take.
+            #if (time2_debug>0.5): # Don't display if the process takes less than 0.5 ms
+            #logger.info('Completed Running :{0}, time usage : {1}ms'.format(i,round(time2_debug,0)))
 
     def preExperiment(self):
-        #run analyses
+        # run analyses
         for count, i in enumerate(self.analyses):
             try:
                 i.preExperiment(self.hdf5)
             except Exception as e:
-                logger.error("In evaluation of Analysis {}".format(count))
-                logger.error("Error: {}".format(e))
+                logger.exception("In evaluation of Analysis {}".format(count))
                 raise PauseError
 
     def preIteration(self):
-        #run analyses
+        # run analyses
         for i in self.analyses:
             i.preIteration(self.iterationResults, self.hdf5)
 
     def reset(self):
         """Reset the iteration variables and timing."""
 
-        #check if we are ready to do an experiment
+        # check if we are ready to do an experiment
         if self.status != 'idle':
             logger.info('Current status is {}. Cannot reset experiment unless status is idle.  Try halting first.'.format(self.status))
             return  # exit
 
-        #reset the log
+        # reset the log
         self.reset_logger()
         logger.info('resetting experiment')
         self.set_gui({'valid': True})
 
         self.set_status('beginning experiment')
 
-        #reset experiment variables
+        # reset experiment variables
         self.timeStarted = time.time()
         self.iteration = 0
         self.measurement = 0
@@ -902,18 +1053,11 @@ class Experiment(Prop):
     def resetAndGo(self):
         """Reset the iteration variables and timing, then proceed with an experiment."""
         if self.reset():
-            # if the reset succeeded, then go()
-            self.go()
-
-    def resetAndGoThread(self):
-        thread = threading.Thread(target=self.resetAndGo)
-        thread.daemon = True
-        thread.start()
-
-    def resetThread(self):
-        thread = threading.Thread(target=self.reset)
-        thread.daemon = True
-        thread.start()
+            self.task = 'go'
+            # if the reset succeeded, then set the thread event
+            self.restart.set()
+            # then clear it
+            self.restart.clear()
 
     def save(self, path):
         """This function saves all the settings."""
@@ -1065,22 +1209,15 @@ class Experiment(Prop):
         if self.enable_sounds:
             sound.complete_sound()
 
-    def uploadNowThread(self):
-        """Launches upload() in a new thread, to keep GUI free"""
-        if self.status == 'running':
-            logger.warning('You cannot manually finish an experiment that is still running.  Pause first.')
-        else:
-            thread = threading.Thread(target=self.upload)
-            thread.daemon = True
-            thread.start()
-
-    def uploadNow(self):
+    def upload_now(self):
         """Skip straight to uploading the current data."""
-
-        try:
-            self.upload()
-        except PauseError:
-            self.set_status('paused after error')
-        except Exception as e:
-            logger.warning('Uncaught Exception in experiment.upload:\n{}\n{}'.format(e, traceback.format_exc()))
-            self.set_status('paused after error')
+        if self.status == 'running':
+            msg = (
+                'You cannot manually finish an experiment that is still'
+                ' running.  Pause first.'
+            )
+            logger.warning(msg)
+        else:
+            self.task = 'upload'
+            self.restart.set()
+            self.restart.clear()

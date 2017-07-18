@@ -71,7 +71,7 @@ class UnlockMonitor(Instrument):
     def preIteration(self, iterationresults, hdf5):
         return
 
-    paused = Bool(False)
+    #paused = Bool(False) # why is this here? MFE
     def postMeasurement(self, measurementresults, iterationresults, hdf5):
         if self.enable:
             if self.paused:
@@ -102,7 +102,8 @@ class UnlockMonitor(Instrument):
         if self.enable:
             self.s.sendall("Experiment Finished")
             try:
-                self.s.sendall("Experiment Finished")   # Required to be twice if halted while lock is broken
+                # Required to be twice if halted while lock is broken
+                self.s.sendall("Experiment Finished")
             except Exception as e:
                 pass
             self.close_connection(self.s)

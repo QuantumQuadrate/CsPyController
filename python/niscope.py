@@ -36,6 +36,7 @@ from cs_instruments import Instrument
 #https://code.google.com/archive/p/pyniscope/
 try:
     from niScopeTypes import *
+    from ordered_symbols import *
     import niScope
     niScopeImported = True
 except:
@@ -85,6 +86,7 @@ class NIScopeInstrument(Instrument):
     Chan1Offset = Member()
     
     voltageranges = [2.5,2.0,1.0,0.50,0.20,0.10]
+    horizscales = [0.33, 0.20, 0.10, 50.0e-3, 20.0e-3, 10.0e-3, 5.0e-3, 2.0e-3, 1.0e-3, 0.50e-3, 0.20e-3, 0.10e-3, 50e-6, 20e-6, 10e-6, 5.0e-6, 2.0e-6, 1.0e-6, 0.50e-6, 0.25e-6]
     if niScopeImported:
         couplings = [COUPLING.DC, COUPLING.AC, COUPLING.GND, COUPLING.HF_REJECT, COUPLING.AC_PLUS_HF_REJECT]
         triggerSources = ['0', '1', TRIGGER_SOURCE.EXTERNAL, TRIGGER_SOURCE.IMMEDIATE]
@@ -120,25 +122,54 @@ class NIScopeInstrument(Instrument):
         self.isInitialized = True
 
     def start(self):
-        self.scope.InitiateAcquisition()
+        if self.scope.AcquisitionStatus():
+            self.scope.Abort()
+            self.scope.InitiateAcquisition()
         self.isDone = True
 
     def update(self):
         if self.enable:
             if not self.isInitialized:
                 self.initialize()
+             
+            #logger.warning('Checking Acquisition Status')   
+            acqstat = self.scope.AcquisitionStatus()
+            #logger.warning('Acquisition status = {}'.format(acqstat))
+            if acqstat:
+                #logger.warning('Aborting old acquisition')
+                self.scope.Abort()
+            #logger.warning('Initiating Acquisition')
                 
+            
+            
             samplerate = self.getSampleRate()
             self.scope.ConfigureHorizontalTiming(numPts=self.HorizRecordLength.value,sampleRate=samplerate)
             
             chanList = "0:1"
-            self.scope.ConfigureChanCharacteristics(chanList,impedance,maxFrequency)
+            if self.Chan0Impedance: 
+                impedance = 50 
+            else: 
+                impedance = 1000000
+            self.scope.ConfigureChanCharacteristics(chanList,impedance,0)
 
             self.scope.ConfigureVertical(channelList='0',voltageRange=self.voltageranges[self.Chan0VertScale],offset=self.Chan0Offset.value,coupling=self.couplings[self.Chan0Coupling],probeAttenuation=self.attens[self.Chan0Atten])
             
             self.scope.ConfigureVertical(channelList='1',voltageRange=self.voltageranges[self.Chan0VertScale],offset=self.Chan1Offset.value,coupling=self.couplings[self.Chan1Coupling],probeAttenuation=self.attens[self.Chan0Atten])
             
-            self.scope.ConfigureTrigger("Edge",self.triggerSources[self.TrigSource],self.TrigLevel.value,self.triggerSlopes[self.TrigSlope],COUPLING.DC,0,self.TrigDelay.value)
+            #logger.warning('Configuring Trigger')
+            if self.TrigSource != 3:
+                self.scope.ConfigureTrigger(
+                    trigger_type="Edge",
+                    triggerSource=self.triggerSources[self.TrigSource],
+                    level=self.TrigLevel.value,
+                    slope=self.triggerSlopes[self.TrigSlope],
+                    triggerCoupling=COUPLING.DC,
+                    holdoff=0,
+                    delay=self.TrigDelay.value)
+            else:
+                self.scope.ConfigureTrigger(trigger_type="Immediate")
+                
+            self.scope.InitiateAcquisition() #was in start
             
 
     def setup_video_thread(self, analysis):
@@ -187,7 +218,12 @@ class NIScopeInstrument(Instrument):
         """Overwritten from Instrument, this function is called by the experiment after
                 each measurement run to make sure all pictures have been acquired."""
         if self.enable:
-            self.data = scope.Fetch(channelList='0,1')
+            data = self.scope.Fetch(channelList='0,1').T
+            x = numpy.linspace(0,self.horizscales[self.HorizScale],self.HorizRecordLength.value)
+            self.data = numpy.stack((x,data[0],data[1]))
+
+            
+            
 
     def writeResults(self, hdf5):
         """Overwritten from Instrument.  This function is called by the experiment after
@@ -201,6 +237,11 @@ class NIScopeInstrument(Instrument):
 
     def getLimits(self):
         return self.HorizScale, self.VertScale  #How to set vert scale?
+        
+    def getSampleRate(self):
+        index = self.HorizScale
+        rate = self.HorizRecordLength.value/(self.horizscales[index])
+        return rate 
 
 
 class NIScopeViewer(AnalysisWithFigure):
@@ -210,10 +251,10 @@ class NIScopeViewer(AnalysisWithFigure):
     artist = Member()
     mycam=Member()
 
-    maxPixel0 = Int(0)
-    meanPixel0 = Int(0)
-    maxPixel1 = Int(0)
-    meanPixel1 = Int(0)
+    maxPixel0 = Float(0)
+    meanPixel0 = Float(0)
+    maxPixel1 = Float(0)
+    meanPixel1 = Float(0)
 
     def __init__(self, name, experiment, description,camera):
         super(NIScopeViewer, self).__init__(name, experiment, description)
@@ -250,17 +291,17 @@ class NIScopeViewer(AnalysisWithFigure):
                     ax.plot(self.data[0],self.data[1],'b-')
                     ax.set_xlabel('Time (s)')
                     ax.set_ylabel('CH0 (V)')
-                    ax.set_title('Title')
+                    ax.set_title(self.mycam.DeviceName.value)
                     ax.tick_params('y',colors='b')
 
-                    ax.set_ylim(-self.mycam.voltageranges[self.mycam.Chan0VertScale]+self.mycam.Chan0Offset, self.mycam.voltageranges[self.mycam.Chan0VertScale]+self.mycam.Chan0Offset)
+                    ax.set_ylim(-self.mycam.voltageranges[self.mycam.Chan0VertScale]+self.mycam.Chan0Offset.value, self.mycam.voltageranges[self.mycam.Chan0VertScale]+self.mycam.Chan0Offset.value)
                         
                     ax2 = ax.twinx()
                     ax2.plot(self.data[0],self.data[2],'r-')
                     ax2.set_ylabel('CH1 (V)')
                     ax2.tick_params('y',colors='r')
                     
-                    ax2.set_ylim(-self.mycam.voltageranges[self.mycam.Chan1VertScale]+self.mycam.Chan1Offset, self.mycam.voltageranges[self.mycam.Chan1VertScale]+self.mycam.Chan1Offset)
+                    ax2.set_ylim(-self.mycam.voltageranges[self.mycam.Chan1VertScale]+self.mycam.Chan1Offset.value, self.mycam.voltageranges[self.mycam.Chan1VertScale]+self.mycam.Chan1Offset.value)
 
                     self.maxPixel0 = numpy.max(self.data[1])
                     self.meanPixel0 = numpy.mean(self.data[1])
@@ -348,7 +389,9 @@ class NIScopes(Instrument,Analysis):
         msg = ''
         try:
             for i in self.motors:
+                #logger.warning('About to start NIScope')
                 if i.scope.enable:
+                    #logger.warning('Starting NIScope')
                     msg = i.scope.start()
         except Exception as e:
             logger.error('Problem starting NIScope:\n{}\n{}\n'.format(msg, e))
@@ -397,7 +440,7 @@ class NIScopes(Instrument,Analysis):
         try:
             for i in self.motors:
                 if i.scope.enable:
-                    logger.debug( "Acquiring data from camera {}".format(i.scope.DeviceName.value))
+                    #logger.warning( "Acquiring data from NIScope {}".format(i.scope.DeviceName.value))
                     msg = i.scope.acquire_data()
         except Exception as e:
             logger.error('Problem acquiring NIScope data:\n{}\n{}\n'.format(msg, e))
@@ -410,7 +453,7 @@ class NIScopes(Instrument,Analysis):
         try:
             for i in self.motors:
                 if i.scope.enable:
-                    logger.debug("Displaying data from camera {}".format(i.scope.DeviceName.value))
+                    #logger.warning("Displaying data from NIScope {}".format(i.scope.DeviceName.value))
                     msg = i.analysis.analyzeMeasurement(measurementresults,iterationresults,hdf5)
         except Exception as e:
             logger.error('Problem displaying NIScope data:\n{}\n{}\n'.format(msg, e))
