@@ -105,6 +105,21 @@ On the computer running the python controller:
  * In the HSDIO palette, the resource name field should be set to _name_
  * The number of channels should be specified e.g. 32 (increments of 32)
  * The same number of channels should be added (using the + button)
+ 
+### Functional Waveforms
+
+The functional waveforms module may throw an error ("Exception in HSDIO: index 2 is out of bounds for axis 0 with size 2") if there is a channel in the HSDIO or Analog Out waveforms that has one or fewer defined intervals. This may also appear as an exception in functional_waveforms_graph.draw_digital(). As a workaround, I've added the following to the init function in our functional waveforms file (it adds a 100 microsecond 'off' period to the beginning of the sequence to ensure that all channels have at least two defined values):
+
+```
+def initAll(t=0):
+    for chan in range(NUM_HSDIO_CHANNELS):
+        HSDIO(0, chan, False)
+        HSDIO(0.1, chan, False)
+    for chan in range(NUM_ANALOG_CHANNELS):
+        AO_Set(0, chan, 0)
+        AO_Set(0.1, chan, 0)
+    t += 0.1
+```
 
 ### Origin Server
 For interfacing with the origin data server.
