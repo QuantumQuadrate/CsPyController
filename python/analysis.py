@@ -309,7 +309,6 @@ class Analysis(Prop):
     def postExperiment(self, experimentResults):
         # no queueing, must do post experiment processing at this time
         # block while any threaded iterations finish
-        
         while self.iterationProcessing:
             # TODO: add timeout
 

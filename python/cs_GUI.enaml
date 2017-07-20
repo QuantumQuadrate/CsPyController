@@ -1690,6 +1690,9 @@ enamldef Andors(Window):
         style_class << 'valid' if experiment.valid else 'invalid'
         ScrollArea:
             style_class << 'valid' if experiment.valid else 'invalid'
+            LabelBox:
+                text = 'enable'
+                checked := andors.enable
             Container:
                 style_class << 'valid' if experiment.valid else 'invalid'
 

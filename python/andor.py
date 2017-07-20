@@ -204,7 +204,7 @@ class AndorCamera(Instrument):
                 self.AbortAcquisition()
             self.GetDetector()
             if self.GetStatus() != 'DRV_ACQUIRING': # If camera is not acquiring data, get the temperature
-               self.GetTemperature()
+                self.GetTemperature()
             self.SetAcquisitionMode(self.acquisitionChoices[self.acquisitionMode])
             self.SetReadMode(4)  # image mode
             self.SetExposureTime(self.exposureTime.value)
@@ -1339,3 +1339,10 @@ class Andors(Instrument, Analysis):
             self.initialize(True)
         except:
             logger.exception('Problem initializing camera.')
+            
+    def postExperiment(self,experimentresults):
+        # We have been unable to figure out why during the postExperiment call
+        # the enable is set to False for Andors.  This is a patch (DB & MFE)
+        temp_enable = self.enable
+        super(Andors,self).postExperiment(experimentresults)
+        self.enable = temp_enable
