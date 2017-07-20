@@ -18,7 +18,7 @@ from ConfigInstrument import Config
 import functional_waveforms, analysis, instek_pst, save2013style, TTL, LabView
 import DDS, roi_fitting
 import picomotors, andor, picampython, vaunix, DCNoiseEater, Laird_temperature, AnalogInput
-import Counter, conex, aerotech, unlock_pause
+import Counter, conex, aerotech, unlock_pause, niscope
 import origin_interface
 import FakeInstrument # for testing
 from pypico import PyPicoServer  # for communicating with a picomotor server
@@ -51,6 +51,7 @@ class AQuA(Experiment):
     unlock_pause = Member()
     pyPicoServer = Member()
     Embezzletron = Member()
+    NIScopes = Member()
 
     functional_waveforms = Member()
     functional_waveforms_graph = Member()
@@ -109,14 +110,16 @@ class AQuA(Experiment):
         self.unlock_pause = unlock_pause.UnlockMonitor('unlock_pause', self, 'Monitor for pausing when laser unlocks')
         self.pyPicoServer = PyPicoServer('PyPicomotor', self, 'PyPico server interface for controlling closed loop picomotors')
         self.Embezzletron = FakeInstrument.Embezzletron('Embezzletron', self, 'Fake instrument that generates random data for testing')
+        self.NIScopes = niscope.NIScopes('NIScopes',self,'National Instruments Scopes')
         # do not include functional_waveforms in self.instruments because it
         # need not start/stop
         self.instruments += [
-            self.box_temperature, self.picomotors, self.pyPicoServer,
+            self.box_temperature, self.picomotors, self.pyPicoServer, self.NIScopes,
             self.Andors, self.PICams, self.DC_noise_eaters, self.LabView,
             self.DDS, self.unlock_pause, self.Embezzletron, self.aerotechs,
             self.conexes, self.instekpsts, self.vaunixs, self.unlock_pause
         ]
+
 
         # analyses
         self.functional_waveforms_graph = functional_waveforms.FunctionalWaveformGraph('functional_waveform_graph', self, 'Graph the HSDIO, DAQmx DO, and DAQmx AO settings')
@@ -150,6 +153,7 @@ class AQuA(Experiment):
         #self.vitalsignsound=Vitalsign('vital_sign_sound',self,'beeps when atoms are loaded')
         self.origin = origin_interface.Origin('origin', self, 'saves selected data to the origin data server')
 
+
         # do not include functional_waveforms_graph in self.analyses because it
         # need not update on iterations, etc.
         # origin needs to be the last analysis always
@@ -164,7 +168,7 @@ class AQuA(Experiment):
             self.iterations_graph, self.DC_noise_eater_graph,
             self.DC_noise_eater_filter, self.Andors, self.PICams, self.Ramsey,
             self.retention_analysis, self.retention_graph, self.counter_graph,
-            self.save_notes, self.save2013Analysis,
+            self.save_notes, self.save2013Analysis, self.NIScopes,
             self.counter_hist,  # self.vitalsignsound,
             self.origin  # origin has to be last
         ]
@@ -182,7 +186,7 @@ class AQuA(Experiment):
             'measurements_graph', 'iterations_graph', 'retention_graph',
             'DC_noise_eater_filter', 'DC_noise_eater_graph', 'Ramsey',
             'counter_graph', 'counter_hist', 'unlock_pause', 'ROI_rows',
-            'ROI_columns', 'ROI_bg_rows', 'ROI_bg_columns',
+            'ROI_columns', 'ROI_bg_rows', 'ROI_bg_columns', 'NIScopes',
             'origin'
         ]
 

@@ -1058,6 +1058,8 @@ class Experiment(Prop):
             self.restart.set()
             # then clear it
             self.restart.clear()
+        else:
+            logger.error("self.reset returned False")
 
     def save(self, path):
         """This function saves all the settings."""
