@@ -18,7 +18,7 @@ from ConfigInstrument import Config
 import functional_waveforms, analysis, instek_pst, save2013style, TTL, LabView
 import DDS, roi_fitting
 import picomotors, andor, picampython, vaunix, DCNoiseEater, Laird_temperature, AnalogInput
-import Counter, conex, aerotech, unlock_pause, niscope
+import Counter, conex, aerotech, unlock_pause, niscope, newportstage, nidaq_ai
 import origin_interface
 import FakeInstrument # for testing
 from pypico import PyPicoServer  # for communicating with a picomotor server
@@ -42,6 +42,8 @@ class AQuA(Experiment):
     aerotechs = Member()
     conexes = Member()
     Andors = Member()
+    NewportStage = Member()
+    DAQmxAI = Member()
     vaunixs = Member()
     PICams = Member()
     LabView = Member()
@@ -103,6 +105,8 @@ class AQuA(Experiment):
         self.Andors = andor.Andors('Andors', self, 'Andor Luca measurementResults')
         self.vaunixs = vaunix.Vaunixs('vaunixs', self, 'Vaunix Signal Generator')
         self.PICams = picampython.PICams('PICams', self, 'Princeton Instruments Cameras')
+        self.DAQmxAI = nidaq_ai.NIDAQmxAI('DAQmxAI',self,'NI-DAQmx Analog Input')
+        self.NewportStage = newportstage.NewportStage('NewportStage', self, 'Newport Translation Stage')
         self.LabView = LabView.LabView(self)
         self.DDS = DDS.DDS('DDS', self, 'server for homemade DDS boxes')
         self.DC_noise_eaters = DCNoiseEater.DCNoiseEaters('DC_noise_eaters', self)
@@ -117,7 +121,7 @@ class AQuA(Experiment):
             self.box_temperature, self.picomotors, self.pyPicoServer, self.NIScopes,
             self.Andors, self.PICams, self.DC_noise_eaters, self.LabView,
             self.DDS, self.unlock_pause, self.Embezzletron, self.aerotechs,
-            self.conexes, self.instekpsts, self.vaunixs, self.unlock_pause
+            self.conexes, self.instekpsts, self.vaunixs, self.NewportStage, self.unlock_pause
         ]
 
 
@@ -167,6 +171,7 @@ class AQuA(Experiment):
             self.histogram_grid, self.measurements_graph,
             self.iterations_graph, self.DC_noise_eater_graph,
             self.DC_noise_eater_filter, self.Andors, self.PICams, self.Ramsey,
+            self.DAQmxAI,
             self.retention_analysis, self.retention_graph, self.counter_graph,
             self.save_notes, self.save2013Analysis, self.NIScopes,
             self.counter_hist,  # self.vitalsignsound,
@@ -177,9 +182,9 @@ class AQuA(Experiment):
             'Config',
             'functional_waveforms', 'LabView', 'functional_waveforms_graph',
             'DDS', 'aerotechs', 'picomotors', 'pyPicoServer', 'conexes',
-            'Andors', 'PICams', 'DC_noise_eaters', 'box_temperature',
+            'Andors', 'PICams', 'DC_noise_eaters', 'box_temperature', 'DAQmxAI',
             'squareROIAnalysis', 'thresholdROIAnalysis', 'gaussian_roi',
-            'instekpsts', 'TTL_filters', 'AI_graph', 'AI_filter',
+            'instekpsts', 'TTL_filters', 'AI_graph', 'AI_filter', 'NewportStage',
             'loading_filters', 'first_measurements_filter', 'vaunixs',
             'imageSumAnalysis', 'recent_shot_analysis', 'shotBrowserAnalysis',
             'histogramAnalysis', 'histogram_grid', 'retention_analysis',

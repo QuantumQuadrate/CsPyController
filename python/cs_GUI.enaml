@@ -1833,7 +1833,72 @@ enamldef Andor(Form):
                     checked := item.analysis.bgsub
 
 
+enamldef DAQmxAI(Window):
+    attr NIDAQmxAI
 
+    title = 'DAQmx Analog Input'
+    style_class << 'valid' if experiment.valid else 'invalid'
+    Container:
+        padding = 10
+        Form:
+            Label:
+                text = 'enable'
+            CheckBox:
+                checked := NIDAQmxAI.enable
+        EvalProp:
+            prop << NIDAQmxAI.DeviceName
+        EvalProp:
+            prop << NIDAQmxAI.chanList
+        EvalProp:
+            prop << NIDAQmxAI.sample_rate
+        EvalProp:
+            prop << NIDAQmxAI.samples_per_measurement
+        EvalProp:
+            prop << NIDAQmxAI.waitForStartTrigger
+        EvalProp:
+            prop << NIDAQmxAI.triggerSource
+        EvalProp:
+            prop << NIDAQmxAI.triggerEdge
+        Label:
+            text << NIDAQmxAI.outputstring
+        Form:
+            Label:
+                text = 'Apply formula to values'
+            CheckBox:
+                checked := NIDAQmxAI.applyFormula
+        MultilineField: field:
+            text := NIDAQmxAI.formula
+
+enamldef NewportStage(Window):
+    attr newportstage
+
+    title = 'Newport Translation Stage'
+    style_class << 'valid' if experiment.valid else 'invalid'
+    Container:
+        padding = 0
+        style_class << 'valid' if experiment.valid else 'invalid'
+        ScrollArea:
+            style_class << 'valid' if experiment.valid else 'invalid'
+            Container:
+                style_class << 'valid' if experiment.valid else 'invalid'
+
+                Container:
+                    hug_width = 'strong'
+                    hug_height = 'strong'
+                    Label:
+                        text = 'enable'
+                    CheckBox:
+                        checked := newportstage.enable
+                    EvalProp:
+                        prop << newportstage.comport
+                    PushButton: Move:
+                        text = 'Move Now'
+                        clicked :: newportstage.moveStage()
+                    EvalProp:
+                        prop << newportstage.setposition
+                    Label:
+                        text << 'Current position: {} mm'.format(newportstage.mypos)
+                                    
 
 enamldef NIScopes(Window):
     attr niscopes
@@ -4271,12 +4336,14 @@ window_dictionary = {'':'',
                      'PXI Communication': 'LabViewPage(LabView = main.experiment.LabView)',
                      'HSDIO': 'HSDIO_DigitalOutPage(HSDIO = main.experiment.LabView.HSDIO)',
                      'DAQmx': 'DAQmxDigitalOutPage(DAQmx = main.experiment.LabView.DAQmxDO)',
+                     'DAQmxAI': 'DAQmxAI(NIDAQmxAI = main.experiment.DAQmxAI)',
                      'DDS': 'DDS_Page(DDS = main.experiment.DDS)',
                      'RF Generators': 'RFGenPage(LabView = main.experiment.LabView)',
                      'Hamamatsu': 'CameraPage(camera = main.experiment.LabView.camera)',
                      'Andor Cameras': 'Andors(andors = main.experiment.Andors)',
                      'Princeton Instruments Camera': 'PICams(picams = main.experiment.PICams)',
                      'Vaunix Signal Generators': 'Vaunixs(vaunixs = main.experiment.vaunixs)',
+                     'Newport Translation Stage': 'NewportStage(newportstage = main.experiment.NewportStage)',
                      'Analog Output': 'AnalogOutput(AO = main.experiment.LabView.AnalogOutput)',
                      'Analog Input': 'AnalogInput(AI = main.experiment.LabView.AnalogInput, filters = main.experiment.AI_filter, analysis = main.experiment.AI_graph)',
                      'Arroyo': 'Arroyo(experiment = main.experiment)',
