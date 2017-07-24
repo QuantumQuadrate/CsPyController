@@ -126,7 +126,7 @@ class AQuA(Experiment):
         self.first_measurements_filter = analysis.DropFirstMeasurementsFilter('first_measurements_filter', self, 'drop the first N measurements')
         self.squareROIAnalysis = SquareROIAnalysis(self)
         self.thresholdROIAnalysis = ThresholdROIAnalysis(self)
-        self.gaussian_roi = roi_fitting.GaussianROI('gaussian_roi', self, rows=self.ROI_rows, columns=self.ROI_columns)
+        self.gaussian_roi = roi_fitting.GaussianROI('gaussian_roi', self)
         self.loading_filters = analysis.LoadingFilters('loading_filters', self, 'drop measurements with no atom loaded')
         self.text_analysis = analysis.TextAnalysis('text_analysis', self, 'text results from the measurement')
         self.imageSumAnalysis = ImageSumAnalysis(self)

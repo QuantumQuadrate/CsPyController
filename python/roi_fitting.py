@@ -20,11 +20,11 @@ from matplotlib.gridspec import GridSpec
 from sklearn.decomposition import FastICA
 from scipy.optimize import curve_fit
 from atom.api import Bool, Float, Member, Int, Str
-from analysis import AnalysisWithFigure
+from analysis import AnalysisWithFigure, ROIAnalysis
 
 
-class GaussianROI(AnalysisWithFigure):
-    version = '2015.01.07'
+class GaussianROI(ROIAnalysis):
+    version = '2017.07.24'
     enable = Bool()  # whether or not to activate this optimization
     useICA = Bool()  # whether or not to clean up the image
     shot = Int()
@@ -32,8 +32,8 @@ class GaussianROI(AnalysisWithFigure):
     left = Float(21)
     bottom = Float(47)
     right = Float(58)
-    rows = Int(7)
-    columns = Int(7)
+    rows = Int()
+    columns = Int()
     fitParams = Member()
     fitCovariances = Member()
     image_shape = Member()
@@ -47,10 +47,20 @@ class GaussianROI(AnalysisWithFigure):
     multiply_sums_by_photoelectron_scaling = Bool()
     cutoffs_from_which_experiment = Str()
 
-    def __init__(self, name, experiment, rows=7, columns=7):
-        super(GaussianROI, self).__init__(name, experiment, "a gaussian fit to the regions of interest")
-        self.rows = rows
-        self.columns = columns
+    def __init__(self, name, experiment):
+        super(GaussianROI, self).__init__(
+            name,
+            experiment,
+            "a gaussian fit to the regions of interest"
+        )
+        #self.set_rois()
+        # HDF5 data paths
+        # where the camera data is expected to be stored
+        #self.shots_path = 'data/' + self.experiment.Config.config.get('CAMERA', 'DataGroup') + '/shots'
+        # where we are going to dump data after analysis
+        #self.meas_analysis_path = 'analysis/squareROIsums'
+        # self.iter_analysis_path = 'analysis/squareROI/sums'
+        #self.iter_analysis_path = 'analysis/square_roi/sums'
         self.properties += [
             'version', 'enable', 'useICA', 'shot', 'top', 'left', 'bottom',
             'right', 'fitParams', 'fitCovariances', 'image_shape', 'rois',
@@ -61,6 +71,10 @@ class GaussianROI(AnalysisWithFigure):
             'cutoffs_from_which_experiment'
         ]
 
+    def set_rois(self):
+        self.rows = self.experiment.ROI_rows
+        self.columns = self.experiment.ROI_columns
+
     # define functions for a gaussian with various degrees of freedom
 
     def normal_gaussian(self, a, xy):
@@ -70,21 +84,23 @@ class GaussianROI(AnalysisWithFigure):
         return self.normal_gaussian(a, xy/w)
 
     def rotation(self, angle):
-        return np.array([[np.cos(angle), -np.sin(angle)], [np.sin(angle), np.cos(angle)]])
+        return np.array([
+            [np.cos(angle), -np.sin(angle)],
+            [np.sin(angle), np.cos(angle)]
+        ])
 
     def rotated_gaussian(self, a, w, rotation, xy):
-        #xy is (2,len(x),len(y)) as such returned by np.indices((x,y))
-        r = np.array([[np.cos(rotation), -np.sin(rotation)], [np.sin(rotation), np.cos(rotation)]])
-        xy = np.tensordot(r, xy, axes=1)
+        # xy is (2,len(x),len(y)) as such returned by np.indices((x,y))
+        xy = np.tensordot(self.rotation(rotation), xy, axes=1)
         return self.elliptical_gaussian(a, w, xy)
 
     def gaussian(self, a, w, rotation, xy0, xy):
         return self.rotated_gaussian(a, w, rotation, xy-xy0)
 
     def fitFunc(self, xy, x0, y0, spacing, grid_angle, amplitude, wx, wy, spot_angle, blacklevel):
-        """
-        find the best fit to a square grid of gaussians of all the same height, equal spacing in x and y,
-        allow for rotation of array, allow for different wx and wy, allow for uniform rotation of spots
+        """Find the best fit to a square grid of gaussians of all the same
+        height, equal spacing in x and y, allow for rotation of array, allow for
+        different wx and wy, allow for uniform rotation of spots
         """
 
         # sum up the contribution of each gaussian to the total
@@ -122,14 +138,15 @@ class GaussianROI(AnalysisWithFigure):
     def postIteration(self, iterationResults, experimentResults):
         if self.enable:
             # compile all images from the chosen shot over the whole iteration
-            #images = np.array([m['data/Hamamatsu/shots/'+str(self.shot)] for m in iterationResults['measurements'].itervalues()])
-            all_images = np.array([[s.value for s in m['data/Hamamatsu/shots'].itervalues()] for m in iterationResults['measurements'].itervalues()])
+            # images = np.array([m['data/Hamamatsu/shots/'+str(self.shot)] for m in iterationResults['measurements'].itervalues()])
+            all_images = np.array([[s.value for s in m[self.shots_path].itervalues()] for m in iterationResults['measurements'].itervalues()])
             images = all_images[:, self.shot]
             self.image_shape = (images.shape[1], images.shape[2])
             if self.subtract_background:
                 images = images - self.experiment.imageSumAnalysis.background_array
             if self.enable_grid_fit:
-                # we use a big try block, and if there are any errors, just set the amplitude to 0 and move on
+                # we use a big try block, and if there are any errors, just set
+                # the amplitude to 0 and move on
                 try:
                     self.fitParams, self.fitCovariances = self.fit_grid(images, self.backFigure, self.useICA, self.rows,
                                                               self.columns, self.bottom, self.top, self.right, self.left)
@@ -142,11 +159,11 @@ class GaussianROI(AnalysisWithFigure):
                     self.fitParams = (0, 0, 0, 0, 0, 0, 0, 0, 0)
                     self.fitCovariances = np.zeros(1)
                 # --- save analysis ---
-                iterationResults['analysis/gaussian_roi/fit_params'] = self.fitParams
-                iterationResults['analysis/gaussian_roi/covariance_matrix'] = self.fitCovariances
+                iterationResults[self.iter_analysis_path+'/fit_params'] = self.fitParams
+                iterationResults[self.iter_analysis_path+'/covariance_matrix'] = self.fitCovariances
 
             if self.enable_calculate_sums:
-                iterationResults['analysis/gaussian_roi/sums'] = self.calculate_sums(all_images)
+                iterationResults[self.iter_analysis_path+'/sums'] = self.calculate_sums(all_images)
 
     def calculate_sums(self, images):
         if self.subtract_background_from_sums:
@@ -183,12 +200,13 @@ class GaussianROI(AnalysisWithFigure):
 
         # --- initial guess ---
 
-        # guess the top-left and bottom-right corners of the array as (row,column) = (top,left), (bottom,right)
-        #use the input from the GUI
+        # guess the top-left and bottom-right corners of the array as
+        # (row,column) = (top,left), (bottom,right)
+        # use the input from the GUI
 
-        #find the width and height of the whole array
+        # find the width and height of the whole array
         span = np.array([bottom-top, right-left])
-        #find the proper diagonal angle for the array
+        # find the proper diagonal angle for the array
         proper_angle = np.arctan2(columns-1, rows-1)
 
         # find the tilt angle deviation
@@ -199,10 +217,11 @@ class GaussianROI(AnalysisWithFigure):
         diagonal_units = np.sqrt((rows-1)**2+(columns-1)**2)
         spacing = diagonal_distance / diagonal_units
 
-        #guess the gaussian width
+        # guess the gaussian width
         width = spacing/4
 
-        #find the noise level, and the height of the gaussians.  This could be improved using a fit to the histogram
+        # find the noise level, and the height of the gaussians.  This could be
+        # improved using a fit to the histogram
         amplitude = np.amax(image_sum)
         blacklevel = np.amin(image_sum)
 
@@ -210,13 +229,13 @@ class GaussianROI(AnalysisWithFigure):
 
         # --- curve fit ---
 
-        #create the (x,y) values for each point on the image
+        # create the (x,y) values for each point on the image
         xy = np.indices(image_sum.shape)
 
-        #use the image_sum as our real data
+        # use the image_sum as our real data
         y = image_sum.ravel()
 
-        #specifically catch errors in the fit function
+        # specifically catch errors in the fit function
         try:
             fitParams, fitCovariances = curve_fit(self.fitFunc, xy, y, p0=initial_guess)
             #print ' initial guess: top {}, left {}, spacing {}, angle {}, amplitude {}, width {}, blacklevel {}\n'.format(*initial_guess)

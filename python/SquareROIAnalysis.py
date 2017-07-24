@@ -2,9 +2,9 @@
 SquareROIAnalysis.py
 Part of the CsPyController package.
 
-This analysis integrates the signal in rectangular signal ROIs, substracts the average
-background per pixel measured in the background ROIs and saves the data to the
-HDF5 file
+This analysis integrates the signal in rectangular signal ROIs, substracts the
+average background per pixel measured in the background ROIs and saves the data
+to the HDF5 file
 
 author = 'Martin Lichtman'
 created = '2014.09.08'
@@ -110,7 +110,7 @@ class SquareROIAnalysis(ROIAnalysis):
         # create sum_array in the shot, row, column format
         # will be resized to the expected number of shots later
         self.sum_array = np.zeros((0, self.ROI_rows, self.ROI_columns), dtype=np.int32)
-        
+
         warn = False
         msg = 'The ROI definitions do not agree. Check relevant analyses. '
         if len(self.ROIs) != self.ROI_rows*self.ROI_columns:
