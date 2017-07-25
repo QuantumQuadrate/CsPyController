@@ -2941,11 +2941,6 @@ enamldef HistogramGrid(Window):
                     SpinBox:
                         value := analysis.shot
                     Label:
-                        text = 'roi type'
-                    ComboBox:
-                        items = ['square','gaussian']
-                        index := analysis.roi_type
-                    Label:
                         text = 'calculate new cutoffs'
                     CheckBox:
                         checked := analysis.calculate_new_cutoffs
@@ -4021,11 +4016,6 @@ enamldef RetentionAnalysis(Window):
                         text = 'enable'
                     CheckBox:
                         checked := analysis.enable
-                    Label:
-                        text = 'roi type'
-                    ComboBox:
-                        items = ['square','gaussian']
-                        index := analysis.roi_type
                     Label:
                         text << analysis.text
 

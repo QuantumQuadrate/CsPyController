@@ -5,7 +5,7 @@ logger = logging.getLogger(__name__)
 
 from cs_errors import PauseError
 
-import threading, numpy, traceback, os, datetime, time
+import threading, numpy, traceback, time
 
 #MPL plotting
 import matplotlib as mpl
@@ -377,6 +377,7 @@ class AnalysisWithFigure(Analysis):
 
 class ROIAnalysis(AnalysisWithFigure):
     """Parent class for analyses that depend on the number of ROIs"""
+    camera = Member()
 
     def set_rois(self):
         """This function is called following the normal fromHDF5 call and
@@ -388,12 +389,39 @@ class ROIAnalysis(AnalysisWithFigure):
         """
         raise NotImplementedError
 
-
     def fromHDF5(self, hdf):
         """Overrides fromHDF5 to call set_rois following the read"""
         super(ROIAnalysis, self).fromHDF5(hdf)
         self.set_rois()
 
+    def find_camera(self):
+        """Find camera instrument object in experiment properties tree."""
+        # get the property tree path to the camera object from the config file
+        prop_tree = self.experiment.Config.config.get('CAMERA', 'CameraObj').split(',')
+
+        camera = self.experiment
+        for lvl in prop_tree:
+            camera = getattr(camera, lvl)
+
+        # if camera is stored in a ListProp list then use the index function
+        # to retreive it
+        camera_idx = self.experiment.Config.config.getint('CAMERA', 'CameraIdx')
+        if camera_idx >= 0:
+            try:
+                camera = camera[camera_idx]
+            except ValueError:
+                logger.warning(
+                    'No camera found at index `%d` in camera list: `%s`. Disabling analysis',
+                    camera_idx,
+                    '.'.join(prop_tree)
+                )
+                self.enable = False
+
+        self.camera = camera
+
+    def preExperiment(self, experimentResults):
+        self.set_rois()
+        super(ROIAnalysis, self).preExperiment(experimentResults)
 
 class TextAnalysis(Analysis):
     #Text output that can be updated back to the GUI
@@ -641,579 +669,31 @@ class DropFirstMeasurementsFilter(Analysis):
                 logger.info('dropping measurement {} of {}'.format(i,self.N))
                 return max(0, self.filter_level)
 
-class HistogramAnalysis(AnalysisWithFigure):
-    """This class live updates a histogram as data comes in."""
-    enable = Bool()
-    all_shots_array = Member()
-    update_lock = Bool(False)
-    list_of_what_to_plot = Str()
-
-    def __init__(self, name, experiment, description=''):
-        super(HistogramAnalysis, self).__init__(name, experiment, description)
-        self.properties += ['enable', 'list_of_what_to_plot']
-        self.queueAfterMeasurement = True
-        self.measurementDependencies += [self.experiment.squareROIAnalysis]
-
-    def preIteration(self, iterationResults, experimentResults):
-        #reset the histogram data
-        self.all_shots_array = None
-
-    def analyzeMeasurement(self, measurementResults, iterationResults, experimentResults):
-        if self.enable:
-            #every measurement, update a big array of all the ROI sums, then histogram only the requested shot/site
-            d = measurementResults['analysis/squareROIsums']
-            if self.all_shots_array is None:
-                self.all_shots_array = numpy.array([d])
-            else:
-                self.all_shots_array = numpy.append(self.all_shots_array, numpy.array([d]), axis=0)
-            self.updateFigure()
-
-    @observe('list_of_what_to_plot')
-    def reload(self, change):
-        if self.enable:
-            self.updateFigure()
-
-    def updateFigure(self):
-        if self.draw_fig:
-            if not self.update_lock:
-                try:
-                    self.update_lock = True
-                    fig = self.backFigure
-                    fig.clf()
-
-                    if (self.all_shots_array is not None) and (len(self.all_shots_array) > 1):
-
-                        #parse the list of what to plot from a string to a list of numbers
-                        try:
-                            plotlist = eval(self.list_of_what_to_plot)
-                        except Exception as e:
-                            logger.warning('Could not eval plotlist in HistogramAnalysis:\n{}\n'.format(e))
-                            return
-
-                        ax = fig.add_subplot(111)
-                        shots = [i[0] for i in plotlist]
-                        rois = [i[1] for i in plotlist]
-                        data = self.all_shots_array[:, shots, rois]
-                        bins = int(1.2*numpy.rint(numpy.sqrt(len(data))))
-                        ax.hist(data, bins, histtype='step', label=['({},{})'.format(i[0], i[1]) for i in plotlist])
-                        ax.legend()
-                    super(HistogramAnalysis, self).updateFigure()
-                except Exception as e:
-                    logger.warning('Problem in HistogramAnalysis.updateFigure()\n:{}'.format(e))
-                finally:
-                    self.update_lock = False
-
-
-class HistogramGrid(AnalysisWithFigure):
-    """This class gives a big histogram grid with 0 and 1 atom cutoffs after every iteration."""
-    enable = Bool()
-    all_shots_array = Member()
-    histogram_results = Member()
-    shot = Int()
-    #pdf = Member()
-    pdf_path = Member()
-    bins = Member()
-    x_min = Member()
-    x_max = Member()
-    y_max = Member()
-    roi_type = Int(0)
-    calculate_new_cutoffs = Bool()
-    automatically_use_cutoffs = Bool()
-    cutoff_shot_mapping = Str()
-    cutoffs_from_which_experiment = Str()
-
-    def __init__(self, name, experiment, description=''):
-        super(HistogramGrid, self).__init__(name, experiment, description)
-        self.properties += ['enable', 'shot', 'roi_type', 'calculate_new_cutoffs', 'automatically_use_cutoffs',
-                            'cutoff_shot_mapping']
-        self.queueAfterMeasurement = True
-        self.measurementDependencies += [self.experiment.squareROIAnalysis]
-
-    def preExperiment(self, experimentResults):
-        # call therading setup code
-        super(HistogramGrid, self).preExperiment(experimentResults)
-
-        if self.enable and self.experiment.saveData:
-            #self.pdf = PdfPages(os.path.join(self.experiment.path, 'histogram_grid_{}.pdf'.format(self.experiment.experimentPath)))
-
-            # create the nearly complete path name to save pdfs to.  The iteration and .pdf will be appended.
-            pdf_path = os.path.join(self.experiment.path, 'pdf')
-            if not os.path.exists(pdf_path):
-                os.mkdir(pdf_path)
-            self.pdf_path = os.path.join(pdf_path, '{}_histogram_grid'.format(self.experiment.experimentPath))
-
-    #def finalize(self, experimentResults):
-    #    if self.enable and self.experiment.saveData:
-    #        self.pdf.close()
-
-    def analyzeIteration(self, iterationResults, experimentResults):
-        if self.enable:
-            if self.roi_type == 0:  # square rois
-                # all_shots_array will be shape (measurements,shots,rois)
-                all_shots_array = iterationResults['analysis/square_roi/sums'].value
-
-            elif self.roi_type == 1:  # gaussian rois
-                # all_shots_array will be shape (measurements,shots,rois)
-                all_shots_array = iterationResults['analysis/gaussian_roi/sums'].value
-
-            else:
-                logger.error('invalid roi type {} in HistogramGrid.analyzeIteration'.format(self.roi_type))
-                raise PauseError
-
-            # perform histogram calculations and fits on all shots and regions
-            self.calculate_all_histograms(all_shots_array)
-
-            if self.automatically_use_cutoffs:
-                self.use_cutoffs()
-
-            # save data to hdf5
-            iterationResults['analysis/histogram_results'] = self.histogram_results
-
-            self.savefig(iterationResults.attrs['iteration'])
-
-            # update the figure to show the histograms for the selected shot
-            self.updateFigure()
-
-            # save the figure in a deferred_call, so that it will be sure to have updated first
-            #time.sleep(.01)
-            #deferred_call(self.savefig)
-
-    @observe('shot')
-    def refresh(self, change):
-        if self.enable:
-            self.updateFigure()
-
-    def savefig(self, iteration):
-        try:
-            # save to PDF
-            if self.experiment.saveData:
-                for shot in xrange(self.histogram_results.shape[0]):
-                    fig = plt.figure(figsize=(23.6, 12.3))
-                    dpi=80
-                    fig.set_dpi(dpi)
-                    fig.suptitle('{} iteration {} shot {}'.format(self.experiment.experimentPath, iteration, shot))
-                    self.histogram_grid_plot(fig, shot,  photoelectronScaling=self.experiment.LabView.camera.photoelectronScaling.value, exposure_time=self.experiment.LabView.camera.exposureTime.value)
-                    plt.savefig('{}_{}_{}.pdf'.format(self.pdf_path, iteration, shot),
-                                format='pdf', dpi=dpi, transparent=True, bbox_inches='tight',
-                                pad_inches=.25, frameon=False)
-                    plt.close(fig)
-        except Exception as e:
-            logger.warning('Problem in HistogramGrid.savefig():\n{}\n{}\n'.format(e, traceback.format_exc()))
-
-    def updateFigure(self):
-        if self.draw_fig:
-            try:
-                fig = self.backFigure
-                fig.clf()
-
-                if self.histogram_results is not None:
-                    fig.suptitle('shot {}'.format(self.shot))
-                    if self.experiment.gaussian_roi.multiply_sums_by_photoelectron_scaling:
-                        photoelectronScaling = self.experiment.LabView.camera.photoelectronScaling.value
-                    else:
-                        photoelectronScaling = None
-                    self.histogram_grid_plot(fig, self.shot, photoelectronScaling=photoelectronScaling, exposure_time=self.experiment.LabView.camera.exposureTime.value, )
-
-                super(HistogramGrid, self).updateFigure()
-
-            except Exception as e:
-                logger.warning('Problem in HistogramGrid.updateFigure():\n{}\n{}\n'.format(e, traceback.format_exc()))
-
-    def use_cutoffs(self):
-        """Set the cutoffs.  Because they are stored in a numpy field, but we need to set them using a deferred_call,
-        the whole ROI array is first copied, then updated, then written back to the squareROIAnalysis
-        or gaussian_roi."""
-
-        experiment_timestamp = datetime.datetime.fromtimestamp(self.experiment.timeStarted).strftime('%Y_%m_%d_%H_%M_%S')
-
-        if self.roi_type == 0:  # square ROI
-            a = self.experiment.squareROIAnalysis.ROIs.copy()
-            a['threshold'] = self.histogram_results[self.cutoff_shot_mapping[0]]['cutoff']
-            self.experiment.squareROIAnalysis.set_gui({'ROIs': a})
-            self.experiment.squareROIAnalysis.cutoffs_from_which_experiment = experiment_timestamp
-        elif self.roi_type == 1:  # gaussian ROI
-            self.experiment.gaussian_roi.cutoffs = np.zeros(self.histogram_results['cutoff'].shape)
-            try:
-                mapping = eval(self.cutoff_shot_mapping)
-            except:
-                logger.warning('Error evaluating HistogramGrid cutoff_shot_mapping')
-                return
-            for i, x in enumerate(mapping):
-                self.experiment.gaussian_roi.cutoffs[i] = self.histogram_results['cutoff'][x]
-            self.experiment.gaussian_roi.cutoffs_from_which_experiment = experiment_timestamp
-        else:
-            logger.warning('invalid roi type {} in HistogramGrid.calculate_histogram'.format(roi_type))
-            raise PauseError
-
-    def calculate_all_histograms(self, all_shots_array):
-        measurements, shots, rois = all_shots_array.shape
-
-        # Since the number of measurements is the same for each shot and roi, we can compute the number of bins here:
-        self.bins = int(numpy.rint(1.5*numpy.sqrt(measurements)))  # choose 1.5*sqrt(N) as the number of bins
-
-        # create arrays to hold results
-        my_dtype = numpy.dtype([('histogram', str(self.bins)+'i4'), ('bin_edges', str(self.bins+1)+'f8'), ('error', 'f8'),
-                                ('mean1', 'f8'), ('mean2', 'f8'),  ('width1', 'f8'), ('width2', 'f8'),
-                                ('amplitude1', 'f8'), ('amplitude2', 'f8'), ('cutoff', 'f8'), ('loading', 'f8'),
-                                ('overlap', 'f8')])
-        self.histogram_results = numpy.empty((shots, rois), dtype=my_dtype)
-        self.histogram_results.fill(numpy.nan)
-
-        # go through each shot and roi and calculate the histograms and gaussian fits
-        for shot in xrange(shots):
-            for roi in xrange(rois):
-                roidata = all_shots_array[:, shot, roi]
-
-                # get old cutoffs
-                if self.calculate_new_cutoffs:
-                    cutoff = None
-                else:
-                    if self.roi_type == 0:  # square ROI
-                        cutoff = self.experiment.squareROIAnalysis.ROIs[roi]['threshold']
-                    elif self.roi_type == 1:  # gaussian ROI
-                        cutoff = self.experiment.gaussian_roi.cutoffs[shot, roi]
-                    else:
-                        logger.warning('invalid roi type {} in HistogramGrid.calculate_histogram'.format(roi_type))
-                        raise PauseError
-
-                self.histogram_results[shot, roi] = self.calculate_histogram(roidata, self.bins, cutoff)
-                # these all have the same number of measurements, so they will all have the same size
-
-        # make a note of which cutoffs were used
-        if self.calculate_new_cutoffs:
-            self.cutoffs_from_which_experiment = datetime.datetime.fromtimestamp(self.experiment.timeStarted).strftime('%Y_%m_%d_%H_%M_%S')
-        else:
-            if self.roi_type == 0:  # square ROI
-                self.cutoffs_from_which_experiment = self.experiment.squareROIAnalysis.cutoffs_from_which_experiment
-            elif self.roi_type == 1:  # gaussian ROI
-                self.cutoffs_from_which_experiment = self.experiment.gaussian_roi.cutoffs_from_which_experiment
-            else:
-                logger.warning('invalid roi type {} in HistogramGrid.calculate_histogram'.format(roi_type))
-                raise PauseError
-
-        # find the min and max
-        self.x_min = numpy.nanmin(all_shots_array)
-        self.x_max = numpy.nanmax(all_shots_array)
-        self.y_max = numpy.nanmax(self.histogram_results['histogram'])
-
-        # TODO: do cutoff finding, analytical overlap and loading in a vectorized fashion
-
-    def gaussian1D(self, x, x0, a, w):
-        """returns the height of a gaussian (with mean x0, amplitude, a and
-        width w) at the value(s) x
-        """
-        # normalize
-        g = a/(w*numpy.sqrt(2*numpy.pi))*numpy.exp(-0.5*(x-x0)**2/w**2)
-        g[numpy.isnan(g)] = 0  # eliminate bad elements
-        return g
-
-    def two_gaussians(self, x, x0, a0, w0, x1, a1, w1):
-        return self.gaussian1D(x, x0, a0, w0) + self.gaussian1D(x, x1, a1, w1)
-
-    def calculate_histogram(self, ROI_sums, bins, cutoff=None):
-        """Takes in ROI_sums which is size (measurements) and contains the data to be histogrammed.
-        """
-
-        # first numerically take histograms
-        hist, bin_edges = numpy.histogram(ROI_sums, bins=bins)
-        bin_size = (bin_edges[1:]-bin_edges[:-1])
-        y = hist
-
-        if cutoff == None:  # find a new cutoff
-
-            x = (bin_edges[1:]+bin_edges[:-1])/2  # take center of each bin as test points (same in number as y)
-            best_error = float('inf')
-
-            #TODO: instead of bin edges, use unbinned data for gaussian fits, and consider all datapoints as possible cutoffs
-
-            # use the bin edges as possible cutoff locations
-            # now go through each possible cutoff location and fit a gaussian above and below
-            # see which cutoff is the best fit
-            for j in xrange(1, bins-1):  # leave off 0th and last bin edge to prevent divide by zero on one of the gaussian sums
-
-                #fit a gaussian below the cutoff
-                mean1 = numpy.sum(x[:j]*y[:j])/numpy.sum(y[:j])
-                r1 = numpy.sqrt((x[:j]-mean1)**2)  # an array of distances from the mean
-                width1 = numpy.sqrt(numpy.abs(numpy.sum((r1**2)*y[:j])/numpy.sum(y[:j])))  # the standard deviation
-                amplitude1 = numpy.sum(y[:j]*bin_size[:j])  # area under gaussian is 1, so scale by total volume (i.e. the sum of y)
-                g1 = self.gaussian1D(x, mean1, amplitude1, width1)
-
-                # fit a gaussian above the cutoff
-                mean2 = numpy.sum(x[j:]*y[j:])/numpy.sum(y[j:])
-                r2 = numpy.sqrt((x[j:]-mean2)**2) #an array of distances from the mean
-                width2 = numpy.sqrt(numpy.abs(numpy.sum((r2**2)*y[j:])/numpy.sum(y[j:]))) #the standard deviation
-                amplitude2 = numpy.sum(y[j:]*bin_size[j:]) #area under gaussian is 1, so scale by total volume (i.e. the sum of y * step size)
-                g2 = self.gaussian1D(x, mean2, amplitude2, width2)
-
-                # find the total error
-                error = numpy.sum(numpy.abs(y-g1-g2))
-                if error < best_error:
-                    best_error = error
-                    best_mean1 = mean1
-                    best_mean2 = mean2
-                    best_width1 = width1
-                    best_width2 = width2
-                    best_amplitude1 = amplitude1
-                    best_amplitude2 = amplitude2
-
-            # find a better cutoff
-            # the cutoff found is for the digital data, not necessarily the best in terms of the gaussian fits
-            cutoff = self.analytic_cutoff(best_mean1, best_mean2, best_width1, best_width2, best_amplitude1, best_amplitude2)
-
-            # deprecated because it wasn't analytic:
-            # to find a better cutoff:
-            # find the lowest point on the sum of the two gaussians
-            # go in steps of 1 from peak to peak
-            #xc = numpy.arange(best_mean1, best_mean2)
-            #y1 = self.gaussian1D(xc, best_mean1, best_amplitude1, best_width1)
-            #y2 = self.gaussian1D(xc, best_mean2, best_amplitude2, best_width2)
-            #yc = y1 + y2
-            #cutoff = xc[numpy.argmin(yc)]
-
-            # calculalate the overlap (non-analytic, so this is deprecated)
-            # mins = numpy.amin([y1, y2], axis=0)
-            # overlap = numpy.sum(mins) / (numpy.sum(y1) + numpy.sum(y2))
-
-        else:  # use the existing cutoff, unbinned data
-
-            x = ROI_sums
-
-            below = x[x < cutoff]
-            above = x[x >= cutoff]
-
-            mean1 = numpy.mean(below)
-            mean2 = numpy.mean(above)
-            width1 = numpy.std(below)
-            width2 = numpy.std(above)
-
-            bin_size = numpy.mean(bin_size)
-            amplitude1 = len(below) * np.mean(bin_size)
-            amplitude2 = len(above) * np.mean(bin_size)
-
-            # find the fit error to the histogram
-            x = (bin_edges[1:]+bin_edges[:-1])/2  # take center of each bin as test points (same in number as y)
-            g1 = self.gaussian1D(x, mean1, amplitude1, width1)
-            g2 = self.gaussian1D(x, mean2, amplitude2, width2)
-            error = numpy.sum(numpy.abs(y-g1-g2))
-
-            # we only have one cutoff test here, so use it
-            best_error = error
-            best_mean1 = mean1
-            best_mean2 = mean2
-            best_width1 = width1
-            best_width2 = width2
-            best_amplitude1 = amplitude1
-            best_amplitude2 = amplitude2
-
-        # calculate the loading based on the cuts (updated if specified) and the actual atom data
-
-        total = len(ROI_sums.shape)
-        # make a boolean array of loading
-        atoms = ROI_sums >= cutoff
-        # find the loading for each roi
-        loaded = numpy.sum(atoms)
-
-        loading = loaded/total
-
-        # calculalate the overlap
-        # use the cumulative normal distribution function to get the overlap analytically
-        # see MTL thesis for derivation
-        overlap1 = .5*(1 + erf((best_mean1-cutoff)/(best_width1*np.sqrt(2))))
-        overlap2 = .5*(1 + erf((cutoff-best_mean2)/(best_width2*np.sqrt(2))))
-        overlap = (overlap1*best_amplitude1 + overlap2*best_amplitude2) / min(best_amplitude1, best_amplitude2)
-
-        return hist, bin_edges, best_error, best_mean1, best_mean2, best_width1, best_width2, best_amplitude1, best_amplitude2, cutoff, loading, overlap
-
-    def analytic_cutoff(self, x1, x2, w1, w2, a1, a2):
-        """Find the cutoffs analytically.  See MTL thesis for derivation."""
-        return numpy.where(w1 == w2, self.intersection_of_two_gaussians_of_equal_width(x1, x2, w1, w2, a1, a2), self.intersection_of_two_gaussians(x1, x2, w1, w2, a1, a2))
-
-    def intersection_of_two_gaussians_of_equal_width(self, x1, x2, w1, w2, a1, a2):
-        return (- x1**2 + x2**2 + w1**2/2*numpy.log(a1/a2))/(2*(x2-x1))
-
-    def intersection_of_two_gaussians(self, x1, x2, w1, w2, a1, a2):
-        a = w2**2*x1 - w1**2*x2
-        # TODO: protect against imaginary root
-        b = w1*w2*numpy.sqrt((x1-x2)**2 + (w2**2 - w1**2)*numpy.log(a1/a2)/2.0)
-        c = w2**2 - w1**2
-        return (a+b)/c  # use the positive root, as that will be the one between x1 and x2
-
-    def histogram_patch(self, ax, x, y, color):
-        # create vertices for histogram patch
-        #   repeat each x twice, and two different y values
-        #   repeat each y twice, at two different x values
-        #   extra +1 length of verts array allows for CLOSEPOLY code
-        verts = np.zeros((2*len(x)+1, 2))
-        verts[0:-1:2, 0] = x
-        verts[1:-1:2, 0] = x
-        verts[1:-2:2, 1] = y
-        verts[2:-2:2, 1] = y
-        # create codes for histogram patch
-        codes = np.ones(2*len(x)+1, int) * mpl.path.Path.LINETO
-        codes[0] = mpl.path.Path.MOVETO
-        codes[-1] = mpl.path.Path.CLOSEPOLY
-        # create patch and add it to axes
-        my_path = mpl.path.Path(verts, codes)
-        patch = patches.PathPatch(my_path, facecolor=color, edgecolor=color, alpha=0.5)
-        ax.add_patch(patch)
-
-    def two_color_histogram(self, ax, data):
-
-        # plot histogram for data below the cutoff
-        # It is intentional that len(x1)=len(y1)+1 and len(x2)=len(y2)+1 because y=0 is added at the beginning and
-        # end of the below and above segments when plotted in histogram_patch, and we require 1 more x point than y.
-        x = data['bin_edges']
-        x1 = x[x < data['cutoff']]  # take only data below the cutoff
-        xc = len(x1)
-        x1 = numpy.append(x1, data['cutoff'])  # add the cutoff to the end of the 1st patch
-        y = data['histogram']
-        y1 = y[:xc]  # take the corresponding histogram counts
-        x2 = x[xc:]  # take the remaining values that are above the cutoff
-        x2 = np.insert(x2, 0, data['cutoff'])  # add the cutoff to the beginning of the 2nd patch
-        y2 = y[xc-1:]
-
-        if len(x1) > 1:  # only draw if there is some data (not including cutoff)
-            self.histogram_patch(ax, x1, y1, 'b')  # plot the 0 atom peak in blue
-        if len(x2) > 1:  # only draw if there is some data (not including cutoff)
-            self.histogram_patch(ax, x2, y2, 'r')  # plot the 1 atom peak in red
-
-    def histogram_grid_plot(self, fig, shot, photoelectronScaling=None, exposure_time=None, font=8):
-        """Plot a grid of histograms in the same shape as the ROIs."""
-
-        rows = self.experiment.ROI_rows
-        columns = self.experiment.ROI_columns
-        # create a grid.  The extra row and column hold the row/column averaged data.
-        # width_ratios and height_ratios make those extra cells smaller than the graphs.
-        gs1 = GridSpec(rows+1, columns+1, left=0.02, bottom=0.05, top=.95, right=.98, wspace=0.2, hspace=0.75,
-                       width_ratios=rows*[1]+[.25], height_ratios=columns*[1]+[.25])
-
-        # make histograms for each site
-        for i in xrange(rows):
-            for j in xrange(columns):
-                try:
-                    # choose correct saved data
-                    n = columns*i+j
-                    data = self.histogram_results[shot, n]
-
-                    # create new plot
-                    ax = fig.add_subplot(gs1[i, j])
-
-                    self.two_color_histogram(ax, data)
-
-                    ax.set_xlim([self.x_min, self.x_max])
-                    ax.set_ylim([0, self.y_max])
-                    #ax.set_title(u'{}: {:.0f}\u00B1{:.1f}%'.format(n, data['loading']*100,data['overlap']*100), size=font)
-                    ax.text(0.95, 0.85, u'{}: {:.0f}\u00B1{:.1f}%'.format(n, data['loading']*100, data['overlap']*100), horizontalalignment='right', verticalalignment='center', transform=ax.transAxes, fontsize=font)
-                    # put x ticks at the center of each gaussian and the cutoff.
-                    # The one at x_max just holds 'e3' to show that the values should be multiplied by 1000
-                    ax.set_xticks([data['mean1'], data['cutoff'], data['mean2']])
-                    ax.set_xticklabels([u'{}\u00B1{:.1f}'.format(int(data['mean1']), data['width1']),
-                                        str(int(data['cutoff'])),
-                                        u'{}\u00B1{:.1f}'.format(int(data['mean2']), data['width2'])],
-                                       size=font, rotation=90)
-                    # add this to xticklabels to print gaussian widths:
-                        # u'\u00B1{:.1f}'.format(data['width1']/1000)
-                        # u'\u00B1{:.1f}'.format(data['width2']/1000)
-                    # put y ticks at the peak of each gaussian fit
-                    yticks = [0]
-                    yticklabels = ['0']
-                    ytickleft = [True]
-                    ytickright = [False]
-                    if (data['width1'] != 0):
-                        y1 = data['amplitude1']/(data['width1']*numpy.sqrt(2*numpy.pi))
-                        yticks += [y1]
-                        yticklabels += [str(int(numpy.rint(y1)))]
-                        ytickleft += [True]
-                        ytickright += [False]
-                    if (data['width2'] != 0):
-                        y2 = data['amplitude2']/(data['width2']*numpy.sqrt(2*numpy.pi))
-                        yticks += [y2]
-                        yticklabels += [str(int(numpy.rint(y2)))]
-                        ytickleft += [False]
-                        ytickright += [True]
-                    ax.set_yticks(yticks)
-                    ax.set_yticklabels(yticklabels, size=font)
-                    for tick, left, right in zip(ax.yaxis.get_major_ticks(), ytickleft, ytickright):
-                        tick.label1On = left
-                        tick.label2On = right
-                        tick.size = font
-                    # plot gaussians
-                    x = numpy.linspace(self.x_min, self.x_max, 100)
-                    y1 = self.gaussian1D(x, data['mean1'], data['amplitude1'], data['width1'])
-                    y2 = self.gaussian1D(x, data['mean2'], data['amplitude2'], data['width2'])
-                    ax.plot(x, y1, 'k', x, y2, 'k')
-                    # plot cutoff line
-                    ax.vlines(data['cutoff'], 0, self.y_max)
-                    ax.tick_params(labelsize=font)
-                except Exception as e:
-                    logger.warning('Could not plot histogram for shot {} roi {}:\n{}\n{}'.format(shot, n, e, traceback.format_exc()))
-
-        #make stats for each row
-        for i in xrange(rows):
-            ax = fig.add_subplot(gs1[i, columns])
-            ax.axis('off')
-            ax.text(0.5, 0.5,
-                'row {}\navg loading\n{:.0f}%'.format(i, 100*numpy.mean(self.histogram_results['loading'][shot, i*columns:(i+1)*columns])),
-                horizontalalignment='center',
-                verticalalignment='center',
-                transform=ax.transAxes,
-                fontsize=font)
-
-        #make stats for each column
-        for i in xrange(columns):
-            ax = fig.add_subplot(gs1[rows, i])
-            ax.axis('off')
-            ax.text(0.5, 0.5,
-                'column {}\navg loading\n{:.0f}%'.format(i, 100*numpy.mean(self.histogram_results['loading'][shot, i:i+(rows-1)*columns:columns])),
-                horizontalalignment='center',
-                verticalalignment='center',
-                transform=ax.transAxes,
-                fontsize=font)
-
-        #make stats for whole array
-        ax = fig.add_subplot(gs1[rows, columns])
-        ax.axis('off')
-        ax.text(0.5, 0.5,
-            'array\navg loading\n{:.0f}%'.format(100*numpy.mean(self.histogram_results['loading'][shot])),
-            horizontalalignment='center',
-            verticalalignment='center',
-            transform=ax.transAxes,
-            fontsize=font)
-
-        # add note about photoelectron scaling and exposure time
-        if photoelectronScaling is not None:
-            fig.text(.05, .985,'scaling applied = {} photoelectrons/count'.format(photoelectronScaling))
-        if exposure_time is not None:
-            fig.text(.05, .97,'exposure_time = {} s'.format(exposure_time))
-        fig.text(.05, .955,'cutoffs from {}'.format(self.cutoffs_from_which_experiment))
-        fig.text(.05, .94, 'target # measurements = {}'.format(self.experiment.measurementsPerIteration))
-
 class MeasurementsGraph(AnalysisWithFigure):
     """Plots a region of interest sum after every measurement"""
     enable = Bool()
     data = Member()
     update_lock = Bool(False)
     list_of_what_to_plot = Str()
+    ROI_source = Member()
 
     def __init__(self, name, experiment, description=''):
         super(MeasurementsGraph, self).__init__(name, experiment, description)
-        self.properties += ['enable', 'list_of_what_to_plot']
+        self.properties += ['enable', 'list_of_what_to_plot', 'ROI_source']
         self.data = None
+        # point analysis at the roi sum source
+        self.ROI_source = getattr(
+            self.experiment,
+            self.experiment.Config.config.get('CAMERA', 'ThresholdROISource')
+        )
         self.queueAfterMeasurement = True
-        self.measurementDependencies += [self.experiment.squareROIAnalysis]
-        self.measurementDependencies += [self.experiment.gaussian_roi]
+        self.measurementDependencies += [self.ROI_source]
 
     def analyzeMeasurement(self, measurementResults, iterationResults, experimentResults):
         if self.enable:
             # every measurement, update a big array of all the ROI sums, then
             # histogram only the requested shot/site
-            if 'analysis/gaussian_roi/sums' in measurementResults:
-                d = measurementResults['analysis/gaussian_roi/sums']
-            elif 'analysis/squareROIsums' in measurementResults:
-                d = measurementResults['analysis/squareROIsums']
-            else:
-                logger.warning('No data to use in MeasurementsGraph')
-                return
+            d = measurementResults[self.ROI_source.meas_analysis_path]
             if self.data is None:
                 self.data = numpy.array([d])
             else:

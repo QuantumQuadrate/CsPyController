@@ -44,7 +44,7 @@ class ImageSumAnalysis(AnalysisWithFigure):
     pdf_path = Member()
     subtract_background = Bool()
     iteration = Int()
-    shots_path = Member()
+    shots_path = Str()
 
     def __init__(self, experiment):
         super(ImageSumAnalysis, self).__init__('ImageSumAnalysis', experiment, 'Sums shot0 images as they come in')
@@ -83,8 +83,6 @@ class ImageSumAnalysis(AnalysisWithFigure):
         if self.shots_path in measurementResults:
             if self.mean_array is None:
                 #start a sum array of the right shape
-                #self.sum_array = np.array([shot for shot in measurementResults['data/Andor_4522/shots'].itervalues()], dtype=np.uint64)
-                #self.count_array = np.zeros(len(self.sum_array), dtype=np.uint64)
                 self.sum_array = np.array([shot for shot in measurementResults[self.shots_path].itervalues()], dtype=np.float64)
                 self.count_array = np.zeros(len(self.sum_array), dtype=np.float64)
                 self.mean_array = self.sum_array.astype(np.float64)

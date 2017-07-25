@@ -2,11 +2,11 @@ import logging
 import numpy as np
 import time
 
-from atom.api import Bool, Str, Member, Int, observe
+from atom.api import Bool, Str, Member
 
 from analysis import ROIAnalysis
 
-from colors import my_cmap, green_cmap
+from colors import green_cmap
 
 logger = logging.getLogger(__name__)
 
@@ -20,23 +20,23 @@ class ThresholdROIAnalysis(ROIAnalysis):
     ROI_source = Member()
     threshold_array = Member()
     loading_array = Member()
-    meas_analysis_path = Member()
-    iter_analysis_path = Member()
+    meas_analysis_path = Str()
+    iter_analysis_path = Str()
     enable = Bool()
-
+    cutoffs_from_which_experiment = Member()
 
     def __init__(self, experiment):
         super(ThresholdROIAnalysis, self).__init__(
-            'ThresholdROIAnalysis', 
-            experiment, 
+            'ThresholdROIAnalysis',
+            experiment,
             'Simple threshold digitization'
         )
         # initialize arrays
         dtype = [
-            ('1', np.int32) # add more atom number cuts later
+            ('1', np.int32)  # add more atom number cuts later
         ]
         self.threshold_array = np.zeros(
-            (experiment.ROI_rows*experiment.ROI_columns),
+            (experiment.ROI_rows * experiment.ROI_columns),
             dtype=dtype
         )
         # set up rois
@@ -44,17 +44,17 @@ class ThresholdROIAnalysis(ROIAnalysis):
 
         # point analysis at the roi sum source
         self.ROI_source = getattr(
-            self.experiment, 
+            self.experiment,
             self.experiment.Config.config.get('CAMERA', 'ThresholdROISource')
         )
         self.meas_analysis_path = 'analysis/ROIThresholds'
         self.iter_analysis_path = 'analysis/ROI_Thresholds/cuts'
-        self.properties += ['version', 'ROI_source', 'threshold_array', 'enable']
+        self.properties += ['version', 'ROI_source', 'threshold_array']
+        self.properties += ['enable']
 
         # threading stuff
         self.queueAfterMeasurement = True
-        self.measurementDependencies += [self.experiment.squareROIAnalysis]
-
+        self.measurementDependencies += [self.ROI_source]
 
     def set_rois(self):
         """Initialize the ROI Call when number of ROIs changes"""

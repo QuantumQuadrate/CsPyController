@@ -12,11 +12,10 @@ class RetentionAnalysis(Analysis):
     # Text output that can be updated back to the GUI
     enable = Bool()
     text = Str()
-    roi_type = Int()
 
     def __init__(self, name, experiment, description=''):
         super(RetentionAnalysis, self).__init__(name, experiment, description)
-        self.properties += ['enable', 'text', 'roi_type']
+        self.properties += ['enable', 'text']
 
     def analyzeIteration(self, iterationResults, experimentResults):
         if self.enable:

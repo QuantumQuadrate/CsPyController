@@ -10,6 +10,7 @@ This instrument generates random data for testing purposes.
 from __future__ import division
 from atom.api import Member
 from numpy.random import random_sample, randint
+import numpy as np
 from cs_instruments import Instrument
 from instrument_property import IntProp
 from cs_errors import PauseError
@@ -26,12 +27,15 @@ class Embezzletron(Instrument):
 
     def __init__(self, name, experiment, description=''):
         super(Embezzletron, self).__init__(name, experiment, description)
-        self.enable = self.experiment.Config.config.getboolean('DEV', 'EnableFakeData')
+        self.enable = self.experiment.Config.config.getboolean(
+            'DEV',
+            'EnableFakeData'
+        )
         self.shotsPerMeasurement = IntProp(
-                                    'shotsPerMeasurement',
-                                    experiment,
-                                    'number of expected shots', '2'
-                                )
+            'shotsPerMeasurement',
+            experiment,
+            'number of expected shots', '2'
+        )
         self.shotsPerMeasurement.value = 2
 
     def initialize(self):
@@ -45,12 +49,34 @@ class Embezzletron(Instrument):
         return random_sample(5)
 
     def generateArray(self):
-        return randint(10, size=(5, 5))
+        image_shape = (100, 100)
+        bg = randint(10, size=image_shape)
+        rows = self.experiment.ROI_rows
+        cols = self.experiment.ROI_columns
+        sites = rows * cols
+        x0 = 10
+        y0 = 10
+        grid = np.indices(bg.shape)
+        xy0 = np.array([[[x0]], [[y0]]])
+        sigma = np.array([[[3]], [[3]]])
+        spots = np.empty((sites, image_shape[0], image_shape[1]))
+        spacing = 15
+        i = 0
+        amp = 20
+        atom = randint(2, size=sites)
+        for r in range(rows):
+            for c in range(cols):
+                xy0i = xy0 + np.array([[[r]], [[c]]]) * spacing
+                spots[i] = self.gaussian(amp, sigma, xy0i, grid)
+                if atom[i]:
+                    bg = np.add(bg, spots[i])
+                i += 1
+        return bg
 
     def generateShots(self, hdf5):
         time.sleep(0.1)
         for i in range(self.shotsPerMeasurement.value):
-            hdf5['embezzletron/shots/'+str(i)] = self.generateArray()
+            hdf5['embezzletron/shots/' + str(i)] = self.generateArray()
 
     def writeResults(self, hdf5):
         try:
@@ -62,3 +88,12 @@ class Embezzletron(Instrument):
             msg = 'in embezzletron.writeResults() while making up data\n{}'
             logger.error(msg.format(e))
             raise PauseError
+
+    def normal_gaussian(self, a, xy):
+        return a * np.exp(-0.5 * (np.sum(xy**2, axis=0)))
+
+    def elliptical_gaussian(self, a, w, xy):
+        return self.normal_gaussian(a, xy / w)
+
+    def gaussian(self, a, w, xy0, xy):
+        return self.elliptical_gaussian(a, w, xy - xy0)

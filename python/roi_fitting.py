@@ -46,6 +46,9 @@ class GaussianROI(ROIAnalysis):
     subtract_background_from_sums = Bool()
     multiply_sums_by_photoelectron_scaling = Bool()
     cutoffs_from_which_experiment = Str()
+    shots_path = Str()
+    meas_analysis_path = Str()
+    iter_analysis_path = Str()
 
     def __init__(self, name, experiment):
         super(GaussianROI, self).__init__(
@@ -53,14 +56,13 @@ class GaussianROI(ROIAnalysis):
             experiment,
             "a gaussian fit to the regions of interest"
         )
-        #self.set_rois()
+        self.set_rois()
         # HDF5 data paths
         # where the camera data is expected to be stored
-        #self.shots_path = 'data/' + self.experiment.Config.config.get('CAMERA', 'DataGroup') + '/shots'
+        self.shots_path = 'data/' + self.experiment.Config.config.get('CAMERA', 'DataGroup') + '/shots'
         # where we are going to dump data after analysis
-        #self.meas_analysis_path = 'analysis/squareROIsums'
-        # self.iter_analysis_path = 'analysis/squareROI/sums'
-        #self.iter_analysis_path = 'analysis/square_roi/sums'
+        self.meas_analysis_path = 'analysis/gaussianROI'
+        self.iter_analysis_path = 'analysis/gaussian_roi'
         self.properties += [
             'version', 'enable', 'useICA', 'shot', 'top', 'left', 'bottom',
             'right', 'fitParams', 'fitCovariances', 'image_shape', 'rois',
@@ -74,6 +76,16 @@ class GaussianROI(ROIAnalysis):
     def set_rois(self):
         self.rows = self.experiment.ROI_rows
         self.columns = self.experiment.ROI_columns
+
+    def fromHDF5(self, hdf):
+        """Override of the analysis fromHDF5 fcuntion.
+
+        I need to override this so I can call the find camera function after
+        the camera has been loaded.
+        """
+        super(GaussianROI, self).fromHDF5(hdf)
+        # I am here because the camera needs to be setup first
+        self.find_camera()
 
     # define functions for a gaussian with various degrees of freedom
 
@@ -138,7 +150,6 @@ class GaussianROI(ROIAnalysis):
     def postIteration(self, iterationResults, experimentResults):
         if self.enable:
             # compile all images from the chosen shot over the whole iteration
-            # images = np.array([m['data/Hamamatsu/shots/'+str(self.shot)] for m in iterationResults['measurements'].itervalues()])
             all_images = np.array([[s.value for s in m[self.shots_path].itervalues()] for m in iterationResults['measurements'].itervalues()])
             images = all_images[:, self.shot]
             self.image_shape = (images.shape[1], images.shape[2])
@@ -163,7 +174,8 @@ class GaussianROI(ROIAnalysis):
                 iterationResults[self.iter_analysis_path+'/covariance_matrix'] = self.fitCovariances
 
             if self.enable_calculate_sums:
-                iterationResults[self.iter_analysis_path+'/sums'] = self.calculate_sums(all_images)
+                data_path = self.iter_analysis_path + '/sums'
+                iterationResults[data_path] = self.calculate_sums(all_images)
 
     def calculate_sums(self, images):
         if self.subtract_background_from_sums:
