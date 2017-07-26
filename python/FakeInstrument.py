@@ -8,11 +8,11 @@ This instrument generates random data for testing purposes.
 """
 
 from __future__ import division
-from atom.api import Member
+from atom.api import Typed
 from numpy.random import random_sample, randint
 import numpy as np
 from cs_instruments import Instrument
-from instrument_property import IntProp
+from instrument_property import IntProp, FloatProp, FloatRangeProp
 from cs_errors import PauseError
 import time
 
@@ -23,7 +23,9 @@ logger = logging.getLogger(__name__)
 
 class Embezzletron(Instrument):
     version = '2017.04.25'
-    shotsPerMeasurement = Member()
+    shotsPerMeasurement = Typed(IntProp)
+    photoelectronScaling = Typed(FloatProp)
+    exposureTime = Typed(FloatRangeProp)
 
     def __init__(self, name, experiment, description=''):
         super(Embezzletron, self).__init__(name, experiment, description)
@@ -34,9 +36,25 @@ class Embezzletron(Instrument):
         self.shotsPerMeasurement = IntProp(
             'shotsPerMeasurement',
             experiment,
-            'number of expected shots', '2'
+            'number of expected shots',
+            '2'
         )
         self.shotsPerMeasurement.value = 2
+
+        self.photoelectronScaling = FloatProp(
+            'photoelectronScaling',
+            experiment,
+            'photoelectron scaling',
+            '1'
+        )
+        self.exposureTime = FloatRangeProp(
+            'exposureTime',
+            experiment,
+            'exposure time (seconds)',
+            '0.050',
+            low=0.000001,
+            high=7200
+        )
 
     def initialize(self):
         # time.sleep(0.01)
@@ -74,7 +92,7 @@ class Embezzletron(Instrument):
         return bg
 
     def generateShots(self, hdf5):
-        time.sleep(0.1)
+        time.sleep(0.01)
         for i in range(self.shotsPerMeasurement.value):
             hdf5['embezzletron/shots/' + str(i)] = self.generateArray()
 

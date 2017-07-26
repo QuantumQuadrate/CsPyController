@@ -2,7 +2,11 @@ import datetime
 import numpy as np
 import logging
 import os
+# MPL plotting
+import matplotlib as mpl
 import matplotlib.pyplot as plt
+from matplotlib.gridspec import GridSpec
+import matplotlib.patches as patches
 from scipy.special import erf
 
 from atom.api import Bool, Member, Str, observe, Int
@@ -10,6 +14,7 @@ from atom.api import Bool, Member, Str, observe, Int
 from analysis import AnalysisWithFigure, ROIAnalysis
 
 logger = logging.getLogger(__name__)
+mpl.use('PDF')
 
 
 class HistogramAnalysis(AnalysisWithFigure):
@@ -295,11 +300,11 @@ class HistogramGrid(ROIAnalysis):
                 if self.calculate_new_cutoffs:
                     cutoff = None
                 else:
-                    cutoff = self.experiment.thresholdROIAnalysis.threshold_array
+                    cutoff = self.experiment.thresholdROIAnalysis.threshold_array[roi]
                 self.histogram_results[shot, roi] = self.calculate_histogram(
                     roidata,
                     self.bins,
-                    cutoff
+                    cutoff['1']
                 )
                 # these all have the same number of measurements, so they will
                 # all have the same size
@@ -455,8 +460,8 @@ class HistogramGrid(ROIAnalysis):
         # use the cumulative normal distribution function to get the overlap
         # analytically
         # see MTL thesis for derivation
-        overlap1 = .5*(1 + erf((best_mean1-cutoff)/(best_width1*np.sqrt(2))))
-        overlap2 = .5*(1 + erf((cutoff-best_mean2)/(best_width2*np.sqrt(2))))
+        overlap1 = 0.5*(1 + erf((best_mean1-cutoff)/(best_width1*np.sqrt(2))))
+        overlap2 = 0.5*(1 + erf((cutoff-best_mean2)/(best_width2*np.sqrt(2))))
         overlap = (overlap1*best_amplitude1 + overlap2*best_amplitude2) / min(best_amplitude1, best_amplitude2)
 
         return hist, bin_edges, best_error, best_mean1, best_mean2, best_width1, best_width2, best_amplitude1, best_amplitude2, cutoff, loading, overlap
@@ -513,15 +518,28 @@ class HistogramGrid(ROIAnalysis):
         if len(x2) > 1:  # only draw if there is some data (not including cutoff)
             self.histogram_patch(ax, x2, y2, 'r')  # plot the 1 atom peak in red
 
-    def histogram_grid_plot(self, fig, shot, photoelectronScaling=None, exposure_time=None, font=8):
+    def histogram_grid_plot(self, fig, shot,
+            photoelectronScaling=None, exposure_time=None, font=8):
         """Plot a grid of histograms in the same shape as the ROIs."""
 
         rows = self.experiment.ROI_rows
         columns = self.experiment.ROI_columns
-        # create a grid.  The extra row and column hold the row/column averaged data.
-        # width_ratios and height_ratios make those extra cells smaller than the graphs.
-        gs1 = GridSpec(rows+1, columns+1, left=0.02, bottom=0.05, top=.95, right=.98, wspace=0.2, hspace=0.75,
-                       width_ratios=rows*[1]+[.25], height_ratios=columns*[1]+[.25])
+        # create a grid.  The extra row and column hold the row/column
+        # averaged data.
+        # width_ratios and height_ratios make those extra cells smaller than
+        # the graphs.
+        gs1 = GridSpec(
+            rows+1,
+            columns+1,
+            left=0.02,
+            bottom=0.05,
+            top=.95,
+            right=.98,
+            wspace=0.2,
+            hspace=0.75,
+            width_ratios=columns * [1] + [.25],
+            height_ratios=rows * [1] + [.25]
+        )
 
         # make histograms for each site
         for i in xrange(rows):
@@ -539,14 +557,50 @@ class HistogramGrid(ROIAnalysis):
                     ax.set_xlim([self.x_min, self.x_max])
                     ax.set_ylim([0, self.y_max])
                     #ax.set_title(u'{}: {:.0f}\u00B1{:.1f}%'.format(n, data['loading']*100,data['overlap']*100), size=font)
-                    ax.text(0.95, 0.85, u'{}: {:.0f}\u00B1{:.1f}%'.format(n, data['loading']*100, data['overlap']*100), horizontalalignment='right', verticalalignment='center', transform=ax.transAxes, fontsize=font)
-                    # put x ticks at the center of each gaussian and the cutoff.
-                    # The one at x_max just holds 'e3' to show that the values should be multiplied by 1000
-                    ax.set_xticks([data['mean1'], data['cutoff'], data['mean2']])
-                    ax.set_xticklabels([u'{}\u00B1{:.1f}'.format(int(data['mean1']), data['width1']),
-                                        str(int(data['cutoff'])),
-                                        u'{}\u00B1{:.1f}'.format(int(data['mean2']), data['width2'])],
-                                       size=font, rotation=90)
+                    ax.text(
+                        0.95,
+                        0.85,
+                        u'{}: {:.0f}\u00B1{:.1f}%'.format(
+                            n,
+                            data['loading']*100,
+                            data['overlap']*100
+                        ),
+                        horizontalalignment='right',
+                        verticalalignment='center',
+                        transform=ax.transAxes,
+                        fontsize=font
+                    )
+                    # put x ticks at the center of each gaussian and the cutoff
+                    # The one at x_max just holds 'e3' to show that the values
+                    # should be multiplied by 1000
+                    ax.set_xticks([
+                        data['mean1'],
+                        data['cutoff'],
+                        data['mean2']
+                    ])
+
+                    lab = u'{}\u00B1{:.1f}'
+                    if np.isnan(data['mean1']):
+                        lab1 = lab.format('nan', 0)
+                    else:
+                        lab1 = lab.format(
+                            int(data['mean1']),
+                            data['width1']
+                        )
+
+                    if np.isnan(data['mean2']):
+                        lab2 = lab.format('nan', 0)
+                    else:
+                        lab2 = lab.format(
+                            int(data['mean2']),
+                            data['width2']
+                        )
+
+                    ax.set_xticklabels([
+                        lab1, str(int(data['cutoff'])), lab2],
+                        size=font,
+                        rotation=90
+                    )
                     # add this to xticklabels to print gaussian widths:
                         # u'\u00B1{:.1f}'.format(data['width1']/1000)
                         # u'\u00B1{:.1f}'.format(data['width2']/1000)
@@ -557,12 +611,16 @@ class HistogramGrid(ROIAnalysis):
                     ytickright = [False]
                     if (data['width1'] != 0):
                         y1 = data['amplitude1']/(data['width1']*np.sqrt(2*np.pi))
+                        if np.isnan(y1):
+                            y1 = 1.0
                         yticks += [y1]
                         yticklabels += [str(int(np.rint(y1)))]
                         ytickleft += [True]
                         ytickright += [False]
                     if (data['width2'] != 0):
                         y2 = data['amplitude2']/(data['width2']*np.sqrt(2*np.pi))
+                        if np.isnan(y2):
+                            y2 = 1.0
                         yticks += [y2]
                         yticklabels += [str(int(np.rint(y2)))]
                         ytickleft += [False]
@@ -581,8 +639,9 @@ class HistogramGrid(ROIAnalysis):
                     # plot cutoff line
                     ax.vlines(data['cutoff'], 0, self.y_max)
                     ax.tick_params(labelsize=font)
-                except Exception as e:
-                    logger.warning('Could not plot histogram for shot {} roi {}:\n{}\n{}'.format(shot, n, e, traceback.format_exc()))
+                except:
+                    msg = 'Could not plot histogram for shot {} roi {}'
+                    logger.exception(msg.format(shot, n))
 
         #make stats for each row
         for i in xrange(rows):

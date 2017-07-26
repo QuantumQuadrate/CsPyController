@@ -7,14 +7,10 @@ from cs_errors import PauseError
 
 import threading, numpy, traceback, time
 
-#MPL plotting
-import matplotlib as mpl
-mpl.use('PDF')
 import matplotlib.pyplot as plt
 from matplotlib.figure import Figure
 from matplotlib.path import Path
 import matplotlib.patches as patches
-from matplotlib.gridspec import GridSpec
 from mpl_toolkits.axes_grid1 import make_axes_locatable
 #from matplotlib.backends.backend_pdf import PdfPages
 from enaml.application import deferred_call
