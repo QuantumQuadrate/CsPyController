@@ -82,6 +82,15 @@ class ThresholdROIAnalysis(ROIAnalysis):
             self.threshold_array = ta
             logger.warning('new thresholds: {}'.format(self.threshold_array))
 
+    def set_thresholds(self, new_thresholds, timestamp):
+        if len(new_thresholds) == len(self.threshold_array):
+            for i in new_thresholds:
+                self.threshold_array[i]['1'] = new_thresholds[i]
+            self.cutoffs_from_which_experiment = timestamp
+        else:
+            msg = "Error setting new thresholds. Arrays are of unequal length."
+            logger.error(msg)
+
     def preExperiment(self, experimentResults):
         super(ThresholdROIAnalysis, self).preExperiment(experimentResults)
         # reset the measurement enable flag

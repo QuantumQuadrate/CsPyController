@@ -263,8 +263,11 @@ class HistogramGrid(ROIAnalysis):
             self.experiment.timeStarted
         ).strftime('%Y_%m_%d_%H_%M_%S')
 
-        self.experiment.threshold_array = self.histogram_results['cutoff']
-        self.experiment.threshold_array.cutoffs_from_which_experiment = experiment_timestamp
+        # register the new cutoffs with threshold analysis
+        self.experiment.threshold_analysis.set_thresholds(
+            self.histogram_results['cutoff'],
+            experiment_timestamp
+        )
 
     def calculate_all_histograms(self, all_shots_array):
         measurements, shots, rois = all_shots_array.shape

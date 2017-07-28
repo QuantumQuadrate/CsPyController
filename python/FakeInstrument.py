@@ -80,7 +80,7 @@ class Embezzletron(Instrument):
         spots = np.empty((sites, image_shape[0], image_shape[1]))
         spacing = 15
         i = 0
-        amp = 20
+        amp = 5
         atom = randint(2, size=sites)
         for r in range(rows):
             for c in range(cols):
