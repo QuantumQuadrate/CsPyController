@@ -2,7 +2,7 @@ import logging
 import numpy as np
 import time
 
-from atom.api import Bool, Str, Member
+from atom.api import Bool, Str, Member, Int
 
 from analysis import ROIAnalysis
 
@@ -24,6 +24,7 @@ class ThresholdROIAnalysis(ROIAnalysis):
     iter_analysis_path = Str()
     meas_enable = Bool(True)
     cutoffs_from_which_experiment = Member()
+    shots = Int(2)
 
     def __init__(self, experiment):
         super(ThresholdROIAnalysis, self).__init__(
@@ -36,7 +37,7 @@ class ThresholdROIAnalysis(ROIAnalysis):
             ('1', np.int32)  # add more atom number cuts later
         ]
         self.threshold_array = np.zeros(
-            (experiment.ROI_rows * experiment.ROI_columns),
+            (self.shots, experiment.ROI_rows * experiment.ROI_columns),
             dtype=dtype
         )
         # set up rois
@@ -67,7 +68,7 @@ class ThresholdROIAnalysis(ROIAnalysis):
         )
 
         size = roi_rows * roi_columns
-        if len(self.threshold_array) != size:
+        if len(self.threshold_array[0]) != size:
             msg = 'The ROI definitions do not agree. Check relevant analyses. '
             msg += '\nthreshold array len: `{}`, ROI rows(columns) `{}({})`'
             msg = msg.format(len(self.threshold_array), roi_rows, roi_columns)
@@ -76,20 +77,28 @@ class ThresholdROIAnalysis(ROIAnalysis):
             dtype = [
                 ('1', np.int32)  # add more atom number cuts later
             ]
-            ta = np.zeros(size, dtype=dtype)
-            for i in range(min(len(ta), len(self.threshold_array))):
-                ta[i] = self.threshold_array[i]
-            self.threshold_array = ta
+            try:
+                for s in range(self.shots):
+                    ta = np.zeros(size, dtype=dtype)
+                    for i in range(min(len(ta), len(self.threshold_array[s]))):
+                        ta[i] = self.threshold_array[s, i]
+                    self.threshold_array[s] = ta
+            except IndexError:
+                dtype = [
+                    ('1', np.int32)  # add more atom number cuts later
+                ]
+                self.threshold_array = np.zeros(
+                    (self.shots, size),
+                    dtype=dtype
+                )
             logger.warning('new thresholds: {}'.format(self.threshold_array))
 
     def set_thresholds(self, new_thresholds, timestamp):
-        if len(new_thresholds) == len(self.threshold_array):
-            for i in new_thresholds:
-                self.threshold_array[i]['1'] = new_thresholds[i]
-            self.cutoffs_from_which_experiment = timestamp
-        else:
-            msg = "Error setting new thresholds. Arrays are of unequal length."
-            logger.error(msg)
+        # the same threshold is used for all shots
+        for j, shot in enumerate(new_thresholds):
+            for i, t in enumerate(shot):
+                self.threshold_array[j, i] = (t,)
+        self.cutoffs_from_which_experiment = timestamp
 
     def preExperiment(self, experimentResults):
         super(ThresholdROIAnalysis, self).preExperiment(experimentResults)
@@ -119,7 +128,7 @@ class ThresholdROIAnalysis(ROIAnalysis):
                 for i, shot in enumerate(shot_array):
                     # TODO: more complicated threshold
                     # (per shot threshold & 2+ atom threshold)
-                    threshold_array[i] = shot >= self.threshold_array['1']
+                    threshold_array[i] = shot >= self.threshold_array[i]['1']
 
                 self.loading_array = threshold_array.reshape((
                     numShots,
