@@ -42,7 +42,8 @@ class HistogramAnalysis(AnalysisWithFigure):
         # reset the histogram data
         self.all_shots_array = None
 
-    def analyzeMeasurement(self, measurementResults, iterationResults, experimentResults):
+    def analyzeMeasurement(self, measurementResults, iterationResults,
+                           experimentResults):
         if self.enable:
             # every measurement, update a big array of all the ROI sums, then
             # histogram only the requested shot/site
@@ -70,7 +71,8 @@ class HistogramAnalysis(AnalysisWithFigure):
                     fig = self.backFigure
                     fig.clf()
 
-                    if (self.all_shots_array is not None) and (len(self.all_shots_array) > 1):
+                    if ((self.all_shots_array is not None) and
+                            (len(self.all_shots_array) > 1)):
 
                         # parse the list of what to plot from a string to a
                         # list of numbers

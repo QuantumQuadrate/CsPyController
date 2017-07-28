@@ -51,10 +51,10 @@ class Embezzletron(Instrument):
             'exposureTime',
             experiment,
             'exposure time (seconds)',
-            '0.050',
             low=0.000001,
             high=7200
         )
+        self.exposureTime.value = 0.05
 
     def initialize(self):
         # time.sleep(0.01)

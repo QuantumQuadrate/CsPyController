@@ -12,8 +12,8 @@ logger = logging.getLogger(__name__)
 
 
 class ThresholdROIAnalysis(ROIAnalysis):
-    '''Compares the raw ROI from the selected source to a simple threshold cut to
-    determine atom number
+    '''Compares the raw ROI from the selected source to a simple threshold cut
+    to determine atom number
     '''
 
     version = '2017.05.09'
@@ -22,7 +22,7 @@ class ThresholdROIAnalysis(ROIAnalysis):
     loading_array = Member()
     meas_analysis_path = Str()
     iter_analysis_path = Str()
-    enable = Bool()
+    meas_enable = Bool(True)
     cutoffs_from_which_experiment = Member()
 
     def __init__(self, experiment):
@@ -61,60 +61,90 @@ class ThresholdROIAnalysis(ROIAnalysis):
         roi_rows = self.experiment.ROI_rows
         roi_columns = self.experiment.ROI_columns
 
-        self.loading_array = np.zeros((0, roi_rows, roi_columns), dtype=np.bool_)
-        
-        if len(self.threshold_array) != roi_rows*roi_columns:
+        self.loading_array = np.zeros(
+            (0, roi_rows, roi_columns),
+            dtype=np.bool_
+        )
+
+        size = roi_rows * roi_columns
+        if len(self.threshold_array) != size:
             msg = 'The ROI definitions do not agree. Check relevant analyses. '
             msg += '\nthreshold array len: `{}`, ROI rows(columns) `{}({})`'
             msg = msg.format(len(self.threshold_array), roi_rows, roi_columns)
             logger.warning(msg)
             # make a new ROIs object from the old one as best as we can
             dtype = [
-                ('1', np.int32) # add more atom number cuts later
+                ('1', np.int32)  # add more atom number cuts later
             ]
-            ta = np.zeros(roi_rows*roi_columns, dtype=dtype)
+            ta = np.zeros(size, dtype=dtype)
             for i in range(min(len(ta), len(self.threshold_array))):
                 ta[i] = self.threshold_array[i]
             self.threshold_array = ta
             logger.warning('new thresholds: {}'.format(self.threshold_array))
 
+    def preExperiment(self, experimentResults):
+        super(ThresholdROIAnalysis, self).preExperiment(experimentResults)
+        # reset the measurement enable flag
+        self.meas_enable = True
 
-    def analyzeMeasurement(self, measurementResults, iterationResults, experimentResults):
-        if self.enable:
-            shot_array = measurementResults[self.ROI_source.meas_analysis_path][()]
-            numShots = len(shot_array)
-            numROIs = len(self.ROI_source.ROIs)
-            # temporary 2D threshold array, ROIs are 1D
-            threshold_array = np.zeros((numShots, numROIs), dtype=np.bool_)
+    def analyzeMeasurement(self, measurementResults, iterationResults,
+                           experimentResults):
+        if self.enable and self.meas_enable:
+            try:
+                data_path = self.ROI_source.meas_analysis_path
+                shot_array = measurementResults[data_path][()]
+            except (KeyError, AttributeError):
+                msg = (
+                    'No measurement ROI sum data found at `{}`.'
+                    'Disabling per measurement threshold analysis.'
+                )
+                logger.warning(msg.format(data_path))
+                self.meas_enable = False
 
-            for i, shot in enumerate(shot_array):
-                # TODO: more complicated threshold
-                # (per shot threshold & 2+ atom threshold)
-                threshold_array[i] = shot >= self.threshold_array['1']
+            else:
+                numShots = len(shot_array)
+                numROIs = len(self.ROI_source.ROIs)
+                # temporary 2D threshold array, ROIs are 1D
+                threshold_array = np.zeros((numShots, numROIs), dtype=np.bool_)
 
-            self.loading_array = threshold_array.reshape((
-                numShots, 
-                self.experiment.ROI_rows, 
-                self.experiment.ROI_columns
-            ))
-            measurementResults[self.meas_analysis_path] = threshold_array
-            self.updateFigure()
+                for i, shot in enumerate(shot_array):
+                    # TODO: more complicated threshold
+                    # (per shot threshold & 2+ atom threshold)
+                    threshold_array[i] = shot >= self.threshold_array['1']
 
+                self.loading_array = threshold_array.reshape((
+                    numShots,
+                    self.experiment.ROI_rows,
+                    self.experiment.ROI_columns
+                ))
+                measurementResults[self.meas_analysis_path] = threshold_array
+                self.updateFigure()
 
     def analyzeIteration(self, iterationResults, experimentResults):
         """Consoladates loading cuts."""
         if self.enable:
             meas = map(int, iterationResults['measurements'].keys())
             meas.sort()
-            path = 'measurements/{}/' + self.meas_analysis_path
+            # if the per measurement threshold analysis is disabled we then
+            # need to go fetch the results from elsewhere
+            if self.meas_enable:
+                path = 'measurements/{}/' + self.meas_analysis_path
+            else:
+                return 0
+
             try:
-                res = np.array([iterationResults[path.format(m)] for m in meas])
+                res = np.array(
+                    [iterationResults[path.format(m)] for m in meas]
+                )
             except KeyError:
                 # I was having problem with the file maybe not being ready
-                logger.warning("Issue reading hdf5 file. Waiting then repeating.")
+                msg = "Issue reading hdf5 file. Waiting then repeating."
+                logger.warning(msg)
                 time.sleep(0.1)  # try again in a little
                 try:
-                    res = np.array([iterationResults[path.format(m)] for m in meas])
+                    res = np.array(
+                        [iterationResults[path.format(m)] for m in meas]
+                    )
                 except KeyError:
                     msg = (
                         "Reading from hdf5 file during measurement `{}`"
@@ -123,7 +153,6 @@ class ThresholdROIAnalysis(ROIAnalysis):
                     logger.exception(msg)
             iterationResults[self.iter_analysis_path] = np.array(res)
 
-
     def updateFigure(self):
         if self.draw_fig:
             fig = self.backFigure
@@ -131,9 +160,8 @@ class ThresholdROIAnalysis(ROIAnalysis):
             if self.loading_array.size > 0:
                 n = len(self.loading_array)
                 for i in range(n):
-                    ax = fig.add_subplot(n, 1, i+1)
+                    ax = fig.add_subplot(n, 1, i + 1)
                     # make the digital plot here
                     ax.matshow(self.loading_array[i], cmap=green_cmap)
-                    ax.set_title('shot '+str(i))
+                    ax.set_title('shot ' + str(i))
             super(ThresholdROIAnalysis, self).updateFigure()
-
