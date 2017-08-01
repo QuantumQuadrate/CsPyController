@@ -51,10 +51,10 @@ class Embezzletron(Instrument):
             'exposureTime',
             experiment,
             'exposure time (seconds)',
-            '0.050',
             low=0.000001,
             high=7200
         )
+        self.exposureTime.value = 0.05
 
     def initialize(self):
         # time.sleep(0.01)
@@ -80,7 +80,7 @@ class Embezzletron(Instrument):
         spots = np.empty((sites, image_shape[0], image_shape[1]))
         spacing = 15
         i = 0
-        amp = 20
+        amp = 5
         atom = randint(2, size=sites)
         for r in range(rows):
             for c in range(cols):

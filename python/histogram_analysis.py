@@ -42,7 +42,8 @@ class HistogramAnalysis(AnalysisWithFigure):
         # reset the histogram data
         self.all_shots_array = None
 
-    def analyzeMeasurement(self, measurementResults, iterationResults, experimentResults):
+    def analyzeMeasurement(self, measurementResults, iterationResults,
+                           experimentResults):
         if self.enable:
             # every measurement, update a big array of all the ROI sums, then
             # histogram only the requested shot/site
@@ -70,7 +71,8 @@ class HistogramAnalysis(AnalysisWithFigure):
                     fig = self.backFigure
                     fig.clf()
 
-                    if (self.all_shots_array is not None) and (len(self.all_shots_array) > 1):
+                    if ((self.all_shots_array is not None) and
+                            (len(self.all_shots_array) > 1)):
 
                         # parse the list of what to plot from a string to a
                         # list of numbers
@@ -261,8 +263,11 @@ class HistogramGrid(ROIAnalysis):
             self.experiment.timeStarted
         ).strftime('%Y_%m_%d_%H_%M_%S')
 
-        self.experiment.threshold_array = self.histogram_results['cutoff']
-        self.experiment.threshold_array.cutoffs_from_which_experiment = experiment_timestamp
+        # register the new cutoffs with threshold analysis
+        self.experiment.thresholdROIAnalysis.set_thresholds(
+            self.histogram_results['cutoff'],
+            experiment_timestamp
+        )
 
     def calculate_all_histograms(self, all_shots_array):
         measurements, shots, rois = all_shots_array.shape
@@ -300,11 +305,11 @@ class HistogramGrid(ROIAnalysis):
                 if self.calculate_new_cutoffs:
                     cutoff = None
                 else:
-                    cutoff = self.experiment.thresholdROIAnalysis.threshold_array[roi]
+                    cutoff = self.experiment.thresholdROIAnalysis.threshold_array[shot][roi]['1']
                 self.histogram_results[shot, roi] = self.calculate_histogram(
                     roidata,
                     self.bins,
-                    cutoff['1']
+                    cutoff
                 )
                 # these all have the same number of measurements, so they will
                 # all have the same size
@@ -351,7 +356,7 @@ class HistogramGrid(ROIAnalysis):
 
         if cutoff is None:  # find a new cutoff
             # take center of each bin as test points (same in number as y)
-            x = (bin_edges[1:]+bin_edges[:-1])/2
+            x = (bin_edges[1:] + bin_edges[:-1]) / 2
             best_error = float('inf')
 
             # TODO: instead of bin edges, use unbinned data for gaussian fits,
@@ -374,6 +379,8 @@ class HistogramGrid(ROIAnalysis):
                 width1 = np.sqrt(np.abs(
                     np.sum((r1**2)*y[:j])/np.sum(y[:j])
                 ))
+                if width1 == 0:
+                    width1 = 1.0
                 # area under gaussian is 1, so scale by total volume (i.e. the
                 # sum of y)
                 amplitude1 = np.sum(y[:j]*bin_size[:j])
@@ -387,6 +394,8 @@ class HistogramGrid(ROIAnalysis):
                 width2 = np.sqrt(np.abs(
                     np.sum((r2**2) * y[j:]) / np.sum(y[j:])
                 ))
+                if width2 == 0:
+                    width2 = 1.0
                 # area under gaussian is 1, so scale by total volume (i.e. the
                 # sum of y * step size)
                 amplitude2 = np.sum(y[j:]*bin_size[j:])
