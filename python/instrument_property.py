@@ -222,7 +222,7 @@ class Prop(Atom):
                             # this is an error, but we will not pass it on, in order to finish loading
                             continue
 
-        #go through all names in hdf node (group) and try to load them
+        # go through all names in hdf node (group) and try to load them
         for i in hdf:
             #check to see if this is one of the properties we care to load
             if i not in self.properties:
