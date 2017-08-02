@@ -23,6 +23,15 @@ __author__ = 'Matthew Ebert'
 logger = logging.getLogger(__name__)
 
 
+class ZMQListProp(ListProp):
+    """It is necessary to redefine the HardwareProtocol method of ListProp"""
+
+    def HardwareProtocol(self):
+        """Iterate over the list elements calling HardwareProtocol for each"""
+        for i, o in enumerate(self.listProperty):
+            self.HardwareProtocol(o, self.listElementName + str(i), settings)
+
+
 class ZMQInstrument(Instrument, Analysis):
     """A instrument communication class for ZeroMQ servers.
 

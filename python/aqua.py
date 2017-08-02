@@ -18,6 +18,7 @@ import Counter, conex, aerotech, unlock_pause, niscope, newportstage, nidaq_ai
 import origin_interface
 import FakeInstrument # for testing
 from pypico import PyPicoServer  # for communicating with a picomotor server
+from blackfly import BlackflyClient  # communicates with Blackfly camera server
 # from vital_sign_sound import Vitalsign
 
 # analyses
@@ -43,6 +44,7 @@ class AQuA(Experiment):
     aerotechs = Member()
     conexes = Member()
     Andors = Member()
+    blackfly_client = Member()
     NewportStage = Member()
     DAQmxAI = Member()
     vaunixs = Member()
@@ -104,6 +106,7 @@ class AQuA(Experiment):
         self.picomotors = picomotors.Picomotors('picomotors', self, 'Newport Picomotors')
         self.instekpsts = instek_pst.InstekPSTs('instekpsts', self, 'Instek PST power supply')
         self.Andors = andor.Andors('Andors', self, 'Andor Luca measurementResults')
+        self.blackfly_client = BlackflyClient('BlackflyClient', self)
         self.vaunixs = vaunix.Vaunixs('vaunixs', self, 'Vaunix Signal Generator')
         self.PICams = picampython.PICams('PICams', self, 'Princeton Instruments Cameras')
         self.DAQmxAI = nidaq_ai.NIDAQmxAI('DAQmxAI',self,'NI-DAQmx Analog Input')
@@ -119,10 +122,11 @@ class AQuA(Experiment):
         # do not include functional_waveforms in self.instruments because it
         # need not start/stop
         self.instruments += [
-            self.box_temperature, self.picomotors, self.pyPicoServer, self.NIScopes,
-            self.Andors, self.PICams, self.DC_noise_eaters, self.LabView,
-            self.DDS, self.unlock_pause, self.Embezzletron, self.aerotechs,
-            self.conexes, self.instekpsts, self.vaunixs, self.NewportStage, self.unlock_pause
+            self.box_temperature, self.picomotors, self.pyPicoServer,
+            self.NIScopes, self.Andors, self.blackfly_client, self.PICams,
+            self.DC_noise_eaters, self.LabView, self.DDS, self.unlock_pause,
+            self.Embezzletron, self.aerotechs, self.conexes, self.instekpsts,
+            self.vaunixs, self.NewportStage, self.unlock_pause
         ]
 
 
@@ -183,16 +187,17 @@ class AQuA(Experiment):
             'Config',
             'functional_waveforms', 'LabView', 'functional_waveforms_graph',
             'DDS', 'aerotechs', 'picomotors', 'pyPicoServer', 'conexes',
-            'Andors', 'PICams', 'DC_noise_eaters', 'box_temperature', 'DAQmxAI',
-            'squareROIAnalysis', 'thresholdROIAnalysis', 'gaussian_roi',
-            'instekpsts', 'TTL_filters', 'AI_graph', 'AI_filter', 'NewportStage',
-            'loading_filters', 'first_measurements_filter', 'vaunixs',
-            'imageSumAnalysis', 'recent_shot_analysis', 'shotBrowserAnalysis',
-            'histogramAnalysis', 'histogram_grid', 'retention_analysis',
-            'measurements_graph', 'iterations_graph', 'retention_graph',
-            'DC_noise_eater_filter', 'DC_noise_eater_graph', 'Ramsey',
-            'counter_graph', 'counter_hist', 'unlock_pause', 'ROI_rows',
-            'ROI_columns', 'ROI_bg_rows', 'ROI_bg_columns', 'NIScopes',
+            'Andors', 'blackfly_client', 'PICams', 'DC_noise_eaters',
+            'box_temperature', 'DAQmxAI', 'squareROIAnalysis',
+            'thresholdROIAnalysis', 'gaussian_roi', 'instekpsts', 'TTL_filters',
+            'AI_graph', 'AI_filter', 'NewportStage', 'loading_filters',
+            'first_measurements_filter', 'vaunixs', 'imageSumAnalysis',
+            'recent_shot_analysis', 'shotBrowserAnalysis', 'histogramAnalysis',
+            'histogram_grid', 'retention_analysis', 'measurements_graph',
+            'iterations_graph', 'retention_graph', 'DC_noise_eater_filter',
+            'DC_noise_eater_graph', 'Ramsey', 'counter_graph', 'counter_hist',
+            'unlock_pause', 'ROI_rows', 'ROI_columns', 'ROI_bg_rows',
+            'ROI_bg_columns', 'NIScopes',
             'origin'
         ]
 
