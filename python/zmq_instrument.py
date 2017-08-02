@@ -18,6 +18,7 @@ from cs_errors import PauseError
 from cs_instruments import Instrument
 from analysis import Analysis
 from atom.api import Int, Str, Bool, Member, Float
+from instrument_property import ListProp
 
 __author__ = 'Matthew Ebert'
 logger = logging.getLogger(__name__)
@@ -26,11 +27,16 @@ logger = logging.getLogger(__name__)
 class ZMQListProp(ListProp):
     """It is necessary to redefine the HardwareProtocol method of ListProp"""
 
-    def HardwareProtocol(self):
+    def HardwareProtocol(self, obj, name, settings):
         """Iterate over the list elements calling HardwareProtocol for each"""
+        settings[name] = {}
         for i, o in enumerate(self.listProperty):
-            self.HardwareProtocol(o, self.listElementName + str(i), settings)
-
+            self.HardwareProtocol(
+                o,
+                self.listElementName + str(i),
+                settings
+            )
+        print settings
 
 class ZMQInstrument(Instrument, Analysis):
     """A instrument communication class for ZeroMQ servers.
@@ -41,9 +47,11 @@ class ZMQInstrument(Instrument, Analysis):
     This class is generalized from the LabView class.
     """
 
-    port = Int(0)
+    context = Member()
+    port = Int(55555)
     IP = Str('127.0.0.1')
     transport = Str('tcp')
+    current_addr = Str()
     connected = Bool(False)
     msg = Str()
     results = Member()
@@ -62,12 +70,15 @@ class ZMQInstrument(Instrument, Analysis):
 
     def acquire_data(self):
         """Retrieve data from the server."""
+        print 'heyo'
         self.results = self.send_json({
             'action': 'GET_RESULTS'
         })
 
     def close_socket(self):
         """Close the socket."""
+        logger.info("Socket is being closed, disabling device.")
+        self.enable = False
         self.sock.close()
         self.connected = False
         self.isInitialized = False
@@ -81,26 +92,30 @@ class ZMQInstrument(Instrument, Analysis):
         """Test the server connection with a quick echo request."""
         msg = 'Connection test with `{}` server '.format(self.name)
         try:
-            self.send_json({'action': 'ECHO'})
+            resp = self.send_json({'action': 'ECHO'})
+            if resp['status'] != 0:
+                raise PauseError
             logger.info(msg + 'successful.')
             return True
-        except PauseError:
-            self.logger.exception(msg + 'failed.')
+        except:
+            logger.exception(msg + 'failed.')
             return False
 
-    def HardwareProtocol(self, o, p, settings):
+    def HardwareProtocol(self, o, name, settings):
         """Edit the settings dictionary to update the necessary settings.
 
         Should be overwritten for more complicated properties.
         """
         # The settings dict is mutable so it is passed by reference and will
         # change the variable in the higher scope.
-        settings[o] = p
+        settings[name] = o
 
     def initialize(self):
         """Test connection to server."""
         if self.enable:
             logger.info('Testing `{}` server connection.'.format(self.name))
+            if not self.isInitialized:
+                self.setup_socket()
             if self.echo_test():
                 self.connected = True
             else:
@@ -108,13 +123,59 @@ class ZMQInstrument(Instrument, Analysis):
                 self.isInitialized = False
                 raise PauseError
 
+    def send_json(self, obj):
+        """Send a dictionary object with JSON formatting to the server.
+
+        Expects a JSON response with response['status'] == 0 for no error.
+        """
+        logger.warning('beginning send_json block')
+        try:
+            print obj
+            self.sock.send_json(obj)
+            resp = self.sock.recv_json()
+        except zmq.ZMQError as e:
+            if e.errno == zmq.EAGAIN:
+                logger.warning('Receiving msg timed out.')
+                return {}
+            else:
+                msg = 'ZMQInstrument.send_json failed for `{}`.'
+                logger.exception(msg.format(self.name))
+                raise PauseError
+        except:
+            msg = 'ZMQInstrument.send_json failed for `{}`.'
+            logger.exception(msg.format(self.name))
+            raise PauseError
+
+        # check the response status
+        if resp['status'] != 0:
+            msg = 'ZMQInstrument.send_json failed for `{}`. Server resp:\n{}'
+            logger.exception(msg.format(self.name, resp['message']))
+            raise PauseError
+
+        return resp
+
+    def setup_socket(self):
+        """Set up basic client socket."""
+        self.context = zmq.Context()
+        # set up a request socket as the client
+        self.sock = self.context.socket(zmq.REQ)
+        self.update_socket()
+        self.isInitialized = True
+
+    def start(self):
+        """Send software trigger."""
+        self.send_json({
+            'action': 'START'
+        })
+        self.isDone = True
+
     def toHardware(self):
         """Generate a dictionary containing the hardware settings.
 
         Overwrites the Prop.toHardware method to return a dictionary rather
         than an XML string.
         """
-        # create a settings dict to send fromthe properties
+        # create a settings dict to send from the properties
         settings = {}
         for p in self.properties:
             if p not in self.doNotSendToHardware:
@@ -128,50 +189,21 @@ class ZMQInstrument(Instrument, Analysis):
                     ).format(self.name, p)
                     logger.warning(msg)
                     raise PauseError
-
-                self.HardwareProtocol(o, p, settings)
+                print p
+                try:
+                    o.HardwareProtocol(o, p, settings)
+                except:
+                    self.HardwareProtocol(o, p, settings)
         return settings
-
-    def send_json(self, obj):
-        """Send a dictionary object with JSON formatting to the server.
-
-        Expects a JSON response with response['status'] == 0 for no error.
-        """
-        try:
-            self.sock.send_json(obj)
-            resp = self.sock.recv_json()
-        except:
-            msg = 'ZMQInstrument.update failed for `{}`.'
-            logger.exception(msg.format(self.name))
-            raise PauseError
-
-        # check the response status
-        if resp['status'] != 0:
-            msg = 'ZMQInstrument.update failed for `{}`. Server response:\n{}'
-            logger.exception(msg.format(self.name, resp['message']))
-            raise PauseError
-
-        return resp
-
-    def setup_socket(self):
-        """Set up basic client socket."""
-        self.context = zmq.Context()
-        # set up a request socket as the client
-        self.sock = self.context.socket(zmq.REQ)
-        self.update_socket()
-
-    def start(self):
-        """Send software trigger."""
-        self.send_json({
-            'action': 'START_ACQUISITION'
-        })
 
     def update(self):
         """Send update command to hardware with settings."""
-        self.send_json({
-            'action': 'UPDATE',
-            'settings': self.toHardware()
-        })
+        if self.enable:
+            logger.info('updating settings')
+            self.send_json({
+                'action': 'UPDATE',
+                'settings': self.toHardware()
+            })
 
     def update_socket(self):
         """Close and reopen socket with new settings."""
@@ -180,11 +212,11 @@ class ZMQInstrument(Instrument, Analysis):
             try:
                 self.sock.disconnect(self.current_addr)
             except zmq.ZMQError as e:
-                if e.errno != zmq.ENOENT:
+                if e.errno != zmq.EINVAL:
                     logger.exception("Unexpected error during disconnect.")
 
         # set timeout in ms
-        self.sock.setsockopt(zmq.RCVTIMEO, self.timeout*1000)
+        self.sock.setsockopt(zmq.RCVTIMEO, int(self.timeout*1000))
         # zmq doesn't make an actual connection until you start sending data
         # so this is more of a formality
         self.sock.connect(addr)
@@ -196,10 +228,19 @@ class ZMQInstrument(Instrument, Analysis):
         hdf5 is an hdf5 group, typically the data group in the appropriate part
         of the hierarchy for the current measurement.
         """
+        print self.results
         for key, value in self.results.iteritems():
+            print key
+            print value
             # no special protocol
             try:
                 hdf5[key] = value
+            except TypeError:
+                # This can happen when trying to set the value as an empty dict
+                logger.warning((
+                    'Possbile empty dict encountered in '
+                    'ZMQInstrument.writeResults. [{}]: {} '
+                ).format(key, value))
             except:
                 msg = (
                     'Exception in {}.writeResults() doing hdf5[key]=value for'

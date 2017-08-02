@@ -1832,6 +1832,19 @@ enamldef Andor(Form):
                     text = 'Background Subtraction'
                     checked := item.analysis.bgsub
 
+enamldef BlackflyClient(Window):
+    attr blackfly_client
+
+    title = 'Blackfly Camera Client'
+    style_class << 'valid' if experiment.valid else 'invalid'
+    Container:
+        padding = 0
+        style_class << 'valid' if experiment.valid else 'invalid'
+        ScrollArea:
+            style_class << 'valid' if experiment.valid else 'invalid'
+            LabelBox:
+                text = 'enable'
+                checked := blackfly_client.enable
 
 enamldef DAQmxAI(Window):
     attr NIDAQmxAI
@@ -1898,7 +1911,7 @@ enamldef NewportStage(Window):
                         prop << newportstage.setposition
                     Label:
                         text << 'Current position: {} mm'.format(newportstage.mypos)
-                                    
+
 
 enamldef NIScopes(Window):
     attr niscopes
@@ -1928,7 +1941,7 @@ enamldef NIScopes(Window):
 
 enamldef NIScope(Form):
     attr item
-    
+
     constraints = [width >= 1500, height >= 1500]
     style_class << 'valid' if experiment.valid else 'invalid'
     Container:
@@ -2184,10 +2197,10 @@ enamldef Picam(Form):
                     EvalProp:
                         prop << item.camera.minPlot
                     EvalProp:
-                        prop << item.camera.maxPlot    
+                        prop << item.camera.maxPlot
                 LabelBox:
                     text = 'Use Demo Camera'
-                    checked := item.camera.useDemo 
+                    checked := item.camera.useDemo
 
 
 
@@ -4338,6 +4351,7 @@ window_dictionary = {'':'',
                      'RF Generators': 'RFGenPage(LabView = main.experiment.LabView)',
                      'Hamamatsu': 'CameraPage(camera = main.experiment.LabView.camera)',
                      'Andor Cameras': 'Andors(andors = main.experiment.Andors)',
+                     'Blackfly Client': 'BlackflyClient(blackfly_client = main.experiment.blackfly_client)',
                      'Princeton Instruments Camera': 'PICams(picams = main.experiment.PICams)',
                      'Vaunix Signal Generators': 'Vaunixs(vaunixs = main.experiment.vaunixs)',
                      'Newport Translation Stage': 'NewportStage(newportstage = main.experiment.NewportStage)',

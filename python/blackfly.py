@@ -14,12 +14,90 @@ appropriately handled.
 
 import logging
 from cs_errors import PauseError
-from atom.api import Typed
+from atom.api import Typed, Member, Int, Float, Bool
 from cs_instruments import Instrument
 import zmq_instrument
+from instrument_property import Prop
+from PyCapture2 import PROPERTY_TYPE, BUS_SPEED, GRAB_MODE
 
 __author__ = 'Matthew Ebert'
 logger = logging.getLogger(__name__)
+
+
+class BFProperty(Prop):
+    """Class that makes it easier to send class properties to the BF server."""
+
+    def HardwareProtocol(self, o, name, settings):
+        """Edit the settings dictionary to update the necessary settings.
+
+        Should be overwritten for more complicated properties.
+        """
+        # The settings dict is mutable so it is passed by reference and will
+        # change the variable in the higher scope.
+        settings[name] = {}
+        for p in self.properties:
+            try:
+                prop = getattr(self, p)
+            except:
+                msg = (
+                    'In BFProperty.HardwareProtocol() for class `{}`: item'
+                    ' `{}` in properties list does not exist.'
+                ).format(self.name, p)
+                logger.warning(msg)
+                raise PauseError
+            settings[name][p] = prop
+
+
+class BFTriggerDelay(BFProperty):
+    """Class containing the TriggerDelay properties for a Blackfly camera.
+
+    Use this as a basis for other settings classes from blackfly.  If you mirror
+    the structure in the reference manual it will make it easy to make the
+    server.
+    """
+
+    propType = Int(PROPERTY_TYPE.TRIGGER_DELAY)
+    present = Bool()  # ?
+    absControl = Bool(True)
+    onePush = Bool(True)
+    onOff = Bool(True)
+    autoManualMode = Bool(True)
+    valueA = Int(0)
+    valueB = Int(0)
+    absValue = Float(0.0)  # the actual delay
+
+    def __init__(self):
+        """Add in the properties that need to be sent to the camera."""
+        self.properties += [
+            'propType', 'present', 'absControl', 'onePush', 'onOff',
+            'autoManualMode', 'valueA', 'valueB', 'absValue'
+        ]
+
+
+class BFConfiguration(BFProperty):
+    """Class containing the Configuration properties for a Blackfly camera.
+
+    Use this as a basis for other settings classes from blackfly.  If you mirror
+    the structure in the reference manual it will make it easy to make the
+    server.
+    """
+
+    numBuffers = Int(1)  # image buffers on camera (shotsPerMeasurement)
+    numImageNotification = Int(0)  # number of notifications per image
+    grabTimeout = Int(1)  # time in ms before retrieve buffer times out
+    grabMode = Int(GRAB_MODE.BUFFER_FRAMES)  # grab mode for camera
+    isochBusSpeed = Int(BUS_SPEED.S_FASTEST)  # Isynchronous bus speed
+    asyncBusSpeed = Int(BUS_SPEED.S_FASTEST)  # async bus speed
+    bandwidthAllocation = Int(0)  # bandwidth allocation strategy
+    registerTimeoutRetries = Int(0)  # times to retry on reg r/w timeout
+    registerTimeout = Int(0)  # register r/w timeout in us
+
+    def __init__(self):
+        """Add in the properties that need to be sent to the camera."""
+        # things not in the property list are not sent to the camera
+        self.properties += [
+            'grabMode'
+        ]
 
 
 class BlackflyCamera(Instrument):
@@ -27,18 +105,21 @@ class BlackflyCamera(Instrument):
 
     serial = Int(0)
     exposureTime = Float(1.0)
-
+    triggerDelay = Member()
+    configuration = Member()
 
     def __init__(self, name, experiment, description=''):
         super(BlackflyCamera, self).__init__(name, experiment, description)
         # To make this super easy name the properties the same way on the server
         # and here so we dont have to do anything special
-        self.properties += ['serial', 'exposureTime', 'triggerDelay']
+        self.triggerDelay = BFTriggerDelay()
+        self.properties += [
+            'serial', 'exposureTime', 'triggerDelay', 'configuration'
+        ]
         self.doNotSendToHardware += ['serial']
 
     def HardwareProtocol(self, o, p, settings):
-        """Edit the settings dictionary to update the necessary settings.
-        """
+        """Edit the settings dictionary to update the necessary settings."""
         # The settings dict is mutable so it is passed by reference and will
         # change the variable in the higher scope.
         settings[o] = p
@@ -59,8 +140,10 @@ class BlackflyCamera(Instrument):
                     ).format(self.name, p)
                     logger.warning(msg)
                     raise PauseError
-
-                self.HardwareProtocol(o, p, settings)
+                try:
+                    o.HardwareProtocol(o, p, settings)
+                except:
+                    self.HardwareProtocol(o, p, settings)
         return settings
 
 class Blackfly(Instrument):
@@ -75,7 +158,7 @@ class Blackfly(Instrument):
             experiment,
             'Blackfly Camera'
         )
-        properties += ['camera']
+        self.properties += ['camera']
 
     def evaluate(self):
         self.camera.evaluate()
@@ -85,15 +168,15 @@ class Blackfly(Instrument):
 
         Creates a new settings key that holds a dict of cameras.
         """
-        settings[self.camera.serial] = self.camera.get_settings()
+        print self.camera.serial
+        settings[self.camera.serial] = self.camera.toHardware()
 
 
 class BlackflyClient(zmq_instrument.ZMQInstrument):
-    """A instrument communication class for a blackfly ZeroMQ server.
-    """
+    """A instrument communication class for a blackfly ZeroMQ server."""
 
     version = "2017.08.01"
-    cameras = Typed(ListProp)
+    cameras = Typed(zmq_instrument.ZMQListProp)
     available_cameras = Member()
 
     def __init__(self, name, experiment):
@@ -115,8 +198,17 @@ class BlackflyClient(zmq_instrument.ZMQInstrument):
         self.doNotSendToHardware += ['available_cameras']
 
     def get_available_cameras(self):
-        resp = self.send({'action': 'GET_CAMERAS'})
-        self.available_cameras = resp['cameras']
+        resp = self.send_json({'action': 'GET_CAMERAS'})
+        try:
+            if 'cameras' in resp:
+                self.available_cameras = resp['cameras']
+                print self.available_cameras
+            else:
+                logger.warning('Unable to retrieve cameras list from server.')
+                self.close_socket()
+        except PauseError:
+            logger.info('No response from Blackfly server found.')
+            self.connected = False
 
     def initialize(self):
         super(BlackflyClient, self).initialize()

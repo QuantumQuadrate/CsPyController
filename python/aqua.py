@@ -124,9 +124,10 @@ class AQuA(Experiment):
         self.instruments += [
             self.box_temperature, self.picomotors, self.pyPicoServer,
             self.NIScopes, self.Andors, self.blackfly_client, self.PICams,
-            self.DC_noise_eaters, self.LabView, self.DDS, self.unlock_pause,
+            self.DC_noise_eaters, self.DDS, self.unlock_pause,
             self.Embezzletron, self.aerotechs, self.conexes, self.instekpsts,
-            self.vaunixs, self.NewportStage, self.unlock_pause
+            self.vaunixs, self.NewportStage, self.unlock_pause,
+            self.LabView  # Labview must be last at least until someone fixes the start command
         ]
 
 
