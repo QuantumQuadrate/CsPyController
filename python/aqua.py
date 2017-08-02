@@ -1,17 +1,13 @@
 from __future__ import division
-__author__ = 'Martin Lichtman'
 import logging
-logger = logging.getLogger(__name__)
 
 import traceback
 
 from cs_errors import PauseError
 from atom.api import Member, Int
-import json
 
 # get the config file
 from __init__ import import_config
-config = import_config()
 
 # Bring in other files in this package
 from ConfigInstrument import Config
@@ -30,8 +26,13 @@ from recent_shot_analysis import RecentShotAnalysis
 from image_sum_analysis import ImageSumAnalysis
 from threshold_analysis import ThresholdROIAnalysis
 from retention_analysis import RetentionAnalysis, RetentionGraph
+from histogram_analysis import HistogramAnalysis, HistogramGrid
 
 from experiments import Experiment
+
+__author__ = 'Martin Lichtman'
+logger = logging.getLogger(__name__)
+config = import_config()
 
 class AQuA(Experiment):
     """A subclass of Experiment which knows about all our particular hardware"""
@@ -132,15 +133,15 @@ class AQuA(Experiment):
         self.AI_filter = AnalogInput.AI_Filter('AI_filter', self, 'Analog Input filter')
         self.first_measurements_filter = analysis.DropFirstMeasurementsFilter('first_measurements_filter', self, 'drop the first N measurements')
         self.squareROIAnalysis = SquareROIAnalysis(self)
+        self.gaussian_roi = roi_fitting.GaussianROI('gaussian_roi', self)
         self.thresholdROIAnalysis = ThresholdROIAnalysis(self)
-        self.gaussian_roi = roi_fitting.GaussianROI('gaussian_roi', self, rows=self.ROI_rows, columns=self.ROI_columns)
         self.loading_filters = analysis.LoadingFilters('loading_filters', self, 'drop measurements with no atom loaded')
         self.text_analysis = analysis.TextAnalysis('text_analysis', self, 'text results from the measurement')
         self.imageSumAnalysis = ImageSumAnalysis(self)
         self.recent_shot_analysis = RecentShotAnalysis('recent_shot_analysis', self, description='just show the most recent shot')
         self.shotBrowserAnalysis = analysis.ShotsBrowserAnalysis(self)
-        self.histogramAnalysis = analysis.HistogramAnalysis('histogramAnalysis', self, 'plot the histogram of any shot and roi')
-        self.histogram_grid = analysis.HistogramGrid('histogram_grid', self, 'all 49 histograms for shot 0 at the same time')
+        self.histogramAnalysis = HistogramAnalysis('histogramAnalysis', self, 'plot the histogram of any shot and roi')
+        self.histogram_grid = HistogramGrid('histogram_grid', self, 'all 49 histograms for shot 0 at the same time')
         self.measurements_graph = analysis.MeasurementsGraph('measurements_graph', self, 'plot the ROI sum vs all measurements')
         self.iterations_graph = analysis.IterationsGraph('iterations_graph', self, 'plot the average of ROI sums vs iterations')
         self.retention_graph = RetentionGraph('retention_graph', self, 'plot occurence of binary result (i.e. whether or not atoms are there in the 2nd shot)')

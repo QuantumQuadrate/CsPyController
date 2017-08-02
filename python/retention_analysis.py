@@ -1,6 +1,6 @@
 import logging
 import numpy as np
-from atom.api import Bool, Str, Member, Int, observe
+from atom.api import Bool, Str, Member, observe
 
 from analysis import AnalysisWithFigure, Analysis
 
@@ -12,11 +12,10 @@ class RetentionAnalysis(Analysis):
     # Text output that can be updated back to the GUI
     enable = Bool()
     text = Str()
-    roi_type = Int()
 
     def __init__(self, name, experiment, description=''):
         super(RetentionAnalysis, self).__init__(name, experiment, description)
-        self.properties += ['enable', 'text', 'roi_type']
+        self.properties += ['enable', 'text']
 
     def analyzeIteration(self, iterationResults, experimentResults):
         if self.enable:
@@ -30,28 +29,59 @@ class RetentionAnalysis(Analysis):
         # find the loading for each roi
         loaded = np.sum(atoms[:, 0, :], axis=0)
         # find the retention for each roi
-        retained = np.sum(np.logical_and(atoms[:, 0, :], atoms[:, 1, :]), axis=0)
+        retained = np.sum(np.logical_and(
+            atoms[:, 0, :],
+            atoms[:, 1, :]
+        ), axis=0)
         # find the number of reloaded atoms
-        reloaded = np.sum(np.logical_and(np.logical_not(atoms[:, 0, :]), atoms[:, 1, :]), axis=0)
+        reloaded = np.sum(np.logical_and(
+            np.logical_not(atoms[:, 0, :]),
+            atoms[:, 1, :]
+        ), axis=0)
 
-        loading = loaded.astype('float')/total
+        loading = loaded.astype('float') / total
 
-        retention = retained.astype('float')/loaded
-        # find the 1 sigma confidence interval for binomial data using the normal approximation:
+        retention = retained.astype('float') / loaded
+        # find the 1 sigma confidence interval for binomial data using the
+        # normal approximation:
         # http://en.wikipedia.org/wiki/Binomial_proportion_confidence_interval
-        retention_sigma = np.sqrt(retention*(1-retention)/loaded)
-        reloading = reloaded.astype('float')/total
+        retention_sigma = np.sqrt(retention * (1 - retention) / loaded)
+        reloading = reloaded.astype('float') / total
 
         rows = self.experiment.ROI_rows
         columns = self.experiment.ROI_columns
         # write results to string
-        text = 'total: ' + str(total) +'\n\n'
-        text += 'loading:\tmax {:.3f},\tavg {:.3f}\n'.format(np.nanmax(loading), np.nanmean(loading))
-        text += '\n'.join(['\t'.join(map(lambda x: '{:.3f}'.format(x), loading[row*columns:(row+1)*columns])) for row in xrange(rows)]) + '\n\n'
-        text += 'retention:\tmax {:.3f},\tavg {:.3f}\n'.format(np.nanmax(retention), np.nanmean(retention))
-        text += '\n'.join(['\t'.join(map(lambda x: '{:.3f}'.format(x), retention[row*columns:(row+1)*columns])) for row in xrange(rows)]) + '\n\n'
-        text += 'reloading:\tmax {:.3f},\tavg {:.3f}\n'.format(np.nanmax(reloading), np.nanmean(reloading))
-        text += '\n'.join(['\t'.join(map(lambda x: '{:.3f}'.format(x), reloading[row*columns:(row+1)*columns])) for row in xrange(rows)]) + '\n'
+        text = 'total: ' + str(total) + '\n\n'
+        text += 'loading:\tmax {:.3f},\tavg {:.3f}\n'.format(
+            np.nanmax(loading),
+            np.nanmean(loading)
+        )
+        text += '\n'.join(['\t'.join(
+            map(
+                lambda x: '{:.3f}'.format(x),
+                loading[row * columns:(row + 1) * columns]
+            )
+        ) for row in xrange(rows)]) + '\n\n'
+        text += 'retention:\tmax {:.3f},\tavg {:.3f}\n'.format(
+            np.nanmax(retention),
+            np.nanmean(retention)
+        )
+        text += '\n'.join(['\t'.join(
+            map(
+                lambda x: '{:.3f}'.format(x),
+                retention[row * columns:(row + 1) * columns]
+            )
+        ) for row in xrange(rows)]) + '\n\n'
+        text += 'reloading:\tmax {:.3f},\tavg {:.3f}\n'.format(
+            np.nanmax(reloading),
+            np.nanmean(reloading)
+        )
+        text += '\n'.join(['\t'.join(
+            map(
+                lambda x: '{:.3f}'.format(x),
+                reloading[row * columns:(row + 1) * columns]
+            )
+        ) for row in xrange(rows)]) + '\n'
 
         iter_res['analysis/loading_retention/loaded'] = loaded
         iter_res['analysis/loading_retention/retained'] = retained
@@ -83,10 +113,13 @@ class RetentionGraph(AnalysisWithFigure):
 
     def __init__(self, name, experiment, description=''):
         super(RetentionGraph, self).__init__(name, experiment, description)
-        self.properties += ['enable', 'list_of_what_to_plot', 'draw_connecting_lines', 'draw_error_bars', 'ymin', 'ymax']
+        self.properties += [
+            'enable', 'list_of_what_to_plot', 'draw_connecting_lines',
+            'draw_error_bars', 'ymin', 'ymax'
+        ]
         # threading stuff
-        #self.queueAfterMeasurement = True
-        #self.measurementDependencies += [self.experiment.retention_analysis]
+        # self.queueAfterMeasurement = True
+        # self.measurementDependencies += [self.experiment.retention_analysis]
 
     def preExperiment(self, experimentResults):
         # erase the old data at the start of the experiment
