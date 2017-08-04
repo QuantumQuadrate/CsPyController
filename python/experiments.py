@@ -821,7 +821,6 @@ class Experiment(Prop):
 
         # give each instrument a chance to acquire final data
         for i in self.instruments:
-            print i.name
             if i.enable:
                 i.acquire_data()
 

@@ -1846,6 +1846,39 @@ enamldef BlackflyClient(Window):
                 text = 'enable'
                 checked := blackfly_client.enable
 
+        Container:
+            style_class << 'valid' if experiment.valid else 'invalid'
+
+            IndexedContainer:
+                iterable << blackfly_client.cameras
+                viewType = Blackfly
+
+enamldef Blackfly(Form):
+    attr item
+
+    constraints = [width >= 1200, height >= 1300]
+
+    #title = 'Andor Camera'
+    style_class << 'valid' if experiment.valid else 'invalid'
+    Container:
+        padding = 0
+        style_class << 'valid' if experiment.valid else 'invalid'
+        ScrollArea:
+            style_class << 'valid' if experiment.valid else 'invalid'
+            Container:
+                style_class << 'valid' if experiment.valid else 'invalid'
+
+                #HGroup:
+                  #  MPLCanvas:
+                  #      figure << item.analysis.figure
+                  #      toolbar_visible = True
+                HGroup:
+                    Label:
+                        text = 'serialNumber'
+                    IntField:
+                        value := item.camera.serial
+
+
 enamldef DAQmxAI(Window):
     attr NIDAQmxAI
 

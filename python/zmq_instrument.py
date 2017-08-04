@@ -31,12 +31,11 @@ class ZMQListProp(ListProp):
         """Iterate over the list elements calling HardwareProtocol for each"""
         settings[name] = {}
         for i, o in enumerate(self.listProperty):
-            self.HardwareProtocol(
+            o.HardwareProtocol(
                 o,
                 self.listElementName + str(i),
-                settings
+                settings[name]
             )
-        print settings
 
 class ZMQInstrument(Instrument, Analysis):
     """A instrument communication class for ZeroMQ servers.
@@ -70,7 +69,6 @@ class ZMQInstrument(Instrument, Analysis):
 
     def acquire_data(self):
         """Retrieve data from the server."""
-        print 'heyo'
         self.results = self.send_json({
             'action': 'GET_RESULTS'
         })
@@ -128,9 +126,7 @@ class ZMQInstrument(Instrument, Analysis):
 
         Expects a JSON response with response['status'] == 0 for no error.
         """
-        logger.warning('beginning send_json block')
         try:
-            print obj
             self.sock.send_json(obj)
             resp = self.sock.recv_json()
         except zmq.ZMQError as e:
@@ -151,7 +147,6 @@ class ZMQInstrument(Instrument, Analysis):
             msg = 'ZMQInstrument.send_json failed for `{}`. Server resp:\n{}'
             logger.exception(msg.format(self.name, resp['message']))
             raise PauseError
-
         return resp
 
     def setup_socket(self):
@@ -189,11 +184,11 @@ class ZMQInstrument(Instrument, Analysis):
                     ).format(self.name, p)
                     logger.warning(msg)
                     raise PauseError
-                print p
                 try:
                     o.HardwareProtocol(o, p, settings)
                 except:
                     self.HardwareProtocol(o, p, settings)
+                    logger.exception("custom error")
         return settings
 
     def update(self):
@@ -228,19 +223,19 @@ class ZMQInstrument(Instrument, Analysis):
         hdf5 is an hdf5 group, typically the data group in the appropriate part
         of the hierarchy for the current measurement.
         """
-        print self.results
         for key, value in self.results.iteritems():
-            print key
-            print value
             # no special protocol
             try:
                 hdf5[key] = value
             except TypeError:
                 # This can happen when trying to set the value as an empty dict
-                logger.warning((
-                    'Possbile empty dict encountered in '
-                    'ZMQInstrument.writeResults. [{}]: {} '
-                ).format(key, value))
+                try:
+                    self.data_handler(hdf5, key, value)
+                except:
+                    logger.warning((
+                        'Possbile empty dict encountered in '
+                        'ZMQInstrument.writeResults. [{}]'
+                    ).format(key))
             except:
                 msg = (
                     'Exception in {}.writeResults() doing hdf5[key]=value for'

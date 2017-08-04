@@ -13,6 +13,7 @@ appropriately handled.
 """
 
 import logging
+import numpy as np
 from cs_errors import PauseError
 from atom.api import Typed, Member, Int, Float, Bool
 from cs_instruments import Instrument
@@ -66,8 +67,9 @@ class BFTriggerDelay(BFProperty):
     valueB = Int(0)
     absValue = Float(0.0)  # the actual delay
 
-    def __init__(self):
+    def __init__(self, name, experiment, description=''):
         """Add in the properties that need to be sent to the camera."""
+        super(BFTriggerDelay, self).__init__(name, experiment, description)
         self.properties += [
             'propType', 'present', 'absControl', 'onePush', 'onOff',
             'autoManualMode', 'valueA', 'valueB', 'absValue'
@@ -92,11 +94,58 @@ class BFConfiguration(BFProperty):
     registerTimeoutRetries = Int(0)  # times to retry on reg r/w timeout
     registerTimeout = Int(0)  # register r/w timeout in us
 
-    def __init__(self):
+    def __init__(self, name, experiment, description=''):
         """Add in the properties that need to be sent to the camera."""
+        super(BFConfiguration, self).__init__(name, experiment, description)
         # things not in the property list are not sent to the camera
         self.properties += [
             'grabMode'
+        ]
+
+
+class BFGigEConfig(BFProperty):
+    """Class containing the Configuration properties for a Blackfly camera.
+
+    Use this as a basis for other settings classes from blackfly.  If you mirror
+    the structure in the reference manual it will make it easy to make the
+    server.
+    """
+
+    enablePacketResend = Bool(True)  # packet resend functionality
+    registerTimeoutRetries = Int(10)  # number of packet retries
+    registerTimeout = Int(0)  # register r/w timeout in us (use default?)
+
+    def __init__(self, name, experiment, description=''):
+        """Add in the properties that need to be sent to the camera."""
+        super(BFGigEConfig, self).__init__(name, experiment, description)
+        # things not in the property list are not sent to the camera
+        self.properties += [
+            'enablePacketResend', 'registerTimeoutRetries'
+        ]
+
+
+class BFGigEStreamChannel(BFProperty):
+    """Class containing the Configuration properties for a Blackfly camera.
+
+    Use this as a basis for other settings classes from blackfly.  If you mirror
+    the structure in the reference manual it will make it easy to make the
+    server.
+    """
+
+    networkInterfaceIndex = Int(0)
+    # hostPort = Int(0)
+    doNotFragment = Bool(False)
+    packetSize = Int(1224)
+    interPacketDelay = Int(100)
+    # destinationIpAddress = Int()
+    # sourcePort = ()
+
+    def __init__(self, name, experiment, description=''):
+        """Add in the properties that need to be sent to the camera."""
+        super(BFGigEStreamChannel, self).__init__(name, experiment, description)
+        # things not in the property list are not sent to the camera
+        self.properties += [
+            'packetSize', 'interPacketDelay'
         ]
 
 
@@ -107,22 +156,44 @@ class BlackflyCamera(Instrument):
     exposureTime = Float(1.0)
     triggerDelay = Member()
     configuration = Member()
+    gigEConfig = Member()
+    gigEStreamChannel = Member()
 
     def __init__(self, name, experiment, description=''):
         super(BlackflyCamera, self).__init__(name, experiment, description)
         # To make this super easy name the properties the same way on the server
         # and here so we dont have to do anything special
-        self.triggerDelay = BFTriggerDelay()
+        self.triggerDelay = BFTriggerDelay(
+            'triggerDelay',
+            experiment,
+            'Blackfly trigger delay object'
+        )
+        self.configuration = BFConfiguration(
+            'configuration',
+            experiment,
+            'Blackfly configuration object'
+        )
+        self.gigEConfig = BFGigEConfig(
+            'GigE configuration',
+            experiment,
+            'Blackfly gigabit ethernet configuration object'
+        )
+        self.gigEStreamChannel = BFGigEStreamChannel(
+            'GigE stream channel',
+            experiment,
+            'Blackfly gigabit ethernet stream channel object'
+        )
         self.properties += [
-            'serial', 'exposureTime', 'triggerDelay', 'configuration'
+            'serial', 'exposureTime', 'triggerDelay', 'configuration',
+            'gigEConfig', 'gigEStreamChannel'
         ]
-        self.doNotSendToHardware += ['serial']
+        self.doNotSendToHardware += []
 
-    def HardwareProtocol(self, o, p, settings):
+    def HardwareProtocol(self, o, name, settings):
         """Edit the settings dictionary to update the necessary settings."""
         # The settings dict is mutable so it is passed by reference and will
         # change the variable in the higher scope.
-        settings[o] = p
+        settings[name] = o
 
     def toHardware(self):
         """Generate a dictionary of settings to be sent to the camera server."""
@@ -151,7 +222,7 @@ class Blackfly(Instrument):
 
     camera = Typed(BlackflyCamera)
 
-    def __init__(self, name, experiment, description):
+    def __init__(self, name, experiment, description=''):
         super(Blackfly, self).__init__(name, experiment, description)
         self.camera = BlackflyCamera(
             'Camera_{}'.format(name),
@@ -168,7 +239,6 @@ class Blackfly(Instrument):
 
         Creates a new settings key that holds a dict of cameras.
         """
-        print self.camera.serial
         settings[self.camera.serial] = self.camera.toHardware()
 
 
@@ -197,12 +267,22 @@ class BlackflyClient(zmq_instrument.ZMQInstrument):
         self.properties += ['version', 'cameras']
         self.doNotSendToHardware += ['available_cameras']
 
+    def data_handler(self, hdf5, key, value):
+        if key == "camera_data":
+            for serial in value:
+                try:
+                    f = hdf5.create_group('{}/{}'.format(key, serial))
+                    f['error'] = value[serial]['error']
+                    raw_data = np.array(value[serial]['raw_data'])
+                    f.create_dataset('raw_data', data=raw_data)
+                except:
+                    logger.exception('problem')
+
     def get_available_cameras(self):
         resp = self.send_json({'action': 'GET_CAMERAS'})
         try:
             if 'cameras' in resp:
                 self.available_cameras = resp['cameras']
-                print self.available_cameras
             else:
                 logger.warning('Unable to retrieve cameras list from server.')
                 self.close_socket()
@@ -219,7 +299,7 @@ class BlackflyClient(zmq_instrument.ZMQInstrument):
                     msg = 'Initializing camera ser. no.: {}'
                     logger.info(msg.format(i.camera.serial))
                     msg = i.camera.initialize()
-            except Exception as e:
+            except:
                 msg = 'Problem initializing Blackfly camera ser. no.: {}.'
                 logger.exception(msg.format(i.camera.serial))
                 self.isInitialized = False
