@@ -210,13 +210,13 @@ repumper_shutter_switch_profile = {'on':1, 'off':0}
 repumper_shutter_switch_delay = 0
 
 ################################################################################
-# OP Shutter SWITCH SETUP ##########################################################
+# Pointgrey camera Trigger SETUP ###############################################
 ################################################################################
-op_shutter_switch_chan = 17
+pointgrey_trigger_chan = 26
 # this is the default profile, we dont have to pass it in if we dont want to
-op_shutter_switch_profile = {'on':1, 'off':0}
+pointgrey_trigger_profile = {'on':1, 'off':0} # Does this work?
 # timing delay parameter
-op_shutter_switch_delay = 0
+pointgrey_trigger_delay = 0
 
 ################################################################################
 # microwaver SWITCH SETUP ##########################################################
@@ -369,12 +369,6 @@ class Rb(object):
             delay=repumper_shutter_switch_delay
         )
 
-        self.op_shutter_switch = Switch(
-            HSDIO,
-            op_shutter_switch_chan,
-            profiles=op_shutter_switch_profile,
-            delay=op_shutter_switch_delay
-        )
 
         self.microwave_switch = Switch(
             HSDIO,
@@ -389,6 +383,13 @@ class Rb(object):
             delay=andor_trigger_delay,
             pulse_length=5 # in millisecond. this can be overwrttten in functional waveform window
         )
+        self.PGcamera = Camera( # Pointgret camera, standard trigger control
+            HSDIO=HSDIO,
+            channel=pointgrey_trigger_chan,
+            delay=pointgrey_trigger_delay,
+            pulse_length=1 # in millisecond. this can be overwrttten in functional waveform window
+        )
+
 
         self.red_pointing_aom_switch = Switch(
             HSDIO,
