@@ -111,8 +111,8 @@ class Prop(Atom):
                     o.toHDF5(my_node, p)
                 except PauseError:
                     raise PauseError #pass it on quietly
-                except Exception as e:
-                    logger.warning('While trying '+p+'.toHDF5() in Prop.toHDF5() in '+name+'.\n'+str(e)+'\n'+str(traceback.format_exc())+'\n')
+                except:
+                    logger.exception('While trying '+p+'.toHDF5() in Prop.toHDF5() in '+name)
                     raise PauseError
             else:
                 if p == 'version':
@@ -134,15 +134,14 @@ class Prop(Atom):
                                 my_node[p]=pickle.dumps(o)
                             except RuntimeError:
                                 logger.debug("Preparing to overwrite field name.property: `{}.{}`".format(name, p))
-                                # we make it here if you try to overwrite an existing dataset
-                                try:
-                                    my_node[p][()] = pickle.dumps(o)
-                                except MemoryError:
-                                    logger.warning("Problem overwriting dataset: `{}.{}`. Deleting and inserting new dataset.".format(name, p))
-                                    del my_node[p]
-                                    my_node[p]=pickle.dumps(o)
+                                # we make it here if you try to overwrite an
+                                # existing dataset.
+                                # deleting and resaving is faster than trying
+                                # to overwrite and failing for large datasets.
+                                del my_node[p]
+                                my_node[p]=pickle.dumps(o)
 
-                            except Exception as e:
+                            except:
                                 logger.exception('While picking '+p+' in Prop.toHDF5() in')
                                 raise PauseError
         return my_node
@@ -223,7 +222,7 @@ class Prop(Atom):
                             # this is an error, but we will not pass it on, in order to finish loading
                             continue
 
-        #go through all names in hdf node (group) and try to load them
+        # go through all names in hdf node (group) and try to load them
         for i in hdf:
             #check to see if this is one of the properties we care to load
             if i not in self.properties:

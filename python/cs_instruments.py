@@ -29,7 +29,7 @@ def toBool(x):
         return bool(x)
 
 class Instrument(Prop):
-    enable = Bool()
+    enable = Bool(False)
     isInitialized = Bool()
     isDone = Bool()
     instruments = Member()

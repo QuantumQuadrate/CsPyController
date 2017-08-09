@@ -74,10 +74,14 @@ def print_dsets(name, obj):
         print '-'*10
 
 def pass_measurement(dset):
-    return dset.dtype in dtype_list
+    if dset.dtype in dtype_list:
+        return True
+    return False
 
 def pass_iteration(dset):
-    return (dset.dtype in dtype_list) and not ('/measurements/' in dset.name)
+    if (dset.dtype in dtype_list) and not ('/measurements/' in dset.name):
+        return True
+    return False
 
 def formatData(data):
     '''returns data into relevant type
@@ -214,7 +218,8 @@ class Stream(Prop):
         # register the stream
         self.connection = server.registerStream(
             stream=self.streamNameFull,
-            records=records
+            records=records,
+            timeout=20000
         )
 
         # error checking

@@ -1,17 +1,13 @@
 from __future__ import division
-__author__ = 'Martin Lichtman'
 import logging
-logger = logging.getLogger(__name__)
 
 import traceback
 
 from cs_errors import PauseError
 from atom.api import Member, Int
-import json
 
 # get the config file
 from __init__ import import_config
-config = import_config()
 
 # Bring in other files in this package
 from ConfigInstrument import Config
@@ -22,6 +18,7 @@ import Counter, conex, aerotech, unlock_pause, niscope, newportstage, nidaq_ai
 import origin_interface
 import FakeInstrument # for testing
 from pypico import PyPicoServer  # for communicating with a picomotor server
+from blackfly import BlackflyClient  # communicates with Blackfly camera server
 # from vital_sign_sound import Vitalsign
 
 # analyses
@@ -30,8 +27,13 @@ from recent_shot_analysis import RecentShotAnalysis
 from image_sum_analysis import ImageSumAnalysis
 from threshold_analysis import ThresholdROIAnalysis
 from retention_analysis import RetentionAnalysis, RetentionGraph
+from histogram_analysis import HistogramAnalysis, HistogramGrid
 
 from experiments import Experiment
+
+__author__ = 'Martin Lichtman'
+logger = logging.getLogger(__name__)
+config = import_config()
 
 class AQuA(Experiment):
     """A subclass of Experiment which knows about all our particular hardware"""
@@ -42,6 +44,7 @@ class AQuA(Experiment):
     aerotechs = Member()
     conexes = Member()
     Andors = Member()
+    blackfly_client = Member()
     NewportStage = Member()
     DAQmxAI = Member()
     vaunixs = Member()
@@ -103,6 +106,7 @@ class AQuA(Experiment):
         self.picomotors = picomotors.Picomotors('picomotors', self, 'Newport Picomotors')
         self.instekpsts = instek_pst.InstekPSTs('instekpsts', self, 'Instek PST power supply')
         self.Andors = andor.Andors('Andors', self, 'Andor Luca measurementResults')
+        self.blackfly_client = BlackflyClient('BlackflyClient', self)
         self.vaunixs = vaunix.Vaunixs('vaunixs', self, 'Vaunix Signal Generator')
         self.PICams = picampython.PICams('PICams', self, 'Princeton Instruments Cameras')
         self.DAQmxAI = nidaq_ai.NIDAQmxAI('DAQmxAI',self,'NI-DAQmx Analog Input')
@@ -118,10 +122,12 @@ class AQuA(Experiment):
         # do not include functional_waveforms in self.instruments because it
         # need not start/stop
         self.instruments += [
-            self.box_temperature, self.picomotors, self.pyPicoServer, self.NIScopes,
-            self.Andors, self.PICams, self.DC_noise_eaters, self.LabView,
-            self.DDS, self.unlock_pause, self.Embezzletron, self.aerotechs,
-            self.conexes, self.instekpsts, self.vaunixs, self.NewportStage, self.unlock_pause
+            self.box_temperature, self.picomotors, self.pyPicoServer,
+            self.NIScopes, self.Andors, self.blackfly_client, self.PICams,
+            self.DC_noise_eaters, self.DDS, self.unlock_pause,
+            self.Embezzletron, self.aerotechs, self.conexes, self.instekpsts,
+            self.vaunixs, self.NewportStage, self.unlock_pause,
+            self.LabView  # Labview must be last at least until someone fixes the start command
         ]
 
 
@@ -132,15 +138,15 @@ class AQuA(Experiment):
         self.AI_filter = AnalogInput.AI_Filter('AI_filter', self, 'Analog Input filter')
         self.first_measurements_filter = analysis.DropFirstMeasurementsFilter('first_measurements_filter', self, 'drop the first N measurements')
         self.squareROIAnalysis = SquareROIAnalysis(self)
+        self.gaussian_roi = roi_fitting.GaussianROI('gaussian_roi', self)
         self.thresholdROIAnalysis = ThresholdROIAnalysis(self)
-        self.gaussian_roi = roi_fitting.GaussianROI('gaussian_roi', self, rows=self.ROI_rows, columns=self.ROI_columns)
         self.loading_filters = analysis.LoadingFilters('loading_filters', self, 'drop measurements with no atom loaded')
         self.text_analysis = analysis.TextAnalysis('text_analysis', self, 'text results from the measurement')
         self.imageSumAnalysis = ImageSumAnalysis(self)
         self.recent_shot_analysis = RecentShotAnalysis('recent_shot_analysis', self, description='just show the most recent shot')
         self.shotBrowserAnalysis = analysis.ShotsBrowserAnalysis(self)
-        self.histogramAnalysis = analysis.HistogramAnalysis('histogramAnalysis', self, 'plot the histogram of any shot and roi')
-        self.histogram_grid = analysis.HistogramGrid('histogram_grid', self, 'all 49 histograms for shot 0 at the same time')
+        self.histogramAnalysis = HistogramAnalysis('histogramAnalysis', self, 'plot the histogram of any shot and roi')
+        self.histogram_grid = HistogramGrid('histogram_grid', self, 'all 49 histograms for shot 0 at the same time')
         self.measurements_graph = analysis.MeasurementsGraph('measurements_graph', self, 'plot the ROI sum vs all measurements')
         self.iterations_graph = analysis.IterationsGraph('iterations_graph', self, 'plot the average of ROI sums vs iterations')
         self.retention_graph = RetentionGraph('retention_graph', self, 'plot occurence of binary result (i.e. whether or not atoms are there in the 2nd shot)')
@@ -182,16 +188,17 @@ class AQuA(Experiment):
             'Config',
             'functional_waveforms', 'LabView', 'functional_waveforms_graph',
             'DDS', 'aerotechs', 'picomotors', 'pyPicoServer', 'conexes',
-            'Andors', 'PICams', 'DC_noise_eaters', 'box_temperature', 'DAQmxAI',
-            'squareROIAnalysis', 'thresholdROIAnalysis', 'gaussian_roi',
-            'instekpsts', 'TTL_filters', 'AI_graph', 'AI_filter', 'NewportStage',
-            'loading_filters', 'first_measurements_filter', 'vaunixs',
-            'imageSumAnalysis', 'recent_shot_analysis', 'shotBrowserAnalysis',
-            'histogramAnalysis', 'histogram_grid', 'retention_analysis',
-            'measurements_graph', 'iterations_graph', 'retention_graph',
-            'DC_noise_eater_filter', 'DC_noise_eater_graph', 'Ramsey',
-            'counter_graph', 'counter_hist', 'unlock_pause', 'ROI_rows',
-            'ROI_columns', 'ROI_bg_rows', 'ROI_bg_columns', 'NIScopes',
+            'Andors', 'blackfly_client', 'PICams', 'DC_noise_eaters',
+            'box_temperature', 'DAQmxAI', 'squareROIAnalysis',
+            'thresholdROIAnalysis', 'gaussian_roi', 'instekpsts', 'TTL_filters',
+            'AI_graph', 'AI_filter', 'NewportStage', 'loading_filters',
+            'first_measurements_filter', 'vaunixs', 'imageSumAnalysis',
+            'recent_shot_analysis', 'shotBrowserAnalysis', 'histogramAnalysis',
+            'histogram_grid', 'retention_analysis', 'measurements_graph',
+            'iterations_graph', 'retention_graph', 'DC_noise_eater_filter',
+            'DC_noise_eater_graph', 'Ramsey', 'counter_graph', 'counter_hist',
+            'unlock_pause', 'ROI_rows', 'ROI_columns', 'ROI_bg_rows',
+            'ROI_bg_columns', 'NIScopes',
             'origin'
         ]
 
