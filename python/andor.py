@@ -318,7 +318,9 @@ class AndorCamera(Instrument):
         if self.enable:
             if (self.acquisitionChoices[self.acquisitionMode]!=2 or (self.acquisitionChoices[self.acquisitionMode]==2 and self.experiment.measurement == self.experiment.measurementsPerIteration - 1)):
                 self.setCamera()
+                print 'getting images'
                 self.data = self.GetImages()
+                print "dem images"
 
     def writeResults(self, hdf5):
         """Overwritten from Instrument.  This function is called by the experiment after
@@ -1339,7 +1341,7 @@ class Andors(Instrument, Analysis):
             self.initialize(True)
         except:
             logger.exception('Problem initializing camera.')
-            
+
     def postExperiment(self,experimentresults):
         # We have been unable to figure out why during the postExperiment call
         # the enable is set to False for Andors.  This is a patch (DB & MFE)

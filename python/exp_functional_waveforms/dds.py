@@ -79,6 +79,7 @@ class DDS(object):
                 # check to see if the bit needs to be changed
                 if old_bit != new_bit:
                     # delay if we recently changed another bit
+                    t_old = t
                     t = self.delay(t)
                     self.HSDIO(t, channel, new_bit)
         # keep track that the bits have all been set

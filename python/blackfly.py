@@ -19,7 +19,7 @@ from atom.api import Typed, Member, Int, Float, Bool
 from cs_instruments import Instrument
 import zmq_instrument
 from instrument_property import Prop
-from PyCapture2 import PROPERTY_TYPE, BUS_SPEED, GRAB_MODE
+from PyCapture2 import PROPERTY_TYPE, BUS_SPEED, GRAB_MODE, PIXEL_FORMAT
 
 __author__ = 'Matthew Ebert'
 logger = logging.getLogger(__name__)
@@ -148,16 +148,40 @@ class BFGigEStreamChannel(BFProperty):
             'packetSize', 'interPacketDelay'
         ]
 
+class BFGigEImageSettings(BFProperty):
+    """Class containing the Configuration properties for a Blackfly camera.
+
+    Use this as a basis for other settings classes from blackfly.  If you mirror
+    the structure in the reference manual it will make it easy to make the
+    server.
+    """
+
+    offsetX = Int(364)
+    offsetY = Int(374)
+    width = Int(200)  # actual width seems to be 50% larger on camera?
+    height = Int(200)
+    pixelFormat = Int(PIXEL_FORMAT.MONO12)
+
+    def __init__(self, name, experiment, description=''):
+        """Add in the properties that need to be sent to the camera."""
+        super(BFGigEImageSettings, self).__init__(name, experiment, description)
+        # things not in the property list are not sent to the camera
+        self.properties += [
+            'offsetX', 'offsetY', 'width', 'height', 'pixelFormat'
+        ]
+
+
 
 class BlackflyCamera(Instrument):
     """An actual camera object."""
 
     serial = Int(0)
-    exposureTime = Float(1.0)
+    exposureTime = Float(20.0)
     triggerDelay = Member()
     configuration = Member()
     gigEConfig = Member()
     gigEStreamChannel = Member()
+    gigEImageSettings = Member()
 
     def __init__(self, name, experiment, description=''):
         super(BlackflyCamera, self).__init__(name, experiment, description)
@@ -183,9 +207,14 @@ class BlackflyCamera(Instrument):
             experiment,
             'Blackfly gigabit ethernet stream channel object'
         )
+        self.gigEImageSettings = BFGigEImageSettings(
+            'GigE image settings',
+            experiment,
+            'Blackfly gigabit ethernet image settings object'
+        )
         self.properties += [
             'serial', 'exposureTime', 'triggerDelay', 'configuration',
-            'gigEConfig', 'gigEStreamChannel'
+            'gigEConfig', 'gigEStreamChannel', 'gigEImageSettings'
         ]
         self.doNotSendToHardware += []
 
@@ -275,6 +304,9 @@ class BlackflyClient(zmq_instrument.ZMQInstrument):
                     f['error'] = value[serial]['error']
                     raw_data = np.array(value[serial]['raw_data'])
                     f.create_dataset('raw_data', data=raw_data)
+                    f = f.create_group('stats')
+                    for stat in value[serial]['stats']:
+                        f[stat] = value[serial]['stats'][stat]
                 except:
                     logger.exception('problem')
 

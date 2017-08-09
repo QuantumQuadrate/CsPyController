@@ -218,7 +218,8 @@ class Stream(Prop):
         # register the stream
         self.connection = server.registerStream(
             stream=self.streamNameFull,
-            records=records
+            records=records,
+            timeout=20000
         )
 
         # error checking
