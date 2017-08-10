@@ -1856,7 +1856,7 @@ enamldef BlackflyClient(Window):
 enamldef Blackfly(Form):
     attr item
 
-    constraints = [width >= 1200, height >= 1300]
+    constraints = [width >= 1000, height >= 600]
 
     #title = 'Andor Camera'
     style_class << 'valid' if experiment.valid else 'invalid'
@@ -1867,6 +1867,9 @@ enamldef Blackfly(Form):
             style_class << 'valid' if experiment.valid else 'invalid'
             Container:
                 style_class << 'valid' if experiment.valid else 'invalid'
+                LabelBox:
+                    text = 'enable'
+                    checked := item.camera.enable
 
                 #HGroup:
                   #  MPLCanvas:
