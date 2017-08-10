@@ -966,7 +966,7 @@ class Experiment(Prop):
         analysisList = []
         callback = self.postMeasurementCallBack(analysisList)
         for i in self.analyses:
-            # print(i.name)
+            #print(i.name)
             #time_debug=time.time()  # Start time measurement
             #logger.info('Running :{0}'.format(i))
             i.postMeasurement(

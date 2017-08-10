@@ -318,9 +318,9 @@ class AndorCamera(Instrument):
         if self.enable:
             if (self.acquisitionChoices[self.acquisitionMode]!=2 or (self.acquisitionChoices[self.acquisitionMode]==2 and self.experiment.measurement == self.experiment.measurementsPerIteration - 1)):
                 self.setCamera()
-                print 'getting images'
+                #print 'getting images'
                 self.data = self.GetImages()
-                print "dem images"
+                #print "dem images"
 
     def writeResults(self, hdf5):
         """Overwritten from Instrument.  This function is called by the experiment after

@@ -158,8 +158,8 @@ class BFGigEImageSettings(BFProperty):
 
     offsetX = Int(1)
     offsetY = Int(1)
-    width = Int(800)  # actual width seems to be 50% larger on camera?
-    height = Int(600)
+    width = Int(1280)#
+    height = Int(960)
     pixelFormat = Int(PIXEL_FORMAT.MONO12)
 
     def __init__(self, name, experiment, description=''):
