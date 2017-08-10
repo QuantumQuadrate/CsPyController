@@ -128,7 +128,9 @@ class ThresholdROIAnalysis(ROIAnalysis):
                 for i, shot in enumerate(shot_array):
                     # TODO: more complicated threshold
                     # (per shot threshold & 2+ atom threshold)
-                    threshold_array[i] = shot >= self.threshold_array[i]['1']
+                    #print self.threshold_array[i]['1']
+                    if i<= 1: # Rubudium uses shot2 for alignment pupose so do not apply threshold for this shot
+                        threshold_array[i] = shot >= self.threshold_array[i]['1']
 
                 self.loading_array = threshold_array.reshape((
                     numShots,
