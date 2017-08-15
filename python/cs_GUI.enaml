@@ -2939,7 +2939,7 @@ enamldef Optimizer(Window):
                     Label:
                         text='update method'
                     ComboBox:
-                        items = ['Nelder-Mead', 'genetic', 'gradient descent', 'weighted Nelder-Mead']
+                        items = ['Nelder-Mead', 'genetic', 'gradient descent', 'weighted Nelder-Mead', 'smart Nelder-Mead']
                         index := analysis.optimization_method
 
                     # For the gradient method, the initial step size for each variable is used for determining the gradient.
@@ -3034,6 +3034,126 @@ enamldef Picomotors(Window):
                     IndexedContainer:
                         iterable << picomotors.motors
                         viewType = Picomotor
+
+enamldef Noise_Eater(Container):
+    attr item
+
+    hug_width = 'strong'
+    hug_height = 'strong'
+
+    Container:
+        hug_width = 'strong'
+        hug_height = 'strong'
+        Label:
+            text = 'IP Address'
+        Field:
+            text := item.IP
+        Label:
+            text = 'port'
+        IntField:
+            value := item.port
+        Label:
+            text = 'Target Setting 1'
+        EvalProp:
+            prop << item.target_setting1
+        Label:
+            text = 'Target Setting 2'
+        EvalProp:
+            prop << item.target_setting2
+        Label:
+            text = 'Target Setting 3'
+        EvalProp:
+            prop << item.target_setting3
+        Label:
+            text = 'Target Setting 4'
+        EvalProp:
+            prop << item.target_setting4
+
+enamldef Noise_Eaters(Window):
+    attr noise_eaters
+
+    title = 'Noise Eaters'
+    style_class << 'valid' if experiment.valid else 'invalid'
+    Container:
+        padding = 0
+        style_class << 'valid' if experiment.valid else 'invalid'
+        ScrollArea:
+            style_class << 'valid' if experiment.valid else 'invalid'
+            Container:
+                style_class << 'valid' if experiment.valid else 'invalid'
+
+                Container:
+                    hug_width = 'strong'
+                    hug_height = 'strong'
+                    Form:
+                        hug_width = 'strong'
+                        hug_height = 'strong'
+                        Label:
+                            text = 'enable'
+                        CheckBox:
+                            checked := noise_eaters.enable
+
+                    IndexedContainer:
+                        iterable << noise_eaters.pis
+                        viewType = Noise_Eater
+
+enamldef BILTcard(Container):
+    attr item
+
+    hug_width = 'strong'
+    hug_height = 'strong'
+
+    Container:
+        hug_width = 'strong'
+        hug_height = 'strong'
+        Label:
+            text = 'chassis card number'
+        Field:
+            text := item.chassis_card_number
+        Label:
+            text = 'channel number'
+        Field:
+            text := item.channel_number
+        Label:
+            text = 'voltage'
+        EvalProp:
+            prop << item.desired_voltage
+
+enamldef BILTcards(Window):
+    attr BILT
+
+    title = 'BILTcards'
+    style_class << 'valid' if experiment.valid else 'invalid'
+    Container:
+        padding = 0
+        style_class << 'valid' if experiment.valid else 'invalid'
+        ScrollArea:
+            style_class << 'valid' if experiment.valid else 'invalid'
+            Container:
+                style_class << 'valid' if experiment.valid else 'invalid'
+
+                Container:
+                    hug_width = 'strong'
+                    hug_height = 'strong'
+                    Form:
+                        hug_width = 'strong'
+                        hug_height = 'strong'
+                        Label:
+                            text = 'enable'
+                        CheckBox:
+                            checked := BILT.enable
+                        Label:
+                            text = 'IP Address'
+                        Field:
+                            text := BILT.IP
+                        Label:
+                            text = 'port'
+                        IntField:
+                            value := BILT.port
+
+                    IndexedContainer:
+                        iterable << BILT.channels
+                        viewType = BILTcard
 
 enamldef Filters(Window):
     attr experiment
@@ -3180,6 +3300,8 @@ window_dictionary = {'':'',
                      'Arroyo': 'Arroyo(experiment = main.experiment)',
                      'PI Piezo': 'PI_Piezo(piezo = main.experiment.LabView.piezo)',
                      'Picomotors': 'Picomotors(picomotors = main.experiment.picomotors)',
+                     'Noise Eaters': 'Noise_Eaters(noise_eaters = main.experiment.noise_eaters)',
+                     'Cell Electrodes': 'BILTcards(BILT = main.experiment.BILT)',
                      'Live Images': 'MultiImage(experiment = main.experiment, analysis0 = main.experiment.recent_shot_analysis, analysis2 = main.experiment.imageSumAnalysis, analysis3 = main.experiment.text_analysis)',
                      'Image Browser': 'ImageBrowser(experiment = main.experiment, analysis1 = main.experiment.shotBrowserAnalysis)',
                      'Square ROI':  'SquareROIContainer(experiment = main.experiment, analysis = main.experiment.squareROIAnalysis)',
