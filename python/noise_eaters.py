@@ -74,5 +74,3 @@ class Noise_Eaters(Instrument):
                 self.s.send(data_string)
                 self.s.close()
 
-
-       
