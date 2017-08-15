@@ -8,7 +8,7 @@ import traceback
 from atom.api import Member
 
 # Bring in other files in this package
-import functional_waveforms, analysis, save2013style, TTL, LabView, DDS, roi_fitting, picomotors, andor, picam, DCNoiseEater, Laird_temperature, AnalogInput
+import functional_waveforms, analysis, save2013style, TTL, LabView, DDS, roi_fitting, noise_eaters, picomotors, BILT, andor, picam, DCNoiseEater, Laird_temperature, AnalogInput
 from experiments import Experiment
 
 
@@ -16,6 +16,8 @@ class AQuA(Experiment):
     """A subclass of Experiment which knows about all our particular hardware"""
 
     picomotors = Member()
+    noise_eaters = Member()
+    BILT = Member()
     Andor = Member()
     PICam = Member()
     LabView = Member()
@@ -59,6 +61,8 @@ class AQuA(Experiment):
         # instruments
         self.functional_waveforms = functional_waveforms.FunctionalWaveforms('functional_waveforms', self, 'Waveforms for HSDIO, DAQmx DIO, and DAQmx AO; defined as functions')
         self.picomotors = picomotors.Picomotors('picomotors', self, 'Newport Picomotors')
+        self.noise_eaters = noise_eaters.Noise_Eaters('noise_eaters', self,'rotating wave-plate noise eaters')
+        self.BILT = BILT.BILTcards('BILT',self, 'BILT DC Voltage sources')
         self.Andor = andor.Andor('Andor', self, 'Andor Luca Camera')
         self.PICam = picam.PICam('PICam', self, 'Princeton Instruments Camera')
         self.LabView = LabView.LabView(self)
@@ -66,7 +70,7 @@ class AQuA(Experiment):
         self.DC_noise_eaters = DCNoiseEater.DCNoiseEaters('DC_noise_eaters', self)
         self.box_temperature = Laird_temperature.LairdTemperature('box_temperature', self)
         # do not include functional_waveforms in self.instruments because it need not start/stop
-        self.instruments += [self.box_temperature, self.picomotors, self.Andor, self.PICam, self.DC_noise_eaters,
+        self.instruments += [self.box_temperature, self.picomotors, self.noise_eaters, self.Andor, self.PICam, self.DC_noise_eaters, self.BILT,
                              self.LabView, self.DDS]
 
         # analyses
@@ -104,7 +108,7 @@ class AQuA(Experiment):
                           self.Ramsey, self.retention_analysis, self.retention_graph, self.save_notes,
                           self.save2013Analysis]
         
-        self.properties += ['functional_waveforms', 'LabView', 'functional_waveforms_graph', 'DDS', 'picomotors',
+        self.properties += ['functional_waveforms', 'LabView', 'functional_waveforms_graph', 'DDS', 'picomotors', 'noise_eaters', 'BILT',
                             'Andor', 'PICam', 'DC_noise_eaters', 'box_temperature', 'squareROIAnalysis', 'gaussian_roi',
                             'TTL_filters', 'AI_graph', 'AI_filter', 'loading_filters', 'first_measurements_filter',
                             'imageSumAnalysis', 'recent_shot_analysis', 'shotBrowserAnalysis', 'histogramAnalysis',

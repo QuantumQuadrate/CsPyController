@@ -106,7 +106,8 @@ class AI_Graph(AnalysisWithFigure):
                         label = 'ch.{}'.format(i[0])
                         ax.plot(data, 'o', label=label)
                     #add legend using the labels assigned during ax.plot()
-                    ax.legend()
+                    ax.legend(bbox_to_anchor=(0., 1.02, 1., .102), loc=2, borderaxespad=0.0)
+                    ax.grid('on')
                 super(AI_Graph, self).updateFigure()
             except Exception as e:
                 logger.warning('Problem in AIGraph.updateFigure()\n:{}'.format(e))

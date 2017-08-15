@@ -1292,7 +1292,7 @@ class HistogramGrid(AnalysisWithFigure):
         if photoelectronScaling is not None:
             figtext += ', scaling applied = {} photoelectrons/count'.format(photoelectronScaling)
         if exposure_time is not None:
-            figtext += ', exposure_time = {} ms'.format(exposure_time)
+            figtext += ', exposure_time = {} ms'.format(1000*exposure_time)
         fig.text(.05, .985, figtext)
 
 class MeasurementsGraph(AnalysisWithFigure):
@@ -1645,7 +1645,9 @@ class RetentionGraph(AnalysisWithFigure):
                     if self.ymax != '':
                         ax.set_ylim(top=float(self.ymax))
                     #add legend using the labels assigned during ax.plot() or ax.errorbar()
-                    ax.legend(bbox_to_anchor=(0., 1.02, 1., .102), loc=3, ncol=7, mode="expand", borderaxespad=0.)
+                    ax.legend(bbox_to_anchor=(0., 1.02, 1., .102), loc=3, ncol=7, mode="expand", borderaxespad=0.0)
+                    ax.grid('on')
+
 
                 super(RetentionGraph, self).updateFigure()
             except Exception as e:
