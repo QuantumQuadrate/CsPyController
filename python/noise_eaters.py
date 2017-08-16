@@ -44,7 +44,7 @@ class Noise_Eaters(Instrument):
 
     pis = Member()
     s = Member()
-    resultsArray = List()
+    resultsArray = Member()
 
     def __init__(self, name, experiment, description=''):
         super(Noise_Eaters, self).__init__(name, experiment, description)
@@ -65,6 +65,8 @@ class Noise_Eaters(Instrument):
         """
         Every iteration, send the motors updated positions.
         """
+        self.resultsArray = numpy.delete(numpy.empty([1,4]), (0), axis=0)
+        
         for i in self.pis:
             if self.enable:
                 #arr = update()
@@ -78,12 +80,12 @@ class Noise_Eaters(Instrument):
                 data_string = pickle.dumps(settings_array)
                 self.s.connect((IP, port))
                 self.s.send(data_string)
-                self.resultsArray = pickle.loads(self.s.recv(1024))
+                self.resultsArray = numpy.append(self.resultsArray, [pickle.loads(self.s.recv(1024))], axis = 0)
                 self.s.close()
 
     def writeResults(self, hdf5):
         if self.enable:
-            hdf5['noise_eater'] = numpy.array([self.resultsArray for pi in self.pis], dtype=numpy.float)
+            hdf5['noise_eater'] = self.resultsArray
 
 
 class Noise_EatersGraph(AnalysisWithFigure):
@@ -104,9 +106,9 @@ class Noise_EatersGraph(AnalysisWithFigure):
             #every measurement, update a big array of all the noise eater data on all channels
             d = measurementResults['data/noise_eater']
             if self.data is None:
-                self.data = numpy.array([d])
+                self.data = [numpy.array([d]).flatten()]
             else:
-                self.data = numpy.append(self.data, numpy.array([d]), axis=0)
+                self.data = numpy.append(self.data, [numpy.array([d]).flatten()], axis=0)
             self.updateFigure()
 
     @observe('list_of_what_to_plot')
@@ -135,14 +137,15 @@ class Noise_EatersGraph(AnalysisWithFigure):
                     ax = fig.add_subplot(111)
                     for i in plotlist:
                         try:
-                            data = self.data[:, i[0], i[1]]  # All measurements. Selected pi and channel.
+                            data = self.data[:, 4*i[0] + i[1]]  # All measurements. Selected pi and channel.
                         except:
                             logger.warning('Trying to plot data that does not exist in MeasurementsGraph: box {} channel {}'.format(i[0], i[1]))
                             continue
                         label = '({},{})'.format(i[0], i[1])
                         ax.plot(data, 'o', label=label)
                     #add legend using the labels assigned during ax.plot()
-                    ax.legend()
+                    ax.legend(bbox_to_anchor=(0., 1.02, 1., .102), loc=2, ncol = 4, mode = "expand", borderaxespad=0.0)
+                    ax.grid('on')
                 super(Noise_EatersGraph, self).updateFigure()
             except Exception as e:
                 logger.warning('Problem in Noise_EaterGraph.updateFigure()\n:{}'.format(e))
