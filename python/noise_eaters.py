@@ -5,9 +5,12 @@ logger = logging.getLogger(__name__)
 
 import socket, pickle     
 
-from atom.api import Bool, Str, Member, Int, List
+from atom.api import Bool, Str, Member, Int, List, observe
+from enaml.application import deferred_call
 from instrument_property import Prop, IntProp, ListProp, FloatProp
 from cs_instruments import Instrument
+from analysis import Analysis, AnalysisWithFigure
+import numpy
 
 class Noise_Eater(Prop):
     # must keep track of position changes and send only difference
@@ -31,6 +34,7 @@ class Noise_Eater(Prop):
     def update(self):
         # calculate relative move necessary
         return self.IP, self.port, self.setting_array
+        
 
 class Noise_Eaters(Instrument):   
     version = '2017.07.21'  
@@ -40,6 +44,7 @@ class Noise_Eaters(Instrument):
 
     pis = Member()
     s = Member()
+    resultsArray = List()
 
     def __init__(self, name, experiment, description=''):
         super(Noise_Eaters, self).__init__(name, experiment, description)
@@ -53,6 +58,7 @@ class Noise_Eaters(Instrument):
             self.isInitialized = True
 
     def start(self):
+        self.update()
         self.isDone = True
 
     def update(self):
@@ -72,5 +78,74 @@ class Noise_Eaters(Instrument):
                 data_string = pickle.dumps(settings_array)
                 self.s.connect((IP, port))
                 self.s.send(data_string)
+                self.resultsArray = pickle.loads(self.s.recv(1024))
                 self.s.close()
 
+    def writeResults(self, hdf5):
+        if self.enable:
+            hdf5['noise_eater'] = numpy.array([self.resultsArray for pi in self.pis], dtype=numpy.float)
+
+
+class Noise_EatersGraph(AnalysisWithFigure):
+    """Plots a region of interest sum after every measurement"""
+    version = '2017.08.15'
+    enable = Bool()
+    data = Member()
+    update_lock = Bool(False)
+    list_of_what_to_plot = Str()
+
+    def __init__(self, name, experiment, description=''):
+        super(Noise_EatersGraph, self).__init__(name, experiment, description)
+        self.properties += ['version', 'enable', 'list_of_what_to_plot']
+        self.data = None
+
+    def analyzeMeasurement(self, measurementResults, iterationResults, experimentResults):
+        if self.enable and ('data/noise_eater' in measurementResults):
+            #every measurement, update a big array of all the noise eater data on all channels
+            d = measurementResults['data/noise_eater']
+            if self.data is None:
+                self.data = numpy.array([d])
+            else:
+                self.data = numpy.append(self.data, numpy.array([d]), axis=0)
+            self.updateFigure()
+
+    @observe('list_of_what_to_plot')
+    def reload(self, change):
+        self.updateFigure()
+
+    def clear(self):
+        self.data = None
+        self.updateFigure()
+
+    def updateFigure(self):
+        if self.enable and (not self.update_lock):
+            try:
+                self.update_lock = True
+                fig = self.backFigure
+                fig.clf()
+
+                if self.data is not None:
+                    #parse the list of what to plot from a string to a list of numbers
+                    try:
+                        plotlist = eval(self.list_of_what_to_plot)
+                    except Exception as e:
+                        logger.warning('Could not eval plotlist in DCNoiseEaterGraph:\n{}\n'.format(e))
+                        return
+                    #make one plot
+                    ax = fig.add_subplot(111)
+                    for i in plotlist:
+                        try:
+                            data = self.data[:, i[0], i[1]]  # All measurements. Selected pi and channel.
+                        except:
+                            logger.warning('Trying to plot data that does not exist in MeasurementsGraph: box {} channel {}'.format(i[0], i[1]))
+                            continue
+                        label = '({},{})'.format(i[0], i[1])
+                        ax.plot(data, 'o', label=label)
+                    #add legend using the labels assigned during ax.plot()
+                    ax.legend()
+                super(Noise_EatersGraph, self).updateFigure()
+            except Exception as e:
+                logger.warning('Problem in Noise_EaterGraph.updateFigure()\n:{}'.format(e))
+            finally:
+                self.update_lock = False
+       

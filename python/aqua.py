@@ -48,6 +48,7 @@ class AQuA(Experiment):
     picam_viewer = Member()
     DC_noise_eater_graph = Member()
     DC_noise_eater_filter = Member()
+    Noise_EatersGraph = Member()
     Ramsey = Member()
     retention_analysis = Member()
     save_notes = Member()
@@ -95,6 +96,7 @@ class AQuA(Experiment):
         self.picam_viewer = picam.PICamViewer('picam_viewer', self, 'show the most recent PICam image')
         self.DC_noise_eater_graph = DCNoiseEater.DCNoiseEaterGraph('DC_noise_eater_graph', self, 'DC Noise Eater graph')
         self.DC_noise_eater_filter = DCNoiseEater.DCNoiseEaterFilter('DC_noise_eater_filter', self, 'DC Noise Eater Filter')
+        self.Noise_EatersGraph = noise_eaters.Noise_EatersGraph('Noise_EatersGraph', self, 'Graph of new DC Noise eater output')
         self.Ramsey = analysis.Ramsey('Ramsey', self, 'Fit a cosine to retention results')
         self.retention_analysis = analysis.RetentionAnalysis('retention_analysis', self, 'calculate the loading and retention')
         self.save_notes = save2013style.SaveNotes('save_notes', self, 'save a separate notes.txt')
@@ -104,7 +106,7 @@ class AQuA(Experiment):
                           self.loading_filters, self.first_measurements_filter, self.text_analysis,
                           self.imageSumAnalysis, self.recent_shot_analysis, self.shotBrowserAnalysis,
                           self.histogramAnalysis, self.histogram_grid, self.measurements_graph, self.iterations_graph,
-                          self.andor_viewer, self.picam_viewer, self.DC_noise_eater_graph, self.DC_noise_eater_filter,
+                          self.andor_viewer, self.picam_viewer, self.DC_noise_eater_graph, self.DC_noise_eater_filter,self.Noise_EatersGraph,
                           self.Ramsey, self.retention_analysis, self.retention_graph, self.save_notes,
                           self.save2013Analysis]
         
@@ -114,7 +116,7 @@ class AQuA(Experiment):
                             'imageSumAnalysis', 'recent_shot_analysis', 'shotBrowserAnalysis', 'histogramAnalysis',
                             'histogram_grid', 'retention_analysis', 'measurements_graph', 'iterations_graph',
                             'retention_graph', 'andor_viewer', 'picam_viewer', 'DC_noise_eater_filter',
-                            'DC_noise_eater_graph', 'Ramsey']
+                            'DC_noise_eater_graph','Noise_EatersGraph', 'Ramsey']
 
         try:
             self.allow_evaluation = False

@@ -3071,6 +3071,8 @@ enamldef Noise_Eater(Container):
 
 enamldef Noise_Eaters(Window):
     attr noise_eaters
+    attr analysis
+
 
     title = 'Noise Eaters'
     style_class << 'valid' if experiment.valid else 'invalid'
@@ -3096,6 +3098,27 @@ enamldef Noise_Eaters(Window):
                     IndexedContainer:
                         iterable << noise_eaters.pis
                         viewType = Noise_Eater
+                        
+                # cumulative plot of noise eater data
+                GroupBox:
+                    title = 'Noise Eater plots'
+                    Form:
+                        Label:
+                            text = 'enable'
+                        CheckBox:
+                            checked := analysis.enable
+                        Label:
+                            text = 'specify pi and channel number'
+                        Field:
+                            text := analysis.list_of_what_to_plot
+                    PushButton:
+                        text = 'clear'
+                        clicked :: analysis.clear()
+                    MPLCanvas: canvas:
+                        constraints=[(height==500)|'strong']
+                        hug_width='ignore'
+                        figure << analysis.figure
+
 
 enamldef BILTcard(Container):
     attr item
@@ -3300,7 +3323,7 @@ window_dictionary = {'':'',
                      'Arroyo': 'Arroyo(experiment = main.experiment)',
                      'PI Piezo': 'PI_Piezo(piezo = main.experiment.LabView.piezo)',
                      'Picomotors': 'Picomotors(picomotors = main.experiment.picomotors)',
-                     'Noise Eaters': 'Noise_Eaters(noise_eaters = main.experiment.noise_eaters)',
+                     'Noise Eaters': 'Noise_Eaters(noise_eaters = main.experiment.noise_eaters, analysis = main.experiment.Noise_EatersGraph)',
                      'Cell Electrodes': 'BILTcards(BILT = main.experiment.BILT)',
                      'Live Images': 'MultiImage(experiment = main.experiment, analysis0 = main.experiment.recent_shot_analysis, analysis2 = main.experiment.imageSumAnalysis, analysis3 = main.experiment.text_analysis)',
                      'Image Browser': 'ImageBrowser(experiment = main.experiment, analysis1 = main.experiment.shotBrowserAnalysis)',
