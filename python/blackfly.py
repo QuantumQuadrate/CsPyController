@@ -160,7 +160,7 @@ class BFGigEImageSettings(BFProperty):
     offsetY = Int(1)
     width = Int(1280)#
     height = Int(960)
-    pixelFormat = Int(PIXEL_FORMAT.MONO12)
+    pixelFormat = Int(PIXEL_FORMAT.MONO8)
 
     def __init__(self, name, experiment, description=''):
         """Add in the properties that need to be sent to the camera."""
