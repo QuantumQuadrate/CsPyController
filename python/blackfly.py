@@ -160,7 +160,7 @@ class BFGigEImageSettings(BFProperty):
     offsetY = Int(1)
     width = Int(1280)#
     height = Int(960)
-    pixelFormat = Int(PIXEL_FORMAT.MONO12)
+    pixelFormat = Int(PIXEL_FORMAT.MONO8)
 
     def __init__(self, name, experiment, description=''):
         """Add in the properties that need to be sent to the camera."""
@@ -304,15 +304,11 @@ class BlackflyClient(zmq_instrument.ZMQInstrument):
                 try:
                     f = hdf5.create_group('{}/{}'.format(key, serial))
                     f['error'] = value[serial]['error']
-                    f = f.create_group('shots')
-                    for key in value[serial]['data']:
-                        shot = value[serial]['data'][key]
-                        shot_grp = f.create_group(str(key))
-                        raw_data = np.array(shot['image'])
-                        shot_grp.create_dataset('raw_data', data=raw_data)
-                        stat_grp = shot_grp.create_group('stats')
-                        for stat in shot['stats']:
-                            stat_grp[stat] = shot['stats'][stat]
+                    raw_data = np.array(value[serial]['raw_data'])
+                    f.create_dataset('raw_data', data=raw_data)
+                    f = f.create_group('stats')
+                    for stat in value[serial]['stats']:
+                        f[stat] = value[serial]['stats'][stat]
                 except:
                     logger.exception('problem')
 
