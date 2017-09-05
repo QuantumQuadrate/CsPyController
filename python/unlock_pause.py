@@ -100,9 +100,9 @@ class UnlockMonitor(Instrument):
 
     def stop(self):
         if self.enable:
-            self.s.sendall("Experiment Finished")
             try:
                 # Required to be twice if halted while lock is broken
+                self.s.sendall("Experiment Finished")
                 self.s.sendall("Experiment Finished")
             except Exception as e:
                 pass
