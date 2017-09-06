@@ -10,7 +10,7 @@ from cs_errors import PauseError
 import logging
 logger = logging.getLogger(__name__)
 
-class UnlockMonitor(Instrument):
+class UnlockMonitor(Instrument, Analysis):
     version = '2017.04.03'
     IP = Member()
     Port = Member()
@@ -18,6 +18,7 @@ class UnlockMonitor(Instrument):
     locked_brightness = Float(0.0)
     unlocked_brightness = Float(0.0)
     s = Member()
+    paused = Bool(False)
 
     def __init__(self, name, experiment, description=''):
         super(UnlockMonitor, self).__init__(name, experiment, description)
@@ -45,6 +46,7 @@ class UnlockMonitor(Instrument):
         return
 
     def open_connection(self, timeout, block):
+        logger.info("Opening connection")
         s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         s.connect((self.IP.value, self.Port.value))
         s.settimeout(timeout)
@@ -59,6 +61,7 @@ class UnlockMonitor(Instrument):
         self.isDone = True
 
     def preExperiment(self, hdf5):
+        logger.info("Unlock_monitor preExperiment. self.enable={}".format(self.enable))
         if self.enable:
             try:
                 self.s = self.open_connection(None, False)
@@ -68,11 +71,8 @@ class UnlockMonitor(Instrument):
             self.s.sendall('%f' % self.Threshold.value)
         return
 
-    def preIteration(self, iterationresults, hdf5):
-        return
-
     #paused = Bool(False) # why is this here? MFE
-    def postMeasurement(self, measurementresults, iterationresults, hdf5):
+    def analyzeMeasurement(self,measurementresults,iterationresults,hdf5):
         if self.enable:
             if self.paused:
                 self.s.sendall('Experiment Resumed')
@@ -86,24 +86,22 @@ class UnlockMonitor(Instrument):
                 pass
         return
 
-    def postIteration(self, iterationresults, hdf5):
-        return
-
     def postExperiment(self, hdf5):
         if self.enable:
             self.s.sendall('Experiment Finished')
             self.close_connection(self.s)
         return
 
-    def finalize(self,hdf5):
-        return
-
     def stop(self):
         if self.enable:
-            self.s.sendall("Experiment Finished")
             try:
                 # Required to be twice if halted while lock is broken
                 self.s.sendall("Experiment Finished")
+                self.s.sendall("Experiment Finished")
+            except:
+                pass
+            try:
+                self.close_connection(self.s)
             except Exception as e:
                 pass
-            self.close_connection(self.s)
+            

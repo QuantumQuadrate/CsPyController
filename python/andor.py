@@ -267,6 +267,8 @@ class AndorCamera(Instrument):
         if self.GetStatus() == 'DRV_ACQUIRING':
             self.AbortAcquisition()
         self.GetDetector()
+        self.SetEMGainMode(self.EMGainMode)
+        self.SetEMAdvanced(self.AdvancedEMGain)
         self.GetandSetHSVSPreamp()
         self.SetEMCCDGain(self.EMCCDGain.value)
         self.SetExposureTime(self.exposureTime.value)
