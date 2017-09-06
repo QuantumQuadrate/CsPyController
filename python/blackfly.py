@@ -84,7 +84,7 @@ class BFConfiguration(BFProperty):
     server.
     """
 
-    numBuffers = Int(10)  # image buffers on camera (shotsPerMeasurement)
+    numBuffers = Int(1)  # image buffers on camera (shotsPerMeasurement)
     numImageNotification = Int(0)  # number of notifications per image
     grabTimeout = Int(1)  # time in ms before retrieve buffer times out
     grabMode = Int(GRAB_MODE.BUFFER_FRAMES)  # grab mode for camera
@@ -304,7 +304,7 @@ class BlackflyClient(zmq_instrument.ZMQInstrument):
                 try:
                     f = hdf5.create_group('{}/{}'.format(key, serial))
                     f['error'] = value[serial]['error']
-                    raw_data = np.array(value[serial]['raw_data'])
+                    raw_data = np.array(value[serial]['data'])
                     f.create_dataset('raw_data', data=raw_data)
                     f = f.create_group('stats')
                     for stat in value[serial]['stats']:
