@@ -123,10 +123,10 @@ class AQuA(Experiment):
         # need not start/stop
         self.instruments += [
             self.box_temperature, self.picomotors, self.pyPicoServer,
-            self.NIScopes, self.Andors, self.PICams, #self.blackfly_client,
+            self.NIScopes, self.Andors, self.PICams, self.blackfly_client,
             self.DC_noise_eaters, self.DDS, self.unlock_pause,
             self.Embezzletron, self.aerotechs, self.conexes, self.instekpsts,
-            self.vaunixs, self.NewportStage, 
+            self.vaunixs, self.NewportStage,
             self.LabView  # Labview must be last at least until someone fixes the start command
         ]
 
@@ -188,7 +188,7 @@ class AQuA(Experiment):
             'Config',
             'functional_waveforms', 'LabView', 'functional_waveforms_graph',
             'DDS', 'aerotechs', 'picomotors', 'pyPicoServer', 'conexes',
-            'Andors', 'PICams', 'DC_noise_eaters', 'blackfly_client', 
+            'Andors', 'PICams', 'DC_noise_eaters', 'blackfly_client',
             'box_temperature', 'DAQmxAI', 'squareROIAnalysis',
             'thresholdROIAnalysis', 'gaussian_roi', 'instekpsts', 'TTL_filters',
             'AI_graph', 'AI_filter', 'NewportStage', 'loading_filters',
