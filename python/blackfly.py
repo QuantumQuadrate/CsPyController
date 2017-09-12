@@ -84,7 +84,7 @@ class BFConfiguration(BFProperty):
     server.
     """
 
-    numBuffers = Int(1)  # image buffers on camera (shotsPerMeasurement)
+    numBuffers = Int(2)  # image buffers on camera (shotsPerMeasurement)
     numImageNotification = Int(0)  # number of notifications per image
     grabTimeout = Int(1)  # time in ms before retrieve buffer times out
     grabMode = Int(GRAB_MODE.BUFFER_FRAMES)  # grab mode for camera
@@ -148,6 +148,7 @@ class BFGigEStreamChannel(BFProperty):
             'packetSize', 'interPacketDelay'
         ]
 
+
 class BFGigEImageSettings(BFProperty):
     """Class containing the Configuration properties for a Blackfly camera.
 
@@ -169,7 +170,6 @@ class BFGigEImageSettings(BFProperty):
         self.properties += [
             'offsetX', 'offsetY', 'width', 'height', 'pixelFormat'
         ]
-
 
 
 class BlackflyCamera(Instrument):
@@ -247,6 +247,7 @@ class BlackflyCamera(Instrument):
                 except:
                     self.HardwareProtocol(o, p, settings)
         return settings
+
 
 class Blackfly(Instrument):
     """A camera object for display purposes."""
