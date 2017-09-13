@@ -19,7 +19,23 @@ from atom.api import Typed, Member, Int, Float, Bool
 from cs_instruments import Instrument
 import zmq_instrument
 from instrument_property import Prop
-from PyCapture2 import PROPERTY_TYPE, BUS_SPEED, GRAB_MODE, PIXEL_FORMAT
+
+try:
+    from PyCapture2 import PROPERTY_TYPE, BUS_SPEED, GRAB_MODE, PIXEL_FORMAT
+except:
+    # just make fake values so stuff doesnt crash when testing
+    print("PyCapture2 not installed, blackfly cameras are not usuable")
+    class ptype(object):
+        def __init__(self):
+            self.TRIGGER_DELAY = 1
+            self.BUFFER_FRAMES = 2
+            self.S_FASTEST = 3
+            self.MONO8 = 4
+
+    PROPERTY_TYPE = ptype()
+    BUS_SPEED = ptype()
+    GRAB_MODE = ptype()
+    PIXEL_FORMAT = ptype()
 
 __author__ = 'Matthew Ebert'
 logger = logging.getLogger(__name__)

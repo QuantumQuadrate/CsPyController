@@ -34,7 +34,7 @@ class BeamPositionAnalysis(Analysis):
     setpoint_X = Float(0.0)
     setpoint_Y = Float(0.0)
     calibration = Float(1.0)
-    position = Member()
+    positions = Member()
     position_iter_stat = Member()
     actuator_vname_X = Str()
     actuator_variable_X = Member()  # holds independentVariable for x actuator
@@ -113,7 +113,7 @@ class BeamPositionAnalysis(Analysis):
             if self.enable_feedback:
                 self.updateActuators()
 
-    def calculateError(self, arg):
+    def calculateError(self):
         xs = self.positions['x']
         ys = self.positions['y']
         x = np.mean(xs)

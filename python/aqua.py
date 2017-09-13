@@ -89,6 +89,7 @@ class AQuA(Experiment):
     counter_hist = Member()
     save_notes = Member()
     save2013Analysis = Member()
+    beam_position_analysis = Member()
     origin = Member()
     ROI_rows = Int(1)
     ROI_columns = Int(1)
