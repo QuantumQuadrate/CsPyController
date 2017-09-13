@@ -199,7 +199,7 @@ class AQuA(Experiment):
             'iterations_graph', 'retention_graph', 'DC_noise_eater_filter',
             'DC_noise_eater_graph', 'Ramsey', 'counter_graph', 'counter_hist',
             'unlock_pause', 'ROI_rows', 'ROI_columns', 'ROI_bg_rows',
-            'ROI_bg_columns', 'NIScopes',
+            'ROI_bg_columns', 'NIScopes', 'beam_position_analysis',
             'origin'
         ]
 

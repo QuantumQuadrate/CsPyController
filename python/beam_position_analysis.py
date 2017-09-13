@@ -83,25 +83,35 @@ class BeamPositionAnalysis(Analysis):
             # check that the data exists and it is valid
             if (self.positions_path in measResults and
                     measResults[self.meas_error_path][()] == 0):
-                self.positions['x0'].append(
+                # every append operation on an np array requires reallocation
+                # of memory, so maybe we should try to not do all these appends
+                self.positions['x0'] = np.append(
+                    self.positions['x0'],
                     measResults[self.positions_path]['X0'][()]
                 )
-                self.positions['y0'].append(
+                self.positions['y0'] = np.append(
+                    self.positions['y0'],
                     measResults[self.positions_path]['Y0'][()]
                 )
-                self.positions['x1'].append(
+                self.positions['x1'] = np.append(
+                    self.positions['x1'],
                     measResults[self.positions_path]['X1'][()]
                 )
-                self.positions['y1'].append(
+                self.positions['y1'] = np.append(
+                    self.positions['y1'],
                     measResults[self.positions_path]['Y1'][()]
                 )
-                self.positions['x'].append(
+                self.positions['x'] = np.append(
+                    self.positions['x'],
                     self.positions['x1'] - self.positions['x0']
                 )
-                self.positions['y'].append(
+                self.positions['y'] = np.append(
+                    self.positions['y'],
                     self.positions['y1'] - self.positions['y0']
                 )
                 self.positions['valid_cnt'] += 1
+            else:
+                logger.error("Unable to find positions in measurementResults.")
 
     def analyzeIteration(self, iterResults, expResults):
         """Analyze all measurements taken in the iteration.
@@ -117,10 +127,11 @@ class BeamPositionAnalysis(Analysis):
         xs = self.positions['x']
         ys = self.positions['y']
         x = np.mean(xs)
-        sigma_x = np.stdev(xs)
+        sigma_x = np.std(xs)
         y = np.mean(ys)
-        sigma_y = np.stdev(ys)
-        if self.enable_reorder:
+        sigma_y = np.std(ys)
+        if self.enable_reorder and (sigma_x > 0 and sigma_y > 0):
+            logger.info("testing for swaps")
             # look for events where the x and y are more than 5 sigma away
             x_errs = np.divide(np.abs(np.subtract(xs, x)), sigma_x) > 5
             y_errs = np.divide(np.abs(np.subtract(ys, y)), sigma_y) > 5
@@ -132,9 +143,9 @@ class BeamPositionAnalysis(Analysis):
             ys_fixed = np.where(swaps, np.multiply(-1.0, ys), ys)
             # recalculate positions
             x = np.mean(xs_fixed)
-            sigma_x = np.stdev(xs_fixed)
+            sigma_x = np.std(xs_fixed)
             y = np.mean(ys_fixed)
-            sigma_y = np.stdev(ys_fixed)
+            sigma_y = np.std(ys_fixed)
         self.position_iter_stat['x'] = x
         self.position_iter_stat['sigma_x'] = sigma_x
         self.position_iter_stat['y'] = y
@@ -144,6 +155,7 @@ class BeamPositionAnalysis(Analysis):
         self.position_iter_stat['error_x'] = error_x
         error_y = (y - self.setpoint_Y) * self.calibration
         self.position_iter_stat['error_y'] = error_y
+        print self.position_iter_stat
 
     def find_ivar(self, ivar_name):
         for ivar in self.experiment.independentVariables:
@@ -155,14 +167,40 @@ class BeamPositionAnalysis(Analysis):
         """Change the value of the independentVariables for the actuators."""
         # x direction
         if self.actuator_variable_X is None:
-            logger.debug("No ivar set for actuator X, searching")
+            logger.info("No ivar set for actuator X, searching")
             self.actuator_variable_X = self.find_ivar(self.actuator_vname_X)
-        self.actuator_variable_X.value -= self.position_iter_stat['error_x']
-        logger.info("Moving actuator X to position: {}".format(self.actuator_variable_X.value))
-
         # y direction
         if self.actuator_variable_Y is None:
-            logger.debug("No ivar set for actuator Y, searching")
+            logger.info("No ivar set for actuator Y, searching")
             self.actuator_variable_Y = self.find_ivar(self.actuator_vname_Y)
-        self.actuator_variable_Y.value -= self.position_iter_stat['error_y']
-        logger.info("Moving actuator Y to position: {}".format(self.actuator_variable_Y.value))
+
+        # only correct drift if we aren't already stepping position variable
+        if (len(self.actuator_variable_X.valueList) == 1 and
+                len(self.actuator_variable_Y.valueList == 1)):
+            msg = "Moving actuator {} to position: {}"
+
+            print "old X value: {}".format(self.actuator_variable_X.currentValue)
+            self.updateIndependentVariableDelta(
+                self.actuator_variable_X,
+                self.position_iter_stat['error_x']
+            )
+            logger.info(msg.format('X', self.actuator_variable_X.currentValue))
+
+            print "old Y value: {}".format(self.actuator_variable_Y.currentValue)
+            self.updateIndependentVariableDelta(
+                self.actuator_variable_Y,
+                self.position_iter_stat['error_y']
+            )
+            logger.info(msg.format('Y', self.actuator_variable_Y.currentValue))
+        else:
+            logger.warning("Detected that actuator position is being stepped. Feedback is turned off.")
+
+    def updateIndependentVariableDelta(self, ivar, delta):
+        ivar.valueList = ivar.valueList.astype('float')
+        ivar.valueList[0] = ivar.currentValue - delta
+        print(type(ivar.valueList[0]))
+        print(type(delta))
+        ivar.currentValue = ivar.valueList[0]
+        print(type(ivar.currentValue))
+        ivar.function = str(ivar.currentValue)
+        ivar.set_gui({'currentValueStr': str(ivar.currentValue)})

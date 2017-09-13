@@ -4180,11 +4180,11 @@ enamldef AAS(Window):
                         Label:
                             text = 'Relative Position'
                         Label:
-                            text = '(' + str(aas.positions['x']) + ', ' + str(aas.positions['y']) + ')'
+                            text = '(' + str(aas.position_iter_stat['x']) + ', ' + str(aas.position_iter_stat['y']) + ')'
                         Label:
                             text = 'Error'
                         Label:
-                            text = '(' + str(aas.positions['x']) + ', ' + str(aas.positions['y']) + ')'
+                            text = '(' + str(aas.position_iter_stat['error_x']) + ', ' + str(aas.position_iter_stat['error_y']) + ')'
 
 
 enamldef Unlock_Pause(Window):
