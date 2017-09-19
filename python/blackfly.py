@@ -19,7 +19,23 @@ from atom.api import Typed, Member, Int, Float, Bool
 from cs_instruments import Instrument
 import zmq_instrument
 from instrument_property import Prop
-from PyCapture2 import PROPERTY_TYPE, BUS_SPEED, GRAB_MODE, PIXEL_FORMAT
+
+try:
+    from PyCapture2 import PROPERTY_TYPE, BUS_SPEED, GRAB_MODE, PIXEL_FORMAT
+except:
+    # just make fake values so stuff doesnt crash when testing
+    print("PyCapture2 not installed, blackfly cameras are not usuable")
+    class ptype(object):
+        def __init__(self):
+            self.TRIGGER_DELAY = 1
+            self.BUFFER_FRAMES = 2
+            self.S_FASTEST = 3
+            self.MONO8 = 4
+
+    PROPERTY_TYPE = ptype()
+    BUS_SPEED = ptype()
+    GRAB_MODE = ptype()
+    PIXEL_FORMAT = ptype()
 
 __author__ = 'Matthew Ebert'
 logger = logging.getLogger(__name__)
@@ -84,7 +100,7 @@ class BFConfiguration(BFProperty):
     server.
     """
 
-    numBuffers = Int(1)  # image buffers on camera (shotsPerMeasurement)
+    numBuffers = Int(2)  # image buffers on camera (shotsPerMeasurement)
     numImageNotification = Int(0)  # number of notifications per image
     grabTimeout = Int(1)  # time in ms before retrieve buffer times out
     grabMode = Int(GRAB_MODE.BUFFER_FRAMES)  # grab mode for camera
@@ -148,6 +164,7 @@ class BFGigEStreamChannel(BFProperty):
             'packetSize', 'interPacketDelay'
         ]
 
+
 class BFGigEImageSettings(BFProperty):
     """Class containing the Configuration properties for a Blackfly camera.
 
@@ -169,7 +186,6 @@ class BFGigEImageSettings(BFProperty):
         self.properties += [
             'offsetX', 'offsetY', 'width', 'height', 'pixelFormat'
         ]
-
 
 
 class BlackflyCamera(Instrument):
@@ -247,6 +263,7 @@ class BlackflyCamera(Instrument):
                 except:
                     self.HardwareProtocol(o, p, settings)
         return settings
+
 
 class Blackfly(Instrument):
     """A camera object for display purposes."""

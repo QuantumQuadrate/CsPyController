@@ -1155,7 +1155,7 @@ class Experiment(Prop):
         index = (self.iteration//self.ivarBases) % self.ivarSteps
 
         for i, x in enumerate(self.independentVariables):
-           if (not self.optimizer.enable) or (not x.optimize):  # update the variable is
+            if (not self.optimizer.enable) or (not x.optimize):  # update the variable is
                 index[i] = x.setIndex(index[i])  # update each variable object
         self.ivarIndex = index
 
