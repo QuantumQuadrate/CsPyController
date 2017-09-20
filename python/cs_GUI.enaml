@@ -4158,11 +4158,11 @@ enamldef AAS(Window):
                         CheckBox:
                             checked := aas.enable_feedback
                         Label:
-                            text = 'calibration'
+                            text = 'calibration X (pixels to degrees)'
                         FloatField:
-                            value := aas.calibration
+                            value := aas.calibration_X
                         Label:
-                            text = 'Setpoint X'
+                            text = 'Setpoint X (pixels)'
                         FloatField:
                             value := aas.setpoint_X
                         Label:
@@ -4170,7 +4170,11 @@ enamldef AAS(Window):
                         Field:
                             text := aas.actuator_vname_X
                         Label:
-                            text = 'Setpoint Y'
+                            text = 'calibration Y (pixels to degrees)'
+                        FloatField:
+                            value := aas.calibration_Y
+                        Label:
+                            text = 'Setpoint Y (pixels)'
                         FloatField:
                             value := aas.setpoint_Y
                         Label:
@@ -4178,11 +4182,11 @@ enamldef AAS(Window):
                         Field:
                             text := aas.actuator_vname_Y
                         Label:
-                            text = 'Relative Position'
+                            text = 'Relative Position (pixels)'
                         Label:
                             text = '(' + str(aas.position_iter_stat['x']) + ', ' + str(aas.position_iter_stat['y']) + ')'
                         Label:
-                            text = 'Error'
+                            text = 'Error (degrees)'
                         Label:
                             text = '(' + str(aas.position_iter_stat['error_x']) + ', ' + str(aas.position_iter_stat['error_y']) + ')'
 

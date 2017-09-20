@@ -27,13 +27,14 @@ class BeamPositionAnalysis(Analysis):
     enable = Bool(False)
     enable_feedback = Bool(False)
     enable_reorder = Bool(False)
-    meas_analysis_path = Str('analysis/positions')
-    iter_analysis_path = Str('analysis/iter_positions')
+    meas_analysis_path = Str('analysis/positions/')
+    iter_analysis_path = Str('analysis/iter_positions/')
     meas_error_path = Str()
     positions_path = Str()
     setpoint_X = Float(0.0)
     setpoint_Y = Float(0.0)
-    calibration = Float(1.0)
+    calibration_X = Float(1.0)
+    calibration_Y = Float(1.0)
     positions = Member()
     position_iter_stat = Member()
     actuator_vname_X = Str()
@@ -55,16 +56,7 @@ class BeamPositionAnalysis(Analysis):
         )
         self.meas_error_path = self.positions_path + '/error'
         self.positions_path += '/stats'
-        # stores positions from each measurement for an iteration
-        self.positions = {
-            'valid_cnt': 0,
-            'x': np.array([]),
-            'y': np.array([]),
-            'x0': np.array([]),
-            'y0': np.array([]),
-            'x1': np.array([]),
-            'y1': np.array([]),
-        }
+        self.initialize_positions()
         self.position_iter_stat = {
             'x': 0, 'y': 0, 'sigma_x': 0, 'sigma_y': 0,
             'error_x': 0, 'error_y': 0
@@ -75,8 +67,21 @@ class BeamPositionAnalysis(Analysis):
         self.properties += [
             'version', 'enable', 'enable_feedback', 'setpoint_X', 'setpoint_Y',
             'actuator_vname_X', 'actuator_vname_Y', 'actuator_variable_X',
-            'actuator_variable_Y', 'calibration', 'enable_reorder'
+            'actuator_variable_Y', 'calibration_X', 'calibration_Y',
+            'enable_reorder'
         ]
+
+    def initialize_positions(self):
+        # stores positions from each measurement for an iteration
+        self.positions = {
+            'valid_cnt': 0,
+            'x': np.array([]),
+            'y': np.array([]),
+            'x0': np.array([]),
+            'y0': np.array([]),
+            'x1': np.array([]),
+            'y1': np.array([]),
+        }
 
     def analyzeMeasurement(self, measResults, iterResults, expResults):
         if self.enable:
@@ -113,6 +118,12 @@ class BeamPositionAnalysis(Analysis):
             else:
                 logger.error("Unable to find positions in measurementResults.")
 
+    def savetohdf5(self,iterationResults):
+        for key in self.position_iter_stat:
+            #print self.iter_analysis_path+key
+            #print self.position_iter_stat[key]
+            iterationResults[self.iter_analysis_path+key]=self.position_iter_stat[key]
+
     def analyzeIteration(self, iterResults, expResults):
         """Analyze all measurements taken in the iteration.
 
@@ -120,8 +131,14 @@ class BeamPositionAnalysis(Analysis):
         """
         if self.enable:
             self.calculateError()
+            self.savetohdf5(iterResults)
             if self.enable_feedback:
                 self.updateActuators()
+
+
+    def preExperiment(self, expResults):
+        self.initialize_positions()
+        super(BeamPositionAnalysis, self).preExperiment(expResults)
 
     def calculateError(self):
         xs = self.positions['x']
@@ -151,10 +168,11 @@ class BeamPositionAnalysis(Analysis):
         self.position_iter_stat['y'] = y
         self.position_iter_stat['sigma_y'] = sigma_y
         # calculate the error signal
-        error_x = (x - self.setpoint_X) * self.calibration
+        error_x = (x - self.setpoint_X) * self.calibration_X
         self.position_iter_stat['error_x'] = error_x
-        error_y = (y - self.setpoint_Y) * self.calibration
+        error_y = (y - self.setpoint_Y) * self.calibration_Y
         self.position_iter_stat['error_y'] = error_y
+        self.initialize_positions()
         print self.position_iter_stat
 
     def find_ivar(self, ivar_name):
