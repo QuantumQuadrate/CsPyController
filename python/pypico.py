@@ -93,7 +93,7 @@ class PyPicoServer(Instrument):
         ]
 
     def initialize(self):
-		# Reading position happens every measurement if they are both enabled.
+        # Reading position happens every measurement if they are both enabled.
         if self.enable and self.enable_measurement:
         #"""Open the zmq socket"""
             self.opensocket()
@@ -105,11 +105,11 @@ class PyPicoServer(Instrument):
             self.moveit()
 
     def opensocket(self):
-		self.context = zmq.Context()
-		self.socket = self.context.socket(zmq.REQ)
-		# set socket timeout in ms
-		self.socket.RCVTIMEO = self.timeout
-		self.socket.connect('tcp://{}:{}'.format(self.IP, self.port))
+        self.context = zmq.Context()
+        self.socket = self.context.socket(zmq.REQ)
+        # set socket timeout in ms
+        self.socket.RCVTIMEO = self.timeout
+        self.socket.connect('tcp://{}:{}'.format(self.IP, self.port))
 
     def readPositions(self):
         '''Read the position of all picomotors in degrees'''
@@ -120,6 +120,33 @@ class PyPicoServer(Instrument):
         for m in self.motors:
             m.readPosition(self.socket)
 
+    def move_motor(self, m, cmd):
+        self.socket.send(cmd)
+        message = self.socket.recv()
+        if is_error_msg(message):
+            msg = 'When moving picomotor `{}`, recieved error msg: `{}`'
+            logger.warn(msg.format(m.motor_number, message))
+            # TODO: check to see if the error is because it didnt
+            # meet the setpoint, within the specified error
+            # if that is the case try again at least once
+            raise PauseError
+        else:
+            m.readPosition(self.socket)
+            move_error = m.desired_position.value - m.current_position
+            msg = (
+                'Motor `{}` moved to position `{}` with no error.'
+                ' Positional error is `{}` DEG.'
+            )
+            logger.info(msg.format(
+                m.motor_number,
+                m.current_position,
+                move_error
+            ))
+        done = True
+        if abs(move_error) > m.max_angle_error:
+            done = False
+        return done
+
     def moveit(self):
         msg = ''
         try:
@@ -127,26 +154,11 @@ class PyPicoServer(Instrument):
                 # the motor class can make up its own commands
                 cmd = m.update()
                 if cmd: # '' is falsy
-                    self.socket.send(cmd)
-                    message = self.socket.recv()
-                    if is_error_msg(message):
-                        msg = 'When moving picomotor `{}`, recieved error msg: `{}`'
-                        logger.warn(msg.format(m.motor_number, message))
-                        # TODO: check to see if the error is because it didnt
-                        # meet the setpoint, within the specified error
-                        # if that is the case try again at least once
-                        raise PauseError
-                    else:
-                        m.readPosition(self.socket)
-                        msg = (
-                            'Motor `{}` moved to position `{}` with no error.'
-                            ' Positional error is `{}` DEG.'
-                        )
-                        logger.info(msg.format(
-                            m.motor_number,
-                            m.current_position,
-                            m.desired_position.value - m.current_position
-                        ))
+                    for trial in range(2):
+                        if self.move_motor(m, cmd):
+                            break
+                        else:
+                            logger.info("Missed trying again")
         except Exception as e:
             logger.exception('Problem setting Picomotor position, closing socket.')
             self.socket.close()

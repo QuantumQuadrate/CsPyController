@@ -39,8 +39,10 @@ class BeamPositionAnalysis(Analysis):
     position_iter_stat = Member()
     actuator_vname_X = Str()
     actuator_variable_X = Member()  # holds independentVariable for x actuator
+    actuator_X = Member()  # holds picomotor object for x actuator to get current position
     actuator_vname_Y = Str()
     actuator_variable_Y = Member()  # holds independentVariable for y actuator
+    actuator_Y = Member()  # holds picomotor object for y actuator to get current position
 
     def __init__(self, experiment):
         super(BeamPositionAnalysis, self).__init__(
@@ -54,6 +56,10 @@ class BeamPositionAnalysis(Analysis):
             'AAS',
             'DataGroup'
         )
+
+        # Needs to be improved to accomodate multiple data paths.
+        # Center finding function can be implemented within BeamPositionAnalysis, in case it has access to raw data.
+        
         self.meas_error_path = self.positions_path + '/error'
         self.positions_path += '/stats'
         self.initialize_positions()
@@ -132,8 +138,9 @@ class BeamPositionAnalysis(Analysis):
         if self.enable:
             self.calculateError()
             self.savetohdf5(iterResults)
-            if self.enable_feedback:
+            if self.enable_feedback and self.positions['valid_cnt'] >= 10:
                 self.updateActuators()
+            self.initialize_positions()
 
 
     def preExperiment(self, expResults):
@@ -172,7 +179,6 @@ class BeamPositionAnalysis(Analysis):
         self.position_iter_stat['error_x'] = error_x
         error_y = (y - self.setpoint_Y) * self.calibration_Y
         self.position_iter_stat['error_y'] = error_y
-        self.initialize_positions()
         print self.position_iter_stat
 
     def find_ivar(self, ivar_name):
@@ -187,38 +193,54 @@ class BeamPositionAnalysis(Analysis):
         if self.actuator_variable_X is None:
             logger.info("No ivar set for actuator X, searching")
             self.actuator_variable_X = self.find_ivar(self.actuator_vname_X)
+        # get
+        if self.actuator_X is None:
+            logger.info("No datagroup set for actuator X, searching")
+            for m in self.experiment.pyPicoServer.motors:
+                if m.motor_number == '0':
+                    self.actuator_X = m
         # y direction
         if self.actuator_variable_Y is None:
             logger.info("No ivar set for actuator Y, searching")
             self.actuator_variable_Y = self.find_ivar(self.actuator_vname_Y)
+        if self.actuator_Y is None:
+            logger.info("No datagroup set for actuator Y, searching")
+            for m in self.experiment.pyPicoServer.motors:
+                if m.motor_number == '1':
+                    self.actuator_Y = m
 
         # only correct drift if we aren't already stepping position variable
         if (len(self.actuator_variable_X.valueList) == 1 and
                 len(self.actuator_variable_Y.valueList == 1)):
-            msg = "Moving actuator {} to position: {}"
+            msg = "Moving actuator {} to position: {:.3f}, delta: {:.3f}"
 
             print "old X value: {}".format(self.actuator_variable_X.currentValue)
             self.updateIndependentVariableDelta(
                 self.actuator_variable_X,
-                self.position_iter_stat['error_x']
+                self.actuator_X.current_position - self.position_iter_stat['error_x']
             )
-            logger.info(msg.format('X', self.actuator_variable_X.currentValue))
+            logger.info(msg.format(
+                'X',
+                self.actuator_variable_X.currentValue,
+                self.position_iter_stat['error_x']
+            ))
 
             print "old Y value: {}".format(self.actuator_variable_Y.currentValue)
             self.updateIndependentVariableDelta(
                 self.actuator_variable_Y,
-                self.position_iter_stat['error_y']
+                self.actuator_Y.current_position - self.position_iter_stat['error_y']
             )
-            logger.info(msg.format('Y', self.actuator_variable_Y.currentValue))
+            logger.info(msg.format(
+                'Y',
+                self.actuator_variable_Y.currentValue,
+                self.position_iter_stat['error_y']
+            ))
         else:
             logger.warning("Detected that actuator position is being stepped. Feedback is turned off.")
 
-    def updateIndependentVariableDelta(self, ivar, delta):
+    def updateIndependentVariableDelta(self, ivar, new_value):
         ivar.valueList = ivar.valueList.astype('float')
-        ivar.valueList[0] = ivar.currentValue - delta
-        print(type(ivar.valueList[0]))
-        print(type(delta))
+        ivar.valueList[0] = new_value
         ivar.currentValue = ivar.valueList[0]
-        print(type(ivar.currentValue))
         ivar.function = str(ivar.currentValue)
         ivar.set_gui({'currentValueStr': str(ivar.currentValue)})
