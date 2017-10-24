@@ -430,12 +430,26 @@ class PICamCamera(Instrument):
         if self.enable:
             try:
                 self.mostrecentresult = self.data
-                if (not self.averageMeasurements) or (self.averageMeasurements and self.experiment.measurement + 1 == self.experiment.measurementsPerIteration):
+                if (not self.averageMeasurements):# or (self.averageMeasurements and self.experiment.measurement == self.experiment.measurementsPerIteration):  #(Removed +1 after self.experiment.measurement)
+                    logger.info("Writing data for PICam")
                     hdf5['PICam_{}'.format(self.currentSerial)] = self.data
             except Exception as e:
                 logger.error('in PICam.writeResults:\n{}'.format(e))
                 raise PauseError
 
+    def writeResultsAverage(self, hdf5):
+        """Overwritten from Instrument.  This function is called by the experiment after
+        data acquisition to write the obtained images to hdf5 file."""
+        if self.enable:
+            try:
+                self.mostrecentresult = self.data
+                if (self.averageMeasurements):# or (self.averageMeasurements and self.experiment.measurement == self.experiment.measurementsPerIteration):  #(Removed +1 after self.experiment.measurement)
+                    logger.info("Writing data for PICam")
+                    hdf5['PICam_{}'.format(self.currentSerial)] = self.data
+            except Exception as e:
+                logger.error('in PICam.writeResults:\n{}'.format(e))
+                raise PauseError                
+                
     def SetSingleScan(self):
         self.SetReadMode(4)
         self.SetImage(1, 1, 1, self.width, 1, self.height)
@@ -713,13 +727,14 @@ class PICamViewer(AnalysisWithFigure):
     mycam=Member()
     ax = Member()
     bgsub = Bool(False)
+    draw_fig = Bool(True)
 
     maxPixel = Int(0)
     meanPixel = Int(0)
 
     def __init__(self, name, experiment, description,camera):
         super(PICamViewer, self).__init__(name, experiment, description)
-        self.properties += ['shot', 'bgsub']
+        self.properties += ['shot', 'bgsub', 'draw_fig']
         self.mycam=camera
 
     def analyzeMeasurement(self, measurementResults, iterationResults, experimentResults):
@@ -945,3 +960,22 @@ class PICams(Instrument,Analysis):
             self.isInitialized = False
             raise PauseError
         return 0
+        
+    def analyzeIteration(self,iterationResults,experimentResults):
+        msg = ''
+        try:
+            for i in self.motors:
+                if i.camera.enable:
+                    msg = i.camera.writeResultsAverage(iterationResults)
+        except Exception as e:
+            logger.error('Problem writing Princeton Instruments camera data at end of iteration:\n{}\n{}\n'.format(msg, e))
+            self.isInitialized = False
+            raise PauseError
+        super(PICams,self).analyzeIteration(iterationResults, experimentResults)
+        
+    def postExperiment(self,experimentresults):
+        # We have been unable to figure out why during the postExperiment call
+        # the enable is set to False for PICams.  This is a shitty patch (DB & MFE)
+        temp_enable = self.enable
+        super(PICams,self).postExperiment(experimentresults)
+        self.enable = temp_enable

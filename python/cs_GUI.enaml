@@ -1856,7 +1856,7 @@ enamldef BlackflyClient(Window):
 enamldef Blackfly(Form):
     attr item
 
-    constraints = [width >= 1200, height >= 1300]
+    constraints = [width >= 1000, height >= 600]
 
     #title = 'Andor Camera'
     style_class << 'valid' if experiment.valid else 'invalid'
@@ -1867,6 +1867,9 @@ enamldef Blackfly(Form):
             style_class << 'valid' if experiment.valid else 'invalid'
             Container:
                 style_class << 'valid' if experiment.valid else 'invalid'
+                LabelBox:
+                    text = 'enable'
+                    checked := item.camera.enable
 
                 #HGroup:
                   #  MPLCanvas:
@@ -2095,6 +2098,9 @@ enamldef PICams(Window):
         style_class << 'valid' if experiment.valid else 'invalid'
         ScrollArea:
             style_class << 'valid' if experiment.valid else 'invalid'
+            LabelBox:
+                text = 'enable'
+                checked := picams.enable
             Container:
                 style_class << 'valid' if experiment.valid else 'invalid'
 
@@ -2214,6 +2220,9 @@ enamldef Picam(Form):
                 LabelBox:
                     text = 'Sum Measurements'
                     checked := item.camera.averageMeasurements
+                LabelBox:
+                    text = 'Draw Figure'
+                    checked := item.analysis.draw_fig
                 Form:
                     Label:
                         text = 'shot'

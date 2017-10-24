@@ -84,7 +84,7 @@ class BFConfiguration(BFProperty):
     server.
     """
 
-    numBuffers = Int(1)  # image buffers on camera (shotsPerMeasurement)
+    numBuffers = Int(10)  # image buffers on camera (shotsPerMeasurement)
     numImageNotification = Int(0)  # number of notifications per image
     grabTimeout = Int(1)  # time in ms before retrieve buffer times out
     grabMode = Int(GRAB_MODE.BUFFER_FRAMES)  # grab mode for camera
@@ -99,7 +99,7 @@ class BFConfiguration(BFProperty):
         super(BFConfiguration, self).__init__(name, experiment, description)
         # things not in the property list are not sent to the camera
         self.properties += [
-            'grabMode'
+            'grabMode', 'numBuffers'
         ]
 
 
@@ -156,11 +156,11 @@ class BFGigEImageSettings(BFProperty):
     server.
     """
 
-    offsetX = Int(364)
-    offsetY = Int(374)
-    width = Int(200)  # actual width seems to be 50% larger on camera?
-    height = Int(200)
-    pixelFormat = Int(PIXEL_FORMAT.MONO12)
+    offsetX = Int(1)
+    offsetY = Int(1)
+    width = Int(1280)#
+    height = Int(960)
+    pixelFormat = Int(PIXEL_FORMAT.MONO8)
 
     def __init__(self, name, experiment, description=''):
         """Add in the properties that need to be sent to the camera."""
@@ -176,7 +176,8 @@ class BlackflyCamera(Instrument):
     """An actual camera object."""
 
     serial = Int(0)
-    exposureTime = Float(20.0)
+    exposureTime = Float(5.0)
+    shotsPerMeasurement = Int(2)
     triggerDelay = Member()
     configuration = Member()
     gigEConfig = Member()
@@ -214,7 +215,8 @@ class BlackflyCamera(Instrument):
         )
         self.properties += [
             'serial', 'exposureTime', 'triggerDelay', 'configuration',
-            'gigEConfig', 'gigEStreamChannel', 'gigEImageSettings'
+            'gigEConfig', 'gigEStreamChannel', 'gigEImageSettings',
+            'shotsPerMeasurement'
         ]
         self.doNotSendToHardware += []
 
