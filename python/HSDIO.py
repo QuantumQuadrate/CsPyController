@@ -120,8 +120,8 @@ class HSDIO(Instrument):
         ]
         # script and waveforms are handled specially in HSDIO.toHardware()
         self.doNotSendToHardware += ['units', 'numChannels']
-        self.transition_list = []  # an empty list to store
-        self.repeat_list = []
+        self.transition_list = []  # an empty list to store state transitions
+        self.repeat_list = []  # list to store repeat times
 
     def evaluate(self):
         """Prepare the instrument."""
@@ -156,20 +156,42 @@ class HSDIO(Instrument):
         :param repeats: Number of times func should be repeated
         :return elapsed time for all repetitions:
         """
-        logger.debug('add_repeat Called')
-        # print '*************DEBUG func={}*************'.format(function)
-        time = function(time)
+        logger.debug('add_repeat called')
+        # mark the transition_list position where the repeat starts
+        start_index = len(self.transition_list)
         t0 = time
-        # print repeats
-        for i in range(repeats-2):
-            time = function(time)
-            if i == 0:
-                dt = time-t0
-        tf = time
-        time = function(time)
+        dt = function(time) - t0
+        stop_index = len(self.transition_list) - 1
+
+        # check that dt is an integer multiple of cycles
+        req_cycles_per_repeat = dt*self.clockRate.value*self.units.value
+        cycles_per_repeat = int(req_cycles_per_repeat)
+        # warn if cycle error is too large (remember finite precision for FPs)
+        if abs(req_cycles_per_repeat - cycles_per_repeat) < 0.001:
+            msg = (
+                "Requested repeat cycle time is not an integer number of cycles.  Requested cycles: `{}`,"
+                " actual: `{}`"
+            )
+            logger.warning(msg.format(req_cycles_per_repeat, cycles_per_repeat))
+
+        # warn if the repeat cycle time is possibly unstable
+        if cycles_per_repeat < self.experiment.Config.config.getint('HSDIO', 'MinStableWaitCycles'):
+            logger.warning((
+                "Repeat cycle time is possibly unstable."
+                " Consider doubling the repeat function length."
+            ))
+
         # Check t0 times to make sure each repeat in repeat_list is unique
-        if len(self.repeat_list) == 0 or sum([self.repeat_list[i][0] == t0 for i in range(len(self.repeat_list))]) == 0:
-            self.repeat_list.append([t0, dt, tf, repeats - 2])
+        if len(self.repeat_list) == 0 or sum([r['t0'] == t0 for r in self.repeat_list]) == 0:
+            self.repeat_list.append({
+                't0': t0,
+                'dt': dt,
+                'tf': t0 + dt*repeats,
+                'repeats': repeats,
+                'cycles_per_repeat': cycles_per_repeat,
+                'start_index': start_index,
+                'stop_index': stop_index
+            })
         return time
 
     def parse_transition_list(self):
@@ -180,7 +202,8 @@ class HSDIO(Instrument):
             indices = np.rint(
                 np.array(
                     [i[0] for i in self.transition_list],
-                    dtype=np.float64)*self.clockRate.value*self.units.value
+                    dtype=np.float64
+                )*self.clockRate.value*self.units.value
             ).astype(np.uint64)
             # compile the channels
             channels = np.array([i[1] for i in self.transition_list], dtype=np.uint8)
@@ -189,6 +212,9 @@ class HSDIO(Instrument):
 
             # Create two arrays to store the compiled times and states.
             # These arrays will be appended to to increase their size as we go along.
+            # MFE2017: Appending can get computationally expensive with numpy for large arrays since it makes
+            # a new array each call. If this is causing a delay consider doing block appends or precalculating
+            # the array length.
             index_list = np.zeros(1, dtype=np.uint64)
             state_list = np.zeros((1, self.numChannels), dtype=np.bool)
 
@@ -197,8 +223,14 @@ class HSDIO(Instrument):
             # which means items of the same value are kept in their relative order, which is desired here
             order = np.argsort(indices, kind='mergesort')
 
+            # make a list of repeat start indicies so we can easily check if the repeat is being called
+            repeat_start_indices = [r['start_index'] for r in self.repeat_list]
             # go through all the transitions, updating the compiled sequence as we go
-            for i in order:
+            for (idx, i) in enumerate(order):
+                if i in repeat_start_indices:
+                    # if this is a repeat call make sure there are no transitions that are accidentally being
+                    # inserted into the repeat
+
                 # check to see if the next time is the same as the last one in the time list
                 if indices[i] == index_list[-1]:
                     # if this is a duplicate time, the latter entry overrides
@@ -314,6 +346,17 @@ class HSDIO(Instrument):
             'xml': waveform
         }
 
+    def do_repeats_overlap(self):
+        """Check to see if any of the Repeat regions overlap."""
+        sorted_rpt = np.sort(self.repeat_list, axis=0)
+        overlap = []
+        for i in xrange(len(self.repeat_list)-1):
+            # if tf current repeat > t0 next repeat
+            if sorted_rpt[i][2] > sorted_rpt[i+1][0]:
+                overlap.append(i)
+                logger.warning('HSDIO Repeat Overlap at ts={}'.format(sorted_rpt[i+1][0]))
+        return len(overlap) > 0
+
     def toHardware(self):
         """Generate the XML string necessary to program the HSDIO card.
 
@@ -344,14 +387,19 @@ class HSDIO(Instrument):
         if self.enable:
             # build dictionary of waveforms keyed on waveform name
             waveformsInUse = []
+            # keep a counter of comlex waveforms so they can each have a unique name
             self.complex_waveform_counter = 0
-
             script = ['script script1']
             master_waveform_list = []
-
             # list of indicies and waitTimes to be added to a single waveform
             transition_list = []
-            # go through each transition
+
+            # make sure that there are no overlapping repeat calls
+            if self.do_repeats_overlap():
+                logger.error('HSDIO Repeat Overlap Error: make sure HSDIO Repeat calls do not overlap')
+                self.repeat_list = []
+                raise PauseError
+
             for i in xrange(len(self.indices)):
                 waitTime = self.getNormalizedWaitTime(i)
                 # append index and waittime to list of transitions to add as a single waveform
@@ -377,57 +425,39 @@ class HSDIO(Instrument):
                         script.append(wait_phrase.format(max_wait_cycles))
                     # add the remaining wait
                     script.append(wait_phrase.format(int(waitTime % max_wait_cycles)))
-
-            # Check to see if any of the Repeat regions overlap
-            sorted_rpt = np.sort(self.repeat_list, axis=0)
-
-            # ########### PROBABLY BROKEN - MFE2017 ##########################################################
-            if len(self.repeat_list) > 0:
-                logger.warning('The repeat functionality is probably broken. - MFE2017')
-            overlap = []
-            for i in xrange(len(self.repeat_list)-1):
-                if sorted_rpt[i][2] > sorted_rpt[i+1][0]:
-                    overlap.append(i)
-                    logger.warning('HSDIO Repeat Overlap at ts={}'.format(sorted_rpt[i+1][0]))
-            if len(overlap) > 0:
-                try:
-                    self.repeat_list = []
-                    raise Exception
-                except:
-                    logger.error('HSDIO Repeat Overlap Error: make sure HSDIO Repeat calls do not overlap')
-                    raise PauseError
-            if len(self.repeat_list) > 0:
-                ctr = 0
-                for i in xrange(len(self.repeat_list)):
-                    if self.repeat_list[i][-1] > 2:
-                        tunits = self.clockRate.value*self.units.value
-                        t0, dt, tf = [
-                            np.uint64(np.ceil(j*self.clockRate.value)*tunits/self.clockRate.value)
-                            for j in self.repeat_list[i][:-1]
-                        ]
-                        repeats = self.repeat_list[i][-1]
-                        if ctr == 0:
-                            script_list = script.split('\n')
-
-                        # Ignore first line of script_list. For each single sample waveform there
-                        # is a waveform and a wait line so double the # of indices. Preserve indices
-                        # correlation with script so that iterating over repeats doesn't break. np.NaN out any
-                        # lines that aren't used so we can dump them at the end!
-                        idx_start = 2*np.where(self.indices == t0)[0][0] + 1 + 2*ctr
-                        idx_func = 2*np.where(self.indices == dt+t0)[0][0] + 1 + 2*ctr
-                        idx_end = 2*np.where(self.indices == tf)[0][0] + 1 + 2*ctr
-
-                        # start by np.NaNing out repititions
-                        for idx in range(idx_func, idx_end):
-                            script_list[idx] = np.NaN
-
-                        script_list.insert(idx_start, 'Repeat {}'.format(int(repeats)))
-                        script_list.insert(idx_func+1, 'end Repeat')
-                        ctr += 1
-
-                cleaned_list = [j for j in script_list if str(j) != 'nan']
-                # np.savetxt('script_clean.txt',cleaned_list)
-                script = '\n'.join(cleaned_list)
+            #
+            # if len(self.repeat_list) > 0:
+            #     ctr = 0
+            #     for i in xrange(len(self.repeat_list)):
+            #         if self.repeat_list[i][-1] > 2:
+            #             tunits = self.clockRate.value*self.units.value
+            #             t0, dt, tf = [
+            #                 np.uint64(np.ceil(j*self.clockRate.value)*tunits/self.clockRate.value)
+            #                 for j in self.repeat_list[i][:-1]
+            #             ]
+            #             repeats = self.repeat_list[i][-1]
+            #             if ctr == 0:
+            #                 script_list = script.split('\n')
+            #
+            #             # Ignore first line of script_list. For each single sample waveform there
+            #             # is a waveform and a wait line so double the # of indices. Preserve indices
+            #             # correlation with script so that iterating over repeats doesn't break. np.NaN out any
+            #             # lines that aren't used so we can dump them at the end!
+            #             idx_start = 2*np.where(self.indices == t0)[0][0] + 1 + 2*ctr
+            #             idx_func = 2*np.where(self.indices == dt+t0)[0][0] + 1 + 2*ctr
+            #             idx_end = 2*np.where(self.indices == tf)[0][0] + 1 + 2*ctr
+            #
+            #             # start by np.NaNing out repititions
+            #             for idx in range(idx_func, idx_end):
+            #                 script_list[idx] = np.NaN
+            #
+            #             script_list.insert(idx_start, 'Repeat {}'.format(int(repeats)))
+            #             script_list.insert(idx_func+1, 'end Repeat')
+            #             ctr += 1
+            #
+            #     cleaned_list = [j for j in script_list if str(j) != 'nan']
+            #     # np.savetxt('script_clean.txt',cleaned_list)
+            #     script = '\n'.join(cleaned_list)
             # ################################################################################################
             script.append('end script')
             print script
