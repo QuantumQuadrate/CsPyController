@@ -161,7 +161,7 @@ class HSDIO(Instrument):
         time = function(time)
         t0 = time
         # print repeats
-        for i in range(repeats-2):
+        for i in xrange(repeats-2):
             time = function(time)
             if i == 0:
                 dt = time-t0
@@ -280,14 +280,15 @@ class HSDIO(Instrument):
         time = 0
         for tnum, t in enumerate(transition_list):
             i = t['index']
-            for k in range(t['waitTime']):
+            state = ' '.join([str(int(state)) for state in self.states[i]])
+            for k in xrange(t['waitTime']):
                 for q in range(hardware_quanta):
                     # add in the transition
                     transitions.append(str(time))
-                    # move time coutner up one cycle
+                    # move time counter up one cycle
                     time += 1
                     # and the state
-                    states.append(' '.join([str(int(state)) for state in self.states[i]]))
+                    states.append(state)
                 # the last transition in the list does not need to be unrolled
                 if tnum + 1 == len(transition_list):
                     break
@@ -430,7 +431,7 @@ class HSDIO(Instrument):
                 script = '\n'.join(cleaned_list)
             # ################################################################################################
             script.append('end script')
-            print script
+            # print script
             self.repeat_list = []
             xml_str = '<HSDIO><script>{}</script>\n<waveforms>{}</waveforms>\n'.format(
                 '\n'.join(script),

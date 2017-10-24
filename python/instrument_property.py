@@ -64,11 +64,12 @@ class Prop(Atom):
                     continue
                 if hasattr(o, 'evaluate'):  # check if it has an evaluate method.  If not, do nothing.
                     try:
+                        # logger.info("evaluating: {} in {}".format(o, self.name))
                         o.evaluate()  # evaluate it
                     except PauseError:
                         raise PauseError
-                    except Exception as e:
-                        logger.warning('Evaluating '+p+' in '+self.name+'.properties.\n'+str(e)+str(traceback.format_exc())+'\n')
+                    except:
+                        logger.exception('Evaluating '+p+' in '+self.name+'.properties.')
                         raise PauseError
             #if self.GUI is not None and hasattr(self.GUI, 'update'):
             #    self.GUI.update()
