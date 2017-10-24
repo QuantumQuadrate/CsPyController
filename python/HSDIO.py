@@ -281,18 +281,18 @@ class HSDIO(Instrument):
         for tnum, t in enumerate(transition_list):
             i = t['index']
             state = ' '.join([str(int(state)) for state in self.states[i]])
-            for k in xrange(t['waitTime']):
-                for q in range(hardware_quanta):
-                    # add in the transition
-                    transitions.append(str(time))
-                    # move time counter up one cycle
-                    time += 1
-                    # and the state
-                    states.append(state)
-                # the last transition in the list does not need to be unrolled
-                if tnum + 1 == len(transition_list):
-                    break
-                # otherwise unroll the waittime for short waits, i.e. continue with the loop
+            for q in range(hardware_quanta):
+                # add in the transition
+                transitions.append(str(time))
+                # move time counter up one cycle
+                time += 1
+                # and the state
+                states.append(state)
+            time += t['waitTime'] - 1*hardware_quanta
+            # the last transition in the list does not need to be unrolled
+            if tnum + 1 == len(transition_list):
+                break
+            # otherwise unroll the waittime for short waits, i.e. continue with the loop
         waveform = {'waveform': {
             'name': wname,
             'transitions': ' '.join(transitions),
@@ -309,7 +309,6 @@ class HSDIO(Instrument):
             waveformsInUse.append(wname)
             # don't create a real waveform object, just its toHardware signature
             waveform = self.generate_waveform(wname, transition_list)
-            print wname
         return {
             'name': wname,
             'xml': waveform
