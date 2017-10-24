@@ -317,8 +317,9 @@ class Prop(Atom):
                 return o.toHardware()
             except PauseError:
                 raise PauseError
-            except Exception as e:
-                logger.warning('In Prop.HardwareProtocol() for class '+self.name+' while trying '+name+'.toHardware.\n'+str(e)+'\n')
+            except:
+                msg = 'In Prop.HardwareProtocol() for class {} while trying {}.toHardware.'
+                logger.exception(msg.format(self.name, name))
                 raise PauseError
 
         #else just give str(o)

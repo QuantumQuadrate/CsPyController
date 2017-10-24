@@ -18,6 +18,7 @@ Written by Martin Lichtman
  * colorama (pip install colorama) -> for colored output logs
  * colorlog (pip install colorlog) -> for colored output logs
  * pyzmq (pip install zmq) -> zmq communication for origin and pypico server
+ * dicttoxml -> used for some labview xml communication (I forked the main copy of this to fix some annoying things)
  * origin (see below)
 
 ### On Ubuntu
@@ -28,7 +29,7 @@ $ pip install -r requirements.txt
 ```
 First though install the system level pyaudio dependencies below.
 
-To install pyaudio in virtual environment: 
+To install pyaudio in virtual environment:
 
 ```bash
 $ sudo apt-get install libjack-jackd2-dev portaudio19-dev
@@ -98,14 +99,14 @@ The high-speed digital I/O (NI PXIe-6545) instrument can be set up via the pytho
 
 On the computer running the labview server:
  * open NI MAX and get (or set) the name (_name_) in the device settings
- 
+
 On the computer running the python controller:
  * In the PXI communication palette, the PXI communication must be enabled and connected to the labview server
  * The timeout on the PXI communciation should be longer than the measurement cycle time
  * In the HSDIO palette, the resource name field should be set to _name_
  * The number of channels should be specified e.g. 32 (increments of 32)
  * The same number of channels should be added (using the + button)
- 
+
 ### Functional Waveforms
 
 The functional waveforms module may throw an error ("Exception in HSDIO: index 2 is out of bounds for axis 0 with size 2") if there is a channel in the HSDIO or Analog Out waveforms that has one or fewer defined intervals. This may also appear as an exception in functional_waveforms_graph.draw_digital(). As a workaround, I've added the following to the init function in our functional waveforms file (it adds a 100 microsecond 'off' period to the beginning of the sequence to ensure that all channels have at least two defined values):
@@ -139,6 +140,14 @@ To do this edit the config file `CsPyController/python/config/config_<EXPTAG>.cf
 ```python
 OriginInstallPath = "C:\\LabSoftware\\Origin" ; example path
 ```
+
+I forked the xmltodict module on pip because the author put in a bunch of log statements that end up poluting
+our logging.
+I deleted them, but to avoid it you have to install my fork, so:
+```bash
+pip install -e git+https://github.com/mfe5003/dicttoxml#egg=dicttoxml
+```
+
 
 #### Usage
 The module works by automagically generating a list of per-measurement and per-iteration datasets after and experiment has been run.

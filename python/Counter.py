@@ -69,7 +69,7 @@ class CounterAnalysis(AnalysisWithFigure):
 
     def __init__(self, name, experiment, description=''):
         super(CounterAnalysis, self).__init__(name, experiment, description)
-        self.properties += ['enable']
+        self.properties += ['enable', 'drops', 'bins']
 
 
     def preExperiment(self, experimentResults):
@@ -81,8 +81,6 @@ class CounterAnalysis(AnalysisWithFigure):
         if self.enable:
             self.binned_array = np.array([self.counter_array[:, self.drops:self.drops+self.bins].sum(1),
                                           self.counter_array[:, -self.bins:].sum(1)])
-            print self.binned_array.shape
-
         self.updateFigure()
 
 
