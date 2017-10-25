@@ -28,6 +28,13 @@ __author__ = 'Martin Lichtman'
 logger = logging.getLogger(__name__)
 
 
+def shallow_copy(d):
+    new_d = {}
+    for k in d:
+        new_d[k] = d[k]
+    return new_d
+
+
 class ScriptTrigger(Prop):
     id = Typed(StrProp)
     source = Typed(StrProp)
@@ -166,14 +173,18 @@ class HSDIO(Instrument):
 
         # check that dt is an integer multiple of cycles
         req_cycles_per_repeat = dt*self.clockRate.value*self.units.value
-        cycles_per_repeat = int(req_cycles_per_repeat)
+        cycles_per_repeat = int(round(req_cycles_per_repeat))
         # warn if cycle error is too large (remember finite precision for FPs)
-        if abs(req_cycles_per_repeat - cycles_per_repeat) < 0.001:
+        if abs(req_cycles_per_repeat - cycles_per_repeat) < 0.1:
             msg = (
                 "Requested repeat cycle time is not an integer number of cycles.  Requested cycles: `{}`,"
                 " actual: `{}`"
             )
             logger.warning(msg.format(req_cycles_per_repeat, cycles_per_repeat))
+        # recalculate dt to remove FP errors
+        if self.units.value > 0:
+            dt = cycles_per_repeat/(self.clockRate.value*self.units.value)
+            # there is some initialization order issue where these are 0 at start up
 
         # warn if the repeat cycle time is possibly unstable
         if cycles_per_repeat < self.experiment.Config.config.getint('HSDIO', 'MinStableWaitCycles'):
@@ -203,7 +214,7 @@ class HSDIO(Instrument):
         for idx in xrange(start_index, stop_index+1):
             # add entries to the tuple with the cycle dict
             self.transition_list[idx] += (cycle_dict,)
-        return time
+        return time + dt*repeats
 
     def parse_transition_list(self):
         """Turn requested transitions into a list of states and delays."""
@@ -222,8 +233,7 @@ class HSDIO(Instrument):
             # keep track of repeats, [ -1 -1 -1 (cycle_dict, 0) (cycle_dict, 1) ... -1 -1]
             # -1 is non-repeat, a tuple with cycle info dict and the cycle index is inserted for each
             # cycle transition
-            repeats = np.array([-1 if len(i) < 4 else i[4] for i in self.transition_list], dtype=np.uint8)
-            print repeats
+            repeats = [-1 if len(i) < 4 else i[3] for i in self.transition_list]
 
             # Create two arrays to store the compiled times and states.
             # These arrays will be appended to to increase their size as we go along.
@@ -239,8 +249,8 @@ class HSDIO(Instrument):
             # go through all the transitions, updating the compiled sequence as we go
             cycle_idx = 0
             for i in order:
-                if len(self.transition_list[i] > 3):
-                    print("repeat cycle: {} detected at index: {}".format(self.transition_list[i][3], i))
+                if len(self.transition_list[i]) > 3:
+                    logger.debug("repeat cycle: {} detected at index: {}".format(self.transition_list[i][3], i))
                 # check to see if the next time is the same as the last one in the time list
                 if indices[i] == index_list[-1]:
                     # if this is a duplicate time, the latter entry overrides
@@ -256,7 +266,7 @@ class HSDIO(Instrument):
                     repeat_list.append(-1)
                     if repeats[i] != -1:
                         # need a compressed cycle index
-                        repeat_list[-1] = (repeats[0], cycle_idx)
+                        repeat_list[-1] = repeats[i]
                         cycle_idx += 1
                     else:
                         # reset the cycle index if not in a repeat cycle
@@ -317,7 +327,8 @@ class HSDIO(Instrument):
         # simple waveforms can be reused to save memory
         else:
             # the name is w followed by the hexadecimal expression of the state
-            hex_state = hex(int(transition_list[0]['state'], 2))
+            s = transition_list[0]['state'].replace(' ', '')
+            hex_state = hex(int(s, 2))
             return 'w' + hex_state
 
     def generate_waveform(self, wname, transition_list):
@@ -366,50 +377,89 @@ class HSDIO(Instrument):
 
     def add_repeat_waveform(self, transition_list, waveformsInUse):
         """Generate a list of waveform dicts with 'name', 'xml', and 'cycles' keys."""
-        # break up the transition_list if other (non-repeat) transitions occur during the repeat cycle
+        #, cycle_idxi break up the transition_list if other (non-repeat) transitions occur during the repeat cycle
         repeat_only_list = []  # the core repeat transitions
-        other_transitions = []  # the other transitions that break up the repeat cycles
+        other_transitions = [0]  # the other transitions that break up the repeat cycles
         repeats_done = False
         repeat_sample_clock_cycles = 0
+        sample_clock_cycles_to_next_ot = -1
         for t in transition_list:
-            if self.repeats[t['index']] != -1:
-                if not repeats_done:
-                    # mark the total time to first other transition
-                    sample_clock_cycles_to_next_ot = repeat_sample_clock_cycles + t['waitTime']
+            if self.repeats[t['index']] == -1:
+                if not repeats_done or sample_clock_cycles_to_next_ot < 0:
+                    # mark the total time to first other transition, use from before but cant overwrite
+                    # because I am dumb
+                    sample_clock_cycles_to_next_ot = sample_clock_cycles_to_next_ot_option
                 repeats_done = True
-                other_transitions.append(t)
+                other_transitions.append(shallow_copy(t))
             else:
                 if repeats_done:
                     logger.error("An HSDIO state change was detected during the first repeat cycle.")
                     raise PauseError
-                repeat_only_list.append(t)
+                repeat_only_list.append(shallow_copy(t))
                 repeat_sample_clock_cycles += t['waitTime']
+                sample_clock_cycles_to_next_ot_option = repeat_sample_clock_cycles
+                if repeat_sample_clock_cycles > t['cycles_per_repeat']:
+                    # clean up waits
+                    repeat_only_list[-1]['waitTime'] -= repeat_sample_clock_cycles - t['cycles_per_repeat'] + 1
+                    repeat_sample_clock_cycles = t['cycles_per_repeat']
+                    # repeat the last transition so the cycle has the correct length
+                    last_t = shallow_copy(t)
+                    last_t['waitTime'] = 0
+                    repeat_only_list.append(last_t)
+                    # repeats should be done now
+                    repeats_done = True
+                    # need a dummy transition to get the loop to work
+                    other_transitions[0] = shallow_copy(t)
+
+        # if we didn't go through the loop handle this stuff now
+        if sample_clock_cycles_to_next_ot < 0:
+            sample_clock_cycles_to_next_ot = repeat_sample_clock_cycles
+            sample_clock_cycles_to_next_ot *= repeat_only_list[0]['repeats']
+        other_transitions[0]['waitTime'] = sample_clock_cycles_to_next_ot
+
         # now let make a list of transition_lists broken up by the other transitions
         transition_lists = []
         transition_cycles = []
-        for ot in other_transitions:
+        cycle_count = 0
+        modulo = 0
+        for i, ot in enumerate(other_transitions):
             # calculate how many full cycles before each other transition
+            sample_clock_cycles_to_next_ot = ot['waitTime']
+            if modulo:  # from last round
+                sample_clock_cycles_to_next_ot -= repeat_only_list[0]['cycles_per_repeat'] - modulo
             full_cycles, modulo = divmod(sample_clock_cycles_to_next_ot, repeat_sample_clock_cycles)
+            if cycle_count + full_cycles > repeat_only_list[0]['repeats']:
+                full_cycles = repeat_only_list[0]['repeats'] - cycle_count
+                modulo = 0
+            new_repeat_only_list = self.update_transition_list(repeat_only_list, ot)
+            repeat_only_list = new_repeat_only_list
             # generate a waveform for the full cycles
             transition_lists.append(repeat_only_list)
             transition_cycles.append(full_cycles)
-            new_repeat_only_list = self.update_transition_list(repeat_only_list, ot)
+            cycle_count += full_cycles
             # generate a patch waveform if a cycle is interrupted
             if modulo > 0:
+                logger.error("Breaking up a repeat cycle in the middle of a cycle, is broken right now, bother MFE about debugging, or change your func waveforms to interrupt synced with a repeat cycle.")
+                raise PauseError
                 # step through repeat waveform and switch to new_repeat_only_list, when cycles are exceeded
                 transition_lists.append([])
                 transition_cycles.append(1)
                 t = 0
+                cycle_count += 1
+                new_repeat_only_list = self.update_transition_list(repeat_only_list, other_transitions[i+1])
                 for idx in range(len(repeat_only_list)):
                     if t >= modulo:
-                        repeat_only_list = new_repeat_only_list
-                    transition_lists[-1].append(repeat_only_list[idx])
+                        transition_lists[-1].append(new_repeat_only_list[idx])
+                    else:
+                        transition_lists[-1].append(repeat_only_list[idx])
+
         # now that we have split up the lists and applied the other transisions, generate the new waveforms
         waveforms = []
         for idx, tl in enumerate(transition_lists):
             wform = self.add_waveform(tl, waveformsInUse)
             wform['cycles'] = transition_cycles[idx]
             waveforms.append(wform)
+            # print wform
         return waveforms
 
     def update_transition_list(self, t_list, update):
@@ -424,7 +474,9 @@ class HSDIO(Instrument):
         for idx in range(len(update_state_list)):
             delta.append(update_state_list[idx] - old_state_list[idx])
         # apply delta
+        new_list = []
         for t in t_list:
+            new_t = shallow_copy(t)
             s = map(int, t['state'].split(' '))
             # if this goes out of range 0, 1 then you were changing one of the repeating channels
             new_state = []
@@ -434,8 +486,9 @@ class HSDIO(Instrument):
                     logger.error("Changing a repeating channels during a repeat cycle is not allowed.")
                     raise PauseError
             # cast back to a string
-            t['state'] = ' '.join(map(str, new_state))
-        return t_list
+            new_t['state'] = ' '.join(map(str, new_state))
+            new_list.append(new_t)
+        return new_list
 
     def find_repeat_overlaps(self):
         """Go through the list of repeats and return a list of overlaps."""
@@ -520,6 +573,10 @@ class HSDIO(Instrument):
                     in_repeat_cycle = True
                     # check end condition
                     cumulative_time += waitTime
+                    if self.repeats[i] != -1:
+                        # append some extra info to transition dict
+                        for key in ['cycles_per_repeat', 'repeats']:
+                            transition_list[-1][key] = self.repeats[i][key]
                     if cumulative_time > total_time:
                         # break out after this transition
                         in_repeat_cycle = False
@@ -536,14 +593,15 @@ class HSDIO(Instrument):
                                 script.append('generate {}'.format(w['name']))
                             master_waveform_list.append(w['xml'])
                             # add in the necessary wait statement after the cycle
-                            self.add_wait(script, cumulative_time-total_time)
+                        self.add_wait(script, cumulative_time-total_time)
+                        transition_list = []
 
                 # if not a repeat do the normal thing
                 else:
                     # if the waitTime is less than the stable time add another state to the transition list
                     # if the next transition is marked as a repeat then, just stop now
                     minWait = self.experiment.Config.config.getint('HSDIO', 'MinStableWaitCycles')
-                    if (waitTime >= minWait) or (self.repeats[i+1] != -1):
+                    if (waitTime >= minWait) or (i+1 == len(self.repeats)) or (self.repeats[i+1] != -1):
                         waveform = self.add_waveform(transition_list, waveformsInUse)
                         # reset transition list
                         transition_list = []
@@ -555,7 +613,6 @@ class HSDIO(Instrument):
                         self.add_wait(script, waitTime)
 
             script.append('end script')
-            # print script
             self.repeat_list = []
             xml_str = '<HSDIO><script>{}</script>\n<waveforms>{}</waveforms>\n'.format(
                 '\n'.join(script),

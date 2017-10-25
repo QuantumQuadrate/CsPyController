@@ -18,7 +18,12 @@ import Counter, conex, aerotech, unlock_pause, niscope, newportstage, nidaq_ai
 import origin_interface
 import FakeInstrument # for testing
 from pypico import PyPicoServer  # for communicating with a picomotor server
-from blackfly import BlackflyClient  # communicates with Blackfly camera server
+try:
+    from blackfly import BlackflyClient  # communicates with Blackfly camera server
+    pycap = True
+except:
+    print "Blackfly client disabled, install PyCapture2 module to enable"
+    pycap = False
 # from vital_sign_sound import Vitalsign
 
 # analyses
@@ -106,7 +111,8 @@ class AQuA(Experiment):
         self.picomotors = picomotors.Picomotors('picomotors', self, 'Newport Picomotors')
         self.instekpsts = instek_pst.InstekPSTs('instekpsts', self, 'Instek PST power supply')
         self.Andors = andor.Andors('Andors', self, 'Andor Luca measurementResults')
-        self.blackfly_client = BlackflyClient('BlackflyClient', self)
+        if pycap:
+            self.blackfly_client = BlackflyClient('BlackflyClient', self)
         self.vaunixs = vaunix.Vaunixs('vaunixs', self, 'Vaunix Signal Generator')
         self.PICams = picampython.PICams('PICams', self, 'Princeton Instruments Cameras')
         self.DAQmxAI = nidaq_ai.NIDAQmxAI('DAQmxAI',self,'NI-DAQmx Analog Input')
