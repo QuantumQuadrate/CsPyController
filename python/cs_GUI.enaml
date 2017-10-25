@@ -1913,6 +1913,10 @@ enamldef NIScopes(Window):
             Container:
                 style_class << 'valid' if experiment.valid else 'invalid'
 
+                Label:
+                    text = 'enable'
+                CheckBox:
+                    checked := niscopes.enable
                 Container:
                     hug_width = 'strong'
                     hug_height = 'strong'
@@ -3910,22 +3914,25 @@ enamldef Conexes(Window):
                             text = 'enable'
                         CheckBox:
                             checked := conexes.enable
-                        Label:
-                            text = 'IP Address'
-                        Field:
-                            text := conexes.IP
-                        Label:
-                            text = 'port'
-                        IntField:
-                            value := conexes.port
+                        #Label:
+                        #    text = 'IP Address'
+                        #Field:
+                        #    text := conexes.IP
+                        #Label:
+                        #    text = 'port'
+                        #IntField:
+                        #    value := conexes.port
+                        #PushButton:
+                        #    text = 'Launch Server'
+                        #    clicked :: conexes.launchServer()
                         PushButton:
-                            text = 'Launch Server'
-                            clicked :: conexes.launchServer()
+                            text = 'Update Values'
+                            clicked :: conexes.preIteration(0, 0)
 
                     IndexedContainer:
                         iterable << conexes.motors
-                        viewType = Conex
-
+                        viewType = Conex                    
+                    
 enamldef Conex(Container):
     attr item
 
@@ -3935,18 +3942,37 @@ enamldef Conex(Container):
     Container:
         hug_width = 'strong'
         hug_height = 'strong'
+        Form:
+            Label:
+                text = 'enable'
+            CheckBox:
+                checked := item.enable
         EvalProp:
             prop << item.IDString
+        #Label:
+        #    text = 'port'
+        #IntField:
+        #    value := item.port
+        #PushButton:
+        #    text = 'Launch Server'
+        #    clicked :: item.launchServer()
         EvalProp:
             prop << item.SetPos
         Label:
             text = 'Velocity: '
         CheckBox:
-            checked := item.enableVel
+            checked := item.enableVel            
         EvalProp:
-            prop << item.Vel
+            prop << item.Vel     
         EvalProp:
             prop << item.Threshold
+        Label:
+            text << "Most recent position: {} mm".format(item.curpos)
+
+
+
+
+
 
 
 

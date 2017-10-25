@@ -673,6 +673,7 @@ class AndorCamera(Instrument):
 
         if self.acquisitionChoices[self.acquisitionMode]!=5:
             error = self.dll.GetAcquiredData(byref(c_image_array), self.dim * self.shotsPerMeasurement.value)
+            print self.dim
             self.DLLError(sys._getframe().f_code.co_name, error, dump)
 
         elif self.acquisitionChoices[self.acquisitionMode]==5: # If acqusition mode is Run till abort, data must be read from circular buffer. Attempting dll.GetAcquiredData will not run as it is still acquiring.
