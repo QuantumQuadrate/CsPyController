@@ -121,16 +121,17 @@ def chop_dds(channels, phases, profiles, period):
             # set up initial state
             init_state = profiles[i][0]
             msg = "ch[{}]: t({}) = {}"
-            #print(msg.format(c, 0, init_state))
+            print(msg.format(c, t, init_state))
             c(t, init_state)
             # now change state at phase list
             for j, p in enumerate(phases[i]):
+                print "t: {}".format(t)
                 if p > 1 or p < 0:
                     print "chop_dds function expects phases to be within 0<p<1"
                     raise ValueError
                 # put in initial value for the cycle
                 # put in transition
-                #print(msg.format(c, p, profiles[i][j + 1]))
+                print(msg.format(c, t + (p * period), profiles[i][j + 1]))
                 c(t + (p * period), profiles[i][j + 1])
         return t + period
 
@@ -247,6 +248,9 @@ def fort_readout(t, duration):
     for chan in Bfields[phase]:
         AO(t, Bfield_channels[chan]['channel'], Bfields[phase][chan]['voltage'])
 
+    # dds sometimes adds greycode delays for stability
+    RB_D2_DDS(t, 'off')
+
     # throwaway bins to clear counter
     for i in range(throwaway_bins-1):
         HSDIO(t, HSDIO_channels['spcm_gate_780']['channel'], True)
@@ -259,34 +263,30 @@ def fort_readout(t, duration):
 
     # chop FORT and MOT out of phase
     cycles = int(duration*1000*readout_chop_freq_MHz)
-    print cycles
     period_ms = 0.001/readout_chop_freq_MHz
+    label(t + period_ms, 'readout c1')
     # brute force
-    for c in xrange(cycles):
-        # MOT on FORT off
-        RB_D2_DDS(t, 'read')
-        FORT_DDS(t, 'off')
-        # MOT off FORT on
-        RB_D2_DDS(t + period_ms/2, 'off')
-        FORT_DDS(t + period_ms/2, 'on')
-        t += period_ms
-    # channels = [RB_D2_DDS, FORT_DDS]
-    # phases = [[0.05, 0.65], [0.35, 0.55]]
-    # profiles = [
-    #     ['read', 'off', 'read'],
-    #     ['on', 'on', 'off']
-    # ]
-    # t = HSDIO_repeat(
-    #     t,
-    #     chop_dds(channels, phases, profiles, period_ms),
-    #     cycles
-    # )
-
-
+    # for c in xrange(cycles):
+    #     # MOT on FORT off
+    #     RB_D2_DDS(t, 'read')
+    #     FORT_DDS(t, 'off')
+    #     # MOT off FORT on
+    #     RB_D2_DDS(t + period_ms/2, 'off')
+    #     FORT_DDS(t + period_ms/2, 'on')
+    #     t += period_ms
+    channels = [RB_D2_DDS, FORT_DDS]
+    phases = [[0.45, 0.9], [0.5, 0.99]]
+    profiles = [
+        ['off', 'read', 'off'],
+        ['on', 'off', 'on']
+    ]
+    t = HSDIO_repeat(t, chop_dds(channels, phases, profiles, period_ms), cycles)
+    RB_D2_DDS(t, 'off')
+    FORT_DDS(t, 'on')  # drop fort or not between readouts
 
     # record end times
     ts = [t]
-    
+
     # send real timing pulses to counter
     t = t_start
     for i in range(measurement_bins):
@@ -310,20 +310,33 @@ def fort_readout(t, duration):
 
 
 # HSDIO initialization
-for chan in range(32):
-    HSDIO(0, chan, False)
-    HSDIO(cycle_time, chan, False)
-
 t = 0
+for chan in range(32):
+    HSDIO(t, chan, False)
+
+for chan in Bfields[phase]:
+    AO(t, Bfield_channels[chan]['channel'], Bfields['mot'][chan]['voltage'])
 
 # load mot
-t = mot_loading(t, mot_time)
-t = pgc(t, pgc_time)
-t = drop_mot(t, drop_time)
+#t = mot_loading(t, mot_time)
+#t = pgc(t, pgc_time)
+#t = drop_mot(t, 2)
+#t = mot_readout(t, 2)
+#t = drop_mot(t, drop_time)
 
-for i in range(2):
+t += 1
+
+for i in range(1):
     t = fort_readout(t, readout_780)
-    t = drop_mot(t, 10)
+    #t = drop_mot(t, 1)
+
+t += 1
+
+for chan in range(32):
+    HSDIO(t, chan, False)
+
+for chan in Bfields[phase]:
+    AO(t, Bfield_channels[chan]['channel'], Bfields['mot'][chan]['voltage'])
 
 ################################################################################
 # ERROR CHECKING################################################################
