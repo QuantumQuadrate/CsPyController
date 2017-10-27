@@ -171,7 +171,7 @@ class AQuA(Experiment):
             self.histogram_grid, self.measurements_graph,
             self.iterations_graph, self.DC_noise_eater_graph,
             self.DC_noise_eater_filter, self.Andors, self.PICams, self.Ramsey,
-            self.DAQmxAI,
+            self.DAQmxAI, self.aerotechs,
             self.retention_analysis, self.retention_graph, self.counter_graph,
             self.save_notes, self.save2013Analysis, self.NIScopes,
             self.counter_hist,  # self.vitalsignsound,
