@@ -62,7 +62,8 @@ class DDS(object):
 
     def delay(self, t):
         """Add a DDS delay if it is needed, and update the last_change parameter."""
-        DDS_profile_delay=0.001 # DDS delay set to 0. It needs to be accessible externally.
+        DDS_profile_delay = 0.0001  # DDS delay set to 0. It needs to be accessible externally.
+        print "Warning! Non-grey code switching detected, delaying by 1 us."
         if t <= (self.last_change + DDS_profile_delay):
             t += DDS_profile_delay
         # update the last_change parameter
@@ -74,13 +75,21 @@ class DDS(object):
         new_bits: the state we want to set"""
 
         # go through the bits one at a time
+        changes = 0
         for channel, old_bit, new_bit in zip(self.channels, self.bits, new_bits):
-            if(channel!=-1):
+            if(channel != -1):
                 # check to see if the bit needs to be changed
                 if old_bit != new_bit:
                     # delay if we recently changed another bit
-                    t = self.delay(t)
+                    if abs(self.last_change - t) < 0.0001:
+                        t = self.delay(t)
                     self.HSDIO(t, channel, new_bit)
+                    self.last_change = t
+                    changes += 1
+                # force a transition because some things need it (like repeats)
+                if changes == 0 and channel == self.channels[-1]:
+                    self.HSDIO(t, channel, new_bit)
+
         # keep track that the bits have all been set
         self.bits = new_bits
         return t

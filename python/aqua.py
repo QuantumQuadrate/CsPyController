@@ -1,17 +1,13 @@
 from __future__ import division
-__author__ = 'Martin Lichtman'
 import logging
-logger = logging.getLogger(__name__)
 
 import traceback
 
 from cs_errors import PauseError
 from atom.api import Member, Int
-import json
 
 # get the config file
 from __init__ import import_config
-config = import_config()
 
 # Bring in other files in this package
 from ConfigInstrument import Config
@@ -22,6 +18,12 @@ import Counter, conex, aerotech, unlock_pause, niscope, newportstage, nidaq_ai
 import origin_interface
 import FakeInstrument # for testing
 from pypico import PyPicoServer  # for communicating with a picomotor server
+try:
+    from blackfly import BlackflyClient  # communicates with Blackfly camera server
+    pycap = True
+except:
+    print "Blackfly client disabled, install PyCapture2 module to enable"
+    pycap = False
 # from vital_sign_sound import Vitalsign
 
 # analyses
@@ -30,8 +32,13 @@ from recent_shot_analysis import RecentShotAnalysis
 from image_sum_analysis import ImageSumAnalysis
 from threshold_analysis import ThresholdROIAnalysis
 from retention_analysis import RetentionAnalysis, RetentionGraph
+from histogram_analysis import HistogramAnalysis, HistogramGrid
 
 from experiments import Experiment
+
+__author__ = 'Martin Lichtman'
+logger = logging.getLogger(__name__)
+config = import_config()
 
 class AQuA(Experiment):
     """A subclass of Experiment which knows about all our particular hardware"""
@@ -42,6 +49,7 @@ class AQuA(Experiment):
     aerotechs = Member()
     conexes = Member()
     Andors = Member()
+    blackfly_client = Member()
     NewportStage = Member()
     DAQmxAI = Member()
     vaunixs = Member()
@@ -103,6 +111,8 @@ class AQuA(Experiment):
         self.picomotors = picomotors.Picomotors('picomotors', self, 'Newport Picomotors')
         self.instekpsts = instek_pst.InstekPSTs('instekpsts', self, 'Instek PST power supply')
         self.Andors = andor.Andors('Andors', self, 'Andor Luca measurementResults')
+        if pycap:
+            self.blackfly_client = BlackflyClient('BlackflyClient', self)
         self.vaunixs = vaunix.Vaunixs('vaunixs', self, 'Vaunix Signal Generator')
         self.PICams = picampython.PICams('PICams', self, 'Princeton Instruments Cameras')
         self.DAQmxAI = nidaq_ai.NIDAQmxAI('DAQmxAI',self,'NI-DAQmx Analog Input')
@@ -118,10 +128,12 @@ class AQuA(Experiment):
         # do not include functional_waveforms in self.instruments because it
         # need not start/stop
         self.instruments += [
-            self.box_temperature, self.picomotors, self.pyPicoServer, self.NIScopes,
-            self.Andors, self.PICams, self.DC_noise_eaters, self.LabView,
-            self.DDS, self.unlock_pause, self.Embezzletron, self.aerotechs,
-            self.conexes, self.instekpsts, self.vaunixs, self.NewportStage, self.unlock_pause
+            self.box_temperature, self.picomotors, self.pyPicoServer,
+            self.NIScopes, self.Andors, self.PICams, #self.blackfly_client,
+            self.DC_noise_eaters, self.DDS, self.unlock_pause,
+            self.Embezzletron, self.aerotechs, self.conexes, self.instekpsts,
+            self.vaunixs, self.NewportStage, 
+            self.LabView  # Labview must be last at least until someone fixes the start command
         ]
 
 
@@ -171,7 +183,7 @@ class AQuA(Experiment):
             self.histogram_grid, self.measurements_graph,
             self.iterations_graph, self.DC_noise_eater_graph,
             self.DC_noise_eater_filter, self.Andors, self.PICams, self.Ramsey,
-            self.DAQmxAI, self.aerotechs,
+            self.DAQmxAI, self.aerotechs, self.unlock_pause,
             self.retention_analysis, self.retention_graph, self.counter_graph,
             self.save_notes, self.save2013Analysis, self.NIScopes,
             self.counter_hist,  # self.vitalsignsound,
@@ -213,3 +225,4 @@ class AQuA(Experiment):
         self.PICams.__del__()
         self.Andors.__del__()
         return
+

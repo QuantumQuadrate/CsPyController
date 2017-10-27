@@ -1832,6 +1832,55 @@ enamldef Andor(Form):
                     text = 'Background Subtraction'
                     checked := item.analysis.bgsub
 
+enamldef BlackflyClient(Window):
+    attr blackfly_client
+
+    title = 'Blackfly Camera Client'
+    style_class << 'valid' if experiment.valid else 'invalid'
+    Container:
+        padding = 0
+        style_class << 'valid' if experiment.valid else 'invalid'
+        ScrollArea:
+            style_class << 'valid' if experiment.valid else 'invalid'
+            LabelBox:
+                text = 'enable'
+                checked := blackfly_client.enable
+
+        Container:
+            style_class << 'valid' if experiment.valid else 'invalid'
+
+            IndexedContainer:
+                iterable << blackfly_client.cameras
+                viewType = Blackfly
+
+enamldef Blackfly(Form):
+    attr item
+
+    constraints = [width >= 1000, height >= 600]
+
+    #title = 'Andor Camera'
+    style_class << 'valid' if experiment.valid else 'invalid'
+    Container:
+        padding = 0
+        style_class << 'valid' if experiment.valid else 'invalid'
+        ScrollArea:
+            style_class << 'valid' if experiment.valid else 'invalid'
+            Container:
+                style_class << 'valid' if experiment.valid else 'invalid'
+                LabelBox:
+                    text = 'enable'
+                    checked := item.camera.enable
+
+                #HGroup:
+                  #  MPLCanvas:
+                  #      figure << item.analysis.figure
+                  #      toolbar_visible = True
+                HGroup:
+                    Label:
+                        text = 'serialNumber'
+                    IntField:
+                        value := item.camera.serial
+
 
 enamldef DAQmxAI(Window):
     attr NIDAQmxAI
@@ -1898,7 +1947,7 @@ enamldef NewportStage(Window):
                         prop << newportstage.setposition
                     Label:
                         text << 'Current position: {} mm'.format(newportstage.mypos)
-                                    
+
 
 enamldef NIScopes(Window):
     attr niscopes
@@ -1932,7 +1981,7 @@ enamldef NIScopes(Window):
 
 enamldef NIScope(Form):
     attr item
-    
+
     constraints = [width >= 1500, height >= 1500]
     style_class << 'valid' if experiment.valid else 'invalid'
     Container:
@@ -2053,6 +2102,9 @@ enamldef PICams(Window):
         style_class << 'valid' if experiment.valid else 'invalid'
         ScrollArea:
             style_class << 'valid' if experiment.valid else 'invalid'
+            LabelBox:
+                text = 'enable'
+                checked := picams.enable
             Container:
                 style_class << 'valid' if experiment.valid else 'invalid'
 
@@ -2172,6 +2224,9 @@ enamldef Picam(Form):
                 LabelBox:
                     text = 'Sum Measurements'
                     checked := item.camera.averageMeasurements
+                LabelBox:
+                    text = 'Draw Figure'
+                    checked := item.analysis.draw_fig
                 Form:
                     Label:
                         text = 'shot'
@@ -2188,10 +2243,10 @@ enamldef Picam(Form):
                     EvalProp:
                         prop << item.camera.minPlot
                     EvalProp:
-                        prop << item.camera.maxPlot    
+                        prop << item.camera.maxPlot
                 LabelBox:
                     text = 'Use Demo Camera'
-                    checked := item.camera.useDemo 
+                    checked := item.camera.useDemo
 
 
 
@@ -2903,14 +2958,18 @@ enamldef ThresholdROI(Container):
     attr num
     hug_height='strong'
     hug_width='strong'
-    constraints=[hbox(l0,f0)]
+    constraints=[hbox(l0,f0,f1)]
     Label: l0:
         constraints = [(width==50)|'strong']
         text=str(num)
     MyIntField: f0:
         constraints = [(width==50)|'strong']
         placeholder='1'
-        value := item['1']
+        value := item[0]['1']
+    MyIntField: f1:
+        constraints = [(width==50)|'strong']
+        placeholder='1'
+        value := item[1]['1']
 
 enamldef ThresholdROIContainer(Window):
     attr experiment
@@ -2942,15 +3001,18 @@ enamldef ThresholdROIContainer(Window):
                     Container:
                         hug_height='strong'
                         hug_width='strong'
-                        constraints=[hbox(l0,l1)]
+                        constraints=[hbox(l0,l1,l2)]
                         Label: l0:
                             constraints = [(width==50)|'strong']
                             text = 'ROI#'
                         Label: l1:
                             constraints = [(width==50)|'strong']
-                            text = 'threshold'
+                            text = 's0 threshold'
+                        Label: l2:
+                            constraints = [(width==50)|'strong']
+                            text = 's1 threshold'
                     Include: dyno:
-                        objects<<[ThresholdROI(item=x,num=i) for i,x in enumerate(analysis.threshold_array)]
+                        objects<<[ThresholdROI(item=x,num=i) for i,x in enumerate(numpy.transpose(analysis.threshold_array))]
                 MPLCanvas: canvas:
                     constraints=[(height==512)|'strong',(width==512)|'strong']
                     hug_width='ignore'
@@ -3152,11 +3214,6 @@ enamldef HistogramGrid(Window):
                         text = 'shot to display'
                     SpinBox:
                         value := analysis.shot
-                    Label:
-                        text = 'roi type'
-                    ComboBox:
-                        items = ['square','gaussian']
-                        index := analysis.roi_type
                     Label:
                         text = 'calculate new cutoffs'
                     CheckBox:
@@ -4282,11 +4339,6 @@ enamldef RetentionAnalysis(Window):
                     CheckBox:
                         checked := analysis.enable
                     Label:
-                        text = 'roi type'
-                    ComboBox:
-                        items = ['square','gaussian']
-                        index := analysis.roi_type
-                    Label:
                         text << analysis.text
 
 enamldef Origin(Window):
@@ -4393,6 +4445,7 @@ window_dictionary = {'':'',
                      'RF Generators': 'RFGenPage(LabView = main.experiment.LabView)',
                      'Hamamatsu': 'CameraPage(camera = main.experiment.LabView.camera)',
                      'Andor Cameras': 'Andors(andors = main.experiment.Andors)',
+                     'Blackfly Client': 'BlackflyClient(blackfly_client = main.experiment.blackfly_client)',
                      'Princeton Instruments Camera': 'PICams(picams = main.experiment.PICams)',
                      'Vaunix Signal Generators': 'Vaunixs(vaunixs = main.experiment.vaunixs)',
                      'Newport Translation Stage': 'NewportStage(newportstage = main.experiment.NewportStage)',
