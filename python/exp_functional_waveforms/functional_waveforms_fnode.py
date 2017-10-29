@@ -117,21 +117,21 @@ def chop_dds(channels, phases, profiles, period):
 
     def chop_function(t):
         # TODO: check that profiles are grey coded!!!!!!!!
+        print t
         for i, c in enumerate(channels):
             # set up initial state
             init_state = profiles[i][0]
             msg = "ch[{}]: t({}) = {}"
-            print(msg.format(c, t, init_state))
+            #print(msg.format(c, 0, init_state))
             c(t, init_state)
             # now change state at phase list
             for j, p in enumerate(phases[i]):
-                print "t: {}".format(t)
                 if p > 1 or p < 0:
                     print "chop_dds function expects phases to be within 0<p<1"
                     raise ValueError
                 # put in initial value for the cycle
                 # put in transition
-                print(msg.format(c, t + (p * period), profiles[i][j + 1]))
+                #print(msg.format(c, p, profiles[i][j + 1]))
                 c(t + (p * period), profiles[i][j + 1])
         return t + period
 
@@ -172,13 +172,33 @@ def pgc(t, duration):
     # dds sometimes adds greycode delays for stability
     ts = []
     ts.append(RB_D2_DDS(t, phase))
+    t = max(ts)
+    t_start = t
     # add repumper
+    #HSDIO(t, HSDIO_channels['scope_trig_1']['channel'], True)
+
 
     for chan in Bfields[phase]:
         AO(t, Bfield_channels[chan]['channel'], Bfields[phase][chan]['voltage'])
 
     t = max(ts)
-    t += duration
+    ts = [t + duration]
+
+    # chop FORT and MOT out of phase
+    t = t_start
+    label(t, 'fort load c0')
+    cycles = int(duration*1000*readout_chop_freq_MHz) - 1
+    period_ms = 0.001/readout_chop_freq_MHz
+    label(t + period_ms, 'fort load c1')
+    channels = [FORT_DDS]
+    phases = [[0.3, 0.76]]
+    profiles = [
+        ['on', 'off', 'on']
+    ]
+    t = HSDIO_repeat(t, chop_dds(channels, phases, profiles, period_ms), cycles)
+    ts.append(t)
+    t = max(ts)
+    #HSDIO(t, HSDIO_channels['scope_trig_1']['channel'], False)
     return t
 
 ################################################################################
@@ -222,9 +242,6 @@ def mot_readout(t, duration):
         AO(t, Bfield_channels[chan]['channel'], Bfields[phase][chan]['voltage'])
 
     # camera triggers
-    HSDIO(t, HSDIO_channels['scope_trig_1']['channel'], True)
-    HSDIO(t + 1, HSDIO_channels['scope_trig_1']['channel'], False)
-
     HSDIO(t, HSDIO_channels['point_grey_1']['channel'], True)
     HSDIO(t + 1, HSDIO_channels['point_grey_1']['channel'], False)
 
@@ -265,22 +282,17 @@ def fort_readout(t, duration):
     cycles = int(duration*1000*readout_chop_freq_MHz)
     period_ms = 0.001/readout_chop_freq_MHz
     label(t + period_ms, 'readout c1')
-    # brute force
-    # for c in xrange(cycles):
-    #     # MOT on FORT off
-    #     RB_D2_DDS(t, 'read')
-    #     FORT_DDS(t, 'off')
-    #     # MOT off FORT on
-    #     RB_D2_DDS(t + period_ms/2, 'off')
-    #     FORT_DDS(t + period_ms/2, 'on')
-    #     t += period_ms
+    label(t + cycles*period_ms/2, 'readout half')
+    print(t + cycles*period_ms/2)
     channels = [RB_D2_DDS, FORT_DDS]
-    phases = [[0.45, 0.9], [0.5, 0.99]]
+    phases = [[0.25, 0.7], [0.3, 0.76]]
     profiles = [
         ['off', 'read', 'off'],
         ['on', 'off', 'on']
     ]
     t = HSDIO_repeat(t, chop_dds(channels, phases, profiles, period_ms), cycles)
+
+    t += 0.0008
     RB_D2_DDS(t, 'off')
     FORT_DDS(t, 'on')  # drop fort or not between readouts
 
@@ -290,11 +302,11 @@ def fort_readout(t, duration):
     # send real timing pulses to counter
     t = t_start
     for i in range(measurement_bins):
-        HSDIO(t + i*duration, HSDIO_channels['spcm_gate_780']['channel'], True)
-        HSDIO(t + i*duration, HSDIO_channels['scope_trig_1']['channel'], True)
-        HSDIO(t + (i+0.5)*duration, HSDIO_channels['spcm_gate_780']['channel'], False)
-        HSDIO(t + (i+0.5)*duration, HSDIO_channels['scope_trig_1']['channel'], False)
-        t += duration
+        HSDIO(t, HSDIO_channels['spcm_gate_780']['channel'], True)
+        #HSDIO(t, HSDIO_channels['scope_trig_1']['channel'], True)
+        HSDIO(t + 0.5*duration/measurement_bins, HSDIO_channels['spcm_gate_780']['channel'], False)
+        #HSDIO(t + 0.5*duration/measurement_bins, HSDIO_channels['scope_trig_1']['channel'], False)
+        t += duration/measurement_bins
 
     HSDIO(t, HSDIO_channels['spcm_gate_780']['channel'], True)
     HSDIO(t + 0.5*throwaway_bin_duration, HSDIO_channels['spcm_gate_780']['channel'], False)
@@ -303,6 +315,21 @@ def fort_readout(t, duration):
     ts.append(t)
     t = max(ts)
     return t
+
+################################################################################
+# EXPERIMENT####################################################################
+################################################################################
+
+def expmnt(t, duration):
+    label(t, 'exp start')
+    HSDIO(t, HSDIO_channels['scope_trig_1']['channel'], True)
+    FORT_DDS(t, 'off')
+    t += duration
+    FORT_DDS(t, 'on')
+    label(t, 'exp end')
+    HSDIO(t, HSDIO_channels['scope_trig_1']['channel'], False)
+    return t
+
 
 ################################################################################
 # TIMINGS ######################################################################
@@ -318,17 +345,17 @@ for chan in Bfields[phase]:
     AO(t, Bfield_channels[chan]['channel'], Bfields['mot'][chan]['voltage'])
 
 # load mot
-#t = mot_loading(t, mot_time)
-#t = pgc(t, pgc_time)
-#t = drop_mot(t, 2)
-#t = mot_readout(t, 2)
-#t = drop_mot(t, drop_time)
+t = mot_loading(t, mot_time)
+t = pgc(t, pgc_time)
+t = drop_mot(t, drop_time)
 
 t += 1
 
-for i in range(1):
+for i in range(2):
     t = fort_readout(t, readout_780)
-    #t = drop_mot(t, 1)
+    t = drop_mot(t, gap_time/2)
+    t = expmnt(t, fort_drop_us/1000)
+    t = drop_mot(t, gap_time/2)
 
 t += 1
 
@@ -336,7 +363,8 @@ for chan in range(32):
     HSDIO(t, chan, False)
 
 for chan in Bfields[phase]:
-    AO(t, Bfield_channels[chan]['channel'], Bfields['mot'][chan]['voltage'])
+    AO(t, Bfield_channels[chan]['channel'], Bfields['pgc'][chan]['voltage'])
+print "actual(requested) cycle time {}({}) ms".format(t, cycle_time)
 
 ################################################################################
 # ERROR CHECKING################################################################

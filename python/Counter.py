@@ -62,14 +62,17 @@ class Counter(Prop):
 class CounterAnalysis(AnalysisWithFigure):
     counter_array = Member()
     binned_array = Member()
+    meas_analysis_path = Str()
     update_lock = Bool(False)
     enable = Bool()
     drops = Int(3)
     bins = Int(25)
+    shots = Int(2)
 
     def __init__(self, name, experiment, description=''):
         super(CounterAnalysis, self).__init__(name, experiment, description)
-        self.properties += ['enable', 'drops', 'bins']
+        self.meas_analysis_path = 'analysis/counter_data'
+        self.properties += ['enable', 'drops', 'bins', 'shots']
 
 
     def preExperiment(self, experimentResults):
@@ -79,8 +82,11 @@ class CounterAnalysis(AnalysisWithFigure):
 
     def analyzeMeasurement(self, measurementResults, iterationResults, experimentResults):
         if self.enable:
-            self.binned_array = np.array([self.counter_array[:, self.drops:self.drops+self.bins].sum(1),
-                                          self.counter_array[:, -self.bins:].sum(1)])
+            self.binned_array = np.array([
+                self.counter_array[:, self.drops:self.drops+self.bins].sum(1),
+                self.counter_array[:, -self.bins:].sum(1)
+            ])
+            self
         self.updateFigure()
 
 

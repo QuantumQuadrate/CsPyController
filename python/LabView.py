@@ -212,12 +212,10 @@ class LabView(Instrument):
 
                 # take the difference of successive elements.
                 # Set the first element always to zero.  This is tested to work correctly in case of 32-bit rollover.
-
                 array[:, 0] = 0
                 array[:, 1:] = array[:, 1:]-array[:, :-1]
 
                 # Taking only first channel from counter!!!!
-
                 if self.experiment.counter_graph.counter_array is None:
                     self.experiment.counter_graph.counter_array = numpy.array([array[0]])
                 else:

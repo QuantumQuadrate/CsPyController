@@ -807,7 +807,7 @@ class Experiment(Prop):
                         threading.Thread(target=i.start).start()
                     else:
                         i.start()
-        logger.info('all instruments started')
+        logger.debug('all instruments started')
 
         # loop until all instruments are done
         # TODO: can we do this with a callback?
@@ -817,7 +817,7 @@ class Experiment(Prop):
                 logger.warning('The following instruments timed out: '+str([i.name for i in self.instruments if not i.isDone]))
                 return  # exit without saving results
             time.sleep(.01)  # wait a bit, then check again
-        logger.info('all instruments done')
+        logger.debug('all instruments done')
 
         # give each instrument a chance to acquire final data
         for i in self.instruments:
