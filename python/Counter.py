@@ -45,8 +45,9 @@ class Counters(Instrument):
         self.counters = ListProp('counters', experiment, listElementType=Counter, listElementName='counter')
         self.properties += ['version', 'counters']
 
+
 class Counter(Prop):
-    """ Each individual counter has a field for the signal source, clock source, and clock rate (in Hz, used only for
+    """Each individual counter has a field for the signal source, clock source, and clock rate (in Hz, used only for
     internal clocking).
     """
 
@@ -68,12 +69,12 @@ class CounterAnalysis(AnalysisWithFigure):
     drops = Int(3)
     bins = Int(25)
     shots = Int(2)
+    ROIs = Int(1)  # the number of counters in the experiment
 
     def __init__(self, name, experiment, description=''):
         super(CounterAnalysis, self).__init__(name, experiment, description)
         self.meas_analysis_path = 'analysis/counter_data'
-        self.properties += ['enable', 'drops', 'bins', 'shots']
-
+        self.properties += ['enable', 'drops', 'bins', 'shots', 'ROIs']
 
     def preExperiment(self, experimentResults):
         self.counter_array = None
@@ -81,21 +82,27 @@ class CounterAnalysis(AnalysisWithFigure):
         # measurements x bins
 
     def analyzeMeasurement(self, measurementResults, iterationResults, experimentResults):
+        # TODO: update this to pull data from hdf5 file (measurementResults) instead of being set in the
+        # labview class
         if self.enable:
+            # number of shots is hard coded right now
+            bins_per_shot = self.drops + self.bins
+            num_shots = len(self.counter_array[-1])/bins_per_shot
+            # counter array is appended every measurement so the counter hists can be calculated
+            # updated every cycle
+            # WARNING: counter_array only works with a single counter right now
             self.binned_array = np.array([
-                self.counter_array[:, self.drops:self.drops+self.bins].sum(1),
-                self.counter_array[:, -self.bins:].sum(1)
+                self.counter_array[:, s*bins_per_shot + self.drops:(s+1)*bins_per_shot - 1].sum(1)
+                for s in range(num_shots)
             ])
-            self
+            # write this cycle's data into hdf5 file so that the threshold analysis can read it
+            # when multiple counter support is enabled, the ROIs parameter will hold the count
+            sum_array = self.binned_array[-1].reshaped((num_shots, self.ROIs, 1))
+            measurementResults[self.meas_analysis_path] = sum_array
         self.updateFigure()
 
-
     def analyzeIteration(self, iterationResults, experimentResults):
-        '''
-
-        Save shot1, shot2 data and reset counter/bin_arrays
-
-        '''
+        '''Save shot1, shot2 data and reset counter/bin_arrays.'''
         if self.enable:
             iterationResults['shotData'] = self.binned_array
             self.counter_array = None

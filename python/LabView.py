@@ -201,7 +201,7 @@ class LabView(Instrument):
                     raise PauseError
 
             elif key == 'counter/data':
-                #counter data was stored as big-endian (network order) unsigned long (4-byte) integers
+                # counter data was stored as big-endian (network order) unsigned long (4-byte) integers
                 array = numpy.array(struct.unpack('!'+str(int(len(value)/4))+'L', value), dtype=numpy.uint32)
                 try:
                     dims = map(int, self.results['counter/dimensions'].split(','))
@@ -213,7 +213,7 @@ class LabView(Instrument):
                 # take the difference of successive elements.
                 # Set the first element always to zero.  This is tested to work correctly in case of 32-bit rollover.
                 array[:, 0] = 0
-                array[:, 1:] = array[:, 1:]-array[:, :-1]
+                array[:, 1:] = array[:, 1:] - array[:, :-1]
 
                 # Taking only first channel from counter!!!!
                 if self.experiment.counter_graph.counter_array is None:
@@ -259,7 +259,7 @@ class LabView(Instrument):
                 self.connected = False
                 raise PauseError
 
-            #wait for response
+            # wait for response
             logger.debug('Labview waiting for response ...')
             try:
                 rawdata = self.sock.receive()
@@ -272,13 +272,13 @@ class LabView(Instrument):
                 self.connected = False
                 raise PauseError
 
-            #parse results
+            # parse results
             logger.debug('Parsing TCP results ...')
             results = self.sock.parsemsg(rawdata)
-            #for key, value in self.results.iteritems():
+            # for key, value in self.results.iteritems():
             #    print 'key: {} value: {}'.format(key,str(value)[:40])
 
-            #report LabView errors
+            # report LabView errors
             log = ''
             if 'log' in results:
                 log = results['log']
