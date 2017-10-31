@@ -174,9 +174,6 @@ def pgc(t, duration):
     ts.append(RB_D2_DDS(t, phase))
     t = max(ts)
     t_start = t
-    # add repumper
-    #HSDIO(t, HSDIO_channels['scope_trig_1']['channel'], True)
-
 
     for chan in Bfields[phase]:
         AO(t, Bfield_channels[chan]['channel'], Bfields[phase][chan]['voltage'])
@@ -184,12 +181,13 @@ def pgc(t, duration):
     t = max(ts)
     ts = [t + duration]
 
-    # chop FORT and MOT out of phase
+    # chop FORT
     t = t_start
     label(t, 'fort load c0')
     cycles = int(duration*1000*readout_chop_freq_MHz) - 1
     period_ms = 0.001/readout_chop_freq_MHz
     label(t + period_ms, 'fort load c1')
+
     channels = [FORT_DDS]
     phases = [[0.3, 0.76]]
     profiles = [
@@ -198,7 +196,6 @@ def pgc(t, duration):
     t = HSDIO_repeat(t, chop_dds(channels, phases, profiles, period_ms), cycles)
     ts.append(t)
     t = max(ts)
-    #HSDIO(t, HSDIO_channels['scope_trig_1']['channel'], False)
     return t
 
 ################################################################################
@@ -349,15 +346,21 @@ t = mot_loading(t, mot_time)
 t = pgc(t, pgc_time)
 t = drop_mot(t, drop_time)
 
-t += 1
-
 for i in range(2):
     t = fort_readout(t, readout_780)
+
     t = drop_mot(t, gap_time/2)
     t = expmnt(t, fort_drop_us/1000)
     t = drop_mot(t, gap_time/2)
 
-t += 1
+if dump_fort_at_end:
+    t += 0.25
+    FORT_DDS(t, 'off')
+    t += 0.5
+    FORT_DDS(t, 'on')
+    t += 0.25
+else:
+    t += 1
 
 for chan in range(32):
     HSDIO(t, chan, False)

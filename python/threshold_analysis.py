@@ -134,7 +134,8 @@ class ThresholdROIAnalysis(ROIAnalysis):
                         shots_to_ignore = self.experiment.Config.config.get('CAMERA', 'ShotsToIgnore')
                     except:
                         pass
-                    if i <= shots_to_ignore:  # Rubudium uses shot2 for alignment pupose so do not apply threshold for this shot
+                    # Rubudium uses shot2 for alignment pupose so do not apply threshold for this shot
+                    if i < len(shot_array) - shots_to_ignore:
                         threshold_array[i] = shot >= self.threshold_array[i]['1']
 
                 self.loading_array = threshold_array.reshape((

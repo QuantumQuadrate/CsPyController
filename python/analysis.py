@@ -95,7 +95,7 @@ class Analysis(Prop):
 
     # dependencies of analysis to wait to finish before continuing
     measurementDependencies = Member()
-    # things that on this analysis, filled automatically
+    # things that depend on this analysis, filled automatically
     measurementDependents = Member()
     # holds the analysis' last completed iteration and measurement numbers as
     # a tuple (iter, meas)
@@ -312,7 +312,7 @@ class Analysis(Prop):
             # the threaded application to get processor time for a while
             # TODO: switch to an actual threading library like
             # multiprocessing
-            
+
             time.sleep(0.01)
         # signal to analysis thread to stop
         self.measurementProcessing = False

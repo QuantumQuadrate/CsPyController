@@ -132,7 +132,7 @@ class AQuA(Experiment):
             self.NIScopes, self.Andors, self.PICams, #self.blackfly_client,
             self.DC_noise_eaters, self.DDS, self.unlock_pause,
             self.Embezzletron, self.aerotechs, self.conexes, self.instekpsts,
-            self.vaunixs, self.NewportStage, 
+            self.vaunixs, self.NewportStage,
             self.LabView  # Labview must be last at least until someone fixes the start command
         ]
 
@@ -145,6 +145,7 @@ class AQuA(Experiment):
         self.first_measurements_filter = analysis.DropFirstMeasurementsFilter('first_measurements_filter', self, 'drop the first N measurements')
         self.squareROIAnalysis = SquareROIAnalysis(self)
         self.gaussian_roi = roi_fitting.GaussianROI('gaussian_roi', self)
+        self.counter_graph = Counter.CounterAnalysis('counter_graph', self, 'Graphs the counter data after each measurement.')
         self.thresholdROIAnalysis = ThresholdROIAnalysis(self)
         self.loading_filters = analysis.LoadingFilters('loading_filters', self, 'drop measurements with no atom loaded')
         self.text_analysis = analysis.TextAnalysis('text_analysis', self, 'text results from the measurement')
@@ -162,7 +163,6 @@ class AQuA(Experiment):
         self.DC_noise_eater_filter = DCNoiseEater.DCNoiseEaterFilter('DC_noise_eater_filter', self, 'DC Noise Eater Filter')
         self.Ramsey = analysis.Ramsey('Ramsey', self, 'Fit a cosine to retention results')
         self.retention_analysis = RetentionAnalysis('retention_analysis', self, 'calculate the loading and retention')
-        self.counter_graph = Counter.CounterAnalysis('counter_graph', self, 'Graphs the counter data after each measurement.')
         self.counter_hist = Counter.CounterHistogramAnalysis('counter_hist', self, 'Fits histograms of counter data and plots hist and fits.')
         self.save_notes = save2013style.SaveNotes('save_notes', self, 'save a separate notes.txt')
         self.save2013Analysis = save2013style.Save2013Analysis(self)
@@ -175,7 +175,7 @@ class AQuA(Experiment):
         # origin needs to be the last analysis always
         self.analyses += [
             self.TTL_filters, self.AI_graph, self.AI_filter,
-            self.squareROIAnalysis, self.thresholdROIAnalysis,
+            self.squareROIAnalysis, self.counter_graph, self.thresholdROIAnalysis,
             self.gaussian_roi, self.loading_filters,
             self.first_measurements_filter, self.text_analysis,
             self.imageSumAnalysis, self.recent_shot_analysis,
@@ -184,7 +184,7 @@ class AQuA(Experiment):
             self.iterations_graph, self.DC_noise_eater_graph,
             self.DC_noise_eater_filter, self.Andors, self.PICams, self.Ramsey,
             self.DAQmxAI, self.unlock_pause,
-            self.retention_analysis, self.retention_graph, self.counter_graph,
+            self.retention_analysis, self.retention_graph,
             self.save_notes, self.save2013Analysis, self.NIScopes,
             self.counter_hist,  # self.vitalsignsound,
             self.origin  # origin has to be last
@@ -194,7 +194,7 @@ class AQuA(Experiment):
             'Config',
             'functional_waveforms', 'LabView', 'functional_waveforms_graph',
             'DDS', 'aerotechs', 'picomotors', 'pyPicoServer', 'conexes',
-            'Andors', 'PICams', 'DC_noise_eaters', 'blackfly_client', 
+            'Andors', 'PICams', 'DC_noise_eaters', 'blackfly_client',
             'box_temperature', 'DAQmxAI', 'squareROIAnalysis',
             'thresholdROIAnalysis', 'gaussian_roi', 'instekpsts', 'TTL_filters',
             'AI_graph', 'AI_filter', 'NewportStage', 'loading_filters',

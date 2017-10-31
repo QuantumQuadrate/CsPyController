@@ -69,12 +69,13 @@ class CounterAnalysis(AnalysisWithFigure):
     drops = Int(3)
     bins = Int(25)
     shots = Int(2)
-    ROIs = Int(1)  # the number of counters in the experiment
+    ROIs = Member()
 
     def __init__(self, name, experiment, description=''):
         super(CounterAnalysis, self).__init__(name, experiment, description)
         self.meas_analysis_path = 'analysis/counter_data'
-        self.properties += ['enable', 'drops', 'bins', 'shots', 'ROIs']
+        self.properties += ['enable', 'drops', 'bins', 'shots']
+        self.ROIs = [0]
 
     def preExperiment(self, experimentResults):
         self.counter_array = None
@@ -87,17 +88,17 @@ class CounterAnalysis(AnalysisWithFigure):
         if self.enable:
             # number of shots is hard coded right now
             bins_per_shot = self.drops + self.bins
-            num_shots = len(self.counter_array[-1])/bins_per_shot
+            num_shots = int(len(self.counter_array[-1])/bins_per_shot)
             # counter array is appended every measurement so the counter hists can be calculated
             # updated every cycle
             # WARNING: counter_array only works with a single counter right now
             self.binned_array = np.array([
-                self.counter_array[:, s*bins_per_shot + self.drops:(s+1)*bins_per_shot - 1].sum(1)
+                self.counter_array[:, s*bins_per_shot + self.drops:(s+1)*bins_per_shot].sum(1)
                 for s in range(num_shots)
             ])
             # write this cycle's data into hdf5 file so that the threshold analysis can read it
             # when multiple counter support is enabled, the ROIs parameter will hold the count
-            sum_array = self.binned_array[-1].reshaped((num_shots, self.ROIs, 1))
+            sum_array = self.binned_array[:, -1].reshape((num_shots, 1, 1))
             measurementResults[self.meas_analysis_path] = sum_array
         self.updateFigure()
 
