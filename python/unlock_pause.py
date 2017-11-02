@@ -61,7 +61,6 @@ class UnlockMonitor(Instrument, Analysis):
         self.isDone = True
 
     def preExperiment(self, hdf5):
-        logger.info("Unlock_monitor preExperiment. self.enable={}".format(self.enable))
         if self.enable:
             try:
                 self.s = self.open_connection(None, False)
@@ -104,4 +103,3 @@ class UnlockMonitor(Instrument, Analysis):
                 self.close_connection(self.s)
             except Exception as e:
                 pass
-            

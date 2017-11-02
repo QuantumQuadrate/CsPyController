@@ -567,7 +567,7 @@ class Experiment(Prop):
 
         #check if we are ready to do an experiment
         if not self.status.startswith('paused'):
-            logger.info('Current status is {}. Cannot continue an experiment unless status is paused.'.format(self.status))
+            logger.warning('Current status is {}. Cannot continue an experiment unless status is paused.'.format(self.status))
             return  # exit
         self.set_status('running')  # prevent another experiment from being started at the same time
         self.set_gui({'valid': True})
@@ -633,7 +633,7 @@ class Experiment(Prop):
                 if self.goodMeasurements >= self.measurementsPerIteration:
 
                     # We have completed this iteration, move on to the next one
-                    logger.debug("Finished iteration")
+                    logger.info("Finished iteration")
 
                     self.postIteration()  # run analysis
 
@@ -642,7 +642,9 @@ class Experiment(Prop):
 
                         logger.debug("Finished all iterations")
                         self.postExperiment()  # run analyses
-                        self.optimizer.update(self.hdf5, self.experiment_hdf5)  # update optimizer variables
+                        self.optimizer.update(self.hdf5, self.experiment_hdf5)  # update optimizer variables\
+                        for i in self.analyses:
+                            self.preExperiment()
                         if self.optimizer.is_done:
                             # the experiment is finished, run final analysis, upload data, and exit loop
                             for i in self.analyses:
@@ -937,7 +939,7 @@ class Experiment(Prop):
                     # delete data when done
                     good = False
                     delete = True
-                    logger.warning('Analysis Error code 3 is no longer supported')
+                    logger.warning('Analysis Error code 3 is no longer supported and will not stop other analyses.')
                 else:
                     msg = (
                         'bad return value {} in experiment.postMeasurement()'
@@ -949,7 +951,6 @@ class Experiment(Prop):
                 resultDict['good'] = good
                 resultDict['delete'] = delete
                 analysisList.append(resultDict)
-                #print(analysisList)
                 logger.debug("{}: {}/{}".format(analysis.name, len(analysisList), len(self.analyses)))
 
                 if len(analysisList) == len(self.analyses):
