@@ -580,7 +580,6 @@ class Experiment(Prop):
             while (self.status == 'running') and ((not self.optimizer.enable) or (not self.optimizer.is_done)):
                 logger.debug("starting new iteration")
 
-
                 # at the start of a new iteration, or every time if requested
                 if self.instrument_update_needed or self.reload_settings_after_pause:
                     logger.debug("evaluating")

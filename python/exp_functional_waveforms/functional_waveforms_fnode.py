@@ -346,12 +346,12 @@ t = mot_loading(t, mot_time)
 t = pgc(t, pgc_time)
 t = drop_mot(t, drop_time)
 
-for i in range(2):
-    t = fort_readout(t, readout_780)
 
-    t = drop_mot(t, gap_time/2)
-    t = expmnt(t, fort_drop_us/1000)
-    t = drop_mot(t, gap_time/2)
+t = fort_readout(t, readout_780)
+t = drop_mot(t, gap_time/2)
+t = expmnt(t, fort_drop_us/1000)
+t = drop_mot(t, gap_time/2)
+t = fort_readout(t, readout_780)
 
 if dump_fort_at_end:
     t += 0.25

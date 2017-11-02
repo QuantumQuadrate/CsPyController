@@ -202,6 +202,16 @@ class RetentionGraph(AnalysisWithFigure):
                     fig = self.backFigure
                     fig.clf()
 
+                    x_label = ''
+                    for i, ivar in enumerate(self.experiment.ivarNames):
+                        if len(self.experiment.ivarValueLists[i]) > 1:
+                            print "found iterated variable: {}".format(ivar)
+                            x_label = ivar
+                            print self.experiment.ivarValueLists[i]
+                            x_vals = self.experiment.ivarValueLists[i]
+                            break
+
+
                     if self.mean is not None:
                         # parse the list of what to plot from a string to a
                         # list of numbers
@@ -224,7 +234,7 @@ class RetentionGraph(AnalysisWithFigure):
                             if self.draw_error_bars:
                                 ax.errorbar(np.arange(len(mean)), mean, yerr=sigma, fmt=linestyle, label=label)
                             else:
-                                ax.plot(np.arange(len(mean)), mean, linestyle, label=label)
+                                ax.plot(x_vals[:len(mean)], mean, linestyle, label=label)
                         # adjust the limits so that the data isn't right on the
                         # edge of the graph
                         ax.set_xlim(-.5, len(self.mean)+0.5)

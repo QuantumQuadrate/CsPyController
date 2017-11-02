@@ -501,13 +501,11 @@ class HSDIO(Instrument):
     def find_repeat_overlaps(self):
         """Go through the list of repeats and return a list of overlaps."""
         # replace with an array of t0's and tf's then sort
-        sorted_rpt = np.sort(self.repeat_list, axis=0)
         overlap = []
-        logger.warning("Repeat overlap not implemented well")
-        for i in xrange(len(self.repeat_list)-1):
-            if sorted_rpt[i]['tf'] > sorted_rpt[i+1]['t0']:
+        for i in np.argsort([r['t0'] for r in self.repeat_list])[:-1]:
+            if self.repeat_list[i]['tf'] > self.repeat_list[i+1]['t0']:
                 overlap.append(i)
-                logger.warning('HSDIO Repeat Overlap at ts={}'.format(sorted_rpt[i+1][0]))
+                logger.warning('HSDIO Repeat Overlap at ts={}'.format(self.repeat_list[i+1]['t0']))
         return overlap
 
     def add_wait(self, script, waitTime):
