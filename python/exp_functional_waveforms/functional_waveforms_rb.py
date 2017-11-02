@@ -265,7 +265,17 @@ blue_pointing_aom_switch_profile = {'on':1, 'off':0}
 blue_pointing_aom_switch_delay = 0
 
 ################################################################################
-# Scope Trigger SETUP ###############################################
+# 3DMOT Scope Trigger SETUP ###############################################
+################################################################################
+MOT_scope_trigger_chan = 44
+# this is the default profile, we dont have to pass it in if we dont want to
+MOT_scope_trigger_profile = {'on':1, 'off':0} # Does this work?
+# timing delay parameter
+MOT_scope_trigger_delay = 0
+
+
+################################################################################
+# FORT Scope Trigger SETUP ###############################################
 ################################################################################
 scope_trigger_chan = 45
 # this is the default profile, we dont have to pass it in if we dont want to
@@ -290,6 +300,43 @@ FORT_NE_trigger_chan = 47
 FORT_NE_trigger_profile = {'on':1, 'off':0} # Does this work?
 # timing delay parameter
 FORT_NE_trigger_delay = 0
+
+################################################################################
+# rydberg 780A Noise eater Trigger SETUP ###############################################
+################################################################################
+ryd780A_NE_trigger_chan = 48
+# this is the default profile, we dont have to pass it in if we dont want to
+ryd780A_NE_trigger_profile = {'on':1, 'off':0} # Does this work?
+# timing delay parameter
+ryd780A_NE_trigger_delay = 0
+
+################################################################################
+# FORT Pulse Generator Trigger SETUP ###############################################
+################################################################################
+FORT_PG_trigger_chan = 50
+# this is the default profile, we dont have to pass it in if we dont want to
+FORT_PG_trigger_profile = {'on':1, 'off':0}
+# timing delay parameter
+FORT_PG_trigger_delay = 0
+
+################################################################################
+# FORT Switch1 Trigger SETUP ###############################################
+################################################################################
+FORT_SW1_trigger_chan = 51
+# this is the default profile, we dont have to pass it in if we dont want to
+FORT_SW1_trigger_profile = {'on':1, 'off':0}
+# timing delay parameter
+FORT_SW1_trigger_delay = 0
+
+################################################################################
+# FORT Switch2 Trigger SETUP ###############################################
+################################################################################
+FORT_SW2_trigger_chan = 52
+# this is the default profile, we dont have to pass it in if we dont want to
+FORT_SW2_trigger_profile = {'on':1, 'off':0}
+# timing delay parameter
+FORT_SW2_trigger_delay = 0
+
 
 ################################################################################
 ################################################################################
@@ -436,6 +483,13 @@ class Rb(object):
             delay=ground_aom_switch_delay
         )
 
+        self.MOT_scope_trigger_switch = Switch(
+            HSDIO,
+            MOT_scope_trigger_chan,
+            profiles=MOT_scope_trigger_profile,
+            delay=MOT_scope_trigger_delay
+        )
+
         self.scope_trigger_switch = Switch(
             HSDIO,
             scope_trigger_chan,
@@ -455,4 +509,11 @@ class Rb(object):
             FORT_NE_trigger_chan,
             profiles=FORT_NE_trigger_profile,
             delay=FORT_NE_trigger_delay
+        )
+
+        self.ryd780A_NE_trigger_switch = Switch(
+            HSDIO,
+            ryd780A_NE_trigger_chan,
+            profiles=ryd780A_NE_trigger_profile,
+            delay=ryd780A_NE_trigger_delay
         )

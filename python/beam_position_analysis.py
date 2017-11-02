@@ -59,7 +59,7 @@ class BeamPositionAnalysis(Analysis):
 
         # Needs to be improved to accomodate multiple data paths.
         # Center finding function can be implemented within BeamPositionAnalysis, in case it has access to raw data.
-        
+
         self.meas_error_path = self.positions_path + '/error'
         self.positions_path += '/stats'
         self.initialize_positions()
@@ -74,7 +74,7 @@ class BeamPositionAnalysis(Analysis):
             'version', 'enable', 'enable_feedback', 'setpoint_X', 'setpoint_Y',
             'actuator_vname_X', 'actuator_vname_Y', 'actuator_variable_X',
             'actuator_variable_Y', 'calibration_X', 'calibration_Y',
-            'enable_reorder'
+            'enable_reorder','meas_analysis_path','iter_analysis_path'
         ]
 
     def initialize_positions(self):
@@ -126,8 +126,6 @@ class BeamPositionAnalysis(Analysis):
 
     def savetohdf5(self,iterationResults):
         for key in self.position_iter_stat:
-            #print self.iter_analysis_path+key
-            #print self.position_iter_stat[key]
             iterationResults[self.iter_analysis_path+key]=self.position_iter_stat[key]
 
     def analyzeIteration(self, iterResults, expResults):

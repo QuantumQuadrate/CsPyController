@@ -90,6 +90,7 @@ class AQuA(Experiment):
     save_notes = Member()
     save2013Analysis = Member()
     beam_position_analysis = Member()
+    beam_position_analysis2 = Member()
     origin = Member()
     ROI_rows = Int(1)
     ROI_columns = Int(1)
@@ -161,6 +162,7 @@ class AQuA(Experiment):
         self.save_notes = save2013style.SaveNotes('save_notes', self, 'save a separate notes.txt')
         self.save2013Analysis = save2013style.Save2013Analysis(self)
         self.beam_position_analysis = BeamPositionAnalysis(self)
+        self.beam_position_analysis2 = BeamPositionAnalysis(self)
         # self.vitalsignsound=Vitalsign('vital_sign_sound',self,'beeps when atoms are loaded')
         self.origin = origin_interface.Origin('origin', self, 'saves selected data to the origin data server')
 
@@ -181,7 +183,7 @@ class AQuA(Experiment):
             self.retention_analysis, self.retention_graph, self.counter_graph,
             self.save_notes, self.save2013Analysis, self.NIScopes,
             self.counter_hist,  # self.vitalsignsound,
-            self.beam_position_analysis,
+            self.beam_position_analysis,self.beam_position_analysis2,
             self.origin  # origin has to be last
         ]
 
