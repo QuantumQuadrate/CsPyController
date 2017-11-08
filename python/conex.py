@@ -53,7 +53,7 @@ class Conex(Prop):
         self.Threshold = FloatProp('PositionThreshold', experiment, 'Threshold for Position (mm)','0')
         self.properties += ['SetPos', 'enableVel', 'Vel', "IDString", 'Threshold', 'enable']
 
-        
+
     def initialize(self):
         #self.socket = TCP.CsClientSock(self.IP, self.port)
         logger.warning('CONEX IDString: {}'.format(self.IDString.value))
@@ -72,7 +72,7 @@ class Conex(Prop):
             return "Success"
         else:
             return "Failed to open Conex: ID {}, retcode {}".format(self.IDString.value, ret)
-    
+
     def update(self):
         if (self.enableVel == False):
             logger.warning('CONEX position: {}'.format(self.SetPos.value))

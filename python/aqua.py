@@ -14,10 +14,23 @@ from ConfigInstrument import Config
 import functional_waveforms, analysis, instek_pst, save2013style, TTL, LabView
 import DDS, roi_fitting
 import picomotors, andor, picampython, vaunix, DCNoiseEater, Laird_temperature, AnalogInput
-import Counter, conex, aerotech, unlock_pause, niscope, newportstage, nidaq_ai
+import Counter, unlock_pause, niscope, newportstage, nidaq_ai
 import origin_interface
 import FakeInstrument # for testing
 from pypico import PyPicoServer  # for communicating with a picomotor server
+try:
+	import conex
+	conexfound=True
+except:
+	print "Conex could not be loaded. Conex translation stages will not work."
+	conexfound=False
+try:
+	import aerotech
+	aerotechfound=True
+except:
+	print "Aerotech could not be loaded. If it is needed, check that pythonnet is installed."
+	aerotechfound=False
+
 try:
     from blackfly import BlackflyClient  # communicates with Blackfly camera server
     pycap = True
@@ -106,8 +119,10 @@ class AQuA(Experiment):
         # instruments CONFIG MUST BE FIRST INSTRUMENT
         self.Config = Config('Config', self, 'Configuration file')
         self.functional_waveforms = functional_waveforms.FunctionalWaveforms('functional_waveforms', self, 'Waveforms for HSDIO, DAQmx DIO, and DAQmx AO; defined as functions')
-        self.aerotechs = aerotech.Aerotechs('aerotechs', self, 'Aerotech Ensemble')
-        self.conexes = conex.Conexes('conexes', self, 'CONEX-CC')
+        if aerotechfound:
+			self.aerotechs = aerotech.Aerotechs('aerotechs', self, 'Aerotech Ensemble')
+        if conexfound:
+			self.conexes = conex.Conexes('conexes', self, 'CONEX-CC')
         self.picomotors = picomotors.Picomotors('picomotors', self, 'Newport Picomotors')
         self.instekpsts = instek_pst.InstekPSTs('instekpsts', self, 'Instek PST power supply')
         self.Andors = andor.Andors('Andors', self, 'Andor Luca measurementResults')
@@ -132,7 +147,7 @@ class AQuA(Experiment):
             self.NIScopes, self.Andors, self.PICams, #self.blackfly_client,
             self.DC_noise_eaters, self.DDS, self.unlock_pause,
             self.Embezzletron, self.aerotechs, self.conexes, self.instekpsts,
-            self.vaunixs, self.NewportStage, 
+            self.vaunixs, self.NewportStage,
             self.LabView  # Labview must be last at least until someone fixes the start command
         ]
 
@@ -225,4 +240,3 @@ class AQuA(Experiment):
         self.PICams.__del__()
         self.Andors.__del__()
         return
-
