@@ -202,26 +202,26 @@ if ExpMode==0:
     exp.microwave_dds.profile(170+t_microwave,'off')
     exp.microwave_switch.profile(170+t_microwave,'off')
 
-    exp.microwave_dds.profile(170+t_microwave+t_gap,'on')
-    exp.microwave_switch.profile(170+t_microwave+t_gap,'on')
-    exp.microwave_dds.profile(170+t_microwave+t_gap+t_microwave,'off')
-    exp.microwave_switch.profile(170+t_microwave+t_gap+t_microwave,'off')
+    #exp.microwave_dds.profile(170+t_microwave+t_gap,'on')
+    #exp.microwave_switch.profile(170+t_microwave+t_gap,'on')
+    #exp.microwave_dds.profile(170+t_microwave+t_gap+t_microwave,'off')
+    #exp.microwave_switch.profile(170+t_microwave+t_gap+t_microwave,'off')
 
-    t_start=170+t_microwave
-    t_end=t_start+t_gap#t_Ryd780A
-    exp.red_pointing_dds.profile(t_start,'r2')
-    exp.red_pointing_dds.profile(t_end,'r2')
+    #t_start=170+t_microwave
+    #t_end=t_start+t_gap#t_Ryd780A
+    #exp.red_pointing_dds.profile(t_start,'r2')
+    #exp.red_pointing_dds.profile(t_end,'r2')
 
-    exp.ryd780a_dds.profile(t_start,'r2')
-    exp.ryd780a_dds.profile(t_end,'off')
+    #exp.ryd780a_dds.profile(t_start,'r2')
+    #exp.ryd780a_dds.profile(t_end,'off')
 
-    exp.red_pointing_aom_switch.profile(t_start,'on')
-    exp.red_pointing_aom_switch.profile(t_end,'off')
+    #exp.red_pointing_aom_switch.profile(t_start,'on')
+    #exp.red_pointing_aom_switch.profile(t_end,'off')
 
-    exp.ryd780a_aom_switch.profile(t_start,'on')
-    exp.ryd780a_aom_switch.profile(t_end,'off')
+    #exp.ryd780a_aom_switch.profile(t_start,'on')
+    #exp.ryd780a_aom_switch.profile(t_end,'off')
 
-    exp.ground_aom_switch.profile(175,'off')
+    #exp.ground_aom_switch.profile(175,'off')
     exp.red_pointing_dds.profile(175,'off')
     exp.red_pointing_aom_switch.profile(175,'off')
     #t_pulsewidth=0.001*1
@@ -338,18 +338,18 @@ elif ExpMode==1:
     exp.FORT_NE_trigger_switch.profile(0,'off')
     exp.FORT_NE_trigger_switch.profile(170,'on')
     exp.FORT_NE_trigger_switch.profile(175,'off')
-    exp.ryd780a_aom_switch.profile(0,'off')
-    exp.ryd780a_dds.profile(0,'off')
-    exp.red_pointing_dds.profile(0,'off')
-    exp.red_pointing_aom_switch.profile(0,'off')
-    exp.ryd780a_aom_switch.profile(10,'on')
-    exp.ryd780a_dds.profile(10,'r2')
-    exp.red_pointing_dds.profile(10,'r2')
-    exp.red_pointing_aom_switch.profile(10,'on')
-    exp.ryd780a_aom_switch.profile(15,'off')
-    exp.ryd780a_dds.profile(15,'off')
-    exp.red_pointing_dds.profile(15,'off')
-    exp.red_pointing_aom_switch.profile(15,'off')
+    #exp.ryd780a_aom_switch.profile(0,'off')
+    #exp.ryd780a_dds.profile(0,'off')
+    #exp.red_pointing_dds.profile(0,'off')
+    #exp.red_pointing_aom_switch.profile(0,'off')
+    exp.ryd780a_aom_switch.profile(0,'on')
+    exp.ryd780a_dds.profile(0,'r2')
+    exp.red_pointing_dds.profile(0,'r2')
+    exp.red_pointing_aom_switch.profile(0,'on')
+    #exp.ryd780a_aom_switch.profile(15,'off')
+    #exp.ryd780a_dds.profile(15,'off')
+    #exp.red_pointing_dds.profile(15,'off')
+    #exp.red_pointing_aom_switch.profile(15,'off')
     # Ryd 780a noise eater trigger
     exp.ryd780A_NE_trigger_switch.profile(0,'off')
     exp.ryd780A_NE_trigger_switch.profile(10,'on')
@@ -372,10 +372,10 @@ elif ExpMode==1:
     exp.mot_2d_dds.profile(0,'on')
     exp.mot_aom_switch.profile(0,'on')
     exp.mot_2d_aom_switch.profile(0,'on')
-    exp.red_pointing_dds.profile(0,'r2')
-    exp.red_pointing_aom_switch.profile(0,'on')
-    exp.ryd780a_aom_switch.profile(0,'on')
-    exp.ryd780a_dds.profile(0,'r2')
+#    exp.red_pointing_dds.profile(0,'r2')
+#    exp.red_pointing_aom_switch.profile(0,'on')
+#    exp.ryd780a_aom_switch.profile(0,'on')
+#    exp.ryd780a_dds.profile(0,'r2')
     exp.blue_pointing_dds.profile(0,'r2')
     exp.blue_pointing_aom_switch.profile(0,'on')
     exp.mot_3d_x_shutter_switch.profile(0,'off')
@@ -516,7 +516,7 @@ elif ExpMode==2:
     t_end=140+exp.camera.pulse_length
     t_pulsewidth=0.001*0.4
     t_period=0.001*0.8
-    image_FORT=True
+    image_FORT=False
     if image_FORT:
         exp.fort_dds.profile(t_start,'on') ####
         for i in range(int(round((t_end-t_start)/t_period))):
