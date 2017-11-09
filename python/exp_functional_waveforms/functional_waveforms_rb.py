@@ -106,7 +106,7 @@ red_pointing_dds_profiles = {
     'off' : (0,0,0),
     'r1' : (0,0,1),
     'r2' : (0,1,0),
-    'r3' : (0,1,1)
+    'PG' : (0,1,1)
 }
 ################################################################################
 # Blue pointing AOM DDS SETUP ################################################################
@@ -209,14 +209,6 @@ repumper_shutter_switch_profile = {'on':1, 'off':0}
 # timing delay parameter
 repumper_shutter_switch_delay = 0
 
-################################################################################
-# Pointgrey camera Trigger SETUP ###############################################
-################################################################################
-pointgrey_trigger_chan = 26
-# this is the default profile, we dont have to pass it in if we dont want to
-pointgrey_trigger_profile = {'on':1, 'off':0} # Does this work?
-# timing delay parameter
-pointgrey_trigger_delay = 0
 
 ################################################################################
 # microwaver SWITCH SETUP ##########################################################
@@ -271,6 +263,79 @@ blue_pointing_aom_switch_chan = 23
 blue_pointing_aom_switch_profile = {'on':1, 'off':0}
 # timing delay parameter
 blue_pointing_aom_switch_delay = 0
+
+################################################################################
+# 3DMOT Scope Trigger SETUP ###############################################
+################################################################################
+MOT_scope_trigger_chan = 44
+# this is the default profile, we dont have to pass it in if we dont want to
+MOT_scope_trigger_profile = {'on':1, 'off':0} # Does this work?
+# timing delay parameter
+MOT_scope_trigger_delay = 0
+
+
+################################################################################
+# FORT Scope Trigger SETUP ###############################################
+################################################################################
+scope_trigger_chan = 45
+# this is the default profile, we dont have to pass it in if we dont want to
+scope_trigger_profile = {'on':1, 'off':0} # Does this work?
+# timing delay parameter
+scope_trigger_delay = 0
+
+################################################################################
+# Pointgrey camera Trigger SETUP ###############################################
+################################################################################
+pointgrey_trigger_chan = 46
+# this is the default profile, we dont have to pass it in if we dont want to
+pointgrey_trigger_profile = {'on':1, 'off':0} # Does this work?
+# timing delay parameter
+pointgrey_trigger_delay = 0
+
+################################################################################
+# FORT Noise eater Trigger SETUP ###############################################
+################################################################################
+FORT_NE_trigger_chan = 47
+# this is the default profile, we dont have to pass it in if we dont want to
+FORT_NE_trigger_profile = {'on':1, 'off':0} # Does this work?
+# timing delay parameter
+FORT_NE_trigger_delay = 0
+
+################################################################################
+# rydberg 780A Noise eater Trigger SETUP ###############################################
+################################################################################
+ryd780A_NE_trigger_chan = 48
+# this is the default profile, we dont have to pass it in if we dont want to
+ryd780A_NE_trigger_profile = {'on':1, 'off':0} # Does this work?
+# timing delay parameter
+ryd780A_NE_trigger_delay = 0
+
+################################################################################
+# FORT Pulse Generator Trigger SETUP ###############################################
+################################################################################
+FORT_PG_trigger_chan = 50
+# this is the default profile, we dont have to pass it in if we dont want to
+FORT_PG_trigger_profile = {'on':1, 'off':0}
+# timing delay parameter
+FORT_PG_trigger_delay = 0
+
+################################################################################
+# FORT Switch1 Trigger SETUP ###############################################
+################################################################################
+FORT_SW1_trigger_chan = 51
+# this is the default profile, we dont have to pass it in if we dont want to
+FORT_SW1_trigger_profile = {'on':1, 'off':0}
+# timing delay parameter
+FORT_SW1_trigger_delay = 0
+
+################################################################################
+# FORT Switch2 Trigger SETUP ###############################################
+################################################################################
+FORT_SW2_trigger_chan = 52
+# this is the default profile, we dont have to pass it in if we dont want to
+FORT_SW2_trigger_profile = {'on':1, 'off':0}
+# timing delay parameter
+FORT_SW2_trigger_delay = 0
 
 
 ################################################################################
@@ -411,24 +476,44 @@ class Rb(object):
             profiles=ryd780a_aom_switch_profile,
             delay=ryd780a_aom_switch_delay
         )
-
         self.ground_aom_switch = Switch(
             HSDIO,
             ground_aom_switch_chan,
             profiles=ground_aom_switch_profile,
             delay=ground_aom_switch_delay
         )
-#    def mot_dds(self):
-#        return
-#
-#    def mot_aom_switch(self, t, profile):
-#        return self.mot_aom_switch.profile(t, profile)
-#
-#    def hf_aom_switch(self, t, profile):
-#        return self.hf_aom_switch.profile(t, profile)
-#
-#    def fort_aom_switch(self):
-#        return self.fort_aom_switch.profile(t, profile)
-#
-#    def andor_take_shot(self):
-#        return self.camera.take_shot(t)
+
+        self.MOT_scope_trigger_switch = Switch(
+            HSDIO,
+            MOT_scope_trigger_chan,
+            profiles=MOT_scope_trigger_profile,
+            delay=MOT_scope_trigger_delay
+        )
+
+        self.scope_trigger_switch = Switch(
+            HSDIO,
+            scope_trigger_chan,
+            profiles=scope_trigger_profile,
+            delay=scope_trigger_delay
+        )
+
+        self.pointgrey_trigger_switch = Switch(
+            HSDIO,
+            pointgrey_trigger_chan,
+            profiles=pointgrey_trigger_profile,
+            delay=pointgrey_trigger_delay
+        )
+
+        self.FORT_NE_trigger_switch = Switch(
+            HSDIO,
+            FORT_NE_trigger_chan,
+            profiles=FORT_NE_trigger_profile,
+            delay=FORT_NE_trigger_delay
+        )
+
+        self.ryd780A_NE_trigger_switch = Switch(
+            HSDIO,
+            ryd780A_NE_trigger_chan,
+            profiles=ryd780A_NE_trigger_profile,
+            delay=ryd780A_NE_trigger_delay
+        )
