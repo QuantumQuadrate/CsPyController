@@ -3850,6 +3850,19 @@ enamldef Vaunixs(Window):
 
 
 
+enamldef AerotechGlobal(GroupBox):
+    attr aglobal
+    attr list_index
+
+    HGroup: variable:
+        align_widths = False
+        Label:
+            text << list_index
+        EvalProp:
+            prop << aglobal
+
+
+
 enamldef Aerotechs(Window):
     attr aerotechs
 
@@ -3873,46 +3886,63 @@ enamldef Aerotechs(Window):
                             text = 'enable'
                         CheckBox:
                             checked := aerotechs.enable
-                        Label:
-                            text = 'IP Address'
-                        Field:
-                            text := aerotechs.IP
-                        Label:
-                            text = 'port'
-                        IntField:
-                            value := aerotechs.port
-                        PushButton:
-                            text = 'Launch Server'
-                            clicked :: aerotechs.launchServer()
+                        #Label:
+                        #    text = 'IP Address'
+                        #Field:
+                        #    text := aerotechs.IP
+                        #Label:
+                        #    text = 'port'
+                        #IntField:
+                        #    value := aerotechs.port
+                        #PushButton:
+                        #    text = 'Launch Server'
+                        #    clicked :: aerotechs.launchServer()
                         PushButton:
                             text = 'Update Values'
                             clicked :: aerotechs.parUpdate()
 
-                    Container:
-                        hug_width='strong'
-                        hug_height='strong'
-                        EvalProp:
-                            prop << aerotechs.OneAerotech.Xi
-                        EvalProp:
-                            prop << aerotechs.OneAerotech.Xend
-                        EvalProp:
-                            prop << aerotechs.OneAerotech.Xvmx
-                        EvalProp:
-                            prop << aerotechs.OneAerotech.Xamx
-                        EvalProp:
-                            prop << aerotechs.OneAerotech.Zi
-                        EvalProp:
-                            prop << aerotechs.OneAerotech.Zend
-                        EvalProp:
-                            prop << aerotechs.OneAerotech.Zvmx
-                        EvalProp:
-                            prop << aerotechs.OneAerotech.Zamx
-                        EvalProp:
-                            prop << aerotechs.OneAerotech.XretTrig
-                    #IndexedContainer:
-                    #    iterable << aerotechs.motors
-                    #    viewType = Aerotech
+                    #'''Container:
+                    #    hug_width='strong'
+                    #    hug_height='strong'
+                    #    EvalProp:
+                    #        prop << aerotechs.OneAerotech.Xi
+                    #    EvalProp:
+                    #        prop << aerotechs.OneAerotech.Xend
+                    #    EvalProp:
+                    #        prop << aerotechs.OneAerotech.Xvmx
+                    #    EvalProp:
+                    #        prop << aerotechs.OneAerotech.Xamx
+                    #    EvalProp:
+                    #        prop << aerotechs.OneAerotech.Zi
+                    #    EvalProp:
+                    #        prop << aerotechs.OneAerotech.Zend
+                    #    EvalProp:
+                    #        prop << aerotechs.OneAerotech.Zvmx
+                    #    EvalProp:
+                    #        prop << aerotechs.OneAerotech.Zamx
+                    #    EvalProp:
+                    #        prop << aerotechs.OneAerotech.XretTrig'''
 
+                    GroupBox:
+                        HGroup:
+                            SpinBox: spin0:
+                                minimum=0
+                                maximum << aerotechs.OneAerotech.globals.length
+                            PushButton: addButton0:
+                                text='+'
+                                clicked::
+                                    aerotechs.OneAerotech.globals.add_at(spin0.value)
+                            PushButton: removeButton0:
+                                text='-'
+                                clicked::
+                                    aerotechs.OneAerotech.globals.pop(spin0.value)
+
+                    RefreshableLooper:
+                        iterable<<aerotechs.OneAerotech.globals
+                        AerotechGlobal:
+                            aglobal << loop_item
+                            list_index << str(loop_index)
+                    
 enamldef Aerotech(Container):
     attr item
 
@@ -3923,23 +3953,24 @@ enamldef Aerotech(Container):
         hug_width = 'strong'
         hug_height = 'strong'
         EvalProp:
-            prop << item.Xi
+            prop << item.Xi 
         EvalProp:
-            prop << item.Xend
+            prop << item.Xend 
         EvalProp:
-            prop << item.Xvmx
+            prop << item.Xvmx 
         EvalProp:
-            prop << item.Xamx
+            prop << item.Xamx 
         EvalProp:
-            prop << item.Zi
+            prop << item.Zi 
         EvalProp:
-            prop << item.Zend
+            prop << item.Zend 
         EvalProp:
-            prop << item.Zvmx
+            prop << item.Zvmx 
         EvalProp:
-            prop << item.Zamx
+            prop << item.Zamx 
         EvalProp:
-            prop << item.XretTrig
+            prop << item.XretTrig 
+
 
 
 

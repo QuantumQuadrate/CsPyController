@@ -1,0 +1,615 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>Aerotech.Common</name>
+    </assembly>
+    <members>
+        <member name="T:Aerotech.Common.Collections.INamedConstantCollection`2">
+            <summary>
+            A constant collection of objects that have a name associated with them
+            </summary>
+            <typeparam name="TObject">The type of object to store</typeparam>
+            <typeparam name="TName">The type of name associated with the object</typeparam>
+        </member>
+        <member name="P:Aerotech.Common.Collections.INamedConstantCollection`2.Item(`1)">
+            <summary>
+            Gets the object based on the name associated with it
+            </summary>
+            <param name="name">The name to look for</param>
+            <returns>The object with the associated name</returns>
+            <remarks>
+            <note>If there are multiple objects with the same name, the return value is undefined.</note>
+            </remarks>
+        </member>
+        <member name="P:Aerotech.Common.Collections.INamedConstantCollection`2.Item(System.Int32)">
+            <summary>
+            Gets the object based on its index
+            </summary>
+            <param name="index">The index of the object to retreive</param>
+            <returns>The object with the given index</returns>
+        </member>
+        <member name="P:Aerotech.Common.Collections.INamedConstantCollection`2.Count">
+            <summary>
+            Gets the number of actual objects stored in this collection
+            </summary>
+            <remarks>
+            <note>This tells how many objects are in the collection, this does not include any <c>null</c>s that are store in the collection</note>
+            </remarks>
+        </member>
+        <member name="P:Aerotech.Common.Collections.INamedConstantCollection`2.Capacity">
+            <summary>
+            Gets the number of spots in this collection
+            </summary>
+            <remarks>
+            <note>This tells how many locations for objects are in the collection, this includes any <c>null</c> that are in the collection</note>
+            </remarks>
+        </member>
+        <member name="T:Aerotech.Common.Collections.INamedCollection`2">
+            <summary>
+            A collection of objects that have a name associated with them
+            </summary>
+            <typeparam name="TObject">The type of the object to store</typeparam>
+            <typeparam name="TName">The type of the name associated with the object</typeparam>
+        </member>
+        <member name="M:Aerotech.Common.Collections.INamedCollection`2.Remove(System.Int32)">
+            <summary>
+            Removes an object from the collection
+            </summary>
+            <param name="index">The index of the object to remove</param>
+        </member>
+        <member name="M:Aerotech.Common.Collections.INamedCollection`2.Remove(`1)">
+            <summary>
+            Removes an object from the collection
+            </summary>
+            <param name="name">The name of the object to remove</param>
+        </member>
+        <member name="M:Aerotech.Common.Collections.INamedCollection`2.Remove(`0)">
+            <summary>
+            Removes an object from the collection
+            </summary>
+            <param name="object">The object to remove</param>
+        </member>
+        <member name="M:Aerotech.Common.Collections.INamedCollection`2.Add(`0)">
+            <summary>
+            Adds an object to the collection
+            </summary>
+            <param name="object">The object to add</param>
+            <remarks>
+            Objects will be added at the end of the collection.
+            </remarks>
+        </member>
+        <member name="M:Aerotech.Common.Collections.INamedCollection`2.Clear">
+            <summary>
+            Clears the collection from objects
+            </summary>
+        </member>
+        <member name="P:Aerotech.Common.Collections.INamedCollection`2.Item(`1)">
+            <summary>
+            Gets/sets the object based on the name associated with it
+            </summary>
+            <param name="name">The name of the object</param>
+            <returns>The object with the specified name</returns>
+            <remarks>
+            <note>If there are multiple objects with the same name, the return value is undefined.</note>
+            </remarks>
+        </member>
+        <member name="P:Aerotech.Common.Collections.INamedCollection`2.Item(System.Int32)">
+            <summary>
+            Gets/sets the object based on its index
+            </summary>
+            <param name="index">The index of the object</param>
+            <returns>The object with the specified index</returns>
+            <remarks>
+            <note>Setting to <c>null</c> removes the object from the collection, including its location</note>
+            </remarks>
+        </member>
+        <member name="T:Aerotech.Common.Collections.INamedMaskedConstantCollection`3">
+            <summary>
+            A constant collection of objects that have a name associated with them that can have some objects masked out
+            </summary>
+            <typeparam name="TObject">The type of objects to store</typeparam>
+            <typeparam name="TName">The type of name associated with the object</typeparam>
+            <typeparam name="TMask">The type of the mask to use (this must be an <c>enum</c>)</typeparam>
+            <remarks>
+            <para>The intent of this interface is to contain objects where some of the objects could be masked, and therefore not
+            returned to the user.  This is useful for whenever there are <c>null</c> elements stored in the collection due to
+            the fact that they are not valid in the current context; this class allows one to see as a mask which objects are unavailable.</para>
+            <para>This interface is for collections that have constant objects masked (the mask is immutable).</para>
+            </remarks>
+        </member>
+        <member name="M:Aerotech.Common.Collections.INamedMaskedConstantCollection`3.Remask(`2)">
+            <summary>
+            Produces a new collection with some additional objects masked
+            </summary>
+            <param name="mask">The mask to apply to the objects in this collection</param>
+            <returns>A new collection with additional objects masked</returns>
+            <remarks>
+            The <see cref="P:Aerotech.Common.Collections.INamedMaskedConstantCollection`3.Mask"/> and <paramref name="mask"/> are both applied to the
+            objects in this collection, so that there will be less objects available in the
+            end.
+            </remarks>
+        </member>
+        <member name="P:Aerotech.Common.Collections.INamedMaskedConstantCollection`3.Mask">
+            <summary>
+            The mask of the collection
+            </summary>
+            <remarks>
+            <para>Elements that do not exist will have a 0s for their respective position,
+            and the ones that do will have a 1.  For example, to return the follwing data :
+            <c>new string[]{null, "a", "b", null, "c", "d", "e", null}</c>, the axis mask
+            will be <c>0x73</c> (converted to the <typeparamref name="TMask"/>)</para>
+            </remarks>
+        </member>
+        <member name="P:Aerotech.Common.Collections.INamedMaskedConstantCollection`3.Item(`2)">
+            <summary>
+            Gets the object based on the mask associated with it
+            </summary>
+            <param name="mask">The name to look for</param>
+            <returns>The object with the associated mask</returns>
+            <remarks>
+            <note>Only one object is allowed to be selected in the mask, otherwise the return value is undefined.</note>
+            </remarks>
+        </member>
+        <member name="T:Aerotech.Common.Collections.INamedMaskableConstantCollection`3">
+            <summary>
+            A constant collection of objects that have a name associated with them that can have objects masked on demand
+            </summary>
+            <typeparam name="TObject">The type of objects to store</typeparam>
+            <typeparam name="TName">The type of name associated with the object</typeparam>
+            <typeparam name="TMask">The type of the mask to use (this must be an <c>enum</c>)</typeparam>
+            <remarks>
+            <para>This provides additional functionality over the <see cref="T:Aerotech.Common.Collections.INamedMaskedConstantCollection`3"/> for setting the
+            current mask.  This is useful whenever some objects might not be valid in the context, but the context can be
+            changed by the user, and thus some objects might become available.</para>
+            </remarks>
+        </member>
+        <member name="M:Aerotech.Common.Collections.INamedMaskableConstantCollection`3.Remask(`2)">
+            <summary>
+            Produces a new collection with some additional objects masked or unmasked
+            </summary>
+            <param name="mask">The mask to apply to the objects in this collection</param>
+            <returns>A new collection with additional objects masked or unmasked</returns>
+        </member>
+        <member name="P:Aerotech.Common.Collections.INamedMaskableConstantCollection`3.Mask">
+            <summary>
+            The mask of the collection
+            </summary>
+            <remarks>
+            <para>Elements that do not exist will have a 0s for their respective position,
+            and the ones that do will have a 1.  For example, to return the follwing data :
+            <c>new string[]{null, "a", "b", null, "c", "d", "e", null}</c>, the axis mask
+            will be <c>0x73</c> (converted to the <typeparamref name="TMask"/>)</para>
+            </remarks>
+        </member>
+        <member name="E:Aerotech.Common.Collections.INamedMaskableConstantCollection`3.MaskChanged">
+            <summary>
+            Is fired whenever the <see cref="P:Aerotech.Common.Collections.INamedMaskableConstantCollection`3.Mask"/> property changes
+            </summary>
+        </member>
+        <member name="T:Aerotech.Common.Collections.NamedConstantCollection`2">
+            <summary>
+            A constant collection of objects that have a name associated with them
+            </summary>
+            <typeparam name="TObject">The type of objects to store</typeparam>
+            <typeparam name="TName">The type of name associated with the object</typeparam>
+            <remarks>
+            <para>This class provides a simple implementation for the <see cref="T:Aerotech.Common.Collections.INamedCollection`2"/>.</para>
+            </remarks>
+        </member>
+        <member name="F:Aerotech.Common.Collections.NamedConstantCollection`2.objects">
+            <summary>
+            The underlying storage of data
+            </summary>
+        </member>
+        <member name="M:Aerotech.Common.Collections.NamedConstantCollection`2.#ctor">
+            <summary>
+            Creates an empty collection
+            </summary>
+            <remarks>
+            <para>See <see cref="P:Aerotech.Common.Collections.NamedConstantCollection`2.Objects"/> for ability to set the objects.</para>
+            <note>There is no way for an outside class to store objects in the collection, therefore use this constructor only when
+            you want an empty, unchangable collection.</note>
+            </remarks>
+        </member>
+        <member name="M:Aerotech.Common.Collections.NamedConstantCollection`2.#ctor(`0[])">
+            <summary>
+            Creates a collection with given set of objects
+            </summary>
+            <param name="objects">The initial set of objects</param>
+        </member>
+        <member name="M:Aerotech.Common.Collections.NamedConstantCollection`2.GetEnumerator">
+            <summary>
+            Provides the enumerator for the current collection
+            </summary>
+            <returns>An enumerator for this collection</returns>
+            <remarks>
+            <para>This allows one to do a type-safe <c>foreach</c> on this collection</para>
+            </remarks>
+        </member>
+        <member name="M:Aerotech.Common.Collections.NamedConstantCollection`2.System#Collections#IEnumerable#GetEnumerator">
+            <summary>
+            Provides the enumerator for the current collection
+            </summary>
+            <returns>An enumerator for this collection</returns>
+            <remarks>
+            <para>This allows one to do a <c>foreach</c> on this collection</para>
+            </remarks>
+        </member>
+        <member name="P:Aerotech.Common.Collections.NamedConstantCollection`2.Objects">
+            <summary>
+            Provides access to the underlying storage of data
+            </summary>
+            <remarks>
+            <note>This property is <c>override</c>able, so if an inheriting class need to modify
+            how the underlying objects are stored, it can <c>override</c> this property
+            (the rest of the implementation of this class uses this property instead of
+            <see cref="F:Aerotech.Common.Collections.NamedConstantCollection`2.objects"/> to access the underlying data storage).</note>
+            <note>This return the underlying data storage (not a clone of it), so if you modify it,
+            it will modify the objects stored in the collection.</note>
+            </remarks>
+        </member>
+        <member name="P:Aerotech.Common.Collections.NamedConstantCollection`2.Item(`1)">
+            <summary>
+            Gets the object based on the name associated with it
+            </summary>
+            <param name="name">The name to look for</param>
+            <returns>The object with the associated name</returns>
+            <remarks>
+            <note>If there are multiple objects with the same name, the return value is undefined.</note>
+            </remarks>
+        </member>
+        <member name="P:Aerotech.Common.Collections.NamedConstantCollection`2.Item(System.Int32)">
+            <summary>
+            Gets the object based on its index
+            </summary>
+            <param name="index">The index of the object to retreive</param>
+            <returns>The object with the given index</returns>
+        </member>
+        <member name="P:Aerotech.Common.Collections.NamedConstantCollection`2.Count">
+            <summary>
+            Gets the number of actual objects stored in this collection
+            </summary>
+            <remarks>
+            <note>This tells how many objects are in the collection, this does not include any <c>null</c>s that are store in the collection</note>
+            </remarks>
+        </member>
+        <member name="P:Aerotech.Common.Collections.NamedConstantCollection`2.Capacity">
+            <summary>
+            Gets the number of objects stored in this collection
+            </summary>
+            <remarks>
+            <note>This tells how many objects are in the collection, this includes <c>null</c> objects</note>
+            </remarks>
+        </member>
+        <member name="T:Aerotech.Common.Collections.NamedMaskedConstantCollection`3">
+            <summary>
+            A constant collection of objects that have a name associated with them that can have some objects masked out
+            </summary>
+            <typeparam name="TObject">The type of objects to store</typeparam>
+            <typeparam name="TName">The type of name associated with the object</typeparam>
+            <typeparam name="TMask">The type of the mask to use (this must be an <c>enum</c>)</typeparam>
+            <remarks>
+            <para>The intent of this class is to contain objects where some of the objects could be masked, and therefore not
+            returned to the user.  This is useful for whenever there are <c>null</c> elements stored in the collection due to
+            the fact that they are not valid in the current context; this class allows one to see as a mask which objects are unavailable.</para>
+            <para>This class is for collections that have constant objects masked (the mask is immutable).</para>
+            </remarks>
+        </member>
+        <member name="M:Aerotech.Common.Collections.NamedMaskedConstantCollection`3.#ctor">
+            <summary>
+            Creates an empty collection
+            </summary>
+            <remarks>
+            <para>See <see cref="P:Aerotech.Common.Collections.NamedConstantCollection`2.Objects"/> for ability to set the objects.</para>
+            <note>There is no way for an outside class to store objects in the collection, therefore use this constructor only when
+            you want an empty, unchangable collection.</note>
+            </remarks>
+        </member>
+        <member name="M:Aerotech.Common.Collections.NamedMaskedConstantCollection`3.#ctor(`0[])">
+            <summary>
+            Creates a collection with given set of objects
+            </summary>
+            <param name="objects">The initial set of objects</param>
+            <remarks>
+            <para>There is no way for an outside class to change the mask (see <see cref="P:Aerotech.Common.Collections.NamedMaskedConstantCollection`3.Mask"/> for retreiving it).
+            When calling this constructor, the mask will be generated from the <paramref name="objects"/> based
+            on which elements on the parameter are <c>null</c>.</para>
+            </remarks>
+        </member>
+        <member name="M:Aerotech.Common.Collections.NamedMaskedConstantCollection`3.#ctor(`0[],`2)">
+            <summary>
+            Creates a collection with given set of objects and mask
+            </summary>
+            <param name="objects">The initial set of objects</param>
+            <param name="mask">The initial mask to use</param>
+            <remarks>
+            <para>For a description of how the mask works see <see cref="P:Aerotech.Common.Collections.NamedMaskedConstantCollection`3.Mask"/></para>
+            </remarks>
+        </member>
+        <member name="M:Aerotech.Common.Collections.NamedMaskedConstantCollection`3.Remask(`2)">
+            <summary>
+            Produces a new collection with some additional objects masked
+            </summary>
+            <param name="mask">The mask to apply to the objects in this collection</param>
+            <returns>A new collection with additional objects masked</returns>
+            <remarks>
+            The <see cref="P:Aerotech.Common.Collections.NamedMaskedConstantCollection`3.Mask"/> and <paramref name="mask"/> are both applied to the
+            objects in this collection, so that there will be less objects available in the
+            end.
+            </remarks>
+        </member>
+        <member name="M:Aerotech.Common.Collections.NamedMaskedConstantCollection`3.op_BitwiseAnd(Aerotech.Common.Collections.NamedMaskedConstantCollection{`0,`1,`2},`2)">
+            <exclude/>
+        </member>
+        <member name="P:Aerotech.Common.Collections.NamedMaskedConstantCollection`3.ObjectMask">
+            <summary>
+            Gets/sets underlying storage for object mask
+            </summary>
+        </member>
+        <member name="P:Aerotech.Common.Collections.NamedMaskedConstantCollection`3.Objects">
+            <summary>
+            Provides access to the storage of data
+            </summary>
+            <remarks>
+            <para>This returns the array of elements, but the elements that are masked
+            are set to <c>null</c> (even if they exist in the underlying data store).</para>
+            </remarks>
+        </member>
+        <member name="P:Aerotech.Common.Collections.NamedMaskedConstantCollection`3.AllObjects">
+            <summary>Provides access to all the objects without the <see cref="P:Aerotech.Common.Collections.NamedMaskedConstantCollection`3.Mask"/> being applied</summary>
+        </member>
+        <member name="P:Aerotech.Common.Collections.NamedMaskedConstantCollection`3.Item(`2)">
+            <summary>
+            Gets the object based on the mask associated with it
+            </summary>
+            <param name="mask">The name to look for</param>
+            <returns>The object with the associated mask</returns>
+            <exception cref="T:System.InvalidOperationException">If there are multiple objects selected in the <paramref name="mask"/></exception>
+            <remarks>
+            </remarks>
+        </member>
+        <member name="P:Aerotech.Common.Collections.NamedMaskedConstantCollection`3.Mask">
+            <summary>
+            The mask of the collection
+            </summary>
+            <remarks>
+            <para>Elements that do not exist will have a 0s for their respective position,
+            and the ones that do will have a 1.  For example, to return the follwing data :
+            <c>new string[]{null, "a", "b", null, "c", "d", "e", null}</c>, the axis mask
+            will be <c>0x73</c> (converted to the <typeparamref name="TMask"/>)</para>
+            </remarks>
+        </member>
+        <member name="T:Aerotech.Common.Collections.NamedMaskableConstantCollection`3">
+            <summary>
+            A constant collection of objects that have a name associated with them that can have some objects masked out
+            </summary>
+            <typeparam name="TObject">The type of objects to store</typeparam>
+            <typeparam name="TName">The type of name associated with the object</typeparam>
+            <typeparam name="TMask">The type of the mask to use (this must be an <c>enum</c>)</typeparam>
+            <remarks>
+            <para>The intent of this class is to contain objects where some of the objects could be masked, and therefore not
+            returned to the user.  This is useful for whenever there are <c>null</c> elements stored in the collection due to
+            the fact that they are not valid in the current context; this class allows one to see as a mask which objects are unavailable.</para>
+            <para>This class is for collections that allow the user to specify a mask</para>
+            </remarks>
+        </member>
+        <member name="M:Aerotech.Common.Collections.NamedMaskableConstantCollection`3.#ctor">
+            <summary>
+            Creates an empty collection
+            </summary>
+            <remarks>
+            <para>See <see cref="P:Aerotech.Common.Collections.NamedConstantCollection`2.Objects"/> for ability to set the objects.</para>
+            <note>There is no way for an outside class to store objects in the collection, therefore use this constructor only when
+            you want an empty, unchangable collection.</note>
+            </remarks>
+        </member>
+        <member name="M:Aerotech.Common.Collections.NamedMaskableConstantCollection`3.#ctor(`0[])">
+            <summary>
+            Creates a collection with given set of objects
+            </summary>
+            <param name="objects">The initial set of objects</param>
+            <remarks>
+            <para>There is no way for an outside class to change the mask (see <see cref="P:Aerotech.Common.Collections.NamedMaskableConstantCollection`3.Mask"/> for retreiving it).
+            When calling this constructor, the mask will be generated from the <paramref name="objects"/> based
+            on which elements on the parameter are <c>null</c>.</para>
+            </remarks>
+        </member>
+        <member name="M:Aerotech.Common.Collections.NamedMaskableConstantCollection`3.#ctor(`0[],`2)">
+            <summary>
+            Creates a collection with given set of objects and mask
+            </summary>
+            <param name="objects">The initial set of objects</param>
+            <param name="mask">The initial mask to use</param>
+            <remarks>
+            <para>For a description of how the mask works see <see cref="P:Aerotech.Common.Collections.NamedMaskableConstantCollection`3.Mask"/></para>
+            </remarks>
+        </member>
+        <member name="M:Aerotech.Common.Collections.NamedMaskableConstantCollection`3.Remask(`2)">
+            <summary>
+            Produces a new collection with some additional objects masked or unmasked
+            </summary>
+            <param name="mask">The mask to apply to the objects in this collection</param>
+            <returns>A new collection with additional objects masked or unmasked</returns>
+        </member>
+        <member name="P:Aerotech.Common.Collections.NamedMaskableConstantCollection`3.Mask">
+            <summary>
+            The mask of the collection
+            </summary>
+            <remarks>
+            <para>Elements that are masked out will have a 0s for their respective position,
+            and the ones that are masked in will have a 1.  For example, to return the follwing data :
+            <c>new string[]{null, "a", "b", null, "c", "d", "e", null}</c>, the axis mask
+            will be <c>0x73</c> (converted to the <typeparamref name="TMask"/>)</para>
+            </remarks>
+        </member>
+        <member name="E:Aerotech.Common.Collections.NamedMaskableConstantCollection`3.MaskChanged">
+            <summary>
+            Is fired when <see cref="P:Aerotech.Common.Collections.NamedMaskableConstantCollection`3.Mask"/> changes
+            </summary>
+        </member>
+        <member name="T:Aerotech.Common.Collections.NamedCollection`2">
+            <summary>
+            A collection of objects that have a name associated with them
+            </summary>
+            <typeparam name="TObject">The type of objects to store</typeparam>
+            <typeparam name="TName">The name associated with the objects</typeparam>
+        </member>
+        <member name="M:Aerotech.Common.Collections.NamedCollection`2.#ctor">
+            <summary>
+            Creates an empty collection
+            </summary>
+        </member>
+        <member name="M:Aerotech.Common.Collections.NamedCollection`2.#ctor(`0[])">
+            <summary>
+            Creates a collection with initial set of objects
+            </summary>
+            <param name="objects">The initial set of objects to store</param>
+        </member>
+        <member name="M:Aerotech.Common.Collections.NamedCollection`2.#ctor(System.Collections.Generic.IEnumerable{`0})">
+            <summary>
+            Creates a collection with initial set of objects
+            </summary>
+            <param name="objects">The initial set of objects to store</param>
+        </member>
+        <member name="M:Aerotech.Common.Collections.NamedCollection`2.Remove(System.Int32)">
+            <summary>
+            Removes an object from the collection
+            </summary>
+            <param name="index">The index of object to remove</param>
+        </member>
+        <member name="M:Aerotech.Common.Collections.NamedCollection`2.Remove(`1)">
+            <summary>
+            Removes an object from the collection
+            </summary>
+            <param name="name">The name of the object to remove</param>
+        </member>
+        <member name="M:Aerotech.Common.Collections.NamedCollection`2.Remove(`0)">
+            <summary>
+            Removes an object from the collection
+            </summary>
+            <param name="obj">The object to remove</param>
+        </member>
+        <member name="M:Aerotech.Common.Collections.NamedCollection`2.Add(`0)">
+            <summary>
+            Adds an object to the collection
+            </summary>
+            <param name="obj">The object to add to the collection</param>
+        </member>
+        <member name="M:Aerotech.Common.Collections.NamedCollection`2.Clear">
+            <summary>
+            Removes all objects from the collection
+            </summary>
+        </member>
+        <member name="P:Aerotech.Common.Collections.NamedCollection`2.Item(System.Int32)">
+            <summary>
+            Provides access to objects by index
+            </summary>
+            <param name="index">The index of object to modify</param>
+            <returns>The object at given index</returns>
+        </member>
+        <member name="T:Aerotech.Common.AerotechException">
+            <summary>
+            Represents an exception thrown by Aerotech, Inc. products
+            </summary>
+        </member>
+        <member name="M:Aerotech.Common.AerotechException.#ctor">
+            <summary>
+            Default constructor
+            </summary>
+        </member>
+        <member name="M:Aerotech.Common.AerotechException.#ctor(System.String)">
+            <summary>
+            Instantiates the exception with a given message
+            </summary>
+            <param name="message">The message to use</param>
+        </member>
+        <member name="M:Aerotech.Common.AerotechException.#ctor(System.String,System.Exception)">
+            <summary>
+            Instantiates the exception with a given message and an inner exception
+            </summary>
+            <param name="message">The message to use</param>
+            <param name="innerException">The inner exception</param>
+        </member>
+        <member name="M:Aerotech.Common.AerotechException.#ctor(System.Runtime.Serialization.SerializationInfo,System.Runtime.Serialization.StreamingContext)">
+            <summary>
+            For serializaation purposes
+            </summary>
+            <param name="info">The serialized inforation</param>
+            <param name="context">The context in which to deserialize</param>
+        </member>
+        <member name="T:Aerotech.Common.Properties.Resources">
+            <summary>
+              A strongly-typed resource class, for looking up localized strings, etc.
+            </summary>
+        </member>
+        <member name="P:Aerotech.Common.Properties.Resources.ResourceManager">
+            <summary>
+              Returns the cached ResourceManager instance used by this class.
+            </summary>
+        </member>
+        <member name="P:Aerotech.Common.Properties.Resources.Culture">
+            <summary>
+              Overrides the current thread's CurrentUICulture property for all
+              resource lookups using this strongly typed resource class.
+            </summary>
+        </member>
+        <member name="T:Aerotech.Common.FilePoint">
+            <summary>
+            Represents a position in a file (by line number)
+            </summary>
+        </member>
+        <member name="M:Aerotech.Common.FilePoint.#ctor(System.String,System.Int32)">
+            <summary>
+            Creates a new file point given name and line number
+            </summary>
+            <param name="path">The file name</param>
+            <param name="line">The line number</param>
+        </member>
+        <member name="M:Aerotech.Common.FilePoint.Clone">
+            <summary>
+            Clones the current object
+            </summary>
+            <returns>A deep clone of this object</returns>
+        </member>
+        <member name="M:Aerotech.Common.FilePoint.Equals(System.Object)">
+            <summary>
+            Compares the current file point to another one
+            </summary>
+            <param name="obj">The file point to compare to</param>
+            <returns><c>true</c> if both point to the same file and the same line</returns>
+        </member>
+        <member name="M:Aerotech.Common.FilePoint.GetHashCode">
+            <summary>
+            Generates a hash code for this class
+            </summary>
+            <returns>The hash code</returns>
+        </member>
+        <member name="M:Aerotech.Common.FilePoint.ToString">
+            <summary>
+            Converts to a string representation
+            </summary>
+            <returns><see cref="P:Aerotech.Common.FilePoint.Path"/>:<see cref="P:Aerotech.Common.FilePoint.LineNumber"/></returns>
+        </member>
+        <member name="P:Aerotech.Common.FilePoint.Path">
+            <summary>
+            Returns the path to the file
+            </summary>
+        </member>
+        <member name="P:Aerotech.Common.FilePoint.LineNumber">
+            <summary>
+            Returns the line number
+            </summary>
+        </member>
+        <member name="T:Aerotech.Common.INamed`1">
+            <summary>
+            Represents a named object
+            </summary>
+            <typeparam name="TName">The type of the name</typeparam>
+        </member>
+        <member name="P:Aerotech.Common.INamed`1.Name">
+            <summary>
+            Returns the name of the object
+            </summary>
+        </member>
+    </members>
+</doc>
