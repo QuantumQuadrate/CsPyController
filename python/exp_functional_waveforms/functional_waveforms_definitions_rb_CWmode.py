@@ -51,10 +51,6 @@ def chop_readout(channels, phases, profiles, period):
 
     return chop_function
 
-# some constants for testing.
-my_MOT_SW_channel=7
-my_FORT_SW_channel=8
-readout_chop_freq_MHz=1.25
 
 def readout(t,duration):
     """Image atom in FORT."""
@@ -71,8 +67,8 @@ def readout(t,duration):
     channels = [my_MOT_SW_channel, my_FORT_SW_channel]
     phases = [[0.25, 0.7], [0.3, 0.76]]
     profiles = [
-        [1, 0, 1],
-        [0, 1, 0]
+        [0, 1, 0],
+        [1, 0, 1]
     ]
     t = HSDIO_repeat(t, chop_readout(channels, phases, profiles, period_ms), cycles)
     return t
@@ -191,10 +187,8 @@ if ExpMode==0:
     exp.mot_3d_dds.profile(140,'RO')
     exp.camera.take_shot(140)
     t_start=140
-    t_end=145
     readout(t_start,5)
-    # #t_end=140+exp.camera.pulse_length
-    # t_end=t_start+t_readoutduration
+    t_end=t_start+t_readoutduration
     # t_pulsewidth=0.001*0.4
     # t_period=0.001*0.8
     # t_offset1=t_relative_offset
@@ -205,7 +199,7 @@ if ExpMode==0:
     # for i in range(int(round((t_end-t_start)/t_period))):
     #     exp.fort_aom_switch.profile(t_start+i*t_period,'off')
     #     exp.fort_aom_switch.profile(t_start+i*t_period+t_pulsewidth,'on')
-    exp.mot_aom_switch.profile(t_end,'off')
+    #exp.mot_aom_switch.profile(t_end,'off')
     AO(t_start,7,10)
     exp.hf_aom_switch.profile(t_start,'on')
     exp.hf_aom_switch.profile(t_end+0.2,'off') ###
@@ -338,24 +332,26 @@ if ExpMode==0:
     exp.mot_3d_dds.profile(t_readout_2nd,'RO')
     exp.camera.take_shot(t_readout_2nd)
     t_start=t_readout_2nd
-    t_end=t_readout_2nd+exp.camera.pulse_length
-    t_pulsewidth=0.001*0.4
-    t_period=0.001*0.8
-    t_offset1=t_relative_offset
-    for i in range(int(round((t_end-t_start)/t_period))):
-        exp.mot_aom_switch.profile(t_start+i*t_period+t_offset1,'off')
-        exp.mot_aom_switch.profile(t_start+i*t_period+t_pulsewidth+t_offset1,'on')
-
-    for i in range(int(round((t_end-t_start)/t_period))):
-        exp.fort_aom_switch.profile(t_start+i*t_period,'off')
-        exp.fort_aom_switch.profile(t_start+i*t_period+t_pulsewidth,'on')
-    exp.mot_aom_switch.profile(t_readout_2nd+exp.camera.pulse_length,'off')
+    readout(t_start,5)
+    t_end=t_start+t_readoutduration
+    # t_end=t_readout_2nd+exp.camera.pulse_length
+    # t_pulsewidth=0.001*0.4
+    # t_period=0.001*0.8
+    # t_offset1=t_relative_offset
+    # for i in range(int(round((t_end-t_start)/t_period))):
+    #     exp.mot_aom_switch.profile(t_start+i*t_period+t_offset1,'off')
+    #     exp.mot_aom_switch.profile(t_start+i*t_period+t_pulsewidth+t_offset1,'on')
+    #
+    # for i in range(int(round((t_end-t_start)/t_period))):
+    #     exp.fort_aom_switch.profile(t_start+i*t_period,'off')
+    #     exp.fort_aom_switch.profile(t_start+i*t_period+t_pulsewidth,'on')
+    #exp.mot_aom_switch.profile(t_readout_2nd+exp.camera.pulse_length,'off')
     AO(t_readout_2nd,7,10) # Turn on repumper. Sets rf attenuator voltage to 10V
     exp.hf_aom_switch.profile(t_readout_2nd,'on')
     exp.hf_aom_switch.profile(t_readout_2nd+exp.camera.pulse_length,'off')
     AO(t_readout_2nd+exp.camera.pulse_length,7,0)
 
-    exp.fort_aom_switch.profile(t_readout_2nd+exp.camera.pulse_length,'off')
+    #exp.fort_aom_switch.profile(t_readout_2nd+exp.camera.pulse_length,'off')
     exp.fort_dds.profile(t_readout_2nd+exp.camera.pulse_length,'off')
 
 
@@ -472,8 +468,8 @@ elif ExpMode==1:
     AO(150,2,coil_driver_polarity*-0.27) #X
     AO(150,3,coil_driver_polarity*-0.48) #Y
     AO(150,4,coil_driver_polarity*-0.25) #Z
-
-
+    t_start=140
+    readout(t_start,5)
     ## Optical Pumping Phase
     #AO(150,7,0)
     #AO(160,7,10)

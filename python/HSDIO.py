@@ -662,8 +662,8 @@ class HSDIO(Instrument):
                 '\n'.join(script),
                 '\n'.join(master_waveform_list)
             )
-            pprint.pprint(script)
-            pprint.pprint(master_waveform_list)
+            #pprint.pprint(script)
+            #pprint.pprint(master_waveform_list)
             # [7:] removes the <HSDIO> on what is returned from super.toHardware
             return xml_str + super(HSDIO, self).toHardware()[7:]
         else:
