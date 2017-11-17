@@ -1183,7 +1183,7 @@ class AndorViewer(AnalysisWithFigure):
         fig.clf()
         ax = fig.add_subplot(111)
 
-        self.artist = ax.imshow(data, vmin=self.mycam.minPlot.value, vmax=self.mycam.maxPlot.value)
+        self.artist = ax.imshow(data, vmin=self.mycam.minPlot.value, vmax=self.mycam.maxPlot.value, cmap=my_cmap)
         super(AndorViewer, self).updateFigure()
 
     def redraw_video(self):
@@ -1191,6 +1191,7 @@ class AndorViewer(AnalysisWithFigure):
         this.
         """
         if (self.mycam.autoscale):
+            self.artist.set_data(self.data)
             self.artist.autoscale()
         else:
             self.artist.set_data(self.data)

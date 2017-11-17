@@ -463,7 +463,11 @@ class HSDIO(Instrument):
                 transition_cycles.append(1)
                 cycle_count += 1
                 # copy the old transitions in, and switch after modulo time
-                new_repeat_only_list = self.update_transition_list(repeat_only_list, other_transitions[i+1])
+                if i>=len(other_transitions):
+                    logger.error('Transition at last repeat phase. Move the transition back one cycle.')
+                    raise PauseError
+                else:
+                    new_repeat_only_list = self.update_transition_list(repeat_only_list, other_transitions[i+1])
                 extra_idx = 1  # assume we will ned another transition until proven otherwise
                 ctime = 0
                 for idx in range(len(repeat_only_list)):

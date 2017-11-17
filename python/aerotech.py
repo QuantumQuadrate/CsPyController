@@ -17,15 +17,28 @@ __author__ = 'Martin Lichtman'
 import logging
 logger = logging.getLogger(__name__)
 
-from atom.api import Bool, Str, Member, Int
-from instrument_property import Prop, FloatProp, IntProp, ListProp
+from atom.api import Bool, Str, Member, Int, Float
+from instrument_property import Prop, FloatProp, IntProp, ListProp, EvalProp
 from cs_instruments import Instrument
+from analysis import Analysis
 import TCP
 from cs_errors import PauseError
 import subprocess
+import sys, os
+print os.getcwd()
+sys.path.append(r'{}\..\csharp\Aerotech_Ensemble_Server'.format(os.getcwd()))
+print sys.path
+import clr
+clr.AddReference("Aerotech.Common")
+clr.AddReference("Aerotech.Ensemble")
+from Aerotech.Ensemble import *
+from Aerotech.Common import *
+
+
+
 
 class Aerotech(Prop):
-    Xi = Member()
+    '''Xi = Member()
     Xend = Member()
     Xvmx = Member()
     Xamx = Member()
@@ -33,11 +46,16 @@ class Aerotech(Prop):
     Zend = Member()
     Zvmx = Member()
     Zamx = Member()
-    XretTrig = Member()
+    XretTrig = Member()'''
+
+    globals = Member()
+    allow_evaluation = Bool(True)
+    gui = Member()
+    myController = Member()
 
     def __init__(self, name, experiment, description=''):
         super(Aerotech, self).__init__(name, experiment, description)
-        self.Xi = FloatProp('Xi', experiment, 'Initial X position (mm)','0')
+        '''self.Xi = FloatProp('Xi', experiment, 'Initial X position (mm)','0')
         self.Xend = FloatProp('Xend', experiment, 'Final X position (mm)','0')
         self.Xvmx = FloatProp('Xvmx', experiment, 'Max X velocity (mm/s)','0')
         self.Xamx = FloatProp('Xend', experiment, 'Max X acceleration (mm/s^2)','0')
@@ -45,14 +63,21 @@ class Aerotech(Prop):
         self.Zend = FloatProp('Zend', experiment, 'Final Z position (mm)','0')
         self.Zvmx = FloatProp('Zvmx', experiment, 'Max Z velocity (mm/s)','0')
         self.Zamx = FloatProp('Zend', experiment, 'Max Z acceleration (mm/s^2)','0')
-        self.XretTrig = IntProp('XretTrig', experiment, 'X Trig Return?','0')
-        self.properties += ['Xi', 'Xend', 'Xvmx', 'Xamx', 'Zi', 'Zend', 'Zvmx', 'Zamx', 'XretTrig']
+        self.XretTrig = IntProp('XretTrig', experiment, 'X Trig Return?','0')'''
+        self.globals = ListProp('globals', experiment, listElementType=FloatProp,
+                                             listElementName='global')
+        self.properties += ['globals']
 
     def update(self):
-        return 'UpdateGlobals,{},{},{},{},{},{},{},{},{}'.format(self.Xi.value, self.Xend.value, self.Xvmx.value,self.Xamx.value ,self.Zi.value, self.Zend.value, self.Zvmx.value, self.Zamx.value, self.XretTrig.value)
+        for i,k in enumerate(self.globals):
+            self.myController.Commands.Register.WriteDoubleGlobal(i,k.value)
+        #integer globals go here if needed
+        self.myController.Parameters.System.User.UserInteger0.Value = 1
 
+    def waitForGlobals(self):
+        self.myController.Parameters.System.User.UserInteger0.Value = -1
 
-class Aerotechs(Instrument):
+class Aerotechs(Instrument,Analysis):
     version = '2015.06.22'
     IP = Str()
     port = Int()
@@ -68,25 +93,27 @@ class Aerotechs(Instrument):
         self.properties += ['version', 'IP', 'port', 'motors','OneAerotech']
 
     def launchServer(self):
-        subprocess.Popen(["C:\\Windows\\System32\\cmd.exe","/C","..\\csharp\\Aerotech_Ensemble_Server\\bin\\Debug\\Ensemble Console Example CSharp.exe"], creationflags=subprocess.CREATE_NEW_CONSOLE)
-
+        #subprocess.Popen(["C:\\Windows\\System32\\cmd.exe","/C","..\\csharp\\Aerotech_Ensemble_Server\\bin\\Debug\\Ensemble Console Example CSharp.exe"], creationflags=subprocess.CREATE_NEW_CONSOLE)
+        return
 
     def preExperiment(self, hdf5):
         """Open the TCP socket"""
         if self.enable:
-            self.socket = TCP.CsClientSock(self.IP, self.port)
+            self.OneAerotech.myController = Controller.Connect()[0]
             logger.debug("Aerotech: preExperiment: sending WaitForGlobals")
-            self.socket.sendmsg("WaitForGlobals")
+            self.OneAerotech.waitForGlobals()
             # TODO: add here some sort of communications check to see if it worked
 
             self.isInitialized = True
 
-    def postMeasurement(self, measurementresults, iterationresults, hdf5):
+    def postMeasurement(self, callback, measurementresults, iterationresults, hdf5):
+        super(Aerotechs,self).postMeasurement(callback, measurementresults,iterationresults,hdf5)
         return
 
     def postIteration(self, iterationresults, hdf5):
         if self.enable:
-            self.socket.sendmsg("WaitForGlobals")
+            self.OneAerotech.waitForGlobals()
+        super(Aerotechs,self).postIteration(iterationresults,hdf5)
         return
 
     def postExperiment(self, hdf5):
@@ -99,20 +126,15 @@ class Aerotechs(Instrument):
         """
         Every iteration, send the motors updated positions.
         """
+        #print "Running aerotech preIteration"
         if (not self.isInitialized):
             self.preExperiment(hdf5)
         if self.enable:
             msg = ''
             try:
-                #for i in self.motors:
-                #    msg = i.update()
-                    # send update to the aerotech server
-                #    self.socket.sendmsg(msg)
-                msg = self.OneAerotech.update()
-                self.socket.sendmsg(msg)
+                self.OneAerotech.update()
             except Exception as e:
                 logger.error('Problem setting Aerotech globals, closing socket:\n{}\n{}\n'.format(msg, e))
-                self.socket.close()
                 self.isInitialized = False
                 raise PauseError
 
@@ -122,6 +144,17 @@ class Aerotechs(Instrument):
         :return:
         """
         self.preIteration(0,0)
-        self.socket.sendmsg("WaitForGlobals")
+        self.OneAerotech.waitForGlobals()
         self.preIteration(0,0)
         return
+        
+    def start(self):
+        self.isDone = True
+        return
+        
+    def update(self):
+        self.preIteration(0,0)
+        return
+        
+    def initialize(self):
+        self.preExperiment(0)
