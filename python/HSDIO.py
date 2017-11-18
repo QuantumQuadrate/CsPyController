@@ -14,6 +14,7 @@ from __future__ import division
 import logging
 import numpy as np
 import dicttoxml
+import pprint
 
 from cs_errors import PauseError
 
@@ -346,9 +347,15 @@ class HSDIO(Instrument):
         for tnum, t in enumerate(transition_list):
             for q in range(hardware_quanta):
                 # add in the transition
-                transitions.append(str(time))
-                # move time counter up one cycle
-                time += 1
+                if q == 0 and time % hardware_quanta:
+                    # if not synchronous with the hardware quanta move transition forward
+                    logger.warning('Detected a hardware quanta roudin event.  Ato fixing by one cycle')
+                    transitions.append(str(time-(time % hardware_quanta)))
+                    # dont move time counter up to account for shift
+                else:
+                    transitions.append(str(time))
+                    # move time counter up one cycle
+                    time += 1
                 # and the state
                 states.append(t['state'])
             time += t['waitTime'] - 1*hardware_quanta
@@ -398,7 +405,7 @@ class HSDIO(Instrument):
                     # mark the total time to first other transition, use from before but cant overwrite
                     # because I am dumb
                     sample_clock_cycles_to_next_ot = sample_clock_cycles_to_next_ot_option
-                #if sample_clock_cycles_to_next_ot < 
+                #if sample_clock_cycles_to_next_ot <
                 repeats_done = True
                 other_transitions.append(shallow_copy(t))
             else:
@@ -456,7 +463,11 @@ class HSDIO(Instrument):
                 transition_cycles.append(1)
                 cycle_count += 1
                 # copy the old transitions in, and switch after modulo time
-                new_repeat_only_list = self.update_transition_list(repeat_only_list, other_transitions[i+1])
+                if i>=len(other_transitions):
+                    logger.error('Transition at last repeat phase. Move the transition back one cycle.')
+                    raise PauseError
+                else:
+                    new_repeat_only_list = self.update_transition_list(repeat_only_list, other_transitions[i+1])
                 extra_idx = 1  # assume we will ned another transition until proven otherwise
                 ctime = 0
                 for idx in range(len(repeat_only_list)):
@@ -651,6 +662,8 @@ class HSDIO(Instrument):
                 '\n'.join(script),
                 '\n'.join(master_waveform_list)
             )
+            #pprint.pprint(script)
+            #pprint.pprint(master_waveform_list)
             # [7:] removes the <HSDIO> on what is returned from super.toHardware
             return xml_str + super(HSDIO, self).toHardware()[7:]
         else:

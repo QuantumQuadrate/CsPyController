@@ -14,7 +14,21 @@ from ConfigInstrument import Config
 import functional_waveforms, analysis, instek_pst, save2013style, TTL, LabView
 import DDS, roi_fitting
 import picomotors, andor, picampython, vaunix, DCNoiseEater, Laird_temperature, AnalogInput
-import Counter, conex, aerotech, unlock_pause, niscope, newportstage, nidaq_ai
+import Counter, unlock_pause, niscope, newportstage, nidaq_ai
+
+try:
+    import conex
+    conex_enable=True
+except:
+    "Conex disabled"
+    conex_enable=False
+try:
+    import aerotech
+    aerotech_enable=True
+except:
+    "aerotech disabled"
+    aerotech_enable=False
+
 import origin_interface
 import FakeInstrument # for testing
 from pypico import PyPicoServer  # for communicating with a picomotor server
@@ -106,8 +120,10 @@ class AQuA(Experiment):
         # instruments CONFIG MUST BE FIRST INSTRUMENT
         self.Config = Config('Config', self, 'Configuration file')
         self.functional_waveforms = functional_waveforms.FunctionalWaveforms('functional_waveforms', self, 'Waveforms for HSDIO, DAQmx DIO, and DAQmx AO; defined as functions')
-        self.aerotechs = aerotech.Aerotechs('aerotechs', self, 'Aerotech Ensemble')
-        self.conexes = conex.Conexes('conexes', self, 'CONEX-CC')
+        if aerotech_enable:
+            self.aerotechs = aerotech.Aerotechs('aerotechs', self, 'Aerotech Ensemble')
+        if conex_enable:
+            self.conexes = conex.Conexes('conexes', self, 'CONEX-CC')
         self.picomotors = picomotors.Picomotors('picomotors', self, 'Newport Picomotors')
         self.instekpsts = instek_pst.InstekPSTs('instekpsts', self, 'Instek PST power supply')
         self.Andors = andor.Andors('Andors', self, 'Andor Luca measurementResults')
@@ -131,10 +147,14 @@ class AQuA(Experiment):
             self.box_temperature, self.picomotors, self.pyPicoServer,
             self.NIScopes, self.Andors, self.PICams, #self.blackfly_client,
             self.DC_noise_eaters, self.DDS, self.unlock_pause,
-            self.Embezzletron, self.aerotechs, self.conexes, self.instekpsts,
+            self.Embezzletron, self.instekpsts,
             self.vaunixs, self.NewportStage,
             self.LabView  # Labview must be last at least until someone fixes the start command
         ]
+        if aerotech_enable:
+            self.instruments += self.aerotechs
+        if conex_enable:
+            self.instruments += self.conexes
 
 
         # analyses
