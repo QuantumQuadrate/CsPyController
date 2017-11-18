@@ -239,7 +239,11 @@ class RetentionGraph(AnalysisWithFigure):
                                 ax.plot(x_vals[:len(mean)], mean, linestyle, label=label)
                         # adjust the limits so that the data isn't right on the
                         # edge of the graph
-                        ax.set_xlim(-.5, len(self.mean)+0.5)
+                        if len(x_vals) > 1:
+                            delta = (x_vals[1] - x_vals[0])
+                        else:
+                            delta = 1
+                        ax.set_xlim(min(x_vals[:len(mean)]) - 0.3*delta, max(x_vals[:len(mean)]) + 0.3*delta)
                         if self.ymin != '':
                             ax.set_ylim(bottom=float(self.ymin))
                         if self.ymax != '':
@@ -248,6 +252,7 @@ class RetentionGraph(AnalysisWithFigure):
                         # or ax.errorbar()
                         ax.legend(bbox_to_anchor=(0., 1.02, 1., .102), loc=3, ncol=7, mode="expand", borderaxespad=0.)
                         ax.set_xlabel(x_label)
+                        ax.set_ylabel('Retention')
 
                     super(RetentionGraph, self).updateFigure()
                 except Exception as e:
