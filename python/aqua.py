@@ -145,7 +145,7 @@ class AQuA(Experiment):
         # need not start/stop
         self.instruments += [
             self.box_temperature, self.picomotors, self.pyPicoServer,
-            self.NIScopes, self.Andors, self.PICams, #self.blackfly_client,
+            self.NIScopes, self.Andors, self.PICams,
             self.DC_noise_eaters, self.DDS, self.unlock_pause,
             self.Embezzletron, self.instekpsts,
             self.vaunixs, self.NewportStage,
@@ -155,7 +155,8 @@ class AQuA(Experiment):
             self.instruments += self.aerotechs
         if conex_enable:
             self.instruments += self.conexes
-
+        if pycap:
+            self.instruments += [self.blackfly_client]
 
         # analyses
         self.functional_waveforms_graph = functional_waveforms.FunctionalWaveformGraph('functional_waveform_graph', self, 'Graph the HSDIO, DAQmx DO, and DAQmx AO settings')

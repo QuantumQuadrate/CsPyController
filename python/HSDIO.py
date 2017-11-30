@@ -349,7 +349,7 @@ class HSDIO(Instrument):
                 # add in the transition
                 if q == 0 and time % hardware_quanta:
                     # if not synchronous with the hardware quanta move transition forward
-                    logger.warning('Detected a hardware quanta roudin event.  Ato fixing by one cycle')
+                    logger.warning('Detected a hardware quanta roudin event. Auto fixing by one cycle')
                     transitions.append(str(time-(time % hardware_quanta)))
                     # dont move time counter up to account for shift
                 else:
