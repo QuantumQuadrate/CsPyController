@@ -219,7 +219,13 @@ class LabView(Instrument):
                 if self.experiment.counter_graph.counter_array is None:
                     self.experiment.counter_graph.counter_array = numpy.array([array[0]])
                 else:
-                    self.experiment.counter_graph.counter_array = numpy.append(self.experiment.counter_graph.counter_array, array[0][numpy.newaxis], axis=0)
+                    try:
+                        self.experiment.counter_graph.counter_array = numpy.append(self.experiment.counter_graph.counter_array, array[0][numpy.newaxis], axis=0)
+                    except ValueError:
+                        logger.error("There was an error retrieving counter data from labview.  Offending counter data: {}".format(
+                            array[0][numpy.newaxis]
+                        ))
+                        raise PauseError
 
                 try:
                     hdf5[key] = array

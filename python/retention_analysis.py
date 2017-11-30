@@ -202,7 +202,8 @@ class RetentionGraph(AnalysisWithFigure):
                     fig = self.backFigure
                     fig.clf()
 
-                    x_label = ''
+                    x_label = 'iteration'
+                    x_vals = []
                     for i, ivar in enumerate(self.experiment.ivarNames):
                         if len(self.experiment.ivarValueLists[i]) > 1:
                             print "found iterated variable: {}".format(ivar)
@@ -210,7 +211,6 @@ class RetentionGraph(AnalysisWithFigure):
                             print self.experiment.ivarValueLists[i]
                             x_vals = self.experiment.ivarValueLists[i]
                             break
-
 
                     if self.mean is not None:
                         # parse the list of what to plot from a string to a
@@ -229,15 +229,21 @@ class RetentionGraph(AnalysisWithFigure):
                             except:
                                 logger.warning('Trying to plot data that does not exist in RetentionGraph: roi {}'.format(i))
                                 continue
+                            if x_vals == []:
+                                x_vals = np.arange(len(mean))
                             label = '({})'.format(i)
                             linestyle = '-o' if self.draw_connecting_lines else 'o'
                             if self.draw_error_bars:
-                                ax.errorbar(np.arange(len(mean)), mean, yerr=sigma, fmt=linestyle, label=label)
+                                ax.errorbar(x_vals[:len(mean)], mean, yerr=sigma, fmt=linestyle, label=label)
                             else:
                                 ax.plot(x_vals[:len(mean)], mean, linestyle, label=label)
                         # adjust the limits so that the data isn't right on the
                         # edge of the graph
-                        ax.set_xlim(-.5, len(self.mean)+0.5)
+                        if len(x_vals) > 1:
+                            delta = (x_vals[1] - x_vals[0])
+                        else:
+                            delta = 1
+                        ax.set_xlim(min(x_vals[:len(mean)]) - 0.3*delta, max(x_vals[:len(mean)]) + 0.3*delta)
                         if self.ymin != '':
                             ax.set_ylim(bottom=float(self.ymin))
                         if self.ymax != '':
@@ -245,6 +251,8 @@ class RetentionGraph(AnalysisWithFigure):
                         # add legend using the labels assigned during ax.plot()
                         # or ax.errorbar()
                         ax.legend(bbox_to_anchor=(0., 1.02, 1., .102), loc=3, ncol=7, mode="expand", borderaxespad=0.)
+                        ax.set_xlabel(x_label)
+                        ax.set_ylabel('Retention')
 
                     super(RetentionGraph, self).updateFigure()
                 except Exception as e:
