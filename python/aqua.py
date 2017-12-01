@@ -149,7 +149,6 @@ class AQuA(Experiment):
             self.DC_noise_eaters, self.DDS, self.unlock_pause,
             self.Embezzletron, self.instekpsts,
             self.vaunixs, self.NewportStage,
-            self.LabView  # Labview must be last at least until someone fixes the start command
         ]
         if aerotech_enable:
             self.instruments += self.aerotechs
@@ -157,7 +156,7 @@ class AQuA(Experiment):
             self.instruments += self.conexes
         if pycap:
             self.instruments += [self.blackfly_client]
-
+        self.instruments +=[self.LabView]  # Labview must be last at least until someone fixes the start command]
         # analyses
         self.functional_waveforms_graph = functional_waveforms.FunctionalWaveformGraph('functional_waveform_graph', self, 'Graph the HSDIO, DAQmx DO, and DAQmx AO settings')
         self.TTL_filters = TTL.TTL_filters('TTL_filters', self)
