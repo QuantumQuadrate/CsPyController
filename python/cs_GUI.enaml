@@ -2086,8 +2086,6 @@ enamldef NIScope(Form):
 
 
 
-
-
 enamldef PICams(Window):
     attr picams
 
@@ -2098,9 +2096,6 @@ enamldef PICams(Window):
         style_class << 'valid' if experiment.valid else 'invalid'
         ScrollArea:
             style_class << 'valid' if experiment.valid else 'invalid'
-            LabelBox:
-                text = 'enable'
-                checked := picams.enable
             Container:
                 style_class << 'valid' if experiment.valid else 'invalid'
 
@@ -2221,7 +2216,7 @@ enamldef Picam(Form):
                     text = 'Sum Measurements'
                     checked := item.camera.averageMeasurements
                 LabelBox:
-                    text = 'Draw Figure'
+                    text = 'Display Image'
                     checked := item.analysis.draw_fig
                 Form:
                     Label:
@@ -2239,11 +2234,12 @@ enamldef Picam(Form):
                     EvalProp:
                         prop << item.camera.minPlot
                     EvalProp:
-                        prop << item.camera.maxPlot
+                        prop << item.camera.maxPlot    
                 LabelBox:
                     text = 'Use Demo Camera'
-                    checked := item.camera.useDemo
-
+                    checked := item.camera.useDemo 
+                            
+                     
 
 
 enamldef FiltersPage(Page):

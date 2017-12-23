@@ -124,7 +124,7 @@ blue_pointing_dds_profiles = {
 ################################################################################
 mot_aom_switch_chan = 7
 # this is the default profile, we dont have to pass it in if we dont want to
-mot_aom_switch_profile = {'on':0, 'off':1}
+mot_aom_switch_profile = {'on':1, 'off':0}
 # timing delay parameter
 mot_aom_switch_delay = 0
 

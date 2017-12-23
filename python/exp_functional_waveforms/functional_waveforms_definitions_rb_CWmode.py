@@ -65,7 +65,7 @@ def readout(t,duration):
     label(t + cycles*period_ms/2, 'readout half')
     print(t + cycles*period_ms/2)
     channels = [my_MOT_SW_channel, my_FORT_SW_channel]
-    phases = [[0.25, 0.7], [0.3, 0.76]]
+    phases = [[0.31, 0.66], [0.2, 0.7]]
     profiles = [
         [0, 1, 0],
         [1, 0, 1]
@@ -73,6 +73,28 @@ def readout(t,duration):
     t = HSDIO_repeat(t, chop_readout(channels, phases, profiles, period_ms), cycles)
     return t
 
+def opticalpumping(t,duration):
+    """Optical pumping to the clock state."""
+    # Note that camera trigger is not included here. Exposure control needs to be done indepdently
+    # Also magnetic field control is done sepearately.
+    if duration>0:
+        label(t, 'OP')
+        # chop FORT and MOT out of phase
+        cycles = int(duration*1000*op_chop_freq_MHz)
+        period_ms = 0.001/op_chop_freq_MHz
+        label(t + period_ms, 'OP c1')
+        label(t + cycles*period_ms/2, 'OP half')
+        print(t + cycles*period_ms/2)
+        channels = [op_aom_switch_chan, my_FORT_SW_channel]
+        phases = [[0.5+top_offset, 0.8+top_offset], [0.1, 0.6]]
+        profiles = [
+            [1, 0, 1], # OP on is 0. off is 1
+            [1, 0, 1]
+        ]
+        t = HSDIO_repeat(t, chop_readout(channels, phases, profiles, period_ms), cycles)
+    else:
+        print("non-zero duration is required. this repeat function will do nothing")
+    return t
 
 ###########################################################################
 # Main Block
@@ -218,23 +240,23 @@ if ExpMode==0:
     AO(t_start+t_op,7,0)
 
     exp.op_dds.profile(t_start,'on')
-    exp.op_aom_switch.profile(t_start,'on')
-    exp.op_aom_switch.profile(t_start+t_op,'off')
+    #exp.op_aom_switch.profile(t_start,'on')
+    #exp.op_aom_switch.profile(t_start+t_op,'off')
     exp.op_dds.profile(t_end,'off')
     exp.hf_aom_switch.profile(t_start,'on')
     exp.hf_aom_switch.profile(t_start+t_op,'off')
-
-    t_offset=-0.001*0.5
-    t_op_pulsewidth=0.001*0.5
-    t_fort_pulsewidth=0.001*0.5
-    t_period=0.001*1
-    for i in range(int(round((t_end-t_start)/t_period))):
-        exp.op_aom_switch.profile(t_start+i*t_period,'on')
-        exp.op_aom_switch.profile(t_start+i*t_period+t_op_pulsewidth,'off')
-
-    for i in range(int(round((t_end-t_start)/t_period))):
-        exp.fort_aom_switch.profile(t_start+i*t_period+t_offset,'off')
-        exp.fort_aom_switch.profile(t_start+i*t_period+t_fort_pulsewidth+t_offset,'on')
+    opticalpumping(t_start,t_end-t_start)
+    # t_offset=-0.001*0.5
+    # t_op_pulsewidth=0.001*0.5
+    # t_fort_pulsewidth=0.001*0.5
+    # t_period=0.001*1
+    # for i in range(int(round((t_end-t_start)/t_period))):
+    #     exp.op_aom_switch.profile(t_start+i*t_period,'on')
+    #     exp.op_aom_switch.profile(t_start+i*t_period+t_op_pulsewidth,'off')
+    #
+    # for i in range(int(round((t_end-t_start)/t_period))):
+    #     exp.fort_aom_switch.profile(t_start+i*t_period+t_offset,'off')
+    #     exp.fort_aom_switch.profile(t_start+i*t_period+t_fort_pulsewidth+t_offset,'on')
 
     exp.mot_3d_x_shutter_switch.profile(t_x_shutter_open,'on')
     exp.mot_3d_x_shutter_switch.profile(t_x_shutter_close,'off')
