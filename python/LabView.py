@@ -171,33 +171,33 @@ class LabView(Instrument):
                     raise PauseError
 
             elif key == 'TTL/data':
-                #boolean data was stored as 2 byte signed int
+                # boolean data was stored as 2 byte signed int
                 array = numpy.array(struct.unpack('!'+str(int(len(value)/2))+'h', value), dtype=numpy.bool_)
                 try:
                     dims = map(int, self.results['TTL/dimensions'].split(','))
                     array.resize(dims)
-                except Exception as e:
-                    logger.error('unable to resize TTL data, check for TTL/dimensions in returned data:\n'+str(e))
+                except:
+                    logger.exception('unable to resize TTL data, check for TTL/dimensions in returned data.')
                     raise PauseError
                 try:
                     hdf5[key] = array
-                except Exception as e:
-                    logger.error('in LabView.writeResults() doing hdf5[{}]\n{}'.format(key, e))
+                except:
+                    logger.exception('in LabView.writeResults() doing hdf5[{}]'.format(key))
                     raise PauseError
 
             elif key == 'AI/data':
-                #analog data was stored as big-endian (network order) doubles floats (8-bytes)
+                # analog data was stored as big-endian (network order) doubles floats (8-bytes)
                 array = numpy.array(struct.unpack('!'+str(int(len(value)/8))+'d', value), dtype=numpy.float64)
                 try:
                     dims = map(int, self.results['AI/dimensions'].split(','))
                     array.resize(dims)
-                except Exception as e:
-                    logger.error('unable to resize AI data, check for AI/dimensions in returned data:\n'+str(e))
+                except:
+                    logger.exception('unable to resize AI data, check for AI/dimensions in returned data.')
                     raise PauseError
                 try:
                     hdf5[key] = array
-                except Exception as e:
-                    logger.error('in LabView.writeResults() doing hdf5[{}]\n{}'.format(key, e))
+                except:
+                    logger.error('in LabView.writeResults() doing hdf5[{}]'.format(key))
                     raise PauseError
 
             elif key == 'counter/data':
@@ -206,8 +206,8 @@ class LabView(Instrument):
                 try:
                     dims = map(int, self.results['counter/dimensions'].split(','))
                     array.resize(dims)
-                except Exception as e:
-                    logger.error('unable to resize counter data, check for counter/dimensions in returned data:\n'+str(e))
+                except:
+                    logger.exception('unable to resize counter data, check for counter/dimensions in returned data.')
                     raise PauseError
 
                 # take the difference of successive elements.
@@ -217,27 +217,29 @@ class LabView(Instrument):
 
                 # Taking only first channel from counter!!!!
                 if self.experiment.counter_graph.counter_array is None:
-                    self.experiment.counter_graph.counter_array = numpy.array([array[0]])
+                    # if an incorrect size array comes in as the first array it can mess up the whole experiment,
+                    # since it will compare to that size forever
+                    self.experiment.counter_graph.counter_array = numpy.array([array])
                 else:
                     try:
-                        self.experiment.counter_graph.counter_array = numpy.append(self.experiment.counter_graph.counter_array, array[0][numpy.newaxis], axis=0)
+                        # TODO: dont append every measurement it is inefficient for nump arrays since they reallocate memory
+                        self.experiment.counter_graph.counter_array = numpy.append(self.experiment.counter_graph.counter_array, array[:][numpy.newaxis], axis=0)
                     except ValueError:
-                        logger.error("There was an error retrieving counter data from labview.  Offending counter data: {}".format(
-                            array[0][numpy.newaxis]
+                        logger.exception("There was an error retrieving counter data from labview.  Offending counter data: {}".format(
+                            array[:][numpy.newaxis]
                         ))
-                        raise PauseError
 
                 try:
                     hdf5[key] = array
-                except Exception as e:
-                    logger.error('in LabView.writeResults() doing hdf5[{}]\n{}'.format(key, e))
+                except:
+                    logger.exception('in LabView.writeResults() doing hdf5[{}]'.format(key))
                     raise PauseError
 
             else:
                 # no special protocol
                 try:
                     hdf5[key] = value
-                except Exception as e:
+                except:
                     logger.error('in LabView.writeResults() doing hdf5[key]=value for key='+key+'\n'+str(e))
                     raise PauseError
 

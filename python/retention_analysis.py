@@ -240,7 +240,7 @@ class RetentionGraph(AnalysisWithFigure):
                         # adjust the limits so that the data isn't right on the
                         # edge of the graph
                         if len(x_vals) > 1:
-                            delta = (x_vals[1] - x_vals[0])
+                            delta = abs(x_vals[1] - x_vals[0])
                         else:
                             delta = 1
                         ax.set_xlim(min(x_vals[:len(mean)]) - 0.3*delta, max(x_vals[:len(mean)]) + 0.3*delta)

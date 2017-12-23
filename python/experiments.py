@@ -1197,7 +1197,11 @@ class Experiment(Prop):
         #store the log
         logger.info('Storing log ...')
         self.log.flush()
-        self.hdf5['log'] = self.log.getvalue()
+        try:
+            self.hdf5['log'] = self.log.getvalue()
+        except ValueError:
+            # this throws an error at the end of an optimization experiment
+            logger.exception('Exception occured when accessing self.log')
         self.hdf5.flush()
 
         #copy to network
