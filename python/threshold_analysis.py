@@ -105,12 +105,40 @@ class ThresholdROIAnalysis(ROIAnalysis):
         # reset the measurement enable flag
         self.meas_enable = True
 
-    def analyzeMeasurement(self, measurementResults, iterationResults,
-                           experimentResults):
+    def process_measurement(self, shot_array, shape):
+        """Process a single sub-measurement.  If there are multiple sub-measurements,
+        Then call this multiple times.
+
+        Returns a threshold array for single sub-measurement
+        """
+        # temporary 2D threshold array, ROIs are 1D
+        threshold_array = np.zeros(shape, dtype=np.bool_)
+
+        for i, shot in enumerate(shot_array):
+            # TODO: more complicated threshold
+            # (per shot threshold & 2+ atom threshold)
+            # print self.threshold_array[i]['1']
+            shots_to_ignore = 0
+            try:
+                shots_to_ignore = self.experiment.Config.config.getint('CAMERA', 'ShotsToIgnore')
+            except:
+                pass
+            # Rubidium uses shot2 for alignment pupose so do not apply threshold for this shot
+            if i < len(shot_array) - shots_to_ignore:
+                threshold_array[i] = shot >= self.threshold_array[i]['1']
+
+        self.loading_array = threshold_array.reshape((
+            shape[0],
+            self.experiment.ROI_rows,
+            self.experiment.ROI_columns
+        ))
+        return threshold_array
+
+    def analyzeMeasurement(self, measResults, iterResults, expResults):
         if self.enable and self.meas_enable:
             try:
                 data_path = self.ROI_source.meas_analysis_path
-                shot_array = measurementResults[data_path][()]
+                shot_array = measResults[data_path][()]
             except (KeyError, AttributeError):
                 msg = (
                     'No measurement ROI sum data found at `{}`.'
@@ -118,33 +146,27 @@ class ThresholdROIAnalysis(ROIAnalysis):
                 )
                 logger.warning(msg.format(data_path))
                 self.meas_enable = False
-
             else:
-                numShots = len(shot_array)
-                numROIs = len(self.ROI_source.ROIs)
-                # temporary 2D threshold array, ROIs are 1D
-                threshold_array = np.zeros((numShots, numROIs), dtype=np.bool_)
-
-                for i, shot in enumerate(shot_array):
-                    # TODO: more complicated threshold
-                    # (per shot threshold & 2+ atom threshold)
-                    #print self.threshold_array[i]['1']
-                    shots_to_ignore = 0
-                    try:
-                        shots_to_ignore = self.experiment.Config.config.getint('CAMERA', 'ShotsToIgnore')
-                    except:
-                        pass
-                    # Rubudium uses shot2 for alignment pupose so do not apply threshold for this shot
-                    if i < len(shot_array) - shots_to_ignore:
-                        threshold_array[i] = shot >= self.threshold_array[i]['1']
-
-                self.loading_array = threshold_array.reshape((
-                    numShots,
-                    self.experiment.ROI_rows,
-                    self.experiment.ROI_columns
-                ))
-                measurementResults[self.meas_analysis_path] = threshold_array
+                # check if the roi source has the sub-measurement dimension
+                if len(shot_array.shape) < 4:
+                    # if not add it
+                    shot_array = np.array([shot_array])
+                n_sub_meas, n_shots, n_rows, n_cols = shot_array.shape
+                threshold_array = np.zeros((n_sub_meas, n_shots, n_rows*n_cols), dtype=np.bool_)
+                for sm in xrange(n_sub_meas):
+                    threshold_array[sm] = self.process_measurement(shot_array, threshold_array[sm].shape)
+                measResults[self.meas_analysis_path] = threshold_array
                 self.updateFigure()
+
+    def read_meas_results(self, iter_res, meas_path, meas_nums):
+        """Read all measurements results and flatten measurements to sub-measurements.
+
+        return a list of sub-measurements
+        """
+        res = np.array([])
+        for m in meas_nums:
+            res = np.concatenate(res, iter_res[meas_path.format(m)])
+        return res
 
     def analyzeIteration(self, iterationResults, experimentResults):
         """Consoladates loading cuts."""
@@ -159,24 +181,16 @@ class ThresholdROIAnalysis(ROIAnalysis):
                 return 0
 
             try:
-                res = np.array(
-                    [iterationResults[path.format(m)] for m in meas]
-                )
+                res = self.read_meas_results(iterationResults, meas)
             except KeyError:
                 # I was having problem with the file maybe not being ready
                 msg = "Issue reading hdf5 file. Waiting then repeating."
                 logger.warning(msg)
                 time.sleep(0.1)  # try again in a little
                 try:
-                    res = np.array(
-                        [iterationResults[path.format(m)] for m in meas]
-                    )
+                    res = self.read_meas_results(iterationResults, path, meas)
                 except KeyError:
-                    msg = (
-                        "Reading from hdf5 file during measurement `{}`"
-                        " failed."
-                    ).format(m)
-                    logger.exception(msg)
+                    logger.exception("Reading from hdf5 file failed.")
             iterationResults[self.iter_analysis_path] = np.array(res)
 
     def updateFigure(self):
