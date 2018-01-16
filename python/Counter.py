@@ -17,7 +17,7 @@ import logging
 
 import numpy as np
 
-from atom.api import Str, Float, Typed, Member, Bool, Int
+from atom.api import Str, Float, Typed, Member, Bool, Int, List
 from cs_instruments import Instrument
 from instrument_property import Prop, ListProp
 from analysis import AnalysisWithFigure
@@ -67,7 +67,7 @@ class CounterAnalysis(AnalysisWithFigure):
     drops = Int(3)
     bins = Int(25)
     shots = Int(2)
-    ROIs = Member()
+    ROIs = List([0])
     graph_roi = Int(0)
 
     def __init__(self, name, experiment, description=''):
@@ -75,11 +75,10 @@ class CounterAnalysis(AnalysisWithFigure):
         self.meas_analysis_path = 'analysis/counter_data'
         self.meas_data_path = 'data/counter/data'
         self.properties += ['enable', 'drops', 'bins', 'shots', 'graph_roi']
-        self.ROIs = [0]
 
     def preIteration(self, iterationResults, experimentResults):
         self.counter_array = []
-        self.binned_array = np.array([])
+        self.binned_array = None
 
     def format_data(self, array):
         """Formats raw 2D counter data into the required 4D format.
@@ -111,10 +110,10 @@ class CounterAnalysis(AnalysisWithFigure):
         rois, bins = array.shape[:2]
         bins_per_shot = self.drops + self.bins  # self.bins is data bins per shot
         # calculate the number of shots dynamically
-        num_shots = bins/(bins_per_shot)
+        num_shots = int(bins/(bins_per_shot))
         # calculate the number of measurements contained in the raw data
         # there may be extra shots if we get branching implemented
-        num_meas = num_shots % self.shots
+        num_meas = num_shots//self.shots
         # build a mask for removing valid data
         shot_mask = ([False]*self.drops + [True]*self.bins)
         good_shots = self.shots*num_meas
@@ -130,7 +129,7 @@ class CounterAnalysis(AnalysisWithFigure):
         if self.enable:
             # MFE 2018/01: this analysis has been generalized such that multiple sub measurements can occur
             # in the same traditional measurement
-            array = measurementResults[self.meas_data_path]
+            array = measurementResults[self.meas_data_path][()]
             try:
                 # package data into an array with shape (measurements, shots, counters, time series data)
                 array = self.format_data(array)
@@ -147,10 +146,17 @@ class CounterAnalysis(AnalysisWithFigure):
             sum_array = array.sum(axis=3).reshape((n_meas, n_shots, n_rois, 1))
             measurementResults[self.meas_analysis_path] = sum_array
             # put the sum data in the expected format for display
-            self.binned_array = np.concatenate(
-                self.binned_array,
-                sum_array.reshape((n_meas, n_shots, n_rois))
-            )
+            print '-'*20
+            print self.binned_array
+            print sum_array.reshape((n_meas, n_shots, n_rois))
+            if self.binned_array is None:
+                self.binned_array = [sum_array.reshape((n_meas, n_shots, n_rois))]
+            else:
+                print (n_meas, n_shots, n_rois)
+                self.binned_array = np.concatenate((
+                    self.binned_array,
+                    [sum_array.reshape((n_meas, n_shots, n_rois))]
+                ))
         self.updateFigure()
 
     def analyzeIteration(self, iterationResults, experimentResults):
