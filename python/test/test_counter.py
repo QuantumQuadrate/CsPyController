@@ -26,9 +26,17 @@ def counter(experiment):
 @pytest.fixture()
 def hdf5():
     """Create an hdf5 file in memory for testing"""
-    h5 = h5py.File('test.hdf5', 'w')
+    try:
+        h5 = h5py.File('test.hdf5', 'w', driver='core', backing_store=False)
+    except IOError:
+        h5 = h5py.File('test1.hdf5', 'w', driver='core', backing_store=False)
     h5.create_group('meas')
     h5.create_group('iter')
+
+    def finalize():
+        print 'deleting'
+        h5.close()
+
     return h5
 
 

@@ -9,7 +9,6 @@ This instrument is used to save the settings from the config file.
 from __future__ import division
 from atom.api import Member
 from cs_instruments import Instrument
-from cs_errors import PauseError
 import numpy
 import json
 import pprint
@@ -18,10 +17,10 @@ import ConfigParser
 
 # get the config file
 from __init__ import import_config
+import logging
 config = import_config()
 
 __author__ = 'Matthew Ebert'
-import logging
 logger = logging.getLogger(__name__)
 
 
@@ -32,6 +31,7 @@ def print_conf(conf, title):
     print(title+'\n')
     pprint.pprint(conf)
     print(line_break)
+
 
 def query_yes_no(question, default="yes"):
     """Ask a yes/no question via raw_input() and return their answer.
@@ -65,6 +65,7 @@ def query_yes_no(question, default="yes"):
             sys.stdout.write("Please respond with 'yes' or 'no' "
                              "(or 'y' or 'n').\n")
 
+
 class Config(Instrument):
     version = '2017.07.04'
     config = Member()  # config object
@@ -76,7 +77,7 @@ class Config(Instrument):
         super(Config, self).__init__(name, experiment, description)
         self.config = config
         # save the config file as a dictionary
-        self.config_dict = {s:dict(config.items(s)) for s in config.sections()}
+        self.config_dict = {s: dict(config.items(s)) for s in config.sections()}
         # hash the serialized dictionary so we can easily compare versions
         self.config_json = json.dumps(self.config_dict, sort_keys=True)
         self.config_hash = hash(self.config_json)

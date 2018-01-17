@@ -146,13 +146,9 @@ class CounterAnalysis(AnalysisWithFigure):
             sum_array = array.sum(axis=3).reshape((n_meas, n_shots, n_rois, 1))
             measurementResults[self.meas_analysis_path] = sum_array
             # put the sum data in the expected format for display
-            print '-'*20
-            print self.binned_array
-            print sum_array.reshape((n_meas, n_shots, n_rois))
             if self.binned_array is None:
                 self.binned_array = [sum_array.reshape((n_meas, n_shots, n_rois))]
             else:
-                print (n_meas, n_shots, n_rois)
                 self.binned_array = np.concatenate((
                     self.binned_array,
                     [sum_array.reshape((n_meas, n_shots, n_rois))]
@@ -272,7 +268,6 @@ class CounterHistogramAnalysis(AnalysisWithFigure):
             if self.hbins < 0:
                 hbins = np.arange(np.max(shots)+1)
             for i in range(len(shots)):
-                print i, shots[i].shape
                 gmix.fit(np.array([shots[i]]).transpose())
                 h = np.histogram(shots[i], bins=hbins, normed=True)
                 histout.append((h[1][:-1], h[0]))
@@ -285,8 +280,6 @@ class CounterHistogramAnalysis(AnalysisWithFigure):
                     np.sqrt(gmix.means_.max())
                 ]
                 try:
-                    print i
-                    print len(est)
                     popt, pcov = curve_fit(self.dblgauss, h[1][1:], h[0], est)
                     # popt=[A0,A1,m0,m1,s0,s1] : Absolute value
                     popt = np.abs(popt)

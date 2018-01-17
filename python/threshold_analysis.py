@@ -71,7 +71,7 @@ class ThresholdROIAnalysis(ROIAnalysis):
         if len(self.threshold_array[0]) != size:
             msg = 'The ROI definitions do not agree. Check relevant analyses. '
             msg += '\nthreshold array len: `{}`, ROI rows(columns) `{}({})`'
-            msg = msg.format(len(self.threshold_array), roi_rows, roi_columns)
+            msg = msg.format(len(self.threshold_array[0]), roi_rows, roi_columns)
             logger.warning(msg)
             # make a new ROIs object from the old one as best as we can
             dtype = [
@@ -83,7 +83,7 @@ class ThresholdROIAnalysis(ROIAnalysis):
                     for i in range(min(len(ta), len(self.threshold_array[s]))):
                         ta[i] = self.threshold_array[s, i]
                     self.threshold_array[s] = ta
-            except IndexError:
+            except (IndexError, ValueError):
                 dtype = [
                     ('1', np.int32)  # add more atom number cuts later
                 ]
@@ -97,7 +97,7 @@ class ThresholdROIAnalysis(ROIAnalysis):
         # the same threshold is used for all shots
         for j, shot in enumerate(new_thresholds):
             for i, t in enumerate(shot):
-                self.threshold_array[j, i] = (t,)
+                self.threshold_array[i, j] = (t,)
         self.cutoffs_from_which_experiment = timestamp
 
     def preExperiment(self, experimentResults):
@@ -113,7 +113,6 @@ class ThresholdROIAnalysis(ROIAnalysis):
         """
         # temporary 2D threshold array, ROIs are 1D
         threshold_array = np.zeros(shape, dtype=np.bool_)
-
         for i, shot in enumerate(shot_array):
             # TODO: more complicated threshold
             # (per shot threshold & 2+ atom threshold)
@@ -125,7 +124,7 @@ class ThresholdROIAnalysis(ROIAnalysis):
                 pass
             # Rubidium uses shot2 for alignment pupose so do not apply threshold for this shot
             if i < len(shot_array) - shots_to_ignore:
-                threshold_array[i] = shot >= self.threshold_array[i]['1']
+                threshold_array[i] = shot.flatten() >= self.threshold_array[i]['1']
 
         self.loading_array = threshold_array.reshape((
             shape[0],
@@ -154,7 +153,7 @@ class ThresholdROIAnalysis(ROIAnalysis):
                 n_sub_meas, n_shots, n_rows, n_cols = shot_array.shape
                 threshold_array = np.zeros((n_sub_meas, n_shots, n_rows*n_cols), dtype=np.bool_)
                 for sm in xrange(n_sub_meas):
-                    threshold_array[sm] = self.process_measurement(shot_array, threshold_array[sm].shape)
+                    threshold_array[sm] = self.process_measurement(shot_array[sm], threshold_array[sm].shape)
                 measResults[self.meas_analysis_path] = threshold_array
                 self.updateFigure()
 
