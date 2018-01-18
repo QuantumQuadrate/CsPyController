@@ -1,5 +1,6 @@
 fort_exp = 0
 mot_cw_exp = 1
+mot_tof_exp = 2
 
 DO_channels = {
     'error1': { 'channel': 4 },
@@ -20,8 +21,9 @@ HSDIO_channels = {
     'fort_dds_p1': { 'channel': 3, 'default': False },
     'mxy_shutter': { 'channel': 12, 'default': True },
     'm_shutter': { 'channel': 2, 'default': True },
-    'hf_shutter': { 'channel': 13, 'default': False },
+    'rb_hf_shutter': { 'channel': 13, 'default': False },
     'op_shutter': { 'channel': 14, 'default': False },
+    'cs_hf_shutter': { 'channel': 15, 'default': True },
     'fpga_threshold_sel': { 'channel': 26, 'default': False },
     'fpga_counter_gate': { 'channel': 27, 'default': False },
     'spcm_gate_780': {'channel': 28, 'default': False },
@@ -95,8 +97,12 @@ M_shutter_delay_ms = 1.43
 M_shutter_time_ms = 1.2
 
 SSRO = True  # default
-HF_shutter_delay_ms = 0.98
-HF_shutter_time_ms = 0.82
+# RB
+RB_HF_shutter_delay_ms = 0.98
+RB_HF_shutter_time_ms = 0.82
+# CS
+CS_HF_shutter_delay_ms = 1.4
+CS_HF_shutter_time_ms = 1.2
 
 OP_shutter_delay_ms = 2.63
 OP_shutter_time_ms = 1.2

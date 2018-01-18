@@ -192,7 +192,7 @@ def chop_dds(channels, phases, profiles, period):
             # now change state at phase list
             for j, p in enumerate(phases[i]):
                 if p > 1 or p < 0:
-                    print "chop_dds function expects phases to be within 0<p<1"
+                    print "chop_dds function expects phases to be within 0<p<1.  p={}".format(p)
                     raise ValueError
                 # put in initial value for the cycle
                 # put in transition
@@ -288,10 +288,14 @@ def M_shutter(t, state):
 def HF_shutter(t, state):
     """Open or close HF shutter, True -> open, False -> closed."""
     label(t, 'HF shutter')
-    #HSDIO(t, HSDIO_channels['scope_trig_1']['channel'], not state)
+    # HSDIO(t, HSDIO_channels['scope_trig_1']['channel'], not state)
     # shift forward by the delay plus half the switching time
-    t_switch = t - HF_shutter_delay_ms - HF_shutter_time_ms/2
-    HSDIO(t_switch, HSDIO_channels['hf_shutter']['channel'], not state)
+    # switch RB
+    t_switch = t - RB_HF_shutter_delay_ms - RB_HF_shutter_time_ms/2
+    HSDIO(t_switch, HSDIO_channels['rb_hf_shutter']['channel'], not state)
+    # switch CS
+    t_switch = t - CS_HF_shutter_delay_ms - CS_HF_shutter_time_ms/2
+    HSDIO(t_switch, HSDIO_channels['cs_hf_shutter']['channel'], state)
     return t
 
 
@@ -740,7 +744,7 @@ def fort_experiment():
 
     # close shutter for Mxy beam
     # wait for the shutter switch time so we dont turn off during pgc
-    shutter_wait = max([MXY_shutter_time_ms, HF_shutter_time_ms, M_shutter_time_ms])
+    shutter_wait = max([MXY_shutter_time_ms, RB_HF_shutter_time_ms, CS_HF_shutter_time_ms, M_shutter_time_ms])
     t = drop_mot(t, shutter_wait)
     MXY_shutter(t, False)
     if SSRO:
@@ -787,7 +791,7 @@ def fort_experiment():
     # open shutter for Mxy beam
     MXY_shutter(t + 1.2, True)  # fudge
     if SSRO:
-        HF_shutter(t + 0.2, True)
+        HF_shutter(t + 0.6, True)
 
     if dump_fort_at_end:
         t += 0.25
@@ -818,6 +822,30 @@ def mot_cw_experiment():
     t = init(t)
     print "actual(requested) cycle time {}({}) ms".format(t, cycle_time)
 
+
+def mot_tof_experiment():
+    # HSDIO initialization
+    t = 0
+    t = init(t)
+    # load mot
+    t = mot_loading(t, cycle_time-2*readout_780-pgc_time-drop_time-5)
+    t = mot_spcm_readout(t, readout_780)
+    t += 0.1
+    t = pgc(t, pgc_time, no_chop=True)
+    t = drop_mot(t, drop_time)
+    # set the aoms to the mot phase
+    t = pgc(t, 0.001, phase='mot', no_chop=True)
+    HSDIO(t, HSDIO_channels['scope_trig_1']['channel'], True)
+    HSDIO(t, HSDIO_channels['luca_trig_1']['channel'], True)
+    t = mot_spcm_readout(t, readout_780)
+    HSDIO(t, HSDIO_channels['luca_trig_1']['channel'], False)
+    HSDIO(t, HSDIO_channels['scope_trig_1']['channel'], False)
+    print t
+    t = cycle_time
+    t = init(t)
+    print "actual(requested) cycle time {}({}) ms".format(t, cycle_time)
+
+
 ################################################################################
 # ERROR CHECKING################################################################
 ################################################################################
@@ -836,6 +864,7 @@ def check_cycle_time(t):
 exps = {
     fort_exp: fort_experiment,
     mot_cw_exp: mot_cw_experiment,
+    mot_tof_exp: mot_tof_experiment,
 }
 
 # Experiment type switch
