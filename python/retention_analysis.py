@@ -256,6 +256,6 @@ class RetentionGraph(AnalysisWithFigure):
 
                     super(RetentionGraph, self).updateFigure()
                 except Exception as e:
-                    logger.warning('Problem in RetentionGraph.updateFigure()\n{}\n{}\n'.format(e, traceback.format_exc()))
+                    logger.exception('Problem in RetentionGraph.updateFigure()')
                 finally:
                     self.update_lock = False

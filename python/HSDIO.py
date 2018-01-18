@@ -252,7 +252,7 @@ class HSDIO(Instrument):
             cycle_idx = 0
             for i in order:
                 if len(self.transition_list[i]) > 3:
-                    logger.info("repeat cycle: {} detected at index: {}".format(self.transition_list[i], i))
+                    logger.debug("repeat cycle: {} detected at index: {}".format(self.transition_list[i], i))
                 # check to see if the next time is the same as the last one in the time list
                 if indices[i] == index_list[-1]:
                     # if this is a duplicate time, the latter entry overrides

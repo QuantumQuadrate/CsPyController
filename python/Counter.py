@@ -131,9 +131,10 @@ class CounterAnalysis(AnalysisWithFigure):
             # in the same traditional measurement
             array = measurementResults[self.meas_data_path][()]
             try:
-                # package data into an array with shape (measurements, shots, counters, time series data)
+                # package data into an array with shape (sub measurements, shots, counters, time series data)
                 array = self.format_data(array)
-                self.counter_array.append(array)
+                # flatten the sub_measurements by converting top level to normal list and concatentating
+                self.counter_array += list(array)
             except ValueError:
                 errmsg = "Error retrieving counter data.  Offending counter data shape: {}"
                 logger.exception(errmsg.format(array.shape))
@@ -178,31 +179,34 @@ class CounterAnalysis(AnalysisWithFigure):
                         # Average over all shots/iteration
                         ax2 = fig.add_subplot(222)
                         ptr = 0
+                        ca = np.array(self.counter_array)
                         for s in range(self.shots):
                             xs = np.arange(ptr, ptr + self.bins)
-                            ax.bar(xs, self.counter_array[-1, s, self.graph_roi])
-                            ax2.bar(xs, self.counter_array[:, s, self.graph_roi].mean(0), edgecolor='k')
-                            ptr += self.bins
-                        ax.set_title('Measurement: {}'.format(len(self.counter_array)))
+                            ax.bar(xs, ca[-1, s, self.graph_roi])
+                            ax2.bar(xs, ca[:, s, self.graph_roi].mean(0))
+                            ptr += max(1.05*self.bins, self.bins+1)
+                        ax.set_title('Measurement: {}'.format(len(ca)))
                         ax2.set_title('Iteration average')
 
                         # time series of sum data
                         ax = fig.add_subplot(223)
                         # histogram of sum data
                         ax2 = fig.add_subplot(224)
-                        n_shots = self.binned_array.shape[1]
-                        for roi in range(self.binned_array.shape[2]):
+                        n_shots = self.binned_array.shape[2]
+                        legends = []
+                        for roi in range(self.binned_array.shape[3]):
                             for s in range(n_shots):
-                                ax.plot(self.binned_array[:, s, roi], '.')
+                                ax.plot(self.binned_array[:, :, s, roi].flatten(), '.')
                                 # bins = max + 2 takes care of the case where all entries are 0, which casues
                                 # an error in the plot
                                 ax2.hist(
-                                    self.binned_array[:, s, roi],
-                                    bins=np.arange(np.max(self.binned_array[:, s, roi])+2),
+                                    self.binned_array[:, :, s, roi].flatten(),
+                                    bins=np.arange(np.max(self.binned_array[:, :, s, roi].flatten())+2),
                                     histtype='step'
                                 )
+                                legends.append("c{}_s{}".format(roi, s))
                         ax.set_title('Binned Data')
-                        ax2.legend(['shot {}'.format(s+1) for s in range(n_shots)], fontsize='small', loc=0)
+                        ax2.legend(legends, fontsize='small', loc=0)
                         super(CounterAnalysis, self).updateFigure()
 
                     except:
@@ -262,12 +266,14 @@ class CounterHistogramAnalysis(AnalysisWithFigure):
             # Overlap, fraction, cutoff
             fitout = np.recarray(2, [('overlap', float), ('fraction', float), ('cutoff', float)])
             optout = np.recarray(2, [('A0', float), ('A1', float), ('m0', float), ('m1', float), ('s0', float), ('s1', float)])
-            shots = iterationResults['shotData'].swapaxes(0, 1)  # make shot number the primary axis
+            shots = iterationResults['shotData'][()]
+            # make shot number the primary axis
+            shots = shots.reshape(-1, *shots.shape[2:]).swapaxes(0, 1)
             shots = shots[:, :, 0]  # pick out first roi only
             hbins = self.hbins
             if self.hbins < 0:
                 hbins = np.arange(np.max(shots)+1)
-            for i in range(len(shots)):
+            for i in range(shots.shape[0]):
                 gmix.fit(np.array([shots[i]]).transpose())
                 h = np.histogram(shots[i], bins=hbins, normed=True)
                 histout.append((h[1][:-1], h[0]))
@@ -313,8 +319,9 @@ class CounterHistogramAnalysis(AnalysisWithFigure):
                         fig = self.backFigure
                         # Clear figure.
                         fig.clf()
+                        shots = iterationResults['shotData'][()]
                         # make shot number the primary axis
-                        shots = iterationResults['shotData'].swapaxes(0, 1)
+                        shots = shots.reshape(-1, *shots.shape[2:]).swapaxes(0, 1)
                         shots = shots[:, :, 0]  # pick out first roi only
                         popts = iterationResults['analysis/dblGaussPopt']
                         # fits = iterationResults['analysis/dblGaussFit']
@@ -324,7 +331,7 @@ class CounterHistogramAnalysis(AnalysisWithFigure):
                             ax = fig.add_subplot('21{}'.format(1+i))
                             hbins = self.hbins
                             if self.hbins < 0:
-                                hbins = np.arange(np.max(shots[i])+1)
+                                hbins = np.arange(np.max(shots[:, i])+1)
                             h = ax.hist(shots[i], bins=hbins, histtype='step', normed=True)
                             ax.plot(h[1][1:]-.5, self.dblgauss(h[1][1:], *popts[i]))
                             if i == 1:

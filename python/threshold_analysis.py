@@ -162,9 +162,9 @@ class ThresholdROIAnalysis(ROIAnalysis):
 
         return a list of sub-measurements
         """
-        res = np.array([])
-        for m in meas_nums:
-            res = np.concatenate(res, iter_res[meas_path.format(m)])
+        res = np.array(iter_res[meas_path.format(meas_nums[0])][()])
+        for m in meas_nums[1:]:
+            res = np.concatenate((res, iter_res[meas_path.format(m)][()]))
         return res
 
     def analyzeIteration(self, iterationResults, experimentResults):
@@ -180,7 +180,7 @@ class ThresholdROIAnalysis(ROIAnalysis):
                 return 0
 
             try:
-                res = self.read_meas_results(iterationResults, meas)
+                res = self.read_meas_results(iterationResults, path, meas)
             except KeyError:
                 # I was having problem with the file maybe not being ready
                 msg = "Issue reading hdf5 file. Waiting then repeating."
