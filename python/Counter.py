@@ -14,26 +14,23 @@ Saving of returned data is handled in the LabView class.
 from __future__ import division
 __author__ = 'Martin Lichtman'
 import logging
-logger = logging.getLogger(__name__)
 
 import numpy as np
 
-import traceback
-from atom.api import Str, Float, Typed, Member, Bool, Int
+from atom.api import Str, Float, Typed, Member, Bool, Int, List
 from cs_instruments import Instrument
 from instrument_property import Prop, ListProp
 from analysis import AnalysisWithFigure
 from sklearn import mixture
 from scipy.optimize import curve_fit
-from scipy.optimize import minimize
 from scipy.special import erf
-
-
 import matplotlib.gridspec as gridspec
 
+logger = logging.getLogger(__name__)
 
 gs = gridspec.GridSpec(2, 2)
 gmix = mixture.GMM(n_components=2)
+
 
 class Counters(Instrument):
     version = '2015.05.11'
@@ -47,8 +44,8 @@ class Counters(Instrument):
 
 
 class Counter(Prop):
-    """Each individual counter has a field for the signal source, clock source, and clock rate (in Hz, used only for
-    internal clocking).
+    """Each individual counter has a field for the signal source, clock source, and clock rate (in Hz,
+    used only for internal clocking).
     """
 
     counter_source = Str()
@@ -64,54 +61,103 @@ class CounterAnalysis(AnalysisWithFigure):
     counter_array = Member()
     binned_array = Member()
     meas_analysis_path = Str()
+    meas_data_path = Str()
     update_lock = Bool(False)
     enable = Bool()
     drops = Int(3)
     bins = Int(25)
     shots = Int(2)
-    ROIs = Member()
+    ROIs = List([0])
+    graph_roi = Int(0)
 
     def __init__(self, name, experiment, description=''):
         super(CounterAnalysis, self).__init__(name, experiment, description)
         self.meas_analysis_path = 'analysis/counter_data'
-        self.properties += ['enable', 'drops', 'bins', 'shots']
-        self.ROIs = [0]
+        self.meas_data_path = 'data/counter/data'
+        self.properties += ['enable', 'drops', 'bins', 'shots', 'graph_roi']
 
-    def preExperiment(self, experimentResults):
-        self.counter_array = None
-        self.binned_array = []
-        # measurements x bins
+    def preIteration(self, iterationResults, experimentResults):
+        self.counter_array = []
+        self.binned_array = None
+
+    def format_data(self, array):
+        """Formats raw 2D counter data into the required 4D format.
+
+        Formats raw 2D counter data with implicit stucture:
+            [   # counter 0
+                [ dropped_bins shot_time_series dropped_bins shot_time_series ... ],
+                # counter 1
+                [ dropped_bins shot_time_series dropped_bins shot_time_series ... ]
+            ]
+        into the 4D format expected by the subsequent analyses"
+        [   # measurements, can have different lengths run-to-run
+            [   # shots array, fixed size
+                [   # roi list, shot 0
+                    [ time_series_roi_0 ],
+                    [ time_series_roi_1 ],
+                    ...
+                ],
+                [   # roi list, shot 1
+                    [ time_series_roi_0 ],
+                    [ time_series_roi_1 ],
+                    ...
+                ],
+                ...
+            ],
+            ...
+        ]
+        """
+        rois, bins = array.shape[:2]
+        bins_per_shot = self.drops + self.bins  # self.bins is data bins per shot
+        # calculate the number of shots dynamically
+        num_shots = int(bins/(bins_per_shot))
+        # calculate the number of measurements contained in the raw data
+        # there may be extra shots if we get branching implemented
+        num_meas = num_shots//self.shots
+        # build a mask for removing valid data
+        shot_mask = ([False]*self.drops + [True]*self.bins)
+        good_shots = self.shots*num_meas
+        # mask for the roi
+        ctr_mask = np.array(shot_mask*good_shots + 0*shot_mask*(num_shots-good_shots), dtype='bool')
+        # apply mask a reshape partially
+        array = array[:, ctr_mask].reshape((rois, num_meas, self.shots, self.bins))
+        array = array.swapaxes(0, 1)  # swap rois and measurement axes
+        array = array.swapaxes(1, 2)  # swap rois and shots axes
+        return array
 
     def analyzeMeasurement(self, measurementResults, iterationResults, experimentResults):
-        # TODO: update this to pull data from hdf5 file (measurementResults) instead of being set in the
-        # labview class
         if self.enable:
-            rois = self.counter_array.shape[1]  # get the number of counters
-            graph_roi = 0  # counter number to display
-            bins_per_shot = self.drops + self.bins
-            # counter array is appended with new data every measurement in Labview.py
-            num_shots = int(len(self.counter_array[-1, graph_roi])/bins_per_shot)
-            # build a mask up of dropped bins and actual counter bins
-            ctr_mask = np.array(([False]*self.drops + [True]*self.bins)*num_shots, dtype='bool')
-            # calculate new data for each roi
-            new_ctr_data = np.array([
-                self.counter_array[-1, r, ctr_mask].reshape((num_shots, self.bins)).sum(1)
-                for r in range(rois)
-            ])
-            # binned_array(for graphing) only works with one counter at the moment
-            self.binned_array.append(new_ctr_data[graph_roi])
+            # MFE 2018/01: this analysis has been generalized such that multiple sub measurements can occur
+            # in the same traditional measurement
+            array = measurementResults[self.meas_data_path][()]
+            try:
+                # package data into an array with shape (measurements, shots, counters, time series data)
+                array = self.format_data(array)
+                self.counter_array.append(array)
+            except ValueError:
+                errmsg = "Error retrieving counter data.  Offending counter data shape: {}"
+                logger.exception(errmsg.format(array.shape))
+            except:
+                logger.exception('Unhandled counter data exception')
             # write this cycle's data into hdf5 file so that the threshold analysis can read it
             # when multiple counter support is enabled, the ROIs parameter will hold the count
-            sum_array = np.transpose(new_ctr_data).reshape((num_shots, rois, 1))
+            # Note the constant 1 is for the roi column parameter, all counters get entered in a single row
+            n_meas, n_shots, n_rois, bins = array.shape
+            sum_array = array.sum(axis=3).reshape((n_meas, n_shots, n_rois, 1))
             measurementResults[self.meas_analysis_path] = sum_array
+            # put the sum data in the expected format for display
+            if self.binned_array is None:
+                self.binned_array = [sum_array.reshape((n_meas, n_shots, n_rois))]
+            else:
+                self.binned_array = np.concatenate((
+                    self.binned_array,
+                    [sum_array.reshape((n_meas, n_shots, n_rois))]
+                ))
         self.updateFigure()
 
     def analyzeIteration(self, iterationResults, experimentResults):
-        '''Save shot1, shot2 data and reset counter/bin_arrays.'''
         if self.enable:
-            iterationResults['shotData'] = np.transpose(self.binned_array)
-            self.counter_array = None
-            self.binned_array = []
+            iterationResults['shotData'] = self.binned_array
         return
 
     def updateFigure(self):
@@ -125,31 +171,38 @@ class CounterAnalysis(AnalysisWithFigure):
                         fig = self.backFigure
                         # Clear figure.
                         fig.clf()
-                        graph_roi = 0  # counter number to display
 
                         # make one plot
                         # Single shot
                         ax = fig.add_subplot(221)
-                        ax.bar(np.arange(len(self.counter_array[-1, graph_roi, self.drops:])), self.counter_array[-1, graph_roi, self.drops:])
-                        ax.set_title('Shot: {}'.format(len(self.counter_array)))
-
                         # Average over all shots/iteration
-                        ax = fig.add_subplot(222)
-                        ax.bar(np.arange(len(self.counter_array[-1, graph_roi, self.drops:])), self.counter_array[:, graph_roi, self.drops:].mean(0))
-                        ax.set_title('Iteration average')
+                        ax2 = fig.add_subplot(222)
+                        ptr = 0
+                        for s in range(self.shots):
+                            xs = np.arange(ptr, ptr + self.bins)
+                            ax.bar(xs, self.counter_array[-1, s, self.graph_roi])
+                            ax2.bar(xs, self.counter_array[:, s, self.graph_roi].mean(0), edgecolor='k')
+                            ptr += self.bins
+                        ax.set_title('Measurement: {}'.format(len(self.counter_array)))
+                        ax2.set_title('Iteration average')
 
-                        tmp = np.array(self.binned_array)
+                        # time series of sum data
                         ax = fig.add_subplot(223)
-                        ax.plot(tmp, '.')
+                        # histogram of sum data
+                        ax2 = fig.add_subplot(224)
+                        n_shots = self.binned_array.shape[1]
+                        for roi in range(self.binned_array.shape[2]):
+                            for s in range(n_shots):
+                                ax.plot(self.binned_array[:, s, roi], '.')
+                                # bins = max + 2 takes care of the case where all entries are 0, which casues
+                                # an error in the plot
+                                ax2.hist(
+                                    self.binned_array[:, s, roi],
+                                    bins=np.arange(np.max(self.binned_array[:, s, roi])+2),
+                                    histtype='step'
+                                )
                         ax.set_title('Binned Data')
-
-                        ax = fig.add_subplot(224)
-                        num_shots = tmp.shape[1]
-                        for s in range(num_shots):
-                            # bins = max + 2 takes care of the case where all entries are 0, which casues an error in the plot
-                            ax.hist(tmp[:, s], bins=np.arange(np.max(tmp[:, s])+2), histtype='step')
-                        ax.legend(['shot {}'.format(s+1) for s in range(num_shots)], fontsize='small', loc=0)
-
+                        ax2.legend(['shot {}'.format(s+1) for s in range(n_shots)], fontsize='small', loc=0)
                         super(CounterAnalysis, self).updateFigure()
 
                     except:
@@ -209,12 +262,12 @@ class CounterHistogramAnalysis(AnalysisWithFigure):
             # Overlap, fraction, cutoff
             fitout = np.recarray(2, [('overlap', float), ('fraction', float), ('cutoff', float)])
             optout = np.recarray(2, [('A0', float), ('A1', float), ('m0', float), ('m1', float), ('s0', float), ('s1', float)])
-            shots = iterationResults['shotData']
+            shots = iterationResults['shotData'].swapaxes(0, 1)  # make shot number the primary axis
+            shots = shots[:, :, 0]  # pick out first roi only
             hbins = self.hbins
             if self.hbins < 0:
                 hbins = np.arange(np.max(shots)+1)
             for i in range(len(shots)):
-                print i, shots[i].shape
                 gmix.fit(np.array([shots[i]]).transpose())
                 h = np.histogram(shots[i], bins=hbins, normed=True)
                 histout.append((h[1][:-1], h[0]))
@@ -227,8 +280,6 @@ class CounterHistogramAnalysis(AnalysisWithFigure):
                     np.sqrt(gmix.means_.max())
                 ]
                 try:
-                    print i
-                    print len(est)
                     popt, pcov = curve_fit(self.dblgauss, h[1][1:], h[0], est)
                     # popt=[A0,A1,m0,m1,s0,s1] : Absolute value
                     popt = np.abs(popt)
@@ -262,7 +313,9 @@ class CounterHistogramAnalysis(AnalysisWithFigure):
                         fig = self.backFigure
                         # Clear figure.
                         fig.clf()
-                        shots = iterationResults['shotData']
+                        # make shot number the primary axis
+                        shots = iterationResults['shotData'].swapaxes(0, 1)
+                        shots = shots[:, :, 0]  # pick out first roi only
                         popts = iterationResults['analysis/dblGaussPopt']
                         # fits = iterationResults['analysis/dblGaussFit']
 
