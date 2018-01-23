@@ -320,7 +320,8 @@ class CounterHistogramAnalysis(AnalysisWithFigure):
                         # Clear figure.
                         fig.clf()
                         shots = iterationResults['shotData'][()]
-                        # make shot number the primary axis
+                        # flatten sub-measurement dimension
+                        # make shot number the primary axis (not measurement)
                         shots = shots.reshape(-1, *shots.shape[2:]).swapaxes(0, 1)
                         shots = shots[:, :, 0]  # pick out first roi only
                         popts = iterationResults['analysis/dblGaussPopt']
@@ -328,10 +329,11 @@ class CounterHistogramAnalysis(AnalysisWithFigure):
 
                         # make one plot
                         for i in range(len(shots)):
-                            ax = fig.add_subplot('21{}'.format(1+i))
+                            ax = fig.add_subplot('{}1{}'.format(len(shots), 1+i))
                             hbins = self.hbins
                             if self.hbins < 0:
-                                hbins = np.arange(np.max(shots[:, i])+1)
+                                # use explicit bins
+                                hbins = np.arange(np.max(shots[i, :])+1)
                             h = ax.hist(shots[i], bins=hbins, histtype='step', normed=True)
                             ax.plot(h[1][1:]-.5, self.dblgauss(h[1][1:], *popts[i]))
                             if i == 1:
