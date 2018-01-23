@@ -164,8 +164,12 @@ class HistogramGrid(ROIAnalysis):
     def analyzeIteration(self, iterationResults, experimentResults):
         if self.enable:
             # all_shots_array will be shape (measurements,shots,rois)
-            data_path = self.ROI_source.iter_analysis_path + '/sums'
+            # or (measurements, sub-measurements shots, rois)
+            data_path = self.ROI_source.iter_analysis_path
             all_shots_array = iterationResults[data_path].value
+            # flatten sub-measurements
+            if len(all_shots_array.shape) == 4:
+                all_shots_array = all_shots_array.reshape(-1, *all_shots_array.shape[2:])
 
             # perform histogram calculations and fits on all shots and regions
             self.calculate_all_histograms(all_shots_array)
@@ -191,8 +195,12 @@ class HistogramGrid(ROIAnalysis):
         try:
             # save to PDF
             if self.experiment.saveData:
-                pe = self.camera.photoelectronScaling.value
-                ex = self.camera.exposureTime.value
+                try:
+                    pe = self.ROI_source.photoelectronScaling.value
+                    ex = self.ROI_source.exposureTime.value
+                except AttributeError:
+                    pe = None
+                    ex = None
                 for shot in xrange(self.histogram_results.shape[0]):
                     fig = plt.figure(figsize=(23.6, 12.3))
                     dpi = 80
@@ -235,10 +243,13 @@ class HistogramGrid(ROIAnalysis):
                 if self.histogram_results is not None:
                     fig.suptitle('shot {}'.format(self.shot))
                     if self.experiment.gaussian_roi.multiply_sums_by_photoelectron_scaling:
-                        pe = self.camera.photoelectronScaling.value
+                        pe = self.ROI_source.photoelectronScaling.value
                     else:
                         pe = None
-                    ex = self.camera.exposureTime.value
+                    try:
+                        ex = self.ROI_source.exposureTime.value
+                    except AttributeError:
+                        ex = None
                     self.histogram_grid_plot(
                         fig,
                         self.shot,
@@ -293,7 +304,9 @@ class HistogramGrid(ROIAnalysis):
             ('overlap', 'f8')
         ])
         self.histogram_results = np.empty((shots, rois), dtype=my_dtype)
-        self.histogram_results.fill(np.nan)
+        # self.histogram_results.fill(np.nan)
+        # MFE 01/2018: Not sure why it is necessary to
+        self.histogram_results.fill(0)
 
         # go through each shot and roi and calculate the histograms and
         # gaussian fits
@@ -322,7 +335,10 @@ class HistogramGrid(ROIAnalysis):
             fmt = '%Y_%m_%d_%H_%M_%S'
             self.cutoffs_from_which_experiment = exp_time.strftime(fmt)
         else:
-            self.cutoffs_from_which_experiment = self.ROI_source.cutoffs_from_which_experiment
+            try:
+                self.cutoffs_from_which_experiment = self.ROI_source.cutoffs_from_which_experiment
+            except AttributeError:
+                logger.warning('Unknown cutoff source')
 
         # find the min and max
         self.x_min = np.nanmin(all_shots_array)
@@ -426,7 +442,6 @@ class HistogramGrid(ROIAnalysis):
 
         else:  # use the existing cutoff, unbinned data
             x = ROI_sums
-
             below = x[x < cutoff]
             above = x[x >= cutoff]
 
@@ -472,7 +487,6 @@ class HistogramGrid(ROIAnalysis):
         overlap1 = 0.5*(1 + erf((best_mean1-cutoff)/(best_width1*np.sqrt(2))))
         overlap2 = 0.5*(1 + erf((cutoff-best_mean2)/(best_width2*np.sqrt(2))))
         overlap = (overlap1*best_amplitude1 + overlap2*best_amplitude2) / min(best_amplitude1, best_amplitude2)
-
         return hist, bin_edges, best_error, best_mean1, best_mean2, best_width1, best_width2, best_amplitude1, best_amplitude2, cutoff, loading, overlap
 
     def analytic_cutoff(self, x1, x2, w1, w2, a1, a2):
@@ -527,10 +541,8 @@ class HistogramGrid(ROIAnalysis):
         if len(x2) > 1:  # only draw if there is some data (not including cutoff)
             self.histogram_patch(ax, x2, y2, 'r')  # plot the 1 atom peak in red
 
-    def histogram_grid_plot(self, fig, shot,
-            photoelectronScaling=None, exposure_time=None, font=8):
+    def histogram_grid_plot(self, fig, shot, photoelectronScaling=None, exposure_time=None, font=8):
         """Plot a grid of histograms in the same shape as the ROIs."""
-
         rows = self.experiment.ROI_rows
         columns = self.experiment.ROI_columns
         # create a grid.  The extra row and column hold the row/column
@@ -560,12 +572,11 @@ class HistogramGrid(ROIAnalysis):
 
                     # create new plot
                     ax = fig.add_subplot(gs1[i, j])
-
                     self.two_color_histogram(ax, data)
 
                     ax.set_xlim([self.x_min, self.x_max])
-                    ax.set_ylim([0, self.y_max])
-                    #ax.set_title(u'{}: {:.0f}\u00B1{:.1f}%'.format(n, data['loading']*100,data['overlap']*100), size=font)
+                    ax.set_ylim([0, 1.05*self.y_max])
+                    # ax.set_title(u'{}: {:.0f}\u00B1{:.1f}%'.format(n, data['loading']*100,data['overlap']*100), size=font)
                     ax.text(
                         0.95,
                         0.85,
@@ -579,14 +590,6 @@ class HistogramGrid(ROIAnalysis):
                         transform=ax.transAxes,
                         fontsize=font
                     )
-                    # put x ticks at the center of each gaussian and the cutoff
-                    # The one at x_max just holds 'e3' to show that the values
-                    # should be multiplied by 1000
-                    ax.set_xticks([
-                        data['mean1'],
-                        data['cutoff'],
-                        data['mean2']
-                    ])
 
                     lab = u'{}\u00B1{:.1f}'
                     if np.isnan(data['mean1']):
@@ -604,12 +607,20 @@ class HistogramGrid(ROIAnalysis):
                             int(data['mean2']),
                             data['width2']
                         )
-
-                    ax.set_xticklabels([
-                        lab1, str(int(data['cutoff'])), lab2],
-                        size=font,
-                        rotation=90
-                    )
+                    # put x ticks at the center of each gaussian and the cutoff
+                    # The one at x_max just holds 'e3' to show that the values
+                    # should be multiplied by 1000
+                    if not np.any(np.isnan([data['mean1'], data['cutoff'], data['mean2']])):
+                        ax.set_xticks([
+                            data['mean1'],
+                            data['cutoff'],
+                            data['mean2']
+                        ])
+                        ax.set_xticklabels([
+                            lab1, str(int(data['cutoff'])), lab2],
+                            size=font,
+                            rotation=90
+                        )
                     # add this to xticklabels to print gaussian widths:
                         # u'\u00B1{:.1f}'.format(data['width1']/1000)
                         # u'\u00B1{:.1f}'.format(data['width2']/1000)
@@ -691,4 +702,3 @@ class HistogramGrid(ROIAnalysis):
             fig.text(.05, .97,'exposure_time = {} s'.format(exposure_time))
         fig.text(.05, .955,'cutoffs from {}'.format(self.cutoffs_from_which_experiment))
         fig.text(.05, .94, 'target # measurements = {}'.format(self.experiment.measurementsPerIteration))
-

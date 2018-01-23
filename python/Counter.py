@@ -25,6 +25,7 @@ from sklearn import mixture
 from scipy.optimize import curve_fit
 from scipy.special import erf
 import matplotlib.gridspec as gridspec
+import time
 
 logger = logging.getLogger(__name__)
 
@@ -62,6 +63,7 @@ class CounterAnalysis(AnalysisWithFigure):
     binned_array = Member()
     meas_analysis_path = Str()
     meas_data_path = Str()
+    iter_analysis_path = Str()
     update_lock = Bool(False)
     enable = Bool()
     drops = Int(3)
@@ -74,6 +76,7 @@ class CounterAnalysis(AnalysisWithFigure):
         super(CounterAnalysis, self).__init__(name, experiment, description)
         self.meas_analysis_path = 'analysis/counter_data'
         self.meas_data_path = 'data/counter/data'
+        self.iter_analysis_path = 'shotData'
         self.properties += ['enable', 'drops', 'bins', 'shots', 'graph_roi']
 
     def preIteration(self, iterationResults, experimentResults):
@@ -158,7 +161,30 @@ class CounterAnalysis(AnalysisWithFigure):
 
     def analyzeIteration(self, iterationResults, experimentResults):
         if self.enable:
-            iterationResults['shotData'] = self.binned_array
+            # recalculate binned_array to get rid of cut data
+            # iterationResults[self.iter_analysis_path] = self.binned_array
+            meas = map(int, iterationResults['measurements'].keys())
+            meas.sort()
+            path = 'measurements/{}/' + self.meas_analysis_path
+            try:
+                res = np.array([iterationResults[path.format(m)] for m in meas])
+            except KeyError:
+                # I was having problem with the file maybe not being ready
+                logger.warning("Issue reading hdf5 file. Waiting then repeating.")
+                time.sleep(0.1)  # try again in a little
+                try:
+                    res = np.array([iterationResults[path.format(m)] for m in meas])
+                except KeyError:
+                    msg = (
+                        "Reading from hdf5 file during measurement `{}`"
+                        " failed."
+                    ).format(m)
+                    logger.exception(msg)
+            total_meas = len(self.binned_array)
+            # drop superfluous ROI_columns dimension
+            self.binned_array = res.reshape(res.shape[:4])
+            print('cut data: {}'.format(total_meas - len(self.binned_array)))
+            iterationResults[self.iter_analysis_path] = self.binned_array
         return
 
     def updateFigure(self):
@@ -323,7 +349,8 @@ class CounterHistogramAnalysis(AnalysisWithFigure):
                         # flatten sub-measurement dimension
                         # make shot number the primary axis (not measurement)
                         shots = shots.reshape(-1, *shots.shape[2:]).swapaxes(0, 1)
-                        shots = shots[:, :, 0]  # pick out first roi only
+                        roi = 0
+                        shots = shots[:, :, roi]  # pick out first roi only
                         popts = iterationResults['analysis/dblGaussPopt']
                         # fits = iterationResults['analysis/dblGaussFit']
 
@@ -339,6 +366,8 @@ class CounterHistogramAnalysis(AnalysisWithFigure):
                             if i == 1:
                                 ax.set_yscale('log', nonposy='clip')
                                 ax.set_ylim(0.001, 1)
+                            else:
+                                ax.set_ylim(0, 1.05*np.max(h[0]))
 
                         super(CounterHistogramAnalysis, self).updateFigure()
 

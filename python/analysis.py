@@ -611,7 +611,8 @@ class LoadingFilters(Analysis):
                     # as 't' in the namespace. This will overwrite any previous
                     # value, so we make a copy of the dictionary
                     vars = self.experiment.vars.copy()
-                    vars['t'] = measurementResults[self.roi_source_path]
+                    # choose only first sub-measurement to test
+                    vars['t'] = measurementResults[self.roi_source_path][0]
                     value, valid = cs_evaluate.evalWithDict(self.filter_expression, varDict=vars)
                     if not valid:
                         # raise an error
