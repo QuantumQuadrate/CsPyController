@@ -55,7 +55,7 @@ class ZMQInstrument(Instrument, Analysis):
     msg = Str()
     results = Member()
     sock = Member()
-    timeout = Float(1.0)
+    timeout = Float(2.0)
     error = Bool(False)
     log = Str()
 

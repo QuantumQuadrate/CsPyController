@@ -29,7 +29,7 @@ def is_error_msg(msg):
 
 class PyPicomotor(Picomotor):
     current_position = Float()
-    max_angle_error = Float(0.1)  # maximum error to accept without trying to correct
+    max_angle_error = Float(0.2)  # maximum error to accept without trying to correct
 
 
     def __init__(self, name, experiment, description=''):
@@ -72,7 +72,7 @@ class PyPicoServer(Instrument):
     motors = Member()
     context = Member()
     socket = Member()
-    timeout = Int(10000)  # default is 10 secs, sincemote movement can take a while
+    timeout = Int(20000)  # default is 10 secs, since motor movement can take a while
     enable_measurement = Bool()
     enable_iteration = Bool()
     enable_movement = Bool()

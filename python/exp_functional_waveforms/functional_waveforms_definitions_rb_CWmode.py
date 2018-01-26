@@ -86,7 +86,7 @@ def opticalpumping(t,duration):
         label(t + cycles*period_ms/2, 'OP half')
         print(t + cycles*period_ms/2)
         channels = [op_aom_switch_chan, my_FORT_SW_channel]
-        phases = [[0.5+top_offset, 0.8+top_offset], [0.1, 0.6]]
+        phases = [[0.3, 0.6], [0.1, 0.6]]
         profiles = [
             [1, 0, 1], # OP on is 0. off is 1
             [1, 0, 1]
@@ -95,6 +95,35 @@ def opticalpumping(t,duration):
     else:
         print("non-zero duration is required. this repeat function will do nothing")
     return t
+
+def raman(t,duration,pointing_profile):
+    """Raman beam control to drive ground hyperfine clock transition |2,0> <-> |1,0> """
+    if t>0 and duration >0: #make sure timings are valid
+        exp.ground_aom_switch.profile(t,'on')
+        exp.ground_aom_switch.profile(t+duration,'off')
+        exp.red_pointing_aom_switch.profile(t,'on')
+        exp.red_pointing_aom_switch.profile(t+duration,'off')
+        exp.red_pointing_dds.profile(t,pointing_profile) # point to the target_region. example 'r2'
+        exp.red_pointing_dds.profile(t+duration,'off')
+    else:
+        print "make sure your timings are valid"
+
+def prepareF1(t,duration):
+    """This function will leave MOT light on without repumper so atoms are depopulate from F=1 and pumped into F=1"""
+    if t>0 and duration >0: #make sure timings are valid
+        exp.fort_aom_switch.profile(t,'on')
+        exp.fort_aom_switch.profile(t+duration,'on')
+        exp.fort_dds.profile(t,'on')
+        exp.fort_dds.profile(t+duration,'on')
+        exp.mot_3d_dds.profile(t,'RO')
+        exp.mot_aom_switch.profile(t,'on')
+        exp.mot_aom_switch.profile(t+duration,'off')
+        exp.hf_aom_switch.profile(t,'off')
+        AO(t,7,0)
+    else:
+        print "make sure your timings are valid"
+
+#def FORTdrop(t,duration):
 
 ###########################################################################
 # Main Block
@@ -121,10 +150,15 @@ if ExpMode==0:
     AO(0,6,coil_driver_polarity*2.8)
     AO(0,7,10)
     exp.pointgrey_trigger_switch.profile(0,'off')
-    exp.pointgrey_trigger_switch.profile(t1_PGcamera,'on')
-    exp.pointgrey_trigger_switch.profile(t1_PGcamera+2,'off')
+    exp.pointgrey2_trigger_switch.profile(0,'off')
+    #exp.pointgrey_trigger_switch.profile(t1_PGcamera,'on')
+    #exp.pointgrey_trigger_switch.profile(t1_PGcamera+2,'off')
     exp.pointgrey_trigger_switch.profile(t2_PGcamera,'on')
     exp.pointgrey_trigger_switch.profile(t2_PGcamera+2,'off')
+    exp.pointgrey2_trigger_switch.profile(t1_PGcamera,'on')
+    exp.pointgrey2_trigger_switch.profile(t1_PGcamera+2,'off')
+    #exp.pointgrey2_trigger_switch.profile(t2_PGcamera,'on')
+    #exp.pointgrey2_trigger_switch.profile(t2_PGcamera+2,'off')
     exp.FORT_NE_trigger_switch.profile(0,'off')
     exp.FORT_NE_trigger_switch.profile(170,'on')
     exp.FORT_NE_trigger_switch.profile(175,'off')
@@ -159,6 +193,7 @@ if ExpMode==0:
     exp.mot_3d_y_shutter_switch.profile(0,'on')
     exp.mot_3d_z1_shutter_switch.profile(0,'off')
     exp.microwave_switch.profile(0,'off')
+
     exp.microwave_dds.profile(0,'off')
     exp.repumper_shutter_switch.profile(0,'off')
     exp.ground_aom_switch.profile(0,'off') #### dd
@@ -167,15 +202,7 @@ if ExpMode==0:
     exp.red_pointing_dds.profile(0,'off')
     exp.red_pointing_aom_switch.profile(0,'off')
     # For pointgrey shot.
-    exp.red_pointing_dds.profile(t2_PGcamera-0.5,'PG')
-    exp.red_pointing_dds.profile(t2_PGcamera+t_PG_exposure,'off')
-
-    exp.red_pointing_aom_switch.profile(t2_PGcamera,'on')
-    exp.red_pointing_aom_switch.profile(t2_PGcamera+t_PG_exposure,'off')
-    exp.ground_aom_switch.profile(t2_PGcamera,'on')
-    exp.ground_aom_switch.profile(t2_PGcamera+t_PG_exposure,'off')
-
-
+    raman(t1_PGcamera,t_PG_exposure,'PG')
 
     ## 2D MOT Loading Phase
 
@@ -201,6 +228,7 @@ if ExpMode==0:
     AO(110,4,0) #Z
     exp.mot_aom_switch.profile(110,'off')
     exp.hf_aom_switch.profile(110,'off') #####
+    AO(110,7,0)
 
     ## Readout Phase
     AO(25+110,2,coil_driver_polarity*shimX_RO) #X
@@ -211,28 +239,18 @@ if ExpMode==0:
     t_start=140
     readout(t_start,5)
     t_end=t_start+t_readoutduration
-    # t_pulsewidth=0.001*0.4
-    # t_period=0.001*0.8
-    # t_offset1=t_relative_offset
-    # for i in range(int(round((t_end-t_start)/t_period))):
-    #     exp.mot_aom_switch.profile(t_start+i*t_period+t_offset1,'off')
-    #     exp.mot_aom_switch.profile(t_start+i*t_period+t_pulsewidth+t_offset1,'on')
-    #
-    # for i in range(int(round((t_end-t_start)/t_period))):
-    #     exp.fort_aom_switch.profile(t_start+i*t_period,'off')
-    #     exp.fort_aom_switch.profile(t_start+i*t_period+t_pulsewidth,'on')
-    #exp.mot_aom_switch.profile(t_end,'off')
     AO(t_start,7,10)
     exp.hf_aom_switch.profile(t_start,'on')
     exp.hf_aom_switch.profile(t_end+0.2,'off') ###
     AO(t_end+0.2,7,0)
+   # prepareF1(t_start,10)
 
     ## Optical Pumping Phase
 
     AO(150,2,coil_driver_polarity*shimX_OP) #X
     AO(150,3,coil_driver_polarity*shimY_OP) #Y
     AO(150,4,coil_driver_polarity*shimZ_OP) #Z
-    AO(150,7,10) # repumper attenuator. temperorary on
+    AO(150,7,0) # repumper attenuator. repumper turned off.
 
     t_start=160
     t_end=t_start+t_op+t_depump
@@ -240,23 +258,12 @@ if ExpMode==0:
     AO(t_start+t_op,7,0)
 
     exp.op_dds.profile(t_start,'on')
-    #exp.op_aom_switch.profile(t_start,'on')
-    #exp.op_aom_switch.profile(t_start+t_op,'off')
     exp.op_dds.profile(t_end,'off')
     exp.hf_aom_switch.profile(t_start,'on')
     exp.hf_aom_switch.profile(t_start+t_op,'off')
+    AO(t_start,7,10)
+    AO(t_start+t_op,7,0)
     opticalpumping(t_start,t_end-t_start)
-    # t_offset=-0.001*0.5
-    # t_op_pulsewidth=0.001*0.5
-    # t_fort_pulsewidth=0.001*0.5
-    # t_period=0.001*1
-    # for i in range(int(round((t_end-t_start)/t_period))):
-    #     exp.op_aom_switch.profile(t_start+i*t_period,'on')
-    #     exp.op_aom_switch.profile(t_start+i*t_period+t_op_pulsewidth,'off')
-    #
-    # for i in range(int(round((t_end-t_start)/t_period))):
-    #     exp.fort_aom_switch.profile(t_start+i*t_period+t_offset,'off')
-    #     exp.fort_aom_switch.profile(t_start+i*t_period+t_fort_pulsewidth+t_offset,'on')
 
     exp.mot_3d_x_shutter_switch.profile(t_x_shutter_open,'on')
     exp.mot_3d_x_shutter_switch.profile(t_x_shutter_close,'off')
@@ -265,19 +272,13 @@ if ExpMode==0:
     exp.mot_3d_z1_shutter_switch.profile(t_z1_shutter_open,'on')
     exp.mot_3d_z1_shutter_switch.profile(t_z1_shutter_close,'off')
 
-    ## Science Phase 170 - 175 ms
+    ## Science Phase 170 - 175 ms. t_science=170
+    raman(t_science,t_raman,'r2')
 
-    #exp.ground_aom_switch.profile(170,'on')
-    #exp.ground_aom_switch.profile(170+t_raman,'on')
-    #exp.red_pointing_aom_switch.profile(170,'on')
-    #exp.red_pointing_aom_switch.profile(170+t_raman,'off')
-    #exp.red_pointing_dds.profile(170,'r2')
-    #exp.red_pointing_dds.profile(170+t_raman,'off')
-
-    exp.microwave_dds.profile(170,'on')
-    exp.microwave_switch.profile(170,'on')
-    exp.microwave_dds.profile(170+t_microwave,'off')
-    exp.microwave_switch.profile(170+t_microwave,'off')
+    exp.microwave_dds.profile(t_science,'on')
+    exp.microwave_switch.profile(t_science,'on')
+    exp.microwave_dds.profile(t_science+t_microwave,'off')
+    exp.microwave_switch.profile(t_science+t_microwave,'off')
 
     #exp.microwave_dds.profile(170+t_microwave+t_gap,'on')
     #exp.microwave_switch.profile(170+t_microwave+t_gap,'on')
@@ -349,25 +350,13 @@ if ExpMode==0:
     AO(180,2, coil_driver_polarity*shimX_RO) #X
     AO(180,3, coil_driver_polarity*shimY_RO) #Y
     AO(180,4, coil_driver_polarity*shimZ_RO) #Z
-    t_readout_2nd=195
+    #t_readout_2nd=195
 
     exp.mot_3d_dds.profile(t_readout_2nd,'RO')
     exp.camera.take_shot(t_readout_2nd)
     t_start=t_readout_2nd
     readout(t_start,5)
     t_end=t_start+t_readoutduration
-    # t_end=t_readout_2nd+exp.camera.pulse_length
-    # t_pulsewidth=0.001*0.4
-    # t_period=0.001*0.8
-    # t_offset1=t_relative_offset
-    # for i in range(int(round((t_end-t_start)/t_period))):
-    #     exp.mot_aom_switch.profile(t_start+i*t_period+t_offset1,'off')
-    #     exp.mot_aom_switch.profile(t_start+i*t_period+t_pulsewidth+t_offset1,'on')
-    #
-    # for i in range(int(round((t_end-t_start)/t_period))):
-    #     exp.fort_aom_switch.profile(t_start+i*t_period,'off')
-    #     exp.fort_aom_switch.profile(t_start+i*t_period+t_pulsewidth,'on')
-    #exp.mot_aom_switch.profile(t_readout_2nd+exp.camera.pulse_length,'off')
     AO(t_readout_2nd,7,10) # Turn on repumper. Sets rf attenuator voltage to 10V
     exp.hf_aom_switch.profile(t_readout_2nd,'on')
     exp.hf_aom_switch.profile(t_readout_2nd+exp.camera.pulse_length,'off')
@@ -379,7 +368,7 @@ if ExpMode==0:
 
     ## Blue imaging
     t_start_blue_imaging=205
-    t_blue_exposure=0.02
+    t_blue_exposure=2
 
     exp.blue_pointing_dds.profile(t_start_blue_imaging,'r2')
     exp.blue_pointing_aom_switch.profile(t_start_blue_imaging,'on')
@@ -388,8 +377,8 @@ if ExpMode==0:
     exp.camera.pulse_length=t_blue_exposure # Changes HSDIO pulse width to control exposure
     t_readout_3rd=205
     exp.camera.take_shot(t_readout_3rd)
-    #exp.ryd780a_aom_switch.profile(t2_PGcamera,'on')
-    #exp.ryd780a_dds.profile(t2_PGcamera,'r2')
+    exp.ryd780a_aom_switch.profile(t2_PGcamera,'on')
+    exp.ryd780a_dds.profile(t2_PGcamera,'r2')
 
 
     ############################## End of normal experiment #######################################################

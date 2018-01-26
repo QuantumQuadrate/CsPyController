@@ -177,7 +177,7 @@ class BlackflyCamera(Instrument):
 
     serial = Int(0)
     exposureTime = Float(5.0)
-    shotsPerMeasurement = Int(2)
+    shotsPerMeasurement = Int(1)
     triggerDelay = Member()
     configuration = Member()
     gigEConfig = Member()
@@ -304,15 +304,23 @@ class BlackflyClient(zmq_instrument.ZMQInstrument):
                 try:
                     f = hdf5.create_group('{}/{}'.format(key, serial))
                     f['error'] = value[serial]['error']
-                    f = f.create_group('shots')
-                    for key in value[serial]['data']:
-                        shot = value[serial]['data'][key]
-                        shot_grp = f.create_group(str(key))
-                        raw_data = np.array(shot['image'])
-                        shot_grp.create_dataset('raw_data', data=raw_data)
-                        stat_grp = shot_grp.create_group('stats')
-                        for stat in shot['stats']:
-                            stat_grp[stat] = shot['stats'][stat]
+                    raw_data = np.array(value[serial]['data'])
+                    f.create_dataset('raw_data', data=raw_data)
+                    f = f.create_group('stats')
+                    for stat in value[serial]['stats']:
+                        f[stat] = value[serial]['stats'][stat]
+                    # f = hdf5.create_group('{}/{}'.format(key, serial))
+                    # f['error'] = value[serial]['error']
+                    # f = f.create_group('shots')
+                    # for key in value[serial]['data']:
+                    #     print key
+                    #     shot = value[serial]['data'][key]
+                    #     shot_grp = f.create_group(str(key))
+                    #     raw_data = np.array(shot['image'])
+                    #     shot_grp.create_dataset('raw_data', data=raw_data)
+                    #     stat_grp = shot_grp.create_group('stats')
+                    #     for stat in shot['stats']:
+                    #         stat_grp[stat] = shot['stats'][stat]
                 except:
                     logger.exception('problem')
 
