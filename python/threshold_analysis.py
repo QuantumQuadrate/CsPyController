@@ -138,7 +138,7 @@ class ThresholdROIAnalysis(ROIAnalysis):
             try:
                 data_path = self.ROI_source.meas_analysis_path
                 shot_array = measResults[data_path][()]
-                logger.info(shot_array.shape)
+                #logger.info(shot_array.shape)
             except (KeyError, AttributeError):
                 msg = (
                     'No measurement ROI sum data found at `{}`.'

@@ -222,10 +222,8 @@ class AndorCamera(Instrument):
 
             if (self.acquisitionChoices[self.acquisitionMode]==3 or self.acquisitionChoices[self.acquisitionMode]==4):
                 self.SetNumberKinetics(self.shotsPerMeasurement.value)
-                #print "done setNumberKinetics"
             if (self.acquisitionChoices[self.acquisitionMode]!=1 and self.acquisitionChoices[self.acquisitionMode]!=4):
                 self.SetFrameTransferMode(0)
-                #print "done SetFrameTransferMode"
             if (self.acquisitionChoices[self.acquisitionMode]==2):
                 self.SetNumberAccumulations(self.experiment.measurementsPerIteration)
             self.SetKineticCycleTime(0)  # no delay

@@ -280,10 +280,10 @@ if ExpMode==0:
     exp.microwave_dds.profile(t_science+t_microwave,'off')
     exp.microwave_switch.profile(t_science+t_microwave,'off')
 
-    #exp.microwave_dds.profile(170+t_microwave+t_gap,'on')
-    #exp.microwave_switch.profile(170+t_microwave+t_gap,'on')
-    #exp.microwave_dds.profile(170+t_microwave+t_gap+t_microwave,'off')
-    #exp.microwave_switch.profile(170+t_microwave+t_gap+t_microwave,'off')
+    exp.microwave_dds.profile(t_science+t_microwave+t_gap,'on')
+    exp.microwave_switch.profile(t_science+t_microwave+t_gap,'on')
+    exp.microwave_dds.profile(t_science+t_microwave+t_gap+t_microwave,'off')
+    exp.microwave_switch.profile(t_science+t_microwave+t_gap+t_microwave,'off')
 
     #t_start=170+t_microwave
     #t_end=t_start+t_gap#t_Ryd780A
