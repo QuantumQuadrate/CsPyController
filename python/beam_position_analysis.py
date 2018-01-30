@@ -50,18 +50,8 @@ class BeamPositionAnalysis(Analysis):
             experiment,
             'Error signal and feedback for beam position'
         )
-        # location of position data in hdf5
-        self.positions_path = 'data/'
-        self.positions_path += self.experiment.Config.config.get(
-            'AAS',
-            'DataGroup'
-        )
-
-        # Needs to be improved to accomodate multiple data paths.
-        # Center finding function can be implemented within BeamPositionAnalysis, in case it has access to raw data.
-
-        self.meas_error_path = self.positions_path + '/error'
-        self.positions_path += '/stats'
+        # set up with the default configuration
+        self.set_position_path()
         self.initialize_positions()
         self.position_iter_stat = {
             'x': 0, 'y': 0, 'sigma_x': 0, 'sigma_y': 0,
@@ -74,8 +64,26 @@ class BeamPositionAnalysis(Analysis):
             'version', 'enable', 'enable_feedback', 'setpoint_X', 'setpoint_Y',
             'actuator_vname_X', 'actuator_vname_Y', 'actuator_variable_X',
             'actuator_variable_Y', 'calibration_X', 'calibration_Y',
-            'enable_reorder','meas_analysis_path','iter_analysis_path'
+            'enable_reorder', 'meas_analysis_path', 'iter_analysis_path'
         ]
+
+    def set_position_path(self, section='AAS', datagroup='Camera0DataGroup'):
+        '''Sets the hdf5 source of the input data for alignment feedback'''
+        # location of position data in hdf5
+        positions_path = 'data/'
+        try:
+            positions_path += self.experiment.Config.config.get(section, datagroup)
+        except:
+            msg = 'ConfigParser was unable to find entry: `{}.{}`. Disabling module.'
+            logger.exception(msg.format(section, datagroup))
+            self.enable = False
+        else:
+            # Needs to be improved to accomodate multiple data paths.
+            # Center finding function can be implemented within BeamPositionAnalysis,
+            # in case it has access to raw data.
+            self.meas_error_path = positions_path + '/error'
+            positions_path += '/stats'
+            self.positions_path = positions_path
 
     def initialize_positions(self):
         # stores positions from each measurement for an iteration
@@ -92,8 +100,7 @@ class BeamPositionAnalysis(Analysis):
     def analyzeMeasurement(self, measResults, iterResults, expResults):
         if self.enable:
             # check that the data exists and it is valid
-            if (self.positions_path in measResults and
-                    measResults[self.meas_error_path][()] == 0):
+            if (self.positions_path in measResults and measResults[self.meas_error_path][()] == 0):
                 # every append operation on an np array requires reallocation
                 # of memory, so maybe we should try to not do all these appends
                 self.positions['x0'] = np.append(
@@ -124,9 +131,9 @@ class BeamPositionAnalysis(Analysis):
             else:
                 logger.error("Unable to find positions in measurementResults.")
 
-    def savetohdf5(self,iterationResults):
+    def savetohdf5(self, iterationResults):
         for key in self.position_iter_stat:
-            iterationResults[self.iter_analysis_path+key]=self.position_iter_stat[key]
+            iterationResults[self.iter_analysis_path+key] = self.position_iter_stat[key]
 
     def analyzeIteration(self, iterResults, expResults):
         """Analyze all measurements taken in the iteration.
@@ -139,7 +146,6 @@ class BeamPositionAnalysis(Analysis):
             if self.enable_feedback and self.positions['valid_cnt'] >= 10:
                 self.updateActuators()
             self.initialize_positions()
-
 
     def preExperiment(self, expResults):
         self.initialize_positions()
