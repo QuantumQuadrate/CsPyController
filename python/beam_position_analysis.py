@@ -13,6 +13,8 @@ import logging
 from atom.api import Bool, Str, Float, Member
 from analysis import Analysis
 import numpy as np
+import os.path
+import h5py
 
 logger = logging.getLogger(__name__)
 
@@ -78,11 +80,9 @@ class BeamPositionAnalysis(Analysis):
             logger.exception(msg.format(section, datagroup))
             self.enable = False
         else:
-            # Needs to be improved to accomodate multiple data paths.
             # Center finding function can be implemented within BeamPositionAnalysis,
             # in case it has access to raw data.
-            self.meas_error_path = positions_path + '/error'
-            positions_path += '/stats'
+            self.meas_error_path = os.path.dirname(positions_path) + '/error'
             self.positions_path = positions_path
 
     def initialize_positions(self):
@@ -97,37 +97,65 @@ class BeamPositionAnalysis(Analysis):
             'y1': np.array([]),
         }
 
+    def calc_beam_position(self, img):
+        '''Calculate the position of a beam from a 2D image array.
+
+        append the results to the position array
+        '''
+        # do the fit/centroid whatever
+        raise NotImplementedError
+        # only x and y are necessary.  if a relative measurement is performed then use
+        # x#/y# too
+        np.append(self.positions['x'], x)
+        np.append(self.positions['y'], y)
+        self.positions['valid_cnt'] += 1
+
+    def append_beam_position_data(self, data):
+        '''Extract position data from the pre-calculated stat data group'''
+        # every append operation on an np array requires reallocation
+        # of memory, so maybe we should try to not do all these appends
+        self.positions['x0'] = np.append(
+            self.positions['x0'],
+            data['X0'][()]
+        )
+        self.positions['y0'] = np.append(
+            self.positions['y0'],
+            ['Y0'][()]
+        )
+        self.positions['x1'] = np.append(
+            self.positions['x1'],
+            data['X1'][()]
+        )
+        self.positions['y1'] = np.append(
+            self.positions['y1'],
+            data['Y1'][()]
+        )
+        self.positions['x'] = np.append(
+            self.positions['x'],
+            self.positions['x1'] - self.positions['x0']
+        )
+        self.positions['y'] = np.append(
+            self.positions['y'],
+            self.positions['y1'] - self.positions['y0']
+        )
+        self.positions['valid_cnt'] += 1
+
     def analyzeMeasurement(self, measResults, iterResults, expResults):
         if self.enable:
             # check that the data exists and it is valid
-            if (self.positions_path in measResults and measResults[self.meas_error_path][()] == 0):
-                # every append operation on an np array requires reallocation
-                # of memory, so maybe we should try to not do all these appends
-                self.positions['x0'] = np.append(
-                    self.positions['x0'],
-                    measResults[self.positions_path]['X0'][()]
-                )
-                self.positions['y0'] = np.append(
-                    self.positions['y0'],
-                    measResults[self.positions_path]['Y0'][()]
-                )
-                self.positions['x1'] = np.append(
-                    self.positions['x1'],
-                    measResults[self.positions_path]['X1'][()]
-                )
-                self.positions['y1'] = np.append(
-                    self.positions['y1'],
-                    measResults[self.positions_path]['Y1'][()]
-                )
-                self.positions['x'] = np.append(
-                    self.positions['x'],
-                    self.positions['x1'] - self.positions['x0']
-                )
-                self.positions['y'] = np.append(
-                    self.positions['y'],
-                    self.positions['y1'] - self.positions['y0']
-                )
-                self.positions['valid_cnt'] += 1
+            if self.positions_path in measResults:
+                data = measResults[self.positions_path]
+                # if the data is a raw image we have to process it
+                if isinstance(data, h5py.Dataset) and len(data.shape) == 2:
+                    self.calc_beam_position(data.value)
+                # if the data is alreay processed, check if it is valid
+                elif self.meas_error_path in measResults:
+                    if measResults[self.meas_error_path][()] == 0:
+                        self.append_beam_position_data(data)
+                    else:
+                        logger.error('Position measurements are not valid.')
+                else:
+                    logger.error("Positions found in measurementResults, but format didn't match expectations.")
             else:
                 logger.error("Unable to find positions in measurementResults.")
 
