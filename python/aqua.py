@@ -18,19 +18,19 @@ import Counter, unlock_pause, niscope, newportstage, nidaq_ai
 
 try:
     import conex
-    conex_enable=True
+    conex_enable = True
 except:
     "Conex disabled"
-    conex_enable=False
+    conex_enable = False
 try:
     import aerotech
-    aerotech_enable=True
+    aerotech_enable = True
 except:
     "aerotech disabled"
-    aerotech_enable=False
+    aerotech_enable = False
 
 import origin_interface
-import FakeInstrument # for testing
+import FakeInstrument  # for testing
 from pypico import PyPicoServer  # for communicating with a picomotor server
 try:
     from blackfly import BlackflyClient  # communicates with Blackfly camera server
@@ -53,6 +53,7 @@ from experiments import Experiment
 __author__ = 'Martin Lichtman'
 logger = logging.getLogger(__name__)
 config = import_config()
+
 
 class AQuA(Experiment):
     """A subclass of Experiment which knows about all our particular hardware"""
@@ -94,11 +95,11 @@ class AQuA(Experiment):
     imageWithROIAnalysis = Member()
     histogramAnalysis = Member()
     histogram_grid = Member()
-    #vitalsignsound=Member()
+    # vitalsignsound=Member()
     measurements_graph = Member()
     iterations_graph = Member()
     retention_graph = Member()
-    #andor_viewer = Member()
+    # andor_viewer = Member()
     picam_viewer = Member()
     DC_noise_eater_graph = Member()
     DC_noise_eater_filter = Member()
@@ -131,7 +132,7 @@ class AQuA(Experiment):
             self.blackfly_client = BlackflyClient('BlackflyClient', self)
         self.vaunixs = vaunix.Vaunixs('vaunixs', self, 'Vaunix Signal Generator')
         self.PICams = picampython.PICams('PICams', self, 'Princeton Instruments Cameras')
-        self.DAQmxAI = nidaq_ai.NIDAQmxAI('DAQmxAI',self,'NI-DAQmx Analog Input')
+        self.DAQmxAI = nidaq_ai.NIDAQmxAI('DAQmxAI', self, 'NI-DAQmx Analog Input')
         self.NewportStage = newportstage.NewportStage('NewportStage', self, 'Newport Translation Stage')
         self.LabView = LabView.LabView(self)
         self.DDS = DDS.DDS('DDS', self, 'server for homemade DDS boxes')
@@ -140,7 +141,7 @@ class AQuA(Experiment):
         self.unlock_pause = unlock_pause.UnlockMonitor('unlock_pause', self, 'Monitor for pausing when laser unlocks')
         self.pyPicoServer = PyPicoServer('PyPicomotor', self, 'PyPico server interface for controlling closed loop picomotors')
         self.Embezzletron = FakeInstrument.Embezzletron('Embezzletron', self, 'Fake instrument that generates random data for testing')
-        self.NIScopes = niscope.NIScopes('NIScopes',self,'National Instruments Scopes')
+        self.NIScopes = niscope.NIScopes('NIScopes', self, 'National Instruments Scopes')
         # do not include functional_waveforms in self.instruments because it
         # need not start/stop
         self.instruments += [
@@ -156,7 +157,7 @@ class AQuA(Experiment):
             self.instruments += self.conexes
         if pycap:
             self.instruments += [self.blackfly_client]
-        self.instruments +=[self.LabView]  # Labview must be last at least until someone fixes the start command]
+        self.instruments += [self.LabView]  # Labview must be last at least until someone fixes the start command]
         # analyses
         self.functional_waveforms_graph = functional_waveforms.FunctionalWaveformGraph('functional_waveform_graph', self, 'Graph the HSDIO, DAQmx DO, and DAQmx AO settings')
         self.TTL_filters = TTL.TTL_filters('TTL_filters', self)
@@ -177,8 +178,8 @@ class AQuA(Experiment):
         self.measurements_graph = analysis.MeasurementsGraph('measurements_graph', self, 'plot the ROI sum vs all measurements')
         self.iterations_graph = analysis.IterationsGraph('iterations_graph', self, 'plot the average of ROI sums vs iterations')
         self.retention_graph = RetentionGraph('retention_graph', self, 'plot occurence of binary result (i.e. whether or not atoms are there in the 2nd shot)')
-        #self.andor_viewer = andor.AndorViewer('andor_viewer', self, 'show the most recent Andor image')
-        #self.picam_viewer = picam.PICamViewer('picam_viewer', self, 'show the most recent PICam image')
+        # self.andor_viewer = andor.AndorViewer('andor_viewer', self, 'show the most recent Andor image')
+        # self.picam_viewer = picam.PICamViewer('picam_viewer', self, 'show the most recent PICam image')
         self.DC_noise_eater_graph = DCNoiseEater.DCNoiseEaterGraph('DC_noise_eater_graph', self, 'DC Noise Eater graph')
         self.DC_noise_eater_filter = DCNoiseEater.DCNoiseEaterFilter('DC_noise_eater_filter', self, 'DC Noise Eater Filter')
         self.Ramsey = analysis.Ramsey('Ramsey', self, 'Fit a cosine to retention results')
@@ -186,9 +187,8 @@ class AQuA(Experiment):
         self.counter_hist = Counter.CounterHistogramAnalysis('counter_hist', self, 'Fits histograms of counter data and plots hist and fits.')
         self.save_notes = save2013style.SaveNotes('save_notes', self, 'save a separate notes.txt')
         self.save2013Analysis = save2013style.Save2013Analysis(self)
-        #self.vitalsignsound=Vitalsign('vital_sign_sound',self,'beeps when atoms are loaded')
+        # self.vitalsignsound=Vitalsign('vital_sign_sound',self,'beeps when atoms are loaded')
         self.origin = origin_interface.Origin('origin', self, 'saves selected data to the origin data server')
-
 
         # do not include functional_waveforms_graph in self.analyses because it
         # need not update on iterations, etc.
@@ -236,8 +236,8 @@ class AQuA(Experiment):
             self.evaluateAll()
         except PauseError:
             logger.warning('Loading default settings aborted in AQuA.__init__().  PauseError')
-        except Exception as e:
-            logger.warning('Loading default settings aborted in AQuA.__init__().\n{}\n{}\n'.format(e, traceback.format_exc()))
+        except:
+            logger.exception('Loading default settings aborted in AQuA.__init__().')
 
         # make sure evaluation is allowed now
         self.allow_evaluation = True
