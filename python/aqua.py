@@ -1,8 +1,6 @@
 from __future__ import division
 import logging
 
-import traceback
-
 from cs_errors import PauseError
 from atom.api import Member, Int
 
@@ -47,6 +45,7 @@ from image_sum_analysis import ImageSumAnalysis
 from threshold_analysis import ThresholdROIAnalysis
 from retention_analysis import RetentionAnalysis, RetentionGraph
 from histogram_analysis import HistogramAnalysis, HistogramGrid
+from beam_position_analysis import BeamPositionAnalysis
 
 from experiments import Experiment
 
@@ -109,6 +108,8 @@ class AQuA(Experiment):
     counter_hist = Member()
     save_notes = Member()
     save2013Analysis = Member()
+    beam_position_analysis = Member()
+    beam_position_analysis2 = Member()
     origin = Member()
     ROI_rows = Int(1)
     ROI_columns = Int(1)
@@ -157,7 +158,8 @@ class AQuA(Experiment):
             self.instruments += self.conexes
         if pycap:
             self.instruments += [self.blackfly_client]
-        self.instruments += [self.LabView]  # Labview must be last at least until someone fixes the start command]
+        # Labview must be last at least until someone fixes the start command
+        self.instruments += [self.LabView]
         # analyses
         self.functional_waveforms_graph = functional_waveforms.FunctionalWaveformGraph('functional_waveform_graph', self, 'Graph the HSDIO, DAQmx DO, and DAQmx AO settings')
         self.TTL_filters = TTL.TTL_filters('TTL_filters', self)
@@ -187,6 +189,11 @@ class AQuA(Experiment):
         self.counter_hist = Counter.CounterHistogramAnalysis('counter_hist', self, 'Fits histograms of counter data and plots hist and fits.')
         self.save_notes = save2013style.SaveNotes('save_notes', self, 'save a separate notes.txt')
         self.save2013Analysis = save2013style.Save2013Analysis(self)
+<<<<<<< HEAD
+=======
+        self.beam_position_analysis = BeamPositionAnalysis(self)
+        self.beam_position_analysis2 = BeamPositionAnalysis(self)
+>>>>>>> RbDev3
         # self.vitalsignsound=Vitalsign('vital_sign_sound',self,'beeps when atoms are loaded')
         self.origin = origin_interface.Origin('origin', self, 'saves selected data to the origin data server')
 
@@ -207,6 +214,7 @@ class AQuA(Experiment):
             self.retention_analysis, self.retention_graph,
             self.save_notes, self.save2013Analysis, self.NIScopes,
             self.counter_hist,  # self.vitalsignsound,
+            self.beam_position_analysis,self.beam_position_analysis2,
             self.origin  # origin has to be last
         ]
 
@@ -224,7 +232,7 @@ class AQuA(Experiment):
             'iterations_graph', 'retention_graph', 'DC_noise_eater_filter',
             'DC_noise_eater_graph', 'Ramsey', 'counter_graph', 'counter_hist',
             'unlock_pause', 'ROI_rows', 'ROI_columns', 'ROI_bg_rows',
-            'ROI_bg_columns', 'NIScopes',
+            'ROI_bg_columns', 'NIScopes', 'beam_position_analysis',
             'origin'
         ]
 
@@ -237,7 +245,11 @@ class AQuA(Experiment):
         except PauseError:
             logger.warning('Loading default settings aborted in AQuA.__init__().  PauseError')
         except:
+<<<<<<< HEAD
             logger.exception('Loading default settings aborted in AQuA.__init__().')
+=======
+            logger.exception('Loading default settings aborted in AQuA.__init__()')
+>>>>>>> RbDev3
 
         # make sure evaluation is allowed now
         self.allow_evaluation = True
