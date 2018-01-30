@@ -189,11 +189,8 @@ class AQuA(Experiment):
         self.counter_hist = Counter.CounterHistogramAnalysis('counter_hist', self, 'Fits histograms of counter data and plots hist and fits.')
         self.save_notes = save2013style.SaveNotes('save_notes', self, 'save a separate notes.txt')
         self.save2013Analysis = save2013style.Save2013Analysis(self)
-<<<<<<< HEAD
-=======
         self.beam_position_analysis = BeamPositionAnalysis(self)
         self.beam_position_analysis2 = BeamPositionAnalysis(self)
->>>>>>> RbDev3
         # self.vitalsignsound=Vitalsign('vital_sign_sound',self,'beeps when atoms are loaded')
         self.origin = origin_interface.Origin('origin', self, 'saves selected data to the origin data server')
 
@@ -214,7 +211,7 @@ class AQuA(Experiment):
             self.retention_analysis, self.retention_graph,
             self.save_notes, self.save2013Analysis, self.NIScopes,
             self.counter_hist,  # self.vitalsignsound,
-            self.beam_position_analysis,self.beam_position_analysis2,
+            self.beam_position_analysis, self.beam_position_analysis2,
             self.origin  # origin has to be last
         ]
 
@@ -245,11 +242,7 @@ class AQuA(Experiment):
         except PauseError:
             logger.warning('Loading default settings aborted in AQuA.__init__().  PauseError')
         except:
-<<<<<<< HEAD
             logger.exception('Loading default settings aborted in AQuA.__init__().')
-=======
-            logger.exception('Loading default settings aborted in AQuA.__init__()')
->>>>>>> RbDev3
 
         # make sure evaluation is allowed now
         self.allow_evaluation = True
