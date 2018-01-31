@@ -31,6 +31,19 @@ import origin_interface
 import FakeInstrument  # for testing
 from pypico import PyPicoServer  # for communicating with a picomotor server
 try:
+	import conex
+	conexfound=True
+except:
+	print "Conex could not be loaded. Conex translation stages will not work."
+	conexfound=False
+try:
+	import aerotech
+	aerotechfound=True
+except:
+	print "Aerotech could not be loaded. If it is needed, check that pythonnet is installed."
+	aerotechfound=False
+
+try:
     from blackfly import BlackflyClient  # communicates with Blackfly camera server
     pycap = True
 except:
