@@ -204,14 +204,16 @@ class RetentionGraph(AnalysisWithFigure):
 
                     x_label = 'iteration'
                     x_vals = []
-                    for i, ivar in enumerate(self.experiment.ivarNames):
-                        if len(self.experiment.ivarValueLists[i]) > 1:
-                            print "found iterated variable: {}".format(ivar)
-                            x_label = ivar
-                            print self.experiment.ivarValueLists[i]
-                            x_vals = self.experiment.ivarValueLists[i]
-                            break
-
+                    try:
+                        for i, ivar in enumerate(self.experiment.ivarNames):
+                            if len(self.experiment.ivarValueLists[i]) > 1:
+                                print "found iterated variable: {}".format(ivar)
+                                x_label = ivar
+                                print self.experiment.ivarValueLists[i]
+                                x_vals = self.experiment.ivarValueLists[i]
+                                break
+                    except TypeError:
+                        logger.debug("unable to iterate over {}".format(self.experiment.ivarNames))
                     if self.mean is not None:
                         # parse the list of what to plot from a string to a
                         # list of numbers
