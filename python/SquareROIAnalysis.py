@@ -202,7 +202,7 @@ class SquareROIAnalysis(ROIAnalysis):
                     self.ROI_rows,
                     self.ROI_columns
                 ))
-                measurementResults[self.meas_analysis_path] = sum_array
+                measurementResults[self.meas_analysis_path] = self.sum_array
                 self.updateFigure()
 
             # check to see if there were supposed to be images

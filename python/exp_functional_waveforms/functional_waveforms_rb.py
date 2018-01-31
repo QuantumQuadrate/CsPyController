@@ -284,7 +284,7 @@ scope_trigger_profile = {'on':1, 'off':0} # Does this work?
 scope_trigger_delay = 0
 
 ################################################################################
-# Pointgrey camera Trigger SETUP ###############################################
+# Pointgrey camera no.1 Trigger SETUP ###############################################
 ################################################################################
 pointgrey_trigger_chan = 46
 # this is the default profile, we dont have to pass it in if we dont want to
@@ -336,6 +336,15 @@ FORT_SW2_trigger_chan = 52
 FORT_SW2_trigger_profile = {'on':1, 'off':0}
 # timing delay parameter
 FORT_SW2_trigger_delay = 0
+
+################################################################################
+# Pointgrey camera no.2 Trigger SETUP ###############################################
+################################################################################
+pointgrey2_trigger_chan = 53 # 53 - 32 = 21
+# this is the default profile, we dont have to pass it in if we dont want to
+pointgrey2_trigger_profile = {'on':1, 'off':0} # Does this work?
+# timing delay parameter
+pointgrey2_trigger_delay = 0
 
 
 ################################################################################
@@ -454,8 +463,12 @@ class Rb(object):
             delay=pointgrey_trigger_delay,
             pulse_length=1 # in millisecond. this can be overwrttten in functional waveform window
         )
-
-
+        self.PGcamera2 = Camera( # Pointgret camera, standard trigger control
+            HSDIO=HSDIO,
+            channel=pointgrey2_trigger_chan,
+            delay=pointgrey2_trigger_delay,
+            pulse_length=1 # in millisecond. this can be overwrttten in functional waveform window
+        )
         self.red_pointing_aom_switch = Switch(
             HSDIO,
             red_pointing_aom_switch_chan,
@@ -503,7 +516,12 @@ class Rb(object):
             profiles=pointgrey_trigger_profile,
             delay=pointgrey_trigger_delay
         )
-
+        self.pointgrey2_trigger_switch = Switch(
+            HSDIO,
+            pointgrey2_trigger_chan,
+            profiles=pointgrey2_trigger_profile,
+            delay=pointgrey2_trigger_delay
+        )
         self.FORT_NE_trigger_switch = Switch(
             HSDIO,
             FORT_NE_trigger_chan,

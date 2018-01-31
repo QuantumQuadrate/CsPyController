@@ -138,6 +138,7 @@ class ThresholdROIAnalysis(ROIAnalysis):
             try:
                 data_path = self.ROI_source.meas_analysis_path
                 shot_array = measResults[data_path][()]
+                #logger.info(shot_array.shape)
             except (KeyError, AttributeError):
                 msg = (
                     'No measurement ROI sum data found at `{}`.'
@@ -149,6 +150,7 @@ class ThresholdROIAnalysis(ROIAnalysis):
                 # check if the roi source has the sub-measurement dimension
                 if len(shot_array.shape) < 4:
                     # if not add it
+                    logger.warning('ROI_source for threshold_analysis does not have sub-measurement support.')
                     shot_array = np.array([shot_array])
                 n_sub_meas, n_shots, n_rows, n_cols = shot_array.shape
                 threshold_array = np.zeros((n_sub_meas, n_shots, n_rows*n_cols), dtype=np.bool_)

@@ -97,7 +97,6 @@ class Prop(Atom):
 
         #go through the list of properties:
         for p in self.properties:
-
             #convert the string name to an actual object
             try:
                 o = getattr(self, p)
@@ -656,7 +655,6 @@ class ListProp(Prop):
 
         #go through the listProperty and toHDF5 each item
         for i,o in enumerate(self.listProperty):
-
             try:
             #attempt to use given name
                 name = o.name
