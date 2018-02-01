@@ -121,27 +121,27 @@ class PyPicoServer(Instrument):
             m.readPosition(self.socket)
 
     def move_motor(self, m, cmd):
-                    self.socket.send(cmd)
-                    message = self.socket.recv()
-                    if is_error_msg(message):
-                        msg = 'When moving picomotor `{}`, recieved error msg: `{}`'
-                        logger.warn(msg.format(m.motor_number, message))
-                        # TODO: check to see if the error is because it didnt
-                        # meet the setpoint, within the specified error
-                        # if that is the case try again at least once
-                        raise PauseError
-                    else:
-                        m.readPosition(self.socket)
+        self.socket.send(cmd)
+        message = self.socket.recv()
+        if is_error_msg(message):
+            msg = 'When moving picomotor `{}`, recieved error msg: `{}`'
+            logger.warn(msg.format(m.motor_number, message))
+            # TODO: check to see if the error is because it didnt
+            # meet the setpoint, within the specified error
+            # if that is the case try again at least once
+            raise PauseError
+        else:
+            m.readPosition(self.socket)
             move_error = m.desired_position.value - m.current_position
-                        msg = (
-                            'Motor `{}` moved to position `{}` with no error.'
-                            ' Positional error is `{}` DEG.'
-                        )
-                        logger.info(msg.format(
-                            m.motor_number,
-                            m.current_position,
-                move_error
-                        ))
+            msg = (
+                'Motor `{}` moved to position `{}` with no error.'
+                ' Positional error is `{}` DEG.'
+            )
+            logger.info(msg.format(
+                m.motor_number,
+                m.current_position,
+        move_error
+            ))
         done = True
         if abs(move_error) > m.max_angle_error:
             done = False

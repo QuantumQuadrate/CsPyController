@@ -186,6 +186,7 @@ class BeamPositionAnalysis(Analysis):
         sigma_x = np.std(xs)
         y = np.mean(ys)
         sigma_y = np.std(ys)
+        # Reordering has become unnecessary as we have dedicated camera for each beam
         if self.enable_reorder and (sigma_x > 0 and sigma_y > 0):
             logger.info("testing for swaps")
             # look for events where the x and y are more than 5 sigma away
