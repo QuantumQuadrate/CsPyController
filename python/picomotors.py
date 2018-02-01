@@ -18,7 +18,7 @@ import logging
 logger = logging.getLogger(__name__)
 
 from atom.api import Bool, Str, Member, Int
-from instrument_property import Prop, IntProp, ListProp
+from instrument_property import Prop, IntProp, ListProp, Float
 from cs_instruments import Instrument
 import TCP
 from cs_errors import PauseError
@@ -29,11 +29,12 @@ class Picomotor(Prop):
     motor_number = Str()
     desired_position = Member()
     current_position = Int()
+    max_angle_error = Float(0)  # necessary so I don't have to define a new enaml container
 
     def __init__(self, name, experiment, description=''):
         super(Picomotor, self).__init__(name, experiment, description)
         self.desired_position = IntProp('desired_position', experiment, 'the desired position','0')
-        self.properties += ['serial_number', 'motor_number', 'desired_position']
+        self.properties += ['serial_number', 'motor_number', 'desired_position', 'max_angle_error']
         self.current_position = self.desired_position.value
 
     def update(self):

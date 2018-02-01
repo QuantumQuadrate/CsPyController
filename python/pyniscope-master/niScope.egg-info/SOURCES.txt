@@ -1,0 +1,10 @@
+README
+niScope.py
+niScopeTypes.py
+ordered_symbols.py
+setup.py
+niScope.egg-info/PKG-INFO
+niScope.egg-info/SOURCES.txt
+niScope.egg-info/dependency_links.txt
+niScope.egg-info/top_level.txt
+test/test_niscope.py

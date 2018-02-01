@@ -43,6 +43,7 @@ class LabView(Instrument):
     piezo = Member()
     RF_generators = Member()
     AnalogOutput = Member()
+    #AnalogOutput2 = Member() # Secondary analog output instrument.
     AnalogInput = Member()
     DAQmxDO = Member()
     Counters = Member()
@@ -58,7 +59,7 @@ class LabView(Instrument):
     def __init__(self, experiment):
         super(LabView, self).__init__('LabView', experiment, 'for communicating with a LabView system')
 
-        #defaults
+        # defaults
         self.port = 0
         self.connected = False
         self.error = False
@@ -78,12 +79,12 @@ class LabView(Instrument):
 
         self.instruments = [self.HSDIO, self.piezo, self.RF_generators, self.AnalogOutput, self.AnalogInput,
                             self.Counters, self.DAQmxDO, self.camera, self.TTL]
-        
+
         self.sock = None
         self.connected = False
-        
+
         self.timeout = FloatProp('timeout', experiment, 'how long before LabView gives up and returns [s]', '1.0')
-        
+
         self.properties += ['IP', 'port', 'timeout', 'AnalogOutput', 'AnalogInput', 'HSDIO',
                             'piezo', 'RF_generators', 'DAQmxDO', 'camera', 'TTL', 'Counters', 'cycleContinuously']
         self.doNotSendToHardware += ['IP', 'port', 'enable']
@@ -146,20 +147,18 @@ class LabView(Instrument):
         hierarchy for the current measurement."""
 
         for key, value in self.results.iteritems():
-
-            #print 'key: {} value: {}'.format(key,str(value)[:40])
-
+            # print 'key: {} value: {}'.format(key,str(value)[:40])
             if key.startswith('Hamamatsu/shots/'):
-                #specific protocol for images: turn them into 2D numpy arrays
-                
-                #unpack the image in 2 byte chunks
-                #print "len(value)={}".format(len(value))
+                # specific protocol for images: turn them into 2D numpy arrays
+
+                # unpack the image in 2 byte chunks
+                # print "len(value)={}".format(len(value))
                 array = numpy.array(struct.unpack('!'+str(int(len(value)/2))+'H', value), dtype=numpy.uint16)
-                
-                #the dictionary is unpacked alphabetically, so if width and height were
-                #transmitted they should be loaded already
-                try: #if ('Hamamatsu/rows' in hdf5) and ('Hamamtsu/columns' in hdf5):
-                    array.resize((int(hdf5['Hamamatsu/rows'].value),int(hdf5['Hamamatsu/columns'].value)))
+
+                # the dictionary is unpacked alphabetically, so if width and height were
+                # transmitted they should be loaded already
+                try:  # if ('Hamamatsu/rows' in hdf5) and ('Hamamtsu/columns' in hdf5):
+                    array.resize((int(hdf5['Hamamatsu/rows'].value), int(hdf5['Hamamatsu/columns'].value)))
                 except Exception as e:
                     logger.error('unable to resize image, check for Hamamatsu row/column data:\n'+str(e))
                     raise PauseError
@@ -170,63 +169,61 @@ class LabView(Instrument):
                     raise PauseError
 
             elif key == 'TTL/data':
-                #boolean data was stored as 2 byte signed int
+                # boolean data was stored as 2 byte signed int
                 array = numpy.array(struct.unpack('!'+str(int(len(value)/2))+'h', value), dtype=numpy.bool_)
                 try:
                     dims = map(int, self.results['TTL/dimensions'].split(','))
                     array.resize(dims)
-                except Exception as e:
-                    logger.error('unable to resize TTL data, check for TTL/dimensions in returned data:\n'+str(e))
+                except:
+                    logger.exception('unable to resize TTL data, check for TTL/dimensions in returned data.')
                     raise PauseError
                 try:
                     hdf5[key] = array
-                except Exception as e:
-                    logger.error('in LabView.writeResults() doing hdf5[{}]\n{}'.format(key, e))
+                except:
+                    logger.exception('in LabView.writeResults() doing hdf5[{}]'.format(key))
                     raise PauseError
 
             elif key == 'AI/data':
-                #analog data was stored as big-endian (network order) doubles floats (8-bytes)
+                # analog data was stored as big-endian (network order) doubles floats (8-bytes)
                 array = numpy.array(struct.unpack('!'+str(int(len(value)/8))+'d', value), dtype=numpy.float64)
                 try:
                     dims = map(int, self.results['AI/dimensions'].split(','))
                     array.resize(dims)
-                except Exception as e:
-                    logger.error('unable to resize AI data, check for AI/dimensions in returned data:\n'+str(e))
+                except:
+                    logger.exception('unable to resize AI data, check for AI/dimensions in returned data.')
                     raise PauseError
                 try:
                     hdf5[key] = array
-                except Exception as e:
-                    logger.error('in LabView.writeResults() doing hdf5[{}]\n{}'.format(key, e))
+                except:
+                    logger.error('in LabView.writeResults() doing hdf5[{}]'.format(key))
                     raise PauseError
 
             elif key == 'counter/data':
-                #counter data was stored as big-endian (network order) unsigned long (4-byte) integers
+                # counter data was stored as big-endian (network order) unsigned long (4-byte) integers
                 array = numpy.array(struct.unpack('!'+str(int(len(value)/4))+'L', value), dtype=numpy.uint32)
                 try:
                     dims = map(int, self.results['counter/dimensions'].split(','))
                     array.resize(dims)
-                except Exception as e:
-                    logger.error('unable to resize counter data, check for counter/dimensions in returned data:\n'+str(e))
+                except:
+                    logger.exception('unable to resize counter data, check for counter/dimensions in returned data.')
                     raise PauseError
 
                 # take the difference of successive elements.
-                # Set the first element always to zero.  This is tested to work correctly in case of 32-bit rollover.
-                array[0] = 0
-                array[1:] = array[1:]-array[:-1]
-
-
-
+                # Set the first element always to zero.
+                # This is tested to work correctly in case of 32-bit rollover.
+                array[:, 0] = 0
+                array[:, 1:] = array[:, 1:] - array[:, :-1]
                 try:
                     hdf5[key] = array
-                except Exception as e:
-                    logger.error('in LabView.writeResults() doing hdf5[{}]\n{}'.format(key, e))
+                except:
+                    logger.exception('in LabView.writeResults() doing hdf5[{}]'.format(key))
                     raise PauseError
 
             else:
                 # no special protocol
                 try:
                     hdf5[key] = value
-                except Exception as e:
+                except:
                     logger.error('in LabView.writeResults() doing hdf5[key]=value for key='+key+'\n'+str(e))
                     raise PauseError
 
@@ -254,7 +251,7 @@ class LabView(Instrument):
                 self.connected = False
                 raise PauseError
 
-            #wait for response
+            # wait for response
             logger.debug('Labview waiting for response ...')
             try:
                 rawdata = self.sock.receive()
@@ -267,13 +264,13 @@ class LabView(Instrument):
                 self.connected = False
                 raise PauseError
 
-            #parse results
+            # parse results
             logger.debug('Parsing TCP results ...')
             results = self.sock.parsemsg(rawdata)
-            #for key, value in self.results.iteritems():
+            # for key, value in self.results.iteritems():
             #    print 'key: {} value: {}'.format(key,str(value)[:40])
 
-            #report LabView errors
+            # report LabView errors
             log = ''
             if 'log' in results:
                 log = results['log']

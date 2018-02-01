@@ -15,10 +15,10 @@ from __future__ import division
 __author__ = 'Martin Lichtman'
 import logging
 logger = logging.getLogger(__name__)
-from cs_errors import PauseError
 
 import numpy
 import h5py
+import matplotlib.animation # For showing inputs over single experiment cycle
 from atom.api import Str, Typed, Member, Bool, observe, Int
 
 from instrument_property import BoolProp, FloatProp, StrProp, IntProp, Numpy1DProp
@@ -82,6 +82,7 @@ class AI_Graph(AnalysisWithFigure):
         self.updateFigure()
 
     def updateFigure(self):
+        if self.draw_fig:
         if self.enable and (not self.update_lock):
             try:
                 self.update_lock = True
@@ -99,7 +100,8 @@ class AI_Graph(AnalysisWithFigure):
                     ax = fig.add_subplot(111)
                     for i in plotlist:
                         try:
-                            data = numpy.average(self.data[:, i[0], i[1]], axis=1)  # All measurements. Selected channel, saverage over sampels.
+                                #data = numpy.average(self.data[:, i[0], i[1]], axis=1)  # All measurements. Selected channel, saverage over sampels.
+                                data=self.data[-1, i[0], i[1]] # Show only the latest
                         except:
                             logger.warning('Trying to plot data that does not exist in AIGraph: channel {} samples {}-{}'.format(i[0], min(i[1]), max(i[1])))
                             continue

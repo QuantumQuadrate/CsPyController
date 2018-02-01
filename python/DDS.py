@@ -31,6 +31,11 @@ class DDS(TCP_Instrument):
     deviceList = Member()
     boxDescriptionList = Member()
 
+    # threading
+    dds_thread = Member()  # thread running the dds so gui is not blocked
+    restart = Member()  # threading event for communication
+    task = Member()  # signaling which task should be completed
+
     def __init__(self, name, experiment, description=''):
         super(DDS, self).__init__(name, experiment, description)
         self.boxes = ListProp('boxes', experiment, listElementType=DDSbox, listElementName='box',
@@ -40,6 +45,42 @@ class DDS(TCP_Instrument):
         self.properties += ['version', 'boxes', 'deviceList', 'boxDescriptionList']
         self.doNotSendToHardware += ['deviceList', 'boxDescriptionList']
 
+        # setup the experiment thread
+        self.restart = threading.Event()
+        self.dds_thread = threading.Thread(
+            target=self.dds_loop,
+            name='dds_thread'
+        )
+        self.dds_thread.daemon = True
+        self.dds_thread.start()
+        self.task = 'none'
+
+    def dds_loop(self):
+        """Run the dds loop sequence.
+
+        This is designed to be run in a separate thread.
+        """
+        while True:  # run forever
+            # wait for the cue to restart the dds interaction
+            self.restart.wait()
+
+            # check the task flag to see what to do
+            if self.task == 'list':
+                # get the dds devices attached
+                self.getDDSDeviceList()
+            elif self.task == 'init':
+                # reset adn load settings to dds
+                self.initializeDDS()
+            elif self.task == 'load':
+                # load the settings to the dds
+                self.loadDDS()
+            else:
+                msg = 'Unrecognized task flag `{}` encountered. Doing nothing.'
+                self.error(msg.format(self.task))
+
+            # clear the task flag
+            self.task = 'none'
+
     def evaluate(self):
         if self.experiment.allow_evaluation:
             logger.debug('DDS.evaluate()')
@@ -47,9 +88,9 @@ class DDS(TCP_Instrument):
             self.updateBoxDescriptionList()
 
     def getDDSDeviceListThread(self):
-        thread = threading.Thread(target=self.getDDSDeviceList)
-        thread.daemon = True
-        thread.start()
+        self.task = 'list'
+        self.restart.set()
+        self.restart.clear()
 
     def getDDSDeviceList(self):
         logger.info('DDS: Requesting device list ...')
@@ -57,35 +98,36 @@ class DDS(TCP_Instrument):
         deviceListStr = result['DDS/devices']
         deferred_call(setattr, self, 'deviceList', deviceListStr.split('\n'))
         logger.info('DDS: ... done.')
-    
+
     def updateBoxDescriptionList(self):
-        #sets the descriptions shown in the combo box in the GUI
+        # sets the descriptions shown in the combo box in the GUI
         try:
             deferred_call(setattr, self, 'boxDescriptionList',
                           [str(i)+' '+n.description for i, n in enumerate(self.boxes)])
         except RuntimeError:
-            #the GUI is not yet active
+            # the GUI is not yet active
             self.boxDescriptionList = [str(i)+' '+n.description for i, n in enumerate(self.boxes)]
 
     def initializeDDSThread(self):
-        thread = threading.Thread(target=self.initializeDDS)
-        thread.daemon = True
-        thread.start()
+        self.task = 'init'
+        self.restart.set()
+        self.restart.clear()
 
     def initializeDDS(self):
-        #send just the DDS settings, force initialization, and then set DDS settings
-        #This is not used as the instrument.initialize method at this time
-
+        # send just the DDS settings, force initialization, and then set DDS
+        # settings
+        # This is not used as the instrument.initialize method at this time
         logger.info('DDS: Requesting initialize and load ...')
         result = self.send('<LabView><uninitializeDDS/>'+self.toHardware()+'</LabView>')
         self.isInitialized = True
         logger.info('DDS: ... done.')
 
     def loadDDSThread(self):
-        #send just the DDS settings, initialize if neccessary, and then set DDS settings
-        thread = threading.Thread(target=self.loadDDS)
-        thread.daemon = True
-        thread.start()
+        # send just the DDS settings, initialize if neccessary, and then set
+        # DDS settings
+        self.task = 'load'
+        self.restart.set()
+        self.restart.clear()
 
     def loadDDS(self):
         """Send the current values to hardware."""
@@ -108,7 +150,7 @@ class DDSbox(Prop):
     serialClockRate = Int()
     channels = Typed(ListProp)
     DDS = Member()
-    
+
     def __init__(self, name, experiment, description='', DDS=None):
         self.DDS = DDS
         self.enable = False
@@ -120,7 +162,7 @@ class DDSbox(Prop):
                                  listProperty=[DDSchannel('channel', self.experiment) for i in range(4)],
                                  listElementType=DDSchannel, listElementName='channel')
         self.properties += ['enable', 'deviceReference', 'DIOport', 'serialClockRate', 'channels']
-    
+
     @observe('description')
     def descriptionChanged(self, change):
         self.DDS.updateBoxDescriptionList()
@@ -137,7 +179,7 @@ class DDSchannel(Prop):
     RAMDefaultPhase = Typed(FloatProp)
     profiles = Typed(ListProp)
     profileDescriptionList = Member()
-    
+
     def __init__(self, name, experiment, description=''):
         super(DDSchannel, self).__init__(name, experiment, description)
         self.power = BoolProp('power', self.experiment, 'enable RF output from this channel', 'False')
@@ -157,7 +199,7 @@ class DDSchannel(Prop):
         self.properties += ['power', 'refClockRate', 'fullScaleOutputPower', 'RAMenable', 'RAMDestType', 'RAMDefaultFrequency',
             'RAMDefaultAmplitude', 'RAMDefaultPhase', 'profiles', 'profileDescriptionList']
         self.doNotSendToHardware += ['profileDescriptionList']
-    
+
     def evaluate(self):
         if self.experiment.allow_evaluation:
             super(DDSchannel, self).evaluate()
@@ -207,7 +249,7 @@ class DDSprofile(Prop):
     RAMNumSteps = Typed(IntProp)
     RAMStaticArray = Typed(ListProp)
     channel = Member()
-    
+
     def __init__(self, name, experiment, description='', channel=None):
         self.channel = channel
         super(DDSprofile, self).__init__(name, experiment, description)
@@ -235,14 +277,14 @@ class DDSprofile(Prop):
     @observe('description')
     def descriptionChanged(self, change):
         self.channel.updateProfileDescriptionList()
-    
+
     def toHardware(self):
         """
         Override from Prop to give special formating of RAMFunction and RAMStaticArray.
         They are in doNotSendToHardware, so they will not otherwise be sent.
         """
         output = ''
-        
+
         #go through list of single properties:
         for p in self.properties: # I use a for loop instead of list comprehension so I can have more detailed error reporting.
             if p not in self.doNotSendToHardware:
@@ -252,13 +294,13 @@ class DDSprofile(Prop):
                 except:
                     logger.warning('In Prop.toHardware() for class '+self.name+': item '+p+' in properties list does not exist.\n')
                     continue
-                
+
                 output+=self.HardwareProtocol(o, p)
-        
+
         #special formatting for RAMFunction
         output += '<RAMFunction>{}\t{}\t{}\t{}</RAMFunction>'.format(self.RAMFunction.value, self.RAMInitialValue.value, self.RAMStepValue.value, self.RAMNumSteps.value)
         output += '<RAMStaticArray>{}</RAMStaticArray>'.format('\n'.join(['{}\t{}'.format(i.fPhiA, i.Mag) for i in self.RAMStaticArray]))
-        
+
         try:
             return '<{}>{}</{}>\n'.format(self.name, output, self.name)
         except Exception as e:

@@ -109,15 +109,18 @@ class Save2013Analysis(Analysis):
                     roi_sums = iterationResults['analysis/squareROIsums'].value
                     f.write('\n'.join(['\t'.join(['\t'.join([str(ROI) for ROI in shot]) for shot in shots]) for shots in roi_sums])+'\n')
 
-            #Counter Data Iteration0 (signal).txt
-            if self.experiment.counters.enable:
-                measurements = map(int, iterationResults['measurements'].keys())
-                measurements.sort()
-                data = [iterationResults['{}/data/counters/data'.format(m)].value for m in measurements]
-                for counter in xrange(len(self.experiment.counters.counters)):
-                    with open(os.path.join(self.experiment.path, 'Counter {} Data Iteration{}.txt'.format(counter, iterationResults.attrs['iteration'])), 'a') as f:
-                        f.write('Counter Data\t{}\n'.format(time.strftime('%m/%d/%Y\t%I:%M %p')))
-                        f.write('\n'.join(['\t'.join(map(str, data[m][counter])) for m in measurements])+'\n')
+            try:
+                #Counter Data Iteration0 (signal).txt
+                if self.experiment.counters.enable:
+                    measurements = map(int, iterationResults['measurements'].keys())
+                    measurements.sort()
+                    data = [iterationResults['{}/data/counters/data'.format(m)].value for m in measurements]
+                    for counter in xrange(len(self.experiment.counters.counters)):
+                        with open(os.path.join(self.experiment.path, 'Counter {} Data Iteration{}.txt'.format(counter, iterationResults.attrs['iteration'])), 'a') as f:
+                            f.write('Counter Data\t{}\n'.format(time.strftime('%m/%d/%Y\t%I:%M %p')))
+                            f.write('\n'.join(['\t'.join(map(str, data[m][counter])) for m in measurements])+'\n')
+            except Exception as e:
+                logger.warning("Exception in trying to write counter data in save2013style.py: {}".format(e))
 
     def finalize(self, experimentResults):
         if self.experiment.saveData and self.experiment.save2013styleFiles:

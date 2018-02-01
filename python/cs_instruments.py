@@ -29,7 +29,7 @@ def toBool(x):
         return bool(x)
 
 class Instrument(Prop):
-    enable = Bool()
+    enable = Bool(False)
     isInitialized = Bool()
     isDone = Bool()
     instruments = Member()
@@ -76,11 +76,11 @@ class Instrument(Prop):
         """Enables the instrument to begin a measurement.  Sent at the beginning of every measurement.
         Actual output or input from the measurement may yet wait for a signal from another device."""
         pass
-    
+
     def stop(self):
         """Stops output as soon as possible.  This is not run during the course of a normal instrument."""
         pass
-    
+
     def initialize(self):
         """Sends initialization commands to the instrument"""
         for i in self.instruments:
@@ -107,7 +107,7 @@ class TCP_Instrument(Instrument):
     """
 
     port = Member()
-    IP = Str('localhost')
+    IP = Str()
     connected = Member()
     msg = Str()
     results = Member()
@@ -130,8 +130,7 @@ class TCP_Instrument(Instrument):
         self.sock = None
         self.connected = False
 
-        # NOTE: I suspect that the python.socket documentation is wrong, and that this setting is really in [ms] not [s]
-        self.timeout = FloatProp('timeout', experiment, 'how long before TCP gives up [s]', '10.0')
+        self.timeout = FloatProp('timeout', experiment, 'how long before TCP gives up [s]', '1.0')
 
         self.properties += ['IP', 'port', 'timeout']
         self.doNotSendToHardware += ['IP', 'port', 'timeout']
@@ -209,11 +208,12 @@ class TCP_Instrument(Instrument):
                 logger.debug('TCP is not both initialized and connected.  Reinitializing TCP in {}.send().'.format(self.name))
                 self.initialize()
 
-            #display message on GUI
+            # display message on GUI
             self.set_dict({'msg': msg})
 
-            #send message
-            logger.debug('{} sending message ...'.format(self.name))
+            # send message
+            #logger.info('{} sending message ...'.format(self.name))
+            #logger.info('msg: `{}`'.format(msg))
             try:
                 self.sock.settimeout(self.timeout.value)
                 self.sock.sendmsg(msg)
@@ -226,26 +226,26 @@ class TCP_Instrument(Instrument):
                 self.connected = False
                 raise PauseError
 
-            #wait for response
-            logger.debug('{} waiting for response ...'.format(self.name))
+            # wait for response
+            logger.info('{} waiting for response ...'.format(self.name))
             try:
                 rawdata = self.sock.receive()
             except IOError as e:
                 logger.warning('Timeout while waiting for return data in {}.send():\n{}\n'.format(self.name, e))
                 self.connected = False
                 raise PauseError
-            except Exception as e:
-                logger.warning('Exception in {}.sock.receive:\n{}\n{}\n'.format(self.name, e, traceback.format_exc()))
+            except:
+                logger.exception('Exception in {}.sock.receive.')
                 self.connected = False
                 raise PauseError
 
-            #parse results
-            logger.debug('Parsing TCP results ...')
+            # parse results
+            logger.info('Parsing TCP results ...')
             results = self.sock.parsemsg(rawdata)
-            #for key, value in self.results.iteritems():
+            # for key, value in self.results.iteritems():
             #    print 'key: {} value: {}'.format(key,str(value)[:40])
 
-            #report server errors
+            # report server errors
             log = ''
             if 'log' in results:
                 log = results['log']
