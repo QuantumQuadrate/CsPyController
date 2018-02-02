@@ -10,7 +10,7 @@ created = '2017.09.06'
 """
 
 import logging
-from atom.api import Bool, Str, Float, Member
+from atom.api import Bool, Str, Float, Member, List
 from analysis import Analysis
 import numpy as np
 import os.path
@@ -31,8 +31,8 @@ class BeamPositionAnalysis(Analysis):
     enable_reorder = Bool(False)
     meas_analysis_path = Str('analysis/positions/')
     iter_analysis_path = Str('analysis/iter_positions/')
-    meas_error_path = Str()
-    positions_path = Str()
+    meas_error_paths = List()
+    positions_paths = List()
     setpoint_X = Float(0.0)
     setpoint_Y = Float(0.0)
     calibration_X = Float(1.0)
@@ -53,7 +53,7 @@ class BeamPositionAnalysis(Analysis):
             'Error signal and feedback for beam position'
         )
         # set up with the default configuration
-        self.set_position_path()
+        self.set_position_paths()
         self.initialize_positions()
         self.position_iter_stat = {
             'x': 0, 'y': 0, 'sigma_x': 0, 'sigma_y': 0,
@@ -69,29 +69,31 @@ class BeamPositionAnalysis(Analysis):
             'enable_reorder', 'meas_analysis_path', 'iter_analysis_path'
         ]
 
-    def set_position_path(self, section='AAS', datagroup='Camera0DataGroup'):
+    def set_position_paths(self, section='AAS', datagroup='Camera0DataGroup'):
         '''Sets the hdf5 source of the input data for alignment feedback'''
         # location of position data in hdf5
-        positions_path = 'data/'
+        positions_path_base = 'data/'
         try:
-            positions_path += self.experiment.Config.config.get(section, datagroup)
+            positions_paths = self.experiment.Config.config.get(section, datagroup)
         except:
             msg = 'ConfigParser was unable to find entry: `{}.{}`. Disabling module.'
             logger.exception(msg.format(section, datagroup))
             self.enable = False
-        else:
-            # Center finding function can be implemented within BeamPositionAnalysis,
-            # in case it has access to raw data.
-            self.meas_error_path = os.path.dirname(positions_path) + '/error'
-            self.positions_path = positions_path
+            return
+
+        positions_paths = positions_paths.split(',')
+        # Center finding function can be implemented within BeamPositionAnalysis,
+        # in case it has access to raw data.
+        self.meas_error_paths = [positions_path_base + os.path.dirname(path) + '/error' for path in positions_paths]
+        self.positions_paths = [positions_path_base + path for path in positions_paths]
 
     def initialize_positions(self):
         # stores positions from each measurement for an iteration
         self.positions = {
             'valid_cnt': 0,
-            'x': np.array([]),
+            'x': np.array([]), # relative position
             'y': np.array([]),
-            'x0': np.array([]),
+            'x0': np.array([]), #absolute positions
             'y0': np.array([]),
             'x1': np.array([]),
             'y1': np.array([]),
@@ -110,54 +112,52 @@ class BeamPositionAnalysis(Analysis):
         np.append(self.positions['y'], y)
         self.positions['valid_cnt'] += 1
 
-    def append_beam_position_data(self, data):
+    def append_beam_position_data(self, data, i):
         '''Extract position data from the pre-calculated stat data group'''
         # every append operation on an np array requires reallocation
         # of memory, so maybe we should try to not do all these appends
-        self.positions['x0'] = np.append(
-            self.positions['x0'],
+        try:
+            assert(i in [0, 1])
+        except:
+            logger.error('Too many shots detected for beam position analysis.')
+            return
+
+        self.positions['x{}'.format(i)] = np.append(
+            self.positions['x{}'.format(i)],
             data['X0'][()]
         )
-        self.positions['y0'] = np.append(
-            self.positions['y0'],
-            ['Y0'][()]
+        self.positions['y{}'.format(i)] = np.append(
+            self.positions['y{}'.format(i)],
+            data['Y0'][()]
         )
-        self.positions['x1'] = np.append(
-            self.positions['x1'],
-            data['X1'][()]
-        )
-        self.positions['y1'] = np.append(
-            self.positions['y1'],
-            data['Y1'][()]
-        )
-        self.positions['x'] = np.append(
-            self.positions['x'],
-            self.positions['x1'] - self.positions['x0']
-        )
-        self.positions['y'] = np.append(
-            self.positions['y'],
-            self.positions['y1'] - self.positions['y0']
-        )
-        self.positions['valid_cnt'] += 1
+        if i == 1:
+            if self.experiment.Config.config.get('EXPERIMENT', 'Name') == 'Rb':
+                self.positions['x'] = self.positions['x1'] + self.positions['x0']
+            else:
+                self.positions['x'] = self.positions['x1'] - self.positions['x0']
+            self.positions['y'] = self.positions['y1'] - self.positions['y0']
+            self.positions['valid_cnt'] += 1
+            #print(self.positions)
 
     def analyzeMeasurement(self, measResults, iterResults, expResults):
         if self.enable:
             # check that the data exists and it is valid
-            if self.positions_path in measResults:
-                data = measResults[self.positions_path]
-                # if the data is a raw image we have to process it
-                if isinstance(data, h5py.Dataset) and len(data.shape) == 2:
-                    self.calc_beam_position(data.value)
-                # if the data is alreay processed, check if it is valid
-                elif self.meas_error_path in measResults:
-                    if measResults[self.meas_error_path][()] == 0:
-                        self.append_beam_position_data(data)
+            for i, path in enumerate(self.positions_paths):
+                if path in measResults:
+                    data = measResults[path]
+                    # if the data is a raw image we have to process it
+                    if isinstance(data, h5py.Dataset) and len(data.shape) == 2:
+                        self.calc_beam_position(data.value)
+                    # if the data is alreay processed, check if it is valid
+                    elif self.meas_error_paths[i] in measResults:
+                        if measResults[self.meas_error_paths[i]].value == 0:
+                            self.append_beam_position_data(data, i)
+                        else:
+                            logger.error('Position measurements at `{}` are not valid.'.format(path))
                     else:
-                        logger.error('Position measurements are not valid.')
+                        logger.error("Positions found in measurementResults[{}], but format didn't match expectations.".format(path))
                 else:
-                    logger.error("Positions found in measurementResults, but format didn't match expectations.")
-            else:
-                logger.error("Unable to find positions in measurementResults.")
+                    logger.error("Unable to find positions in measurementResults[{}].".format(path))
 
     def savetohdf5(self, iterationResults):
         for key in self.position_iter_stat:
@@ -182,10 +182,12 @@ class BeamPositionAnalysis(Analysis):
     def calculateError(self):
         xs = self.positions['x']
         ys = self.positions['y']
-        x = np.mean(xs)
-        sigma_x = np.std(xs)
-        y = np.mean(ys)
-        sigma_y = np.std(ys)
+        #print(xs)
+        #print(ys)
+        x = np.nanmean(xs)
+        sigma_x = np.nanstd(xs)
+        y = np.nanmean(ys)
+        sigma_y = np.nanstd(ys)
         # Reordering has become unnecessary as we have dedicated camera for each beam
         if self.enable_reorder and (sigma_x > 0 and sigma_y > 0):
             logger.info("testing for swaps")
@@ -212,7 +214,7 @@ class BeamPositionAnalysis(Analysis):
         self.position_iter_stat['error_x'] = error_x
         error_y = (y - self.setpoint_Y) * self.calibration_Y
         self.position_iter_stat['error_y'] = error_y
-        print self.position_iter_stat
+        #print self.position_iter_stat
 
     def find_ivar(self, ivar_name):
         for ivar in self.experiment.independentVariables:

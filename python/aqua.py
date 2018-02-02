@@ -192,7 +192,7 @@ class AQuA(Experiment):
         self.beam_position_analysis = BeamPositionAnalysis(self)
         self.beam_position_analysis2 = BeamPositionAnalysis(self)
         # setup path for second beam position analysis
-        self.beam_position_analysis2.set_position_path(datagroup='Camera1DataGroup')
+        self.beam_position_analysis2.set_position_paths(datagroup='Camera1DataGroup')
         # self.vitalsignsound=Vitalsign('vital_sign_sound',self,'beeps when atoms are loaded')
         self.origin = origin_interface.Origin('origin', self, 'saves selected data to the origin data server')
 
