@@ -20,12 +20,8 @@ from analysis import Analysis
 logger = logging.getLogger(__name__)
 
 
-
-
 class AQuAAIAnalysis(Analysis):
-    """Add up the sums of pixels in a region, and evaluate whether or not an
-    atom is present based on the totals.
-    """
+    """Perform preprocessing on raw analog input data before sending to origin server."""
 
     version = '2018.02.01'
 
