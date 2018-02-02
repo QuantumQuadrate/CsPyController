@@ -29,7 +29,6 @@ class AQuAAIAnalysis(Analysis):
 
     version = '2018.02.01'
 
-
     def __init__(self, experiment):
         super(AQuAAIAnalysis, self).__init__(
             'AQuAAIAnalysis',
@@ -38,12 +37,14 @@ class AQuAAIAnalysis(Analysis):
         )
         if self.experiment.Config.config.get('EXPERIMENT', 'Name') == 'AQUA':
             self.enable = True
-
+        else:
+            self.enable = False
 
     def analyzeMeasurement(self, measResults, iterationResults, experimentResults):
-        raw_data = measResults['data/AI/data'].value
-        Bx = np.nanmean(raw_data[0])
-        By = np.nanmean(raw_data[1])
-        Bz = np.nanmean(raw_data[2])
-        processed_data = [Bx,By,Bz]
-        measResults['analysis/processed_AI/data'] = processed_data
+        if self.enable:
+            raw_data = measResults['data/AI/data'].value
+            Bx = np.nanmean(raw_data[0])
+            By = np.nanmean(raw_data[1])
+            Bz = np.nanmean(raw_data[2])
+            processed_data = [Bx, By, Bz]
+            measResults['analysis/processed_AI/data'] = processed_data

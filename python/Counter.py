@@ -365,7 +365,7 @@ class CounterHistogramAnalysis(AnalysisWithFigure):
                             ax.plot(h[1][1:]-.5, self.dblgauss(h[1][1:], *popts[i]))
                             if i == 1:
                                 ax.set_yscale('log', nonposy='clip')
-                                ax.set_ylim(0.001, 1)
+                                ax.set_ylim(10**int(-np.log10(len(shots[i]))), 1)
                             else:
                                 ax.set_ylim(0, 1.05*np.max(h[0]))
 
