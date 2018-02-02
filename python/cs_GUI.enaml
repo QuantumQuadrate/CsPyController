@@ -1707,9 +1707,9 @@ enamldef Andors(Window):
                         #CheckBox:
                         #    checked := andors.enable
                         
-                    IndexedContainer:
-                        iterable << andors.motors
-                        viewType = Andor
+                IndexedContainer:
+                    iterable << andors.motors
+                    viewType = Andor
 
 enamldef Andor(Form):
     attr item
@@ -1780,10 +1780,10 @@ enamldef Andor(Form):
                     Label:
                         text := 'Maximum Pixel Value: {}, Mean Pixel Value: {}'.format(item.analysis.maxPixel,item.analysis.meanPixel)
                 HGroup:
-                EvalProp:
-                        prop << item.camera.EMCCDGain
-                EvalProp:
-                        prop << item.camera.exposureTime
+                    EvalProp:
+                            prop << item.camera.EMCCDGain
+                    EvalProp:
+                            prop << item.camera.exposureTime
                 HGroup:
                     padding = 0
                     Label:
@@ -1812,13 +1812,13 @@ enamldef Andor(Form):
                         items = ['EM Gain Mode: DAC 0-255', 'EM Gain Mode: DAC 0-4095', 'EM Gain Mode: Linear', 'EM Gain Mode: Real EM Gain']
                         index := item.camera.EMGainMode
                 HGroup:
-                EvalProp:
-                        prop<<item.camera.shotsPerMeasurement
-                Form:
-                    Label:
-                        text = 'shot'
-                    SpinBox: shot:
-                        minimum=0
+                    EvalProp:
+                            prop<<item.camera.shotsPerMeasurement
+                    Form:
+                        Label:
+                            text = 'shot'
+                        SpinBox: shot:
+                            minimum=0
                             value := item.analysis.shot
                 HGroup:
                     EvalProp:
@@ -1868,7 +1868,7 @@ enamldef Blackfly(Form):
             Container:
                 style_class << 'valid' if experiment.valid else 'invalid'
                 LabelBox:
-                            text = 'enable'
+                    text = 'enable'
                     checked := item.camera.enable
 
                 #HGroup:
@@ -1876,10 +1876,10 @@ enamldef Blackfly(Form):
                   #      figure << item.analysis.figure
                   #      toolbar_visible = True
                 HGroup:
-                        Label:
+                    Label:
                         text = 'serialNumber'
-                    IntField:
-                        value := item.camera.serial
+                IntField:
+                    value := item.camera.serial
 
 
 enamldef DAQmxAI(Window):
@@ -1889,34 +1889,34 @@ enamldef DAQmxAI(Window):
     style_class << 'valid' if experiment.valid else 'invalid'
     Container:
         padding = 10
-                    Form:
-                        Label:
-                            text = 'enable'
-                        CheckBox:
-                checked := NIDAQmxAI.enable
-        EvalProp:
-            prop << NIDAQmxAI.DeviceName
-        EvalProp:
-            prop << NIDAQmxAI.chanList
-        EvalProp:
-            prop << NIDAQmxAI.sample_rate
-        EvalProp:
-            prop << NIDAQmxAI.samples_per_measurement
-        EvalProp:
-            prop << NIDAQmxAI.waitForStartTrigger
-        EvalProp:
-            prop << NIDAQmxAI.triggerSource
-        EvalProp:
-            prop << NIDAQmxAI.triggerEdge
-                        Label:
-            text << NIDAQmxAI.outputstring
         Form:
             Label:
-                text = 'Apply formula to values'
+                text = 'enable'
             CheckBox:
-                checked := NIDAQmxAI.applyFormula
-        MultilineField: field:
-            text := NIDAQmxAI.formula
+                checked := NIDAQmxAI.enable
+            EvalProp:
+                prop << NIDAQmxAI.DeviceName
+            EvalProp:
+                prop << NIDAQmxAI.chanList
+            EvalProp:
+                prop << NIDAQmxAI.sample_rate
+            EvalProp:
+                prop << NIDAQmxAI.samples_per_measurement
+            EvalProp:
+                prop << NIDAQmxAI.waitForStartTrigger
+            EvalProp:
+                prop << NIDAQmxAI.triggerSource
+            EvalProp:
+                prop << NIDAQmxAI.triggerEdge
+            Label:
+                text << NIDAQmxAI.outputstring
+            Form:
+                Label:
+                    text = 'Apply formula to values'
+                CheckBox:
+                    checked := NIDAQmxAI.applyFormula
+            MultilineField: field:
+                text := NIDAQmxAI.formula
 
 enamldef NewportStage(Window):
     attr newportstage
@@ -1935,14 +1935,14 @@ enamldef NewportStage(Window):
                     hug_width = 'strong'
                     hug_height = 'strong'
         Label:
-                        text = 'enable'
+            text = 'enable'
         CheckBox:
-                        checked := newportstage.enable
+            checked := newportstage.enable
         EvalProp:
-                        prop << newportstage.comport
-                    PushButton: Move:
-                        text = 'Move Now'
-                        clicked :: newportstage.moveStage()
+            prop << newportstage.comport
+        PushButton: Move:
+            text = 'Move Now'
+            clicked :: newportstage.moveStage()
         EvalProp:
                         prop << newportstage.setposition
         Label:
@@ -2099,16 +2099,16 @@ enamldef PICams(Window):
             Container:
                 style_class << 'valid' if experiment.valid else 'invalid'
 
-                Container:
+            Container:
                 hug_width = 'strong'
-    hug_height = 'strong'
-                    Form:
-    hug_width = 'strong'
-                        hug_height = 'strong'
+                hug_height = 'strong'
+            Form:
+                hug_width = 'strong'
+                hug_height = 'strong'
 
-                    IndexedContainer:
-                        iterable << picams.motors
-                        viewType = Picam
+            IndexedContainer:
+                iterable << picams.motors
+                viewType = Picam
 
 enamldef Picam(Form):
     attr item
@@ -2179,32 +2179,32 @@ enamldef Picam(Form):
                         text := 'Camera Serial Number: {}'.format(str(item.camera.currentSerial))
                     #Label:
                     #    text := 'CCD Temperature (C): {:.4}'.format(item.camera.temperature)
-                    Label:
+            Label:
                         text := 'Maximum Pixel Value: {}, Mean Pixel Value: {}'.format(item.analysis.maxPixel,item.analysis.meanPixel)
-                LabelBox:
-                    text = 'enable'
-                    checked := item.camera.enable
-                EvalProp:
-                    prop << item.camera.AdcEMGain
+            LabelBox:
+                text = 'enable'
+                checked := item.camera.enable
+            EvalProp:
+                prop << item.camera.AdcEMGain
+            ComboBox:
+                items = ['Low Analog Gain', 'Medium Analog Gain', 'High Analog Gain']
+                index := item.camera.AdcAnalogGain
+            EvalProp:
+                prop << item.camera.exposureTime
+            HGroup:
+                padding = 0
                 ComboBox:
-                    items = ['Low Analog Gain', 'Medium Analog Gain', 'High Analog Gain']
-                    index := item.camera.AdcAnalogGain
-                EvalProp:
-                    prop << item.camera.exposureTime
-                HGroup:
-                    padding = 0
-                    ComboBox:
-                        items = ['Rising Edge', 'Falling Edge', 'Level', 'Auto']
-                        index := item.camera.triggerMode
-                    ComboBox:
-                        items = ['Shutter Normal', 'Shutter Always Closed', 'Shutter Always Open', 'Shutter Open Before Trigger']
-                        index := item.camera.shutterMode
-                    ComboBox:
-                        items = ['Bin Mode: 1x1', 'Bin Mode: 2x2', 'Bin Mode: 4x4']
-                        index := item.camera.binMode
-                    ComboBox:
-                        items = ['Readout Control: Dual Imaging', 'Readout Control: Frame Transfer', 'Readout Control: Full Frame', 'Readout Control: Kinetics', 'Readout Control: Spectra Kinetics']
-                        index := item.camera.ReadoutControl
+                    items = ['Rising Edge', 'Falling Edge', 'Level', 'Auto']
+                    index := item.camera.triggerMode
+                ComboBox:
+                    items = ['Shutter Normal', 'Shutter Always Closed', 'Shutter Always Open', 'Shutter Open Before Trigger']
+                    index := item.camera.shutterMode
+                ComboBox:
+                    items = ['Bin Mode: 1x1', 'Bin Mode: 2x2', 'Bin Mode: 4x4']
+                    index := item.camera.binMode
+                ComboBox:
+                    items = ['Readout Control: Dual Imaging', 'Readout Control: Frame Transfer', 'Readout Control: Full Frame', 'Readout Control: Kinetics', 'Readout Control: Spectra Kinetics']
+                    index := item.camera.ReadoutControl
                 #HGroup:
                     #padding = 0
                     #ComboBox:
@@ -2351,25 +2351,25 @@ enamldef AnalogInput(Window):
                 # filter
                 GroupBox:
                     title = 'Analog Input Filter'
-                        Form:
-                            Label:
-                            text = 'enable'
-                            CheckBox:
-                            checked := filters.enable
+                Form:
+                    Label:
+                        text = 'enable'
+                    CheckBox:
+                        checked := filters.enable
 
-                            Label:
-                            text = 'What to filter: a string representing a list of [(channel,samples_list,low,high), ...]\nSamples in samples_list will be averaged.'
-                        Field:
-                            text := filters.what_to_filter
+                    Label:
+                        text = 'What to filter: a string representing a list of [(channel,samples_list,low,high), ...]\nSamples in samples_list will be averaged.'
+                    Field:
+                        text := filters.what_to_filter
 
-                            Label:
-                            text = 'filter level'
-                        ComboBox:
-                            items = ['None: increment measurement total',
+                    Label:
+                        text = 'filter level'
+                    ComboBox:
+                        items = ['None: increment measurement total',
                                      'soft: continue with other analyses, but do not increment measurement total',
                                      'med: continue with other analyses, do not increment measurement total, and delete measurement data after all analyses',
                                      'hard: do not continue with other analyses, do not increment measurement total, delete measurement data']
-                            index := filters.filter_level
+                        index := filters.filter_level
 
                         Label:
                             text = 'Status'
@@ -2379,26 +2379,26 @@ enamldef AnalogInput(Window):
                 # cumulative plot of noise eater data
                 GroupBox:
                     title = 'Analog Input plots'
-                        Form:
-                            Label:
-                                text = 'enable'
-                            CheckBox:
+                    Form:
+                        Label:
+                            text = 'enable'
+                        CheckBox:
                             checked := analysis.enable
-                            Label:
+                        Label:
                             text = 'draw fig'
-                            CheckBox:
+                        CheckBox:
                             checked := analysis.draw_fig
-                            Label:
+                        Label:
                             text = 'specify what to graph with a list of tuples: [(channel,samples_list),(channel, samples_list)...]\nSamples in samples_list will be averaged.'
-                            Field:
+                        Field:
                             text := analysis.list_of_what_to_plot
-                            PushButton:
-                        text = 'clear'
-                        clicked :: analysis.clear()
-                    MPLCanvas: canvas:
-                        constraints=[(height==500)|'strong']
-                        hug_width='ignore'
-                        figure << analysis.figure
+                        PushButton:
+                            text = 'clear'
+                            clicked :: analysis.clear()
+                MPLCanvas: canvas:
+                    constraints=[(height==500)|'strong']
+                    hug_width='ignore'
+                    figure << analysis.figure
 
 
 enamldef Counters(Window):
@@ -3210,11 +3210,11 @@ enamldef HistogramGrid(Window):
                         text = 'calculate new cutoffs'
                     CheckBox:
                         checked := analysis.calculate_new_cutoffs
-                            Label:
+                    Label:
                         text = 'automatically use new cutoffs'
                     CheckBox:
                         checked := analysis.automatically_use_cutoffs
-                        Label:
+                    Label:
                         text = 'cutoff shot mapping list: [shot 0, shot 1, ...] (i.e. [1, 1] to always use shot 1 cutoffs)'
                     Field:
                         text := analysis.cutoff_shot_mapping
@@ -3241,7 +3241,7 @@ enamldef MeasurementsGraph(Window):
 
                 HGroup:
                     align_widths = False
-                        Label:
+                    Label:
                         text = 'enable'
                     CheckBox:
                         checked := analysis.enable
@@ -3293,7 +3293,7 @@ enamldef IterationsGraph(Window):
                         text = 'draw_fig'
                     CheckBox:
                         checked := analysis.draw_fig
-    Label: l0:
+                    Label: l0:
                         text = 'draw connecting lines'
                     CheckBox: cb0:
                         checked := analysis.draw_connecting_lines
@@ -3332,46 +3332,47 @@ enamldef RetentionGraph(Window):
             Container:
                 style_class << 'valid' if experiment.valid else 'invalid'
 
-                    Form:
-                        Label:
+                Form:
+                    Label:
                         text = 'specify regions to graph with a list: [region1, region2]'
                     Field:
                         text := analysis.list_of_what_to_plot
                 HGroup:
                     align_widths = False
                     Label: l5:
-                            text = 'enable'
+                        text = 'enable'
                     CheckBox: cb5:
-                            checked := analysis.enable
+                        checked := analysis.enable
                     Label:
                         text = 'draw_fig'
                     CheckBox:
                         checked := analysis.draw_fig
-                        Label: l0:
+                    Label: l0:
                         text = 'draw connecting lines'
                     CheckBox: cb0:
                         checked := analysis.draw_connecting_lines
-                        Label: l1:
+                    Label: l1:
                         text = 'draw error bars (1 sigma binomial std dev of mean using normal approximation)'
                     CheckBox: cb1:
                         checked := analysis.draw_error_bars
-                        Label: l2:
+                    Label: l2:
                         text = 'only add data that has passed loading filter'
                     CheckBox: cb2:
                         checked := analysis.add_only_filtered_data
-                        Label: l3:
+                    Label: l3:
                         text = 'plot ymin'
                     Field: f3:
                         placeholder='blank for autolimit'
                         text := analysis.ymin
-                        Label: l4:
+                    Label: l4:
                         text = 'plot ymax'
                     Field: f4:
                         placeholder='blank for autolimit'
                         text := analysis.ymax
                 MPLCanvas:
                     figure<<analysis.figure
-
+                    
+                    
 enamldef CounterGraph(Window):
     attr analysis
 
@@ -3727,26 +3728,26 @@ enamldef Vaunix(Container):
     Container:
         hug_width = 'strong'
         hug_height = 'strong'
-                    Label:
+        Label:
             text := 'Model: {}, Serial Number: {}, DLL ID: {}'.format(item.model,item.serial, item.ID)
         EvalProp: Frequency:
             prop << item.frequency
         EvalProp: Power:
             prop << item.power
         Form:
-                hug_width = 'strong'
-                hug_height = 'strong'
-                    Label:
-                    text = 'RF enabled'
-                CheckBox: RFonoff:
-                    checked := item.rfonoff
+            hug_width = 'strong'
+            hug_height = 'strong'
+        Label:
+            text = 'RF enabled'
+        CheckBox: RFonoff:
+            checked := item.rfonoff
         Form:
-                hug_width = 'strong'
-                hug_height = 'strong'
-                    Label:
-                    text = 'Use Internal Reference (External 10 MHz reference if Unchecked)'
-                CheckBox: internalref:
-                    checked := item.internalref
+            hug_width = 'strong'
+            hug_height = 'strong'
+        Label:
+            text = 'Use Internal Reference (External 10 MHz reference if Unchecked)'
+        CheckBox: internalref:
+            checked := item.internalref
         Container:
             Label:
                 text = 'Pulse Modulation Mode'
@@ -3787,15 +3788,15 @@ enamldef Vaunix(Container):
             Form:
                 hug_width = 'strong'
                 hug_height = 'strong'
-                    Label:
-                    text = 'Sweep Positive (Negative if Unchecked)'
+            Label:
+                text = 'Sweep Positive (Negative if Unchecked)'
                 CheckBox: SweepDir:
                     checked := item.sweepdir
             Form:
                 hug_width = 'strong'
                 hug_height = 'strong'
-                    Label:
-                    text = 'Enable Bidirectional Sweep (Unidirectional if Unchecked)'
+            Label:
+                text = 'Enable Bidirectional Sweep (Unidirectional if Unchecked)'
                 CheckBox: SweepType:
                     checked := item.sweeptype
             Form:
@@ -3828,16 +3829,16 @@ enamldef Vaunixs(Window):
                 Form:
                         hug_width = 'strong'
                         hug_height = 'strong'
-                    Label:
-                        text = 'enable'
-                        CheckBox:
-                            checked := vaunixs.enable
-                        PushButton: Detect:
-                            text = 'Detect Signal Generators'
-                            clicked :: vaunixs.detect_generators()
-                    IndexedContainer:
-                        iterable << vaunixs.motors
-                        viewType = Vaunix
+                Label:
+                    text = 'enable'
+                    CheckBox:
+                        checked := vaunixs.enable
+                    PushButton: Detect:
+                        text = 'Detect Signal Generators'
+                        clicked :: vaunixs.detect_generators()
+                IndexedContainer:
+                    iterable << vaunixs.motors
+                    viewType = Vaunix
 
 
 
@@ -3852,10 +3853,10 @@ enamldef AerotechGlobal(GroupBox):
 
     HGroup: variable:
                     align_widths = False
-        Label:
-            text << list_index
-        EvalProp:
-            prop << aglobal
+    Label:
+        text << list_index
+    EvalProp:
+        prop << aglobal
 
 
 
@@ -3893,9 +3894,9 @@ enamldef Aerotechs(Window):
                         #PushButton:
                         #    text = 'Launch Server'
                         #    clicked :: aerotechs.launchServer()
-                        PushButton:
-                            text = 'Update Values'
-                            clicked :: aerotechs.parUpdate()
+                    PushButton:
+                        text = 'Update Values'
+                        clicked :: aerotechs.parUpdate()
 
                     #'''Container:
                     #    hug_width='strong'
@@ -3933,11 +3934,11 @@ enamldef Aerotechs(Window):
                                 clicked::
                                     aerotechs.OneAerotech.globals.pop(spin0.value)
 
-                    RefreshableLooper:
-                        iterable<<aerotechs.OneAerotech.globals
-                        AerotechGlobal:
-                            aglobal << loop_item
-                            list_index << str(loop_index)
+                RefreshableLooper:
+                    iterable<<aerotechs.OneAerotech.globals
+                    AerotechGlobal:
+                        aglobal << loop_item
+                        list_index << str(loop_index)
 
 enamldef Aerotech(Container):
     attr item
@@ -3988,12 +3989,12 @@ enamldef Conexes(Window):
                     hug_width = 'strong'
                     hug_height = 'strong'
                 Form:
-                        hug_width = 'strong'
-                        hug_height = 'strong'
-                    Label:
-                            text = 'enable'
-                    CheckBox:
-                            checked := conexes.enable
+                    hug_width = 'strong'
+                    hug_height = 'strong'
+                Label:
+                    text = 'enable'
+                CheckBox:
+                    checked := conexes.enable
                         #Label:
                         #    text = 'IP Address'
                         #Field:
@@ -4005,9 +4006,9 @@ enamldef Conexes(Window):
                         #PushButton:
                         #    text = 'Launch Server'
                         #    clicked :: conexes.launchServer()
-                        PushButton:
-                            text = 'Update Values'
-                            clicked :: conexes.preIteration(0, 0)
+                    PushButton:
+                        text = 'Update Values'
+                        clicked :: conexes.preIteration(0, 0)
 
                     IndexedContainer:
                         iterable << conexes.motors
@@ -4023,7 +4024,7 @@ enamldef Conex(Container):
         hug_width = 'strong'
         hug_height = 'strong'
         Form:
-                        Label:
+            Label:
                 text = 'enable'
             CheckBox:
                 checked := item.enable
@@ -4038,7 +4039,7 @@ enamldef Conex(Container):
         #    clicked :: item.launchServer()
         EvalProp:
             prop << item.SetPos
-                        Label:
+        Label:
             text = 'Velocity: '
         CheckBox:
             checked := item.enableVel            
@@ -4046,7 +4047,7 @@ enamldef Conex(Container):
             prop << item.Vel     
         EvalProp:
             prop << item.Threshold
-                    Label:
+        Label:
             text << "Most recent position: {} mm".format(item.curpos)
 
 
@@ -4162,31 +4163,50 @@ enamldef Noise_Eaters(Window):
 
 
     title = 'Noise Eaters'
-    checked := noise_eaters.enable
+    style_class << 'valid' if experiment.valid else 'invalid'
+    Container:
+        padding = 0
+        style_class << 'valid' if experiment.valid else 'invalid'
+        ScrollArea:
+            style_class << 'valid' if experiment.valid else 'invalid'
+            Container:
+                style_class << 'valid' if experiment.valid else 'invalid'
 
-    IndexedContainer:
-        iterable << noise_eaters.pis
-        viewType = Noise_Eater
-                        
-        # cumulative plot of noise eater data
-        GroupBox:
-            title = 'Noise Eater plots'
-            Form:
-                Label:
-                    text = 'enable'
-                CheckBox:
-                    checked := analysis.enable
-                Label:
-                    text = 'specify pi and channel number'
-                Field:
-                    text := analysis.list_of_what_to_plot
-            PushButton:
-                text = 'clear'
-                clicked :: analysis.clear()
-            MPLCanvas: canvas:
-                constraints=[(height==500)|'strong']
-                hug_width='ignore'
-                figure << analysis.figure
+                Container:
+                    hug_width = 'strong'
+                    hug_height = 'strong'
+                    Form:
+                        hug_width = 'strong'
+                        hug_height = 'strong'
+                        Label:
+                            text = 'enable'
+                        CheckBox:
+                            checked := noise_eaters.enable
+
+                    IndexedContainer:
+                        iterable << noise_eaters.pis
+                        viewType = Noise_Eater                                            
+                                                                                            
+                # cumulative plot of noise eater data
+                GroupBox:
+                    title = 'Noise Eater plots'
+                    Form:
+                        Label:
+                            text = 'enable'
+                        CheckBox:
+                            checked := analysis.enable
+                        Label:
+                            text = 'specify pi and channel number'
+                        Field:
+                            text := analysis.list_of_what_to_plot
+                    PushButton:
+                        text = 'clear'
+                        clicked :: analysis.clear()
+                    MPLCanvas: canvas:
+                        constraints=[(height==500)|'strong']
+                        hug_width='ignore'
+                        figure << analysis.figure
+
 
 
 enamldef BILTcard(Container):
@@ -4215,33 +4235,37 @@ enamldef BILTcards(Window):
     attr BILT
 
     title = 'BILTcards'
-    
-    ScrollArea:
+    style_class << 'valid' if experiment.valid else 'invalid'
+    Container:
+        padding = 0
         style_class << 'valid' if experiment.valid else 'invalid'
-        Container:
+        ScrollArea:
             style_class << 'valid' if experiment.valid else 'invalid'
             Container:
-            hug_width = 'strong'
-            hug_height = 'strong'
-            Form:
-                hug_width = 'strong'
-                hug_height = 'strong'
-                Label:
-                    text = 'enable'
-                CheckBox:
-                    checked := BILT.enable
-                Label:
-                    text = 'IP Address'
-                Field:
-                    text := BILT.IP
-                Label:
-                    text = 'port'
-                IntField:
-                    value := BILT.port
+                style_class << 'valid' if experiment.valid else 'invalid'
 
-                IndexedContainer:
-                    iterable << BILT.channels
-                    viewType = BILTcard
+                Container:
+                    hug_width = 'strong'
+                    hug_height = 'strong'
+                    Form:
+                        hug_width = 'strong'
+                        hug_height = 'strong'
+                        Label:
+                            text = 'enable'
+                        CheckBox:
+                            checked := BILT.enable
+                        Label:
+                            text = 'IP Address'
+                        Field:
+                            text := BILT.IP
+                        Label:
+                            text = 'port'
+                        IntField:
+                            value := BILT.port
+
+                    IndexedContainer:
+                        iterable << BILT.channels
+                        viewType = BILTcard
 
 enamldef PyPico(Window):
     attr pypico
@@ -4255,41 +4279,41 @@ enamldef PyPico(Window):
             style_class << 'valid' if experiment.valid else 'invalid'
             Container:
                 style_class << 'valid' if experiment.valid else 'invalid'
-                    Form:
-                        hug_width = 'strong'
-                        hug_height = 'strong'
-                        Label:
-                            text = 'enable'
-                        CheckBox:
-                            checked := pypico.enable
-                        Label:
-                            text = 'enable_measurement'
-                        CheckBox:
-                            checked := pypico.enable_measurement
-                        Label:
-                            text = 'enable_iteration'
-                        CheckBox:
-                            checked := pypico.enable_iteration
-                        Label:
-                            text = 'enable_movement'
-                        CheckBox:
-                            checked := pypico.enable_movement
-                        Label:
-                            text = 'IP Address'
-                        Field:
-                            text := pypico.IP
-                        Label:
-                            text = 'port'
-                        IntField:
-                            value := pypico.port
-                        Label:
-                            text = 'timeout (ms)'
-                        IntField:
-                            value := pypico.timeout
+            Form:
+                hug_width = 'strong'
+                hug_height = 'strong'
+                Label:
+                    text = 'enable'
+                CheckBox:
+                    checked := pypico.enable
+                Label:
+                    text = 'enable_measurement'
+                CheckBox:
+                    checked := pypico.enable_measurement
+                Label:
+                    text = 'enable_iteration'
+                CheckBox:
+                    checked := pypico.enable_iteration
+                Label:
+                    text = 'enable_movement'
+                CheckBox:
+                    checked := pypico.enable_movement
+                Label:
+                    text = 'IP Address'
+                Field:
+                    text := pypico.IP
+                Label:
+                    text = 'port'
+                IntField:
+                    value := pypico.port
+                Label:
+                    text = 'timeout (ms)'
+                IntField:
+                    value := pypico.timeout
 
-                    IndexedContainer:
-                        iterable << pypico.motors
-                        viewType = Picomotor
+            IndexedContainer:
+                iterable << pypico.motors
+                viewType = Picomotor
 
 enamldef AAS(Window):
     attr aas

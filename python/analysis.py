@@ -481,11 +481,11 @@ class XYPlotAnalysis(AnalysisWithFigure):
     
     def updateFigure(self):
         if self.draw_fig:
-        fig=self.backFigure
-        fig.clf()
-        ax=fig.add_subplot(111)
-        if (self.X is not None) and (self.Y is not None):
-            ax.plot(self.X, self.Y)
+            fig=self.backFigure
+            fig.clf()
+            ax=fig.add_subplot(111)
+            if (self.X is not None) and (self.Y is not None):
+                ax.plot(self.X, self.Y)
         super(XYPlotAnalysis, self).updateFigure()
 
 
@@ -567,17 +567,16 @@ class ShotsBrowserAnalysis(AnalysisWithFigure):
     
     def updateFigure(self):
         if self.draw_fig:
-        fig=self.backFigure
-        fig.clf()
-        ax=fig.add_subplot(111)
-        ax.matshow(self.array, cmap=my_cmap, vmin=self.experiment.imageSumAnalysis.min, vmax=self.experiment.imageSumAnalysis.max)
-        ax.set_title('browser')
-        if self.showROIs:
-            #overlay ROIs
-            for ROI in self.experiment.squareROIAnalysis.ROIs:
-                mpl_rectangle(ax, ROI)
-
-        super(ShotsBrowserAnalysis,self).updateFigure() #makes a deferred_call to swap_figures()
+            fig=self.backFigure
+            fig.clf()
+            ax=fig.add_subplot(111)
+            ax.matshow(self.array, cmap=my_cmap, vmin=self.experiment.imageSumAnalysis.min, vmax=self.experiment.imageSumAnalysis.max)
+            ax.set_title('browser')
+            if self.showROIs:
+                #overlay ROIs
+                for ROI in self.experiment.squareROIAnalysis.ROIs:
+                    mpl_rectangle(ax, ROI)
+            super(ShotsBrowserAnalysis,self).updateFigure() #makes a deferred_call to swap_figures()
 
 class LoadingFilters(Analysis):
     """This analysis monitors the brightess in the regions of interest, to decide if an atom was loaded or not"""
@@ -710,36 +709,36 @@ class MeasurementsGraph(AnalysisWithFigure):
 
     def updateFigure(self):
         if self.draw_fig:
-        if not self.update_lock:
-            try:
-                self.update_lock = True
-                fig = self.backFigure
-                fig.clf()
-
-                if self.data is not None:
-                    #parse the list of what to plot from a string to a list of numbers
-                    try:
-                        plotlist = eval(self.list_of_what_to_plot)
-                    except Exception as e:
-                        logger.warning('Could not eval plotlist in MeasurementsGraph:\n{}\n'.format(e))
-                        return
-                    #make one plot
-                    ax = fig.add_subplot(111)
-                    for i in plotlist:
+            if not self.update_lock:
+                try:
+                    self.update_lock = True
+                    fig = self.backFigure
+                    fig.clf()
+    
+                    if self.data is not None:
+                        #parse the list of what to plot from a string to a list of numbers
                         try:
-                                data = self.data[:, i[0], 0, i[1]] #hardcoded '0' is to select the submeasurement No. 0
-                        except:
-                            logger.warning('Trying to plot data that does not exist in MeasurementsGraph: shot {} roi {}'.format(i[0], i[1]))
-                            continue
-                            label = '({},{})'.format(i[0], 0, i[1])
-                        ax.plot(data, 'o', label=label)
-                    #add legend using the labels assigned during ax.plot()
-                    ax.legend()
-                super(MeasurementsGraph, self).updateFigure()
-            except Exception as e:
-                logger.warning('Problem in MeasurementsGraph.updateFigure()\n:{}'.format(e))
-            finally:
-                self.update_lock = False
+                            plotlist = eval(self.list_of_what_to_plot)
+                        except Exception as e:
+                            logger.warning('Could not eval plotlist in MeasurementsGraph:\n{}\n'.format(e))
+                            return
+                        #make one plot
+                        ax = fig.add_subplot(111)
+                        for i in plotlist:
+                            try:
+                                    data = self.data[:, i[0], 0, i[1]] #hardcoded '0' is to select the submeasurement No. 0
+                            except:
+                                logger.warning('Trying to plot data that does not exist in MeasurementsGraph: shot {} roi {}'.format(i[0], i[1]))
+                                continue
+                                label = '({},{})'.format(i[0], 0, i[1])
+                            ax.plot(data, 'o', label=label)
+                        #add legend using the labels assigned during ax.plot()
+                        ax.legend()
+                    super(MeasurementsGraph, self).updateFigure()
+                except Exception as e:
+                    logger.warning('Problem in MeasurementsGraph.updateFigure()\n:{}'.format(e))
+                finally:
+                    self.update_lock = False
 
 
 class IterationsGraph(AnalysisWithFigure):
@@ -865,47 +864,47 @@ class IterationsGraph(AnalysisWithFigure):
 
     def updateFigure(self):
         if self.draw_fig:
-        if not self.update_lock:
-            try:
-                self.update_lock = True
-                fig = self.backFigure
-                fig.clf()
-
-                if self.mean is not None:
-                    #parse the list of what to plot from a string to a list of numbers
-                    try:
-                        plotlist = eval(self.list_of_what_to_plot)
-                    except Exception as e:
-                        logger.warning('Could not eval plotlist in IterationsGraph:\n{}\n'.format(e))
-                        return
-                    #make one plot
-                    ax = fig.add_subplot(111)
-                    for i in plotlist:
+            if not self.update_lock:
+                try:
+                    self.update_lock = True
+                    fig = self.backFigure
+                    fig.clf()
+    
+                    if self.mean is not None:
+                        #parse the list of what to plot from a string to a list of numbers
                         try:
-                                mean = self.mean[:, i[0], 0, i[1]] # i[0] : shot, i[1]: submeasurement? , i[2] : roi
-                                sigma = self.sigma[:, i[0], 0, i[1]]
-                        except:
-                            logger.warning('Trying to plot data that does not exist in IterationsGraph: shot {} roi {}'.format(i[0], i[1]))
-                            continue
-                            label = '(shot:{},roi:{})'.format(i[0],i[1])
-                        linestyle = '-o' if self.draw_connecting_lines else 'o'
-                        if self.draw_error_bars:
-                            ax.errorbar(numpy.arange(len(mean)), mean, yerr=sigma, fmt=linestyle, label=label)
-                        else:
-                            ax.plot(numpy.arange(len(mean)), mean, linestyle, label=label)
-                    #adjust the limits so that the data isn't right on the edge of the graph
-                    ax.set_xlim(-.5, len(self.mean)+0.5)
-                    if self.ymin != '':
-                        ax.set_ylim(bottom=float(self.ymin))
-                    if self.ymax != '':
-                        ax.set_ylim(top=float(self.ymax))
-                    #add legend using the labels assigned during ax.plot() or ax.errorbar()
-                    ax.legend()
-                super(IterationsGraph, self).updateFigure()
-            except Exception as e:
-                logger.warning('Problem in IterationsGraph.updateFigure()\n{}\n{}\n'.format(e, traceback.format_exc()))
-            finally:
-                self.update_lock = False
+                            plotlist = eval(self.list_of_what_to_plot)
+                        except Exception as e:
+                            logger.warning('Could not eval plotlist in IterationsGraph:\n{}\n'.format(e))
+                            return
+                        #make one plot
+                        ax = fig.add_subplot(111)
+                        for i in plotlist:
+                            try:
+                                    mean = self.mean[:, i[0], 0, i[1]] # i[0] : shot, i[1]: submeasurement? , i[2] : roi
+                                    sigma = self.sigma[:, i[0], 0, i[1]]
+                            except:
+                                logger.warning('Trying to plot data that does not exist in IterationsGraph: shot {} roi {}'.format(i[0], i[1]))
+                                continue
+                                label = '(shot:{},roi:{})'.format(i[0],i[1])
+                            linestyle = '-o' if self.draw_connecting_lines else 'o'
+                            if self.draw_error_bars:
+                                ax.errorbar(numpy.arange(len(mean)), mean, yerr=sigma, fmt=linestyle, label=label)
+                            else:
+                                ax.plot(numpy.arange(len(mean)), mean, linestyle, label=label)
+                        #adjust the limits so that the data isn't right on the edge of the graph
+                        ax.set_xlim(-.5, len(self.mean)+0.5)
+                        if self.ymin != '':
+                            ax.set_ylim(bottom=float(self.ymin))
+                        if self.ymax != '':
+                            ax.set_ylim(top=float(self.ymax))
+                        #add legend using the labels assigned during ax.plot() or ax.errorbar()
+                        ax.legend()
+                    super(IterationsGraph, self).updateFigure()
+                except Exception as e:
+                    logger.warning('Problem in IterationsGraph.updateFigure()\n{}\n{}\n'.format(e, traceback.format_exc()))
+                finally:
+                    self.update_lock = False
 
 
 class Ramsey(AnalysisWithFigure):
@@ -990,27 +989,27 @@ class Ramsey(AnalysisWithFigure):
 
     def updateFigure(self):
         if self.draw_fig:
-        try:
-            fig = self.backFigure
-            fig.clf()
-            ax = fig.add_subplot(111)
-
-            # plot the data points
-            linestyle = 'o'
-            if self.draw_error_bars:
-                ax.errorbar(self.t, self.y, yerr=self.sigma, fmt=linestyle)
-            else:
-                ax.plot(self.t, self.y, linestyle)
-                # adjust the limits so that the data isn't right on the edge of
-                # the graph
-            span = numpy.amax(self.t) - numpy.amin(self.t)
-            xmin = numpy.amin(self.t)-.02*span
-            xmax = numpy.amax(self.t)+.02*span
-            ax.set_xlim(xmin, xmax)
-
-            # draw the fit
-            t = numpy.linspace(xmin, xmax, 200)
-            ax.plot(t, self.fitFunc(t, *self.fitParams), '-')
-            super(Ramsey, self).updateFigure()
-        except Exception as e:
-            logger.warning('Problem in Ramsey.updateFigure()\n{}\n{}\n'.format(e, traceback.format_exc()))
+            try:
+                fig = self.backFigure
+                fig.clf()
+                ax = fig.add_subplot(111)
+    
+                # plot the data points
+                linestyle = 'o'
+                if self.draw_error_bars:
+                    ax.errorbar(self.t, self.y, yerr=self.sigma, fmt=linestyle)
+                else:
+                    ax.plot(self.t, self.y, linestyle)
+                    # adjust the limits so that the data isn't right on the edge of
+                    # the graph
+                span = numpy.amax(self.t) - numpy.amin(self.t)
+                xmin = numpy.amin(self.t)-.02*span
+                xmax = numpy.amax(self.t)+.02*span
+                ax.set_xlim(xmin, xmax)
+    
+                # draw the fit
+                t = numpy.linspace(xmin, xmax, 200)
+                ax.plot(t, self.fitFunc(t, *self.fitParams), '-')
+                super(Ramsey, self).updateFigure()
+            except Exception as e:
+                logger.warning('Problem in Ramsey.updateFigure()\n{}\n{}\n'.format(e, traceback.format_exc()))

@@ -523,8 +523,8 @@ class HistogramGrid(ROIAnalysis):
         #   repeat each x twice, and two different y values
         #   repeat each y twice, at two different x values
         #   extra +1 length of verts array allows for CLOSEPOLY code
-        # verts = np.zeros((2*len(x)+1, 2))
-        verts = np.zeros((2*len(x), 2))
+        verts = np.zeros((2*len(x)+1, 2))
+        # verts = np.zeros((2*len(x), 2))
         verts[0:-1:2, 0] = x
         verts[1:-1:2, 0] = x
         verts[1:-2:2, 1] = y

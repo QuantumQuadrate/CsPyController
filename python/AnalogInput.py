@@ -83,38 +83,38 @@ class AI_Graph(AnalysisWithFigure):
 
     def updateFigure(self):
         if self.draw_fig:
-        if self.enable and (not self.update_lock):
-            try:
-                self.update_lock = True
-                fig = self.backFigure
-                fig.clf()
-
-                if self.data is not None:
-                    #parse the list of what to plot from a string to a list of numbers
-                    try:
-                        plotlist = eval(self.list_of_what_to_plot)
-                    except Exception as e:
-                        logger.warning('Could not eval plotlist in AIGraph:\n{}\n'.format(e))
-                        return
-                    #make one plot
-                    ax = fig.add_subplot(111)
-                    for i in plotlist:
+            if self.enable and (not self.update_lock):
+                try:
+                    self.update_lock = True
+                    fig = self.backFigure
+                    fig.clf()
+    
+                    if self.data is not None:
+                        #parse the list of what to plot from a string to a list of numbers
                         try:
-                                #data = numpy.average(self.data[:, i[0], i[1]], axis=1)  # All measurements. Selected channel, saverage over sampels.
-                                data=self.data[-1, i[0], i[1]] # Show only the latest
-                        except:
-                            logger.warning('Trying to plot data that does not exist in AIGraph: channel {} samples {}-{}'.format(i[0], min(i[1]), max(i[1])))
-                            continue
-                        label = 'ch.{}'.format(i[0])
-                        ax.plot(data, 'o', label=label)
-                    #add legend using the labels assigned during ax.plot()
-                    ax.legend(bbox_to_anchor=(0., 1.02, 1., .102), loc=2, borderaxespad=0.0)
-                    ax.grid('on')
-                super(AI_Graph, self).updateFigure()
-            except Exception as e:
-                logger.warning('Problem in AIGraph.updateFigure()\n:{}'.format(e))
-            finally:
-                self.update_lock = False
+                            plotlist = eval(self.list_of_what_to_plot)
+                        except Exception as e:
+                            logger.warning('Could not eval plotlist in AIGraph:\n{}\n'.format(e))
+                            return
+                        #make one plot
+                        ax = fig.add_subplot(111)
+                        for i in plotlist:
+                            try:
+                                    #data = numpy.average(self.data[:, i[0], i[1]], axis=1)  # All measurements. Selected channel, saverage over sampels.
+                                    data=self.data[-1, i[0], i[1]] # Show only the latest
+                            except:
+                                logger.warning('Trying to plot data that does not exist in AIGraph: channel {} samples {}-{}'.format(i[0], min(i[1]), max(i[1])))
+                                continue
+                            label = 'ch.{}'.format(i[0])
+                            ax.plot(data, 'o', label=label)
+                        #add legend using the labels assigned during ax.plot()
+                        ax.legend(bbox_to_anchor=(0., 1.02, 1., .102), loc=2, borderaxespad=0.0)
+                        ax.grid('on')
+                    super(AI_Graph, self).updateFigure()
+                except Exception as e:
+                    logger.warning('Problem in AIGraph.updateFigure()\n:{}'.format(e))
+                finally:
+                    self.update_lock = False
 
 
 class AI_Filter(Analysis):

@@ -132,7 +132,7 @@ class PyPicoServer(Instrument):
                         raise PauseError
                     else:
                         m.readPosition(self.socket)
-            move_error = m.desired_position.value - m.current_position
+                        move_error = m.desired_position.value - m.current_position
                         msg = (
                             'Motor `{}` moved to position `{}` with no error.'
                             ' Positional error is `{}` DEG.'
@@ -140,12 +140,12 @@ class PyPicoServer(Instrument):
                         logger.info(msg.format(
                             m.motor_number,
                             m.current_position,
-                move_error
-                        ))
-        done = True
-        if abs(move_error) > m.max_angle_error:
-            done = False
-        return done
+                            move_error
+                            ))
+                    done = True
+                    if abs(move_error) > m.max_angle_error:
+                        done = False
+                        return done
 
     def moveit(self):
         msg = ''

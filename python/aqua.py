@@ -55,6 +55,7 @@ except:
 
 # analyses
 from SquareROIAnalysis import SquareROIAnalysis
+from AQuAAIAnalysis import AQuAAIAnalysis
 from recent_shot_analysis import RecentShotAnalysis
 from image_sum_analysis import ImageSumAnalysis
 from threshold_analysis import ThresholdROIAnalysis
@@ -100,6 +101,7 @@ class AQuA(Experiment):
     AI_graph = Member()
     AI_filter = Member()
     squareROIAnalysis = Member()
+    AQuAAIAnalysis = Member()
     thresholdROIAnalysis = Member()
     gaussian_roi = Member()
     loading_filters = Member()
@@ -188,6 +190,7 @@ class AQuA(Experiment):
         self.AI_filter = AnalogInput.AI_Filter('AI_filter', self, 'Analog Input filter')
         self.first_measurements_filter = analysis.DropFirstMeasurementsFilter('first_measurements_filter', self, 'drop the first N measurements')
         self.squareROIAnalysis = SquareROIAnalysis(self)
+        self.AQuAAIAnalysis = AQuAAIAnalysis(self)
         self.gaussian_roi = roi_fitting.GaussianROI('gaussian_roi', self)
         self.counter_graph = Counter.CounterAnalysis('counter_graph', self, 'Graphs the counter data after each measurement.')
         self.thresholdROIAnalysis = ThresholdROIAnalysis(self)
@@ -211,24 +214,6 @@ class AQuA(Experiment):
         self.counter_hist = Counter.CounterHistogramAnalysis('counter_hist', self, 'Fits histograms of counter data and plots hist and fits.')
         self.save_notes = save2013style.SaveNotes('save_notes', self, 'save a separate notes.txt')
         self.save2013Analysis = save2013style.Save2013Analysis(self)
-<<<<<<< HEAD
-        # do not include functional_waveforms_graph in self.analyses because it need not update on iterations, etc.
-        self.analyses += [self.TTL_filters, self.AI_graph, self.AI_filter, self.squareROIAnalysis, self.gaussian_roi,
-                          self.loading_filters, self.first_measurements_filter, self.text_analysis,
-                          self.imageSumAnalysis, self.recent_shot_analysis, self.shotBrowserAnalysis,
-                          self.histogramAnalysis, self.histogram_grid, self.measurements_graph, self.iterations_graph,
-                          self.andor_viewer, self.picam_viewer, self.DC_noise_eater_graph, self.DC_noise_eater_filter,self.Noise_EatersGraph,
-                          self.Ramsey, self.retention_analysis, self.retention_graph, self.save_notes,
-                          self.save2013Analysis]
-        
-        self.properties += ['functional_waveforms', 'LabView', 'functional_waveforms_graph', 'DDS', 'picomotors', 'noise_eaters', 'BILT',
-                            'Andor', 'PICam', 'DC_noise_eaters', 'box_temperature', 'squareROIAnalysis', 'gaussian_roi',
-                            'TTL_filters', 'AI_graph', 'AI_filter', 'loading_filters', 'first_measurements_filter',
-                            'imageSumAnalysis', 'recent_shot_analysis', 'shotBrowserAnalysis', 'histogramAnalysis',
-                            'histogram_grid', 'retention_analysis', 'measurements_graph', 'iterations_graph',
-                            'retention_graph', 'andor_viewer', 'picam_viewer', 'DC_noise_eater_filter',
-                            'DC_noise_eater_graph','Noise_EatersGraph', 'Ramsey']
-=======
         self.beam_position_analysis = BeamPositionAnalysis(self)
         self.beam_position_analysis2 = BeamPositionAnalysis(self)
         # setup path for second beam position analysis
@@ -240,16 +225,18 @@ class AQuA(Experiment):
         # need not update on iterations, etc.
         # origin needs to be the last analysis always
         self.analyses += [
-            self.TTL_filters, self.AI_graph, self.AI_filter,
-            self.squareROIAnalysis, self.counter_graph, self.thresholdROIAnalysis,
-            self.gaussian_roi, self.loading_filters,
+            self.TTL_filters, self.AI_graph, self.AI_filter, self.AQuAAIAnalysis,
+            # ROI analyses go here ------------------------------------------
+            self.squareROIAnalysis, self.counter_graph, self.gaussian_roi,
+            # ---------------------------------------------------------------
+            self.histogram_grid,self.histogramAnalysis, self.thresholdROIAnalysis,
+            self.loading_filters,
             self.first_measurements_filter, self.text_analysis,
             self.imageSumAnalysis, self.recent_shot_analysis,
-            self.shotBrowserAnalysis, self.histogramAnalysis,
-            self.histogram_grid, self.measurements_graph,
+            self.shotBrowserAnalysis, self.measurements_graph,
             self.iterations_graph, self.DC_noise_eater_graph,
-            self.DC_noise_eater_filter, self.Andors, self.PICams, self.Ramsey,
-            self.DAQmxAI, self.unlock_pause,
+            self.DC_noise_eater_filter, self.Noise_EatersGraph, self.Andors, 
+            self.PICams, self.Ramsey, self.DAQmxAI, self.unlock_pause,
             self.retention_analysis, self.retention_graph,
             self.save_notes, self.save2013Analysis, self.NIScopes,
             self.counter_hist,  # self.vitalsignsound,
@@ -258,9 +245,9 @@ class AQuA(Experiment):
         ]
 
         self.properties += [
-            'Config',
+            'Config', 'AQuAAIAnalysis',
             'functional_waveforms', 'LabView', 'functional_waveforms_graph',
-            'DDS', 'aerotechs', 'picomotors', 'pyPicoServer', 'conexes',
+            'DDS', 'aerotechs', 'picomotors', 'noise_eaters', 'BILT', 'pyPicoServer', 'conexes',
             'Andors', 'PICams', 'DC_noise_eaters', 'blackfly_client',
             'box_temperature', 'DAQmxAI', 'squareROIAnalysis',
             'thresholdROIAnalysis', 'gaussian_roi', 'instekpsts', 'TTL_filters',
@@ -274,7 +261,6 @@ class AQuA(Experiment):
             'ROI_bg_columns', 'NIScopes', 'beam_position_analysis',
             'origin'
         ]
->>>>>>> 58ec98c5b81f344a235df2b23634d6c911771c80
 
         try:
             self.allow_evaluation = False
