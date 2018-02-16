@@ -227,7 +227,7 @@ class GaussianROI(ROIAnalysis):
             images = all_images[:, self.shot]
             self.image_shape = (images.shape[1], images.shape[2])
             if self.subtract_background:
-                images -= self.experiment.imageSumAnalysis.background_array
+                images = images - self.experiment.imageSumAnalysis.background_array
             if self.enable_grid_fit:
                 # we use a big try block, and if there are any errors, just set
                 # the amplitude to 0 and move on
@@ -291,10 +291,7 @@ class GaussianROI(ROIAnalysis):
                     ica = FastICA(n_components=rows * columns, max_iter=2000)
                     ica.fit(X)
                     A_ica = ica.components_  # Get estimated mixing matrix
-                    image_sum = np.sum(
-                        np.abs(A_ica),
-                        axis=0
-                    ).reshape(images.shape[1], images.shape[2])
+                    image_sum = np.sum(np.abs(A_ica),axis=0).reshape(images.shape[1], images.shape[2])
                 except:
                     # ICA failed, but just note the error in the log and move
                     # on
@@ -365,7 +362,7 @@ class GaussianROI(ROIAnalysis):
         except:
             # set the amplitude to 0 and move on
             logger.exception("Fit failed in GaussianROI")
-            fitParams = (0, 0, 0, 0, 0, 0, 0, 0, 0)
+            fitParams = (0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0)
             fitCovariances = np.zeros((9, 9))
             # --- save analysis ---
             return fitParams, fitCovariances
@@ -392,6 +389,7 @@ class GaussianROI(ROIAnalysis):
         if self.useICA:
             # plot the ICA cleaned up version
             ax = fig.add_subplot(gs[0, 1])
+            p1 = ax.matshow(image_sum)
             ax.set_title('cleaned up with ICA')
 
         # plot the guess
