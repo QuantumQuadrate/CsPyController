@@ -2234,12 +2234,12 @@ enamldef Picam(Form):
                     EvalProp:
                         prop << item.camera.minPlot
                     EvalProp:
-                        prop << item.camera.maxPlot    
+                        prop << item.camera.maxPlot
                 LabelBox:
                     text = 'Use Demo Camera'
-                    checked := item.camera.useDemo 
-                            
-                     
+                    checked := item.camera.useDemo
+
+
 
 
 enamldef FiltersPage(Page):
@@ -3938,7 +3938,7 @@ enamldef Aerotechs(Window):
                         AerotechGlobal:
                             aglobal << loop_item
                             list_index << str(loop_index)
-                    
+
 enamldef Aerotech(Container):
     attr item
 
@@ -3949,23 +3949,23 @@ enamldef Aerotech(Container):
         hug_width = 'strong'
         hug_height = 'strong'
         EvalProp:
-            prop << item.Xi 
+            prop << item.Xi
         EvalProp:
-            prop << item.Xend 
+            prop << item.Xend
         EvalProp:
-            prop << item.Xvmx 
+            prop << item.Xvmx
         EvalProp:
-            prop << item.Xamx 
+            prop << item.Xamx
         EvalProp:
-            prop << item.Zi 
+            prop << item.Zi
         EvalProp:
-            prop << item.Zend 
+            prop << item.Zend
         EvalProp:
-            prop << item.Zvmx 
+            prop << item.Zvmx
         EvalProp:
-            prop << item.Zamx 
+            prop << item.Zamx
         EvalProp:
-            prop << item.XretTrig 
+            prop << item.XretTrig
 
 
 
@@ -4011,8 +4011,8 @@ enamldef Conexes(Window):
 
                     IndexedContainer:
                         iterable << conexes.motors
-                        viewType = Conex                    
-                    
+                        viewType = Conex
+
 enamldef Conex(Container):
     attr item
 
@@ -4041,9 +4041,9 @@ enamldef Conex(Container):
         Label:
             text = 'Velocity: '
         CheckBox:
-            checked := item.enableVel            
+            checked := item.enableVel
         EvalProp:
-            prop << item.Vel     
+            prop << item.Vel
         EvalProp:
             prop << item.Threshold
         Label:
@@ -4235,11 +4235,11 @@ enamldef AAS(Window):
                         Label:
                             text = 'Relative Position (pixels)'
                         Label:
-                            text = '(' + str(aas.position_iter_stat['x']) + ', ' + str(aas.position_iter_stat['y']) + ')'
+                            text << '(' + str(aas.position_iter_stat['x']) + ', ' + str(aas.position_iter_stat['y']) + ')'
                         Label:
                             text = 'Error (degrees)'
                         Label:
-                            text = '(' + str(aas.position_iter_stat['error_x']) + ', ' + str(aas.position_iter_stat['error_y']) + ')'
+                            text << '(' + str(aas.position_iter_stat['error_x']) + ', ' + str(aas.position_iter_stat['error_y']) + ')'
 
 
 enamldef Unlock_Pause(Window):

@@ -15,6 +15,7 @@ from analysis import Analysis
 import numpy as np
 import os.path
 import h5py
+import math
 
 logger = logging.getLogger(__name__)
 
@@ -132,7 +133,7 @@ class BeamPositionAnalysis(Analysis):
         )
         if i == 1:
             if self.experiment.Config.config.get('EXPERIMENT', 'Name') == 'Rb':
-                self.positions['x'] = self.positions['x1'] + self.positions['x0']
+                self.positions['x'] = self.positions['x1'] - self.positions['x0']
             else:
                 self.positions['x'] = self.positions['x1'] - self.positions['x0']
             self.positions['y'] = self.positions['y1'] - self.positions['y0']
@@ -184,9 +185,9 @@ class BeamPositionAnalysis(Analysis):
         ys = self.positions['y']
         #print(xs)
         #print(ys)
-        x = np.nanmean(xs)
+        x = np.nanmedian(xs)
         sigma_x = np.nanstd(xs)
-        y = np.nanmean(ys)
+        y = np.nanmedian(ys)
         sigma_y = np.nanstd(ys)
         # Reordering has become unnecessary as we have dedicated camera for each beam
         if self.enable_reorder and (sigma_x > 0 and sigma_y > 0):

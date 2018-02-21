@@ -200,20 +200,28 @@ if ExpMode==0:
     AO(0,6,coil_driver_polarity*2.8)
     AO(0,7,10)
     exp.pointgrey_trigger_switch.profile(0,'off')
-    exp.pointgrey2_trigger_switch.profile(0,'off')
+    exp.pointgrey_trigger_switch.profile(t1_PGcamera,'on')
+    exp.pointgrey_trigger_switch.profile(t1_PGcamera+t_PG_triggerduration,'off')
+    # For pointgrey shot.
+    raman(t1_PGcamera,t_PG_triggerduration,'PG')
+    Ryd780A(t1_PGcamera,t_PG_triggerduration,'r2','PG')
     exp.pointgrey_trigger_switch.profile(t2_PGcamera,'on')
-    exp.pointgrey_trigger_switch.profile(t2_PGcamera+2,'off')
-    exp.pointgrey2_trigger_switch.profile(t1_PGcamera,'on')
-    exp.pointgrey2_trigger_switch.profile(t1_PGcamera+2,'off')
+    exp.pointgrey_trigger_switch.profile(t2_PGcamera+t_PG_triggerduration,'off')
+    # FORT is turned on for short period of time for imaging.
+    exp.fort_aom_switch.profile(t2_PGcamera,'on')
+    exp.fort_dds.profile(t2_PGcamera,'on')
+    exp.fort_aom_switch.profile(t2_PGcamera+t_PG_triggerduration,'off')
+    exp.fort_dds.profile(t2_PGcamera+t_PG_triggerduration,'off')
+
     exp.FORT_NE_trigger_switch.profile(0,'off')
-    exp.FORT_NE_trigger_switch.profile(170,'on')
-    exp.FORT_NE_trigger_switch.profile(175,'off')
+    exp.FORT_NE_trigger_switch.profile(t_NE_FORT_trigger_start,'on')
+    exp.FORT_NE_trigger_switch.profile(t_NE_FORT_trigger_end,'off')
     exp.ryd780a_aom_switch.profile(0,'off')
     exp.ryd780a_dds.profile(0,'off')
     exp.red_pointing_dds.profile(0,'off')
     exp.red_pointing_aom_switch.profile(0,'off')
+    # Ryd 780a noise eater part
     Ryd780A(10,5,'r2','r2')
-    # Ryd 780a noise eater trigger
     exp.ryd780A_NE_trigger_switch.profile(0,'off')
     exp.ryd780A_NE_trigger_switch.profile(10,'on')
     exp.ryd780A_NE_trigger_switch.profile(15,'off')
@@ -235,11 +243,8 @@ if ExpMode==0:
     exp.microwave_dds.profile(0,'off')
     exp.repumper_shutter_switch.profile(0,'off')
     exp.ground_aom_switch.profile(0,'off') #### dd
-    # For pointgrey shot.
-    raman(t1_PGcamera,t_PG_exposure,'PG')
-    Ryd780A(t1_PGcamera,t_PG_exposure,'r2','PG')
-    ## 2D MOT Loading Phase
 
+    ## 2D MOT Loading Phase
     exp.mot_3d_dds.profile(0,'MOT')
     exp.fort_dds.profile(0,'off')
     exp.mot_2d_dds.profile(0,'on')
@@ -307,12 +312,16 @@ if ExpMode==0:
     exp.mot_3d_z1_shutter_switch.profile(t_z1_shutter_close,'off')
 
     ## Science Phase 170 - 175 ms. t_science=170
+
+    # reduce FORT trap depth during science phase
+    exp.fort_dds.profile(t_science,'Blowaway')
+    exp.fort_dds.profile(t_science+5,'on')
     raman(t_science,t_raman,'r2')
-    FORTdrop(170,t_FORTdrop)
+    #FORTdrop(170,t_FORTdrop)
     #MicrowaveRamsey(t_science,t_gap,t_microwavepiover2)
     Microwave(t_science,t_microwave)
     #Ryd780A(t_science,t_Ryd780A,'r2','r2')
-    MicrowaveRamsey_and_780A(t_science,t_gap,t_microwavepiover2)
+    #MicrowaveRamsey_and_780A(t_science,t_gap,t_microwavepiover2)
 
     exp.red_pointing_dds.profile(175,'off')
     exp.red_pointing_aom_switch.profile(175,'off')
@@ -334,7 +343,6 @@ if ExpMode==0:
     t_start=176
     t_end=t_start+t_BA
     exp.mot_3d_dds.profile(t_start,'Blowaway')
-    exp.fort_dds.profile(t_start,'Blowaway')
     t_pulsewidth=0.001*2
     t_period=0.001*4
     for i in range(int(round((t_end-t_start)/t_period))):
