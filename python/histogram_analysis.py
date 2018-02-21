@@ -9,7 +9,7 @@ from matplotlib.gridspec import GridSpec
 import matplotlib.patches as patches
 from scipy.special import erf
 
-from atom.api import Bool, Member, Str, observe, Int
+from atom.api import Bool, Member, Str, observe, Int, Float
 
 from analysis import AnalysisWithFigure, ROIAnalysis
 
@@ -116,9 +116,10 @@ class HistogramGrid(ROIAnalysis):
     shot = Int()
     pdf_path = Member()
     bins = Member()
-    x_min = Member()
-    x_max = Member()
-    y_max = Member()
+    x_min = Float()
+    x_max = Float()
+    y_max = Float()
+    y_min = Float()
     calculate_new_cutoffs = Bool()
     automatically_use_cutoffs = Bool()
     cutoff_shot_mapping = Str()
@@ -341,15 +342,26 @@ class HistogramGrid(ROIAnalysis):
                 logger.warning('Unknown cutoff source')
 
         # find the min and max
-        self.x_min = np.nanmin(all_shots_array)
-        self.x_max = np.nanmax(all_shots_array)
-        self.y_max = np.nanmax(self.histogram_results['histogram'])
+        self.x_min = np.nanmin(all_shots_array).astype('float')
+        self.x_max = np.nanmax(all_shots_array).astype('float')
+        self.y_max = np.nanmax(self.histogram_results['histogram']).astype('float')
+        # get smallest non-zero histogram bin height
+        self.y_min = np.nanmin(self.histogram_results['histogram'][self.histogram_results['histogram']>0]).astype('float')
 
         # TODO: do cutoff finding, analytical overlap and loading in a
         # vectorized fashion
 
     def gaussian1D(self, x, x0, a, w):
         """returns the height of a gaussian (with mean x0, amplitude, a and
+        width w) at the value(s) x
+        """
+        # normalize
+        g = a/(w*np.sqrt(2*np.pi))*np.exp(-0.5*(x-x0)**2/w**2)
+        g[np.isnan(g)] = 0  # eliminate bad elements
+        return g
+
+    def possion1D(self, x, x0, a, w):
+        """returns the height of a poisson distribution (with mean x0, amplitude, a and
         width w) at the value(s) x
         """
         # normalize
@@ -508,7 +520,8 @@ class HistogramGrid(ROIAnalysis):
         #   repeat each x twice, and two different y values
         #   repeat each y twice, at two different x values
         #   extra +1 length of verts array allows for CLOSEPOLY code
-        verts = np.zeros((2*len(x)+1, 2))
+        # verts = np.zeros((2*len(x)+1, 2))
+        verts = np.zeros((2*len(x), 2))
         verts[0:-1:2, 0] = x
         verts[1:-1:2, 0] = x
         verts[1:-2:2, 1] = y
@@ -574,8 +587,9 @@ class HistogramGrid(ROIAnalysis):
                     ax = fig.add_subplot(gs1[i, j])
                     self.two_color_histogram(ax, data)
 
-                    ax.set_xlim([self.x_min, self.x_max])
-                    ax.set_ylim([0, 1.05*self.y_max])
+                    ax.set_yscale('log', nonposy='clip')
+                    # ax.set_ylim([np.power(10, max([-4, int(np.log10(self.y_min))])), 1.05*self.y_max])
+                    ax.set_ylim([0.5, 1.05*self.y_max])
                     # ax.set_title(u'{}: {:.0f}\u00B1{:.1f}%'.format(n, data['loading']*100,data['overlap']*100), size=font)
                     ax.text(
                         0.95,
@@ -625,32 +639,32 @@ class HistogramGrid(ROIAnalysis):
                         # u'\u00B1{:.1f}'.format(data['width1']/1000)
                         # u'\u00B1{:.1f}'.format(data['width2']/1000)
                     # put y ticks at the peak of each gaussian fit
-                    yticks = [0]
-                    yticklabels = ['0']
-                    ytickleft = [True]
-                    ytickright = [False]
-                    if (data['width1'] != 0):
-                        y1 = data['amplitude1']/(data['width1']*np.sqrt(2*np.pi))
-                        if np.isnan(y1):
-                            y1 = 1.0
-                        yticks += [y1]
-                        yticklabels += [str(int(np.rint(y1)))]
-                        ytickleft += [True]
-                        ytickright += [False]
-                    if (data['width2'] != 0):
-                        y2 = data['amplitude2']/(data['width2']*np.sqrt(2*np.pi))
-                        if np.isnan(y2):
-                            y2 = 1.0
-                        yticks += [y2]
-                        yticklabels += [str(int(np.rint(y2)))]
-                        ytickleft += [False]
-                        ytickright += [True]
-                    ax.set_yticks(yticks)
-                    ax.set_yticklabels(yticklabels, size=font)
-                    for tick, left, right in zip(ax.yaxis.get_major_ticks(), ytickleft, ytickright):
-                        tick.label1On = left
-                        tick.label2On = right
-                        tick.size = font
+                    # yticks = [0]
+                    # yticklabels = ['0']
+                    # ytickleft = [True]
+                    # ytickright = [False]
+                    # if (data['width1'] != 0):
+                    #     y1 = data['amplitude1']/(data['width1']*np.sqrt(2*np.pi))
+                    #     if np.isnan(y1):
+                    #         y1 = 1.0
+                    #     yticks += [y1]
+                    #     yticklabels += [str(int(np.rint(y1)))]
+                    #     ytickleft += [True]
+                    #     ytickright += [False]
+                    # if (data['width2'] != 0):
+                    #     y2 = data['amplitude2']/(data['width2']*np.sqrt(2*np.pi))
+                    #     if np.isnan(y2):
+                    #         y2 = 1.0
+                    #     yticks += [y2]
+                    #     yticklabels += [str(int(np.rint(y2)))]
+                    #     ytickleft += [False]
+                    #     ytickright += [True]
+                    # ax.set_yticks(yticks)
+                    # ax.set_yticklabels(yticklabels, size=font)
+                    # for tick, left, right in zip(ax.yaxis.get_major_ticks(), ytickleft, ytickright):
+                    #     tick.label1On = left
+                    #     tick.label2On = right
+                    #     tick.size = font
                     # plot gaussians
                     x = np.linspace(self.x_min, self.x_max, 100)
                     y1 = self.gaussian1D(x, data['mean1'], data['amplitude1'], data['width1'])
@@ -663,7 +677,7 @@ class HistogramGrid(ROIAnalysis):
                     msg = 'Could not plot histogram for shot {} roi {}'
                     logger.exception(msg.format(shot, n))
 
-        #make stats for each row
+        # make stats for each row
         for i in xrange(rows):
             ax = fig.add_subplot(gs1[i, columns])
             ax.axis('off')
@@ -674,7 +688,7 @@ class HistogramGrid(ROIAnalysis):
                 transform=ax.transAxes,
                 fontsize=font)
 
-        #make stats for each column
+        # make stats for each column
         for i in xrange(columns):
             ax = fig.add_subplot(gs1[rows, i])
             ax.axis('off')
@@ -685,7 +699,7 @@ class HistogramGrid(ROIAnalysis):
                 transform=ax.transAxes,
                 fontsize=font)
 
-        #make stats for whole array
+        # make stats for whole array
         ax = fig.add_subplot(gs1[rows, columns])
         ax.axis('off')
         ax.text(0.5, 0.5,
