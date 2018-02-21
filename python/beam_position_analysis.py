@@ -16,6 +16,9 @@ import numpy as np
 import os.path
 import h5py
 import math
+import scipy.ndimage.measurements as measurements
+from scipy.ndimage.morphology import binary_opening
+from scipy.optimize import curve_fit
 
 logger = logging.getLogger(__name__)
 
@@ -105,8 +108,21 @@ class BeamPositionAnalysis(Analysis):
 
         append the results to the position array
         '''
-        # do the fit/centroid whatever
-        raise NotImplementedError
+        [COM_X,COM_Y]=self.centroid_calc(img)
+        [Xsigma_guess,Ysigma_guess]=[3,3] # use your guess
+        try:
+            x=self.gaussianfit(img,COM_X,Xsigma_guess,0)
+            print 'blue x : {}'.format(x)
+        except:
+            logger.exception('problem')
+            x=np.NaN
+        try:
+            y=self.gaussianfit(img,COM_Y,Ysigma_guess,1)
+            print 'blue y : {}'.format(y)
+        except:
+            logger.exception('problem')
+            y=np.NaN
+        #raise NotImplementedError
         # only x and y are necessary.  if a relative measurement is performed then use
         # x#/y# too
         np.append(self.positions['x'], x)
@@ -133,6 +149,7 @@ class BeamPositionAnalysis(Analysis):
         )
         if i == 1:
             if self.experiment.Config.config.get('EXPERIMENT', 'Name') == 'Rb':
+                # Rb now have non-mirrored image, so there is no sign flip.
                 self.positions['x'] = self.positions['x1'] - self.positions['x0']
             else:
                 self.positions['x'] = self.positions['x1'] - self.positions['x0']
@@ -281,26 +298,26 @@ class BeamPositionAnalysis(Analysis):
         ivar.function = str(ivar.currentValue)
         ivar.set_gui({'currentValueStr': str(ivar.currentValue)})
 
-    def gaussian( x, c1, mu1, sigma1,B):
-        res = c1 * numpy.exp( - (x - mu1)**2.0 / (2.0 * sigma1**2.0) ) + B
+    def gaussian(self, x, c1, mu1, sigma1,B):
+        res = c1 * np.exp( - (x - mu1)**2.0 / (2.0 * sigma1**2.0) ) + B
         return res
 
-    def gaussianfit(data,center_guess,sigma_guess,axis):
+    def gaussianfit(self,data,center_guess,sigma_guess,axis):
         error=0
-        data_1d=numpy.sum(data,axis=axis) # check if the axis correct
+        data_1d=np.sum(data,axis=axis) # check if the axis correct
         leng = range(0,len(data_1d))
-        [max_signal,bg] = [numpy.max(data_1d),numpy.min(data_1d)]
+        [max_signal,bg] = [np.max(data_1d),np.min(data_1d)]
         try:
-            fit = curve_fit(gaussian,leng,data_1d,[max_sigmal,center_guess,sigma_guess,bg])
+            fit = curve_fit(self.gaussian,leng,data_1d,[max_signal,center_guess,sigma_guess,bg])
             gaussian_center=fit[0][1]
         except RuntimeError:
-            gaussian_center=numpy.NaN
+            gaussian_center=np.NaN
             error=1
         return gaussian_center, error
 
-    def centroid_calc(data):
+    def centroid_calc(self,data):
         percentile = 95
-        threshold = numpy.percentile(data, percentile)  # Set threshold based on the percentile
+        threshold = np.percentile(data, percentile)  # Set threshold based on the percentile
         # Mask pixels having brightness less than given threshold
         thresholdmask = data > threshold
         # Apply dilation-erosion to exclude possible noise
@@ -308,7 +325,7 @@ class BeamPositionAnalysis(Analysis):
         temp=np.ma.array(data, mask=np.invert(openingmask))
         temp2=temp.filled(0)
         if threshold>np.max(temp2): # if there is no signal, assign NaN
-           [COM_Y, COM_X]=[numpy.nan,numpy.nan]
+           [COM_Y, COM_X]=[np.nan,np.nan]
         else:
            [COM_Y, COM_X] = measurements.center_of_mass(temp2)  # Center of mass.
         return [COM_X,COM_Y]

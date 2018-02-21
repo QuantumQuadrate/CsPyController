@@ -199,17 +199,18 @@ if ExpMode==0:
     AO(0,5,coil_driver_polarity*-2.2)
     AO(0,6,coil_driver_polarity*2.8)
     AO(0,7,10)
+    # For pointgrey shot.
     exp.pointgrey_trigger_switch.profile(0,'off')
     exp.pointgrey_trigger_switch.profile(t1_PGcamera,'on')
     exp.pointgrey_trigger_switch.profile(t1_PGcamera+t_PG_triggerduration,'off')
-    # For pointgrey shot.
     raman(t1_PGcamera,t_PG_triggerduration,'PG')
     Ryd780A(t1_PGcamera,t_PG_triggerduration,'r2','PG')
+
+    # FORT is turned on for short period of time for imaging.
     exp.pointgrey_trigger_switch.profile(t2_PGcamera,'on')
     exp.pointgrey_trigger_switch.profile(t2_PGcamera+t_PG_triggerduration,'off')
-    # FORT is turned on for short period of time for imaging.
     exp.fort_aom_switch.profile(t2_PGcamera,'on')
-    exp.fort_dds.profile(t2_PGcamera,'on')
+    exp.fort_dds.profile(t2_PGcamera,'Blowaway')
     exp.fort_aom_switch.profile(t2_PGcamera+t_PG_triggerduration,'off')
     exp.fort_dds.profile(t2_PGcamera+t_PG_triggerduration,'off')
 
@@ -377,11 +378,7 @@ if ExpMode==0:
     #exp.fort_aom_switch.profile(t_readout_2nd+exp.camera.pulse_length,'off')
     exp.fort_dds.profile(t_readout_2nd+exp.camera.pulse_length,'off')
 
-
     ## Blue imaging
-    t_start_blue_imaging=205
-    t_blue_exposure=2
-
     exp.blue_pointing_dds.profile(t_start_blue_imaging,'r2')
     exp.blue_pointing_aom_switch.profile(t_start_blue_imaging,'on')
     exp.blue_pointing_dds.profile(t_start_blue_imaging+t_blue_exposure,'off')
@@ -1044,8 +1041,6 @@ elif ExpMode==4:
 
 
     ## Blue imaging
-    t_start_blue_imaging=205
-    t_blue_exposure=0.002
 
     exp.blue_pointing_dds.profile(t_start_blue_imaging,'r2')
     exp.blue_pointing_aom_switch.profile(t_start_blue_imaging,'on')
