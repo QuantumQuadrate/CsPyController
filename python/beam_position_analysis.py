@@ -15,6 +15,9 @@ from analysis import Analysis
 import numpy as np
 import os.path
 import h5py
+import scipy.ndimage.measurements as measurements
+from scipy.ndimage.morphology import binary_opening
+from scipy.optimize import curve_fit
 
 logger = logging.getLogger(__name__)
 
@@ -276,3 +279,35 @@ class BeamPositionAnalysis(Analysis):
         ivar.currentValue = ivar.valueList[0]
         ivar.function = str(ivar.currentValue)
         ivar.set_gui({'currentValueStr': str(ivar.currentValue)})
+
+    def gaussian( x, c1, mu1, sigma1,B):
+        res = c1 * numpy.exp( - (x - mu1)**2.0 / (2.0 * sigma1**2.0) ) + B
+        return res
+
+    def gaussianfit(data,center_guess,sigma_guess,axis):
+        error=0
+        data_1d=numpy.sum(data,axis=axis) # check if the axis correct
+        leng = range(0,len(data_1d))
+        [max_signal,bg] = [numpy.max(data_1d),numpy.min(data_1d)]
+        try:
+            fit = curve_fit(gaussian,leng,data_1d,[max_sigmal,center_guess,sigma_guess,bg])
+            gaussian_center=fit[0][1]
+        except RuntimeError:
+            gaussian_center=numpy.NaN
+            error=1
+        return gaussian_center, error
+
+    def centroid_calc(data):
+        percentile = 95
+        threshold = numpy.percentile(data, percentile)  # Set threshold based on the percentile
+        # Mask pixels having brightness less than given threshold
+        thresholdmask = data > threshold
+        # Apply dilation-erosion to exclude possible noise
+        openingmask = binary_opening(thresholdmask)
+        temp=np.ma.array(data, mask=np.invert(openingmask))
+        temp2=temp.filled(0)
+        if threshold>np.max(temp2): # if there is no signal, assign NaN
+           [COM_Y, COM_X]=[numpy.nan,numpy.nan]
+        else:
+           [COM_Y, COM_X] = measurements.center_of_mass(temp2)  # Center of mass.
+        return [COM_X,COM_Y]
