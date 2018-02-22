@@ -105,29 +105,30 @@ class BeamPositionAnalysis(Analysis):
 
     def calc_beam_position(self, img):
         '''Calculate the position of a beam from a 2D image array.
-
         append the results to the position array
         '''
+        #Initial guesses with centroid
         [COM_X,COM_Y]=self.centroid_calc(img)
-        [Xsigma_guess,Ysigma_guess]=[3,3] # use your guess
-        try:
-            x=self.gaussianfit(img,COM_X,Xsigma_guess,0)
-            print 'blue x : {}'.format(x)
-        except:
-            logger.exception('problem')
+        if COM_X == np.NaN and COM_Y == np.NaN:
+            error=1
+        # Width guesses
+        else:
+            [Xsigma_guess,Ysigma_guess]=[3,3] # use your guess. Units of pixels.
+            try:
+                x, error_x=self.gaussianfit(img, COM_X, Xsigma_guess, 0)
+                y, error_y=self.gaussianfit(img, COM_Y, Ysigma_guess, 1)
+                error=0
+            except:
+                error = 1
+        if error == 1:
             x=np.NaN
-        try:
-            y=self.gaussianfit(img,COM_Y,Ysigma_guess,1)
-            print 'blue y : {}'.format(y)
-        except:
-            logger.exception('problem')
             y=np.NaN
-        #raise NotImplementedError
         # only x and y are necessary.  if a relative measurement is performed then use
         # x#/y# too
-        np.append(self.positions['x'], x)
-        np.append(self.positions['y'], y)
-        self.positions['valid_cnt'] += 1
+        self.positions['x']=np.append(self.positions['x'], x)
+        self.positions['y']=np.append(self.positions['y'], y)
+        if error_x==0 and error_y==0 and error ==0:
+            self.positions['valid_cnt'] += 1
 
     def append_beam_position_data(self, data, i):
         '''Extract position data from the pre-calculated stat data group'''
@@ -141,11 +142,11 @@ class BeamPositionAnalysis(Analysis):
 
         self.positions['x{}'.format(i)] = np.append(
             self.positions['x{}'.format(i)],
-            data['X0'][()]
+            data['X{}'.format(i)][()]
         )
         self.positions['y{}'.format(i)] = np.append(
             self.positions['y{}'.format(i)],
-            data['Y0'][()]
+            data['Y{}'.format(i)][()]
         )
         if i == 1:
             if self.experiment.Config.config.get('EXPERIMENT', 'Name') == 'Rb':
@@ -200,8 +201,6 @@ class BeamPositionAnalysis(Analysis):
     def calculateError(self):
         xs = self.positions['x']
         ys = self.positions['y']
-        #print(xs)
-        #print(ys)
         x = np.nanmedian(xs)
         sigma_x = np.nanstd(xs)
         y = np.nanmedian(ys)
@@ -219,9 +218,9 @@ class BeamPositionAnalysis(Analysis):
             xs_fixed = np.where(swaps, np.multiply(-1.0, xs), xs)
             ys_fixed = np.where(swaps, np.multiply(-1.0, ys), ys)
             # recalculate positions
-            x = np.mean(xs_fixed)
+            x = np.nanmean(xs_fixed)
             sigma_x = np.std(xs_fixed)
-            y = np.mean(ys_fixed)
+            y = np.nanmean(ys_fixed)
             sigma_y = np.std(ys_fixed)
         self.position_iter_stat['x'] = x
         self.position_iter_stat['sigma_x'] = sigma_x
@@ -302,13 +301,14 @@ class BeamPositionAnalysis(Analysis):
         res = c1 * np.exp( - (x - mu1)**2.0 / (2.0 * sigma1**2.0) ) + B
         return res
 
-    def gaussianfit(self,data,center_guess,sigma_guess,axis):
-        error=0
-        data_1d=np.sum(data,axis=axis) # check if the axis correct
-        leng = range(0,len(data_1d))
-        [max_signal,bg] = [np.max(data_1d),np.min(data_1d)]
+    def gaussianfit(self, data, center_guess, sigma_guess, axis):
+        error = 0
+        data_1d = np.sum(data, axis = axis) # check if the axis correct
+        leng = range(0, len(data_1d))
+        [max_signal, bg] = [np.max(data_1d), np.min(data_1d)]
         try:
-            fit = curve_fit(self.gaussian,leng,data_1d,[max_signal,center_guess,sigma_guess,bg])
+            fit = curve_fit(self.gaussian,leng, data_1d,
+            [max_signal, center_guess, sigma_guess, bg])
             gaussian_center=fit[0][1]
         except RuntimeError:
             gaussian_center=np.NaN

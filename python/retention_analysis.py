@@ -40,7 +40,6 @@ class RetentionAnalysis(Analysis):
         ), axis=0)
 
         loading = loaded.astype('float') / total
-
         retention = retained.astype('float') / loaded
         # find the 1 sigma confidence interval for binomial data using the
         # normal approximation:

@@ -210,7 +210,7 @@ if ExpMode==0:
     exp.pointgrey_trigger_switch.profile(t2_PGcamera,'on')
     exp.pointgrey_trigger_switch.profile(t2_PGcamera+t_PG_triggerduration,'off')
     exp.fort_aom_switch.profile(t2_PGcamera,'on')
-    exp.fort_dds.profile(t2_PGcamera,'Blowaway')
+    exp.fort_dds.profile(t2_PGcamera,'low')
     exp.fort_aom_switch.profile(t2_PGcamera+t_PG_triggerduration,'off')
     exp.fort_dds.profile(t2_PGcamera+t_PG_triggerduration,'off')
 
@@ -315,7 +315,7 @@ if ExpMode==0:
     ## Science Phase 170 - 175 ms. t_science=170
 
     # reduce FORT trap depth during science phase
-    exp.fort_dds.profile(t_science,'Blowaway')
+    exp.fort_dds.profile(t_science,'science')
     exp.fort_dds.profile(t_science+5,'on')
     raman(t_science,t_raman,'r2')
     #FORTdrop(170,t_FORTdrop)
@@ -995,7 +995,7 @@ elif ExpMode==4:
     t_start=176
     t_end=t_start+t_BA
     exp.mot_3d_dds.profile(t_start,'Blowaway')
-    exp.fort_dds.profile(t_start,'Blowaway')
+    exp.fort_dds.profile(t_start,'on')
     t_pulsewidth=0.001*2
     t_period=0.001*4
     for i in range(int(round((t_end-t_start)/t_period))):

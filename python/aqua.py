@@ -212,7 +212,7 @@ class AQuA(Experiment):
             self.DAQmxAI, self.unlock_pause,
             self.retention_analysis, self.retention_graph,
             self.save_notes, self.save2013Analysis, self.NIScopes,
-            self.counter_hist,  # self.vitalsignsound,
+            self.counter_hist,
             self.beam_position_analysis, self.beam_position_analysis2,
             self.origin  # origin has to be last
         ]
@@ -231,8 +231,8 @@ class AQuA(Experiment):
             'iterations_graph', 'retention_graph', 'DC_noise_eater_filter',
             'DC_noise_eater_graph', 'Ramsey', 'counter_graph', 'counter_hist',
             'unlock_pause', 'ROI_rows', 'ROI_columns', 'ROI_bg_rows',
-            'ROI_bg_columns', 'NIScopes', 'beam_position_analysis', 'beam_position_analysis2'
-            'origin'
+            'ROI_bg_columns', 'NIScopes', 'beam_position_analysis',
+            'beam_position_analysis2', 'origin'
         ]
 
         try:
