@@ -203,17 +203,19 @@ if ExpMode==0:
     exp.pointgrey_trigger_switch.profile(0,'off')
     exp.pointgrey_trigger_switch.profile(t1_PGcamera,'on')
     exp.pointgrey_trigger_switch.profile(t1_PGcamera+t_PG_triggerduration,'off')
-    raman(t1_PGcamera,t_PG_triggerduration,'PG')
-    Ryd780A(t1_PGcamera,t_PG_triggerduration,'r2','PG')
+    #raman(t1_PGcamera,t_PG_triggerduration,'PG')
+    Ryd780A(t1_PGcamera,t_PG_triggerduration,'PG','PG')
 
     # FORT is turned on for short period of time for imaging.
     exp.pointgrey_trigger_switch.profile(t2_PGcamera,'on')
     exp.pointgrey_trigger_switch.profile(t2_PGcamera+t_PG_triggerduration,'off')
-    exp.fort_aom_switch.profile(t2_PGcamera,'on')
-    exp.fort_dds.profile(t2_PGcamera,'low')
-    exp.fort_aom_switch.profile(t2_PGcamera+t_PG_triggerduration,'off')
-    exp.fort_dds.profile(t2_PGcamera+t_PG_triggerduration,'off')
-
+    if (t2_PGcamera+t_PG_triggerduration)<=t_FORT_loading:
+        exp.fort_aom_switch.profile(t2_PGcamera,'on')
+        exp.fort_dds.profile(t2_PGcamera,'low')
+        exp.fort_aom_switch.profile(t2_PGcamera+t_PG_triggerduration,'off')
+        exp.fort_dds.profile(t2_PGcamera+t_PG_triggerduration,'off')
+    else:
+        logger.info("FORT image is taken after FORT transfer. Things may conflict")
     exp.FORT_NE_trigger_switch.profile(0,'off')
     exp.FORT_NE_trigger_switch.profile(t_NE_FORT_trigger_start,'on')
     exp.FORT_NE_trigger_switch.profile(t_NE_FORT_trigger_end,'off')
@@ -995,7 +997,7 @@ elif ExpMode==4:
     t_start=176
     t_end=t_start+t_BA
     exp.mot_3d_dds.profile(t_start,'Blowaway')
-    exp.fort_dds.profile(t_start,'on')
+    exp.fort_dds.profile(t_start,'Blowaway')
     t_pulsewidth=0.001*2
     t_period=0.001*4
     for i in range(int(round((t_end-t_start)/t_period))):
