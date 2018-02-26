@@ -44,6 +44,7 @@ class BeamPositionAnalysis(Analysis):
     int_error_Y = Float(0.0)  # list of historical y errors
     calibration_X = Float(1.0)
     calibration_Y = Float(1.0)
+    tau_h = Float(2)  # smoothing factor timescale in hours
     k_p = Float(0.3)
     k_i = Float(0.1)
     positions = Member()
@@ -253,9 +254,9 @@ class BeamPositionAnalysis(Analysis):
     def pi_filter(self, new_err, old_ctrl):
         """Calculate and return a new error signal for control"""
         t = time.time()
-        dt = t - self.error_ts
+        dt = (t - self.error_ts)/3600  # in hours
         self.error_ts = t  # set new timestamp
-        a = 1./((self.tau/dt) + 1)
+        a = 1./((self.tau_h/dt) + 1)
         int_error = a*new_err + (1-a)*old_ctrl
         return int_error*self.k_i + new_err*self.k_p
 

@@ -4208,6 +4208,20 @@ enamldef AAS(Window):
                             text = 'iter_analysis_path'
                         Field:
                             text := aas.iter_analysis_path
+
+                        Label:
+                            text = 'k_p'
+                        FloatField:
+                            value := aas.k_p
+                        Label:
+                            text = 'k_i'
+                        FloatField:
+                            value := aas.k_i
+                        Label:
+                            text = 'time constant (hrs)'
+                        FloatField:
+                            value := aas.tau_h
+
                         Label:
                             text = 'calibration X (pixels to degrees)'
                         FloatField:
