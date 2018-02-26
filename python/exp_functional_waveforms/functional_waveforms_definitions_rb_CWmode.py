@@ -277,7 +277,7 @@ if ExpMode==0:
     AO(25+110,3,coil_driver_polarity*shimY_RO) #Y
     AO(25+110,4,coil_driver_polarity*shimZ_RO) #Z
     exp.mot_3d_dds.profile(140,'RO')
-    exp.camera.take_shot(140)
+    #exp.camera.take_shot(140)
     t_start=140
     readout(t_start,5)
     t_end=t_start+t_readoutduration
@@ -319,12 +319,12 @@ if ExpMode==0:
     # reduce FORT trap depth during science phase
     exp.fort_dds.profile(t_science,'science')
     exp.fort_dds.profile(t_science+5,'on')
-    raman(t_science,t_raman,'r2')
+    #raman(t_science,t_raman,'r2')
     #FORTdrop(170,t_FORTdrop)
     #MicrowaveRamsey(t_science,t_gap,t_microwavepiover2)
-    Microwave(t_science,t_microwave)
+    #Microwave(t_science,t_microwave)
     #Ryd780A(t_science,t_Ryd780A,'r2','r2')
-    #MicrowaveRamsey_and_780A(t_science,t_gap,t_microwavepiover2)
+    MicrowaveRamsey_and_780A(t_science,t_gap,t_microwavepiover2)
 
     exp.red_pointing_dds.profile(175,'off')
     exp.red_pointing_aom_switch.profile(175,'off')
@@ -368,7 +368,7 @@ if ExpMode==0:
     #t_readout_2nd=195
 
     exp.mot_3d_dds.profile(t_readout_2nd,'RO')
-    exp.camera.take_shot(t_readout_2nd)
+    #exp.camera.take_shot(t_readout_2nd)
     t_start=t_readout_2nd
     readout(t_start,5)
     t_end=t_start+t_readoutduration

@@ -38,8 +38,8 @@ t_NE_FORT_trigger_start=110
 t_NE_FORT_trigger_end=115
 
 # For PG not oversaturate.
-P_DDSRF_FORT_PG=-10 # RF amplitude for DDS FORT profile : low
-P_DDSRF_780A_PG=-10 # RF amplitude for DDS 780A profile : PG
+P_DDSRF_FORT_PG=-15 # RF amplitude for DDS FORT profile : low
+P_DDSRF_780A_PG=-4 # RF amplitude for DDS 780A profile : PG
 
 # some constants for testing.
 my_MOT_SW_channel=7
