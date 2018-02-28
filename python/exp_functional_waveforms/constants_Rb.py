@@ -47,3 +47,20 @@ my_FORT_SW_channel=8
 op_aom_switch_chan=10
 readout_chop_freq_MHz=1.25
 op_chop_freq_MHz=1.00
+
+# Pypico actuator limits
+actuatorlimits={
+'RedX':[-2600,-1800],
+'RedY':[700,1300],
+'BlueX':[-2000,-1600],
+'BlueY':[-200,200]
+}
+
+t_x_shutter_open=167
+t_x_shutter_close=185 # X shutter seems one-way working.
+t_y_shutter_open=166.2
+t_y_shutter_close=180.80
+t_z1_shutter_open=166
+t_z1_shutter_close=175
+
+numshots=3
