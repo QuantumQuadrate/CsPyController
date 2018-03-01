@@ -39,6 +39,7 @@ class BeamPositionAnalysis(Analysis):
     positions_paths = List()
     setpoint_X = Float(0.0)
     setpoint_Y = Float(0.0)
+    ts = Float(0.0)  # error timestamp
     error_ts = Float(0.0)  # previous calculated error timestamp
     int_error_X = Float(0.0)  # list of historical x errors
     int_error_Y = Float(0.0)  # list of historical y errors
@@ -246,16 +247,18 @@ class BeamPositionAnalysis(Analysis):
         self.position_iter_stat['error_y'] = error_y
         # print self.position_iter_stat
         # apply pi filter
+        self.ts = time.time()
         self.int_error_X = self.pi_filter(error_x, self.int_error_X)
         self.int_error_Y = self.pi_filter(error_y, self.int_error_Y)
+        self.error_ts = self.ts  # set new timestamp
         self.position_iter_stat['ctrl_x'] = self.int_error_X
         self.position_iter_stat['ctrl_y'] = self.int_error_Y
 
     def pi_filter(self, new_err, old_ctrl):
         """Calculate and return a new error signal for control"""
-        t = time.time()
-        dt = (t - self.error_ts)/3600  # in hours
-        self.error_ts = t  # set new timestamp
+        #print 'ts:{}'.format(self.ts)
+        dt = (self.ts - self.error_ts)/3600.0  # in hours
+        #print 'dt:{}'.format(dt)
         a = 1./((self.tau_h/dt) + 1)
         int_error = a*new_err + (1-a)*old_ctrl
         return int_error*self.k_i + new_err*self.k_p
