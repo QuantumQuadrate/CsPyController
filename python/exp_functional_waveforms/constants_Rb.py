@@ -29,16 +29,17 @@ I_test_Z=-0.013
 
 # Some timings we rarely change
 t1_PGcamera = 1 # usually for Red
-t2_PGcamera = 40# usually for FORT
+t2_PGcamera = 45# usually for FORT
 t_science = 170
 t_start_blue_imaging=205
 t_blue_exposure=0.02
 t_PG_triggerduration=2
+t_PG_FORT_ontime=0.05
 t_NE_FORT_trigger_start=110
 t_NE_FORT_trigger_end=115
 
 # For PG not oversaturate.
-P_DDSRF_FORT_PG=-15 # RF amplitude for DDS FORT profile : low
+P_DDSRF_FORT_PG=-20 # RF amplitude for DDS FORT profile : low
 P_DDSRF_780A_PG=-4 # RF amplitude for DDS 780A profile : PG
 
 # some constants for testing.
