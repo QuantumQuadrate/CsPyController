@@ -213,12 +213,16 @@ class BeamPositionAnalysis(Analysis):
         super(BeamPositionAnalysis, self).preExperiment(expResults)
 
     def calculateError(self):
+        cutoff=200
         xs = self.positions['x']
         ys = self.positions['y']
-        x = np.nanmedian(xs)
-        sigma_x = np.nanstd(xs)
-        y = np.nanmedian(ys)
-        sigma_y = np.nanstd(ys)
+
+        # We will use only last 200 samples (approx 60 sec) for beam position calculation.
+        num_of_samples=min(len(xs),cutoff)
+        x = np.nanmedian(xs[-num_of_samples:])
+        sigma_x = np.nanstd(xs[-num_of_samples:])
+        y = np.nanmedian(ys[-num_of_samples:])
+        sigma_y = np.nanstd(ys[-num_of_samples:])
         # Sometimes shots can be in the wrong order
         if self.enable_reorder and (sigma_x > 0 and sigma_y > 0):
             logger.info("testing for swaps")
