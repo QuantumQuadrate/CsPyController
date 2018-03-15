@@ -455,7 +455,7 @@ class HSDIO(Instrument):
                 transition_cycles.append(1)
                 cycle_count += 1
                 # copy the old transitions in, and switch after modulo time
-                if i >= len(other_transitions):
+                if i >= len(other_transitions)-1:
                     logger.error('Transition at last repeat phase. Move the transition back one cycle.')
                     raise PauseError
                 else:

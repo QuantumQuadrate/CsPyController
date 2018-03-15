@@ -39,15 +39,15 @@ def mpl_rectangle(ax, ROI):
         (right, top),  # right, top
         (right, bottom),  # right, bottom
         (0., 0.),  # ignored
-    ]
+        ]
 
     codes = [
         Path.MOVETO,
-        Path.LINETO,
-        Path.LINETO,
-        Path.LINETO,
-        Path.CLOSEPOLY,
-     ]
+             Path.LINETO,
+             Path.LINETO,
+             Path.LINETO,
+             Path.CLOSEPOLY,
+             ]
 
     path = Path(verts, codes)
 
@@ -124,7 +124,7 @@ class Analysis(Prop):
         self.measurementThread.daemon = True
         self.measurementProcessing = False
         self.measurementQueueEmpty = True
-
+    
     def preExperiment(self, experimentResults):
         """Performs experiment initialization tasks.
 
@@ -192,7 +192,7 @@ class Analysis(Prop):
             # update the analysis status
             self.analysisStatus = m_data[2]
             callback(result)
-
+    
     def measurementProcessLoop(self):
         while True:  # run forever
             while self.measurementProcessing or len(self.measurementQueue) > 0:
@@ -251,7 +251,7 @@ class Analysis(Prop):
         while (dep.analysisStatus[0] < iter) or (dep.analysisStatus[1] < meas):
             # wait until woken up by dependent analysis
             self.restart.wait()
-
+    
     def analyzeMeasurement(self, measurementResults, iterationResults, experimentResults):
         """This is called after each measurement.
 
@@ -261,7 +261,7 @@ class Analysis(Prop):
         Subclass this to update the analysis appropriately.
         """
         pass
-
+    
     def postIteration(self, iterationResults, experimentResults):
         # block while any threaded measurements for this analysis finish
         if self.waitForMeasurements:
@@ -286,12 +286,12 @@ class Analysis(Prop):
                 self.iterationQueue.append((iterationResults, experimentResults))
         else:
             self.analyzeIteration(iterationResults, experimentResults)
-
+    
     def iterationProcessLoop(self):
         while len(self.iterationQueue) > 0:
             self.analyzeIteration(*self.iterationQueue.pop(0))  # process the oldest element
         self.iterationProcessing = False
-
+    
     def analyzeIteration(self, iterationResults, experimentResults):
         """Analyzes all measurements in an iteration.
 
@@ -301,7 +301,7 @@ class Analysis(Prop):
         appropriately.
         """
         pass
-
+    
     def postExperiment(self, experimentResults):
         # no queueing, must do post experiment processing at this time
         # block while any threaded iterations finish
@@ -320,7 +320,7 @@ class Analysis(Prop):
         while not self.measurementQueueEmpty:
             time.sleep(0.01)
         self.analyzeExperiment(experimentResults)
-
+    
     def analyzeExperiment(self, experimentResults):
         """This is called at the end of the experiment.
         The parameter experimentResults is a reference to the HDF5 file for the
@@ -336,30 +336,30 @@ class Analysis(Prop):
 
 
 class AnalysisWithFigure(Analysis):
-
+    
     #matplotlib figures
     figure = Typed(Figure)
     backFigure = Typed(Figure)
     figure1 = Typed(Figure)
     figure2 = Typed(Figure)
     draw_fig = Bool(False) # do not draw the figure unless told to
-
+    
     def __init__(self, name, experiment, description=''):
         super(AnalysisWithFigure, self).__init__(name, experiment, description)
-
+        
         #set up the matplotlib figures
         self.figure1 = Figure()
         self.figure2 = Figure()
         self.backFigure = self.figure2
         self.figure = self.figure1
-
+    
         self.properties += ['draw_fig']
 
     def swapFigures(self):
         temp = self.backFigure
         self.backFigure = self.figure
         self.figure = temp
-
+    
     def updateFigure(self):
         #signal the GUI to redraw figure
         try:
@@ -478,7 +478,7 @@ class XYPlotAnalysis(AnalysisWithFigure):
     #### needs updating
     X=Member()
     Y=Member()
-
+    
     def updateFigure(self):
         if self.draw_fig:
             fig=self.backFigure
@@ -486,12 +486,12 @@ class XYPlotAnalysis(AnalysisWithFigure):
             ax=fig.add_subplot(111)
             if (self.X is not None) and (self.Y is not None):
                 ax.plot(self.X, self.Y)
-            super(XYPlotAnalysis, self).updateFigure()
+        super(XYPlotAnalysis, self).updateFigure()
 
 
 class SampleXYAnalysis(XYPlotAnalysis):
     #### needs updating
-
+    
     '''This analysis plots the sum of the whole camera image every measurement.'''
     def analyzeMeasurement(self,measurementResults,iterationResults,experimentResults):
         if 'data/Andor_4522/shots' in measurementResults:
@@ -501,7 +501,7 @@ class SampleXYAnalysis(XYPlotAnalysis):
 
 
 class ShotsBrowserAnalysis(AnalysisWithFigure):
-
+    
     ivarNames=List(default=[])
     ivarValueLists=List(default=[])
     selection=List(default=[])
@@ -511,7 +511,7 @@ class ShotsBrowserAnalysis(AnalysisWithFigure):
     experimentResults=Member()
     showROIs = Bool(False)
     data_path = Member()
-
+    
     def __init__(self, experiment):
         super(ShotsBrowserAnalysis, self).__init__(
             'ShotsBrowser',
@@ -520,7 +520,7 @@ class ShotsBrowserAnalysis(AnalysisWithFigure):
         )
         self.data_path = 'data/' + self.experiment.Config.config.get('CAMERA', 'DataGroup') + '/shots'
         self.properties += ['measurement', 'shot', 'showROIs']
-
+    
     def preExperiment(self, experimentResults):
         # call therading setup code
         super(ShotsBrowserAnalysis, self).preExperiment(experimentResults)
@@ -528,7 +528,7 @@ class ShotsBrowserAnalysis(AnalysisWithFigure):
         self.ivarValueLists = [i for i in self.experiment.ivarValueLists]  # this line used to access the hdf5 file, but I have temporarily removed ivarValueLists from the HDF5 because it could not handle arbitrary lists of lists
         self.selection = [0]*len(self.ivarValueLists)
         deferred_call(setattr, self, 'ivarNames', [i for i in experimentResults.attrs['ivarNames']])
-
+    
     def setIteration(self,ivarIndex,index):
         try:
             self.selection[ivarIndex] = index
@@ -536,11 +536,11 @@ class ShotsBrowserAnalysis(AnalysisWithFigure):
             logger.warning('Invalid ivarIndex in analysis.ShotsBrowserAnalysis.setSelection({},{})\n{}\n[]'.format(ivarIndex,index,e,traceback.format_exc()))
             raise PauseError
         self.load()
-
+    
     @observe('measurement','shot','showROIs')
     def reload(self,change):
         self.load()
-
+    
     def load(self):
         if self.experimentResults is not None:
             # find the first matching iteration
@@ -559,12 +559,12 @@ class ShotsBrowserAnalysis(AnalysisWithFigure):
                             logger.warning('Exception trying to plot measurement {}, shot {}, in analysis.ShotsBrowserAnalysis.load()\n{}\n'.format(m, s, e))
                             self.blankFigure()
                         break
-
+    
     def blankFigure(self):
         fig=self.backFigure
         fig.clf()
         super(ShotsBrowserAnalysis,self).updateFigure()
-
+    
     def updateFigure(self):
         if self.draw_fig:
             fig=self.backFigure
@@ -576,7 +576,6 @@ class ShotsBrowserAnalysis(AnalysisWithFigure):
                 #overlay ROIs
                 for ROI in self.experiment.squareROIAnalysis.ROIs:
                     mpl_rectangle(ax, ROI)
-
             super(ShotsBrowserAnalysis,self).updateFigure() #makes a deferred_call to swap_figures()
 
 class LoadingFilters(Analysis):
@@ -646,7 +645,7 @@ class LoadingFilters(Analysis):
 
 
 class DropFirstMeasurementsFilter(Analysis):
-    """This analysis allows the user to drop the first N measurements in an
+    """This analysis allows the user to drop the first N measurements in an 
     iteration, to ensure that all measurements are done at equivalent conditions
     ."""
 
@@ -667,6 +666,7 @@ class DropFirstMeasurementsFilter(Analysis):
                 # max takes care of ComboBox returning -1 for no selection
                 logger.info('dropping measurement {} of {}'.format(i,self.N))
                 return max(0, self.filter_level)
+
 
 class MeasurementsGraph(AnalysisWithFigure):
     """Plots a region of interest sum after every measurement"""
@@ -714,7 +714,7 @@ class MeasurementsGraph(AnalysisWithFigure):
                     self.update_lock = True
                     fig = self.backFigure
                     fig.clf()
-
+    
                     if self.data is not None:
                         #parse the list of what to plot from a string to a list of numbers
                         try:
@@ -726,11 +726,11 @@ class MeasurementsGraph(AnalysisWithFigure):
                         ax = fig.add_subplot(111)
                         for i in plotlist:
                             try:
-                                data = self.data[:, i[0], 0, i[1]] #hardcoded '0' is to select the submeasurement No. 0
+                                    data = self.data[:, i[0], 0, i[1]] #hardcoded '0' is to select the submeasurement No. 0
                             except:
                                 logger.warning('Trying to plot data that does not exist in MeasurementsGraph: shot {} roi {}'.format(i[0], i[1]))
                                 continue
-                            label = '({},{})'.format(i[0], 0, i[1])
+                                label = '({},{})'.format(i[0], 0, i[1])
                             ax.plot(data, 'o', label=label)
                         #add legend using the labels assigned during ax.plot()
                         ax.legend()
@@ -869,7 +869,7 @@ class IterationsGraph(AnalysisWithFigure):
                     self.update_lock = True
                     fig = self.backFigure
                     fig.clf()
-
+    
                     if self.mean is not None:
                         #parse the list of what to plot from a string to a list of numbers
                         try:
@@ -881,12 +881,12 @@ class IterationsGraph(AnalysisWithFigure):
                         ax = fig.add_subplot(111)
                         for i in plotlist:
                             try:
-                                mean = self.mean[:, i[0], 0, i[1]] # i[0] : shot, i[1]: submeasurement? , i[2] : roi
-                                sigma = self.sigma[:, i[0], 0, i[1]]
+                                    mean = self.mean[:, i[0], 0, i[1]] # i[0] : shot, i[1]: submeasurement? , i[2] : roi
+                                    sigma = self.sigma[:, i[0], 0, i[1]]
                             except:
                                 logger.warning('Trying to plot data that does not exist in IterationsGraph: shot {} roi {}'.format(i[0], i[1]))
                                 continue
-                            label = '(shot:{},roi:{})'.format(i[0],i[1])
+                                label = '(shot:{},roi:{})'.format(i[0],i[1])
                             linestyle = '-o' if self.draw_connecting_lines else 'o'
                             if self.draw_error_bars:
                                 ax.errorbar(numpy.arange(len(mean)), mean, yerr=sigma, fmt=linestyle, label=label)
@@ -905,6 +905,7 @@ class IterationsGraph(AnalysisWithFigure):
                     logger.warning('Problem in IterationsGraph.updateFigure()\n{}\n{}\n'.format(e, traceback.format_exc()))
                 finally:
                     self.update_lock = False
+
 
 class Ramsey(AnalysisWithFigure):
     """Plots the average of a region of interest sum for an iteration, after each iteration.  Can be used with the
@@ -992,20 +993,20 @@ class Ramsey(AnalysisWithFigure):
                 fig = self.backFigure
                 fig.clf()
                 ax = fig.add_subplot(111)
-
+    
                 # plot the data points
                 linestyle = 'o'
                 if self.draw_error_bars:
                     ax.errorbar(self.t, self.y, yerr=self.sigma, fmt=linestyle)
                 else:
                     ax.plot(self.t, self.y, linestyle)
-                # adjust the limits so that the data isn't right on the edge of
-                # the graph
+                    # adjust the limits so that the data isn't right on the edge of
+                    # the graph
                 span = numpy.amax(self.t) - numpy.amin(self.t)
                 xmin = numpy.amin(self.t)-.02*span
                 xmax = numpy.amax(self.t)+.02*span
                 ax.set_xlim(xmin, xmax)
-
+    
                 # draw the fit
                 t = numpy.linspace(xmin, xmax, 200)
                 ax.plot(t, self.fitFunc(t, *self.fitParams), '-')

@@ -2,8 +2,9 @@
 roi_fitting.py
 Part of the CsPyController experiment control software
 author = Martin Lichtman
+housekeeper =  Y.S.@AQuA
 created = 2014.07.01
-modified >= 2014.07.01
+modified >= 2015.10.19
 
 This file contains an analysis which tries to fit 49 gaussians to the atom
 array.
@@ -51,6 +52,7 @@ class GaussianROI(ROIAnalysis):
     cutoffs_from_which_experiment = Str()
     shots_path = Str()
     meas_analysis_path = Str()
+    iter_analysis_base_path = Str()
     iter_analysis_path = Str()
 
     def __init__(self, name, experiment):
@@ -71,7 +73,8 @@ class GaussianROI(ROIAnalysis):
         )
         # where we are going to dump data after analysis
         self.meas_analysis_path = 'analysis/gaussianROI'
-        self.iter_analysis_path = 'analysis/gaussian_roi'
+        self.iter_analysis_base_path = 'analysis/gaussian_roi'
+        self.iter_analysis_path = self.iter_analysis_base_path + '/sums'
 
         # analyze in a separate thread
         self.queueAfterMeasurement = True
@@ -138,7 +141,7 @@ class GaussianROI(ROIAnalysis):
     def gaussian(self, a, w, rotation, xy0, xy):
         return self.rotated_gaussian(a, w, rotation, xy - xy0)
 
-    def fitFunc(self, xy, x0, y0, spacing, grid_angle, amplitude, wx, wy,
+    def fitFunc(self, xy, x0, y0, row_offset_x, row_offset_y, spacing, grid_angle, amplitude, wx, wy,
                 spot_angle, blacklevel):
         """Find the best fit to a square grid of gaussians of all the same
         height, equal spacing in x and y, allow for rotation of array, allow
@@ -147,6 +150,7 @@ class GaussianROI(ROIAnalysis):
 
         # sum up the contribution of each gaussian to the total
         xy0 = np.array([[[x0]], [[y0]]])
+        xy_offset = np.array([[[row_offset_x]], [[row_offset_y]]])
         width = np.array([[[wx]], [[wy]]])
         spots = []
         for r in xrange(self.rows):
@@ -155,7 +159,7 @@ class GaussianROI(ROIAnalysis):
                     self.rotation(grid_angle),
                     np.array([[[r]], [[c]]]),
                     axes=1
-                ) * spacing
+                ) * spacing + np.remainder(r,2)*xy_offset
 
                 spots.append(self.gaussian(
                     amplitude,
@@ -167,8 +171,8 @@ class GaussianROI(ROIAnalysis):
         out = np.sum(spots, axis=0) + blacklevel
         return out.ravel()
 
-    def get_rois(self, image_shape, x0, y0, spacing, grid_angle, amplitude,
-                 wx, wy, spot_angle, blacklevel):
+    def get_rois(self, image_shape, x0, y0,row_offset_x, row_offset_y, spacing, 
+                  grid_angle, amplitude,wx, wy, spot_angle, blacklevel):
         """Create a set of ROI masks from the fit parameters.
         Use 1 for all the amplitudes so they are weighted the same."""
 
@@ -176,6 +180,7 @@ class GaussianROI(ROIAnalysis):
 
         # sum up the contribution of each gaussian to the total
         xy0 = np.array([[[x0]], [[y0]]])
+        xy_offset = np.array([[[row_offset_x]], [[row_offset_y]]])
         width = np.array([[[wx]], [[wy]]])
         spots = np.empty((
             self.rows * self.columns,
@@ -188,7 +193,7 @@ class GaussianROI(ROIAnalysis):
                     self.rotation(grid_angle),
                     np.array([[[r]], [[c]]]),
                     axes=1
-                ) * spacing
+                ) * spacing + np.remainder(r,2)*xy_offset
 
                 spots[i] = self.gaussian(
                     1,
@@ -210,7 +215,7 @@ class GaussianROI(ROIAnalysis):
             ]])
             res = self.calculate_sums(all_images)[0]
             data_path = self.meas_analysis_path
-            measRes[data_path] = res
+            measRes[data_path] = res.reshape((1, res.shape[0], self.experiment.ROI_rows, self.experiment.ROI_columns))
 
     def postIteration(self, iterationResults, experimentResults):
         if self.enable:
@@ -244,17 +249,16 @@ class GaussianROI(ROIAnalysis):
                     # note the error, set the amplitude to 0 and move on:
                     logger.exception("Exception in GaussianROI.postIteration")
                     # set the amplitude to 0 and move on
-                    self.fitParams = (0, 0, 0, 0, 0, 0, 0, 0, 0)
+                    self.fitParams = (0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0)
                     self.fitCovariances = np.zeros(1)
                 # --- save analysis ---
-                data_path = self.iter_analysis_path + '/fit_params'
+                data_path = self.iter_analysis_base_path + '/fit_params'
                 iterationResults[data_path] = self.fitParams
-                data_path = self.iter_analysis_path + '/covariance_matrix'
+                data_path = self.iter_analysis_base_path + '/covariance_matrix'
                 iterationResults[data_path] = self.fitCovariances
 
             if self.enable_calculate_sums:
-                data_path = self.iter_analysis_path + '/sums'
-                iterationResults[data_path] = self.calculate_sums(all_images)
+                iterationResults[self.iter_analysis_path] = self.calculate_sums(all_images)
 
     def calculate_sums(self, images):
         if self.subtract_background_from_sums:
@@ -331,6 +335,8 @@ class GaussianROI(ROIAnalysis):
         initial_guess = (
             top,
             left,
+            0,
+            0,
             spacing,
             angle,
             amplitude,
@@ -415,15 +421,18 @@ class GaussianROI(ROIAnalysis):
         # plot the 1 sigma gaussian ellipses
         x0 = fitParams[0]
         y0 = fitParams[1]
-        spacing = fitParams[2]
-        grid_angle = fitParams[3]
-        amplitude = fitParams[4]
-        wx = fitParams[5]
-        wy = fitParams[6]
-        spot_angle = fitParams[7]
-        blacklevel = fitParams[8]
+        row_offset_x = fitParams[2]
+        row_offset_y = fitParams[3]
+        spacing = fitParams[4]
+        grid_angle = fitParams[5]
+        amplitude = fitParams[6]
+        wx = fitParams[7]
+        wy = fitParams[8]
+        spot_angle = fitParams[9]
+        blacklevel = fitParams[10]
 
         xy0 = np.array([[[x0]], [[y0]]])
+        xy_offset = np.array([[[row_offset_x]], [[row_offset_y]]])
         width = np.array([[[wx]], [[wy]]])
         ax = fig.add_subplot(gs[1, 1])
         ax.matshow(image_sum)
@@ -434,7 +443,7 @@ class GaussianROI(ROIAnalysis):
                     self.rotation(grid_angle),
                     np.array([[[r]], [[c]]]),
                     axes=1
-                ) * spacing
+                ) * spacing+ np.remainder(r,2)*xy_offset
                 patch = Ellipse(
                     xy0i[::-1],
                     width=2 * wx,

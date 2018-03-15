@@ -88,7 +88,7 @@ class AI_Graph(AnalysisWithFigure):
                     self.update_lock = True
                     fig = self.backFigure
                     fig.clf()
-
+    
                     if self.data is not None:
                         #parse the list of what to plot from a string to a list of numbers
                         try:
@@ -100,15 +100,16 @@ class AI_Graph(AnalysisWithFigure):
                         ax = fig.add_subplot(111)
                         for i in plotlist:
                             try:
-                                #data = numpy.average(self.data[:, i[0], i[1]], axis=1)  # All measurements. Selected channel, saverage over sampels.
-                                data=self.data[-1, i[0], i[1]] # Show only the latest
+                                    #data = numpy.average(self.data[:, i[0], i[1]], axis=1)  # All measurements. Selected channel, saverage over sampels.
+                                    data=self.data[-1, i[0], i[1]] # Show only the latest
                             except:
                                 logger.warning('Trying to plot data that does not exist in AIGraph: channel {} samples {}-{}'.format(i[0], min(i[1]), max(i[1])))
                                 continue
                             label = 'ch.{}'.format(i[0])
                             ax.plot(data, 'o', label=label)
                         #add legend using the labels assigned during ax.plot()
-                        ax.legend()
+                        ax.legend(bbox_to_anchor=(0., 1.02, 1., .102), loc=2, borderaxespad=0.0)
+                        ax.grid('on')
                     super(AI_Graph, self).updateFigure()
                 except Exception as e:
                     logger.warning('Problem in AIGraph.updateFigure()\n:{}'.format(e))

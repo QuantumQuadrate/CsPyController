@@ -10,6 +10,8 @@ from __init__ import import_config
 # Bring in other files in this package
 from ConfigInstrument import Config
 import functional_waveforms, analysis, instek_pst, save2013style, TTL, LabView
+import BILT
+import noise_eaters
 import DDS, roi_fitting
 import picomotors, andor, picampython, vaunix, DCNoiseEater, Laird_temperature, AnalogInput
 import Counter, unlock_pause, niscope, newportstage, nidaq_ai
@@ -31,6 +33,19 @@ import origin_interface
 import FakeInstrument  # for testing
 from pypico import PyPicoServer  # for communicating with a picomotor server
 try:
+	import conex
+	conexfound=True
+except:
+	print "Conex could not be loaded. Conex translation stages will not work."
+	conexfound=False
+try:
+	import aerotech
+	aerotechfound=True
+except:
+	print "Aerotech could not be loaded. If it is needed, check that pythonnet is installed."
+	aerotechfound=False
+
+try:
     from blackfly import BlackflyClient  # communicates with Blackfly camera server
     pycap = True
 except:
@@ -40,6 +55,7 @@ except:
 
 # analyses
 from SquareROIAnalysis import SquareROIAnalysis
+from AQuAAIAnalysis import AQuAAIAnalysis
 from recent_shot_analysis import RecentShotAnalysis
 from image_sum_analysis import ImageSumAnalysis
 from threshold_analysis import ThresholdROIAnalysis
@@ -59,6 +75,8 @@ class AQuA(Experiment):
 
     Config = Member()
     picomotors = Member()
+    noise_eaters = Member()
+    BILT = Member()
     instekpsts = Member()
     aerotechs = Member()
     conexes = Member()
@@ -83,6 +101,7 @@ class AQuA(Experiment):
     AI_graph = Member()
     AI_filter = Member()
     squareROIAnalysis = Member()
+    AQuAAIAnalysis = Member()
     thresholdROIAnalysis = Member()
     gaussian_roi = Member()
     loading_filters = Member()
@@ -102,6 +121,7 @@ class AQuA(Experiment):
     picam_viewer = Member()
     DC_noise_eater_graph = Member()
     DC_noise_eater_filter = Member()
+    Noise_EatersGraph = Member()
     Ramsey = Member()
     retention_analysis = Member()
     counter_graph = Member()
@@ -127,6 +147,8 @@ class AQuA(Experiment):
         if conex_enable:
             self.conexes = conex.Conexes('conexes', self, 'CONEX-CC')
         self.picomotors = picomotors.Picomotors('picomotors', self, 'Newport Picomotors')
+        self.noise_eaters = noise_eaters.Noise_Eaters('noise_eaters', self,'rotating wave-plate noise eaters')
+        self.BILT = BILT.BILTcards('BILT',self, 'BILT DC Voltage sources')
         self.instekpsts = instek_pst.InstekPSTs('instekpsts', self, 'Instek PST power supply')
         self.Andors = andor.Andors('Andors', self, 'Andor Luca measurementResults')
         if pycap:
@@ -146,9 +168,9 @@ class AQuA(Experiment):
         # do not include functional_waveforms in self.instruments because it
         # need not start/stop
         self.instruments += [
-            self.box_temperature, self.picomotors, self.pyPicoServer,
+            self.box_temperature, self.picomotors, self.noise_eaters, self.pyPicoServer,
             self.NIScopes, self.Andors, self.PICams,
-            self.DC_noise_eaters, self.DDS, self.unlock_pause,
+            self.DC_noise_eaters, self.BILT, self.DDS, self.unlock_pause,
             self.Embezzletron, self.instekpsts,
             self.vaunixs, self.NewportStage,
         ]
@@ -160,6 +182,7 @@ class AQuA(Experiment):
             self.instruments += [self.blackfly_client]
         # Labview must be last at least until someone fixes the start command
         self.instruments += [self.LabView]
+
         # analyses
         self.functional_waveforms_graph = functional_waveforms.FunctionalWaveformGraph('functional_waveform_graph', self, 'Graph the HSDIO, DAQmx DO, and DAQmx AO settings')
         self.TTL_filters = TTL.TTL_filters('TTL_filters', self)
@@ -167,6 +190,7 @@ class AQuA(Experiment):
         self.AI_filter = AnalogInput.AI_Filter('AI_filter', self, 'Analog Input filter')
         self.first_measurements_filter = analysis.DropFirstMeasurementsFilter('first_measurements_filter', self, 'drop the first N measurements')
         self.squareROIAnalysis = SquareROIAnalysis(self)
+        self.AQuAAIAnalysis = AQuAAIAnalysis(self)
         self.gaussian_roi = roi_fitting.GaussianROI('gaussian_roi', self)
         self.counter_graph = Counter.CounterAnalysis('counter_graph', self, 'Graphs the counter data after each measurement.')
         self.thresholdROIAnalysis = ThresholdROIAnalysis(self)
@@ -184,6 +208,7 @@ class AQuA(Experiment):
         # self.picam_viewer = picam.PICamViewer('picam_viewer', self, 'show the most recent PICam image')
         self.DC_noise_eater_graph = DCNoiseEater.DCNoiseEaterGraph('DC_noise_eater_graph', self, 'DC Noise Eater graph')
         self.DC_noise_eater_filter = DCNoiseEater.DCNoiseEaterFilter('DC_noise_eater_filter', self, 'DC Noise Eater Filter')
+        self.Noise_EatersGraph = noise_eaters.Noise_EatersGraph('Noise_EatersGraph', self, 'Graph of new DC Noise eater output')
         self.Ramsey = analysis.Ramsey('Ramsey', self, 'Fit a cosine to retention results')
         self.retention_analysis = RetentionAnalysis('retention_analysis', self, 'calculate the loading and retention')
         self.counter_hist = Counter.CounterHistogramAnalysis('counter_hist', self, 'Fits histograms of counter data and plots hist and fits.')
@@ -192,7 +217,7 @@ class AQuA(Experiment):
         self.beam_position_analysis = BeamPositionAnalysis(self)
         self.beam_position_analysis2 = BeamPositionAnalysis(self)
         # setup path for second beam position analysis
-        self.beam_position_analysis2.set_position_paths(datagroup='Camera1DataGroup')
+        self.beam_position_analysis2.set_position_path(datagroup='Camera1DataGroup')
         # self.vitalsignsound=Vitalsign('vital_sign_sound',self,'beeps when atoms are loaded')
         self.origin = origin_interface.Origin('origin', self, 'saves selected data to the origin data server')
 
@@ -200,27 +225,29 @@ class AQuA(Experiment):
         # need not update on iterations, etc.
         # origin needs to be the last analysis always
         self.analyses += [
-            self.TTL_filters, self.AI_graph, self.AI_filter,
-            self.squareROIAnalysis, self.counter_graph, self.thresholdROIAnalysis,
-            self.gaussian_roi, self.loading_filters,
+            self.TTL_filters, self.AI_graph, self.AI_filter, self.AQuAAIAnalysis,
+            # ROI analyses go here ------------------------------------------
+            self.squareROIAnalysis, self.counter_graph, self.gaussian_roi,
+            # ---------------------------------------------------------------
+            self.histogram_grid,self.histogramAnalysis, self.thresholdROIAnalysis,
+            self.loading_filters,
             self.first_measurements_filter, self.text_analysis,
             self.imageSumAnalysis, self.recent_shot_analysis,
-            self.shotBrowserAnalysis, self.histogramAnalysis,
-            self.histogram_grid, self.measurements_graph,
+            self.shotBrowserAnalysis, self.measurements_graph,
             self.iterations_graph, self.DC_noise_eater_graph,
-            self.DC_noise_eater_filter, self.Andors, self.PICams, self.Ramsey,
-            self.DAQmxAI, self.unlock_pause,
+            self.DC_noise_eater_filter, self.Noise_EatersGraph, self.Andors,
+            self.PICams, self.Ramsey, self.DAQmxAI, self.unlock_pause,
             self.retention_analysis, self.retention_graph,
             self.save_notes, self.save2013Analysis, self.NIScopes,
-            self.counter_hist,
+            self.counter_hist,  # self.vitalsignsound,
             self.beam_position_analysis, self.beam_position_analysis2,
             self.origin  # origin has to be last
         ]
 
         self.properties += [
-            'Config',
+            'Config', 'AQuAAIAnalysis',
             'functional_waveforms', 'LabView', 'functional_waveforms_graph',
-            'DDS', 'aerotechs', 'picomotors', 'pyPicoServer', 'conexes',
+            'DDS', 'aerotechs', 'picomotors', 'noise_eaters', 'BILT', 'pyPicoServer', 'conexes',
             'Andors', 'PICams', 'DC_noise_eaters', 'blackfly_client',
             'box_temperature', 'DAQmxAI', 'squareROIAnalysis',
             'thresholdROIAnalysis', 'gaussian_roi', 'instekpsts', 'TTL_filters',

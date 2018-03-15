@@ -32,6 +32,7 @@ import numpy
 from atom.api import Int, Tuple, List, Str, Float, Bool, Member, observe
 from instrument_property import IntProp, FloatProp, ListProp, StrProp
 from cs_instruments import Instrument
+import traceback
 
 #https://code.google.com/archive/p/pyniscope/
 try:
@@ -59,6 +60,7 @@ class NIScopeInstrument(Instrument):
     DeviceName = Member()
 
     data = Member()  # holds acquired data until they are written
+    FFTdata = Member()
     mode = Str('experiment')  # experiment vs. video
     analysis = Member()  # holds a link to the GUI display
     
@@ -69,6 +71,8 @@ class NIScopeInstrument(Instrument):
     TrigSource = Int(2)
     TrigLevel = Member()
     TrigDelay = Member()
+    
+    FFTMeas = Bool(False)
     
     HorizScale = Int(0)
     HorizRecordLength = Member()
@@ -111,11 +115,12 @@ class NIScopeInstrument(Instrument):
         self.properties += ['DeviceName','TrigLevel','TrigDelay','HorizRecordLength','Chan0Offset',
                             'Chan1Offset','Chan1Atten','Chan1Impedance','Chan1Coupling','Chan1VertScale',
                             'Chan0Atten','Chan0Impedance','Chan0Coupling','Chan0VertScale',
-                            'HorizScale','TrigSource','TrigMode','TrigSlope']
+                            'HorizScale','TrigSource','TrigMode','TrigSlope','FFTMeas']
 
     def initialize(self):
         try:
             self.scope = niScope.Scope(resourceName=self.DeviceName.value)
+            logger.info('Initializing niScope')
         except Exception as e:
             logger.error("Failed to initialize niScope (name: {}). Exception: {}".format(self.DeviceName.value,e))
             raise PauseError
@@ -128,8 +133,10 @@ class NIScopeInstrument(Instrument):
         self.isDone = True
 
     def update(self):
+        logger.info('updating NIScope')
         if self.enable:
             if not self.isInitialized:
+                logger.info('Initializing NIScope')
                 self.initialize()
              
             #logger.warning('Checking Acquisition Status')   
@@ -219,9 +226,13 @@ class NIScopeInstrument(Instrument):
                 each measurement run to make sure all pictures have been acquired."""
         if self.enable:
             data = self.scope.Fetch(channelList='0,1').T
+            print "data.shape={}".format(data.shape)
+            fx, FFTdata = self.scope.FetchMeasurement(channelList='0,1',arrayMeasurement=NISCOPE_VAL_FFT_AMP_SPECTRUM_DB)
             x = numpy.linspace(0,self.horizscales[self.HorizScale],self.HorizRecordLength.value)
             self.data = numpy.stack((x,data[0],data[1]))
-
+            print "fx.shape={}".format(fx.shape)
+            print "FFTdata.shape={}".format(FFTdata.shape)
+            self.FFTdata = numpy.stack((fx[0],FFTdata[0],FFTdata[1]))
             
             
 
@@ -231,6 +242,7 @@ class NIScopeInstrument(Instrument):
         if self.enable:
             try:
                 hdf5['NIScope_{}'.format(self.DeviceName.value)] = self.data
+                hdf5['NIScope_FFT_{}'.format(self.DeviceName.value)] = self.FFTdata
             except Exception as e:
                 logger.error('in NIScope.writeResults:\n{}'.format(e))
                 raise PauseError
@@ -247,6 +259,7 @@ class NIScopeInstrument(Instrument):
 class NIScopeViewer(AnalysisWithFigure):
     """Plots the currently incoming shot"""
     data = Member()
+    FFTdata = Member()
     update_lock = Bool(False)
     artist = Member()
     mycam=Member()
@@ -266,6 +279,7 @@ class NIScopeViewer(AnalysisWithFigure):
         if 'data/NIScope_{}'.format(self.mycam.DeviceName.value) in measurementResults:
             #for each image
             self.data = measurementResults['data/NIScope_{}'.format(self.mycam.DeviceName.value)]
+            self.FFTdata = measurementResults['data/NIScope_FFT_{}'.format(self.mycam.DeviceName.value)]
         self.updateFigure()  # only update figure if image was loaded
 
     @observe('shot')
@@ -285,7 +299,8 @@ class NIScopeViewer(AnalysisWithFigure):
                 fig.clf()
 
                 if (self.data is not None):
-                    ax = fig.add_subplot(111)
+                    ax = fig.add_subplot(211)
+                    axFFT = fig.add_subplot(212)
                     
                     #data format: 0: x values, 1: CH0 y, 2: CH1 y
                     ax.plot(self.data[0],self.data[1],'b-')
@@ -293,6 +308,7 @@ class NIScopeViewer(AnalysisWithFigure):
                     ax.set_ylabel('CH0 (V)')
                     ax.set_title(self.mycam.DeviceName.value)
                     ax.tick_params('y',colors='b')
+                    
 
                     ax.set_ylim(-self.mycam.voltageranges[self.mycam.Chan0VertScale]+self.mycam.Chan0Offset.value, self.mycam.voltageranges[self.mycam.Chan0VertScale]+self.mycam.Chan0Offset.value)
                         
@@ -303,6 +319,20 @@ class NIScopeViewer(AnalysisWithFigure):
                     
                     ax2.set_ylim(-self.mycam.voltageranges[self.mycam.Chan1VertScale]+self.mycam.Chan1Offset.value, self.mycam.voltageranges[self.mycam.Chan1VertScale]+self.mycam.Chan1Offset.value)
 
+                    #FFT spectra
+                    #data format: 0: x values, 1: CH0 y, 2: CH1 y
+                    axFFT.plot(self.FFTdata[0],self.FFTdata[1],'b-')
+                    axFFT.set_xlabel('Frequency (Hz)')
+                    axFFT.set_ylabel('CH0 (dB rel. max)')
+                    axFFT.set_title(self.mycam.DeviceName.value)
+                    axFFT.tick_params('y',colors='b')
+                    
+                    axFFT2 = axFFT.twinx()
+                    axFFT2.plot(self.FFTdata[0],self.FFTdata[2],'r-')
+                    axFFT2.set_ylabel('CH1 (dB rel. max)')
+                    axFFT2.tick_params('y',colors='r')
+                    
+                    
                     self.maxPixel0 = numpy.max(self.data[1])
                     self.meanPixel0 = numpy.mean(self.data[1])
                     self.maxPixel1 = numpy.max(self.data[2])
@@ -405,6 +435,7 @@ class NIScopes(Instrument,Analysis):
 
     def update(self):
         msg = ''
+        logger.info('updating scopes')
         try:
             for i in self.motors:
                 if i.scope.enable:
@@ -444,6 +475,9 @@ class NIScopes(Instrument,Analysis):
                     msg = i.scope.acquire_data()
         except Exception as e:
             logger.error('Problem acquiring NIScope data:\n{}\n{}\n'.format(msg, e))
+            logger.error('Traceback:\n')
+            exc_type, exc_value, exc_traceback = sys.exc_info()
+            traceback.print_tb(exc_traceback,file=sys.stdout)
             self.isInitialized = False
             raise PauseError
 

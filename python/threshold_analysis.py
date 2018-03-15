@@ -97,7 +97,7 @@ class ThresholdROIAnalysis(ROIAnalysis):
         # the same threshold is used for all shots
         for j, shot in enumerate(new_thresholds):
             for i, t in enumerate(shot):
-                self.threshold_array[i, j] = (t,)
+                self.threshold_array[j, i] = (t,)
         self.cutoffs_from_which_experiment = timestamp
 
     def preExperiment(self, experimentResults):
@@ -148,10 +148,11 @@ class ThresholdROIAnalysis(ROIAnalysis):
                 self.meas_enable = False
             else:
                 # check if the roi source has the sub-measurement dimension
-                if len(shot_array.shape) < 4:
+                if len(shot_array.shape) == 3:
                     # if not add it
                     logger.warning('ROI_source for threshold_analysis does not have sub-measurement support.')
                     shot_array = np.array([shot_array])
+                
                 n_sub_meas, n_shots, n_rows, n_cols = shot_array.shape
                 threshold_array = np.zeros((n_sub_meas, n_shots, n_rows*n_cols), dtype=np.bool_)
                 for sm in xrange(n_sub_meas):

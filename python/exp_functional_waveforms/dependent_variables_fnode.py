@@ -95,16 +95,19 @@ fort_aom_profiles = {
     'on': { 'freq': 115, 'amp': -2.55 },
     'off': { 'freq': 80, 'amp': -100  },
     'high': { 'freq': 115, 'amp': 0 },
-    'low': { 'freq': 115, 'amp': -3.7  },
+    'low': { 'freq': 115, 'amp': -2.55  },
 }
 
 if exp_type in [fort_exp]:
+    #mot_time = cycle_time - (2*readout_780 + drop_time + 10 + 0*gap_time + pgc_time + 5.2 + post_read_pgc_time)
     mot_time = cycle_time - (2*readout_780 + drop_time + gap_time + pgc_time + 5.2 + post_read_pgc_time)
+
     if test_mz_readout:
         cycle_time += test_mz_readout_duration
     if p_heating:
         cycle_time += p_heating_duration
     cycle_time += exra_readout_780
+    #cycle_time += gap_time - 10
     print "mot_time: {}".format(mot_time)
 
 if exp_type in [mot_cw_exp]:
