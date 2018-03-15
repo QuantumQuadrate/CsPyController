@@ -104,7 +104,7 @@ ryd780b_dds_profiles = {
 red_pointing_dds_pinout = (-1,24,25) # -1 indicates pins that are not being used
 red_pointing_dds_profiles = {
     'off' : (0,0,0),
-    'r1' : (0,0,1),
+    'addressing' : (0,0,1),
     'r2' : (0,1,0),
     'PG' : (0,1,1)
 }

@@ -163,14 +163,14 @@ def Ryd780A(t,duration,pointing_profile,intensity_profile): # region_profile exa
         exp.ryd780a_aom_switch.profile(t,'on')
         exp.ryd780a_aom_switch.profile(t+duration,'off')
 
-def MicrowaveRamsey_and_780A(t_start,t_gap,t_piover2):
+def MicrowaveRamsey_and_780A(t_start, t_gap, t_piover2, pointing_profile, intensity_profile):
     """ Creates two pi/2 pulses separated by t_gap. First pulse starts at t_start"""
     if t_start>=0 and t_piover2 >0 and t_gap>=0: #make sure timings are valid
         exp.microwave_dds.profile(t_start,'on')
         exp.microwave_switch.profile(t_start,'on')
         exp.microwave_dds.profile(t_start+t_piover2,'off')
         exp.microwave_switch.profile(t_start+t_piover2,'off')
-        Ryd780A(t_start+t_piover2,t_gap,'r2','r2')
+        Ryd780A(t_start+t_piover2,t_gap,pointing_profile,intensity_profile)
         exp.microwave_dds.profile(t_start+t_piover2+t_gap,'on')
         exp.microwave_switch.profile(t_start+t_piover2+t_gap,'on')
         exp.microwave_dds.profile(t_start+t_piover2+t_gap+t_piover2,'off')
@@ -324,9 +324,8 @@ if ExpMode==0:
     #FORTdrop(170,t_FORTdrop)
     #MicrowaveRamsey(t_science,t_gap,t_microwavepiover2)
     #Microwave(t_science,t_microwave)
-    Microwave(0.01,209)
     #Ryd780A(t_science,t_Ryd780A,'r2','r2')
-   # MicrowaveRamsey_and_780A(t_science,t_gap,t_microwavepiover2)
+    MicrowaveRamsey_and_780A(t_science, t_gap, t_microwavepiover2, 'addressing', 'r2')
 
     exp.red_pointing_dds.profile(175,'off')
     exp.red_pointing_aom_switch.profile(175,'off')

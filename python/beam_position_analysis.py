@@ -213,7 +213,7 @@ class BeamPositionAnalysis(Analysis):
         super(BeamPositionAnalysis, self).preExperiment(expResults)
 
     def calculateError(self):
-        cutoff=200
+        cutoff=25 # last 25 samples.
         xs = self.positions['x']
         ys = self.positions['y']
 
