@@ -2237,14 +2237,7 @@ enamldef Picam(Form):
                         prop << item.camera.maxPlot
                 LabelBox:
                     text = 'Use Demo Camera'
-<<<<<<< HEAD
                     checked := item.camera.useDemo
-=======
-                    checked := item.camera.useDemo
->>>>>>> fd579622493b15c6aa263b595e65f828c8884d7e
-
-
-
 
 enamldef FiltersPage(Page):
     title = 'Filters'
