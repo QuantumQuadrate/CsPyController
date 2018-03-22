@@ -4276,41 +4276,45 @@ enamldef PyPico(Window):
             style_class << 'valid' if experiment.valid else 'invalid'
             Container:
                 style_class << 'valid' if experiment.valid else 'invalid'
-            Form:
-                hug_width = 'strong'
-                hug_height = 'strong'
-                Label:
-                    text = 'enable'
-                CheckBox:
-                    checked := pypico.enable
-                Label:
-                    text = 'enable_measurement'
-                CheckBox:
-                    checked := pypico.enable_measurement
-                Label:
-                    text = 'enable_iteration'
-                CheckBox:
-                    checked := pypico.enable_iteration
-                Label:
-                    text = 'enable_movement'
-                CheckBox:
-                    checked := pypico.enable_movement
-                Label:
-                    text = 'IP Address'
-                Field:
-                    text := pypico.IP
-                Label:
-                    text = 'port'
-                IntField:
-                    value := pypico.port
-                Label:
-                    text = 'timeout (ms)'
-                IntField:
-                    value := pypico.timeout
 
-            IndexedContainer:
-                iterable << pypico.motors
-                viewType = Picomotor
+                Container:
+                    hug_width = 'strong'
+                    hug_height = 'strong'
+                    Form:
+                        hug_width = 'strong'
+                        hug_height = 'strong'
+                        Label:
+                            text = 'enable'
+                        CheckBox:
+                            checked := pypico.enable
+                        Label:
+                            text = 'enable_measurement'
+                        CheckBox:
+                            checked := pypico.enable_measurement
+                        Label:
+                            text = 'enable_iteration'
+                        CheckBox:
+                            checked := pypico.enable_iteration
+                        Label:
+                            text = 'enable_movement'
+                        CheckBox:
+                            checked := pypico.enable_movement
+                        Label:
+                            text = 'IP Address'
+                        Field:
+                            text := pypico.IP
+                        Label:
+                            text = 'port'
+                        IntField:
+                            value := pypico.port
+                        Label:
+                            text = 'timeout (ms)'
+                        IntField:
+                            value := pypico.timeout
+
+                    IndexedContainer:
+                        iterable << pypico.motors
+                        viewType = Picomotor
 
 enamldef AAS(Window):
     attr aas

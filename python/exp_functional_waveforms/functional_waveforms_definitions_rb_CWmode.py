@@ -89,7 +89,7 @@ def opticalpumping(t,duration):
         phases = [[0.3, 0.6], [0.1, 0.6]]
         profiles = [
             [1, 0, 1], # OP on is 0. off is 1
-            [1, 0, 1]
+            [1, 0, 1]  # FORT chopping: 1 , 0 , 1, no chopping : 1 1 1
         ]
         t = HSDIO_repeat(t, chop_readout(channels, phases, profiles, period_ms), cycles)
     else:
@@ -163,6 +163,21 @@ def Ryd780A(t,duration,pointing_profile,intensity_profile): # region_profile exa
         exp.ryd780a_aom_switch.profile(t,'on')
         exp.ryd780a_aom_switch.profile(t+duration,'off')
 
+def Ryd780A_pulsed(t, cycle_time, pointing_profile, intensity_profile, pulse_ontime, num_of_pulses): # region_profile example: 'r2'
+    if t>=0: #make sure timings are valid
+        for i in range(0,num_of_pulses):
+            exp.red_pointing_dds.profile(t+i*cycle_time,pointing_profile)
+            exp.red_pointing_dds.profile(t+pulse_ontime+i*cycle_time,'off')
+            exp.ryd780a_dds.profile(t+i*cycle_time,intensity_profile)
+            exp.ryd780a_dds.profile(t+pulse_ontime+i*cycle_time,'off')
+            exp.red_pointing_aom_switch.profile(t+i*cycle_time,'on')
+            exp.red_pointing_aom_switch.profile(t+pulse_ontime+i*cycle_time,'off')
+            exp.ryd780a_aom_switch.profile(t+i*cycle_time,'on')
+            exp.ryd780a_aom_switch.profile(t+pulse_ontime+i*cycle_time,'off')
+            exp.fort_aom_switch.profile(t+i*cycle_time,'off')
+            exp.fort_aom_switch.profile(t+pulse_ontime+i*cycle_time,'on')
+
+
 def MicrowaveRamsey_and_780A(t_start, t_gap, t_piover2, pointing_profile, intensity_profile):
     """ Creates two pi/2 pulses separated by t_gap. First pulse starts at t_start"""
     if t_start>=0 and t_piover2 >0 and t_gap>=0: #make sure timings are valid
@@ -175,6 +190,13 @@ def MicrowaveRamsey_and_780A(t_start, t_gap, t_piover2, pointing_profile, intens
         exp.microwave_switch.profile(t_start+t_piover2+t_gap,'on')
         exp.microwave_dds.profile(t_start+t_piover2+t_gap+t_piover2,'off')
         exp.microwave_switch.profile(t_start+t_piover2+t_gap+t_piover2,'off')
+
+def Blue480(t, duration, pointing_profile):
+    exp.blue_pointing_dds.profile(t, pointing_profile)
+    exp.blue_pointing_aom_switch.profile(t, 'on')
+    exp.blue_pointing_dds.profile(t+duration,'off')
+    exp.blue_pointing_aom_switch.profile(t+duration,'off')
+
 ###########################################################################
 # Main Block
 # Setting timing sequences for an experiment.
@@ -232,6 +254,8 @@ if ExpMode==0:
     exp.MOT_scope_trigger_switch.profile(0,'off')
     exp.MOT_scope_trigger_switch.profile(140,'on')
     exp.MOT_scope_trigger_switch.profile(145,'off')
+    exp.blue_pointing_dds.profile(0,'off')
+    exp.blue_pointing_aom_switch.profile(0,'off')
 
     exp.scope_trigger_switch.profile(170,'on')
     exp.scope_trigger_switch.profile(171,'off')
@@ -286,7 +310,7 @@ if ExpMode==0:
     exp.hf_aom_switch.profile(t_start,'on')
     exp.hf_aom_switch.profile(t_end+0.2,'off') ###
     AO(t_end+0.2,7,0)
-   # prepareF1(t_start,10)
+    prepareF1(t_end+0.3,t_F1prepare)
 
     ## Optical Pumping Phase
 
@@ -321,20 +345,22 @@ if ExpMode==0:
     exp.fort_dds.profile(t_science,'science')
     exp.fort_dds.profile(t_science+5,'on')
     #raman(t_science,t_raman,'r2')
-    #FORTdrop(170,t_FORTdrop)
+    #FORTdrop(t_science, t_FORTdrop)
     #MicrowaveRamsey(t_science,t_gap,t_microwavepiover2)
     #Microwave(t_science,t_microwave)
     #Ryd780A(t_science,t_Ryd780A,'r2','r2')
-    MicrowaveRamsey_and_780A(t_science, t_gap, t_microwavepiover2, 'addressing', 'r2')
+    #Ryd780A_pulsed(t_science, 0.01, 'r2', 'r2', 0.001, 20)
+    Blue480(t_science, t_blueon,'r2')
+    #MicrowaveRamsey_and_780A(t_science, t_gap, t_microwavepiover2, 'addressing', 'r2')
 
     exp.red_pointing_dds.profile(175,'off')
     exp.red_pointing_aom_switch.profile(175,'off')
-    exp.blue_pointing_dds.profile(0,'off')
-    exp.blue_pointing_aom_switch.profile(0,'off')
-    exp.blue_pointing_dds.profile(t_blueon,'r2')
-    exp.blue_pointing_aom_switch.profile(t_blueon,'on')
-    exp.blue_pointing_dds.profile(t_blueoff,'off')
-    exp.blue_pointing_aom_switch.profile(t_blueoff,'off')
+    # exp.blue_pointing_dds.profile(0,'off')
+    # exp.blue_pointing_aom_switch.profile(0,'off')
+    # exp.blue_pointing_dds.profile(t_blueon,'r2')
+    # exp.blue_pointing_aom_switch.profile(t_blueon,'on')
+    # exp.blue_pointing_dds.profile(t_blueoff,'off')
+    # exp.blue_pointing_aom_switch.profile(t_blueoff,'off')
 
     ## Blow-away Phase 176ms
 
@@ -487,7 +513,7 @@ elif ExpMode==1:
     AO(25+110,3,coil_driver_polarity*-0.50) #Y
     AO(25+110,4,coil_driver_polarity*-0.015) #Z
     #exp.mot_3d_dds.profile(140,'RO')
-    exp.camera.take_shot(140)
+    #exp.camera.take_shot(140)
     AO(150,2,coil_driver_polarity*-0.27) #X
     AO(150,3,coil_driver_polarity*-0.48) #Y
     AO(150,4,coil_driver_polarity*-0.25) #Z
@@ -982,10 +1008,10 @@ elif ExpMode==4:
 
     exp.blue_pointing_dds.profile(0,'off')
     exp.blue_pointing_aom_switch.profile(0,'off')
-    exp.blue_pointing_dds.profile(t_blueon,'r2')
-    exp.blue_pointing_aom_switch.profile(t_blueon,'on')
-    exp.blue_pointing_dds.profile(t_blueoff,'off')
-    exp.blue_pointing_aom_switch.profile(t_blueoff,'off')
+    # exp.blue_pointing_dds.profile(t_blueon,'r2')
+    # exp.blue_pointing_aom_switch.profile(t_blueon,'on')
+    # exp.blue_pointing_dds.profile(t_blueoff,'off')
+    # exp.blue_pointing_aom_switch.profile(t_blueoff,'off')
 
     ## Blow-away Phase 176ms
 
@@ -1201,10 +1227,10 @@ elif ExpMode==5: # Manual Red alignment
     #exp.red_pointing_aom_switch.profile(175,'off')
     exp.blue_pointing_dds.profile(0,'off')
     exp.blue_pointing_aom_switch.profile(0,'off')
-    exp.blue_pointing_dds.profile(t_blueon,'r2')
-    exp.blue_pointing_aom_switch.profile(t_blueon,'on')
-    exp.blue_pointing_dds.profile(t_blueoff,'off')
-    exp.blue_pointing_aom_switch.profile(t_blueoff,'off')
+    # exp.blue_pointing_dds.profile(t_blueon,'r2')
+    # exp.blue_pointing_aom_switch.profile(t_blueon,'on')
+    # exp.blue_pointing_dds.profile(t_blueoff,'off')
+    # exp.blue_pointing_aom_switch.profile(t_blueoff,'off')
 
     ## Blow-away Phase 176ms
 
