@@ -7,6 +7,9 @@ from cs_errors import PauseError
 
 import threading, numpy, traceback, time
 
+import matplotlib as mpl
+mpl.use('PDF')
+
 import matplotlib.pyplot as plt
 from matplotlib.figure import Figure
 from matplotlib.path import Path

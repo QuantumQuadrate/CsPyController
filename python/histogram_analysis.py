@@ -587,7 +587,8 @@ class HistogramGrid(ROIAnalysis):
                     ax = fig.add_subplot(gs1[i, j])
                     self.two_color_histogram(ax, data)
 
-                    ax.set_yscale('log', nonposy='clip')
+                    ax.set_yscale('linear', nonposy='clip')
+                    #ax.set_yscale('log', nonposy='clip')
                     # ax.set_ylim([np.power(10, max([-4, int(np.log10(self.y_min))])), 1.05*self.y_max])
                     ax.set_ylim([0.5, 1.05*self.y_max])
                     # ax.set_title(u'{}: {:.0f}\u00B1{:.1f}%'.format(n, data['loading']*100,data['overlap']*100), size=font)

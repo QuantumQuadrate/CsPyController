@@ -157,8 +157,13 @@ class ThresholdROIAnalysis(ROIAnalysis):
                 threshold_array = np.zeros((n_sub_meas, n_shots, n_rows*n_cols), dtype=np.bool_)
                 for sm in xrange(n_sub_meas):
                     threshold_array[sm] = self.process_measurement(shot_array[sm], threshold_array[sm].shape)
-                measResults[self.meas_analysis_path] = threshold_array
-                self.updateFigure()
+                try:
+                    measResults[self.meas_analysis_path] = threshold_array
+                except RuntimeError:
+                    del measResults[self.meas_analysis_path]
+                    measResults[self.meas_analysis_path] = threshold_array
+                else:
+                    self.updateFigure()
 
     def read_meas_results(self, iter_res, meas_path, meas_nums):
         """Read all measurements results and flatten measurements to sub-measurements.
@@ -175,6 +180,12 @@ class ThresholdROIAnalysis(ROIAnalysis):
         if self.enable:
             meas = map(int, iterationResults['measurements'].keys())
             meas.sort()
+            #re-analyze loading in case threasholds have changed
+            for i in meas:
+                meas_results_path = 'measurements/{}'.format(i)
+                meas_results = iterationResults[meas_results_path]
+                self.analyzeMeasurement(meas_results, iterationResults, experimentResults)
+            
             # if the per measurement threshold analysis is disabled we then
             # need to go fetch the results from elsewhere
             if self.meas_enable:

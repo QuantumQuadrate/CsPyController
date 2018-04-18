@@ -495,7 +495,7 @@ class Experiment(Prop):
             logger.debug('Experiment.evaluate() ...')
 
             # start with the constants
-            self.vars = self.constants.copy()
+            self.evaluate_constants()
 
             # add the independent variables current values to the dict
             self.updateIndependentVariables()
@@ -1195,13 +1195,13 @@ class Experiment(Prop):
         self.hdf5['notes'] = self.notes
 
         #store the log
-        logger.info('Storing log ...')
-        self.log.flush()
-        try:
-            self.hdf5['log'] = self.log.getvalue()
-        except ValueError:
-            # this throws an error at the end of an optimization experiment
-            logger.exception('Exception occured when accessing self.log')
+        # logger.info('Storing log ...')
+        # self.log.flush()
+        # try:
+        #     self.hdf5['log'] = self.log.getvalue()
+        # except ValueError:
+        #     # this throws an error at the end of an optimization experiment
+        #     logger.exception('Exception occured when accessing self.log')
         self.hdf5.flush()
 
         #copy to network

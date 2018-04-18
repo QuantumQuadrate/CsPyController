@@ -16,6 +16,7 @@ import logging
 
 import numpy as np
 from analysis import Analysis
+from atom.api import Str, Bool
 
 logger = logging.getLogger(__name__)
 
@@ -24,6 +25,8 @@ class AQuAAIAnalysis(Analysis):
     """Perform preprocessing on raw analog input data before sending to origin server."""
 
     version = '2018.02.01'
+    enable = Bool()
+    list_of_what_to_save = Str()
 
     def __init__(self, experiment):
         super(AQuAAIAnalysis, self).__init__(
