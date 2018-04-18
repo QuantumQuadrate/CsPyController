@@ -100,8 +100,8 @@ class AI_Graph(AnalysisWithFigure):
                         ax = fig.add_subplot(111)
                         for i in plotlist:
                             try:
-                                    #data = numpy.average(self.data[:, i[0], i[1]], axis=1)  # All measurements. Selected channel, saverage over sampels.
-                                    data=self.data[-1, i[0], i[1]] # Show only the latest
+                                data = numpy.average(self.data[:, i[0], i[1]], axis=1)  # All measurements. Selected channel, saverage over sampels.
+                                #data=numpy.average(self.data[:, i[0], i[1]], axis=1) # Show only the latest
                             except:
                                 logger.warning('Trying to plot data that does not exist in AIGraph: channel {} samples {}-{}'.format(i[0], min(i[1]), max(i[1])))
                                 continue
