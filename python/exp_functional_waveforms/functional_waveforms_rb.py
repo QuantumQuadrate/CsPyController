@@ -178,7 +178,7 @@ mot_3d_x_shutter_switch_delay = 0
 ################################################################################
 mot_3d_y_shutter_switch_chan = 13
 # this is the default profile, we dont have to pass it in if we dont want to
-mot_3d_y_shutter_switch_profile = {'on':1, 'off':0}
+mot_3d_y_shutter_switch_profile = {'off':1, 'on':0}
 # timing delay parameter
 mot_3d_y_shutter_switch_delay = 0
 

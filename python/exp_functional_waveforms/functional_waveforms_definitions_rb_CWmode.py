@@ -155,7 +155,7 @@ def Microwave(t,duration):
 def Ryd780A(t,duration,pointing_profile,intensity_profile): # region_profile example: 'r2'
     if t>=0 and duration>0: #make sure timings are valid
         exp.red_pointing_dds.profile(t,pointing_profile)
-        exp.red_pointing_dds.profile(t+duration,pointing_profile)
+        exp.red_pointing_dds.profile(t+duration,'off')
         exp.ryd780a_dds.profile(t,intensity_profile)
         exp.ryd780a_dds.profile(t+duration,'off')
         exp.red_pointing_aom_switch.profile(t,'on')
@@ -164,16 +164,17 @@ def Ryd780A(t,duration,pointing_profile,intensity_profile): # region_profile exa
         exp.ryd780a_aom_switch.profile(t+duration,'off')
 
 def Ryd780A_pulsed(t, cycle_time, pointing_profile, intensity_profile, pulse_ontime, num_of_pulses): # region_profile example: 'r2'
+    t_red_delay=0.25*0.001
     if t>=0: #make sure timings are valid
         for i in range(0,num_of_pulses):
-            exp.red_pointing_dds.profile(t+i*cycle_time,pointing_profile)
-            exp.red_pointing_dds.profile(t+pulse_ontime+i*cycle_time,'off')
-            exp.ryd780a_dds.profile(t+i*cycle_time,intensity_profile)
-            exp.ryd780a_dds.profile(t+pulse_ontime+i*cycle_time,'off')
-            exp.red_pointing_aom_switch.profile(t+i*cycle_time,'on')
-            exp.red_pointing_aom_switch.profile(t+pulse_ontime+i*cycle_time,'off')
-            exp.ryd780a_aom_switch.profile(t+i*cycle_time,'on')
-            exp.ryd780a_aom_switch.profile(t+pulse_ontime+i*cycle_time,'off')
+            exp.red_pointing_dds.profile(t+t_red_delay+i*cycle_time,pointing_profile)
+            exp.red_pointing_dds.profile(t+t_red_delay+pulse_ontime+i*cycle_time,'off')
+            exp.ryd780a_dds.profile(t+t_red_delay+i*cycle_time,intensity_profile)
+            exp.ryd780a_dds.profile(t+t_red_delay+pulse_ontime+i*cycle_time,'off')
+            exp.red_pointing_aom_switch.profile(t+t_red_delay+i*cycle_time,'on')
+            exp.red_pointing_aom_switch.profile(t+t_red_delay+pulse_ontime+i*cycle_time,'off')
+            exp.ryd780a_aom_switch.profile(t+t_red_delay+i*cycle_time,'on')
+            exp.ryd780a_aom_switch.profile(t+t_red_delay+pulse_ontime+i*cycle_time,'off')
             exp.fort_aom_switch.profile(t+i*cycle_time,'off')
             exp.fort_aom_switch.profile(t+pulse_ontime+i*cycle_time,'on')
 
@@ -264,12 +265,12 @@ if ExpMode==0:
     exp.op_dds.profile(0,'off')
     exp.op_aom_switch.profile(0,'off')
     exp.hf_aom_switch.profile(0,'on')
-    exp.mot_3d_x_shutter_switch.profile(0,'off')
+    exp.mot_3d_x_shutter_switch.profile(0,'on')
     exp.mot_3d_y_shutter_switch.profile(0,'on')
-    exp.mot_3d_z1_shutter_switch.profile(0,'off')
+    exp.mot_3d_z1_shutter_switch.profile(0,'on')
+    exp.repumper_shutter_switch.profile(0,'on')
     exp.microwave_switch.profile(0,'off')
     exp.microwave_dds.profile(0,'off')
-    exp.repumper_shutter_switch.profile(0,'off')
     exp.ground_aom_switch.profile(0,'off') #### dd
 
     ## 2D MOT Loading Phase
@@ -280,9 +281,10 @@ if ExpMode==0:
     exp.mot_2d_aom_switch.profile(0,'on')
 
     ## 3D MOT Loading Phase
-    exp.mot_2d_dds.profile(t_2DMOT_loading,'off') # turn off 2D MOT light and quadrupole fields
+    exp.mot_2d_dds.profile(t_2DMOT_loading,'off') # turn off 2D MOT light
     exp.mot_2d_aom_switch.profile(t_2DMOT_loading,'off')
-    AO(t_2DMOT_loading+5,0,0)
+
+    AO(t_2DMOT_loading+5,0,0) # turns off quadrupole fields
     AO(t_2DMOT_loading+5,1,0)
 
     ## FORT Transfer Phase
@@ -290,22 +292,23 @@ if ExpMode==0:
     exp.fort_dds.profile(t_FORT_loading,'on')
 
     ## Fall off Phase
-    AO(110,2,coil_driver_polarity*-0.30) #X
-    AO(110,3,coil_driver_polarity*-0.49) #Y
-    AO(110,4,0) #Z
-    exp.mot_aom_switch.profile(110,'off')
-    exp.hf_aom_switch.profile(110,'off') #####
-    AO(110,7,0)
+    AO(t_3DMOT_cutoff,2,coil_driver_polarity*-0.30) #X
+    AO(t_3DMOT_cutoff,3,coil_driver_polarity*-0.49) #Y
+    AO(t_3DMOT_cutoff,4,0) #Z
+    exp.mot_aom_switch.profile(t_3DMOT_cutoff,'off')
+    exp.hf_aom_switch.profile(t_3DMOT_cutoff,'off') #####
+    AO(t_3DMOT_cutoff,7,0)
 
     ## Readout Phase
-    AO(25+110,2,coil_driver_polarity*shimX_RO) #X
-    AO(25+110,3,coil_driver_polarity*shimY_RO) #Y
-    AO(25+110,4,coil_driver_polarity*shimZ_RO) #Z
-    exp.mot_3d_dds.profile(140,'RO')
-    exp.camera.take_shot(140)
+    AO(130,2,coil_driver_polarity*shimX_RO) #X
+    AO(130,3,coil_driver_polarity*shimY_RO) #Y
+    AO(130,4,coil_driver_polarity*shimZ_RO) #Z
     t_start=140
-    readout(t_start,5)
-    t_end=t_start+t_readoutduration
+    t_leadtime=0
+    exp.mot_3d_dds.profile(t_start,'RO')
+    exp.camera.take_shot(t_start)
+    readout(t_start,t_leadtime+t_readoutduration)
+    t_end=t_start+t_readoutduration+t_leadtime
     AO(t_start,7,10)
     exp.hf_aom_switch.profile(t_start,'on')
     exp.hf_aom_switch.profile(t_end+0.2,'off') ###
@@ -332,12 +335,12 @@ if ExpMode==0:
     AO(t_start+t_op,7,0)
     opticalpumping(t_start,t_end-t_start)
 
-    exp.mot_3d_x_shutter_switch.profile(t_x_shutter_open,'on')
-    exp.mot_3d_x_shutter_switch.profile(t_x_shutter_close,'off')
+    exp.mot_3d_x_shutter_switch.profile(t_x_shutter_open,'off')
+    exp.mot_3d_x_shutter_switch.profile(t_x_shutter_close,'on')
     exp.mot_3d_y_shutter_switch.profile(t_y_shutter_open,'off')
     exp.mot_3d_y_shutter_switch.profile(t_y_shutter_close,'on')
-    exp.mot_3d_z1_shutter_switch.profile(t_z1_shutter_open,'on')
-    exp.mot_3d_z1_shutter_switch.profile(t_z1_shutter_close,'off')
+    exp.mot_3d_z1_shutter_switch.profile(t_z1_shutter_open,'off')
+    exp.mot_3d_z1_shutter_switch.profile(t_z1_shutter_close,'on')
 
     ## Science Phase 170 - 175 ms. t_science=170
 
@@ -345,22 +348,17 @@ if ExpMode==0:
     exp.fort_dds.profile(t_science,'science')
     exp.fort_dds.profile(t_science+5,'on')
     #raman(t_science,t_raman,'r2')
-    #FORTdrop(t_science, t_FORTdrop)
+    #FORTdrop(t_science-0.001, t_FORTdrop)
     #MicrowaveRamsey(t_science,t_gap,t_microwavepiover2)
     #Microwave(t_science,t_microwave)
     #Ryd780A(t_science,t_Ryd780A,'r2','r2')
-    #Ryd780A_pulsed(t_science, 0.01, 'r2', 'r2', 0.001, 20)
-    Blue480(t_science, t_blueon,'r2')
-    #MicrowaveRamsey_and_780A(t_science, t_gap, t_microwavepiover2, 'addressing', 'r2')
+    #Ryd780A_pulsed(t, cycle_time, pointing_profile, intensity_profile, pulse_ontime, num_of_pulses): # region_profile example: 'r2'
+    #Ryd780A_pulsed(t_science, 0.01, 'r2', 'r2', 0.001, 100)
+    #Blue480(t_science-1, t_blueon,'r2')
+    MicrowaveRamsey_and_780A(t_science, t_gap, t_microwavepiover2, 'addressing', 'r2')
 
     exp.red_pointing_dds.profile(175,'off')
     exp.red_pointing_aom_switch.profile(175,'off')
-    # exp.blue_pointing_dds.profile(0,'off')
-    # exp.blue_pointing_aom_switch.profile(0,'off')
-    # exp.blue_pointing_dds.profile(t_blueon,'r2')
-    # exp.blue_pointing_aom_switch.profile(t_blueon,'on')
-    # exp.blue_pointing_dds.profile(t_blueoff,'off')
-    # exp.blue_pointing_aom_switch.profile(t_blueoff,'off')
 
     ## Blow-away Phase 176ms
 
@@ -648,14 +646,14 @@ elif ExpMode==2:
     exp.FORT_NE_trigger_switch.profile(171,'off')
     exp.scope_trigger_switch.profile(170,'on')
     exp.scope_trigger_switch.profile(171,'off')
-    exp.red_pointing_dds.profile(t2_PGcamera-0.5,'PG')
-    exp.red_pointing_dds.profile(t2_PGcamera+t_PG_exposure,'off')
-    exp.red_pointing_aom_switch.profile(t2_PGcamera,'on')
-    exp.red_pointing_aom_switch.profile(t2_PGcamera+t_PG_exposure,'off')
-    exp.ground_aom_switch.profile(t2_PGcamera,'on')
-    exp.ground_aom_switch.profile(t2_PGcamera+t_PG_exposure,'off')
-    exp.fort_aom_switch.profile(t2_PGcamera,'off')
-    exp.fort_aom_switch.profile(t2_PGcamera+t_PG_exposure,'on')
+    #exp.red_pointing_dds.profile(t2_PGcamera-0.5,'PG')
+    #exp.red_pointing_dds.profile(t2_PGcamera+t_PG_exposure,'off')
+    #exp.red_pointing_aom_switch.profile(t2_PGcamera,'on')
+    #exp.red_pointing_aom_switch.profile(t2_PGcamera+t_PG_exposure,'off')
+    #exp.ground_aom_switch.profile(t2_PGcamera,'on')
+    #exp.ground_aom_switch.profile(t2_PGcamera+t_PG_exposure,'off')
+    #exp.fort_aom_switch.profile(t2_PGcamera,'off')
+    #exp.fort_aom_switch.profile(t2_PGcamera+t_PG_exposure,'on')
 
 
     ## End of expmode 2
@@ -1083,10 +1081,9 @@ elif ExpMode==4:
 
 
     ############################## End of mode 4,  blue aligning experiment #######################################################
-elif ExpMode==5: # Manual Red alignment
+elif ExpMode==5: # Shutter calibration
 ## Initilization
-    #for i in range(5):
-    #    AO(0,i,0)
+# AO(time, channel, setpoint)
     AO(0,0,coil_driver_polarity*I_Q1)
     AO(0,1,coil_driver_polarity*I_Q2)
     AO(0,2,coil_driver_polarity*ShimX_Loading) #X
@@ -1095,200 +1092,58 @@ elif ExpMode==5: # Manual Red alignment
     AO(0,5,coil_driver_polarity*-2.2)
     AO(0,6,coil_driver_polarity*2.8)
     AO(0,7,10)
-    # For pointgrey shot.
-    exp.pointgrey_trigger_switch.profile(0,'off')
-    exp.pointgrey_trigger_switch.profile(t1_PGcamera,'on')
-    exp.pointgrey_trigger_switch.profile(t1_PGcamera+t_PG_triggerduration,'off')
-    #raman(t1_PGcamera,t_PG_triggerduration,'PG')
-    #Ryd780A(t1_PGcamera,t_PG_triggerduration,'PG','PG')
-    Ryd780A(0,190,'r2','r2')
 
-    # FORT is turned on for short period of time for imaging.
-    exp.pointgrey_trigger_switch.profile(t2_PGcamera,'on')
-    exp.pointgrey_trigger_switch.profile(t2_PGcamera+t_PG_triggerduration,'off')
-    if (t2_PGcamera+t_PG_triggerduration)<=t_FORT_loading:
-        exp.fort_aom_switch.profile(t2_PGcamera,'on')
-        exp.fort_dds.profile(t2_PGcamera,'low')
-        exp.fort_aom_switch.profile(t2_PGcamera+t_PG_triggerduration,'off')
-        exp.fort_dds.profile(t2_PGcamera+t_PG_triggerduration,'off')
-    else:
-        logger.info("FORT image is taken after FORT transfer. Things may conflict")
-    exp.FORT_NE_trigger_switch.profile(0,'off')
-    exp.FORT_NE_trigger_switch.profile(t_NE_FORT_trigger_start,'on')
-    exp.FORT_NE_trigger_switch.profile(t_NE_FORT_trigger_end,'off')
-    exp.ryd780a_aom_switch.profile(0,'on')
-    exp.ryd780a_dds.profile(0,'r2')
-    exp.red_pointing_dds.profile(0,'r2')
-    exp.red_pointing_aom_switch.profile(0,'on')
-    # Ryd 780a noise eater part
-    #Ryd780A(10,5,'r2','r2')
-    exp.ryd780A_NE_trigger_switch.profile(0,'off')
-    exp.ryd780A_NE_trigger_switch.profile(10,'on')
-    exp.ryd780A_NE_trigger_switch.profile(15,'off')
-
+    AO(100,0,coil_driver_polarity*I_Q1)
+    AO(100,1,coil_driver_polarity*I_Q2)
+    AO(100,2,coil_driver_polarity*ShimX_Loading) #X
+    AO(100,3,coil_driver_polarity*ShimY_Loading) #Y
+    AO(100,4,coil_driver_polarity*ShimZ_Loading) #Z
+    AO(100,5,coil_driver_polarity*-2.2) # CoilDriver X2
+    AO(100,6,coil_driver_polarity*2.8)
+    AO(100,7,10)
+    exp.fort_aom_switch.profile(0,'on')
+    exp.fort_dds.profile(0,'on')
     exp.MOT_scope_trigger_switch.profile(0,'off')
-    exp.MOT_scope_trigger_switch.profile(140,'on')
-    exp.MOT_scope_trigger_switch.profile(145,'off')
-
-    exp.scope_trigger_switch.profile(170,'on')
-    exp.scope_trigger_switch.profile(171,'off')
-    exp.fort_aom_switch.profile(0,'off')
-    exp.op_dds.profile(0,'off')
-    exp.op_aom_switch.profile(0,'off')
-    exp.hf_aom_switch.profile(0,'on')
-    exp.mot_3d_x_shutter_switch.profile(0,'off')
-    exp.mot_3d_y_shutter_switch.profile(0,'on')
-    exp.mot_3d_z1_shutter_switch.profile(0,'off')
-    exp.microwave_switch.profile(0,'off')
-    exp.microwave_dds.profile(0,'off')
-    exp.repumper_shutter_switch.profile(0,'off')
-    exp.ground_aom_switch.profile(0,'off') #### dd
-
-    ## 2D MOT Loading Phase
+    exp.MOT_scope_trigger_switch.profile(170,'on')
+    exp.MOT_scope_trigger_switch.profile(171,'off')
     exp.mot_3d_dds.profile(0,'MOT')
-    exp.fort_dds.profile(0,'off')
     exp.mot_2d_dds.profile(0,'on')
     exp.mot_aom_switch.profile(0,'on')
     exp.mot_2d_aom_switch.profile(0,'on')
-
-    ## 3D MOT Loading Phase
-    exp.mot_2d_dds.profile(t_2DMOT_loading,'off') # turn off 2D MOT light and quadrupole fields
-    exp.mot_2d_aom_switch.profile(t_2DMOT_loading,'off')
-    AO(t_2DMOT_loading+5,0,0)
-    AO(t_2DMOT_loading+5,1,0)
-
-    ## FORT Transfer Phase
-    exp.fort_aom_switch.profile(t_FORT_loading,'on')
-    exp.fort_dds.profile(t_FORT_loading,'on')
-
-    ## Fall off Phase
-    AO(110,2,coil_driver_polarity*-0.30) #X
-    AO(110,3,coil_driver_polarity*-0.49) #Y
-    AO(110,4,0) #Z
-    exp.mot_aom_switch.profile(110,'off')
-    exp.hf_aom_switch.profile(110,'off') #####
-    AO(110,7,0)
-
-    ## Readout Phase
-    AO(25+110,2,coil_driver_polarity*shimX_RO) #X
-    AO(25+110,3,coil_driver_polarity*shimY_RO) #Y
-    AO(25+110,4,coil_driver_polarity*shimZ_RO) #Z
-    exp.mot_3d_dds.profile(140,'RO')
-    exp.camera.take_shot(140)
-    t_start=140
-    readout(t_start,5)
-    t_end=t_start+t_readoutduration
-    AO(t_start,7,10)
-    exp.hf_aom_switch.profile(t_start,'on')
-    exp.hf_aom_switch.profile(t_end+0.2,'off') ###
-    AO(t_end+0.2,7,0)
-   # prepareF1(t_start,10)
-
-    ## Optical Pumping Phase
-
-    AO(150,2,coil_driver_polarity*shimX_OP) #X
-    AO(150,3,coil_driver_polarity*shimY_OP) #Y
-    AO(150,4,coil_driver_polarity*shimZ_OP) #Z
-    AO(150,7,0) # repumper attenuator. repumper turned off.
-
-    t_start=160
-    t_end=t_start+t_op+t_depump
-    AO(t_start,7,10)
-    AO(t_start+t_op,7,0)
-
-    exp.op_dds.profile(t_start,'on')
-    exp.op_dds.profile(t_end,'off')
-    exp.hf_aom_switch.profile(t_start,'on')
-    exp.hf_aom_switch.profile(t_start+t_op,'off')
-    AO(t_start,7,10)
-    AO(t_start+t_op,7,0)
-    opticalpumping(t_start,t_end-t_start)
-
-    exp.mot_3d_x_shutter_switch.profile(t_x_shutter_open,'on')
-    exp.mot_3d_x_shutter_switch.profile(t_x_shutter_close,'off')
-    exp.mot_3d_y_shutter_switch.profile(t_y_shutter_open,'off')
-    exp.mot_3d_y_shutter_switch.profile(t_y_shutter_close,'on')
-    exp.mot_3d_z1_shutter_switch.profile(t_z1_shutter_open,'on')
-    exp.mot_3d_z1_shutter_switch.profile(t_z1_shutter_close,'off')
-
-    ## Science Phase 170 - 175 ms. t_science=170
-
-    # reduce FORT trap depth during science phase
-    exp.fort_dds.profile(t_science,'science')
-    exp.fort_dds.profile(t_science+5,'on')
-    #raman(t_science,t_raman,'r2')
-    #FORTdrop(170,t_FORTdrop)
-    #MicrowaveRamsey(t_science,t_gap,t_microwavepiover2)
-    #Microwave(t_science,t_microwave)
-    #Ryd780A(t_science,t_Ryd780A,'r2','r2')
-    #MicrowaveRamsey_and_780A(t_science,t_gap,t_microwavepiover2)
-
-    #exp.red_pointing_dds.profile(175,'off')
-    #exp.red_pointing_aom_switch.profile(175,'off')
     exp.blue_pointing_dds.profile(0,'off')
     exp.blue_pointing_aom_switch.profile(0,'off')
-    # exp.blue_pointing_dds.profile(t_blueon,'r2')
-    # exp.blue_pointing_aom_switch.profile(t_blueon,'on')
-    # exp.blue_pointing_dds.profile(t_blueoff,'off')
-    # exp.blue_pointing_aom_switch.profile(t_blueoff,'off')
 
-    ## Blow-away Phase 176ms
-
-    AO(175,0,coil_driver_polarity*-0.1)
-    AO(175,1,coil_driver_polarity*0.1)
-    AO(175,2, coil_driver_polarity*shimX_BA) #X
-    AO(175,3,coil_driver_polarity*shimY_BA) #Y
-    AO(175,4,coil_driver_polarity*shimZ_BA) #Z
-
-    t_start=176
-    t_end=t_start+t_BA
-    exp.mot_3d_dds.profile(t_start,'Blowaway')
-    t_pulsewidth=0.001*2
-    t_period=0.001*4
-    for i in range(int(round((t_end-t_start)/t_period))):
-        exp.mot_aom_switch.profile(t_start+i*t_period+t_BA_offset,'on')
-        exp.mot_aom_switch.profile(t_start+i*t_period+t_pulsewidth+t_BA_offset,'off')
-
-    for i in range(int(round((t_end-t_start)/t_period))):
-        exp.fort_aom_switch.profile(t_start+i*t_period,'off')
-        exp.fort_aom_switch.profile(t_start+i*t_period+t_pulsewidth,'on')
-
-    exp.fort_dds.profile(t_end,'on')
+    exp.scope_trigger_switch.profile(170,'on')
+    exp.scope_trigger_switch.profile(171,'off')
+    exp.op_dds.profile(0,'off')
+    exp.op_aom_switch.profile(0,'off')
+    exp.hf_aom_switch.profile(0,'on')
+    exp.mot_3d_x_shutter_switch.profile(0,'on')
+    exp.mot_3d_y_shutter_switch.profile(0,'on')
+    exp.mot_3d_z1_shutter_switch.profile(0,'on')
+    exp.repumper_shutter_switch.profile(0,'on')
 
 
-    ## Readout Phase
-    AO(180,0,0) # turn off quadrupole fields
-    AO(180,1,0)
-    AO(180,2, coil_driver_polarity*shimX_RO) #X
-    AO(180,3, coil_driver_polarity*shimY_RO) #Y
-    AO(180,4, coil_driver_polarity*shimZ_RO) #Z
-    t_readout_2nd=195
-
-    exp.mot_3d_dds.profile(t_readout_2nd,'RO')
-    exp.camera.take_shot(t_readout_2nd)
-    t_start=t_readout_2nd
-    readout(t_start,5)
-    t_end=t_start+t_readoutduration
-    AO(t_readout_2nd,7,10) # Turn on repumper. Sets rf attenuator voltage to 10V
-    exp.hf_aom_switch.profile(t_readout_2nd,'on')
-    exp.hf_aom_switch.profile(t_readout_2nd+exp.camera.pulse_length,'off')
-    AO(t_readout_2nd+exp.camera.pulse_length,7,0)
-
-    #exp.fort_aom_switch.profile(t_readout_2nd+exp.camera.pulse_length,'off')
-    exp.fort_dds.profile(t_readout_2nd+exp.camera.pulse_length,'off')
+    # exp.mot_3d_x_shutter_switch.profile(t_x_shutter_open,'off')
+    # exp.mot_3d_x_shutter_switch.profile(t_x_shutter_close,'on')
+    #
+    # exp.mot_3d_y_shutter_switch.profile(t_y_shutter_open,'off')
+    # exp.mot_3d_y_shutter_switch.profile(t_y_shutter_close,'on')
+    #
+    # exp.mot_3d_z1_shutter_switch.profile(t_z1_shutter_open,'off')
+    # exp.mot_3d_z1_shutter_switch.profile(t_z1_shutter_close,'on')
 
     ## Blue imaging
-    exp.blue_pointing_dds.profile(t_start_blue_imaging,'r2')
-    exp.blue_pointing_aom_switch.profile(t_start_blue_imaging,'on')
-    exp.blue_pointing_dds.profile(t_start_blue_imaging+t_blue_exposure,'off')
-    exp.blue_pointing_aom_switch.profile(t_start_blue_imaging+t_blue_exposure,'off')
+    exp.blue_pointing_dds.profile(0,'r2')
+    exp.blue_pointing_aom_switch.profile(0,'on')
     exp.camera.pulse_length=t_blue_exposure # Changes HSDIO pulse width to control exposure
     t_readout_3rd=205
     exp.camera.take_shot(t_readout_3rd)
     # exp.ryd780a_aom_switch.profile(t2_PGcamera,'on')
     # exp.ryd780a_dds.profile(t2_PGcamera,'r2')
 
-    ############################## End of mode 5,  red manual aligning experiment #######################################################
+
+    ############################## End of mode 5,  Shutter calibration #######################################################
 
 else:
     print "Undefined Experiment mode : {}".format(ExpMode)
