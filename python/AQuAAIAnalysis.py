@@ -21,13 +21,8 @@ from atom.api import Str, Bool
 logger = logging.getLogger(__name__)
 
 
-
-
-
 class AQuAAIAnalysis(Analysis):
-    """Add up the sums of pixels in a region, and evaluate whether or not an
-    atom is present based on the totals.
-    """
+    """Perform preprocessing on raw analog input data before sending to origin server."""
 
     version = '2018.02.01'
     enable = Bool()
@@ -41,12 +36,14 @@ class AQuAAIAnalysis(Analysis):
         )
         if self.experiment.Config.config.get('EXPERIMENT', 'Name') == 'AQUA':
             self.enable = True
-
+        else:
+            self.enable = False
 
     def analyzeMeasurement(self, measResults, iterationResults, experimentResults):
-        raw_data = measResults['data/AI/data'].value
-        Bx = np.nanmean(raw_data[0])
-        By = np.nanmean(raw_data[1])
-        Bz = np.nanmean(raw_data[2])
-        processed_data = [Bx,By,Bz]
-        measResults['analysis/processed_AI/data'] = processed_data
+        if self.enable:
+            raw_data = measResults['data/AI/data'].value
+            Bx = np.nanmean(raw_data[0])
+            By = np.nanmean(raw_data[1])
+            Bz = np.nanmean(raw_data[2])
+            processed_data = [Bx, By, Bz]
+            measResults['analysis/processed_AI/data'] = processed_data

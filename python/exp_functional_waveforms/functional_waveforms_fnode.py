@@ -230,7 +230,7 @@ def chop_dds_hsdio(dds_channels, dds_phases, dds_profiles, hsdio_channels, hsdio
             # set up initial state
             init_state = dds_profiles[i][0]
             msg = "ch[{}]: t({}) = {}"
-            #print(msg.format(c, 0, init_state))
+            # print(msg.format(c, 0, init_state))
             c(t, init_state)
             # now change state at phase list
             for j, p in enumerate(dds_phases[i]):
@@ -239,7 +239,7 @@ def chop_dds_hsdio(dds_channels, dds_phases, dds_profiles, hsdio_channels, hsdio
                     raise ValueError
                 # put in initial value for the cycle
                 # put in transition
-                #print(msg.format(c, p, profiles[i][j + 1]))
+                # print(msg.format(c, p, profiles[i][j + 1]))
                 c(t + (p * period), dds_profiles[i][j + 1])
 
         # HSDIO repeats
@@ -247,7 +247,7 @@ def chop_dds_hsdio(dds_channels, dds_phases, dds_profiles, hsdio_channels, hsdio
             # set up initial state
             init_state = hsdio_profiles[i][0]
             msg = "ch[{}]: t({}) = {}"
-            #print(msg.format(c, 0, init_state))
+            # print(msg.format(c, 0, init_state))
             HSDIO(t, c, init_state)
             # now change state at phase list
             for j, p in enumerate(hsdio_phases[i]):
@@ -256,7 +256,7 @@ def chop_dds_hsdio(dds_channels, dds_phases, dds_profiles, hsdio_channels, hsdio
                     raise ValueError
                 # put in initial value for the cycle
                 # put in transition
-                #print(msg.format(c, p, profiles[i][j + 1]))
+                # print(msg.format(c, p, profiles[i][j + 1]))
                 HSDIO(t + (p * period), c, hsdio_profiles[i][j + 1])
         return t + period
 
@@ -281,14 +281,14 @@ def M_shutter(t, state):
     HSDIO(t, HSDIO_channels['scope_trig_1']['channel'], not state)
     # shift forward by the delay plus half the switching time
     t_switch = t - M_shutter_delay_ms - M_shutter_time_ms/2
-    HSDIO(t_switch, HSDIO_channels['m_shutter']['channel'], state)
+    HSDIO(t_switch, HSDIO_channels['m_shutter']['channel'], not state)
     return t
 
 
 def HF_shutter(t, state):
     """Open or close HF shutter, True -> open, False -> closed."""
     label(t, 'HF shutter')
-    # HSDIO(t, HSDIO_channels['scope_trig_1']['channel'], not state)
+    HSDIO(t, HSDIO_channels['scope_trig_1']['channel'], not state)
     # shift forward by the delay plus half the switching time
     # switch RB
     t_switch = t - RB_HF_shutter_delay_ms - RB_HF_shutter_time_ms/2
@@ -542,8 +542,8 @@ def fort_readout(t, duration, mz_only=False, count=True, parallel_cnt=False, s1=
     channels = [RB_D2_DDS, CS_D2_DDS, FORT_DDS]
     phases = [
         [0.25+mot_timing_offset, 0.7+mot_timing_offset],
-        [0.25+cs_mot_timing_offset, 0.7+cs_mot_timing_offset],
-        [0.3, 0.76]
+        [0.25+cs_mot_timing_offset, 0.65+cs_mot_timing_offset],
+        [0.4, 0.86]
     ]
     profiles = [
         ['off', phase, 'off'],
@@ -597,13 +597,15 @@ def optical_pumping(t, duration, fphase='on'):
 
     # change uWave routing switch to go to the F-EOM
     HSDIO(t, HSDIO_channels['rb_horn_switch']['channel'], False)
+    HSDIO(t, HSDIO_channels['cs_horn_switch']['channel'], False)
     ts.append(t+field_settle_time)
     t = max(ts)
 
     # chop FORT and OP out of phase
     cycles = int(duration*1000*op_chop_freq_MHz)
     if cycles > 0:
-        HSDIO(t, HSDIO_channels['rb_uwave_switch']['channel'], True)
+        # HSDIO(t, HSDIO_channels['rb_uwave_switch']['channel'], True)
+        # HSDIO(t, HSDIO_channels['cs_uwave_switch']['channel'], True)
         period_ms = 0.001/op_chop_freq_MHz
         label(t + period_ms, 'op c1')
         label(t + cycles*period_ms/2, 'op half')
@@ -615,12 +617,13 @@ def optical_pumping(t, duration, fphase='on'):
         hsdio_chs = []
         hsdio_phases = []
         hsdio_profiles = []
-        # hsdio_chs = [HSDIO_channels['rb_uwave_switch']['channel']]
-        # hsdio_phases = [[0.2-op_timing_offset, 0.8-op_timing_offset]]
-        # hsdio_profiles = [
-        #     [True, False, True]
-        # ]
-        #HSDIO(t, HSDIO_channels['scope_trig_1']['channel'], True)
+        # RF switches cant chop at high frequency
+        hsdio_chs = [HSDIO_channels['rb_uwave_switch']['channel']]
+        hsdio_phases = [[0.3-op_timing_offset, 0.7-op_timing_offset]]
+        hsdio_profiles = [
+            [False, True, False]
+        ]
+        # HSDIO(t, HSDIO_channels['scope_trig_1']['channel'], True)
         t = HSDIO_repeat(
             t,
             chop_dds_hsdio(
@@ -630,9 +633,10 @@ def optical_pumping(t, duration, fphase='on'):
             ),
             cycles
         )
-        t += 0.000005
-        HSDIO(t, HSDIO_channels['rb_uwave_switch']['channel'], False)
-    #HSDIO(t, HSDIO_channels['scope_trig_1']['channel'], False)
+        t += 0.000001
+        # HSDIO(t, HSDIO_channels['rb_uwave_switch']['channel'], False)
+        # HSDIO(t, HSDIO_channels['cs_uwave_switch']['channel'], False)
+    # HSDIO(t, HSDIO_channels['scope_trig_1']['channel'], False)
     return t
 
 
@@ -695,16 +699,18 @@ def expmnt(t, duration, fphase='on'):
 ################################################################################
 
 
-def uwave_rotation(t, duration, gap=0, fort_phase='on'):
+def uwave_rotation(t, duration, gap=0, fort_phase='on', atom='rb'):
     label(t, 'uwave start')
-    HSDIO(t, HSDIO_channels['rb_horn_switch']['channel'], True)
+    horn_switch = HSDIO_channels['{}_horn_switch'.format(atom)]['channel']
+    uwave_switch = HSDIO_channels['{}_uwave_switch'.format(atom)]['channel']
+    HSDIO(t, horn_switch, True)
     t += 0.001
-    HSDIO(t, HSDIO_channels['rb_uwave_switch']['channel'], True)
+    HSDIO(t, uwave_switch, True)
 
     # ramsey style
     if gap > 0:
         t += duration/2.0
-        HSDIO(t, HSDIO_channels['rb_uwave_switch']['channel'], False)
+        HSDIO(t, uwave_switch, False)
         if gap > 0.1:
             # if the gap is longish turn up fort to induce oscillation
             FORT_DDS(t, 'high')
@@ -712,15 +718,15 @@ def uwave_rotation(t, duration, gap=0, fort_phase='on'):
             FORT_DDS(t, 'on')
         else:
             t += gap
-        HSDIO(t, HSDIO_channels['rb_uwave_switch']['channel'], True)
+        HSDIO(t, uwave_switch, True)
         t += duration/2.0
     else:
         t += duration
 
     label(t, 'uwave end')
-    HSDIO(t, HSDIO_channels['rb_uwave_switch']['channel'], False)
+    HSDIO(t, uwave_switch, False)
     t += 0.001
-    HSDIO(t, HSDIO_channels['rb_horn_switch']['channel'], False)
+    HSDIO(t, horn_switch, False)
     return t
 
 ################################################################################
@@ -740,7 +746,7 @@ def fort_experiment():
 
     t = fort_readout(t, readout_780 + exra_readout_780, parallel_cnt=True, s1=False)
     t = drop_mot(t, 0.01)
-    t = pgc(t, post_read_pgc_time, no_chop=True, bphase='pgc_post', fphase='low', phase='pgc2')
+    t = pgc(t, post_read_pgc_time, no_chop=True, bphase='pgc_post', fphase='on', phase='pgc2')
 
     # close shutter for Mxy beam
     # wait for the shutter switch time so we dont turn off during pgc
@@ -748,20 +754,19 @@ def fort_experiment():
     t = drop_mot(t, shutter_wait)
     MXY_shutter(t, False)
     if SSRO:
-        HF_shutter(t + 0.5, False)
-    M_shutter(t, False)
+        HF_shutter(t+0.5, False)
+    # dont close shutters since it limits gap_time and doesnt appear to be limiting depumping
+    # if not depump_hf:
+    #     M_shutter(t, False)
     # turn on OP
-    OP_shutter(t-5, True)
+    OP_shutter(t-4, True)
     op_shutter_t = t + 3.1
     op_start = t
-    t = optical_pumping(t, rb_op_time_ms, fphase='low')
-    t_op = max(t, op_shutter_t)
-    t = t_op
-    op_phase_time = t_op - op_start
-    OP_shutter(t, False)
-
-    if test_mz_readout:
-        t = fort_readout(t, test_mz_readout_duration, mz_only=True, count=False)
+    FORT_DDS(t-0.01, 'high')
+    t = optical_pumping(t, op_time_ms, fphase='low')
+    FORT_DDS(t+0.01, 'on')
+    t = max(t+2.5, op_shutter_t)
+    OP_shutter(t+1, False)
 
     if p_heating:
         t = parametric_heating(t, p_heating_duration, p_heating_freq)
@@ -769,27 +774,41 @@ def fort_experiment():
     # wait the remainder of the gap time
 
     if depump_hf:
-        t = depump(t, gap_time*0.75 - shutter_wait - op_phase_time)
+        FORT_DDS(t, 'low')
+        t = depump(t, gap_time*0.75 - shutter_wait)
     else:
-        t = drop_mot(t, gap_time*0.75 - shutter_wait - op_phase_time, b_phase='expt')
-
-    t = expmnt(t, fort_drop_us/1000, fphase='low')
-    t = uwave_rotation(t, rb_uwave_time_ms, gap=uwave_gap_time_ms, fort_phase='high')
+        t = drop_mot(t, gap_time*0.75 - shutter_wait, b_phase='expt')
 
     # mot with no HF pumps into F=1
+    t_adj = max(rb_uwave_time_ms, cs_uwave_time_ms)
+    t_adj -= 0.5 - max(rb_uwave_gap_time_ms, cs_uwave_gap_time_ms)
     if depump_hf:
         switch_time = 0.1  # time to wait to avoid grey code error
-        t = depump(t, gap_time*0.25 - switch_time - rb_uwave_time_ms - uwave_gap_time_ms)
+        t = depump(t, gap_time*0.25 - t_adj - switch_time)
+        # FORT_DDS(t, 'on')
         t = drop_mot(t, switch_time)
     else:
         t = drop_mot(t, 0.5, b_phase='expt')
-        t = drop_mot(t, gap_time*0.25 - rb_uwave_time_ms - 0.5 - uwave_gap_time_ms)
+        t = drop_mot(t, gap_time*0.25 - t_adj)
 
-    M_shutter(t+1, True)
+    t = expmnt(t, fort_drop_us/1000, fphase='low')
+    t_start = t
+    ts = [uwave_rotation(t_start, rb_uwave_time_ms, gap=rb_uwave_gap_time_ms, atom='rb', fort_phase='low')]
+    ts.append(uwave_rotation(t, cs_uwave_time_ms, gap=cs_uwave_gap_time_ms, atom='cs', fort_phase='low'))
+    ts.append(1)  # fix min uwave block time
+    t = max(ts)
+    FORT_DDS(t, 'on')
+
+    if test_mz_readout:
+        t = fort_readout(t, test_mz_readout_duration, mz_only=True, count=False)
+
+    # dont close shutters since it limits gap_time and doesnt appear to be limiting depumping
+    # if not depump_hf:
+    #     M_shutter(t-2.3, True)
     t = fort_readout(t, readout_780, mz_only=True, parallel_cnt=True, s1=True)
     # open shutter for mz readout
     # open shutter for Mxy beam
-    MXY_shutter(t + 1.2, True)  # fudge
+    MXY_shutter(t +1.2, True)  # fudge
     if SSRO:
         HF_shutter(t + 0.6, True)
 

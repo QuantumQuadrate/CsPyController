@@ -20,7 +20,7 @@ HSDIO_channels = {
     'fort_dds_p0': { 'channel': 11, 'default': False },
     'fort_dds_p1': { 'channel': 3, 'default': False },
     'mxy_shutter': { 'channel': 12, 'default': True },
-    'm_shutter': { 'channel': 2, 'default': True },
+    'm_shutter': { 'channel': 2, 'default': False },
     'rb_hf_shutter': { 'channel': 13, 'default': False },
     'op_shutter': { 'channel': 14, 'default': False },
     'cs_hf_shutter': { 'channel': 15, 'default': True },
@@ -30,6 +30,8 @@ HSDIO_channels = {
 
     'rb_uwave_switch': { 'channel': 29, 'default': False },  # uWave on/off switch
     'rb_horn_switch': { 'channel': 1, 'default': False },  # transfer switch between horn and F-EOM (default)
+    'cs_uwave_switch': { 'channel': 4, 'default': False },  # uWave on/off switch
+    'cs_horn_switch': { 'channel': 16, 'default': False },  # transfer switch between horn and F-EOM (default)
 
     'luca_trig_1': { 'channel': 30, 'default': False },
     'scope_trig_1': { 'channel': 31, 'default': False }
@@ -42,7 +44,7 @@ Bfield_channels = {
     'Bq2': { 'channel': 11, 'conversion': -1.0  }
 }
 
-field_settle_time = 0.4  # 300 us for b field changes to settle
+field_settle_time = 0.4  # ms for b field changes to settle
 
 ###########################################################
 ## RB AOM STUFF ###########################################
@@ -92,9 +94,9 @@ op_chop_freq_MHz = 1.0
 MXY_shutter_delay_ms = 1.714
 MXY_shutter_time_ms = 0.4
 
-# closes all MOT and HF paths (rb)
-M_shutter_delay_ms = 1.43
-M_shutter_time_ms = 1.2
+# closes all MOT and HF paths (rb+cs)
+M_shutter_delay_ms = 1.38
+M_shutter_time_ms = 1.0
 
 SSRO = True  # default
 # RB
@@ -106,3 +108,11 @@ CS_HF_shutter_time_ms = 1.2
 
 OP_shutter_delay_ms = 2.63
 OP_shutter_time_ms = 1.2
+
+
+###########################################################
+## RF STUFF ###############################################
+###########################################################
+
+rb_qubit_freq_ghz = 6.834682611
+cs_qubit_freq_ghz = 9.192631770
