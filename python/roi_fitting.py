@@ -6,7 +6,7 @@ housekeeper =  Y.S.@AQuA
 created = 2014.07.01
 modified >= 2015.10.19
 
-This file contains an analysis which tries to fit 49 gaussians to the atom
+This file contains an analysis which tries to fit 121 gaussians to the atom
 array.
 
 """

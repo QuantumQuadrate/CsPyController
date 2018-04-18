@@ -495,7 +495,7 @@ class Experiment(Prop):
             logger.debug('Experiment.evaluate() ...')
 
             # start with the constants
-            self.vars = self.constants.copy()
+            self.evaluate_constants()
 
             # add the independent variables current values to the dict
             self.updateIndependentVariables()
