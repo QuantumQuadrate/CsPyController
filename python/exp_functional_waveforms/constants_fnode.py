@@ -19,11 +19,16 @@ HSDIO_channels = {
     'cs_d2_dds_p2': { 'channel': 10, 'default': False },
     'fort_dds_p0': { 'channel': 11, 'default': False },
     'fort_dds_p1': { 'channel': 3, 'default': False },
+
     'mxy_shutter': { 'channel': 12, 'default': True },
     'm_shutter': { 'channel': 2, 'default': False },
     'rb_hf_shutter': { 'channel': 13, 'default': False },
-    'op_shutter': { 'channel': 14, 'default': False },
+    'op_shutter': { 'channel': 14, 'default': True },
     'cs_hf_shutter': { 'channel': 15, 'default': True },
+    'mz2_shutter': { 'channel': 17, 'default': True },
+
+    'cs_459_aom_switch': { 'channel': 18, 'default': False },
+
     'fpga_threshold_sel': { 'channel': 26, 'default': False },
     'fpga_counter_gate': { 'channel': 27, 'default': False },
     'spcm_gate_780': {'channel': 28, 'default': False },
@@ -39,6 +44,7 @@ HSDIO_channels = {
 
 Bfield_channels = {
     'Bx': { 'channel': 8, 'conversion': -1.0  },
+    'By': { 'channel': 12, 'conversion': -1.0  },
     'Bz': { 'channel': 9, 'conversion': -1.0 },
     'Bq1': { 'channel': 10, 'conversion': -1.0 },
     'Bq2': { 'channel': 11, 'conversion': -1.0  }
@@ -98,6 +104,10 @@ MXY_shutter_time_ms = 0.4
 M_shutter_delay_ms = 1.38
 M_shutter_time_ms = 1.0
 
+# MZ retro shutter for SSRO
+MZ2_shutter_delay_ms = 1.4
+MZ2_shutter_time_ms = 0
+
 SSRO = True  # default
 # RB
 RB_HF_shutter_delay_ms = 0.98
@@ -106,13 +116,16 @@ RB_HF_shutter_time_ms = 0.82
 CS_HF_shutter_delay_ms = 1.4
 CS_HF_shutter_time_ms = 1.2
 
-OP_shutter_delay_ms = 2.63
+OP_shutter_delay_ms = 1.63
 OP_shutter_time_ms = 1.2
 
 
 ###########################################################
 ## RF STUFF ###############################################
 ###########################################################
+
+rb_uwave_freq = 5.0376297279922255
+cs_uwave_freq = 5.474261714639816
 
 rb_qubit_freq_ghz = 6.834682611
 cs_qubit_freq_ghz = 9.192631770
