@@ -2105,16 +2105,16 @@ enamldef PICams(Window):
             Container:
                 style_class << 'valid' if experiment.valid else 'invalid'
 
-            Container:
-                hug_width = 'strong'
-                hug_height = 'strong'
-            Form:
-                hug_width = 'strong'
-                hug_height = 'strong'
+                Container:
+                    hug_width = 'strong'
+                    hug_height = 'strong'
+                    Form:
+                        hug_width = 'strong'
+                        hug_height = 'strong'
 
-            IndexedContainer:
-                iterable << picams.motors
-                viewType = Picam
+                    IndexedContainer:
+                        iterable << picams.motors
+                        viewType = Picam
 
 enamldef Picam(Form):
     attr item
@@ -2181,36 +2181,36 @@ enamldef Picam(Form):
                         clicked :: item.camera.setCamera()
                 HGroup:
                     padding = 0
-            Label:
+                    Label:
                         text := 'Camera Serial Number: {}'.format(str(item.camera.currentSerial))
-                    #Label:
-                    #    text := 'CCD Temperature (C): {:.4}'.format(item.camera.temperature)
-            Label:
+                    Label:
+                        text := 'CCD Temperature (C): {:.4}'.format(item.camera.currentTemp)
+                    Label:
                         text := 'Maximum Pixel Value: {}, Mean Pixel Value: {}'.format(item.analysis.maxPixel,item.analysis.meanPixel)
-            LabelBox:
-                text = 'enable'
-                checked := item.camera.enable
-            EvalProp:
-                prop << item.camera.AdcEMGain
-            ComboBox:
-                items = ['Low Analog Gain', 'Medium Analog Gain', 'High Analog Gain']
-                index := item.camera.AdcAnalogGain
-            EvalProp:
-                prop << item.camera.exposureTime
-            HGroup:
-                padding = 0
+                LabelBox:
+                    text = 'enable'
+                    checked := item.camera.enable
+                EvalProp:
+                    prop << item.camera.AdcEMGain
                 ComboBox:
-                    items = ['Rising Edge', 'Falling Edge', 'Level', 'Auto']
-                    index := item.camera.triggerMode
-                ComboBox:
-                    items = ['Shutter Normal', 'Shutter Always Closed', 'Shutter Always Open', 'Shutter Open Before Trigger']
-                    index := item.camera.shutterMode
-                ComboBox:
-                    items = ['Bin Mode: 1x1', 'Bin Mode: 2x2', 'Bin Mode: 4x4']
-                    index := item.camera.binMode
-                ComboBox:
-                    items = ['Readout Control: Dual Imaging', 'Readout Control: Frame Transfer', 'Readout Control: Full Frame', 'Readout Control: Kinetics', 'Readout Control: Spectra Kinetics']
-                    index := item.camera.ReadoutControl
+                    items = ['Low Analog Gain', 'Medium Analog Gain', 'High Analog Gain']
+                    index := item.camera.AdcAnalogGain
+                EvalProp:
+                    prop << item.camera.exposureTime
+                HGroup:
+                    padding = 0
+                    ComboBox:
+                        items = ['Rising Edge', 'Falling Edge', 'Level', 'Auto']
+                        index := item.camera.triggerMode
+                    ComboBox:
+                        items = ['Shutter Normal', 'Shutter Always Closed', 'Shutter Always Open', 'Shutter Open Before Trigger']
+                        index := item.camera.shutterMode
+                    ComboBox:
+                        items = ['Bin Mode: 1x1', 'Bin Mode: 2x2', 'Bin Mode: 4x4']
+                        index := item.camera.binMode
+                    ComboBox:
+                        items = ['Readout Control: Dual Imaging', 'Readout Control: Frame Transfer', 'Readout Control: Full Frame', 'Readout Control: Kinetics', 'Readout Control: Spectra Kinetics']
+                        index := item.camera.ReadoutControl
                 #HGroup:
                     #padding = 0
                     #ComboBox:
@@ -2240,11 +2240,14 @@ enamldef Picam(Form):
                     EvalProp:
                         prop << item.camera.minPlot
                     EvalProp:
-                        prop << item.camera.maxPlot
+                        prop << item.camera.maxPlot    
                 LabelBox:
                     text = 'Use Demo Camera'
-                    checked := item.camera.useDemo
-
+                    checked := item.camera.useDemo 
+                PushButton:
+                    text = 'Print Parameters'
+                    clicked :: item.camera.PrintParameters()
+                     
 
 
 
