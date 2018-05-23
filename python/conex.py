@@ -74,6 +74,41 @@ class Conex(Prop):
         else:
             return "Failed to open Conex: ID {}, retcode {}".format(self.IDString.value, ret)
 
+            
+    def getParams(self):
+        accel = 0
+        errs = ""
+        accel = self.CC.AC_Get(self.address, accel, errs)
+        print "Acceleration: {}".format(accel[1])
+        accel = 0.0
+        accel = self.CC.DV_Get(self.address, accel, errs)
+        print "Driver Voltage: {}".format(accel[1])
+        accel = 0.0
+        accel = self.CC.FD_Get(self.address, accel, errs)
+        print "Lowpass Filter for Kd: {}".format(accel[1])
+        accel = 0.0
+        accel = self.CC.FE_Get(self.address, accel, errs)
+        print "Following Error Limit: {}".format(accel[1])
+        accel = 0.0
+        accel = self.CC.KD_Get(self.address, accel, errs)
+        print "Gain Derivative: {}".format(accel[1])
+        accel = 0.0
+        accel = self.CC.KI_Get(self.address, accel, errs)
+        print "Gain Integral: {}".format(accel[1])
+        accel = 0.0
+        accel = self.CC.KP_Get(self.address, accel, errs)
+        print "Gain Proportional: {}".format(accel[1])
+        accel = 0.0
+        accel = self.CC.FF_Get(self.address, accel, errs)
+        print "Friction compensation: {}".format(accel[1])
+        #accel = 0.0
+        #accel = self.CC.PT_Get(self.address, accel, errs)
+        #print "Relative move time: {}".format(accel[1])
+        accel = 0.0
+        accel = self.CC.VA_Get(self.address, accel, errs)
+        print "Velocity: {}".format(accel[1])
+            
+            
     def update(self):
         if (self.enableVel == False):
             logger.warning('CONEX position: {}'.format(self.SetPos.value))
@@ -81,7 +116,9 @@ class Conex(Prop):
             self.CC.PA_Set(self.address,self.SetPos.value, "")
         else:
             #msg = 'SetPositionVelocity,{},{}'.format(self.SetPos.value,self.Vel.value)
-            self.CC.VA_Set(self.address,self.Vel.value, "")
+            self.CC.AC_Set(self.address,10, "")
+            returned = self.CC.VA_Set(self.address,self.Vel.value, "")
+            print "Setting velocity to {}. Returned value: {}".format(self.Vel.value,returned)
             self.CC.PA_Set(self.address,self.SetPos.value, "")
         returnValue, position = CONEXCC_GetPosition(self.CC,self.address, self.displayFlag)
         if returnValue != 0:
@@ -153,6 +190,14 @@ class Conexes(Instrument):
         #        i.socket.close()
         return
 
+    def getParams(self):
+        for i in self.motors:
+            try:
+                i.getParams()
+            except Exception as e:
+                print "Couldn't get params for stage {}".format(i.IDString)
+                print "Exception: {}".format(e)
+        
     def preIteration(self, iterationresults, hdf5):
         """
         Every iteration, send the motors updated positions.
@@ -182,7 +227,7 @@ class Conexes(Instrument):
                         # send update to the conex server
 
                         loopCount=0
-                        loopThreshold=150
+                        loopThreshold=50
                         while(abs(i.SetPos.value - i.curpos) > i.Threshold.value and loopCount < loopThreshold):  #loop until the error is less than threshold
                             time.sleep(0.1)
                             #i.socket.sendmsg("GetPosition")
@@ -191,6 +236,7 @@ class Conexes(Instrument):
                             if returnValue != 0:
                                 logger.error("Failed to get CONEX position: ID {}, retcode {}".format(i.IDString.value,returnValue))
                             i.curpos = position
+                            if loopCount>10: print "Current Position: {} mm".format(position)
                             loopCount = loopCount+1
                         if (loopCount>=loopThreshold):
                             logger.warning("Conex: Did not converge to correct position in 10 seconds. Is the threshold too small?")

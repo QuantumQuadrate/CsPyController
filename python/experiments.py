@@ -1195,10 +1195,10 @@ class Experiment(Prop):
         self.hdf5['notes'] = self.notes
 
         #store the log
-        logger.info('Storing log ...')
-        self.log.flush()
-        self.hdf5['log'] = self.log.getvalue()
-        self.hdf5.flush()
+        #logger.info('Storing log ...')
+        #self.log.flush()
+        #self.hdf5['log'] = self.log.getvalue()
+        #self.hdf5.flush()
 
         #copy to network
         if self.copyDataToNetwork:
