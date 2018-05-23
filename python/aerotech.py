@@ -147,14 +147,14 @@ class Aerotechs(Instrument,Analysis):
         self.OneAerotech.waitForGlobals()
         self.preIteration(0,0)
         return
-        
+
     def start(self):
         self.isDone = True
         return
-        
+
     def update(self):
         self.preIteration(0,0)
         return
-        
+
     def initialize(self):
         self.preExperiment(0)

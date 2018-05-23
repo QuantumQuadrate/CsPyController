@@ -252,7 +252,7 @@ class HSDIO(Instrument):
             cycle_idx = 0
             for i in order:
                 if len(self.transition_list[i]) > 3:
-                    logger.info("repeat cycle: {} detected at index: {}".format(self.transition_list[i], i))
+                    logger.debug("repeat cycle: {} detected at index: {}".format(self.transition_list[i], i))
                 # check to see if the next time is the same as the last one in the time list
                 if indices[i] == index_list[-1]:
                     # if this is a duplicate time, the latter entry overrides
@@ -297,13 +297,6 @@ class HSDIO(Instrument):
             self.states = np.zeros((0, self.numChannels), dtype=np.bool)
             self.repeats = []
             self.index_durations = np.zeros_like(self.indices)
-        try:
-            # print self.times[1],self.times[2]-self.times[1]
-            # MFE2017: I dont know why the above line is here, but I killed the print statement, but
-            # kept the line that might throw an exception
-            delta = self.times[2]-self.times[1]
-        except Exception as e:
-            print "Exception in HSDIO: {}".format(e)
 
     def getNormalizedWaitTime(self, index):
         """Get the waitTime in cycles normalized by the hardware quanta.
@@ -346,9 +339,15 @@ class HSDIO(Instrument):
         for tnum, t in enumerate(transition_list):
             for q in range(hardware_quanta):
                 # add in the transition
-                transitions.append(str(time))
-                # move time counter up one cycle
-                time += 1
+                if q == 0 and time % hardware_quanta:
+                    # if not synchronous with the hardware quanta move transition forward
+                    logger.warning('Detected a hardware quanta roudin event. Auto fixing by one cycle')
+                    transitions.append(str(time-(time % hardware_quanta)))
+                    # dont move time counter up to account for shift
+                else:
+                    transitions.append(str(time))
+                    # move time counter up one cycle
+                    time += 1
                 # and the state
                 states.append(t['state'])
             time += t['waitTime'] - 1*hardware_quanta
@@ -398,14 +397,14 @@ class HSDIO(Instrument):
                     # mark the total time to first other transition, use from before but cant overwrite
                     # because I am dumb
                     sample_clock_cycles_to_next_ot = sample_clock_cycles_to_next_ot_option
-                #if sample_clock_cycles_to_next_ot < 
                 repeats_done = True
                 other_transitions.append(shallow_copy(t))
             else:
                 if cycles_per_repeat != t['cycles_per_repeat']:
                     logger.error("An overlapping repeat cycle was detected.")
                 if repeats_done:
-                    logger.error(first_cycle_err + "Also check that you aren't accidentally doing a dds grey code switch.")
+                    supp = "Also check that you aren't accidentally doing a dds grey code switch."
+                    logger.error(first_cycle_err + supp)
                     raise PauseError
                 repeat_only_list.append(shallow_copy(t))
                 repeat_sample_clock_cycles += t['waitTime']
@@ -456,11 +455,14 @@ class HSDIO(Instrument):
                 transition_cycles.append(1)
                 cycle_count += 1
                 # copy the old transitions in, and switch after modulo time
-                if i>=len(other_transitions):
+                if i >= len(other_transitions)-1:
                     logger.error('Transition at last repeat phase. Move the transition back one cycle.')
                     raise PauseError
                 else:
-                    new_repeat_only_list = self.update_transition_list(repeat_only_list, other_transitions[i+1])
+                    new_repeat_only_list = self.update_transition_list(
+                        repeat_only_list,
+                        other_transitions[i+1]
+                    )
                 extra_idx = 1  # assume we will ned another transition until proven otherwise
                 ctime = 0
                 for idx in range(len(repeat_only_list)):
@@ -655,6 +657,8 @@ class HSDIO(Instrument):
                 '\n'.join(script),
                 '\n'.join(master_waveform_list)
             )
+            # pprint.pprint(script)
+            # pprint.pprint(master_waveform_list)
             # [7:] removes the <HSDIO> on what is returned from super.toHardware
             return xml_str + super(HSDIO, self).toHardware()[7:]
         else:

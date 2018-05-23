@@ -118,6 +118,7 @@ class Experiment(Prop):
     pauseAfterMeasurement = Bool()
     pauseAfterError = Bool()
     reload_settings_after_pause = Bool()
+    repeat_experiment_automatically = Bool()
     saveData = Bool()
     saveSettings = Bool()
     settings_path = Str()
@@ -232,7 +233,8 @@ class Experiment(Prop):
 
         self.properties += ['version', 'constantsStr', 'independentVariables', 'dependentVariablesStr',
                             'pauseAfterIteration', 'pauseAfterMeasurement', 'pauseAfterError',
-                            'reload_settings_after_pause', 'saveData', 'saveSettings', 'settings_path',
+                            'reload_settings_after_pause', 'repeat_experiment_automatically',
+                            'saveData', 'saveSettings', 'settings_path',
                             'save_separate_notes', 'save2013styleFiles', 'localDataPath', 'networkDataPath',
                             'copyDataToNetwork', 'experimentDescriptionFilenameSuffix', 'measurementTimeout',
                             'measurementsPerIteration', 'willSendEmail', 'emailAddresses', 'progress', 'progressGUI',
@@ -464,6 +466,7 @@ class Experiment(Prop):
             logger.warning('Uncaught Exception in experiment.end:\n{}\n{}'.format(e, traceback.format_exc()))
             self.set_status('paused after error')
 
+
     def eval_general(self, string):
         return cs_evaluate.evalWithDict(string, self.vars)
 
@@ -495,7 +498,7 @@ class Experiment(Prop):
             logger.debug('Experiment.evaluate() ...')
 
             # start with the constants
-            self.vars = self.constants.copy()
+            self.evaluate_constants()
 
             # add the independent variables current values to the dict
             self.updateIndependentVariables()
@@ -1195,10 +1198,15 @@ class Experiment(Prop):
         self.hdf5['notes'] = self.notes
 
         #store the log
-        #logger.info('Storing log ...')
-        #self.log.flush()
-        #self.hdf5['log'] = self.log.getvalue()
-        #self.hdf5.flush()
+        # logger.info('Storing log ...')
+        # self.log.flush()
+        # try:
+        #     self.hdf5['log'] = self.log.getvalue()
+        # except ValueError:
+        #     # this throws an error at the end of an optimization experiment
+        #     logger.exception('Exception occured when accessing self.log')
+        self.hdf5.flush()
+
 
         #copy to network
         if self.copyDataToNetwork:

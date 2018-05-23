@@ -41,6 +41,7 @@ from enaml.application import deferred_call
 
 import ConfigParser
 
+
 def intialize_numpy_array(array, default):
     '''Helper for initializing a numpy array.
     Returns tuple of (changed, array).
@@ -52,6 +53,7 @@ def intialize_numpy_array(array, default):
     except (AttributeError, NameError):
         return (True, default)
     return (False, array)
+
 
 class AndorCamera(Instrument):
 
@@ -132,18 +134,19 @@ class AndorCamera(Instrument):
         self.serial = 0
         self.minPlot = IntProp('minPlot', experiment, 'Minimum Plot Scale Value', '0')
         self.maxPlot = IntProp('maxPlot', experiment, 'Maximum Plot Scale Value', '32768')
-        self.VSSpeed = IntProp('VSSpeed',experiment,'Index for Vertical Shift','0')
-        self.HSSpeed = IntProp('HSSpeed',experiment,'Index for Horizontal Shift','0')
-        self.subimage_position = [0,0]
-        self.subimage_size = [1,1]
-        self.ccd_size = [1,1]
+        self.VSSpeed = IntProp('VSSpeed', experiment, 'Index for Vertical Shift', '0')
+        self.HSSpeed = IntProp('HSSpeed', experiment, 'Index for Horizontal Shift', '0')
+        self.subimage_position = [0, 0]
+        self.subimage_size = [1, 1]
+        self.ccd_size = [1, 1]
         self.width = 1
         self.height = 1
-        self.properties += ['EMCCDGain', 'preAmpGain', 'exposureTime', 'triggerMode',
-                            'shotsPerMeasurement', 'minPlot', 'maxPlot','VSSpeed','HSSpeed',
-                            'acquisitionMode', 'binMode', 'AdvancedEMGain', 'EMGainMode',
-                            'ROI', 'set_T', 'serial', 'subimage_position', 'subimage_size'
-                            ]
+        self.properties += [
+            'EMCCDGain', 'preAmpGain', 'exposureTime', 'triggerMode',
+            'shotsPerMeasurement', 'minPlot', 'maxPlot', 'VSSpeed', 'HSSpeed',
+            'acquisitionMode', 'binMode', 'AdvancedEMGain', 'EMGainMode',
+            'ROI', 'set_T', 'serial', 'subimage_position', 'subimage_size'
+        ]
 
     def __del__(self):
         if self.isInitialized:
@@ -156,7 +159,7 @@ class AndorCamera(Instrument):
         self.GetCameraSerialNumber()
         self.SetCoolerMode(1)
         self.CoolerON()
-        try: # the Luca throws a DLL error when attempting to set the temperature.
+        try:  # the Luca throws a DLL error when attempting to set the temperature.
             self.SetTemperature(self.getTemperatureSP())
         except PauseError:
             logger.warning(
@@ -172,7 +175,7 @@ class AndorCamera(Instrument):
             self.GetDetector()
             self.setROIvalues()
         self.rundiagnostics()
-        #time.sleep(1)
+        # time.sleep(1)
         self.isInitialized = True
 
     def start(self):
@@ -184,7 +187,7 @@ class AndorCamera(Instrument):
         #         self.StartAcquisition()
         #     self.isDone = True
         #     # Runs when the camera is not in accumulate mode, or even in the mode accumulation count is 0.
-        #elif (self.acquisitionChoices[self.acquisitionMode]!=2 or (self.acquisitionChoices[self.acquisitionMode]==2 and self.experiment.measurement == 0)):
+        # elif (self.acquisitionChoices[self.acquisitionMode]!=2 or (self.acquisitionChoices[self.acquisitionMode]==2 and self.experiment.measurement == 0)):
         if(self.acquisitionChoices[self.acquisitionMode]!=2 or (self.acquisitionChoices[self.acquisitionMode]==2 and self.experiment.measurement == 0)):
             self.setCamera()
             if self.GetStatus() == 'DRV_ACQUIRING':
@@ -196,20 +199,20 @@ class AndorCamera(Instrument):
             
 
     def update(self):
-        if self.enable: # If enable checkbox is checked,
-            self.setCamera() # Set the camera
-            #print "Updating Andor camera {}".format(self.CurrentHandle)
-            self.mode = 'experiment' # set the mode to experiment.
+        if self.enable:  # If enable checkbox is checked,
+            self.setCamera()  # Set the camera
+            # print "Updating Andor camera {}".format(self.CurrentHandle)
+            self.mode = 'experiment'  # set the mode to experiment.
             if self.GetStatus() == 'DRV_ACQUIRING':
-                #self.GetAcquiredData(True)
+                # self.GetAcquiredData(True)
                 self.AbortAcquisition()
             self.GetDetector()
-            if self.GetStatus() != 'DRV_ACQUIRING': # If camera is not acquiring data, get the temperature
+            if self.GetStatus() != 'DRV_ACQUIRING':  # If camera is not acquiring data, get the temperature
                 self.GetTemperature()
             self.SetAcquisitionMode(self.acquisitionChoices[self.acquisitionMode])
             self.SetReadMode(4)  # image mode
             self.SetExposureTime(self.exposureTime.value)
-            exposure,accumulate , kinetic = self.GetAcquisitionTimings()
+            exposure, accumulate, kinetic = self.GetAcquisitionTimings()
 
             self.SetTriggerMode(self.triggerChoices[self.triggerMode])
 
@@ -219,14 +222,12 @@ class AndorCamera(Instrument):
             self.SetImage()
 
             msg = "done setImage. With binning of {}, new width and height are {}, {}"
-            logger.debug(msg.format(self.binChoices[self.binMode],self.width,self.height))
+            logger.debug(msg.format(self.binChoices[self.binMode], self.width, self.height))
 
             if (self.acquisitionChoices[self.acquisitionMode]==3 or self.acquisitionChoices[self.acquisitionMode]==4):
                 self.SetNumberKinetics(self.shotsPerMeasurement.value)
-                #print "done setNumberKinetics"
             if (self.acquisitionChoices[self.acquisitionMode]!=1 and self.acquisitionChoices[self.acquisitionMode]!=4):
                 self.SetFrameTransferMode(0)
-                #print "done SetFrameTransferMode"
             if (self.acquisitionChoices[self.acquisitionMode]==2):
                 self.SetNumberAccumulations(self.experiment.measurementsPerIteration)
             self.SetKineticCycleTime(0)  # no delay
@@ -235,18 +236,19 @@ class AndorCamera(Instrument):
             self.GetandSetHSVSPreamp()
             self.SetEMCCDGain(self.EMCCDGain.value)
             self.dll.EnableKeepCleans(1)
-            self.SetImageFlip(0,0)
-            currentgain = self.GetEMCCDGain()
-            gain_range = self.GetEMGainRange()
-            #print "EMGainRange: {}".format(gain_range)
-            exposure,accumulate , kinetic = self.GetAcquisitionTimings()
-            #print "Values returned by GetAcquisitionTimings: exposure: {}, accumulate:{}, kinetic: {}".format(exposure,accumulate,kinetic)
-        #else:
+            self.SetImageFlip(0, 0)
+            # these variables aren't used
+            # currentgain = self.GetEMCCDGain()
+            # gain_range = self.GetEMGainRange()
+            # print "EMGainRange: {}".format(gain_range)
+            exposure, accumulate, kinetic = self.GetAcquisitionTimings()
+            # print "Values returned by GetAcquisitionTimings: exposure: {}, accumulate:{}, kinetic: {}".format(exposure,accumulate,kinetic)
+        # else:
         #    print "Andor camera {} is not enabled".format(self.CurrentHandle)
 
     def setup_video_thread(self, analysis):
         thread = threading.Thread(target=self.setup_video, args=(analysis,))
-        #thread.daemon = True
+        # thread.daemon = True
         thread.start()
 
     def setup_video(self, analysis):
@@ -256,11 +258,10 @@ class AndorCamera(Instrument):
         self.mode = 'video'
         self.analysis = analysis
 
-        previouslyenabled=self.enable
-        self.enable=True
+        previouslyenabled = self.enable
+        self.enable = True
         self.experiment.evaluate()
-        self.enable=previouslyenabled
-
+        self.enable = previouslyenabled
 
         if not self.isInitialized:
             self.initialize()
@@ -276,29 +277,29 @@ class AndorCamera(Instrument):
         self.SetTriggerMode(0)
         self.SetReadMode(4)  # image mode
         self.CoolerON()
-        #print "bin size: {}".format(self.binChoices[self.binMode])
+        # print "bin size: {}".format(self.binChoices[self.binMode])
 
         self.setROIvalues()
         self.SetImage()
         self.SetAcquisitionMode(5)  # run till abort
         self.SetKineticCycleTime(0)  # no delay
 
-        #print self.width, self.height, self.dim
+        # print self.width, self.height, self.dim
         if self.binChoices[self.binMode] > 1:
             self.width = self.width / self.binChoices[self.binMode]
             self.height = self.height / self.binChoices[self.binMode]
             self.dim = self.width * self.height
         self.data = self.CreateAcquisitionBuffer()
-        self.SetImageFlip(0,0)
+        self.SetImageFlip(0, 0)
         analysis.setup_video(self.data)
 
         self.StartAcquisition()
 
         # run the video loop in a new thread
         self.start_video_thread()
-        #thread = threading.Thread(target=self.start_video_thread)
-        #thread.daemon = True
-        #thread.start()
+        # thread = threading.Thread(target=self.start_video_thread)
+        # thread.daemon = True
+        # thread.start()
 
     def start_video_thread(self):
         while self.mode == 'video':
@@ -317,13 +318,11 @@ class AndorCamera(Instrument):
     def acquire_data(self):
         """Overwritten from Instrument, this function is called by the experiment after
                 each measurement run to make sure all pictures have been acquired."""
-        #print "acquire_data is called"
+        # print "acquire_data is called"
         if self.enable:
             if (self.acquisitionChoices[self.acquisitionMode]!=2 or (self.acquisitionChoices[self.acquisitionMode]==2 and self.experiment.measurement == self.experiment.measurementsPerIteration - 1)):
                 self.setCamera()
-                #print 'getting images'
                 self.data = self.GetImages()
-                #print "dem images"
 
     def writeResults(self, hdf5):
         """Overwritten from Instrument.  This function is called by the experiment after
@@ -332,20 +331,16 @@ class AndorCamera(Instrument):
         if self.enable:
             if (self.acquisitionChoices[self.acquisitionMode]!=2 or (self.acquisitionChoices[self.acquisitionMode]==2 and self.experiment.measurement == self.experiment.measurementsPerIteration - 1)):
                 try:
-                    #print "writing columns: {}".format(self.width)
                     hdf5['Andor_{}/columns'.format(self.CurrentHandle)] = self.width
-                    #print "writing height: {}".format(self.height)
                     hdf5['Andor_{}/rows'.format(self.CurrentHandle)] = self.height
-                    #print "numShots: {}".format(self.shotsPerMeasurement.value)
                     hdf5['Andor_{}/numShots'.format(self.CurrentHandle)] = self.shotsPerMeasurement.value
-                    #print "Temperature"
-                    #hdf5['Andor_{}/temperature'.format(self.CurrentHandle)] = self.temperature
                     # self.data size has two dimensional array. T num of shots x (row*column)
                     # We need to reshape into two dim array having row x column, and each shots saved to different node under /shots/
-                    for i in numpy.arange(0,self.shotsPerMeasurement.value):
-                        array=numpy.array(self.data[i],dtype=numpy.int32) #
+                    for i in numpy.arange(0, self.shotsPerMeasurement.value):
+                        array = numpy.array(self.data[i], dtype=numpy.int32)
                         array.resize(int(self.subimage_size[1]), int(self.subimage_size[0]))
-                        hdf5['Andor_{0}/shots/{1}'.format(self.CurrentHandle,i)] = array#self.data # Defines the name of hdf5 node to write the results on.
+                        # self.data # Defines the name of hdf5 node to write the results on.
+                        hdf5['Andor_{0}/shots/{1}'.format(self.CurrentHandle, i)] = array
                 except Exception as e:
                     logger.error('in Andor.writeResults:\n{}'.format(e))
                     raise PauseError
@@ -678,6 +673,12 @@ class AndorCamera(Instrument):
 
         if self.acquisitionChoices[self.acquisitionMode]!=5:
             error = self.dll.GetAcquiredData(byref(c_image_array), self.dim * self.shotsPerMeasurement.value)
+            #errct = 100
+            #while (ERROR_CODE[error] == 'DRV_ACQUIRING'):
+            #    time.sleep(.1)
+            #    self.WaitForAcquisition()
+            #    error = self.dll.GetAcquiredData(byref(c_image_array), self.dim * self.shotsPerMeasurement.value)
+            #print self.dim
             self.DLLError(sys._getframe().f_code.co_name, error, dump)
 
         elif self.acquisitionChoices[self.acquisitionMode]==5: # If acqusition mode is Run till abort, data must be read from circular buffer. Attempting dll.GetAcquiredData will not run as it is still acquiring.

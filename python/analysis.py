@@ -7,6 +7,9 @@ from cs_errors import PauseError
 
 import threading, numpy, traceback, time
 
+import matplotlib as mpl
+mpl.use('PDF')
+
 import matplotlib.pyplot as plt
 from matplotlib.figure import Figure
 from matplotlib.path import Path
@@ -39,15 +42,15 @@ def mpl_rectangle(ax, ROI):
         (right, top),  # right, top
         (right, bottom),  # right, bottom
         (0., 0.),  # ignored
-    ]
+        ]
 
     codes = [
         Path.MOVETO,
-        Path.LINETO,
-        Path.LINETO,
-        Path.LINETO,
-        Path.CLOSEPOLY,
-     ]
+             Path.LINETO,
+             Path.LINETO,
+             Path.LINETO,
+             Path.CLOSEPOLY,
+             ]
 
     path = Path(verts, codes)
 
@@ -486,7 +489,7 @@ class XYPlotAnalysis(AnalysisWithFigure):
             ax=fig.add_subplot(111)
             if (self.X is not None) and (self.Y is not None):
                 ax.plot(self.X, self.Y)
-            super(XYPlotAnalysis, self).updateFigure()
+        super(XYPlotAnalysis, self).updateFigure()
 
 
 class SampleXYAnalysis(XYPlotAnalysis):
@@ -576,7 +579,6 @@ class ShotsBrowserAnalysis(AnalysisWithFigure):
                 #overlay ROIs
                 for ROI in self.experiment.squareROIAnalysis.ROIs:
                     mpl_rectangle(ax, ROI)
-
             super(ShotsBrowserAnalysis,self).updateFigure() #makes a deferred_call to swap_figures()
 
 class LoadingFilters(Analysis):
@@ -611,7 +613,8 @@ class LoadingFilters(Analysis):
                     # as 't' in the namespace. This will overwrite any previous
                     # value, so we make a copy of the dictionary
                     vars = self.experiment.vars.copy()
-                    vars['t'] = measurementResults[self.roi_source_path]
+                    # choose only first sub-measurement to test
+                    vars['t'] = measurementResults[self.roi_source_path][0]
                     value, valid = cs_evaluate.evalWithDict(self.filter_expression, varDict=vars)
                     if not valid:
                         # raise an error
@@ -666,6 +669,7 @@ class DropFirstMeasurementsFilter(Analysis):
                 # max takes care of ComboBox returning -1 for no selection
                 logger.info('dropping measurement {} of {}'.format(i,self.N))
                 return max(0, self.filter_level)
+
 
 class MeasurementsGraph(AnalysisWithFigure):
     """Plots a region of interest sum after every measurement"""
@@ -725,11 +729,11 @@ class MeasurementsGraph(AnalysisWithFigure):
                         ax = fig.add_subplot(111)
                         for i in plotlist:
                             try:
-                                data = self.data[:, i[0], i[1]]
+                                    data = self.data[:, i[0], 0, i[1]] #hardcoded '0' is to select the submeasurement No. 0
                             except:
                                 logger.warning('Trying to plot data that does not exist in MeasurementsGraph: shot {} roi {}'.format(i[0], i[1]))
                                 continue
-                            label = '({},{})'.format(i[0], i[1])
+                                label = '({},{})'.format(i[0], 0, i[1])
                             ax.plot(data, 'o', label=label)
                         #add legend using the labels assigned during ax.plot()
                         ax.legend()
@@ -880,12 +884,12 @@ class IterationsGraph(AnalysisWithFigure):
                         ax = fig.add_subplot(111)
                         for i in plotlist:
                             try:
-                                mean = self.mean[:, i[0], i[1]]
-                                sigma = self.sigma[:, i[0], i[1]]
+                                    mean = self.mean[:, i[0], 0, i[1]] # i[0] : shot, i[1]: submeasurement? , i[2] : roi
+                                    sigma = self.sigma[:, i[0], 0, i[1]]
                             except:
                                 logger.warning('Trying to plot data that does not exist in IterationsGraph: shot {} roi {}'.format(i[0], i[1]))
                                 continue
-                            label = '({},{})'.format(i[0], i[1])
+                            label = '(shot:{},roi:{})'.format(i[0],i[1])
                             linestyle = '-o' if self.draw_connecting_lines else 'o'
                             if self.draw_error_bars:
                                 ax.errorbar(numpy.arange(len(mean)), mean, yerr=sigma, fmt=linestyle, label=label)
@@ -904,6 +908,7 @@ class IterationsGraph(AnalysisWithFigure):
                     logger.warning('Problem in IterationsGraph.updateFigure()\n{}\n{}\n'.format(e, traceback.format_exc()))
                 finally:
                     self.update_lock = False
+
 
 class Ramsey(AnalysisWithFigure):
     """Plots the average of a region of interest sum for an iteration, after each iteration.  Can be used with the
@@ -998,8 +1003,8 @@ class Ramsey(AnalysisWithFigure):
                     ax.errorbar(self.t, self.y, yerr=self.sigma, fmt=linestyle)
                 else:
                     ax.plot(self.t, self.y, linestyle)
-                # adjust the limits so that the data isn't right on the edge of
-                # the graph
+                    # adjust the limits so that the data isn't right on the edge of
+                    # the graph
                 span = numpy.amax(self.t) - numpy.amin(self.t)
                 xmin = numpy.amin(self.t)-.02*span
                 xmax = numpy.amax(self.t)+.02*span

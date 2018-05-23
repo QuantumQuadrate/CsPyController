@@ -420,7 +420,7 @@ class Origin(Analysis):
         nodes for this measurement.
         """
         # set TIMESTAMP
-        self.ts = long(time.time()*2**32)
+        self.ts = long(measurementResults.attrs.get('start_time')*2**32)  # ts when measurement was taken
         measurementResults.visititems(self.processDatasets(self.measurementDataList, pass_measurement))
 
         # process measurement data from hdf5 file

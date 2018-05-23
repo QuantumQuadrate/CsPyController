@@ -435,6 +435,11 @@ enamldef ExperimentPage(Window):
                     checked:=experiment.reload_settings_after_pause
 
                 Label:
+                    text='Keep repeating same experiments automatically?'
+                CheckBox:
+                    checked:=experiment.repeat_experiment_automatically
+
+                Label:
                     text = 'enable sounds'
                 CheckBox:
                     checked := experiment.enable_sounds
@@ -1703,7 +1708,7 @@ enamldef Andors(Window):
                 Container:
                     hug_width = 'strong'
                     hug_height = 'strong'
-                    Form:
+                Form:
                         hug_width = 'strong'
                         hug_height = 'strong'
                         #Label:
@@ -1711,9 +1716,9 @@ enamldef Andors(Window):
                         #CheckBox:
                         #    checked := andors.enable
 
-                    IndexedContainer:
-                        iterable << andors.motors
-                        viewType = Andor
+                IndexedContainer:
+                    iterable << andors.motors
+                    viewType = Andor
 
 enamldef Andor(Form):
     attr item
@@ -1785,9 +1790,9 @@ enamldef Andor(Form):
                         text := 'Maximum Pixel Value: {}, Mean Pixel Value: {}'.format(item.analysis.maxPixel,item.analysis.meanPixel)
                 HGroup:
                     EvalProp:
-                        prop << item.camera.EMCCDGain
+                            prop << item.camera.EMCCDGain
                     EvalProp:
-                        prop << item.camera.exposureTime
+                            prop << item.camera.exposureTime
                 HGroup:
                     padding = 0
                     Label:
@@ -1804,7 +1809,7 @@ enamldef Andor(Form):
                     ComboBox:
                         items = ['Single Scan', 'Accumulate', 'Kinetics', 'Fast Kinetics', 'Run Until Abort']
                         index := item.camera.acquisitionMode
-                    ComboBox:
+                ComboBox:
                         items = ['Bin Mode: 1x1', 'Bin Mode: 2x2', 'Bin Mode: 4x4']
                         index := item.camera.binMode
                 HGroup:
@@ -1817,7 +1822,7 @@ enamldef Andor(Form):
                         index := item.camera.EMGainMode
                 HGroup:
                     EvalProp:
-                        prop<<item.camera.shotsPerMeasurement
+                            prop<<item.camera.shotsPerMeasurement
                     Form:
                         Label:
                             text = 'shot'
@@ -1850,8 +1855,8 @@ enamldef BlackflyClient(Window):
                 text = 'enable'
                 checked := blackfly_client.enable
 
-        Container:
-            style_class << 'valid' if experiment.valid else 'invalid'
+            Container:
+                style_class << 'valid' if experiment.valid else 'invalid'
 
             IndexedContainer:
                 iterable << blackfly_client.cameras
@@ -1882,8 +1887,8 @@ enamldef Blackfly(Form):
                 HGroup:
                     Label:
                         text = 'serialNumber'
-                    IntField:
-                        value := item.camera.serial
+                IntField:
+                    value := item.camera.serial
 
 
 enamldef DAQmxAI(Window):
@@ -1898,29 +1903,29 @@ enamldef DAQmxAI(Window):
                 text = 'enable'
             CheckBox:
                 checked := NIDAQmxAI.enable
-        EvalProp:
-            prop << NIDAQmxAI.DeviceName
-        EvalProp:
-            prop << NIDAQmxAI.chanList
-        EvalProp:
-            prop << NIDAQmxAI.sample_rate
-        EvalProp:
-            prop << NIDAQmxAI.samples_per_measurement
-        EvalProp:
-            prop << NIDAQmxAI.waitForStartTrigger
-        EvalProp:
-            prop << NIDAQmxAI.triggerSource
-        EvalProp:
-            prop << NIDAQmxAI.triggerEdge
-        Label:
-            text << NIDAQmxAI.outputstring
-        Form:
+            EvalProp:
+                prop << NIDAQmxAI.DeviceName
+            EvalProp:
+                prop << NIDAQmxAI.chanList
+            EvalProp:
+                prop << NIDAQmxAI.sample_rate
+            EvalProp:
+                prop << NIDAQmxAI.samples_per_measurement
+            EvalProp:
+                prop << NIDAQmxAI.waitForStartTrigger
+            EvalProp:
+                prop << NIDAQmxAI.triggerSource
+            EvalProp:
+                prop << NIDAQmxAI.triggerEdge
             Label:
-                text = 'Apply formula to values'
-            CheckBox:
-                checked := NIDAQmxAI.applyFormula
-        MultilineField: field:
-            text := NIDAQmxAI.formula
+                text << NIDAQmxAI.outputstring
+            Form:
+                Label:
+                    text = 'Apply formula to values'
+                CheckBox:
+                    checked := NIDAQmxAI.applyFormula
+            MultilineField: field:
+                text := NIDAQmxAI.formula
 
 enamldef NewportStage(Window):
     attr newportstage
@@ -1954,7 +1959,7 @@ enamldef NewportStage(Window):
                         clicked :: newportstage.moveStage()
                     EvalProp:
                         prop << newportstage.setposition
-                    Label:
+        Label:
                         text << 'Current position: {} mm'.format(newportstage.mypos)
                     PushButton: Calibrate:
                         text = 'Calibrate'
@@ -2117,8 +2122,6 @@ enamldef NIScope(Form):
 
 
 
-
-
 enamldef PICams(Window):
     attr picams
 
@@ -2129,22 +2132,19 @@ enamldef PICams(Window):
         style_class << 'valid' if experiment.valid else 'invalid'
         ScrollArea:
             style_class << 'valid' if experiment.valid else 'invalid'
-            LabelBox:
-                text = 'enable'
-                checked := picams.enable
             Container:
                 style_class << 'valid' if experiment.valid else 'invalid'
 
-                Container:
-                    hug_width = 'strong'
-                    hug_height = 'strong'
-                    Form:
-                        hug_width = 'strong'
-                        hug_height = 'strong'
+            Container:
+                hug_width = 'strong'
+                hug_height = 'strong'
+            Form:
+                hug_width = 'strong'
+                hug_height = 'strong'
 
-                    IndexedContainer:
-                        iterable << picams.motors
-                        viewType = Picam
+            IndexedContainer:
+                iterable << picams.motors
+                viewType = Picam
 
 enamldef Picam(Form):
     attr item
@@ -2211,36 +2211,36 @@ enamldef Picam(Form):
                         clicked :: item.camera.setCamera()
                 HGroup:
                     padding = 0
-                    Label:
+            Label:
                         text := 'Camera Serial Number: {}'.format(str(item.camera.currentSerial))
                     #Label:
                     #    text := 'CCD Temperature (C): {:.4}'.format(item.camera.temperature)
-                    Label:
+            Label:
                         text := 'Maximum Pixel Value: {}, Mean Pixel Value: {}'.format(item.analysis.maxPixel,item.analysis.meanPixel)
-                LabelBox:
-                    text = 'enable'
-                    checked := item.camera.enable
-                EvalProp:
-                    prop << item.camera.AdcEMGain
+            LabelBox:
+                text = 'enable'
+                checked := item.camera.enable
+            EvalProp:
+                prop << item.camera.AdcEMGain
+            ComboBox:
+                items = ['Low Analog Gain', 'Medium Analog Gain', 'High Analog Gain']
+                index := item.camera.AdcAnalogGain
+            EvalProp:
+                prop << item.camera.exposureTime
+            HGroup:
+                padding = 0
                 ComboBox:
-                    items = ['Low Analog Gain', 'Medium Analog Gain', 'High Analog Gain']
-                    index := item.camera.AdcAnalogGain
-                EvalProp:
-                    prop << item.camera.exposureTime
-                HGroup:
-                    padding = 0
-                    ComboBox:
-                        items = ['Rising Edge', 'Falling Edge', 'Level', 'Auto']
-                        index := item.camera.triggerMode
-                    ComboBox:
-                        items = ['Shutter Normal', 'Shutter Always Closed', 'Shutter Always Open', 'Shutter Open Before Trigger']
-                        index := item.camera.shutterMode
-                    ComboBox:
-                        items = ['Bin Mode: 1x1', 'Bin Mode: 2x2', 'Bin Mode: 4x4']
-                        index := item.camera.binMode
-                    ComboBox:
-                        items = ['Readout Control: Dual Imaging', 'Readout Control: Frame Transfer', 'Readout Control: Full Frame', 'Readout Control: Kinetics', 'Readout Control: Spectra Kinetics']
-                        index := item.camera.ReadoutControl
+                    items = ['Rising Edge', 'Falling Edge', 'Level', 'Auto']
+                    index := item.camera.triggerMode
+                ComboBox:
+                    items = ['Shutter Normal', 'Shutter Always Closed', 'Shutter Always Open', 'Shutter Open Before Trigger']
+                    index := item.camera.shutterMode
+                ComboBox:
+                    items = ['Bin Mode: 1x1', 'Bin Mode: 2x2', 'Bin Mode: 4x4']
+                    index := item.camera.binMode
+                ComboBox:
+                    items = ['Readout Control: Dual Imaging', 'Readout Control: Frame Transfer', 'Readout Control: Full Frame', 'Readout Control: Kinetics', 'Readout Control: Spectra Kinetics']
+                    index := item.camera.ReadoutControl
                 #HGroup:
                     #padding = 0
                     #ComboBox:
@@ -2252,7 +2252,7 @@ enamldef Picam(Form):
                     text = 'Sum Measurements'
                     checked := item.camera.averageMeasurements
                 LabelBox:
-                    text = 'Draw Figure'
+                    text = 'Display Image'
                     checked := item.analysis.draw_fig
                 Form:
                     Label:
@@ -2274,6 +2274,7 @@ enamldef Picam(Form):
                 LabelBox:
                     text = 'Use Demo Camera'
                     checked := item.camera.useDemo
+
 
 
 
@@ -2388,25 +2389,25 @@ enamldef AnalogInput(Window):
                 # filter
                 GroupBox:
                     title = 'Analog Input Filter'
-                    Form:
-                        Label:
-                            text = 'enable'
-                        CheckBox:
-                            checked := filters.enable
+                Form:
+                    Label:
+                        text = 'enable'
+                    CheckBox:
+                        checked := filters.enable
 
-                        Label:
-                            text = 'What to filter: a string representing a list of [(channel,samples_list,low,high), ...]\nSamples in samples_list will be averaged.'
-                        Field:
-                            text := filters.what_to_filter
+                    Label:
+                        text = 'What to filter: a string representing a list of [(channel,samples_list,low,high), ...]\nSamples in samples_list will be averaged.'
+                    Field:
+                        text := filters.what_to_filter
 
-                        Label:
-                            text = 'filter level'
-                        ComboBox:
-                            items = ['None: increment measurement total',
+                    Label:
+                        text = 'filter level'
+                    ComboBox:
+                        items = ['None: increment measurement total',
                                      'soft: continue with other analyses, but do not increment measurement total',
                                      'med: continue with other analyses, do not increment measurement total, and delete measurement data after all analyses',
                                      'hard: do not continue with other analyses, do not increment measurement total, delete measurement data']
-                            index := filters.filter_level
+                        index := filters.filter_level
 
                         Label:
                             text = 'Status'
@@ -2429,13 +2430,13 @@ enamldef AnalogInput(Window):
                             text = 'specify what to graph with a list of tuples: [(channel,samples_list),(channel, samples_list)...]\nSamples in samples_list will be averaged.'
                         Field:
                             text := analysis.list_of_what_to_plot
-                    PushButton:
-                        text = 'clear'
-                        clicked :: analysis.clear()
-                    MPLCanvas: canvas:
-                        constraints=[(height==500)|'strong']
-                        hug_width='ignore'
-                        figure << analysis.figure
+                        PushButton:
+                            text = 'clear'
+                            clicked :: analysis.clear()
+                MPLCanvas: canvas:
+                    constraints=[(height==500)|'strong']
+                    hug_width='ignore'
+                    figure << analysis.figure
 
 
 enamldef Counters(Window):
@@ -3409,6 +3410,7 @@ enamldef RetentionGraph(Window):
                 MPLCanvas:
                     figure<<analysis.figure
 
+
 enamldef CounterGraph(Window):
     attr analysis
 
@@ -3745,9 +3747,9 @@ enamldef Instek_PSTs(Window):
                     Form:
                         hug_width = 'strong'
                         hug_height = 'strong'
-                        Label:
-                            text = 'enable'
-                        CheckBox:
+                    Label:
+                        text = 'enable'
+                    CheckBox:
                             checked := instek_psts.enable
 
                     IndexedContainer:
@@ -3771,19 +3773,19 @@ enamldef Vaunix(Container):
         EvalProp: Power:
             prop << item.power
         Form:
-                hug_width = 'strong'
-                hug_height = 'strong'
-                Label:
-                    text = 'RF enabled'
-                CheckBox: RFonoff:
-                    checked := item.rfonoff
+            hug_width = 'strong'
+            hug_height = 'strong'
+        Label:
+            text = 'RF enabled'
+        CheckBox: RFonoff:
+            checked := item.rfonoff
         Form:
-                hug_width = 'strong'
-                hug_height = 'strong'
-                Label:
-                    text = 'Use Internal Reference (External 10 MHz reference if Unchecked)'
-                CheckBox: internalref:
-                    checked := item.internalref
+            hug_width = 'strong'
+            hug_height = 'strong'
+        Label:
+            text = 'Use Internal Reference (External 10 MHz reference if Unchecked)'
+        CheckBox: internalref:
+            checked := item.internalref
         Container:
             Label:
                 text = 'Pulse Modulation Mode'
@@ -3824,15 +3826,15 @@ enamldef Vaunix(Container):
             Form:
                 hug_width = 'strong'
                 hug_height = 'strong'
-                Label:
-                    text = 'Sweep Positive (Negative if Unchecked)'
+            Label:
+                text = 'Sweep Positive (Negative if Unchecked)'
                 CheckBox: SweepDir:
                     checked := item.sweepdir
             Form:
                 hug_width = 'strong'
                 hug_height = 'strong'
-                Label:
-                    text = 'Enable Bidirectional Sweep (Unidirectional if Unchecked)'
+            Label:
+                text = 'Enable Bidirectional Sweep (Unidirectional if Unchecked)'
                 CheckBox: SweepType:
                     checked := item.sweeptype
             Form:
@@ -3862,19 +3864,19 @@ enamldef Vaunixs(Window):
                 Container:
                     hug_width = 'strong'
                     hug_height = 'strong'
-                    Form:
+                Form:
                         hug_width = 'strong'
                         hug_height = 'strong'
-                        Label:
-                            text = 'enable'
-                        CheckBox:
-                            checked := vaunixs.enable
-                        PushButton: Detect:
-                            text = 'Detect Signal Generators'
-                            clicked :: vaunixs.detect_generators()
-                    IndexedContainer:
-                        iterable << vaunixs.motors
-                        viewType = Vaunix
+                Label:
+                    text = 'enable'
+                    CheckBox:
+                        checked := vaunixs.enable
+                    PushButton: Detect:
+                        text = 'Detect Signal Generators'
+                        clicked :: vaunixs.detect_generators()
+                IndexedContainer:
+                    iterable << vaunixs.motors
+                    viewType = Vaunix
 
 
 
@@ -3888,11 +3890,11 @@ enamldef AerotechGlobal(GroupBox):
     attr list_index
 
     HGroup: variable:
-        align_widths = False
-        Label:
-            text << list_index
-        EvalProp:
-            prop << aglobal
+                    align_widths = False
+    Label:
+        text << list_index
+    EvalProp:
+        prop << aglobal
 
 
 
@@ -3915,9 +3917,9 @@ enamldef Aerotechs(Window):
                     Form:
                         hug_width = 'strong'
                         hug_height = 'strong'
-                        Label:
-                            text = 'enable'
-                        CheckBox:
+                    Label:
+                        text = 'enable'
+                    CheckBox:
                             checked := aerotechs.enable
                         #Label:
                         #    text = 'IP Address'
@@ -3930,9 +3932,9 @@ enamldef Aerotechs(Window):
                         #PushButton:
                         #    text = 'Launch Server'
                         #    clicked :: aerotechs.launchServer()
-                        PushButton:
-                            text = 'Update Values'
-                            clicked :: aerotechs.parUpdate()
+                    PushButton:
+                        text = 'Update Values'
+                        clicked :: aerotechs.parUpdate()
 
                     #'''Container:
                     #    hug_width='strong'
@@ -3956,7 +3958,7 @@ enamldef Aerotechs(Window):
                     #    EvalProp:
                     #        prop << aerotechs.OneAerotech.XretTrig'''
 
-                    GroupBox:
+                GroupBox:
                         HGroup:
                             SpinBox: spin0:
                                 minimum=0
@@ -3970,12 +3972,12 @@ enamldef Aerotechs(Window):
                                 clicked::
                                     aerotechs.OneAerotech.globals.pop(spin0.value)
 
-                    RefreshableLooper:
-                        iterable<<aerotechs.OneAerotech.globals
-                        AerotechGlobal:
-                            aglobal << loop_item
-                            list_index << str(loop_index)
-                    
+                RefreshableLooper:
+                    iterable<<aerotechs.OneAerotech.globals
+                    AerotechGlobal:
+                        aglobal << loop_item
+                        list_index << str(loop_index)
+
 enamldef Aerotech(Container):
     attr item
 
@@ -3986,23 +3988,23 @@ enamldef Aerotech(Container):
         hug_width = 'strong'
         hug_height = 'strong'
         EvalProp:
-            prop << item.Xi 
+            prop << item.Xi
         EvalProp:
-            prop << item.Xend 
+            prop << item.Xend
         EvalProp:
-            prop << item.Xvmx 
+            prop << item.Xvmx
         EvalProp:
-            prop << item.Xamx 
+            prop << item.Xamx
         EvalProp:
-            prop << item.Zi 
+            prop << item.Zi
         EvalProp:
-            prop << item.Zend 
+            prop << item.Zend
         EvalProp:
-            prop << item.Zvmx 
+            prop << item.Zvmx
         EvalProp:
-            prop << item.Zamx 
+            prop << item.Zamx
         EvalProp:
-            prop << item.XretTrig 
+            prop << item.XretTrig
 
 
 
@@ -4038,13 +4040,14 @@ enamldef Conexes(Window):
                             text = 'Get Params'
                             clicked :: conexes.getParams()
 
+
                     IndexedContainer:
                         iterable << conexes.motors
-                        viewType = Conex                    
-                    
+                        viewType = Conex
+
+
 enamldef Conex(Container):
     attr item
-
     hug_width = 'strong'
     hug_height = 'strong'
 
@@ -4070,9 +4073,9 @@ enamldef Conex(Container):
         Label:
             text = 'Velocity: '
         CheckBox:
-            checked := item.enableVel            
+            checked := item.enableVel
         EvalProp:
-            prop << item.Vel     
+            prop << item.Vel
         EvalProp:
             prop << item.Threshold
         Label:
@@ -4150,10 +4153,47 @@ enamldef Picomotors(Window):
                         iterable << picomotors.motors
                         viewType = Picomotor
 
-enamldef PyPico(Window):
-    attr pypico
 
-    title = 'PyPico Server'
+enamldef Noise_Eater(Container):
+    attr item
+
+    hug_width = 'strong'
+    hug_height = 'strong'
+
+    Container:
+        hug_width = 'strong'
+        hug_height = 'strong'
+        Label:
+            text = 'IP Address'
+        Field:
+            text := item.IP
+        Label:
+            text = 'port'
+        IntField:
+            value := item.port
+        Label:
+            text = 'Target Setting 1'
+        EvalProp:
+            prop << item.target_setting1
+        Label:
+            text = 'Target Setting 2'
+        EvalProp:
+            prop << item.target_setting2
+        Label:
+            text = 'Target Setting 3'
+        EvalProp:
+            prop << item.target_setting3
+        Label:
+            text = 'Target Setting 4'
+        EvalProp:
+            prop << item.target_setting4
+
+enamldef Noise_Eaters(Window):
+    attr noise_eaters
+    attr analysis
+
+
+    title = 'Noise Eaters'
     style_class << 'valid' if experiment.valid else 'invalid'
     Container:
         padding = 0
@@ -4172,35 +4212,219 @@ enamldef PyPico(Window):
                         Label:
                             text = 'enable'
                         CheckBox:
-                            checked := pypico.enable
+                            checked := noise_eaters.enable
+
+                    IndexedContainer:
+                        iterable << noise_eaters.pis
+                        viewType = Noise_Eater
+
+                # cumulative plot of noise eater data
+                GroupBox:
+                    title = 'Noise Eater plots'
+                    Form:
                         Label:
-                            text = 'enable_measurement'
+                            text = 'enable'
                         CheckBox:
-                            checked := pypico.enable_measurement
+                            checked := analysis.enable
                         Label:
-                            text = 'enable_iteration'
-                        CheckBox:
-                            checked := pypico.enable_iteration
+                            text = 'specify pi and channel number'
+                        Field:
+                            text := analysis.list_of_what_to_plot
+                    PushButton:
+                        text = 'clear'
+                        clicked :: analysis.clear()
+                    MPLCanvas: canvas:
+                        constraints=[(height==500)|'strong']
+                        hug_width='ignore'
+                        figure << analysis.figure
+
+
+
+enamldef BILTcard(Container):
+    attr item
+
+    hug_width = 'strong'
+    hug_height = 'strong'
+
+    Container:
+        hug_width = 'strong'
+        hug_height = 'strong'
+        Label:
+            text = 'chassis card number'
+        Field:
+            text := item.chassis_card_number
+        Label:
+            text = 'channel number'
+        Field:
+            text := item.channel_number
+        Label:
+            text = 'voltage'
+        EvalProp:
+            prop << item.desired_voltage
+
+enamldef BILTcards(Window):
+    attr BILT
+
+    title = 'BILTcards'
+    style_class << 'valid' if experiment.valid else 'invalid'
+    Container:
+        padding = 0
+        style_class << 'valid' if experiment.valid else 'invalid'
+        ScrollArea:
+            style_class << 'valid' if experiment.valid else 'invalid'
+            Container:
+                style_class << 'valid' if experiment.valid else 'invalid'
+
+                Container:
+                    hug_width = 'strong'
+                    hug_height = 'strong'
+                    Form:
+                        hug_width = 'strong'
+                        hug_height = 'strong'
                         Label:
-                            text = 'enable_movement'
+                            text = 'enable'
                         CheckBox:
-                            checked := pypico.enable_movement
+                            checked := BILT.enable
                         Label:
                             text = 'IP Address'
                         Field:
-                            text := pypico.IP
+                            text := BILT.IP
                         Label:
                             text = 'port'
                         IntField:
-                            value := pypico.port
-                        Label:
-                            text = 'timeout (ms)'
-                        IntField:
-                            value := pypico.timeout
+                            value := BILT.port
 
                     IndexedContainer:
-                        iterable << pypico.motors
-                        viewType = Picomotor
+                        iterable << BILT.channels
+                        viewType = BILTcard
+
+enamldef PyPico(Window):
+    attr pypico
+
+    title = 'PyPico Server'
+    style_class << 'valid' if experiment.valid else 'invalid'
+    Container:
+        padding = 0
+        style_class << 'valid' if experiment.valid else 'invalid'
+        ScrollArea:
+            style_class << 'valid' if experiment.valid else 'invalid'
+            Container:
+                style_class << 'valid' if experiment.valid else 'invalid'
+            Form:
+                hug_width = 'strong'
+                hug_height = 'strong'
+                Label:
+                    text = 'enable'
+                CheckBox:
+                    checked := pypico.enable
+                Label:
+                    text = 'enable_measurement'
+                CheckBox:
+                    checked := pypico.enable_measurement
+                Label:
+                    text = 'enable_iteration'
+                CheckBox:
+                    checked := pypico.enable_iteration
+                Label:
+                    text = 'enable_movement'
+                CheckBox:
+                    checked := pypico.enable_movement
+                Label:
+                    text = 'IP Address'
+                Field:
+                    text := pypico.IP
+                Label:
+                    text = 'port'
+                IntField:
+                    value := pypico.port
+                Label:
+                    text = 'timeout (ms)'
+                IntField:
+                    value := pypico.timeout
+
+            IndexedContainer:
+                iterable << pypico.motors
+                viewType = Picomotor
+
+enamldef AAS(Window):
+    attr aas
+
+    title = 'Automatic Alignment System'
+    style_class << 'valid' if experiment.valid else 'invalid'
+    Container:
+        padding = 0
+        style_class << 'valid' if experiment.valid else 'invalid'
+        ScrollArea:
+            style_class << 'valid' if experiment.valid else 'invalid'
+            Container:
+                style_class << 'valid' if experiment.valid else 'invalid'
+
+                Container:
+                    hug_width = 'strong'
+                    hug_height = 'strong'
+                    Form:
+                        hug_width = 'strong'
+                        hug_height = 'strong'
+                        Label:
+                            text = 'enable'
+                        CheckBox:
+                            checked := aas.enable
+                        Label:
+                            text = 'enable reordering shots'
+                        CheckBox:
+                            checked := aas.enable_reorder
+                        Label:
+                            text = 'enable feedback'
+                        CheckBox:
+                            checked := aas.enable_feedback
+                        Label:
+                            text = 'iter_analysis_path'
+                        Field:
+                            text := aas.iter_analysis_path
+                        Label:
+                            text = 'k_p'
+                        FloatField:
+                            value := aas.k_p
+                        Label:
+                            text = 'k_i'
+                        FloatField:
+                            value := aas.k_i
+                        Label:
+                            text = 'time constant (hrs)'
+                        FloatField:
+                            value := aas.tau_h                                                      
+                        Label:
+                            text = 'calibration X (pixels to degrees)'
+                        FloatField:
+                            value := aas.calibration_X
+                        Label:
+                            text = 'Setpoint X (pixels)'
+                        FloatField:
+                            value := aas.setpoint_X
+                        Label:
+                            text = 'Actuator X variable name'
+                        Field:
+                            text := aas.actuator_vname_X
+                        Label:
+                            text = 'calibration Y (pixels to degrees)'
+                        FloatField:
+                            value := aas.calibration_Y
+                        Label:
+                            text = 'Setpoint Y (pixels)'
+                        FloatField:
+                            value := aas.setpoint_Y
+                        Label:
+                            text = 'Actuator Y variable name'
+                        Field:
+                            text := aas.actuator_vname_Y
+                        Label:
+                            text = 'Relative Position (pixels)'
+                        Label:
+                            text = '(' + str(aas.position_iter_stat['x']) + ', ' + str(aas.position_iter_stat['y']) + ')'
+                        Label:
+                            text = 'Error (degrees)'
+                        Label:
+                            text = '(' + str(aas.position_iter_stat['error_x']) + ', ' + str(aas.position_iter_stat['error_y']) + ')'
 
 
 enamldef Unlock_Pause(Window):
@@ -4478,7 +4702,11 @@ window_dictionary = {'':'',
                      'Arroyo': 'Arroyo(experiment = main.experiment)',
                      'PI Piezo': 'PI_Piezo(piezo = main.experiment.LabView.piezo)',
                      'Picomotors': 'Picomotors(picomotors = main.experiment.picomotors)',
+                     'Noise Eaters': 'Noise_Eaters(noise_eaters = main.experiment.noise_eaters, analysis = main.experiment.Noise_EatersGraph)',
+                     'Cell Electrodes': 'BILTcards(BILT = main.experiment.BILT)',
                      'PyPico': 'PyPico(pypico = main.experiment.pyPicoServer)',
+                     'AAS': 'AAS(aas = main.experiment.beam_position_analysis)',
+                     'AAS2': 'AAS(aas = main.experiment.beam_position_analysis2)',
                      'Instek PST Power Supplies': 'Instek_PSTs(instek_psts = main.experiment.instekpsts)',
                      'Aerotech': 'Aerotechs(aerotechs = main.experiment.aerotechs)',
                      'CONEX-CC': 'Conexes(conexes = main.experiment.conexes)',

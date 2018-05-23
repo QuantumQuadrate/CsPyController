@@ -135,7 +135,7 @@ class PICamCamera(Instrument):
     roimaxh = Int(512)
     roimaxv = Int(-512)
     ROI = Member()
-    enableROI = False
+    enableROI = True
 
     autoscale = Bool(True)
     minPlot = Member()
@@ -272,7 +272,13 @@ class PICamCamera(Instrument):
 
     def sendparameters(self):
         self.GetDetector()
-        self.setROIvalues()
+        
+        if self.enableROI:
+            self.setROIvalues()
+            print "ROI: x={}, x_binning={}, y={}, y_binning={}, width={}, height={}".format(self.ROI.x, self.ROI.x_binning, self.ROI.y, self.ROI.y_binning, self.ROI.width, self.ROI.height)
+            self.SetImage()
+        else:
+            self.setSingleROI()
 
         error = Picam_SetParameterIntegerValue(self.currentHandle, PicamParameter_AdcAnalogGain, self.AdcAnalogGain+1)
         self.DLLError(str(sys._getframe().f_code.co_name) + ' (parameter AdcAnalogGain)', error)
@@ -283,7 +289,6 @@ class PICamCamera(Instrument):
         error = Picam_SetParameterFloatingPointValue(self.currentHandle, PicamParameter_ExposureTime, piflt(self.exposureTime.value))
         self.DLLError(str(sys._getframe().f_code.co_name) + ' (parameter ExposureTime)', error)
 
-        self.setSingleROI()
 
         error = Picam_SetParameterIntegerValue(self.currentHandle, PicamParameter_CleanUntilTrigger, piint(1))
         self.DLLError(str(sys._getframe().f_code.co_name) + ' (parameter CleanUntilTrigger)', error)
@@ -345,15 +350,9 @@ class PICamCamera(Instrument):
 
         if self.enableROI:
             self.setROIvalues()
-            p6 = self.ROI[4]
+            p6 = self.ROI.y_binning
             print "p6 = {}".format(p6)
-            self.SetImage(
-                self.binChoices[self.binMode],
-                self.binChoices[self.binMode],
-                max(self.ROI[0],1),
-                self.ROI[1],
-                max(self.ROI[3],1),
-                p6)  # full sensor, no binning
+            self.SetImage() 
         else:
             if self.binChoices[self.binMode] > 1:
                 wid=(self.width / self.binChoices[self.binMode]) * self.binChoices[self.binMode]
@@ -387,6 +386,15 @@ class PICamCamera(Instrument):
         #thread.daemon = True
         #thread.start()
 
+    def SetImage(self):   
+        ROIS = PicamRois(1)
+        ROIS.roi_array[0] = self.ROI
+        error = Picam_SetParameterRoisValue(self.currentHandle, PicamParameter_Rois, ROIS)
+        self.DLLError(sys._getframe().f_code.co_name, error)
+        return
+        
+        
+        
     def commitParameters(self):
         failed_parameter_count = piint()
         failed_parameter_array = piint()
@@ -452,13 +460,15 @@ class PICamCamera(Instrument):
                 
     def SetSingleScan(self):
         self.SetReadMode(4)
-        self.SetImage(1, 1, 1, self.width, 1, self.height)
+        self.setSingleROI()
+        self.SetImage()
         self.SetAcquisitionMode(1)
         self.SetTriggerMode(0)
 
     def SetVideoMode(self):
         self.SetReadMode(4)
-        self.SetImage(1, 1, 1, self.width, 1, self.height)
+        self.setSingleROI()
+        self.SetImage()
         self.SetAcquisitionMode(5)
         self.SetKineticCycleTime(0)  # for run till abort mode
         self.SetTriggerMode(0)  # internal trigger
@@ -523,17 +533,17 @@ class PICamCamera(Instrument):
             self.GetDetector()
 
         self.setSingleROI()
-        '''self.ROI[2] = 1   #x-binning
+        self.ROI.x_binning = self.binChoices[self.binMode]   #x-binning
 
-        self.ROI[0] = min(self.roihighh,self.roilowh)   #x
-        self.ROI[1] = max(self.roihighh,self.roilowh)   #width
-        self.ROI[3] = min(-1*self.roihighv,-1*self.roilowv)   #x
-        self.ROI[4] = max(-1*self.roihighv,-1*self.roilowv)   #width
+        self.ROI.x = min(self.roihighh,self.roilowh)   #x
+        self.ROI.width = max(self.roihighh,self.roilowh) - self.ROI.x   #width
+        self.ROI.y = min(-1*self.roihighv,-1*self.roilowv)   #x
+        self.ROI.height = max(-1*self.roihighv,-1*self.roilowv) - self.ROI.y   #width
 
-        self.ROI[5] = 1   #y-binning
+        self.ROI.y_binning = self.binChoices[self.binMode]   #y-binning
 
-        self.width = self.ROI[1] - self.ROI[0]
-        self.height = self.ROI[4] - self.ROI[3]'''
+        self.width = self.ROI.width
+        self.height = self.ROI.height
 
         self.dim = self.width*self.height
         #print "self.width: {} self.height: {}".format(self.width,self.height)
@@ -543,16 +553,16 @@ class PICamCamera(Instrument):
     def GetDetector(self):
         width = piint(0)
         height = piint(0)
-        logger.debug('self.currentHandle: {}'.format(self.currentHandle))
-        logger.debug('Getting detector width')
+        logger.info('self.currentHandle: {}'.format(self.currentHandle))
+        logger.info('Getting detector width')
         error = Picam_GetParameterIntegerValue(self.currentHandle, c_int(PicamParameter_SensorActiveWidth), byref(width))
         self.DLLError(sys._getframe().f_code.co_name, error)
 
-        logger.debug('Width={}. Getting detector height'.format(width.value))
+        logger.info('Width={}. Getting detector height'.format(width.value))
         error = Picam_GetParameterIntegerValue(self.currentHandle, PicamParameter_SensorActiveHeight, byref(height))
         self.DLLError(sys._getframe().f_code.co_name, error)
 
-        logger.debug('Height={}. Setting ROI'.format(height.value))
+        logger.info('Height={}. Setting ROI'.format(height.value))
         self.width = width.value
         self.height = height.value  # -2 because height gets reported as 1004 instead of 1002 for Luca
         self.dim = self.width * self.height
@@ -859,13 +869,13 @@ class PICams(Instrument,Analysis):
         msg=''
         # TODO: if you want to be able to dynamically change this it has to not
         # set the DLL path during initialization
-        dllpath = self.experiment.Config.config.get('PICAM', 'PICAM_DLL')
+        dllpath = r'D:\git\cspycontroller\python\PythonForPicam\DLLs\Picam.dll'#self.experiment.Config.config.get('PICAM', 'PICAM_DLL')
         #self.dll = load(dllpath)
         try:
             logger.debug("Initializing Picam library: {}".format(Picam_InitializeLibrary()))
-        except NameError:
+        except NameError as e:
             # no dll found
-            logger.warning("Cannot Initialize Picam library: No dll found at {}".format(dllpath))
+            logger.warning("Cannot Initialize Picam library: No dll found at {}. {}".format(dllpath,e))
             self.enable = False
             self.isInitialized = False
         else:

@@ -49,8 +49,8 @@ fort_dds_pinout = (-1,3,4) # -1 indicates pins that are not being used
 fort_dds_profiles = {
     'on' : (0,0,0),
     'off' : (0,0,1),
-    'Blowaway' : (0,1,0),
-    'RO' : (0,1,1)
+    'science' : (0,1,0),
+    'low' : (0,1,1)
 }
 ################################################################################
 # 2D MOT DDS SETUP ################################################################
@@ -85,7 +85,7 @@ ryd780a_dds_profiles = {
     'off' : (0,0,0),
     'r1' : (0,0,1),
     'r2' : (0,1,0),
-    'r3' : (0,1,1)
+    'PG' : (0,1,1)
 }
 
 ################################################################################
@@ -104,9 +104,9 @@ ryd780b_dds_profiles = {
 red_pointing_dds_pinout = (-1,24,25) # -1 indicates pins that are not being used
 red_pointing_dds_profiles = {
     'off' : (0,0,0),
-    'r1' : (0,0,1),
+    'addressing' : (0,0,1),
     'r2' : (0,1,0),
-    'r3' : (0,1,1)
+    'PG' : (0,1,1)
 }
 ################################################################################
 # Blue pointing AOM DDS SETUP ################################################################
@@ -124,7 +124,7 @@ blue_pointing_dds_profiles = {
 ################################################################################
 mot_aom_switch_chan = 7
 # this is the default profile, we dont have to pass it in if we dont want to
-mot_aom_switch_profile = {'on':0, 'off':1}
+mot_aom_switch_profile = {'on':1, 'off':0}
 # timing delay parameter
 mot_aom_switch_delay = 0
 
@@ -178,7 +178,7 @@ mot_3d_x_shutter_switch_delay = 0
 ################################################################################
 mot_3d_y_shutter_switch_chan = 13
 # this is the default profile, we dont have to pass it in if we dont want to
-mot_3d_y_shutter_switch_profile = {'on':1, 'off':0}
+mot_3d_y_shutter_switch_profile = {'off':1, 'on':0}
 # timing delay parameter
 mot_3d_y_shutter_switch_delay = 0
 
@@ -209,14 +209,6 @@ repumper_shutter_switch_profile = {'on':1, 'off':0}
 # timing delay parameter
 repumper_shutter_switch_delay = 0
 
-################################################################################
-# Pointgrey camera Trigger SETUP ###############################################
-################################################################################
-pointgrey_trigger_chan = 26
-# this is the default profile, we dont have to pass it in if we dont want to
-pointgrey_trigger_profile = {'on':1, 'off':0} # Does this work?
-# timing delay parameter
-pointgrey_trigger_delay = 0
 
 ################################################################################
 # microwaver SWITCH SETUP ##########################################################
@@ -271,6 +263,88 @@ blue_pointing_aom_switch_chan = 23
 blue_pointing_aom_switch_profile = {'on':1, 'off':0}
 # timing delay parameter
 blue_pointing_aom_switch_delay = 0
+
+################################################################################
+# 3DMOT Scope Trigger SETUP ###############################################
+################################################################################
+MOT_scope_trigger_chan = 44
+# this is the default profile, we dont have to pass it in if we dont want to
+MOT_scope_trigger_profile = {'on':1, 'off':0} # Does this work?
+# timing delay parameter
+MOT_scope_trigger_delay = 0
+
+
+################################################################################
+# FORT Scope Trigger SETUP ###############################################
+################################################################################
+scope_trigger_chan = 45
+# this is the default profile, we dont have to pass it in if we dont want to
+scope_trigger_profile = {'on':1, 'off':0} # Does this work?
+# timing delay parameter
+scope_trigger_delay = 0
+
+################################################################################
+# Pointgrey camera no.1 Trigger SETUP ###############################################
+################################################################################
+pointgrey_trigger_chan = 46
+# this is the default profile, we dont have to pass it in if we dont want to
+pointgrey_trigger_profile = {'on':1, 'off':0} # Does this work?
+# timing delay parameter
+pointgrey_trigger_delay = 0
+
+################################################################################
+# FORT Noise eater Trigger SETUP ###############################################
+################################################################################
+FORT_NE_trigger_chan = 47
+# this is the default profile, we dont have to pass it in if we dont want to
+FORT_NE_trigger_profile = {'on':1, 'off':0} # Does this work?
+# timing delay parameter
+FORT_NE_trigger_delay = 0
+
+################################################################################
+# rydberg 780A Noise eater Trigger SETUP ###############################################
+################################################################################
+ryd780A_NE_trigger_chan = 48
+# this is the default profile, we dont have to pass it in if we dont want to
+ryd780A_NE_trigger_profile = {'on':1, 'off':0} # Does this work?
+# timing delay parameter
+ryd780A_NE_trigger_delay = 0
+
+################################################################################
+# FORT Pulse Generator Trigger SETUP ###############################################
+################################################################################
+FORT_PG_trigger_chan = 50
+# this is the default profile, we dont have to pass it in if we dont want to
+FORT_PG_trigger_profile = {'on':1, 'off':0}
+# timing delay parameter
+FORT_PG_trigger_delay = 0
+
+################################################################################
+# FORT Switch1 Trigger SETUP ###############################################
+################################################################################
+FORT_SW1_trigger_chan = 51
+# this is the default profile, we dont have to pass it in if we dont want to
+FORT_SW1_trigger_profile = {'on':1, 'off':0}
+# timing delay parameter
+FORT_SW1_trigger_delay = 0
+
+################################################################################
+# FORT Switch2 Trigger SETUP ###############################################
+################################################################################
+FORT_SW2_trigger_chan = 52
+# this is the default profile, we dont have to pass it in if we dont want to
+FORT_SW2_trigger_profile = {'on':1, 'off':0}
+# timing delay parameter
+FORT_SW2_trigger_delay = 0
+
+################################################################################
+# Pointgrey camera no.2 Trigger SETUP ###############################################
+################################################################################
+pointgrey2_trigger_chan = 53 # 53 - 32 = 21
+# this is the default profile, we dont have to pass it in if we dont want to
+pointgrey2_trigger_profile = {'on':1, 'off':0} # Does this work?
+# timing delay parameter
+pointgrey2_trigger_delay = 0
 
 
 ################################################################################
@@ -389,8 +463,12 @@ class Rb(object):
             delay=pointgrey_trigger_delay,
             pulse_length=1 # in millisecond. this can be overwrttten in functional waveform window
         )
-
-
+        self.PGcamera2 = Camera( # Pointgret camera, standard trigger control
+            HSDIO=HSDIO,
+            channel=pointgrey2_trigger_chan,
+            delay=pointgrey2_trigger_delay,
+            pulse_length=1 # in millisecond. this can be overwrttten in functional waveform window
+        )
         self.red_pointing_aom_switch = Switch(
             HSDIO,
             red_pointing_aom_switch_chan,
@@ -411,24 +489,129 @@ class Rb(object):
             profiles=ryd780a_aom_switch_profile,
             delay=ryd780a_aom_switch_delay
         )
-
         self.ground_aom_switch = Switch(
             HSDIO,
             ground_aom_switch_chan,
             profiles=ground_aom_switch_profile,
             delay=ground_aom_switch_delay
         )
-#    def mot_dds(self):
-#        return
+
+        self.MOT_scope_trigger_switch = Switch(
+            HSDIO,
+            MOT_scope_trigger_chan,
+            profiles=MOT_scope_trigger_profile,
+            delay=MOT_scope_trigger_delay
+        )
+
+        self.scope_trigger_switch = Switch(
+            HSDIO,
+            scope_trigger_chan,
+            profiles=scope_trigger_profile,
+            delay=scope_trigger_delay
+        )
+
+        self.pointgrey_trigger_switch = Switch(
+            HSDIO,
+            pointgrey_trigger_chan,
+            profiles=pointgrey_trigger_profile,
+            delay=pointgrey_trigger_delay
+        )
+        self.pointgrey2_trigger_switch = Switch(
+            HSDIO,
+            pointgrey2_trigger_chan,
+            profiles=pointgrey2_trigger_profile,
+            delay=pointgrey2_trigger_delay
+        )
+        self.FORT_NE_trigger_switch = Switch(
+            HSDIO,
+            FORT_NE_trigger_chan,
+            profiles=FORT_NE_trigger_profile,
+            delay=FORT_NE_trigger_delay
+        )
+
+        self.ryd780A_NE_trigger_switch = Switch(
+            HSDIO,
+            ryd780A_NE_trigger_chan,
+            profiles=ryd780A_NE_trigger_profile,
+            delay=ryd780A_NE_trigger_delay
+        )
+# # Copied from fnode functional_waveform
+# ################################################################################
+# # HSDIO STUFF ##################################################################
+# ################################################################################
 #
-#    def mot_aom_switch(self, t, profile):
-#        return self.mot_aom_switch.profile(t, profile)
 #
-#    def hf_aom_switch(self, t, profile):
-#        return self.hf_aom_switch.profile(t, profile)
+# def chop(t, channels, phases, period):
+#     """Add a single cycle of a chopping pattern to the HSDIO transition list.
 #
-#    def fort_aom_switch(self):
-#        return self.fort_aom_switch.profile(t, profile)
+#     If the phase for a channel is 0 it turns on at time t
+#     If the phase for a channel is 1>p>0 it turns on at time (t+period*phase)
+#     If the phase for a channel is 0>p>-1 it starts on and turns off at time (t + period*(1 + phase))
 #
-#    def andor_take_shot(self):
-#        return self.camera.take_shot(t)
+#     channels is a list of channel numbers
+#     phases is a list of phases between -1 and 1 equal in length to the number of
+#         channels being switched
+#     period is the period of the cycle
+#     returns t + period
+#     """
+#     if len(channels) != len(phases):
+#         print "Chop function requries equal length lists of channels and phases"
+#         raise PauseError
+#
+#     for i, c in enumerate(channels):
+#         p = phases[i]
+#         if abs(p) > 1:
+#             print "Chop function expects phases to be within abs(p)<=1"
+#             raise ValueError
+#         init_state = p < 0
+#         # if phase is negative substract from end of phase
+#         if init_state:
+#             p = 1 + p
+#         # put in initial value for the cycle
+#         msg = "ch[{}]: t({}) = {}"
+#         print(msg.format(c, 0, init_state))
+#         HSDIO(t, c, init_state)
+#         # put in transition
+#         print(msg.format(c, p, not init_state))
+#         HSDIO(t + (p * period), c, not init_state)
+#     return t + period
+#
+#
+# def chop_dds(channels, phases, profiles, period):
+#     """Add a single cycle of a chopping pattern for DDS profiles.
+#
+#     If the phase for a channel is 0 it turns on at time t
+#     If the phase for a channel is 1>p>0 it turns on at time (t+period*phase)
+#
+#     channels is a list of channel numbers
+#     phases is a list of phases between 0 and 1 equal in length to the number of
+#         channels being switched
+#     profiles is a list of length 2 lists of dds profile names, index 0 is the initial profile
+#     period is the period of the cycle
+#     returns t + period
+#     """
+#     if len(channels) != len(phases) or len(channels) != len(profiles):
+#         print "Chop function requries equal length lists of channels and phases"
+#         raise PauseError
+#
+#     def chop_function(t):
+#         # TODO: check that profiles are grey coded!!!!!!!!
+#         print t
+#         for i, c in enumerate(channels):
+#             # set up initial state
+#             init_state = profiles[i][0]
+#             msg = "ch[{}]: t({}) = {}"
+#             #print(msg.format(c, 0, init_state))
+#             c(t, init_state)
+#             # now change state at phase list
+#             for j, p in enumerate(phases[i]):
+#                 if p > 1 or p < 0:
+#                     print "chop_dds function expects phases to be within 0<p<1"
+#                     raise ValueError
+#                 # put in initial value for the cycle
+#                 # put in transition
+#                 #print(msg.format(c, p, profiles[i][j + 1]))
+#                 c(t + (p * period), profiles[i][j + 1])
+#         return t + period
+#
+#     return chop_function
