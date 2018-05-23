@@ -130,8 +130,8 @@ class CounterAnalysis(AnalysisWithFigure):
 
     def analyzeMeasurement(self, measurementResults, iterationResults, experimentResults):
         if self.enable:
-<<<<<<< HEAD
-            # number of shots is hard coded right now
+
+            '''# number of shots is hard coded right now
             bins_per_shot = self.drops + self.bins
             num_shots = int(len(self.counter_array[-1])/bins_per_shot)
             #if self.draw_fig:
@@ -144,8 +144,8 @@ class CounterAnalysis(AnalysisWithFigure):
             self.binned_array = np.array([
                 self.counter_array[:, s*bins_per_shot + self.drops:(s+1)*bins_per_shot].sum(1)
                 for s in range(num_shots)
-            ])
-=======
+            ])'''
+
             # MFE 2018/01: this analysis has been generalized such that multiple sub measurements can occur
             # in the same traditional measurement
             array = measurementResults[self.meas_data_path][()]
@@ -159,7 +159,7 @@ class CounterAnalysis(AnalysisWithFigure):
                 logger.exception(errmsg.format(array.shape))
             except:
                 logger.exception('Unhandled counter data exception')
->>>>>>> 60554291a1b995417111f7f4a5103f3c48af5a0d
+
             # write this cycle's data into hdf5 file so that the threshold analysis can read it
             # when multiple counter support is enabled, the ROIs parameter will hold the count
             # Note the constant 1 is for the roi column parameter, all counters get entered in a single row
