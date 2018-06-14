@@ -270,7 +270,12 @@ class GaussianROI(ROIAnalysis):
             images.shape[1],
             images.shape[2] * images.shape[3]
         )
-        data = np.dot(a, self.rois)
+        mask = np.floor(1.3*self.rois/np.max(self.rois))
+        #mask1 = np.floor(1.3*self.rois/np.max(self.rois))
+        #mask2 = np.floor(1.95*np.round(100*self.rois/np.max(self.rois))/np.max(np.round(100*self.rois/np.max(self.rois))))
+        #data = 10000*np.dot(a, mask1)/(np.dot(a, mask2)-np.dot(a, mask1))
+        data = np.dot(a, mask)
+        #data = np.dot(a, self.rois)
         return data
 
     def fit_grid(self, images, fig, useICA, rows, columns, bottom, top, right,
