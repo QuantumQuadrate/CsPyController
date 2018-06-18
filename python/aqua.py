@@ -10,7 +10,7 @@ from __init__ import import_config
 # Bring in other files in this package
 from ConfigInstrument import Config
 import functional_waveforms, analysis, instek_pst, save2013style, TTL, LabView
-import BILT
+import BILT, rearrange
 import noise_eaters
 import DDS, roi_fitting
 import picomotors, andor, picampython, vaunix, DCNoiseEater, Laird_temperature, AnalogInput
@@ -77,6 +77,7 @@ class AQuA(Experiment):
     picomotors = Member()
     noise_eaters = Member()
     BILT = Member()
+    rearrange = Member()
     instekpsts = Member()
     aerotechs = Member()
     conexes = Member()
@@ -149,6 +150,7 @@ class AQuA(Experiment):
         self.picomotors = picomotors.Picomotors('picomotors', self, 'Newport Picomotors')
         self.noise_eaters = noise_eaters.Noise_Eaters('noise_eaters', self,'rotating wave-plate noise eaters')
         self.BILT = BILT.BILTcards('BILT',self, 'BILT DC Voltage sources')
+        self.rearrange = rearrange.Rearrange('rearrange', self, 'atom rearranging system')
         self.instekpsts = instek_pst.InstekPSTs('instekpsts', self, 'Instek PST power supply')
         self.Andors = andor.Andors('Andors', self, 'Andor Luca measurementResults')
         if pycap:
@@ -170,7 +172,7 @@ class AQuA(Experiment):
         self.instruments += [
             self.box_temperature, self.picomotors, self.noise_eaters, self.pyPicoServer,
             self.NIScopes, self.Andors, self.PICams,
-            self.DC_noise_eaters, self.BILT, self.DDS, self.unlock_pause,
+            self.DC_noise_eaters, self.BILT, self.rearrange, self.DDS, self.unlock_pause,
             self.Embezzletron, self.instekpsts,
             self.vaunixs, self.NewportStage,
         ]
@@ -247,7 +249,7 @@ class AQuA(Experiment):
         self.properties += [
             'Config', 'AQuAAIAnalysis',
             'functional_waveforms', 'LabView', 'functional_waveforms_graph',
-            'DDS', 'aerotechs', 'picomotors', 'noise_eaters', 'BILT', 'pyPicoServer', 'conexes',
+            'DDS', 'aerotechs', 'picomotors', 'noise_eaters', 'BILT','rearrange', 'pyPicoServer', 'conexes',
             'Andors', 'PICams', 'DC_noise_eaters', 'blackfly_client',
             'box_temperature', 'DAQmxAI', 'squareROIAnalysis', 'histogram_grid',
             'thresholdROIAnalysis', 'gaussian_roi', 'instekpsts', 'TTL_filters',

@@ -58,7 +58,6 @@ class Noise_Eaters(Instrument):
             self.isInitialized = True
 
     def start(self):
-        self.update()
         self.isDone = True
 
     def update(self):

@@ -18,6 +18,7 @@ class Rearrange(Instrument):
     version = '2018.06.14'
     enable = Bool()
     frequency_increment = Float()
+    jump_time = Float()
     iter_analysis_base_path = Str()
     desired_occupation = Member()
     xfrequencies = Member()
@@ -34,7 +35,7 @@ class Rearrange(Instrument):
                                listElementName='yfrequency')
         self.desired_occupation = ListProp('desired_occupation', experiment, 'A list of sites which should have atoms loaded into them', listElementType=Rearrange,
                                listElementName='site_bool')
-        self.properties += ['version', 'IP', 'port','enable','frequency_increment', 'desired_occupation', 'xfrequencies', 'yfrequencies', 'laser_ramp_time']
+        self.properties += ['version', 'IP', 'port','enable','frequency_increment', 'jump_time', 'desired_occupation', 'xfrequencies', 'yfrequencies', 'laser_ramp_time']
 
     def initialize(self):
         """Open the TCP socket"""
@@ -42,12 +43,11 @@ class Rearrange(Instrument):
             self.isInitialized = True
 
     def start(self):
-        self.update()
         self.isDone = True
 
     def update(self):
         """
-        Every iteration, send the motors updated positions.
+        Every iteration, send settings to rearranger program updated positions.
         """
         self.resultsArray = numpy.delete(numpy.empty([1,4]), (0), axis=0)
         
