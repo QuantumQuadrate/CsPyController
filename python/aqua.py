@@ -202,7 +202,7 @@ class AQuA(Experiment):
         self.recent_shot_analysis = RecentShotAnalysis('recent_shot_analysis', self, description='just show the most recent shot')
         self.shotBrowserAnalysis = analysis.ShotsBrowserAnalysis(self)
         self.histogramAnalysis = HistogramAnalysis('histogramAnalysis', self, 'plot the histogram of any shot and roi')
-        self.histogram_grid = HistogramGrid('histogram_grid', self, 'all 49 histograms for shot 0 at the same time')
+        self.histogram_grid = HistogramGrid('histogram_grid', self, 'all 121 histograms for shot 0 or 1 at the same time')
         self.measurements_graph = analysis.MeasurementsGraph('measurements_graph', self, 'plot the ROI sum vs all measurements')
         self.iterations_graph = analysis.IterationsGraph('iterations_graph', self, 'plot the average of ROI sums vs iterations')
         self.retention_graph = RetentionGraph('retention_graph', self, 'plot occurence of binary result (i.e. whether or not atoms are there in the 2nd shot)')
