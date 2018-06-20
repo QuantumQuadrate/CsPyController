@@ -123,7 +123,6 @@ class AQuA(Experiment):
     DC_noise_eater_graph = Member()
     DC_noise_eater_filter = Member()
     Noise_EatersGraph = Member()
-    Ramsey = Member()
     retention_analysis = Member()
     counter_graph = Member()
     counter_hist = Member()
@@ -136,6 +135,8 @@ class AQuA(Experiment):
     ROI_columns = Int(1)
     ROI_bg_rows = Int(0)
     ROI_bg_columns = Int(0)
+    rearrange_settings = Member()
+    Ramsey = Member()
 
     def __init__(self):
         super(AQuA, self).__init__()
@@ -151,6 +152,7 @@ class AQuA(Experiment):
         self.noise_eaters = noise_eaters.Noise_Eaters('noise_eaters', self,'rotating wave-plate noise eaters')
         self.BILT = BILT.BILTcards('BILT',self, 'BILT DC Voltage sources')
         self.rearrange = rearrange.Rearrange('rearrange', self, 'atom rearranging system')
+        self.rearrange_settings = rearrange.Rearrange_settings('rearrange_settings', self, 'atom rearranging system settings update and save')
         self.instekpsts = instek_pst.InstekPSTs('instekpsts', self, 'Instek PST power supply')
         self.Andors = andor.Andors('Andors', self, 'Andor Luca measurementResults')
         if pycap:
