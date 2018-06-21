@@ -4332,16 +4332,16 @@ enamldef Rearrange(Window):
                         hug_height = 'strong'
                         Label:
                             text = 'Jump Time'
-                        FloatField:
-                            value :=  rearrange_settings.jump_time
+                        EvalProp:
+                            prop << rearrange_settings.jump_time
                         Label:
                             text = 'frequency_increment'
-                        FloatField:
-                            value := rearrange_settings.frequency_increment
+                        EvalProp:
+                            prop << rearrange_settings.frequency_increment
                         Label:
                             text = 'laser_ramp_on_time'
-                        FloatField:
-                            value :=  rearrange_settings.laser_ramp_on_time
+                        EvalProp:
+                            prop << rearrange_settings.laser_ramp_on_time
                     Container:
                         hug_height='ignore'
                         hug_width='ignore'

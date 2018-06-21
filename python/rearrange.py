@@ -14,9 +14,9 @@ logger = logging.getLogger(__name__)
 
 class Rearrange_settings(Prop):
     # must keep track of voltage changes
-    jump_time = Float()
-    frequency_increment = Float()
-    laser_ramp_on_time = Float()
+    jump_time = Member()
+    frequency_increment = Member()
+    laser_ramp_on_time = Member()
     iter_analysis_base_path = Str()
     frequency_occupation_array = Member()# a numpy array holding an xfrequency, yfrequency, and occupation status in each row
     rows = Int()
@@ -29,8 +29,11 @@ class Rearrange_settings(Prop):
         super(Rearrange_settings, self).__init__(name, experiment, description)
         dtype = [('xfrequency', numpy.float16),('yfrequency', numpy.float16),('occupation', numpy.uint16)]
         self.frequency_occupation_array = numpy.zeros(121, dtype=dtype)  # initialize with a blank array
+        self.jump_time = FloatProp('jump_time', experiment, 'the target power 1 percentage','100')
+        self.frequency_increment = FloatProp('frequency_increment', experiment, 'the target power 1 percentage','100')
+        self.laser_ramp_on_time = FloatProp('laser_ramp_on_time', experiment, 'the target power 1 percentage','100')
         self.properties += ['jump_time', 'frequency_increment', 'laser_ramp_on_time', 'frequency_occupation_array']
-        
+
         # where we are going to dump data after analysis
         self.iter_analysis_base_path = 'analysis'
         
@@ -79,9 +82,8 @@ class Rearrange_settings(Prop):
             xfrequencies[x] = self.frequency_occupation_array[x][0]
             yfrequencies[x] =  self.frequency_occupation_array[x][1]
             desired_occupation[x] =  self.frequency_occupation_array[x][2]
-            print self.xfrequencies
-        arduino_dict = {'xfrequencies': list(xfrequencies), 'yfrequencies': list(yfrequencies), 'frequency_increment': self.frequency_increment, 
-            'jump_time': self.jump_time, 'laser_ramp_on_time': self.laser_ramp_on_time}
+        arduino_dict = {'xfrequencies': list(xfrequencies), 'yfrequencies': list(yfrequencies), 'frequency_increment': self.frequency_increment.value, 
+            'jump_time': self.jump_time.value, 'laser_ramp_on_time': self.laser_ramp_on_time.value}
             
         python_dict = {'desired_occupation': list(desired_occupation), 'gaussian_roi_params': self.gaussian_roi_params, 's0_thresholds': list(self.s0_thresholds)}
         
