@@ -234,7 +234,7 @@ def get_save_file_callback(experiment):
 enamldef CsMenuBar(MenuBar): menuBar:
     attr experiment
     attr mainWindow
-    
+
     Menu:
         title = '&File'
         Action:
@@ -327,7 +327,7 @@ enamldef EvalProp(GroupBox):
     Label: val:
         text << prop.valueStr
 
-enamldef MultilineProp(GroupBox):        
+enamldef MultilineProp(GroupBox):
     attr prop
     flat=True
     title:=prop.name
@@ -343,7 +343,7 @@ enamldef MultilineProp(GroupBox):
 enamldef LabelBox(HGroup):
     alias checked: box.checked
     alias text: label.text
-    
+
     padding=0
     hug_height='strong'
     hug_width='strong'
@@ -433,6 +433,12 @@ enamldef ExperimentPage(Window):
                     text='Reload settings after pause?'
                 CheckBox:
                     checked:=experiment.reload_settings_after_pause
+
+                Label:
+                    text='Keep repeating same experiments automatically?'
+                CheckBox:
+                    checked:=experiment.repeat_experiment_automatically
+
 
                 Label:
                     text = 'enable sounds'
@@ -791,7 +797,7 @@ enamldef DOchannel(Container):
 
 enamldef HSDIOScriptTrigger(StackItem):
     attr item
-    
+
     Container:
         padding=0
         Form:
@@ -814,7 +820,7 @@ enamldef HSDIOScriptTrigger(StackItem):
 enamldef StartTrigger(GroupBox):
     attr trigger
     title='Start Trigger'
-    
+
     EvalProp:
         prop<<trigger.waitForStartTrigger
     EvalProp:
@@ -829,7 +835,7 @@ class RefreshableMPLCanvas(MPLCanvas):
         def on_action_set_refresh(self, content):
             self.refresh_mpl_widget()
     """
-    
+
     #: Toggle this to refresh the canvas
     refresh = d_(Bool())
 
@@ -961,7 +967,7 @@ enamldef ChannelCombo(ComboBox):
     attr channels
     attr channelList
     attr position
-    
+
     items<<[str(i)+' '+x for i,x in enumerate(channels.array['description'])]
     index<<int(channelList[position])
     index::
@@ -980,7 +986,7 @@ enamldef TransitionsLabel(Container):
 enamldef DescriptionLabel(Label):
     constraints = [height == 20]
     text='description'
-    
+
 enamldef TimeLabel(Label):
     constraints = [height == 20]
     text='time'
@@ -997,9 +1003,9 @@ enamldef TransitionTime(Form):
     attr transition
     attr value_str
     attr valid
-    
+
     padding=0
-    
+
     Field:
         constraints = [width == 100, height==20]
         placeholder = 'time'
@@ -1015,11 +1021,11 @@ enamldef TransitionTime(Form):
 
 enamldef NumpyWaveform(Container):
     attr waveform
-    
+
     hug_height='strong'
     hug_width='ignore'
     constraints=[vbox(plotcontrols,details),align('left',plotcontrols,details)]
-    
+
     Container: plotcontrols:
         hug_width='strong'
         hug_height='strong'
@@ -1045,7 +1051,7 @@ enamldef NumpyWaveform(Container):
                 else:
                     waveform.plotmax=float(text)
                 waveform.updateFigure()
-    
+
     Container: details:
         constraints=[vbox(hbox(nameField,timeControls,channelControls),transitions)]
         hug_height='strong'
@@ -1260,7 +1266,7 @@ enamldef DAQmxDigitalOutPage(Window):
 
 enamldef DDS_profile(Container):
     attr profile
-    
+
     hug_height='strong'
     hug_width='strong'
     padding=0
@@ -1326,7 +1332,7 @@ enamldef RAMStaticPoint(StackItem):
 
 enamldef ItemProp(StackItem):
     attr item
-    
+
     Container:
         padding=0
         EvalProp:
@@ -1335,7 +1341,7 @@ enamldef ItemProp(StackItem):
 enamldef DDS_channel(GroupBox):
     attr channel
     attr index
-    
+
     title='channel '+str(index)
     constraints=[hbox(vbox(parameters,RAM),profiles)]
 
@@ -1355,7 +1361,7 @@ enamldef DDS_channel(GroupBox):
             enabled = True
         EvalProp: fullScaleOutputPower:
             prop<<channel.fullScaleOutputPower
-    
+
     GroupBox: RAM:
         title='RAM defaults'
         flat=True
@@ -1524,7 +1530,7 @@ enamldef DDS_Page(Window):
 
 enamldef RF_gen(StackItem):
     attr item
-    
+
     Container:
         padding=0
         Form:
@@ -1548,7 +1554,7 @@ enamldef RF_gen(StackItem):
 
 enamldef HP83623A(StackItem):
     attr item
-    
+
     Container:
         padding=0
         Form:
@@ -1556,12 +1562,12 @@ enamldef HP83623A(StackItem):
                 text='enable'
             CheckBox:
                 checked:=item.enable
-            
+
             Label:
                 text='description'
             Field:
                 text:=item.description
-            
+
             Label:
                 text='GPIB channel'
             IntField:
@@ -1706,14 +1712,14 @@ enamldef Andors(Window):
                         #    text = 'enable'
                         #CheckBox:
                         #    checked := andors.enable
-                        
+
                 IndexedContainer:
                     iterable << andors.motors
                     viewType = Andor
 
 enamldef Andor(Form):
     attr item
-            
+
     constraints = [width >= 1200, height >= 1300]
 
     #title = 'Andor Camera'
@@ -2099,20 +2105,20 @@ enamldef PICams(Window):
             Container:
                 style_class << 'valid' if experiment.valid else 'invalid'
 
-            Container:
-                hug_width = 'strong'
-                hug_height = 'strong'
-            Form:
-                hug_width = 'strong'
-                hug_height = 'strong'
+                Container:
+                    hug_width = 'strong'
+                    hug_height = 'strong'
+                    Form:
+                        hug_width = 'strong'
+                        hug_height = 'strong'
 
-            IndexedContainer:
-                iterable << picams.motors
-                viewType = Picam
+                    IndexedContainer:
+                        iterable << picams.motors
+                        viewType = Picam
 
 enamldef Picam(Form):
     attr item
-    
+
     constraints = [width >= 1000, height >= 1500]
 
     #title = 'Princeton Instruments Camera'
@@ -2175,36 +2181,36 @@ enamldef Picam(Form):
                         clicked :: item.camera.setCamera()
                 HGroup:
                     padding = 0
-            Label:
+                    Label:
                         text := 'Camera Serial Number: {}'.format(str(item.camera.currentSerial))
-                    #Label:
-                    #    text := 'CCD Temperature (C): {:.4}'.format(item.camera.temperature)
-            Label:
+                    Label:
+                        text := 'CCD Temperature (C): {:.4}'.format(item.camera.currentTemp)
+                    Label:
                         text := 'Maximum Pixel Value: {}, Mean Pixel Value: {}'.format(item.analysis.maxPixel,item.analysis.meanPixel)
-            LabelBox:
-                text = 'enable'
-                checked := item.camera.enable
-            EvalProp:
-                prop << item.camera.AdcEMGain
-            ComboBox:
-                items = ['Low Analog Gain', 'Medium Analog Gain', 'High Analog Gain']
-                index := item.camera.AdcAnalogGain
-            EvalProp:
-                prop << item.camera.exposureTime
-            HGroup:
-                padding = 0
+                LabelBox:
+                    text = 'enable'
+                    checked := item.camera.enable
+                EvalProp:
+                    prop << item.camera.AdcEMGain
                 ComboBox:
-                    items = ['Rising Edge', 'Falling Edge', 'Level', 'Auto']
-                    index := item.camera.triggerMode
-                ComboBox:
-                    items = ['Shutter Normal', 'Shutter Always Closed', 'Shutter Always Open', 'Shutter Open Before Trigger']
-                    index := item.camera.shutterMode
-                ComboBox:
-                    items = ['Bin Mode: 1x1', 'Bin Mode: 2x2', 'Bin Mode: 4x4']
-                    index := item.camera.binMode
-                ComboBox:
-                    items = ['Readout Control: Dual Imaging', 'Readout Control: Frame Transfer', 'Readout Control: Full Frame', 'Readout Control: Kinetics', 'Readout Control: Spectra Kinetics']
-                    index := item.camera.ReadoutControl
+                    items = ['Low Analog Gain', 'Medium Analog Gain', 'High Analog Gain']
+                    index := item.camera.AdcAnalogGain
+                EvalProp:
+                    prop << item.camera.exposureTime
+                HGroup:
+                    padding = 0
+                    ComboBox:
+                        items = ['Rising Edge', 'Falling Edge', 'Level', 'Auto']
+                        index := item.camera.triggerMode
+                    ComboBox:
+                        items = ['Shutter Normal', 'Shutter Always Closed', 'Shutter Always Open', 'Shutter Open Before Trigger']
+                        index := item.camera.shutterMode
+                    ComboBox:
+                        items = ['Bin Mode: 1x1', 'Bin Mode: 2x2', 'Bin Mode: 4x4']
+                        index := item.camera.binMode
+                    ComboBox:
+                        items = ['Readout Control: Dual Imaging', 'Readout Control: Frame Transfer', 'Readout Control: Full Frame', 'Readout Control: Kinetics', 'Readout Control: Spectra Kinetics']
+                        index := item.camera.ReadoutControl
                 #HGroup:
                     #padding = 0
                     #ComboBox:
@@ -2238,7 +2244,10 @@ enamldef Picam(Form):
                 LabelBox:
                     text = 'Use Demo Camera'
                     checked := item.camera.useDemo 
-
+                PushButton:
+                    text = 'Print Parameters'
+                    clicked :: item.camera.PrintParameters()
+                     
 
 
 
@@ -2317,7 +2326,7 @@ enamldef AnalogInput(Window):
     attr AI
     attr filters
     attr analysis
-    
+
     title = 'Analog Input'
     style_class << 'valid' if experiment.valid else 'invalid'
     Container:
@@ -3371,8 +3380,8 @@ enamldef RetentionGraph(Window):
                         text := analysis.ymax
                 MPLCanvas:
                     figure<<analysis.figure
-                    
-                    
+
+
 enamldef CounterGraph(Window):
     attr analysis
 
@@ -3950,23 +3959,23 @@ enamldef Aerotech(Container):
         hug_width = 'strong'
         hug_height = 'strong'
         EvalProp:
-            prop << item.Xi 
+            prop << item.Xi
         EvalProp:
-            prop << item.Xend 
+            prop << item.Xend
         EvalProp:
-            prop << item.Xvmx 
+            prop << item.Xvmx
         EvalProp:
-            prop << item.Xamx 
+            prop << item.Xamx
         EvalProp:
-            prop << item.Zi 
+            prop << item.Zi
         EvalProp:
-            prop << item.Zend 
+            prop << item.Zend
         EvalProp:
-            prop << item.Zvmx 
+            prop << item.Zvmx
         EvalProp:
-            prop << item.Zamx 
+            prop << item.Zamx
         EvalProp:
-            prop << item.XretTrig 
+            prop << item.XretTrig
 
 
 
@@ -4012,7 +4021,7 @@ enamldef Conexes(Window):
 
                     IndexedContainer:
                         iterable << conexes.motors
-                        viewType = Conex                    
+                        viewType = Conex
 
 
 enamldef Conex(Container):
@@ -4042,9 +4051,9 @@ enamldef Conex(Container):
         Label:
             text = 'Velocity: '
         CheckBox:
-            checked := item.enableVel            
+            checked := item.enableVel
         EvalProp:
-            prop << item.Vel     
+            prop << item.Vel
         EvalProp:
             prop << item.Threshold
         Label:
@@ -4185,8 +4194,8 @@ enamldef Noise_Eaters(Window):
 
                     IndexedContainer:
                         iterable << noise_eaters.pis
-                        viewType = Noise_Eater                                            
-                                                                                            
+                        viewType = Noise_Eater
+
                 # cumulative plot of noise eater data
                 GroupBox:
                     title = 'Noise Eater plots'
@@ -4852,9 +4861,9 @@ enamldef Main(MainWindow): main:
                 minimum=0
                 maximum=100
                 value<<int(experiment.progressGUI)
-                
-                
-                
+
+
+
 
     HGroup:
         align_widths = False

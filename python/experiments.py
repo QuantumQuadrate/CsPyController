@@ -118,6 +118,7 @@ class Experiment(Prop):
     pauseAfterMeasurement = Bool()
     pauseAfterError = Bool()
     reload_settings_after_pause = Bool()
+    repeat_experiment_automatically = Bool()
     saveData = Bool()
     saveSettings = Bool()
     settings_path = Str()
@@ -232,7 +233,8 @@ class Experiment(Prop):
 
         self.properties += ['version', 'constantsStr', 'independentVariables', 'dependentVariablesStr',
                             'pauseAfterIteration', 'pauseAfterMeasurement', 'pauseAfterError',
-                            'reload_settings_after_pause', 'saveData', 'saveSettings', 'settings_path',
+                            'reload_settings_after_pause', 'experiment.repeat_experiment_automatically',
+                            'saveData', 'saveSettings', 'settings_path',
                             'save_separate_notes', 'save2013styleFiles', 'localDataPath', 'networkDataPath',
                             'copyDataToNetwork', 'experimentDescriptionFilenameSuffix', 'measurementTimeout',
                             'measurementsPerIteration', 'willSendEmail', 'emailAddresses', 'progress', 'progressGUI',
@@ -1195,13 +1197,13 @@ class Experiment(Prop):
         self.hdf5['notes'] = self.notes
 
         #store the log
-        logger.info('Storing log ...')
-        self.log.flush()
-        try:
-            self.hdf5['log'] = self.log.getvalue()
-        except ValueError:
-            # this throws an error at the end of an optimization experiment
-            logger.exception('Exception occured when accessing self.log')
+        # logger.info('Storing log ...')
+        # self.log.flush()
+        # try:
+        #     self.hdf5['log'] = self.log.getvalue()
+        # except ValueError:
+        #     # this throws an error at the end of an optimization experiment
+        #     logger.exception('Exception occured when accessing self.log')
         self.hdf5.flush()
 
         #copy to network
@@ -1215,6 +1217,9 @@ class Experiment(Prop):
         self.update_gui()
         if self.enable_sounds:
             sound.complete_sound()
+        if self.experiment.repeat_experiment_automatically:
+            logger.info('Automatically repeating the same experiment')
+            self.resetAndGo()
 
     def upload_now(self):
         """Skip straight to uploading the current data."""
