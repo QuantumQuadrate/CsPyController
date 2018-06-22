@@ -12,6 +12,22 @@ from time import sleep
 logger = logging.getLogger(__name__)
 
 
+class Variable_settings(Prop):
+    # must keep track of position changes and send only difference
+    site = Int() #site to apply offsets
+    Frequency_offset_x = Member() #x frequency offset
+    Frequency_offset_y = Member() #y frequency offset
+
+    def __init__(self, name, experiment, description=''):
+        super(Variable_settings, self).__init__(name, experiment, description)
+        self.Frequency_offset_x = FloatProp('Frequency_offset_x', experiment, 'the offset for the x frequency','0')
+        self.Frequency_offset_y = FloatProp('Frequency_offset_y', experiment, 'the offset for the y frequency','0')
+        self.properties += ['site', 'Frequency_offset_x', 'Frequency_offset_y']
+
+    def update(self):
+        # calculate relative move necessary
+        return self.site, self.Frequency_offset_x, self.Frequency_offset_y
+
 class Rearrange_settings(Prop):
     # must keep track of voltage changes
     jump_time = Member()
@@ -23,15 +39,17 @@ class Rearrange_settings(Prop):
     columns = Int()
     gaussian_roi_params = Member()
     s0_thresholds = Member()
+    site_offsets = Member()
     
 
     def __init__(self, name, experiment, description=''):
         super(Rearrange_settings, self).__init__(name, experiment, description)
-        dtype = [('xfrequency', numpy.float16),('yfrequency', numpy.float16),('occupation', numpy.uint16)]
+        dtype = [('xfrequency', numpy.float16),('yfrequency', numpy.float16),('occupation', numpy.int16)]
         self.frequency_occupation_array = numpy.zeros(121, dtype=dtype)  # initialize with a blank array
         self.jump_time = FloatProp('jump_time', experiment, 'the target power 1 percentage','100')
         self.frequency_increment = FloatProp('frequency_increment', experiment, 'the target power 1 percentage','100')
         self.laser_ramp_on_time = FloatProp('laser_ramp_on_time', experiment, 'the target power 1 percentage','100')
+        self.site_offsets = ListProp('site_offsets', experiment, 'A of sites fequency offsets which can take variable inputs', listElementType=Variable_settings,listElementName='site_offset')        
         self.properties += ['jump_time', 'frequency_increment', 'laser_ramp_on_time', 'frequency_occupation_array']
 
         # where we are going to dump data after analysis
@@ -82,6 +100,12 @@ class Rearrange_settings(Prop):
             xfrequencies[x] = self.frequency_occupation_array[x][0]
             yfrequencies[x] =  self.frequency_occupation_array[x][1]
             desired_occupation[x] =  self.frequency_occupation_array[x][2]
+            
+        for i in self.site_offsets:
+            site, Frequency_offset_x, Frequency_offset_y = i.update()
+            xfrequencies[site] += Frequency_offset_x
+            yfrequencies[site] += Frequency_offset_y
+            
         arduino_dict = {'xfrequencies': list(xfrequencies), 'yfrequencies': list(yfrequencies), 'frequency_increment': self.frequency_increment.value, 
             'jump_time': self.jump_time.value, 'laser_ramp_on_time': self.laser_ramp_on_time.value}
             
@@ -133,7 +157,6 @@ class Rearrange(Instrument):
                 sleep(0.005)
                 requests.post(arduino_address, json=arduino_dict)
             else:
-                xfrequencies, yfrequencies, desired_occupation, frequency_increment, jump_time, laser_ramp_on_time, gaussian_roi_params, s0_thresholds = self.update_values()
             
                 desired_occupation = numpy.zeros(121)            
                 python_dict = {'desired_occupation': desired_occupation} 

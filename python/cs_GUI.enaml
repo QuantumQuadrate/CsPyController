@@ -4267,7 +4267,27 @@ enamldef BILTcards(Window):
                         iterable << BILT.channels
                         viewType = BILTcard
 
+enamldef Variable_settings(Container):
+    attr item
 
+    hug_width = 'strong'
+    hug_height = 'strong'
+
+    Container:
+        hug_width = 'strong'
+        hug_height = 'strong'
+        Label:
+            text = 'site'
+        IntField:
+            value := item.site
+        Label:
+            text = 'Frequency offset x'
+        EvalProp:
+            prop << item.Frequency_offset_x
+        Label:
+            text = 'Frequency offset y'
+        EvalProp:
+            prop << item.Frequency_offset_y
 
 enamldef Site_frequencies_and_occupation(Container):
     attr item
@@ -4325,23 +4345,27 @@ enamldef Rearrange(Window):
                             text = 'port'
                         IntField:
                             value := rearrange.port
-
-
+                            
                     Container:
                         hug_width = 'strong'
                         hug_height = 'strong'
-                        Label:
-                            text = 'Jump Time'
-                        EvalProp:
-                            prop << rearrange_settings.jump_time
-                        Label:
-                            text = 'frequency_increment'
-                        EvalProp:
-                            prop << rearrange_settings.frequency_increment
-                        Label:
-                            text = 'laser_ramp_on_time'
-                        EvalProp:
-                            prop << rearrange_settings.laser_ramp_on_time
+                        Form:
+                            Label:
+                                text = 'Jump Time'
+                            EvalProp:
+                                prop << rearrange_settings.jump_time
+                            Label:
+                                text = 'frequency_increment'
+                            EvalProp:
+                                prop << rearrange_settings.frequency_increment
+                            Label:
+                                text = 'laser_ramp_on_time'
+                            EvalProp:
+                                prop << rearrange_settings.laser_ramp_on_time    
+                    IndexedContainer:
+                        iterable << rearrange_settings.site_offsets
+                        viewType = Variable_settings
+                            
                     Container:
                         hug_height='ignore'
                         hug_width='ignore'
@@ -4365,7 +4389,8 @@ enamldef Rearrange(Window):
                                     text = 'occupation'
                             Include: dyno:
                                 objects<<[Site_frequencies_and_occupation(item=x,num=i)for i,x in enumerate(rearrange_settings.frequency_occupation_array)]
- 
+                    
+
 
 
                     
