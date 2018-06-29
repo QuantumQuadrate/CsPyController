@@ -788,7 +788,8 @@ class IterationsGraph(AnalysisWithFigure):
         if self.enable:  # and self.update_every_measurement:
             if (not self.add_only_filtered_data) or (('analysis/loading_filter' in measurementResults) and measurementResults['analysis/loading_filter'].value):
 
-                d = numpy.array([measurementResults['analysis/squareROIsums']])
+                #d = numpy.array([measurementResults['analysis/squareROIsums']])
+                d = numpy.array([measurementResults['analysis/gaussian_roi']])
 
                 if self.current_iteration_data is None:
                     # on first measurement of an iteration, start anew
