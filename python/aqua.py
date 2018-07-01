@@ -174,7 +174,7 @@ class AQuA(Experiment):
         self.instruments += [
             self.box_temperature, self.picomotors, self.noise_eaters, self.pyPicoServer,
             self.NIScopes, self.Andors, self.PICams,
-            self.DC_noise_eaters, self.BILT, self.rearrange, self.DDS, self.unlock_pause,
+            self.DC_noise_eaters, self.BILT, self.rearrange, self.rearrange_settings, self.DDS, self.unlock_pause,
             self.Embezzletron, self.instekpsts,
             self.vaunixs, self.NewportStage,
         ]
@@ -251,7 +251,7 @@ class AQuA(Experiment):
         self.properties += [
             'Config', 'AQuAAIAnalysis',
             'functional_waveforms', 'LabView', 'functional_waveforms_graph',
-            'DDS', 'aerotechs', 'picomotors', 'noise_eaters', 'BILT','rearrange', 'pyPicoServer', 'conexes',
+            'DDS', 'aerotechs', 'picomotors', 'noise_eaters', 'BILT','rearrange', 'rearrange_settings', 'pyPicoServer', 'conexes',
             'Andors', 'PICams', 'DC_noise_eaters', 'blackfly_client',
             'box_temperature', 'DAQmxAI', 'squareROIAnalysis', 'histogram_grid',
             'thresholdROIAnalysis', 'gaussian_roi', 'instekpsts', 'TTL_filters',

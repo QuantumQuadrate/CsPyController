@@ -4276,7 +4276,7 @@ enamldef BILTcards(Window):
                         iterable << BILT.channels
                         viewType = BILTcard
 
-enamldef Variable_settings(Container):
+enamldef Site_Offset(Container):
     attr item
 
     hug_width = 'strong'
@@ -4370,10 +4370,14 @@ enamldef Rearrange(Window):
                             Label:
                                 text = 'laser_ramp_on_time'
                             EvalProp:
-                                prop << rearrange_settings.laser_ramp_on_time    
+                                prop << rearrange_settings.laser_ramp_on_time
+                            Label:
+                                text = 'enable'
+                            CheckBox:
+                                checked := rearrange_settings.enable    
                     IndexedContainer:
                         iterable << rearrange_settings.site_offsets
-                        viewType = Variable_settings
+                        viewType = Site_Offset
                             
                     Container:
                         hug_height='ignore'
