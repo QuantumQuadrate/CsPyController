@@ -130,6 +130,22 @@ class CounterAnalysis(AnalysisWithFigure):
 
     def analyzeMeasurement(self, measurementResults, iterationResults, experimentResults):
         if self.enable:
+
+            '''# number of shots is hard coded right now
+            bins_per_shot = self.drops + self.bins
+            num_shots = int(len(self.counter_array[-1])/bins_per_shot)
+            #if self.draw_fig:
+            #    print "Number of shots: {}".format(num_shots)
+            #    print "Bins per shot: {}".format(bins_per_shot)
+            #    print "Length of counter array: {}".format(int(len(self.counter_array[-1])))
+            # counter array is appended every measurement so the counter hists can be calculated
+            # updated every cycle
+            # WARNING: counter_array only works with a single counter right now
+            self.binned_array = np.array([
+                self.counter_array[:, s*bins_per_shot + self.drops:(s+1)*bins_per_shot].sum(1)
+                for s in range(num_shots)
+            ])'''
+
             # MFE 2018/01: this analysis has been generalized such that multiple sub measurements can occur
             # in the same traditional measurement
             array = measurementResults[self.meas_data_path][()]
@@ -143,6 +159,7 @@ class CounterAnalysis(AnalysisWithFigure):
                 logger.exception(errmsg.format(array.shape))
             except:
                 logger.exception('Unhandled counter data exception')
+
             # write this cycle's data into hdf5 file so that the threshold analysis can read it
             # when multiple counter support is enabled, the ROIs parameter will hold the count
             # Note the constant 1 is for the roi column parameter, all counters get entered in a single row
@@ -202,6 +219,30 @@ class CounterAnalysis(AnalysisWithFigure):
                         # make one plot
                         # Single shot
                         ax = fig.add_subplot(221)
+
+                        # PREVIOUS HYBRID VERSION. COMMENTING OUT IN CASE IT IS NEEDED.
+                        # Drop first 3 bins
+                        '''bins_per_shot = self.drops + self.bins
+                        num_shots = int(len(self.counter_array[-1])/bins_per_shot)
+                        dropped_array = self.counter_array[:, self.drops:self.drops+self.bins]
+                        for i in range(1,num_shots):
+                            dropped_array=np.append(dropped_array,self.counter_array[:, self.drops*(i+1)+self.bins*i:self.drops*i+self.bins*(i+1)],axis=1)
+                        ax.bar(np.arange(len(dropped_array[-1])), dropped_array[-1])
+                        ax.set_title('Shot: {}'.format(len(self.counter_array)))#Singlt shot
+
+                        ax = fig.add_subplot(222)
+                        #ax.bar(np.arange(len(self.counter_array[-1, self.drops:])), self.counter_array[:, self.drops:].mean(0))
+                        ax.bar(np.arange(len(dropped_array[-1])), dropped_array.mean(0))
+                        ax.set_title('Iteration average') #Average over all shots/iteration
+
+                        ax = fig.add_subplot(223)
+                        ax.plot(self.binned_array.transpose(),'.')
+
+                        
+
+                        #ax.legend(['shot 1', 'shot 2'], fontsize='small', loc=0)'''
+
+                        #merge conflict
                         # Average over all shots/iteration
                         ax2 = fig.add_subplot(222)
                         ptr = 0
@@ -231,6 +272,8 @@ class CounterAnalysis(AnalysisWithFigure):
                                     histtype='step'
                                 )
                                 legends.append("c{}_s{}".format(roi, s))
+                        #end merge conflict
+
                         ax.set_title('Binned Data')
                         ax2.legend(legends, fontsize='small', loc=0)
                         super(CounterAnalysis, self).updateFigure()

@@ -209,7 +209,7 @@ class HSDIO(Instrument):
             self.repeat_list.append(cycle_dict)
         else:
             # shouldn't be here
-            logger.error("Possible duplicate repeat")
+            logger.error("Overlapping repeats. Repeats cannot be overlapped, even if they affect different channels.")
             raise PauseError
 
         # tag the repeated transitions in the transition_list

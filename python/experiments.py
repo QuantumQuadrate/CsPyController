@@ -1207,6 +1207,7 @@ class Experiment(Prop):
         #     logger.exception('Exception occured when accessing self.log')
         self.hdf5.flush()
 
+
         #copy to network
         if self.copyDataToNetwork:
             logger.info('Copying data to network...')

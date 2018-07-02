@@ -147,7 +147,10 @@ class Optimization(AnalysisWithFigure):
             if isnan(self.yi):
                 self.yi = numpy.inf
                 self.y_stat_sigma = 0
-            if isnan(self.y_stat_sigma):
+            try:
+                if isnan(self.y_stat_sigma):
+                    self.y_stat_sigma = 0
+            except:
                 self.y_stat_sigma = 0
 
             # store this data point

@@ -17,3 +17,11 @@ Cache_Path[Path] Line0002 = "E99-1A9D-4DB2-A677-804F0DED3E0A}.txt"
 Cache_Path[Path] Line0001 = "/C/Users/Hybrid/AppData/Local/Temp/AB_Cache_{E6EFA"
 Cache_Path[Path] Line0002 = "E2C-0E99-4F15-AC8D-703F3EF9C635}.txt"
 
+[AB_Cache_{FB20BE6B-6CAC-40A2-A537-2A2D132E87F2}]
+Cache_Path[Path] Line0001 = "/C/Users/Hybrid/AppData/Local/Temp/AB_Cache_{FB20B"
+Cache_Path[Path] Line0002 = "E6B-6CAC-40A2-A537-2A2D132E87F2}.txt"
+
+[AB_Cache_{027D9905-41BA-47D8-89A9-7AD9D184E02F}]
+Cache_Path[Path] Line0001 = "/C/Users/Hybrid/AppData/Local/Temp/AB_Cache_{027D9"
+Cache_Path[Path] Line0002 = "905-41BA-47D8-89A9-7AD9D184E02F}.txt"
+

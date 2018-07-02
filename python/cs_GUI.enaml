@@ -1695,9 +1695,13 @@ enamldef Andors(Window):
         style_class << 'valid' if experiment.valid else 'invalid'
         ScrollArea:
             style_class << 'valid' if experiment.valid else 'invalid'
-            LabelBox:
-                text = 'enable'
-                checked := andors.enable
+            HGroup:
+                LabelBox:
+                    text = 'enable'
+                    checked := andors.enable
+                PushButton:
+                    text = 'Release Driver'
+                    clicked :: andors.__del__()
             Container:
                 style_class << 'valid' if experiment.valid else 'invalid'
 
@@ -1939,19 +1943,46 @@ enamldef NewportStage(Window):
                 Container:
                     hug_width = 'strong'
                     hug_height = 'strong'
-        Label:
-            text = 'enable'
-        CheckBox:
-            checked := newportstage.enable
-        EvalProp:
-            prop << newportstage.comport
-        PushButton: Move:
-            text = 'Move Now'
-            clicked :: newportstage.moveStage()
-        EvalProp:
+                    Label:
+                        text = 'enable'
+                    CheckBox:
+                        checked := newportstage.enable
+                    EvalProp:
+                        prop << newportstage.comport
+                    EvalProp:
+                        prop << newportstage.axis
+                    PushButton: UpdateAxis:
+                        text = 'Switch Axis'
+                        clicked :: newportstage.updateaxis()
+                    PushButton: Move:
+                        text = 'Move Now'
+                        clicked :: newportstage.moveStage()
+                    EvalProp:
                         prop << newportstage.setposition
         Label:
                         text << 'Current position: {} mm'.format(newportstage.mypos)
+                    PushButton: Calibrate:
+                        text = 'Calibrate'
+                        clicked :: newportstage.calibrate()
+                    PushButton: Center:
+                        text = 'Find Center'
+                        clicked :: newportstage.findcenter()
+                    PushButton: Home:
+                        text = 'Home'
+                        clicked :: newportstage.home()
+                    EvalProp:
+                        prop << newportstage.velocity
+                    PushButton: Velocity:
+                        text = 'Set Velocity'
+                        clicked :: newportstage.setvelocity()
+                    PushButton: CheckPos:
+                        text = 'Check Current Position'
+                        clicked :: newportstage.checkCurrentPosition()
+                    EvalProp:
+                        prop << newportstage.command
+                    PushButton: SendCommand:
+                        text = 'Send serial command'
+                        clicked :: newportstage.sendSerialCommand()
 
 
 enamldef NIScopes(Window):
@@ -2350,6 +2381,8 @@ enamldef AnalogInput(Window):
                     prop << AI.triggerSource
                 EvalProp:
                     prop << AI.triggerEdge
+                EvalProp:
+                    prop << AI.ground_mode
                 NumpyAOchannels:
                     channels<<AI.channels
 
@@ -3993,27 +4026,20 @@ enamldef Conexes(Window):
                 Container:
                     hug_width = 'strong'
                     hug_height = 'strong'
-                Form:
-                    hug_width = 'strong'
-                    hug_height = 'strong'
-                Label:
-                    text = 'enable'
-                CheckBox:
-                    checked := conexes.enable
-                        #Label:
-                        #    text = 'IP Address'
-                        #Field:
-                        #    text := conexes.IP
-                        #Label:
-                        #    text = 'port'
-                        #IntField:
-                        #    value := conexes.port
-                        #PushButton:
-                        #    text = 'Launch Server'
-                        #    clicked :: conexes.launchServer()
-                    PushButton:
-                        text = 'Update Values'
-                        clicked :: conexes.preIteration(0, 0)
+                    Form:
+                        hug_width = 'strong'
+                        hug_height = 'strong'
+                        Label:
+                            text = 'enable'
+                        CheckBox:
+                            checked := conexes.enable
+                        PushButton:
+                            text = 'Update Values'
+                            clicked :: conexes.preIteration(0, 0)
+                        PushButton:
+                            text = 'Get Params'
+                            clicked :: conexes.getParams()
+
 
                     IndexedContainer:
                         iterable << conexes.motors
