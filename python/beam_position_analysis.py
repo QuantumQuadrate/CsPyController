@@ -213,11 +213,11 @@ class BeamPositionAnalysis(Analysis):
         super(BeamPositionAnalysis, self).preExperiment(expResults)
 
     def calculateError(self):
-        cutoff=25 # last 25 samples.
+        cutoff=100 # last 100 samples.
         xs = self.positions['x']
         ys = self.positions['y']
 
-        # We will use only last 200 samples (approx 60 sec) for beam position calculation.
+        # We will use only last chunck of samples for beam position calculation.
         num_of_samples=min(len(xs),cutoff)
         x = np.nanmedian(xs[-num_of_samples:])
         sigma_x = np.nanstd(xs[-num_of_samples:])
@@ -237,9 +237,9 @@ class BeamPositionAnalysis(Analysis):
             ys_fixed = np.where(swaps, np.multiply(-1.0, ys), ys)
             # recalculate positions
             x = np.nanmean(xs_fixed)
-            sigma_x = np.std(xs_fixed)
+            sigma_x = np.nanstd(xs_fixed)
             y = np.nanmean(ys_fixed)
-            sigma_y = np.std(ys_fixed)
+            sigma_y = np.nanstd(ys_fixed)
         self.position_iter_stat['x'] = x
         self.position_iter_stat['sigma_x'] = sigma_x
         self.position_iter_stat['y'] = y
@@ -254,7 +254,7 @@ class BeamPositionAnalysis(Analysis):
         self.ts = time.time()
         self.int_error_X = self.pi_filter(error_x, self.int_error_X)
         self.int_error_Y = self.pi_filter(error_y, self.int_error_Y)
-        self.error_ts = self.ts  # set new timestamp
+        self.error_ts = self.ts  # set new timestamp, which will be used for next pi_filter call.
         self.position_iter_stat['ctrl_x'] = self.int_error_X
         self.position_iter_stat['ctrl_y'] = self.int_error_Y
 

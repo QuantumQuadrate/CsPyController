@@ -37,7 +37,7 @@ overwritten at the global scope.
 mot_3d_dds_pinout = (0,1,2)
 mot_3d_dds_profiles = {
     'MOT' : (0,0,0),
-    'off' : (0,0,1),
+    'PGC' : (0,0,1),
     'Blowaway' : (0,1,0),
     'RO' : (0,1,1)
 }
@@ -211,7 +211,7 @@ repumper_shutter_switch_delay = 0
 
 
 ################################################################################
-# microwaver SWITCH SETUP ##########################################################
+# microwave SWITCH SETUP ##########################################################
 ################################################################################
 microwave_switch_chan = 18
 # this is the default profile, we dont have to pass it in if we dont want to
