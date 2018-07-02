@@ -292,7 +292,7 @@ if ExpMode==0:
     ## FORT Transfer Phase
     exp.fort_aom_switch.profile(t_FORT_loading,'on')
     exp.fort_dds.profile(t_FORT_loading,'on')
-    exp.camera.pulse_length=t_MOT_imaging_exposure # Changes HSDIO pulse width to control exposure
+    exp.camera.pulse_length=5#t_MOT_imaging_exposure # Changes HSDIO pulse width to control exposure
     t_readout_MOT=100
     exp.camera.take_shot(t_readout_MOT)
     exp.camera.pulse_length=t_exposure # Changes HSDIO pulse width to control exposure
@@ -322,16 +322,16 @@ if ExpMode==0:
     AO(t_end+t_PGC_duration+0.2,7,0)
     prepareF1(t_end+0.3,t_F1prepare)
 
-    # Poliarization Gradient Cooling (PGC) phase, nominally from 145-150 ms
-    # Doing chopping
-    # t_start=145.3
-    # t_end=t_start+t_PGC_duration
-    # # exp.fort_dds.profile(t_start,'science') # lowered FORT during PGC
-    # # exp.fort_dds.profile(t_start+4,'on')
-    # exp.mot_3d_dds.profile(t_start,'PGC')
-    # # readout(t_start,t_end)
-    # # exp.mot_aom_switch.profile(t_start,'on')
-    # # exp.mot_aom_switch.profile(t_end,'off')
+    #Poliarization Gradient Cooling (PGC) phase, nominally from 145-150 ms
+    #Doing chopping
+    t_start=145.3
+    t_end=t_start+t_PGC_duration
+    # exp.fort_dds.profile(t_start,'science') # lowered FORT during PGC
+    # exp.fort_dds.profile(t_start+4,'on')
+    exp.mot_3d_dds.profile(t_start,'PGC')
+    # readout(t_start,t_end)
+    # exp.mot_aom_switch.profile(t_start,'on')
+    # exp.mot_aom_switch.profile(t_end,'off')
     # AO(t_start,7,10) # Reumper VCA
     # AO(t_end+0.2,7,0)
     # exp.hf_aom_switch.profile(t_start,'on')
@@ -431,9 +431,9 @@ if ExpMode==0:
     ## Blue imaging
     Blue480(t_start_blue_imaging,t_blue_exposure,'r2')
 
-    # exp.camera.pulse_length=t_blue_exposure # Changes HSDIO pulse width to control exposure
-    # t_readout_3rd=205
-    # exp.camera.take_shot(t_readout_3rd)
+    exp.camera.pulse_length=t_blue_exposure # Changes HSDIO pulse width to control exposure
+    t_readout_3rd=205
+    exp.camera.take_shot(t_readout_3rd)
 
     ############################## End of normal experiment #######################################################
 
