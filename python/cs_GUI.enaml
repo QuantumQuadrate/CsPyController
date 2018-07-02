@@ -1959,7 +1959,7 @@ enamldef NewportStage(Window):
                         clicked :: newportstage.moveStage()
                     EvalProp:
                         prop << newportstage.setposition
-        Label:
+                    Label:
                         text << 'Current position: {} mm'.format(newportstage.mypos)
                     PushButton: Calibrate:
                         text = 'Calibrate'

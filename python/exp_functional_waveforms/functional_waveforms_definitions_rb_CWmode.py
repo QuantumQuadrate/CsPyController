@@ -293,7 +293,7 @@ if ExpMode==0:
     exp.fort_aom_switch.profile(t_FORT_loading,'on')
     exp.fort_dds.profile(t_FORT_loading,'on')
     exp.camera.pulse_length=t_MOT_imaging_exposure # Changes HSDIO pulse width to control exposure
-    t_readout_MOT=t_FORT_loading-5
+    t_readout_MOT=100
     exp.camera.take_shot(t_readout_MOT)
     exp.camera.pulse_length=t_exposure # Changes HSDIO pulse width to control exposure
     ## Fall off Phase
