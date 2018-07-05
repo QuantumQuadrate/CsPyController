@@ -28,8 +28,15 @@ class Site_Offset(Prop):
         # calculate relative move necessary
         return self.site, self.Frequency_offset_x, self.Frequency_offset_y
 
-class Rearrange_settings(Prop):
-    # must keep track of voltage changes
+
+class Rearrange(Instrument):
+    '''Send data to atom rearranger on PXI crate
+    '''
+    version = '2018.06.18'
+    IP = Str()
+    port = Int()
+    enable = Bool()
+
     jump_time = Member()
     frequency_increment = Member()
     laser_ramp_on_time = Member()
@@ -44,10 +51,10 @@ class Rearrange_settings(Prop):
     version = '2018.06.18'
 
 
-    
-
     def __init__(self, name, experiment, description=''):
-        super(Rearrange_settings, self).__init__(name, experiment, description)
+        super(Rearrange, self).__init__(name, experiment, description='') 
+        self.properties += ['version', 'IP', 'port','enable']
+        
         dtype = [('xfrequency', numpy.float16),('yfrequency', numpy.float16),('occupation', numpy.int16)]
         self.frequency_occupation_array = numpy.zeros(121, dtype=dtype)  # initialize with a blank array
         self.jump_time = FloatProp('jump_time', experiment, 'the target power 1 percentage','100')
@@ -87,17 +94,8 @@ class Rearrange_settings(Prop):
         #close hdf5 file
         settings.close()
 
-    def initialize(self):
-        if self.enable:
-            self.isInitialized = True
-            
-    def start(self):
-        self.isDone = True
-            
-    def update(self):
-        pass
-            
-    def update_settings(self):
+
+    def update_values(self):
         # return the new voltage value'
         xfrequencies = numpy.zeros(self.rows*self.columns)
         yfrequencies = numpy.zeros(self.rows*self.columns)
@@ -109,35 +107,14 @@ class Rearrange_settings(Prop):
             
         for i in self.site_offsets:
             site, Frequency_offset_x, Frequency_offset_y = i.update()
-            xfrequencies[site] += Frequency_offset_x
-            yfrequencies[site] += Frequency_offset_y
-        print xfrequencies    
+            xfrequencies[site] += Frequency_offset_x.value
+            yfrequencies[site] += Frequency_offset_y.value  
         arduino_dict = {'xfrequencies': list(xfrequencies), 'yfrequencies': list(yfrequencies), 'frequency_increment': self.frequency_increment.value, 
             'jump_time': self.jump_time.value, 'laser_ramp_on_time': self.laser_ramp_on_time.value}
             
         #python_dict = {'desired_occupation': list(desired_occupation), 'gaussian_roi_params': self.gaussian_roi_params, 's0_thresholds': list(self.s0_thresholds)}
         python_dict = {'gaussian_roi_params': self.gaussian_roi_params}
         return python_dict, arduino_dict
-
-
-
-class Rearrange(Instrument):
-    '''Send data to atom rearranger on PXI crate
-    '''
-    version = '2018.06.18'
-    IP = Str()
-    port = Int()
-    enable = Bool()
-
-
-    def __init__(self, name, experiment, description=''):
-        super(Rearrange, self).__init__(name, experiment, description='') 
-        
-        self.properties += ['version', 'IP', 'port','enable']
-
-    def update_values(self):
-        rearrange_settings = Rearrange_settings('rearrange_settings', self, description ='')
-        return rearrange_settings.update_settings()
         
         
         
@@ -162,6 +139,7 @@ class Rearrange(Instrument):
                 requests.post(python_address, json=python_dict)
                 sleep(0.005)
                 requests.post(arduino_address, json=arduino_dict)
+                print 'updating atom rearranger'
             else:
             
                 desired_occupation = numpy.zeros(121)            

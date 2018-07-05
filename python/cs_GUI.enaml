@@ -4324,7 +4324,6 @@ enamldef Site_frequencies_and_occupation(Container):
 
 enamldef Rearrange(Window):
     attr rearrange
-    attr rearrange_settings
 
     title = 'Rearrange'
     style_class << 'valid' if experiment.valid else 'invalid'
@@ -4362,21 +4361,17 @@ enamldef Rearrange(Window):
                             Label:
                                 text = 'Jump Time'
                             EvalProp:
-                                prop << rearrange_settings.jump_time
+                                prop << rearrange.jump_time
                             Label:
                                 text = 'frequency_increment'
                             EvalProp:
-                                prop << rearrange_settings.frequency_increment
+                                prop << rearrange.frequency_increment
                             Label:
                                 text = 'laser_ramp_on_time'
                             EvalProp:
-                                prop << rearrange_settings.laser_ramp_on_time
-                            Label:
-                                text = 'enable'
-                            CheckBox:
-                                checked := rearrange_settings.enable    
+                                prop << rearrange.laser_ramp_on_time    
                     IndexedContainer:
-                        iterable << rearrange_settings.site_offsets
+                        iterable << rearrange.site_offsets
                         viewType = Site_Offset
                             
                     Container:
@@ -4401,7 +4396,7 @@ enamldef Rearrange(Window):
                                     constraints = [(width==50)|'strong']
                                     text = 'occupation'
                             Include: dyno:
-                                objects<<[Site_frequencies_and_occupation(item=x,num=i)for i,x in enumerate(rearrange_settings.frequency_occupation_array)]
+                                objects<<[Site_frequencies_and_occupation(item=x,num=i)for i,x in enumerate(rearrange.frequency_occupation_array)]
                     
 
 
@@ -4803,7 +4798,7 @@ window_dictionary = {'':'',
                      'Picomotors': 'Picomotors(picomotors = main.experiment.picomotors)',
                      'Noise Eaters': 'Noise_Eaters(noise_eaters = main.experiment.noise_eaters, analysis = main.experiment.Noise_EatersGraph)',
                      'Cell Electrodes': 'BILTcards(BILT = main.experiment.BILT)',
-                     'Atom Rearranger': 'Rearrange(rearrange = main.experiment.rearrange, rearrange_settings = main.experiment.rearrange_settings)',
+                     'Atom Rearranger': 'Rearrange(rearrange = main.experiment.rearrange)',
                      'PyPico': 'PyPico(pypico = main.experiment.pyPicoServer)',
                      'AAS': 'AAS(aas = main.experiment.beam_position_analysis)',
                      'AAS2': 'AAS(aas = main.experiment.beam_position_analysis2)',
