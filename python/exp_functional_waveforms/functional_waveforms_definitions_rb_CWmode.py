@@ -324,11 +324,13 @@ if ExpMode==0:
 
     #Poliarization Gradient Cooling (PGC) phase, nominally from 145-150 ms
     #Doing chopping
-    t_start=145.3
-    t_end=t_start+t_PGC_duration
+
+    # t_start=145.3
+    # t_end=t_start+t_PGC_duration
+    # exp.mot_3d_dds.profile(t_start,'PGC')
     # exp.fort_dds.profile(t_start,'science') # lowered FORT during PGC
     # exp.fort_dds.profile(t_start+4,'on')
-    exp.mot_3d_dds.profile(t_start,'PGC')
+
     # readout(t_start,t_end)
     # exp.mot_aom_switch.profile(t_start,'on')
     # exp.mot_aom_switch.profile(t_end,'off')
@@ -370,15 +372,15 @@ if ExpMode==0:
     exp.fort_dds.profile(t_science,'science')
     exp.fort_dds.profile(t_science+7,'on')
     #raman(t_science,t_raman,'r2')
-    FORTdrop(t_science-0.001, t_FORTdrop)
+    #FORTdrop(t_science-0.001, t_FORTdrop)
     #MicrowaveRamsey(t_science,t_gap,t_microwavepiover2)
     #Microwave(t_science,t_microwave)
     #Ryd780A(t_science,t_Ryd780A,'r2','r2')
     #Ryd780A_pulsed(t, cycle_time, pointing_profile, intensity_profile, pulse_ontime, num_of_pulses): # region_profile example: 'r2'
-    #Ryd780A_pulsed(t_science, 0.01, 'r2', 'r2', 0.001, 20)
+    #Ryd780A_pulsed(t_science, 0.01, 'r2', 'r2', 0.001, 10)
     #Blue480(t_science-0.001, t_blueon,'r2')
     #Blue480(1,200,'r2')
-    #MicrowaveRamsey_and_780A(t_science, t_gap, t_microwavepiover2, 'addressing', 'r2')
+    MicrowaveRamsey_and_780A(t_science, t_gap, t_microwavepiover2, 'addressing', 'r2')
 
     exp.red_pointing_dds.profile(175,'off')
     exp.red_pointing_aom_switch.profile(175,'off')
