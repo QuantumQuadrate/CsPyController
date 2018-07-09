@@ -57,14 +57,15 @@ class PyPicomotor(Picomotor):
         '''generates command to move to desired position. If no movement is
         necessary then it returns an empty string
         '''
-        diff = (self.desired_position.value - self.current_position)
-        if abs(diff) < self.max_angle_error:
-            return ''
+        if settler==True:
+            settling_offset=1.0
+        elif settler==False:
+            settling_offset=0.0
 
-        if settler:
-            settling_offset=1
-        else:
-            settling_offset=0
+        diff = (self.desired_position.value - settling_offset- self.current_position)
+        if settler==False:
+            if abs(diff) < self.max_angle_error:
+                return ''
 
         cmd = 'MOVE:ABS:MOT{}:{} DEG'.format(
             self.motor_number,
@@ -160,17 +161,13 @@ class PyPicoServer(Instrument):
         for m in self.motors:
             list_of_motors.append(m)
         random.shuffle(list_of_motors)
-        print list_of_motors
         try:
             for m in list_of_motors:
                 # the motor class can make up its own commands
                 # As an initial attempt, we will make partial correction, leaving only forward correction.
                 cmd = m.update(settler=True)
-                if cmd: # '' is falsy
-                    for trial in range(2):
-                        if self.move_motor(m, cmd):
-                            logger.info("Settling trial")
-                            break
+                self.move_motor(m, cmd)
+                logger.info("Settling trial")
             for m in list_of_motors:
                 # the motor class can make up its own commands
                 cmd = m.update(settler=False)
