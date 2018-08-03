@@ -435,6 +435,12 @@ enamldef ExperimentPage(Window):
                     checked:=experiment.reload_settings_after_pause
 
                 Label:
+                    text='Keep repeating same experiments automatically?'
+                CheckBox:
+                    checked:=experiment.repeat_experiment_automatically
+
+
+                Label:
                     text = 'enable sounds'
                 CheckBox:
                     checked := experiment.enable_sounds
@@ -2099,16 +2105,16 @@ enamldef PICams(Window):
             Container:
                 style_class << 'valid' if experiment.valid else 'invalid'
 
-            Container:
-                hug_width = 'strong'
-                hug_height = 'strong'
-            Form:
-                hug_width = 'strong'
-                hug_height = 'strong'
+                Container:
+                    hug_width = 'strong'
+                    hug_height = 'strong'
+                    Form:
+                        hug_width = 'strong'
+                        hug_height = 'strong'
 
-            IndexedContainer:
-                iterable << picams.motors
-                viewType = Picam
+                    IndexedContainer:
+                        iterable << picams.motors
+                        viewType = Picam
 
 enamldef Picam(Form):
     attr item
@@ -2175,36 +2181,36 @@ enamldef Picam(Form):
                         clicked :: item.camera.setCamera()
                 HGroup:
                     padding = 0
-            Label:
+                    Label:
                         text := 'Camera Serial Number: {}'.format(str(item.camera.currentSerial))
-                    #Label:
-                    #    text := 'CCD Temperature (C): {:.4}'.format(item.camera.temperature)
-            Label:
+                    Label:
+                        text := 'CCD Temperature (C): {:.4}'.format(item.camera.currentTemp)
+                    Label:
                         text := 'Maximum Pixel Value: {}, Mean Pixel Value: {}'.format(item.analysis.maxPixel,item.analysis.meanPixel)
-            LabelBox:
-                text = 'enable'
-                checked := item.camera.enable
-            EvalProp:
-                prop << item.camera.AdcEMGain
-            ComboBox:
-                items = ['Low Analog Gain', 'Medium Analog Gain', 'High Analog Gain']
-                index := item.camera.AdcAnalogGain
-            EvalProp:
-                prop << item.camera.exposureTime
-            HGroup:
-                padding = 0
+                LabelBox:
+                    text = 'enable'
+                    checked := item.camera.enable
+                EvalProp:
+                    prop << item.camera.AdcEMGain
                 ComboBox:
-                    items = ['Rising Edge', 'Falling Edge', 'Level', 'Auto']
-                    index := item.camera.triggerMode
-                ComboBox:
-                    items = ['Shutter Normal', 'Shutter Always Closed', 'Shutter Always Open', 'Shutter Open Before Trigger']
-                    index := item.camera.shutterMode
-                ComboBox:
-                    items = ['Bin Mode: 1x1', 'Bin Mode: 2x2', 'Bin Mode: 4x4']
-                    index := item.camera.binMode
-                ComboBox:
-                    items = ['Readout Control: Dual Imaging', 'Readout Control: Frame Transfer', 'Readout Control: Full Frame', 'Readout Control: Kinetics', 'Readout Control: Spectra Kinetics']
-                    index := item.camera.ReadoutControl
+                    items = ['Low Analog Gain', 'Medium Analog Gain', 'High Analog Gain']
+                    index := item.camera.AdcAnalogGain
+                EvalProp:
+                    prop << item.camera.exposureTime
+                HGroup:
+                    padding = 0
+                    ComboBox:
+                        items = ['Rising Edge', 'Falling Edge', 'Level', 'Auto']
+                        index := item.camera.triggerMode
+                    ComboBox:
+                        items = ['Shutter Normal', 'Shutter Always Closed', 'Shutter Always Open', 'Shutter Open Before Trigger']
+                        index := item.camera.shutterMode
+                    ComboBox:
+                        items = ['Bin Mode: 1x1', 'Bin Mode: 2x2', 'Bin Mode: 4x4']
+                        index := item.camera.binMode
+                    ComboBox:
+                        items = ['Readout Control: Dual Imaging', 'Readout Control: Frame Transfer', 'Readout Control: Full Frame', 'Readout Control: Kinetics', 'Readout Control: Spectra Kinetics']
+                        index := item.camera.ReadoutControl
                 #HGroup:
                     #padding = 0
                     #ComboBox:
@@ -2238,6 +2244,9 @@ enamldef Picam(Form):
                 LabelBox:
                     text = 'Use Demo Camera'
                     checked := item.camera.useDemo
+                PushButton:
+                    text = 'Print Parameters'
+                    clicked :: item.camera.PrintParameters()
 
 
 
@@ -4267,6 +4276,135 @@ enamldef BILTcards(Window):
                         iterable << BILT.channels
                         viewType = BILTcard
 
+enamldef Variable_settings(Container):
+    attr item
+
+    hug_width = 'strong'
+    hug_height = 'strong'
+
+    Container:
+        hug_width = 'strong'
+        hug_height = 'strong'
+        Label:
+            text = 'site'
+        IntField:
+            value := item.site
+        Label:
+            text = 'Frequency offset x'
+        EvalProp:
+            prop << item.Frequency_offset_x
+        Label:
+            text = 'Frequency offset y'
+        EvalProp:
+            prop << item.Frequency_offset_y
+
+enamldef Site_frequencies_and_occupation(Container):
+    attr item
+    attr num
+    hug_height='strong'
+    hug_width='strong'
+    constraints=[hbox(l0,f0,f1,f2)]
+    Label: l0:
+        constraints = [(width==50)|'strong']
+        text=str(num)
+    MyFloatField: f0:
+        constraints = [(width==50)|'strong']
+        placeholder='xfrequency'
+        value := item['xfrequency']
+    MyFloatField: f1:
+        constraints = [(width==50)|'strong']
+        placeholder='yfrequency'
+        value := item['yfrequency']
+    MyIntField: f2:
+        constraints = [(width==50)|'strong']
+        placeholder='occupation'
+        value := item['occupation']
+
+
+
+enamldef Rearrange(Window):
+    attr rearrange
+    attr rearrange_settings
+
+    title = 'Rearrange'
+    style_class << 'valid' if experiment.valid else 'invalid'
+    Container:
+        padding = 0
+        style_class << 'valid' if experiment.valid else 'invalid'
+        ScrollArea:
+            style_class << 'valid' if experiment.valid else 'invalid'
+            Container:
+                style_class << 'valid' if experiment.valid else 'invalid'
+
+                Container:
+                    hug_width = 'strong'
+                    hug_height = 'strong'
+                    Form:
+                        hug_width = 'strong'
+                        hug_height = 'strong'
+                        Label:
+                            text = 'enable'
+                        CheckBox:
+                            checked := rearrange.enable
+                        Label:
+                            text = 'IP Address'
+                        Field:
+                            text := rearrange.IP
+                        Label:
+                            text = 'port'
+                        IntField:
+                            value := rearrange.port
+
+                    Container:
+                        hug_width = 'strong'
+                        hug_height = 'strong'
+                        Form:
+                            Label:
+                                text = 'Jump Time'
+                            EvalProp:
+                                prop << rearrange_settings.jump_time
+                            Label:
+                                text = 'frequency_increment'
+                            EvalProp:
+                                prop << rearrange_settings.frequency_increment
+                            Label:
+                                text = 'laser_ramp_on_time'
+                            EvalProp:
+                                prop << rearrange_settings.laser_ramp_on_time
+                    IndexedContainer:
+                        iterable << rearrange_settings.site_offsets
+                        viewType = Variable_settings
+
+                    Container:
+                        hug_height='ignore'
+                        hug_width='ignore'
+                        constraints=[hbox(dynoCont),align('top',dynoCont)]
+                        Container: dynoCont:
+                            Container:
+                                hug_height='strong'
+                                hug_width='strong'
+                                constraints=[hbox(l0,l1,l2,l3)]
+                                Label: l0:
+                                    constraints = [(width==50)|'strong']
+                                    text = 'ROI#'
+                                Label: l1:
+                                    constraints = [(width==50)|'strong']
+                                    text = 'xfrequency'
+                                Label: l2:
+                                    constraints = [(width==50)|'strong']
+                                    text = 'yfrequency'
+                                Label: l3:
+                                    constraints = [(width==50)|'strong']
+                                    text = 'occupation'
+                            Include: dyno:
+                                objects<<[Site_frequencies_and_occupation(item=x,num=i)for i,x in enumerate(rearrange_settings.frequency_occupation_array)]
+
+
+
+
+
+
+
 enamldef PyPico(Window):
     attr pypico
 
@@ -4663,6 +4801,7 @@ window_dictionary = {'':'',
                      'Picomotors': 'Picomotors(picomotors = main.experiment.picomotors)',
                      'Noise Eaters': 'Noise_Eaters(noise_eaters = main.experiment.noise_eaters, analysis = main.experiment.Noise_EatersGraph)',
                      'Cell Electrodes': 'BILTcards(BILT = main.experiment.BILT)',
+                     'Atom Rearranger': 'Rearrange(rearrange = main.experiment.rearrange, rearrange_settings = main.experiment.rearrange_settings)',
                      'PyPico': 'PyPico(pypico = main.experiment.pyPicoServer)',
                      'AAS': 'AAS(aas = main.experiment.beam_position_analysis)',
                      'AAS2': 'AAS(aas = main.experiment.beam_position_analysis2)',
