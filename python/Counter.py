@@ -172,14 +172,17 @@ class CounterAnalysis(AnalysisWithFigure):
                 # I was having problem with the file maybe not being ready
                 logger.warning("Issue reading hdf5 file. Waiting then repeating.")
                 time.sleep(0.1)  # try again in a little
-                try:
-                    res = np.array([iterationResults[path.format(m)] for m in meas])
-                except KeyError:
-                    msg = (
-                        "Reading from hdf5 file during measurement `{}`"
-                        " failed."
-                    ).format(m)
-                    logger.exception(msg)
+                res = []
+                for m in meas:
+                    try:
+                        res.append(iterationResults[path.format(m)])
+                    except KeyError:
+                        msg = (
+                            "Reading from hdf5 file during measurement `{}`"
+                            " failed."
+                        ).format(m)
+                        logger.exception(msg)
+                res = np.array(res)
             total_meas = len(self.binned_array)
             # drop superfluous ROI_columns dimension
             self.binned_array = res.reshape(res.shape[:4])
