@@ -72,7 +72,27 @@ def readout(t,duration):
     ]
     t = HSDIO_repeat(t, chop_readout(channels, phases, profiles, period_ms), cycles)
     return t
+def readout2(t,duration):
+    #CBY im just trying to sperate the FORT and MOT more for PGC
+    """Image atom in FORT."""
+    # Note that camera trigger is not included here. Exposure control needs to be done indepdently
+    # Also magnetic field control is done sepearately.
 
+    label(t, 'readout')
+    # chop FORT and MOT out of phase
+    cycles = int(duration*1000*readout_chop_freq_MHz)
+    period_ms = 0.001/readout_chop_freq_MHz
+    label(t + period_ms, 'readout c1')
+    label(t + cycles*period_ms/2, 'readout half')
+    print(t + cycles*period_ms/2)
+    channels = [my_MOT_SW_channel, my_FORT_SW_channel]
+    phases = [[0.35, 0.62], [0.23, 0.67]]
+    profiles = [
+        [0, 1, 0],
+        [1, 0, 1]
+    ]
+    t = HSDIO_repeat(t, chop_readout(channels, phases, profiles, period_ms), cycles)
+    return t
 def opticalpumping(t,duration):
     """Optical pumping to the clock state."""
     # Note that camera trigger is not included here. Exposure control needs to be done indepdently
@@ -109,7 +129,7 @@ def raman(t,duration,pointing_profile):
         print "make sure your timings are valid"
 
 def prepareF1(t,duration):
-    """This function will leave MOT light on without repumper so atoms are depopulate from F=1 and pumped into F=1"""
+    """This function will leave MOT light on without repumper so atoms are depopulated from F=2 and pumped into F=1"""
     if t>0 and duration >0: #make sure timings are valid
         exp.fort_aom_switch.profile(t,'on')
         exp.fort_aom_switch.profile(t+duration,'on')
@@ -312,39 +332,48 @@ if ExpMode==0:
     t_leadtime=0
     exp.mot_3d_dds.profile(t_start,'RO')
     exp.camera.take_shot(t_start)
-    exp.mot_3d_dds.profile(t_start+t_readoutduration,'PGC')
+    #exp.mot_3d_dds.profile(t_start+t_readoutduration,'PGC')
     #readout(t_start,t_leadtime+t_readoutduration)
-    readout(t_start,t_leadtime+t_readoutduration+t_PGC_duration)
+    #readout(t_start,t_leadtime+t_readoutduration+t_PGC_duration)
+    readout(t_start,t_leadtime+t_readoutduration)
     t_end=t_start+t_readoutduration+t_leadtime
     AO(t_start,7,10)
     exp.hf_aom_switch.profile(t_start,'on')
-    exp.hf_aom_switch.profile(t_end+t_PGC_duration+0.2,'off') ###
-    AO(t_end+t_PGC_duration+0.2,7,0)
+    # exp.hf_aom_switch.profile(t_end+t_PGC_duration+0.2,'off') ###
+    #AO(t_end+t_PGC_duration+0.2,7,0)
+    exp.hf_aom_switch.profile(t_end+0.2,'off') ###
+    AO(t_end+0.2,7,0)
     prepareF1(t_end+0.3,t_F1prepare)
 
     #Poliarization Gradient Cooling (PGC) phase, nominally from 145-150 ms
     #Doing chopping
-
-    # t_start=145.3
-    # t_end=t_start+t_PGC_duration
-    # exp.mot_3d_dds.profile(t_start,'PGC')
-    # exp.fort_dds.profile(t_start,'science') # lowered FORT during PGC
-    # exp.fort_dds.profile(t_start+4,'on')
-
-    # readout(t_start,t_end)
-    # exp.mot_aom_switch.profile(t_start,'on')
-    # exp.mot_aom_switch.profile(t_end,'off')
-    # AO(t_start,7,10) # Reumper VCA
-    # AO(t_end+0.2,7,0)
-    # exp.hf_aom_switch.profile(t_start,'on')
-    # exp.hf_aom_switch.profile(t_end+0.2,'off') ###
+    #
+    AO(145.2,2,coil_driver_polarity*shimX_PGC) #X PGC
+    AO(145.2,3,coil_driver_polarity*shimY_PGC) #Y PGC
+    AO(145.2,4,coil_driver_polarity*shimZ_PGC) #Z PGC
+    t_start=145.3
+    t_end=t_start+t_PGC_duration
+    exp.mot_3d_dds.profile(t_start,'PGC')
+    #exp.fort_dds.profile(t_start+3*t_PGC_duration/4,'science') # lowered FORT during PGC
+    #exp.fort_dds.profile(t_end+0.1,'on')
+    readout(t_start,t_PGC_duration)
+    exp.mot_aom_switch.profile(t_start,'on')
+    exp.mot_aom_switch.profile(t_end,'off')
+    AO(t_start,7,10) # Reumper VCA
+    AO(t_end+0.2,7,0)
+    exp.hf_aom_switch.profile(t_start,'on')
+    exp.hf_aom_switch.profile(t_end+0.2,'off') ###
 
     ## Optical Pumping Phase
 
-    AO(150,2,coil_driver_polarity*shimX_OP) #X
-    AO(150,3,coil_driver_polarity*shimY_OP) #Y
-    AO(150,4,coil_driver_polarity*shimZ_OP) #Z
-    AO(150,7,0) # repumper attenuator. repumper turned off.
+    # AO(150,2,coil_driver_polarity*shimX_OP) #X
+    # AO(150,3,coil_driver_polarity*shimY_OP) #Y
+    # AO(150,4,coil_driver_polarity*shimZ_OP) #Z
+    # AO(150,7,0) # repumper attenuator. repumper turned off.
+    AO(158,2,coil_driver_polarity*shimX_OP) #X
+    AO(158,3,coil_driver_polarity*shimY_OP) #Y
+    AO(158,4,coil_driver_polarity*shimZ_OP) #Z
+    AO(158,7,0) # repumper attenuator. repumper turned off.
 
     t_start=160
     t_end=t_start+t_op+t_depump
@@ -379,6 +408,7 @@ if ExpMode==0:
     #Ryd780A_pulsed(t, cycle_time, pointing_profile, intensity_profile, pulse_ontime, num_of_pulses): # region_profile example: 'r2'
     #Ryd780A_pulsed(t_science, 0.01, 'r2', 'r2', 0.001, 10)
     #Blue480(t_science-0.001, t_blueon,'r2')
+    #Microwave(t_science+t_FORTdrop+0.005,1) # Rydberg killing microwave pulse.
     #Blue480(1,200,'r2')
     MicrowaveRamsey_and_780A(t_science, t_gap, t_microwavepiover2, 'addressing', 'r2')
 
@@ -416,16 +446,18 @@ if ExpMode==0:
     AO(180,3, coil_driver_polarity*shimY_RO) #Y
     AO(180,4, coil_driver_polarity*shimZ_RO) #Z
     t_readout_2nd=195
-
-    exp.mot_3d_dds.profile(t_readout_2nd,'RO')
-    exp.camera.take_shot(t_readout_2nd)
     t_start=t_readout_2nd
-    readout(t_start,5)
+    exp.mot_3d_dds.profile(t_start,'RO')
+    exp.camera.take_shot(t_start)
+    readout(t_start,t_readoutduration)
     t_end=t_start+t_readoutduration
-    AO(t_readout_2nd,7,10) # Turn on repumper. Sets rf attenuator voltage to 10V
-    exp.hf_aom_switch.profile(t_readout_2nd,'on')
-    exp.hf_aom_switch.profile(t_readout_2nd+exp.camera.pulse_length,'off')
-    AO(t_readout_2nd+exp.camera.pulse_length,7,0)
+    AO(t_start,7,10) # Turn on repumper. Sets rf attenuator voltage to 10V
+    exp.hf_aom_switch.profile(t_start,'on')
+    exp.hf_aom_switch.profile(t_start+exp.camera.pulse_length,'off')
+    AO(t_start+exp.camera.pulse_length,7,0)
+    #Trying to see if making it the same as above affects the timing
+    #exp.hf_aom_switch.profile(t_end,'off')
+    #AO(t_end,7,0)
 
     #exp.fort_aom_switch.profile(t_readout_2nd+exp.camera.pulse_length,'off')
     exp.fort_dds.profile(t_readout_2nd+exp.camera.pulse_length,'off')

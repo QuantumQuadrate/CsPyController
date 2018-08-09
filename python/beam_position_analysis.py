@@ -32,7 +32,10 @@ class BeamPositionAnalysis(Analysis):
 
     enable = Bool(False)
     enable_feedback = Bool(False)
+    enable_TemperatureCorrection = Bool(False)
     enable_reorder = Bool(False)
+    invert_TemperatureCorrection_X=Bool(False)
+    invert_TemperatureCorrection_Y=Bool(False)
     meas_analysis_path = Str('analysis/positions/')
     iter_analysis_path = Str('analysis/iter_positions/')
     meas_error_paths = List()
@@ -74,7 +77,9 @@ class BeamPositionAnalysis(Analysis):
         self.queueAfterMeasurement = True
         # properties to save
         self.properties += [
-            'version', 'enable', 'enable_feedback', 'setpoint_X', 'setpoint_Y',
+            'version', 'enable', 'enable_feedback', 'enable_TemperatureCorrection',
+            'invert_TemperatureCorrection_X','invert_TemperatureCorrection_Y',
+            'setpoint_X', 'setpoint_Y',
             'actuator_vname_X', 'actuator_vname_Y', 'actuator_variable_X',
             'actuator_variable_Y', 'calibration_X', 'calibration_Y',
             'enable_reorder', 'meas_analysis_path', 'iter_analysis_path', 'k_p', 'k_i', 'k_d'
@@ -111,6 +116,8 @@ class BeamPositionAnalysis(Analysis):
             'y0': np.array([]),
             'x1': np.array([]),
             'y1': np.array([]),
+            'Xcorrection': np.array([]),
+            'Ycorrection': np.array([]),
         }
 
     def calc_beam_position(self, img):
@@ -158,13 +165,23 @@ class BeamPositionAnalysis(Analysis):
             self.positions['y{}'.format(i)],
             data['Y{}'.format(i)][()]
         )
+
+        if self.enable_TemperatureCorrection:
+            self.positions['Xcorrection']=data['Xcorrection']
+            self.positions['Ycorrection']=data['Ycorrection']
+        else:
+            self.positions['Xcorrection']=0
+            self.positions['Ycorrection']=0
+
         if i == 1:
-            if self.experiment.Config.config.get('EXPERIMENT', 'Name') == 'Rb':
-                # Rb now have non-mirrored image, so there is no sign flip.
-                self.positions['x'] = self.positions['x1'] - self.positions['x0']
+            if self.invert_TemperatureCorrection_X:
+                self.positions['x'] = self.positions['x1'] - self.positions['x0'] - self.positions['Xcorrection']
             else:
-                self.positions['x'] = self.positions['x1'] - self.positions['x0']
-            self.positions['y'] = self.positions['y1'] - self.positions['y0']
+                self.positions['x'] = self.positions['x1'] - self.positions['x0'] + self.positions['Xcorrection']
+            if self.invert_TemperatureCorrection_Y:
+                self.positions['y'] = self.positions['y1'] - self.positions['y0'] - self.positions['Ycorrection']
+            else:
+                self.positions['y'] = self.positions['y1'] - self.positions['y0'] + self.positions['Ycorrection']
             self.positions['valid_cnt'] += 1
             # print(self.positions)
 
@@ -213,7 +230,7 @@ class BeamPositionAnalysis(Analysis):
         super(BeamPositionAnalysis, self).preExperiment(expResults)
 
     def calculateError(self):
-        cutoff=100 # last 100 samples.
+        cutoff=200 # last 200 samples.
         xs = self.positions['x']
         ys = self.positions['y']
 

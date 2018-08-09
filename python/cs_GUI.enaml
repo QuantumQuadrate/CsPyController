@@ -4082,41 +4082,6 @@ enamldef Conex(Container):
             text << "Most recent position: {} mm".format(item.curpos)
 
 
-
-
-
-
-
-enamldef Picomotor(Container):
-    attr item
-
-    hug_width = 'strong'
-    hug_height = 'strong'
-
-    Container:
-        hug_width = 'strong'
-        hug_height = 'strong'
-        Label:
-            text = 'serial number'
-        Field:
-            text := item.serial_number
-        Label:
-            text = 'motor number'
-        Field:
-            text := item.motor_number
-        Label:
-            text = 'position'
-        EvalProp:
-            prop << item.desired_position
-        Label:
-            text = str(item.current_position)
-        Label:
-            text = 'max error'
-        Field:
-            text := str(item.max_angle_error)
-
-
-
 enamldef Picomotors(Window):
     attr picomotors
 
@@ -4129,7 +4094,6 @@ enamldef Picomotors(Window):
             style_class << 'valid' if experiment.valid else 'invalid'
             Container:
                 style_class << 'valid' if experiment.valid else 'invalid'
-
                 Container:
                     hug_width = 'strong'
                     hug_height = 'strong'
@@ -4149,9 +4113,9 @@ enamldef Picomotors(Window):
                         IntField:
                             value := picomotors.port
 
-                    IndexedContainer:
-                        iterable << picomotors.motors
-                        viewType = Picomotor
+                            IndexedContainer:
+                                iterable << picomotors.motors
+                                viewType = Picomotor
 
 
 enamldef Noise_Eater(Container):
@@ -4298,6 +4262,38 @@ enamldef BILTcards(Window):
                         iterable << BILT.channels
                         viewType = BILTcard
 
+enamldef Picomotor(Container):
+    attr item
+
+    hug_width = 'strong'
+    hug_height = 'strong'
+
+    Container:
+        hug_width = 'strong'
+        hug_height = 'strong'
+        Label:
+            text = 'serial number'
+        Field:
+            text := item.serial_number
+        Label:
+            text = 'motor number'
+        Field:
+            text := item.motor_number
+        Label:
+            text = 'position'
+        EvalProp:
+            prop << item.desired_position
+        Label:
+            text = str(item.current_position)
+        Label:
+            text = 'max error'
+        Field:
+            text := str(item.max_angle_error)
+        Label:
+            text = 'enable this motor?'
+        CheckBox:
+            checked := item.enable_motor
+
 enamldef PyPico(Window):
     attr pypico
 
@@ -4310,42 +4306,45 @@ enamldef PyPico(Window):
             style_class << 'valid' if experiment.valid else 'invalid'
             Container:
                 style_class << 'valid' if experiment.valid else 'invalid'
-                Form:
+
+                Container:
                     hug_width = 'strong'
                     hug_height = 'strong'
-                    Label:
-                        text = 'enable'
-                    CheckBox:
-                        checked := pypico.enable
-                    Label:
-                        text = 'enable_measurement'
-                    CheckBox:
-                        checked := pypico.enable_measurement
-                    Label:
-                        text = 'enable_iteration'
-                    CheckBox:
-                        checked := pypico.enable_iteration
-                    Label:
-                        text = 'enable_movement'
-                    CheckBox:
-                        checked := pypico.enable_movement
-                    Label:
-                        text = 'IP Address'
-                    Field:
-                        text := pypico.IP
-                    Label:
-                        text = 'port'
-                    IntField:
-                        value := pypico.port
-                    Label:
-                        text = 'timeout (ms)'
-                    IntField:
-                        value := pypico.timeout
+                    Form:
+                        hug_width = 'strong'
+                        hug_height = 'strong'
+                        Label:
+                            text = 'enable'
+                        CheckBox:
+                            checked := pypico.enable
+                        Label:
+                            text = 'enable_measurement'
+                        CheckBox:
+                            checked := pypico.enable_measurement
+                        Label:
+                            text = 'enable_iteration'
+                        CheckBox:
+                            checked := pypico.enable_iteration
+                        Label:
+                            text = 'enable_movement'
+                        CheckBox:
+                            checked := pypico.enable_movement
+                        Label:
+                            text = 'IP Address'
+                        Field:
+                            text := pypico.IP
+                        Label:
+                            text = 'port'
+                        IntField:
+                            value := pypico.port
+                        Label:
+                            text = 'timeout (ms)'
+                        IntField:
+                            value := pypico.timeout
 
-            IndexedContainer:
-                iterable << pypico.motors
-                viewType = Picomotor
-
+                    IndexedContainer:
+                        iterable << pypico.motors
+                        viewType = Picomotor
 enamldef AAS(Window):
     attr aas
 
@@ -4378,6 +4377,18 @@ enamldef AAS(Window):
                         CheckBox:
                             checked := aas.enable_feedback
                         Label:
+                            text = 'enable temperature correction'
+                        CheckBox:
+                            checked := aas.enable_TemperatureCorrection
+                        Label:
+                            text = 'Invert X correction'
+                        CheckBox:
+                            checked := aas.invert_TemperatureCorrection_X
+                        Label:
+                            text = 'Invert Y correction '
+                        CheckBox:
+                            checked := aas.invert_TemperatureCorrection_Y
+                        Label:
                             text = 'iter_analysis_path'
                         Field:
                             text := aas.iter_analysis_path
@@ -4398,7 +4409,7 @@ enamldef AAS(Window):
                         FloatField:
                             value := aas.calibration_X
                         Label:
-                            text = 'Setpoint X (pixels)'
+                            text = 'Setpoint X (um)'
                         FloatField:
                             value := aas.setpoint_X
                         Label:
@@ -4410,7 +4421,7 @@ enamldef AAS(Window):
                         FloatField:
                             value := aas.calibration_Y
                         Label:
-                            text = 'Setpoint Y (pixels)'
+                            text = 'Setpoint Y (um)'
                         FloatField:
                             value := aas.setpoint_Y
                         Label:
@@ -4418,7 +4429,7 @@ enamldef AAS(Window):
                         Field:
                             text := aas.actuator_vname_Y
                         Label:
-                            text = 'Relative Position (pixels)'
+                            text = 'Relative Position (um)'
                         Label:
                             text = '(' + str(aas.position_iter_stat['x']) + ', ' + str(aas.position_iter_stat['y']) + ')'
                         Label:
@@ -4746,7 +4757,7 @@ enamldef Main(MainWindow): main:
     title='Saffmanlab experiment controller'
     #initial_position=(0,0)
     #initial_size=(1500,1100)
-    icon = loadIcon()
+    #icon = loadIcon()
     closing :: main.experiment.exiting()
 
     MyStyleSheet:

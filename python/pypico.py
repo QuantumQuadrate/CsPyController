@@ -31,12 +31,13 @@ def is_error_msg(msg):
 class PyPicomotor(Picomotor):
     current_position = Float()
     max_angle_error = Float(0.2)  # maximum error to accept without trying to correct
+    enable_motor = Bool(False) # To allow motor independent enable.
 
 
     def __init__(self, name, experiment, description=''):
         super(PyPicomotor, self).__init__(name, experiment, description)
         self.desired_position = FloatProp('desired_position', experiment, 'the desired position','0')
-        self.properties += ['current_position']
+        self.properties += ['current_position','enable_motor']
 
     def readPosition(self, socket):
         socket.send('READ:MOT{}'.format(self.motor_number))
@@ -57,21 +58,25 @@ class PyPicomotor(Picomotor):
         '''generates command to move to desired position. If no movement is
         necessary then it returns an empty string
         '''
-        if settler==True:
-            settling_offset=1.0
-        elif settler==False:
-            settling_offset=0.0
+        if self.enable_motor:
+            if settler==True: # Wiggling permitted. Before approaching to final destination, it'll back out by settling_offset
+                settling_offset=1.0
+            elif settler==False: # Approach to final destination at once.
+                settling_offset=0.0
 
-        diff = (self.desired_position.value - settling_offset- self.current_position)
-        if settler==False:
-            if abs(diff) < self.max_angle_error:
-                return ''
+            diff = (self.desired_position.value - settling_offset- self.current_position)
+            if settler==False:
+                if abs(diff) < self.max_angle_error:
+                    return ''
 
-        cmd = 'MOVE:ABS:MOT{}:{} DEG'.format(
-            self.motor_number,
-            self.desired_position.value-settling_offset # For settling purpose, we will not make a movement.
-        )
-        return cmd
+            cmd = 'MOVE:ABS:MOT{}:{} DEG'.format(
+                self.motor_number,
+                self.desired_position.value-settling_offset # For settling purpose, we will not make a movement.
+            )
+            return cmd
+        else:
+            print "Motor deactivated : {}".format(self.motor_number)
+            return ''
 
 class PyPicoServer(Instrument):
     version = '2018.07.07'
@@ -161,13 +166,16 @@ class PyPicoServer(Instrument):
         for m in self.motors:
             list_of_motors.append(m)
         random.shuffle(list_of_motors)
+        #
+        #list_of_motors_allowed_to_move
         try:
             for m in list_of_motors:
                 # the motor class can make up its own commands
                 # As an initial attempt, we will make partial correction, leaving only forward correction.
                 cmd = m.update(settler=True)
-                self.move_motor(m, cmd)
-                logger.info("Settling trial")
+                if cmd: # '' is falsy
+                    self.move_motor(m, cmd)
+                    logger.info("Settling trial")
             for m in list_of_motors:
                 # the motor class can make up its own commands
                 cmd = m.update(settler=False)
