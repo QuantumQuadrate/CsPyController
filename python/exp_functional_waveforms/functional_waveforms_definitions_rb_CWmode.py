@@ -122,7 +122,7 @@ def raman(t,duration,pointing_profile):
         exp.ground_aom_switch.profile(t,'on')
         exp.ground_aom_switch.profile(t+duration,'off')
         exp.red_pointing_aom_switch.profile(t,'on')
-        exp.red_pointing_aom_switch.profile(t+duration,'off')
+        #exp.red_pointing_aom_switch.profile(t+duration,'off')
         exp.red_pointing_dds.profile(t,pointing_profile) # point to the target_region. example 'r2'
         exp.red_pointing_dds.profile(t+duration,'off')
     else:
@@ -165,6 +165,26 @@ def MicrowaveRamsey(t_start,t_gap,t_piover2):
         exp.microwave_dds.profile(t_start+t_piover2+t_gap+t_piover2,'off')
         exp.microwave_switch.profile(t_start+t_piover2+t_gap+t_piover2,'off')
 
+def SpinEcho(t_start,t_gap,t_piover2):
+    """ Creates two pi/2 pulses separated by (t_gap+2*t_piover2). First pulse starts at t_start"""
+    if t_start>=0 and t_piover2 >0 and t_gap>=0: #make sure timings are valid
+        # First pi/2 pulse
+        exp.microwave_dds.profile(t_start,'on')
+        exp.microwave_switch.profile(t_start,'on')
+        exp.microwave_dds.profile(t_start+t_piover2,'off')
+        exp.microwave_switch.profile(t_start+t_piover2,'off')
+        # Pi pulse in between
+        exp.microwave_dds.profile(t_start+t_piover2+t_gap/2.0,'on')
+        exp.microwave_switch.profile(t_start+t_piover2+t_gap/2.0,'on')
+        exp.microwave_dds.profile(t_start+3.0*t_piover2+t_gap/2.0,'off')
+        exp.microwave_switch.profile(t_start+3.0*t_piover2+t_gap/2.0,'off')
+
+
+        exp.microwave_dds.profile(t_start+3.0*t_piover2+t_gap,'on')
+        exp.microwave_switch.profile(t_start+3.0*t_piover2+t_gap,'on')
+        exp.microwave_dds.profile(t_start+4.0*t_piover2+t_gap,'off')
+        exp.microwave_switch.profile(t_start+4.0*t_piover2+t_gap,'off')
+
 def Microwave(t,duration):
     if t>=0 and duration>0: #make sure timings are valid
         exp.microwave_dds.profile(t,'on')
@@ -183,6 +203,18 @@ def Ryd780A(t,duration,pointing_profile,intensity_profile): # region_profile exa
         exp.ryd780a_aom_switch.profile(t,'on')
         exp.ryd780a_aom_switch.profile(t+duration,'off')
 
+def Ryd780A_leadtime(t,t_leadtime,duration,pointing_profile,intensity_profile): # region_profile example: 'r2'
+    if t>=0 and duration>0: #make sure timings are valid
+        exp.red_pointing_dds.profile(t-t_leadtime,pointing_profile)
+        exp.red_pointing_dds.profile(t+duration,'off')
+        exp.ryd780a_dds.profile(t-t_leadtime,intensity_profile)
+        exp.ryd780a_dds.profile(t+duration,'off')
+        exp.red_pointing_aom_switch.profile(t-t_leadtime,'on')
+        #exp.red_pointing_aom_switch.profile(t+duration,'off')
+        exp.ryd780a_aom_switch.profile(t,'on')
+        exp.ryd780a_aom_switch.profile(t+duration,'off')
+
+
 def Ryd780A_pulsed(t, cycle_time, pointing_profile, intensity_profile, pulse_ontime, num_of_pulses): # region_profile example: 'r2'
     t_red_delay=0.25*0.001
     if t>=0: #make sure timings are valid
@@ -198,6 +230,21 @@ def Ryd780A_pulsed(t, cycle_time, pointing_profile, intensity_profile, pulse_ont
             exp.fort_aom_switch.profile(t+i*cycle_time,'off')
             exp.fort_aom_switch.profile(t+pulse_ontime+i*cycle_time,'on')
 
+def Ryd780A_Ramsey(t_start, t_gap, t_piover2, pointing_profile, intensity_profile):
+    if t_start>=0 and t_piover2 >0 and t_gap>=0: #make sure timings are valid
+        t_leadtime=0.005
+        exp.red_pointing_dds.profile(t_start-t_leadtime,pointing_profile)
+        exp.ryd780a_dds.profile(t_start-t_leadtime,intensity_profile)
+        exp.red_pointing_aom_switch.profile(t_start-t_leadtime,'on')
+
+        exp.ryd780a_aom_switch.profile(t_start,'on')
+        exp.ryd780a_aom_switch.profile(t_start+t_piover2,'off')
+        exp.ryd780a_aom_switch.profile(t_start+t_piover2+t_gap,'on')
+        exp.ryd780a_aom_switch.profile(t_start+t_piover2+t_gap+t_piover2,'off')
+
+        exp.red_pointing_dds.profile(t_start+t_piover2+t_gap+t_piover2,'off')
+        exp.ryd780a_dds.profile(t_start+t_piover2+t_gap+t_piover2,'off')
+        exp.red_pointing_aom_switch.profile(t_start+t_piover2+t_gap+t_piover2,'off')
 
 def MicrowaveRamsey_and_780A(t_start, t_gap, t_piover2, pointing_profile, intensity_profile):
     """ Creates two pi/2 pulses separated by t_gap. First pulse starts at t_start"""
@@ -211,12 +258,22 @@ def MicrowaveRamsey_and_780A(t_start, t_gap, t_piover2, pointing_profile, intens
         exp.microwave_switch.profile(t_start+t_piover2+t_gap,'on')
         exp.microwave_dds.profile(t_start+t_piover2+t_gap+t_piover2,'off')
         exp.microwave_switch.profile(t_start+t_piover2+t_gap+t_piover2,'off')
-
+def RamanRamsey(t_start, t_gap, t_piover2, pointing_profile, intensity_profile):
+    """ Creates two pi/2 pulses separated by t_gap. First pulse starts at t_start"""
+    if t_start>=0 and t_piover2 >0 and t_gap>=0: #make sure timings are valid
+        exp.ground_aom_switch.profile(t_start,'on')
+        exp.ground_aom_switch.profile(t_start+t_piover2,'off')
+        exp.red_pointing_aom_switch.profile(t_start,'on')
+        #exp.red_pointing_aom_switch.profile(t+duration,'off')
+        exp.red_pointing_dds.profile(t_start,pointing_profile) # point to the target_region. example 'r2'
+        exp.red_pointing_dds.profile(t_start+2*t_piover2+t_gap*1.05,'off')
+        exp.ground_aom_switch.profile(t_start+t_piover2+t_gap,'on')
+        exp.ground_aom_switch.profile(t_start+t_piover2+t_gap+t_piover2,'off')
 def Blue480(t, duration, pointing_profile):
     exp.blue_pointing_dds.profile(t, pointing_profile)
     exp.blue_pointing_aom_switch.profile(t, 'on')
     exp.blue_pointing_dds.profile(t+duration,'off')
-    exp.blue_pointing_aom_switch.profile(t+duration,'off')
+    #exp.blue_pointing_aom_switch.profile(t+duration,'off')
 
 ###########################################################################
 # Main Block
@@ -247,8 +304,14 @@ if ExpMode==0:
     exp.pointgrey_trigger_switch.profile(t1_PGcamera,'on')
     exp.pointgrey_trigger_switch.profile(t1_PGcamera+t_PG_triggerduration,'off')
     Ryd780A(t1_PGcamera,t_PG_triggerduration,'PG','PG')
+    exp.ground_aom_switch.profile(0,'off')
+    exp.ground_aom_switch.profile(t1_PGcamera+0.4*t_PG_triggerduration,'on')
+    exp.ground_aom_switch.profile(t1_PGcamera+0.5*t_PG_triggerduration,'off')
+    #raman(t1_PGcamera,t_PG_triggerduration*0.5,'PG')
     ##
+        ##turn on raman for diagnostic purposes
 
+    #exp.ground_aom_switch.profile(0,'off') #### dd
     ##
     # FORT is turned on for short period of time for imaging.
     exp.pointgrey_trigger_switch.profile(t2_PGcamera,'on')
@@ -265,8 +328,10 @@ if ExpMode==0:
     exp.FORT_NE_trigger_switch.profile(t_NE_FORT_trigger_end,'off')
     exp.ryd780a_aom_switch.profile(0,'off')
     exp.ryd780a_dds.profile(0,'off')
+    ## Turning this on intentinally
     exp.red_pointing_dds.profile(0,'off')
-    exp.red_pointing_aom_switch.profile(0,'off')
+    #exp.red_pointing_aom_switch.profile(0,'off')
+    exp.red_pointing_aom_switch.profile(0,'on')
     # Ryd 780a noise eater part
     #Ryd780A(10,170,'r2','r2')
     exp.ryd780A_NE_trigger_switch.profile(0,'off')
@@ -278,7 +343,8 @@ if ExpMode==0:
     exp.MOT_scope_trigger_switch.profile(140,'on')
     exp.MOT_scope_trigger_switch.profile(145,'off')
     exp.blue_pointing_dds.profile(0,'off')
-    exp.blue_pointing_aom_switch.profile(0,'off')
+    exp.blue_pointing_aom_switch.profile(0,'on')
+    #exp.blue_pointing_aom_switch.profile(0,'off')
 
     exp.scope_trigger_switch.profile(170,'on')
     exp.scope_trigger_switch.profile(171,'off')
@@ -293,7 +359,6 @@ if ExpMode==0:
     exp.repumper_shutter_switch.profile(0,'on')
     exp.microwave_switch.profile(0,'off')
     exp.microwave_dds.profile(0,'off')
-    exp.ground_aom_switch.profile(0,'off') #### dd
 
     ## 2D MOT Loading Phase
     exp.mot_3d_dds.profile(0,'MOT')
@@ -301,7 +366,13 @@ if ExpMode==0:
     exp.mot_2d_dds.profile(0,'on')
     exp.mot_aom_switch.profile(0,'on')
     exp.mot_2d_aom_switch.profile(0,'on')
-
+    #raman laser pulse for #
+    exp.ground_aom_switch.profile(15,'on')
+    exp.red_pointing_dds.profile(14,'r2')
+    exp.red_pointing_aom_switch.profile(15,'on')
+    exp.red_pointing_aom_switch.profile(16,'off')
+    exp.ground_aom_switch.profile(16,'off')
+    exp.red_pointing_dds.profile(16,'off')
     ## 3D MOT Loading Phase
     exp.mot_2d_dds.profile(t_2DMOT_loading,'off') # turn off 2D MOT light
     exp.mot_2d_aom_switch.profile(t_2DMOT_loading,'off')
@@ -332,9 +403,6 @@ if ExpMode==0:
     t_leadtime=0
     exp.mot_3d_dds.profile(t_start,'RO')
     exp.camera.take_shot(t_start)
-    #exp.mot_3d_dds.profile(t_start+t_readoutduration,'PGC')
-    #readout(t_start,t_leadtime+t_readoutduration)
-    #readout(t_start,t_leadtime+t_readoutduration+t_PGC_duration)
     readout(t_start,t_leadtime+t_readoutduration)
     t_end=t_start+t_readoutduration+t_leadtime
     AO(t_start,7,10)
@@ -353,27 +421,24 @@ if ExpMode==0:
     AO(145.2,4,coil_driver_polarity*shimZ_PGC) #Z PGC
     t_start=145.3
     t_end=t_start+t_PGC_duration
-    exp.mot_3d_dds.profile(t_start,'PGC')
-    #exp.fort_dds.profile(t_start+3*t_PGC_duration/4,'science') # lowered FORT during PGC
-    #exp.fort_dds.profile(t_end+0.1,'on')
-    readout(t_start,t_PGC_duration)
-    exp.mot_aom_switch.profile(t_start,'on')
-    exp.mot_aom_switch.profile(t_end,'off')
-    AO(t_start,7,10) # Reumper VCA
-    AO(t_end+0.2,7,0)
-    exp.hf_aom_switch.profile(t_start,'on')
-    exp.hf_aom_switch.profile(t_end+0.2,'off') ###
+    if t_PGC_duration>0:
+        exp.mot_3d_dds.profile(t_start,'PGC')
+        #exp.fort_dds.profile(t_start+3*t_PGC_duration/4,'science') # lowered FORT during PGC
+        #exp.fort_dds.profile(t_end+0.1,'on')
+
+        readout(t_start,t_PGC_duration)
+        exp.mot_aom_switch.profile(t_start,'on')
+        exp.mot_aom_switch.profile(t_end,'off')
+        AO(t_start,7,10) # Reumper VCA
+        AO(t_end+0.2,7,0)
+        exp.hf_aom_switch.profile(t_start,'on')
+        exp.hf_aom_switch.profile(t_end+0.2,'off') ###
 
     ## Optical Pumping Phase
-
-    # AO(150,2,coil_driver_polarity*shimX_OP) #X
-    # AO(150,3,coil_driver_polarity*shimY_OP) #Y
-    # AO(150,4,coil_driver_polarity*shimZ_OP) #Z
-    # AO(150,7,0) # repumper attenuator. repumper turned off.
-    AO(158,2,coil_driver_polarity*shimX_OP) #X
-    AO(158,3,coil_driver_polarity*shimY_OP) #Y
-    AO(158,4,coil_driver_polarity*shimZ_OP) #Z
-    AO(158,7,0) # repumper attenuator. repumper turned off.
+    AO(155,2,coil_driver_polarity*shimX_OP) #X
+    AO(155,3,coil_driver_polarity*shimY_OP) #Y
+    AO(155,4,coil_driver_polarity*shimZ_OP) #Z
+    AO(155,7,0) # repumper attenuator. repumper turned off.
 
     t_start=160
     t_end=t_start+t_op+t_depump
@@ -400,20 +465,26 @@ if ExpMode==0:
     # reduce FORT trap depth during science phase
     exp.fort_dds.profile(t_science,'science')
     exp.fort_dds.profile(t_science+7,'on')
+    RamanRamsey(t_science, t_gap, t_raman, 'addressing', 'r2')
     #raman(t_science,t_raman,'r2')
     #FORTdrop(t_science-0.001, t_FORTdrop)
     #MicrowaveRamsey(t_science,t_gap,t_microwavepiover2)
+    #SpinEcho(t_science,t_gap,t_microwavepiover2)
     #Microwave(t_science,t_microwave)
     #Ryd780A(t_science,t_Ryd780A,'r2','r2')
     #Ryd780A_pulsed(t, cycle_time, pointing_profile, intensity_profile, pulse_ontime, num_of_pulses): # region_profile example: 'r2'
     #Ryd780A_pulsed(t_science, 0.01, 'r2', 'r2', 0.001, 10)
-    #Blue480(t_science-0.001, t_blueon,'r2')
-    #Microwave(t_science+t_FORTdrop+0.005,1) # Rydberg killing microwave pulse.
+    #Ryd780A_Ramsey(t_science, t_Rydberg_gap, t_Ryd780A_piover2, 'r2', 'r2')
+    #Ryd780A_leadtime(t_science,0.005,t_Ryd780A,'r2','r2')
+
+    #Blue480(t_science-1, t_blueon,'r2')
+    #Microwave(t_science+t_FORTdrop+0.001,1) # Rydberg killing microwave pulse.
     #Blue480(1,200,'r2')
-    MicrowaveRamsey_and_780A(t_science, t_gap, t_microwavepiover2, 'addressing', 'r2')
+    #MicrowaveRamsey_and_780A(t_science, t_gap, t_microwavepiover2, 'addressing', 'r2')
 
     exp.red_pointing_dds.profile(175,'off')
-    exp.red_pointing_aom_switch.profile(175,'off')
+    #exp.red_pointing_aom_switch.profile(175,'off')
+    exp.red_pointing_aom_switch.profile(175,'on')
 
     ## Blow-away Phase 176ms
 
@@ -506,7 +577,8 @@ elif ExpMode==2:
         AO(100,6,coil_driver_polarity*2.8)
         AO(100,7,10)
 
-    #
+        exp.ground_aom_switch.profile(0,'on')
+        #exp.ground_aom_switch.profile(0,'off') #### dd
         exp.ryd780a_aom_switch.profile(0,'on')
         exp.ryd780a_dds.profile(0,'r2')
         exp.red_pointing_dds.profile(0,'r2')
@@ -519,7 +591,12 @@ elif ExpMode==2:
         exp.MOT_scope_trigger_switch.profile(0,'off')
         exp.MOT_scope_trigger_switch.profile(140,'on')
         exp.MOT_scope_trigger_switch.profile(145,'off')
-
+        # exp.mot_3d_x_shutter_switch.profile(t_x_shutter_open,'off')
+        # exp.mot_3d_x_shutter_switch.profile(t_x_shutter_close,'on')
+        # exp.mot_3d_y_shutter_switch.profile(t_y_shutter_open,'off')
+        # exp.mot_3d_y_shutter_switch.profile(t_y_shutter_close,'on')
+        # exp.mot_3d_z1_shutter_switch.profile(t_z1_shutter_open,'off')
+        # exp.mot_3d_z1_shutter_switch.profile(t_z1_shutter_close,'on')
         exp.scope_trigger_switch.profile(170,'on')
         exp.scope_trigger_switch.profile(171,'off')
         exp.op_dds.profile(0,'on')
@@ -529,9 +606,10 @@ elif ExpMode==2:
         exp.mot_3d_y_shutter_switch.profile(0,'on')
         exp.mot_3d_z1_shutter_switch.profile(0,'on')
         exp.repumper_shutter_switch.profile(0,'on')
-        exp.microwave_switch.profile(0,'on')
-        exp.microwave_dds.profile(0,'on')
-        exp.ground_aom_switch.profile(0,'off') #### dd
+        #exp.microwave_switch.profile(0,'on')
+        #exp.microwave_dds.profile(0,'on')
+        exp.microwave_switch.profile(0,'off')
+        exp.microwave_dds.profile(0,'off')
 
         ## 2D MOT Loading Phase
         exp.mot_3d_dds.profile(0,'MOT')

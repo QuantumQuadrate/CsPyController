@@ -123,6 +123,7 @@ class BeamPositionAnalysis(Analysis):
     def calc_beam_position(self, img):
         '''Calculate the position of a beam from a 2D image array.
         append the results to the position array
+        In Rb, this is most relevant to 480 beam imaged onto EMCCD camera.
         '''
         # Initial guesses with centroid
         [COM_X, COM_Y] = self.centroid_calc(img)
@@ -130,11 +131,12 @@ class BeamPositionAnalysis(Analysis):
             error = 1
         # Width guesses
         else:
-            [Xsigma_guess, Ysigma_guess] = [3, 3]  # use your guess. Units of pixels.
+            [Xsigma_guess, Ysigma_guess] = [2.0, 2.0]  # use your guess. Units of pixels.
             try:
-                x, error_x = self.gaussianfit(img, COM_X, Xsigma_guess, 0)
+                x, error_x = self.gaussianfit(img, COM_X, Xsigma_guess, 0) # last argument is axis.
                 y, error_y = self.gaussianfit(img, COM_Y, Ysigma_guess, 1)
                 error = 0
+                print '480 x: {}, 480 y:{}'.format(x,y)
             except:
                 error = 1
         if error == 1:
@@ -282,7 +284,13 @@ class BeamPositionAnalysis(Analysis):
         #print 'dt:{}'.format(dt)
         a = 1./((self.tau_h/dt) + 1)
         int_error = a*new_err + (1-a)*old_ctrl
-        return int_error*self.k_i + new_err*self.k_p
+        err_to_return = int_error*self.k_i + new_err*self.k_p
+        # if PI filter is asked to out nan, it would rather outputs 0 so it wouldn't change
+        #independent variables
+        if err_to_return is np.nan:
+            return 0
+        else:
+            return err_to_return
 
     def find_ivar(self, ivar_name):
         for ivar in self.experiment.independentVariables:
