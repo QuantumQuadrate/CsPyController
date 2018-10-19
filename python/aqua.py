@@ -10,7 +10,7 @@ from __init__ import import_config
 # Bring in other files in this package
 from ConfigInstrument import Config
 import functional_waveforms, analysis, instek_pst, save2013style, TTL, LabView
-import BILT
+import BILT, rearrange
 import noise_eaters
 import DDS, roi_fitting
 import picomotors, andor, picampython, vaunix, DCNoiseEater, Laird_temperature, AnalogInput
@@ -77,6 +77,7 @@ class AQuA(Experiment):
     picomotors = Member()
     noise_eaters = Member()
     BILT = Member()
+    rearrange = Member()
     instekpsts = Member()
     aerotechs = Member()
     conexes = Member()
@@ -105,6 +106,7 @@ class AQuA(Experiment):
     thresholdROIAnalysis = Member()
     gaussian_roi = Member()
     loading_filters = Member()
+    error_filters = Member()
     first_measurements_filter = Member()
     text_analysis = Member()
     recent_shot_analysis = Member()
@@ -122,7 +124,6 @@ class AQuA(Experiment):
     DC_noise_eater_graph = Member()
     DC_noise_eater_filter = Member()
     Noise_EatersGraph = Member()
-    Ramsey = Member()
     retention_analysis = Member()
     counter_graph = Member()
     counter_hist = Member()
@@ -135,6 +136,8 @@ class AQuA(Experiment):
     ROI_columns = Int(1)
     ROI_bg_rows = Int(0)
     ROI_bg_columns = Int(0)
+    rearrange_settings = Member()
+    Ramsey = Member()
 
     def __init__(self):
         super(AQuA, self).__init__()
@@ -149,6 +152,8 @@ class AQuA(Experiment):
         self.picomotors = picomotors.Picomotors('picomotors', self, 'Newport Picomotors')
         self.noise_eaters = noise_eaters.Noise_Eaters('noise_eaters', self,'rotating wave-plate noise eaters')
         self.BILT = BILT.BILTcards('BILT',self, 'BILT DC Voltage sources')
+        self.rearrange = rearrange.Rearrange('rearrange', self, 'atom rearranging system')
+        self.rearrange_settings = rearrange.Rearrange_settings('rearrange_settings', self, 'atom rearranging system settings update and save')
         self.instekpsts = instek_pst.InstekPSTs('instekpsts', self, 'Instek PST power supply')
         self.Andors = andor.Andors('Andors', self, 'Andor Luca measurementResults')
         if pycap:
@@ -170,7 +175,7 @@ class AQuA(Experiment):
         self.instruments += [
             self.box_temperature, self.picomotors, self.noise_eaters, self.pyPicoServer,
             self.NIScopes, self.Andors, self.PICams,
-            self.DC_noise_eaters, self.BILT, self.DDS, self.unlock_pause,
+            self.DC_noise_eaters, self.BILT, self.rearrange, self.DDS, self.unlock_pause,
             self.Embezzletron, self.instekpsts,
             self.vaunixs, self.NewportStage,
         ]
@@ -195,12 +200,13 @@ class AQuA(Experiment):
         self.counter_graph = Counter.CounterAnalysis('counter_graph', self, 'Graphs the counter data after each measurement.')
         self.thresholdROIAnalysis = ThresholdROIAnalysis(self)
         self.loading_filters = analysis.LoadingFilters('loading_filters', self, 'drop measurements with no atom loaded')
+        self.error_filters = analysis.LoadingFilters('error_filters', self, 'drop measurements with errors using roi input')
         self.text_analysis = analysis.TextAnalysis('text_analysis', self, 'text results from the measurement')
         self.imageSumAnalysis = ImageSumAnalysis(self)
         self.recent_shot_analysis = RecentShotAnalysis('recent_shot_analysis', self, description='just show the most recent shot')
         self.shotBrowserAnalysis = analysis.ShotsBrowserAnalysis(self)
         self.histogramAnalysis = HistogramAnalysis('histogramAnalysis', self, 'plot the histogram of any shot and roi')
-        self.histogram_grid = HistogramGrid('histogram_grid', self, 'all 49 histograms for shot 0 at the same time')
+        self.histogram_grid = HistogramGrid('histogram_grid', self, 'all 121 histograms for shot 0 or 1 at the same time')
         self.measurements_graph = analysis.MeasurementsGraph('measurements_graph', self, 'plot the ROI sum vs all measurements')
         self.iterations_graph = analysis.IterationsGraph('iterations_graph', self, 'plot the average of ROI sums vs iterations')
         self.retention_graph = RetentionGraph('retention_graph', self, 'plot occurence of binary result (i.e. whether or not atoms are there in the 2nd shot)')
@@ -230,7 +236,7 @@ class AQuA(Experiment):
             self.squareROIAnalysis, self.counter_graph, self.gaussian_roi,
             # ---------------------------------------------------------------
             self.histogram_grid,self.histogramAnalysis, self.thresholdROIAnalysis,
-            self.loading_filters,
+            self.loading_filters, self.error_filters,
             self.first_measurements_filter, self.text_analysis,
             self.imageSumAnalysis, self.recent_shot_analysis,
             self.shotBrowserAnalysis, self.measurements_graph,
@@ -247,11 +253,11 @@ class AQuA(Experiment):
         self.properties += [
             'Config', 'AQuAAIAnalysis',
             'functional_waveforms', 'LabView', 'functional_waveforms_graph',
-            'DDS', 'aerotechs', 'picomotors', 'noise_eaters', 'BILT', 'pyPicoServer', 'conexes',
+            'DDS', 'aerotechs', 'picomotors', 'noise_eaters', 'BILT','rearrange', 'pyPicoServer', 'conexes',
             'Andors', 'PICams', 'DC_noise_eaters', 'blackfly_client',
             'box_temperature', 'DAQmxAI', 'squareROIAnalysis', 'histogram_grid',
             'thresholdROIAnalysis', 'gaussian_roi', 'instekpsts', 'TTL_filters',
-            'AI_graph', 'AI_filter', 'NewportStage', 'loading_filters',
+            'AI_graph', 'AI_filter', 'NewportStage', 'loading_filters', 'error_filters',
             'first_measurements_filter', 'vaunixs', 'imageSumAnalysis',
             'recent_shot_analysis', 'shotBrowserAnalysis', 'histogramAnalysis',
             'retention_analysis', 'measurements_graph',

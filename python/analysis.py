@@ -581,6 +581,7 @@ class ShotsBrowserAnalysis(AnalysisWithFigure):
                     mpl_rectangle(ax, ROI)
             super(ShotsBrowserAnalysis,self).updateFigure() #makes a deferred_call to swap_figures()
 
+
 class LoadingFilters(Analysis):
     """This analysis monitors the brightess in the regions of interest, to decide if an atom was loaded or not"""
     version = '2014.05.01'
@@ -632,7 +633,9 @@ class LoadingFilters(Analysis):
                         raise PauseError
                     else:
                         # eval worked, save value
-                        measurementResults['analysis/loading_filter'] = value
+                        # MF3 05/2018: I needed two instances of the filters and this is for avoiding
+                        # collisions
+                        measurementResults['analysis/{}'.format(self.name)] = value
                         if not value:
                             # Measurement did not pass filter (We do not need
                             # to take special action if the filter passes.)

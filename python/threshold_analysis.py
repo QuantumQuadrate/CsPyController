@@ -93,11 +93,12 @@ class ThresholdROIAnalysis(ROIAnalysis):
                 )
             logger.warning('new thresholds: {}'.format(self.threshold_array))
 
-    def set_thresholds(self, new_thresholds, timestamp):
+    def set_thresholds(self, new_thresholds, timestamp, exclude_shot=[]):
         # the same threshold is used for all shots
         for j, shot in enumerate(new_thresholds):
-            for i, t in enumerate(shot):
-                self.threshold_array[j, i] = (t,)
+            if j not in exclude_shot:
+                for i, t in enumerate(shot):
+                    self.threshold_array[j, i] = (t,)
         self.cutoffs_from_which_experiment = timestamp
 
     def preExperiment(self, experimentResults):
