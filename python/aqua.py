@@ -106,6 +106,7 @@ class AQuA(Experiment):
     thresholdROIAnalysis = Member()
     gaussian_roi = Member()
     loading_filters = Member()
+    error_filters = Member()
     first_measurements_filter = Member()
     text_analysis = Member()
     recent_shot_analysis = Member()
@@ -183,7 +184,7 @@ class AQuA(Experiment):
             self.instruments += [self.blackfly_client]
         # Labview must be last at least until someone fixes the start command
         self.instruments += [self.LabView]
-        
+
         # analyses
         self.functional_waveforms_graph = functional_waveforms.FunctionalWaveformGraph('functional_waveform_graph', self, 'Graph the HSDIO, DAQmx DO, and DAQmx AO settings')
         self.TTL_filters = TTL.TTL_filters('TTL_filters', self)
@@ -196,6 +197,7 @@ class AQuA(Experiment):
         self.counter_graph = Counter.CounterAnalysis('counter_graph', self, 'Graphs the counter data after each measurement.')
         self.thresholdROIAnalysis = ThresholdROIAnalysis(self)
         self.loading_filters = analysis.LoadingFilters('loading_filters', self, 'drop measurements with no atom loaded')
+        self.error_filters = analysis.LoadingFilters('error_filters', self, 'drop measurements with errors using roi input')
         self.text_analysis = analysis.TextAnalysis('text_analysis', self, 'text results from the measurement')
         self.imageSumAnalysis = ImageSumAnalysis(self)
         self.recent_shot_analysis = RecentShotAnalysis('recent_shot_analysis', self, description='just show the most recent shot')
@@ -230,7 +232,7 @@ class AQuA(Experiment):
             self.squareROIAnalysis, self.counter_graph, self.gaussian_roi,
             # ---------------------------------------------------------------
             self.histogram_grid,self.histogramAnalysis, self.thresholdROIAnalysis,
-            self.loading_filters,
+            self.loading_filters, self.error_filters,
             self.first_measurements_filter, self.text_analysis,
             self.imageSumAnalysis, self.recent_shot_analysis,
             self.shotBrowserAnalysis, self.measurements_graph,
@@ -251,7 +253,7 @@ class AQuA(Experiment):
             'Andors', 'PICams', 'DC_noise_eaters', 'blackfly_client',
             'box_temperature', 'DAQmxAI', 'squareROIAnalysis', 'histogram_grid',
             'thresholdROIAnalysis', 'gaussian_roi', 'instekpsts', 'TTL_filters',
-            'AI_graph', 'AI_filter', 'NewportStage', 'loading_filters',
+            'AI_graph', 'AI_filter', 'NewportStage', 'loading_filters', 'error_filters',
             'first_measurements_filter', 'vaunixs', 'imageSumAnalysis',
             'recent_shot_analysis', 'shotBrowserAnalysis', 'histogramAnalysis',
             'retention_analysis', 'measurements_graph',

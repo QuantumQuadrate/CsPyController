@@ -2240,14 +2240,14 @@ enamldef Picam(Form):
                     EvalProp:
                         prop << item.camera.minPlot
                     EvalProp:
-                        prop << item.camera.maxPlot    
+                        prop << item.camera.maxPlot
                 LabelBox:
                     text = 'Use Demo Camera'
-                    checked := item.camera.useDemo 
+                    checked := item.camera.useDemo
                 PushButton:
                     text = 'Print Parameters'
                     clicked :: item.camera.PrintParameters()
-                     
+
 
 
 
@@ -4322,7 +4322,7 @@ enamldef Rearrange(Window):
                             text = 'port'
                         IntField:
                             value := rearrange.port
-                            
+
                     Container:
                         hug_width = 'strong'
                         hug_height = 'strong'
@@ -4342,7 +4342,6 @@ enamldef Rearrange(Window):
                     IndexedContainer:
                         iterable << rearrange.site_offsets
                         viewType = Site_Offset
-                            
                     Container:
                         hug_height='ignore'
                         hug_width='ignore'
@@ -4365,12 +4364,17 @@ enamldef Rearrange(Window):
                                     constraints = [(width==50)|'strong']
                                     text = 'occupation'
                             Include: dyno:
+<<<<<<< HEAD
                                 objects<<[Site_frequencies_and_occupation(item=x,num=i)for i,x in enumerate(rearrange.frequency_occupation_array)]
                     
+=======
+                                objects<<[Site_frequencies_and_occupation(item=x,num=i)for i,x in enumerate(rearrange_settings.frequency_occupation_array)]
+>>>>>>> 91613a91c5900d1d2605287230a20d7339caa50b
 
 
 
-                    
+
+
 
 
 enamldef PyPico(Window):
@@ -4545,6 +4549,8 @@ enamldef Filters(Window):
                 TTL_filters:
                     instrument = experiment.LabView.TTL
                     filters = experiment.TTL_filters
+                LoadingFilters:
+                    filters = experiment.error_filters
                 LoadingFilters:
                     filters = experiment.loading_filters
                 FirstMeasurementsFilter:

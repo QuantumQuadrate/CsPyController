@@ -93,11 +93,12 @@ class ThresholdROIAnalysis(ROIAnalysis):
                 )
             logger.warning('new thresholds: {}'.format(self.threshold_array))
 
-    def set_thresholds(self, new_thresholds, timestamp):
+    def set_thresholds(self, new_thresholds, timestamp, exclude_shot=[]):
         # the same threshold is used for all shots
         for j, shot in enumerate(new_thresholds):
-            for i, t in enumerate(shot):
-                self.threshold_array[j, i] = (t,)
+            if j not in exclude_shot:
+                for i, t in enumerate(shot):
+                    self.threshold_array[j, i] = (t,)
         self.cutoffs_from_which_experiment = timestamp
 
     def preExperiment(self, experimentResults):
@@ -152,7 +153,7 @@ class ThresholdROIAnalysis(ROIAnalysis):
                     # if not add it
                     logger.warning('ROI_source for threshold_analysis does not have sub-measurement support.')
                     shot_array = np.array([shot_array])
-                
+
                 n_sub_meas, n_shots, n_rows, n_cols = shot_array.shape
                 threshold_array = np.zeros((n_sub_meas, n_shots, n_rows*n_cols), dtype=np.bool_)
                 for sm in xrange(n_sub_meas):
@@ -185,7 +186,7 @@ class ThresholdROIAnalysis(ROIAnalysis):
                 meas_results_path = 'measurements/{}'.format(i)
                 meas_results = iterationResults[meas_results_path]
                 self.analyzeMeasurement(meas_results, iterationResults, experimentResults)
-            
+
             # if the per measurement threshold analysis is disabled we then
             # need to go fetch the results from elsewhere
             if self.meas_enable:
