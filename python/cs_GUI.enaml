@@ -4364,12 +4364,9 @@ enamldef Rearrange(Window):
                                     constraints = [(width==50)|'strong']
                                     text = 'occupation'
                             Include: dyno:
-<<<<<<< HEAD
                                 objects<<[Site_frequencies_and_occupation(item=x,num=i)for i,x in enumerate(rearrange.frequency_occupation_array)]
                     
-=======
-                                objects<<[Site_frequencies_and_occupation(item=x,num=i)for i,x in enumerate(rearrange_settings.frequency_occupation_array)]
->>>>>>> 91613a91c5900d1d2605287230a20d7339caa50b
+
 
 
 
