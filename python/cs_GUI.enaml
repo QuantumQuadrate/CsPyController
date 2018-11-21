@@ -2240,14 +2240,14 @@ enamldef Picam(Form):
                     EvalProp:
                         prop << item.camera.minPlot
                     EvalProp:
-                        prop << item.camera.maxPlot    
+                        prop << item.camera.maxPlot
                 LabelBox:
                     text = 'Use Demo Camera'
-                    checked := item.camera.useDemo 
+                    checked := item.camera.useDemo
                 PushButton:
                     text = 'Print Parameters'
                     clicked :: item.camera.PrintParameters()
-                     
+
 
 
 
@@ -4142,29 +4142,18 @@ enamldef Noise_Eater(Container):
         hug_width = 'strong'
         hug_height = 'strong'
         Label:
-            text = 'IP Address'
+            text = 'ip Address'
         Field:
-            text := item.IP
+            text := item.ip
         Label:
-            text = 'port'
+            text = 'ID'
         IntField:
-            value := item.port
+            value := item.ID
         Label:
-            text = 'Target Setting 1'
+            text = 'Target Setting'
         EvalProp:
-            prop << item.target_setting1
-        Label:
-            text = 'Target Setting 2'
-        EvalProp:
-            prop << item.target_setting2
-        Label:
-            text = 'Target Setting 3'
-        EvalProp:
-            prop << item.target_setting3
-        Label:
-            text = 'Target Setting 4'
-        EvalProp:
-            prop << item.target_setting4
+            prop << item.target_setting
+
 
 enamldef Noise_Eaters(Window):
     attr noise_eaters
@@ -4193,28 +4182,8 @@ enamldef Noise_Eaters(Window):
                             checked := noise_eaters.enable
 
                     IndexedContainer:
-                        iterable << noise_eaters.pis
+                        iterable << noise_eaters.NEchannels
                         viewType = Noise_Eater
-
-                # cumulative plot of noise eater data
-                GroupBox:
-                    title = 'Noise Eater plots'
-                    Form:
-                        Label:
-                            text = 'enable'
-                        CheckBox:
-                            checked := analysis.enable
-                        Label:
-                            text = 'specify pi and channel number'
-                        Field:
-                            text := analysis.list_of_what_to_plot
-                    PushButton:
-                        text = 'clear'
-                        clicked :: analysis.clear()
-                    MPLCanvas: canvas:
-                        constraints=[(height==500)|'strong']
-                        hug_width='ignore'
-                        figure << analysis.figure
 
 
 
@@ -4276,7 +4245,7 @@ enamldef BILTcards(Window):
                         iterable << BILT.channels
                         viewType = BILTcard
 
-enamldef Variable_settings(Container):
+enamldef Site_Offset(Container):
     attr item
 
     hug_width = 'strong'
@@ -4324,7 +4293,6 @@ enamldef Site_frequencies_and_occupation(Container):
 
 enamldef Rearrange(Window):
     attr rearrange
-    attr rearrange_settings
 
     title = 'Rearrange'
     style_class << 'valid' if experiment.valid else 'invalid'
@@ -4354,7 +4322,7 @@ enamldef Rearrange(Window):
                             text = 'port'
                         IntField:
                             value := rearrange.port
-                            
+
                     Container:
                         hug_width = 'strong'
                         hug_height = 'strong'
@@ -4362,19 +4330,18 @@ enamldef Rearrange(Window):
                             Label:
                                 text = 'Jump Time'
                             EvalProp:
-                                prop << rearrange_settings.jump_time
+                                prop << rearrange.jump_time
                             Label:
                                 text = 'frequency_increment'
                             EvalProp:
-                                prop << rearrange_settings.frequency_increment
+                                prop << rearrange.frequency_increment
                             Label:
                                 text = 'laser_ramp_on_time'
                             EvalProp:
-                                prop << rearrange_settings.laser_ramp_on_time    
+                                prop << rearrange.laser_ramp_on_time    
                     IndexedContainer:
-                        iterable << rearrange_settings.site_offsets
-                        viewType = Variable_settings
-                            
+                        iterable << rearrange.site_offsets
+                        viewType = Site_Offset
                     Container:
                         hug_height='ignore'
                         hug_width='ignore'
@@ -4397,12 +4364,17 @@ enamldef Rearrange(Window):
                                     constraints = [(width==50)|'strong']
                                     text = 'occupation'
                             Include: dyno:
+<<<<<<< HEAD
+                                objects<<[Site_frequencies_and_occupation(item=x,num=i)for i,x in enumerate(rearrange.frequency_occupation_array)]
+                    
+=======
                                 objects<<[Site_frequencies_and_occupation(item=x,num=i)for i,x in enumerate(rearrange_settings.frequency_occupation_array)]
-                    
+>>>>>>> 91613a91c5900d1d2605287230a20d7339caa50b
 
 
 
-                    
+
+
 
 
 enamldef PyPico(Window):
@@ -4577,6 +4549,8 @@ enamldef Filters(Window):
                 TTL_filters:
                     instrument = experiment.LabView.TTL
                     filters = experiment.TTL_filters
+                LoadingFilters:
+                    filters = experiment.error_filters
                 LoadingFilters:
                     filters = experiment.loading_filters
                 FirstMeasurementsFilter:
@@ -4797,9 +4771,9 @@ window_dictionary = {'':'',
                      'Arroyo': 'Arroyo(experiment = main.experiment)',
                      'PI Piezo': 'PI_Piezo(piezo = main.experiment.LabView.piezo)',
                      'Picomotors': 'Picomotors(picomotors = main.experiment.picomotors)',
-                     'Noise Eaters': 'Noise_Eaters(noise_eaters = main.experiment.noise_eaters, analysis = main.experiment.Noise_EatersGraph)',
+                     'Noise Eaters': 'Noise_Eaters(noise_eaters = main.experiment.noise_eaters)',
                      'Cell Electrodes': 'BILTcards(BILT = main.experiment.BILT)',
-                     'Atom Rearranger': 'Rearrange(rearrange = main.experiment.rearrange, rearrange_settings = main.experiment.rearrange_settings)',
+                     'Atom Rearranger': 'Rearrange(rearrange = main.experiment.rearrange)',
                      'PyPico': 'PyPico(pypico = main.experiment.pyPicoServer)',
                      'AAS': 'AAS(aas = main.experiment.beam_position_analysis)',
                      'AAS2': 'AAS(aas = main.experiment.beam_position_analysis2)',

@@ -106,6 +106,7 @@ class AQuA(Experiment):
     thresholdROIAnalysis = Member()
     gaussian_roi = Member()
     loading_filters = Member()
+    error_filters = Member()
     first_measurements_filter = Member()
     text_analysis = Member()
     recent_shot_analysis = Member()
@@ -122,7 +123,6 @@ class AQuA(Experiment):
     picam_viewer = Member()
     DC_noise_eater_graph = Member()
     DC_noise_eater_filter = Member()
-    Noise_EatersGraph = Member()
     retention_analysis = Member()
     counter_graph = Member()
     counter_hist = Member()
@@ -135,7 +135,6 @@ class AQuA(Experiment):
     ROI_columns = Int(1)
     ROI_bg_rows = Int(0)
     ROI_bg_columns = Int(0)
-    rearrange_settings = Member()
     Ramsey = Member()
 
     def __init__(self):
@@ -152,7 +151,6 @@ class AQuA(Experiment):
         self.noise_eaters = noise_eaters.Noise_Eaters('noise_eaters', self,'rotating wave-plate noise eaters')
         self.BILT = BILT.BILTcards('BILT',self, 'BILT DC Voltage sources')
         self.rearrange = rearrange.Rearrange('rearrange', self, 'atom rearranging system')
-        self.rearrange_settings = rearrange.Rearrange_settings('rearrange_settings', self, 'atom rearranging system settings update and save')
         self.instekpsts = instek_pst.InstekPSTs('instekpsts', self, 'Instek PST power supply')
         self.Andors = andor.Andors('Andors', self, 'Andor Luca measurementResults')
         if pycap:
@@ -186,7 +184,7 @@ class AQuA(Experiment):
             self.instruments += [self.blackfly_client]
         # Labview must be last at least until someone fixes the start command
         self.instruments += [self.LabView]
-        
+
         # analyses
         self.functional_waveforms_graph = functional_waveforms.FunctionalWaveformGraph('functional_waveform_graph', self, 'Graph the HSDIO, DAQmx DO, and DAQmx AO settings')
         self.TTL_filters = TTL.TTL_filters('TTL_filters', self)
@@ -199,6 +197,7 @@ class AQuA(Experiment):
         self.counter_graph = Counter.CounterAnalysis('counter_graph', self, 'Graphs the counter data after each measurement.')
         self.thresholdROIAnalysis = ThresholdROIAnalysis(self)
         self.loading_filters = analysis.LoadingFilters('loading_filters', self, 'drop measurements with no atom loaded')
+        self.error_filters = analysis.LoadingFilters('error_filters', self, 'drop measurements with errors using roi input')
         self.text_analysis = analysis.TextAnalysis('text_analysis', self, 'text results from the measurement')
         self.imageSumAnalysis = ImageSumAnalysis(self)
         self.recent_shot_analysis = RecentShotAnalysis('recent_shot_analysis', self, description='just show the most recent shot')
@@ -212,7 +211,6 @@ class AQuA(Experiment):
         # self.picam_viewer = picam.PICamViewer('picam_viewer', self, 'show the most recent PICam image')
         self.DC_noise_eater_graph = DCNoiseEater.DCNoiseEaterGraph('DC_noise_eater_graph', self, 'DC Noise Eater graph')
         self.DC_noise_eater_filter = DCNoiseEater.DCNoiseEaterFilter('DC_noise_eater_filter', self, 'DC Noise Eater Filter')
-        self.Noise_EatersGraph = noise_eaters.Noise_EatersGraph('Noise_EatersGraph', self, 'Graph of new DC Noise eater output')
         self.Ramsey = analysis.Ramsey('Ramsey', self, 'Fit a cosine to retention results')
         self.retention_analysis = RetentionAnalysis('retention_analysis', self, 'calculate the loading and retention')
         self.counter_hist = Counter.CounterHistogramAnalysis('counter_hist', self, 'Fits histograms of counter data and plots hist and fits.')
@@ -234,12 +232,12 @@ class AQuA(Experiment):
             self.squareROIAnalysis, self.counter_graph, self.gaussian_roi,
             # ---------------------------------------------------------------
             self.histogram_grid,self.histogramAnalysis, self.thresholdROIAnalysis,
-            self.loading_filters,
+            self.loading_filters, self.error_filters,
             self.first_measurements_filter, self.text_analysis,
             self.imageSumAnalysis, self.recent_shot_analysis,
             self.shotBrowserAnalysis, self.measurements_graph,
             self.iterations_graph, self.DC_noise_eater_graph,
-            self.DC_noise_eater_filter, self.Noise_EatersGraph, self.Andors, 
+            self.DC_noise_eater_filter, self.Andors, 
             self.PICams, self.Ramsey, self.DAQmxAI, self.unlock_pause,
             self.retention_analysis, self.retention_graph,
             self.save_notes, self.save2013Analysis, self.NIScopes,
@@ -255,7 +253,7 @@ class AQuA(Experiment):
             'Andors', 'PICams', 'DC_noise_eaters', 'blackfly_client',
             'box_temperature', 'DAQmxAI', 'squareROIAnalysis', 'histogram_grid',
             'thresholdROIAnalysis', 'gaussian_roi', 'instekpsts', 'TTL_filters',
-            'AI_graph', 'AI_filter', 'NewportStage', 'loading_filters',
+            'AI_graph', 'AI_filter', 'NewportStage', 'loading_filters', 'error_filters',
             'first_measurements_filter', 'vaunixs', 'imageSumAnalysis',
             'recent_shot_analysis', 'shotBrowserAnalysis', 'histogramAnalysis',
             'retention_analysis', 'measurements_graph',

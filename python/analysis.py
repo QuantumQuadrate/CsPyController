@@ -127,7 +127,7 @@ class Analysis(Prop):
         self.measurementThread.daemon = True
         self.measurementProcessing = False
         self.measurementQueueEmpty = True
-    
+
     def preExperiment(self, experimentResults):
         """Performs experiment initialization tasks.
 
@@ -195,7 +195,7 @@ class Analysis(Prop):
             # update the analysis status
             self.analysisStatus = m_data[2]
             callback(result)
-    
+
     def measurementProcessLoop(self):
         while True:  # run forever
             while self.measurementProcessing or len(self.measurementQueue) > 0:
@@ -254,7 +254,7 @@ class Analysis(Prop):
         while (dep.analysisStatus[0] < iter) or (dep.analysisStatus[1] < meas):
             # wait until woken up by dependent analysis
             self.restart.wait()
-    
+
     def analyzeMeasurement(self, measurementResults, iterationResults, experimentResults):
         """This is called after each measurement.
 
@@ -264,7 +264,7 @@ class Analysis(Prop):
         Subclass this to update the analysis appropriately.
         """
         pass
-    
+
     def postIteration(self, iterationResults, experimentResults):
         # block while any threaded measurements for this analysis finish
         if self.waitForMeasurements:
@@ -289,12 +289,12 @@ class Analysis(Prop):
                 self.iterationQueue.append((iterationResults, experimentResults))
         else:
             self.analyzeIteration(iterationResults, experimentResults)
-    
+
     def iterationProcessLoop(self):
         while len(self.iterationQueue) > 0:
             self.analyzeIteration(*self.iterationQueue.pop(0))  # process the oldest element
         self.iterationProcessing = False
-    
+
     def analyzeIteration(self, iterationResults, experimentResults):
         """Analyzes all measurements in an iteration.
 
@@ -304,7 +304,7 @@ class Analysis(Prop):
         appropriately.
         """
         pass
-    
+
     def postExperiment(self, experimentResults):
         # no queueing, must do post experiment processing at this time
         # block while any threaded iterations finish
@@ -323,7 +323,7 @@ class Analysis(Prop):
         while not self.measurementQueueEmpty:
             time.sleep(0.01)
         self.analyzeExperiment(experimentResults)
-    
+
     def analyzeExperiment(self, experimentResults):
         """This is called at the end of the experiment.
         The parameter experimentResults is a reference to the HDF5 file for the
@@ -339,30 +339,30 @@ class Analysis(Prop):
 
 
 class AnalysisWithFigure(Analysis):
-    
+
     #matplotlib figures
     figure = Typed(Figure)
     backFigure = Typed(Figure)
     figure1 = Typed(Figure)
     figure2 = Typed(Figure)
     draw_fig = Bool(False) # do not draw the figure unless told to
-    
+
     def __init__(self, name, experiment, description=''):
         super(AnalysisWithFigure, self).__init__(name, experiment, description)
-        
+
         #set up the matplotlib figures
         self.figure1 = Figure()
         self.figure2 = Figure()
         self.backFigure = self.figure2
         self.figure = self.figure1
-    
+
         self.properties += ['draw_fig']
 
     def swapFigures(self):
         temp = self.backFigure
         self.backFigure = self.figure
         self.figure = temp
-    
+
     def updateFigure(self):
         #signal the GUI to redraw figure
         try:
@@ -481,7 +481,7 @@ class XYPlotAnalysis(AnalysisWithFigure):
     #### needs updating
     X=Member()
     Y=Member()
-    
+
     def updateFigure(self):
         if self.draw_fig:
             fig=self.backFigure
@@ -494,7 +494,7 @@ class XYPlotAnalysis(AnalysisWithFigure):
 
 class SampleXYAnalysis(XYPlotAnalysis):
     #### needs updating
-    
+
     '''This analysis plots the sum of the whole camera image every measurement.'''
     def analyzeMeasurement(self,measurementResults,iterationResults,experimentResults):
         if 'data/Andor_4522/shots' in measurementResults:
@@ -504,7 +504,7 @@ class SampleXYAnalysis(XYPlotAnalysis):
 
 
 class ShotsBrowserAnalysis(AnalysisWithFigure):
-    
+
     ivarNames=List(default=[])
     ivarValueLists=List(default=[])
     selection=List(default=[])
@@ -514,7 +514,7 @@ class ShotsBrowserAnalysis(AnalysisWithFigure):
     experimentResults=Member()
     showROIs = Bool(False)
     data_path = Member()
-    
+
     def __init__(self, experiment):
         super(ShotsBrowserAnalysis, self).__init__(
             'ShotsBrowser',
@@ -523,7 +523,7 @@ class ShotsBrowserAnalysis(AnalysisWithFigure):
         )
         self.data_path = 'data/' + self.experiment.Config.config.get('CAMERA', 'DataGroup') + '/shots'
         self.properties += ['measurement', 'shot', 'showROIs']
-    
+
     def preExperiment(self, experimentResults):
         # call therading setup code
         super(ShotsBrowserAnalysis, self).preExperiment(experimentResults)
@@ -531,7 +531,7 @@ class ShotsBrowserAnalysis(AnalysisWithFigure):
         self.ivarValueLists = [i for i in self.experiment.ivarValueLists]  # this line used to access the hdf5 file, but I have temporarily removed ivarValueLists from the HDF5 because it could not handle arbitrary lists of lists
         self.selection = [0]*len(self.ivarValueLists)
         deferred_call(setattr, self, 'ivarNames', [i for i in experimentResults.attrs['ivarNames']])
-    
+
     def setIteration(self,ivarIndex,index):
         try:
             self.selection[ivarIndex] = index
@@ -539,11 +539,11 @@ class ShotsBrowserAnalysis(AnalysisWithFigure):
             logger.warning('Invalid ivarIndex in analysis.ShotsBrowserAnalysis.setSelection({},{})\n{}\n[]'.format(ivarIndex,index,e,traceback.format_exc()))
             raise PauseError
         self.load()
-    
+
     @observe('measurement','shot','showROIs')
     def reload(self,change):
         self.load()
-    
+
     def load(self):
         if self.experimentResults is not None:
             # find the first matching iteration
@@ -562,12 +562,12 @@ class ShotsBrowserAnalysis(AnalysisWithFigure):
                             logger.warning('Exception trying to plot measurement {}, shot {}, in analysis.ShotsBrowserAnalysis.load()\n{}\n'.format(m, s, e))
                             self.blankFigure()
                         break
-    
+
     def blankFigure(self):
         fig=self.backFigure
         fig.clf()
         super(ShotsBrowserAnalysis,self).updateFigure()
-    
+
     def updateFigure(self):
         if self.draw_fig:
             fig=self.backFigure
@@ -580,6 +580,7 @@ class ShotsBrowserAnalysis(AnalysisWithFigure):
                 for ROI in self.experiment.squareROIAnalysis.ROIs:
                     mpl_rectangle(ax, ROI)
             super(ShotsBrowserAnalysis,self).updateFigure() #makes a deferred_call to swap_figures()
+
 
 class LoadingFilters(Analysis):
     """This analysis monitors the brightess in the regions of interest, to decide if an atom was loaded or not"""
@@ -632,7 +633,9 @@ class LoadingFilters(Analysis):
                         raise PauseError
                     else:
                         # eval worked, save value
-                        measurementResults['analysis/loading_filter'] = value
+                        # MF3 05/2018: I needed two instances of the filters and this is for avoiding
+                        # collisions
+                        measurementResults['analysis/{}'.format(self.name)] = value
                         if not value:
                             # Measurement did not pass filter (We do not need
                             # to take special action if the filter passes.)
@@ -648,7 +651,7 @@ class LoadingFilters(Analysis):
 
 
 class DropFirstMeasurementsFilter(Analysis):
-    """This analysis allows the user to drop the first N measurements in an 
+    """This analysis allows the user to drop the first N measurements in an
     iteration, to ensure that all measurements are done at equivalent conditions
     ."""
 
@@ -717,7 +720,7 @@ class MeasurementsGraph(AnalysisWithFigure):
                     self.update_lock = True
                     fig = self.backFigure
                     fig.clf()
-    
+
                     if self.data is not None:
                         #parse the list of what to plot from a string to a list of numbers
                         try:
@@ -788,7 +791,8 @@ class IterationsGraph(AnalysisWithFigure):
         if self.enable:  # and self.update_every_measurement:
             if (not self.add_only_filtered_data) or (('analysis/loading_filter' in measurementResults) and measurementResults['analysis/loading_filter'].value):
 
-                d = numpy.array([measurementResults['analysis/squareROIsums']])
+                #d = numpy.array([measurementResults['analysis/squareROIsums']])
+                d = numpy.array([measurementResults['analysis/gaussian_roi']])
 
                 if self.current_iteration_data is None:
                     # on first measurement of an iteration, start anew
@@ -872,7 +876,7 @@ class IterationsGraph(AnalysisWithFigure):
                     self.update_lock = True
                     fig = self.backFigure
                     fig.clf()
-    
+
                     if self.mean is not None:
                         #parse the list of what to plot from a string to a list of numbers
                         try:
@@ -996,7 +1000,7 @@ class Ramsey(AnalysisWithFigure):
                 fig = self.backFigure
                 fig.clf()
                 ax = fig.add_subplot(111)
-    
+
                 # plot the data points
                 linestyle = 'o'
                 if self.draw_error_bars:
@@ -1009,7 +1013,7 @@ class Ramsey(AnalysisWithFigure):
                 xmin = numpy.amin(self.t)-.02*span
                 xmax = numpy.amax(self.t)+.02*span
                 ax.set_xlim(xmin, xmax)
-    
+
                 # draw the fit
                 t = numpy.linspace(xmin, xmax, 200)
                 ax.plot(t, self.fitFunc(t, *self.fitParams), '-')
