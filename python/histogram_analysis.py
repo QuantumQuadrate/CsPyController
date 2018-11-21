@@ -627,7 +627,7 @@ class HistogramGrid(ROIAnalysis):
         y = data['hist_y']
         ax.step(x, y, where='post')
 
-    def histogram_grid_plot(self, fig, shot, photoelectronScaling=None, exposure_time=None, font=8, log=True):
+    def histogram_grid_plot(self, fig, shot, photoelectronScaling=None, exposure_time=None, font=8, log=False):
         """Plot a grid of histograms in the same shape as the ROIs."""
         rows = self.experiment.ROI_rows
         columns = self.experiment.ROI_columns
@@ -667,9 +667,9 @@ class HistogramGrid(ROIAnalysis):
                 if y_min < self.y_min:
                     self.y_min = y_min
                 # horizontal range
-                x_max = np.nanmax(data['hist_x'][data['hist_y'] > 0]).astype('float')
+                x_max = np.nanmax(data['hist_x'][:-1][data['hist_y'] > 0]).astype('float')
                 # get smallest non-zero histogram bin height
-                x_min = np.nanmin(data['hist_x'][data['hist_x'] > 0]).astype('float')
+                x_min = np.nanmin(data['hist_x'][:-1][data['hist_y'] > 0]).astype('float')
                 if x_max > self.x_max:
                     self.x_max = x_max
                 if x_min < self.x_min:
@@ -694,7 +694,7 @@ class HistogramGrid(ROIAnalysis):
 
                     if log:
                         ax.set_yscale('log', nonposy='clip')
-                        ax.set_ylim([np.power(10, max([-4, int(np.log10(self.y_min))])), 2*p_max])
+                        ax.set_ylim([np.power(10., max([-4, int(np.log10(self.y_min))])), 2*p_max])
                     else:
                         ax.set_yscale('linear', nonposy='clip')
                         ax.set_ylim([0., 1.05*p_max])
