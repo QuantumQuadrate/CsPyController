@@ -122,7 +122,6 @@ class AQuA(Experiment):
     picam_viewer = Member()
     DC_noise_eater_graph = Member()
     DC_noise_eater_filter = Member()
-    Noise_EatersGraph = Member()
     retention_analysis = Member()
     counter_graph = Member()
     counter_hist = Member()
@@ -210,7 +209,6 @@ class AQuA(Experiment):
         # self.picam_viewer = picam.PICamViewer('picam_viewer', self, 'show the most recent PICam image')
         self.DC_noise_eater_graph = DCNoiseEater.DCNoiseEaterGraph('DC_noise_eater_graph', self, 'DC Noise Eater graph')
         self.DC_noise_eater_filter = DCNoiseEater.DCNoiseEaterFilter('DC_noise_eater_filter', self, 'DC Noise Eater Filter')
-        self.Noise_EatersGraph = noise_eaters.Noise_EatersGraph('Noise_EatersGraph', self, 'Graph of new DC Noise eater output')
         self.Ramsey = analysis.Ramsey('Ramsey', self, 'Fit a cosine to retention results')
         self.retention_analysis = RetentionAnalysis('retention_analysis', self, 'calculate the loading and retention')
         self.counter_hist = Counter.CounterHistogramAnalysis('counter_hist', self, 'Fits histograms of counter data and plots hist and fits.')
@@ -237,7 +235,7 @@ class AQuA(Experiment):
             self.imageSumAnalysis, self.recent_shot_analysis,
             self.shotBrowserAnalysis, self.measurements_graph,
             self.iterations_graph, self.DC_noise_eater_graph,
-            self.DC_noise_eater_filter, self.Noise_EatersGraph, self.Andors, 
+            self.DC_noise_eater_filter, self.Andors, 
             self.PICams, self.Ramsey, self.DAQmxAI, self.unlock_pause,
             self.retention_analysis, self.retention_graph,
             self.save_notes, self.save2013Analysis, self.NIScopes,
