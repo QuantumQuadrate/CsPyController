@@ -345,7 +345,7 @@ class AnalysisWithFigure(Analysis):
     backFigure = Typed(Figure)
     figure1 = Typed(Figure)
     figure2 = Typed(Figure)
-    draw_fig = Bool(False) # do not draw the figure unless told to
+    draw_fig = Bool(False)  # do not draw the figure unless told to
 
     def __init__(self, name, experiment, description=''):
         super(AnalysisWithFigure, self).__init__(name, experiment, description)
@@ -364,10 +364,10 @@ class AnalysisWithFigure(Analysis):
         self.figure = temp
 
     def updateFigure(self):
-        #signal the GUI to redraw figure
+        # signal the GUI to redraw figure
         try:
             deferred_call(self.swapFigures)
-        except RuntimeError: #application not started yet
+        except RuntimeError: # application not started yet
             self.swapFigures()
 
     def blankFigure(self):
@@ -423,6 +423,7 @@ class ROIAnalysis(AnalysisWithFigure):
     def preExperiment(self, experimentResults):
         self.set_rois()
         super(ROIAnalysis, self).preExperiment(experimentResults)
+
 
 class TextAnalysis(Analysis):
     #Text output that can be updated back to the GUI
