@@ -7,6 +7,7 @@ from multiprocessing import Pool
 from histogram_analysis_helpers import calculate_histogram, histogram_grid_plot
 # MPL plotting
 import matplotlib as mpl
+import pickle as pl
 
 
 from atom.api import Bool, Member, Str, observe, Int, List
@@ -251,7 +252,7 @@ class HistogramGrid(ROIAnalysis):
             pe = None
             ex = None
         hist_data_shots = []
-        self.figures = []
+        # self.figures = []
         for shot in range(len(self.histogram_results)):
             hist_data_shots.append({
                 'dpi': 80,
@@ -269,11 +270,14 @@ class HistogramGrid(ROIAnalysis):
                 'exposure_time': ex,
                 'meas_per_iteration': self.experiment.measurementsPerIteration
             })
-            self.figures.append(histogram_grid_plot(hist_data_shots[-1], save=self.experiment.saveData))
+            # self.figures.append(pl.loads(histogram_grid_plot(hist_data_shots[-1], save=self.experiment.saveData)))
         # run in another process
         # save = self.experiment.saveData
-        # pool = Pool()
-        # self.figures = pool.map(histogram_grid_plot, hist_data_shots)
+        pool = Pool()
+        pickled_figs = pool.map(histogram_grid_plot, hist_data_shots)
+        self.figures = []
+        for pf in pickled_figs:
+            self.figures.append(pl.loads(pf))
         # self.figures = pool.map(lambda x: histogram_grid_plot(x, save=save), hist_data_shots)
 
     def updateFigure(self):

@@ -8,6 +8,7 @@ import matplotlib as mpl
 import matplotlib.pyplot as plt
 import matplotlib.patches as patches
 from matplotlib.gridspec import GridSpec
+import pickle as pl
 
 logger = logging.getLogger(__name__)
 
@@ -393,20 +394,19 @@ def histogram_grid_plot(data, save=True):
 
     # if save:
     #     plt.savefig(
-    #         '{}_{}_{}.pdf'.format(
-    #             self.pdf_path,
-    #             iteration,
-    #             shot
-    #         ),
+    #         '{save_path}_{iteration}_{shot}.pdf'.format(**data),
     #         format='pdf',
-    #         dpi=dpi,
+    #         dpi=data['dpi'],
     #         transparent=True,
     #         bbox_inches='tight',
     #         pad_inches=.25,
     #         frameon=False
     #     )
-    #     plt.close(fig)
-    return fig
+        # plt.close(fig)
+    logger.info('hey')
+    pf = pl.dumps(fig)
+    # logger.info(pf)
+    return pf
 
 
 def histogram_patch(ax, x, y, color):
