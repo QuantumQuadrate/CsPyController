@@ -2,15 +2,15 @@ import datetime
 import numpy as np
 import logging
 import os
+import time
+from multiprocessing import Pool
+from histogram_analysis_helpers import calculate_histogram
 # MPL plotting
 import matplotlib as mpl
 import matplotlib.pyplot as plt
 from matplotlib.gridspec import GridSpec
 import matplotlib.patches as patches
-from scipy.special import erf, gammainc, gammaincc, gamma
-from scipy import optimize
-from sklearn import mixture
-from scipy.stats import poisson
+
 
 from atom.api import Bool, Member, Str, observe, Int, Float
 
@@ -18,57 +18,6 @@ from analysis import AnalysisWithFigure, ROIAnalysis
 
 logger = logging.getLogger(__name__)
 mpl.use('PDF')
-
-
-def intersection(ftype, fparams):
-    """Returns the intersection of two distributions"""
-    if ftype == 'gaussian':
-        A1, m0, m1, s0, s1 = fparams
-        return (m1*s0**2-m0*s1**2-np.sqrt(s0**2*s1**2*(m0**2-2*m0*m1+m1**2+2*np.log((1-A1)/A1)*(s1**2-s0**2))))/(s0**2-s1**2)
-    if ftype == 'poisson':
-        A1, m0, m1 = fparams
-        A1_min = 0.1  # set cuts assuming at least 10 percent loading
-        if A1 < A1_min:
-            A1 = A1_min
-        for s in range(int(m1)):
-            if (1-A1)*poisson.pmf(s, m0) < A1*poisson.pmf(s, m1):
-                return s
-
-
-def overlap(ftype, fparams, cutoff):
-    """Calculate the overlap intergral of two distributions, at cutoff (x >= cutoff is high)"""
-    if ftype == 'gaussian':
-        # intersection over union, see MTL thesis for motovation
-        overlap1 = 0.5*(1 + erf((fparams[1]-cutoff)/(fparams[3]*np.sqrt(2))))
-        overlap2 = 0.5*(1 + erf((cutoff-fparams[2])/(fparams[4]*np.sqrt(2))))
-        return (overlap1*(1-fparams[0]) + overlap2*fparams[0]) / min(fparams[0], 1-fparams[0])
-    if ftype == 'poisson':
-        # use imcomplete regularized gamma functions to get type 1 and 2 error rates
-        # do the calculation at p = 0.5, and not the actual loading rate
-        # return fparams[0]*gammainc(fparams[2], cutoff) + (1-fparams[0])*gammaincc(fparams[1], cutoff)
-        return 0.5*(gammainc(fparams[2], cutoff) + gammaincc(fparams[1], cutoff))
-
-
-def frac(fparams):
-    'Relative Fraction in 1'
-    return fparams[0]
-
-
-def dblgauss(x, A1, m0, m1, s0, s1):
-    return (1-A1)*np.exp(-(x-m0)**2 / (2*s0**2))/np.sqrt(2*np.pi*s0**2) + A1*np.exp(-(x-m1)**2 / (2*s1**2))/np.sqrt(2*np.pi*s1**2)
-
-
-def poisson_pdf(x, mu):
-    """Continuous approximmation of the Poisson PMF to prevent failures from non-integer bin edges"""
-    result = np.power(float(mu), x)*np.exp(-float(mu))/gamma(x+1)
-    # large values of x will cause overflow, so use gaussian instead
-    nans = np.argwhere(np.logical_or(np.isnan(result), np.isinf(result)))
-    result[nans] = np.exp(-(x[nans]-mu)**2 / (2*np.sqrt(mu)**2))/np.sqrt(2*np.pi*np.sqrt(mu)**2)
-    return result
-
-
-def dblpoisson(x, A1, m0, m1):
-    return (1-A1)*poisson_pdf(x, m0) + A1*poisson_pdf(x, m1)
 
 
 class HistogramAnalysis(AnalysisWithFigure):
@@ -309,7 +258,9 @@ class HistogramGrid(ROIAnalysis):
                 except AttributeError:
                     pe = None
                     ex = None
-                for shot in xrange(len(self.histogram_results)):
+                start = time.time()
+                ts = [start]
+                for shot in range(len(self.histogram_results)):
                     fig = plt.figure(figsize=(23.6, 12.3))
                     dpi = 80
                     fig.set_dpi(dpi)
@@ -318,6 +269,7 @@ class HistogramGrid(ROIAnalysis):
                         iteration,
                         shot
                     )
+                    ts.append(time.time())
                     fig.suptitle(title)
                     self.histogram_grid_plot(
                         fig,
@@ -325,6 +277,7 @@ class HistogramGrid(ROIAnalysis):
                         photoelectronScaling=pe,
                         exposure_time=ex
                     )
+                    ts.append(time.time())
                     plt.savefig(
                         '{}_{}_{}.pdf'.format(
                             self.pdf_path,
@@ -338,7 +291,9 @@ class HistogramGrid(ROIAnalysis):
                         pad_inches=.25,
                         frameon=False
                     )
+                    ts.append(time.time())
                     plt.close(fig)
+                logger.info(np.array(ts)-start)
         except Exception:
             logger.exception('Problem in HistogramGrid.savefig()')
 
@@ -387,42 +342,46 @@ class HistogramGrid(ROIAnalysis):
         rois = len(self.histogram_results[0])
         cuts = np.zeros((shots, rois), dtype='int')
         for s in range(shots):
-            for r in xrange(rois):
+            for r in range(rois):
                 cuts[s, r] = self.histogram_results[s][r]['cuts'][0]
         self.experiment.thresholdROIAnalysis.set_thresholds(cuts, experiment_timestamp, exclude_shot=[1])
 
     def calculate_all_histograms(self, all_shots_array):
+        """Calculate histograms and thresholds for each shot and roi"""
         measurements, shots, rois = all_shots_array.shape
 
         # Since the number of measurements is the same for each shot and roi,
         # we can compute the number of bins here:
         # choose 1.5*sqrt(N) as the number of bins
         self.bins = int(np.rint(1.5 * np.sqrt(measurements)))
-        self.histogram_results = []
+        # use the same structure for histogram_results and roi_data so mapping is easy
+        self.histogram_results = [[None for r in range(rois)] for s in range(shots)]
+        roi_data = [[None for r in range(rois)] for s in range(shots)]
         self.y_max = 0
         self.y_min = 1
 
-        # go through each shot and roi and calculate the histograms and
-        # gaussian fits
-        for shot in xrange(shots):
-            self.histogram_results.append([])
-            for roi in xrange(rois):
-                roidata = all_shots_array[:, shot, roi]
-
+        # go through each shot and roi and format for a multiprocessing pool
+        for shot in range(shots):
+            for roi in range(rois):
                 # get old cutoffs
                 cutoff = self.experiment.thresholdROIAnalysis.threshold_array[shot][roi]['1']
                 backup_cut = None
                 if self.calculate_new_cutoffs:
                     backup_cut = cutoff
                     cutoff = None
-
-                try:
-                    # need to fill a place holder in case of error or there will be misalignment
-                    result = self.calculate_histogram(roidata, self.bins, cutoff=cutoff, backup_cut=backup_cut)
-                except:
-                    logger.exception('Probelm fitting histogram for (s,r): ({},{})'.format(shot, roi))
-                    result = None
-                self.histogram_results[-1].append(result)
+                # get the data
+                roi_data[shot][roi] = {
+                    'data': all_shots_array[:, shot, roi],
+                    'cutoff': cutoff,
+                    'backup_cutoff': backup_cut,
+                    'bins': self.bins,
+                    'shot': shot,
+                    'roi': roi
+                }
+        # create the pool and start the job, separate by shot (could also flatten...)
+        for shot in range(shots):
+            pool = Pool()  # automatically uses cpu count to get processes
+            self.histogram_results[shot] = pool.map(calculate_histogram, roi_data[shot])
 
         # make a note of which cutoffs were used
         if self.calculate_new_cutoffs:
@@ -448,124 +407,6 @@ class HistogramGrid(ROIAnalysis):
 
     def two_gaussians(self, x, x0, a0, w0, x1, a1, w1):
         return self.gaussian1D(x, x0, a0, w0) + self.gaussian1D(x, x1, a1, w1)
-
-    def calculate_histogram(self, ROI_sums, bins, cutoff=None, backup_cut=None):
-        """Takes in ROI_sums which is size (measurements) and contains the
-        data to be histogrammed.
-        """
-
-        # first numerically take histograms
-        result = self.fit_distribution(ROI_sums, hbins=bins)
-        # use new or old cutoff?
-        # cuts is a list to later enable support for multiatom cuts
-        if cutoff is None:
-            cut = result['cuts'][0]
-            if cut is None or np.isnan(cut):
-                # if failed fall back on previous cut
-                cutoff = backup_cut
-                result['cuts'] = [cutoff]
-            else:
-                cutoff = cut
-        else:
-            result['cuts'] = [cutoff]
-
-        # calculate the loading based on the cuts (updated if specified) and
-        # the actual atom data
-        total = len(ROI_sums)
-        # make a boolean array of loading
-        atoms = ROI_sums >= cutoff
-        # find the loading for each roi
-        loaded = np.sum(atoms)
-        result['loading'] = loaded/total
-
-        # calculalate the overlap
-        result['overlap'] = overlap(result['method'], result['fit_params'], cutoff)
-        return result
-
-    def fit_distribution(self, roi_data, hbins=0):
-        cut = np.nan
-        method = 'poisson'
-        # method = 'gaussian'
-        max_atoms = 1  # maybe update later for arb. n
-        # use a gaussian mixture model to find initial guess at signal distributions
-        gmix = mixture.GaussianMixture(n_components=max_atoms+1)
-        gmix.fit(np.array([roi_data]).transpose())
-        # order the components by the size of the signal
-        indicies = np.argsort(gmix.means_.flatten())
-        guess = []
-        guess_gauss = []
-        for n in range(max_atoms+1):
-            idx = indicies[n]
-            if method == 'poisson':
-                guess.append([
-                    gmix.weights_[idx],  # amplitudes
-                    gmix.means_.flatten()[idx]  # x0s
-                ])
-            guess_gauss.append([
-                gmix.weights_[idx],  # amplitudes
-                gmix.means_.flatten()[idx],  # x0s
-                np.sqrt(gmix.means_.flatten()[idx])  # sigmas
-            ])
-        # reorder the parameters, drop the 0 atom amplitude
-        guess = np.transpose(guess).flatten()[1:]
-        # bin the data, default binning is just range([0,max])
-        if hbins < 1:
-            hbins = range(int(np.max(roi_data))+1)
-        hist, bin_edges = np.histogram(roi_data, bins=hbins, normed=True)
-
-        # define deafult parameters in the case of an exception
-        popt = np.array([0, 0, 0])
-        pcov = np.array([])
-        cut = [np.nan]  # [intersection(*guess)]
-        rload = np.nan  # frac(*guess)
-        success = False
-        if method == 'poisson':
-            func = dblpoisson
-            try:
-                popt, pcov = optimize.curve_fit(
-                    dblpoisson,
-                    bin_edges[:-1],
-                    hist,
-                    p0=guess,
-                    bounds=[(0, 0, 0), (1, np.inf, np.inf)]
-                )
-                success = True
-            except RuntimeError:
-                logger.exception("Unable to fit data")
-            except TypeError:
-                msg = "There may not be enough data for a fit. ( {} x {} )"
-                logger.exception(msg.format(len(bin_edges)-1, len(hist)))
-            except ValueError:
-                logger.exception('There may be some issue with your guess: `{}`'.format(guess))
-
-        if not success or method == 'gaussian':
-            try:
-                logger.warning('Poissonian fit failed, trying guassian.')
-                popt, pcov = optimize.curve_fit(dblgauss, bin_edges[:-1], hist, p0=guess_gauss)
-                success = True
-                method = 'gaussian'  # set flag so we know what type
-                func = dblpoisson
-            except:
-                logger.error('Gaussian fit failed.')
-
-        # if none of the fits succeed you can add in support for Marty's old algorithm
-        # you could also add a single gaussian fit (no loading) too
-        if success:
-            cut = [intersection(method, popt)]
-            rload = frac(popt)
-
-        return {
-            'hist_x': bin_edges,
-            'hist_y': hist,
-            'max_atoms': max_atoms,
-            'fit_params': popt,
-            'fit_cov': pcov,
-            'cuts': cut,
-            'guess': guess,
-            'rload': rload,
-            'method': method,
-            'function': func,
-        }
 
     def analytic_cutoff(self, x1, x2, w1, w2, a1, a2):
         """Find the cutoffs analytically.  See MTL thesis for derivation."""
@@ -653,8 +494,8 @@ class HistogramGrid(ROIAnalysis):
         self.x_min = 0
         self.y_max = 0
         self.y_min = 1
-        for i in xrange(rows):
-            for j in xrange(columns):
+        for i in range(rows):
+            for j in range(columns):
                 # choose correct saved data
                 n = columns*i+j
                 data = self.histogram_results[shot][n]
@@ -676,8 +517,8 @@ class HistogramGrid(ROIAnalysis):
                     self.x_min = x_min
 
         # make histograms for each site
-        for i in xrange(rows):
-            for j in xrange(columns):
+        for i in range(rows):
+            for j in range(columns):
                 try:
                     # choose correct saved data
                     n = columns*i+j
