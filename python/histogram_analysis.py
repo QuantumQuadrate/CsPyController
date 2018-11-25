@@ -185,11 +185,8 @@ class HistogramGrid(ROIAnalysis):
             data_path = 'analysis/histogram_results'
             iteration_results[data_path] = self.convert_histogram_results()
 
-            # make the histograms and save them
+            # make the histograms and save them, updates figure asynchronously when all figs are done
             self.make_figures(iteration_results.attrs['iteration'])
-
-            # update the figure to show the histograms for the selected shot
-            self.updateFigure()
 
     def convert_histogram_results(self):
         """Rework new histogram data format so it doesn't break dependent analyses."""
@@ -252,9 +249,15 @@ class HistogramGrid(ROIAnalysis):
         except AttributeError:
             pe = None
             ex = None
-        hist_data_shots = []
+        # clean old figures out of memory
+        for f in self.figures:
+            logger.info(type(f))
+            f.clf()
+        self.figures = []
+        # hist_data_shots = []
         for shot in range(len(self.histogram_results)):
-            hist_data_shots.append({
+            self.figures.append(None)
+            hist_data = {
                 'dpi': 80,
                 'font': 8,
                 'log': False,
@@ -268,19 +271,30 @@ class HistogramGrid(ROIAnalysis):
                 'experiment_path': self.experiment.experimentPath,
                 'scaling': pe,
                 'exposure_time': ex,
-                'meas_per_iteration': self.experiment.measurementsPerIteration
-            })
-        # clean old figures out of memory
+                'meas_per_iteration': self.experiment.measurementsPerIteration,
+                'save': self.experiment.saveData
+            }
+            # create new figures in parallel asynchronous processes
+            self.pool.apply_async(histogram_grid_plot, args=(hist_data, ), callback=self.add_shot_figure)
+
+    def add_shot_figure(self, result):
+        """Add figure to figure list when calculations are complete.
+
+        When all figures are done update the figure.
+        """
+        logger.info('completed shot {}'.format(result['shot']))
+        self.figures[result['shot']] = result['fig']
+        # start new process to save file here because if we save in the other process
+        # it adds an instance method to the figure object and it can no longer be pickled
+        logger.info('starting save process for shot: {}'.format(result['shot']))
+        self.pool.apply_async(save_fig, args=(result, ))
+        # check to see if all figures are completed
         for f in self.figures:
-            f.clf()
-        # create new figures in parallel processes
-        self.figures = self.pool.map(histogram_grid_plot, hist_data_shots)
-        # save the results in parallel async process
-        if self.experiment.saveData:
-            for shot, f in enumerate(self.figures):
-                logger.info('{}: {}'.format(type(f), f))
-                save_path = '{}_{}_{}'.format(self.pdf_path, iteration, shot)
-                self.pool.apply_async(save_fig, args=(f, save_path))
+            if f is None:
+                return  # still working
+        logger.info('done with all shots')
+        # update the figure to show the histograms for the selected shot
+        self.updateFigure()
 
     def updateFigure(self):
         if self.draw_fig:

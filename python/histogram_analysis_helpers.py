@@ -4,9 +4,10 @@ from scipy.special import erf, gammainc, gammaincc, gamma
 from scipy import optimize
 from sklearn import mixture
 from scipy.stats import poisson
-import pickle as pl
 import matplotlib as mpl
+import pickle as pl
 from matplotlib import figure
+from matplotlib.backends.backend_agg import FigureCanvasAgg
 import matplotlib.pyplot as plt
 import matplotlib.patches as patches
 from matplotlib.gridspec import GridSpec
@@ -257,7 +258,7 @@ def histogram_grid_plot(data):
     # get the ranges to use in the shot histograms
     x_max, x_min, y_max, y_min = get_hist_domain_range(data['hist_data'])
     # create the figure
-    fig = plt.figure(figsize=(23.6, 12.3))
+    fig = figure.Figure(figsize=(23.6, 12.3))
     fig.set_dpi(data['dpi'])
     fig.suptitle('{experiment_path} iteration {iteration} shot {shot}'.format(**data))
     # create a grid.  The extra row and column hold the row/column averaged data.
@@ -401,7 +402,9 @@ def histogram_grid_plot(data):
     fig.text(.05, .94, 'target # measurements = {}'.format(data['meas_per_iteration']))
 
     logger.debug('Ending plot generation for shot {}'.format(data['shot']))
-    return fig
+
+    data['fig'] = fig
+    return data
 
 
 def histogram_patch(ax, x, y, color):
@@ -453,10 +456,12 @@ def simple_histogram(ax, data):
     ax.step(x, y, where='post')
 
 
-def save_fig(fig, save_path):
+def save_fig(result):
     logger.debug('Started saving pdf')
+    save_path = '{save_path}_{iteration}_{shot}'.format(**result)
+    FigureCanvasAgg(result['fig'])
     try:
-        fig.savefig(
+        result['fig'].savefig(
             save_path+'.pdf',
             format='pdf',
             dpi=80,
@@ -467,5 +472,4 @@ def save_fig(fig, save_path):
         )
     except:
         logger.exception('something went wrong saving the pdf')
-    logger.debug('Done saving pdf')
-    fig.clf()
+    logger.info('Done saving pdf')
