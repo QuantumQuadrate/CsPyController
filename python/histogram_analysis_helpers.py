@@ -4,11 +4,12 @@ from scipy.special import erf, gammainc, gammaincc, gamma
 from scipy import optimize
 from sklearn import mixture
 from scipy.stats import poisson
+import pickle as pl
 import matplotlib as mpl
+from matplotlib import figure
 import matplotlib.pyplot as plt
 import matplotlib.patches as patches
 from matplotlib.gridspec import GridSpec
-import pickle as pl
 
 logger = logging.getLogger(__name__)
 
@@ -99,9 +100,9 @@ def fit_distribution(data, method='gaussian'):
     pcov = np.array([])
     cut = [np.nan]  # [intersection(*guess)]
     rload = np.nan  # frac(*guess)
+    func = dblpoisson
     success = False
     if method == 'poisson':
-        func = dblpoisson
         try:
             popt, pcov = optimize.curve_fit(
                 func,
@@ -128,9 +129,13 @@ def fit_distribution(data, method='gaussian'):
             popt, pcov = optimize.curve_fit(func, bin_edges[:-1], hist, p0=guess)
             success = True
             method = 'gaussian'  # set flag so we know what type
-
-        except Exception as e:
-            logger.exception('Gaussian fit failed.')
+        except RuntimeError:
+            logger.exception("Unable to fit data")
+        except TypeError:
+            msg = "There may not be enough data for a fit. ( {} x {} )"
+            logger.exception(msg.format(len(bin_edges) - 1, len(hist)))
+        except ValueError:
+            logger.exception('There may be some issue with your guess: `{}`'.format(guess))
 
     # if none of the fits succeed you can add in support for Marty's old algorithm
     # you could also add a single gaussian fit (no loading) too
@@ -155,15 +160,16 @@ def fit_distribution(data, method='gaussian'):
 def intersection(ftype, fparams):
     """Returns the intersection of two distributions"""
     if ftype == 'gaussian':
-        A1, m0, m1, s0, s1 = fparams
-        return (m1*s0**2-m0*s1**2-np.sqrt(s0**2*s1**2*(m0**2-2*m0*m1+m1**2+2*np.log((1-A1)/A1)*(s1**2-s0**2))))/(s0**2-s1**2)
+        a1, m0, m1, s0, s1 = fparams
+        temp = m1*s0**2-m0*s1**2-np.sqrt(s0**2*s1**2*(m0**2-2*m0*m1+m1**2+2*np.log((1-a1)/a1)*(s1**2-s0**2)))
+        return temp/(s0**2-s1**2)
     if ftype == 'poisson':
-        A1, m0, m1 = fparams
-        A1_min = 0.1  # set cuts assuming at least 10 percent loading
-        if A1 < A1_min:
-            A1 = A1_min
+        a1, m0, m1 = fparams
+        a1_min = 0.1  # set cuts assuming at least 10 percent loading
+        if a1 < a1_min:
+            a1 = a1_min
         for s in range(int(m1)):
-            if (1-A1)*poisson.pmf(s, m0) < A1*poisson.pmf(s, m1):
+            if (1-a1)*poisson.pmf(s, m0) < a1*poisson.pmf(s, m1):
                 return s
 
 
@@ -182,12 +188,13 @@ def overlap(ftype, fparams, cutoff):
 
 
 def frac(fparams):
-    'Relative Fraction in 1'
+    """Relative Fraction in 1 atom state"""
     return fparams[0]
 
 
-def dblgauss(x, A1, m0, m1, s0, s1):
-    return (1-A1)*np.exp(-(x-m0)**2 / (2*s0**2))/np.sqrt(2*np.pi*s0**2) + A1*np.exp(-(x-m1)**2 / (2*s1**2))/np.sqrt(2*np.pi*s1**2)
+def dblgauss(x, a1, m0, m1, s0, s1):
+    y0 = (1 - a1) * np.exp(-(x - m0) ** 2 / (2 * s0 ** 2)) / np.sqrt(2 * np.pi * s0 ** 2)
+    return y0 + a1 * np.exp(-(x - m1) ** 2 / (2 * s1 ** 2)) / np.sqrt(2 * np.pi * s1 ** 2)
 
 
 def poisson_pdf(x, mu):
@@ -199,8 +206,8 @@ def poisson_pdf(x, mu):
     return result
 
 
-def dblpoisson(x, A1, m0, m1):
-    return (1-A1)*poisson_pdf(x, m0) + A1*poisson_pdf(x, m1)
+def dblpoisson(x, a1, m0, m1):
+    return (1 - a1) * poisson_pdf(x, m0) + a1 * poisson_pdf(x, m1)
 
 
 def get_hist_domain_range(hist_data):
@@ -225,7 +232,7 @@ def get_hist_domain_range(hist_data):
     return x_max, x_min, y_max, y_min
 
 
-def histogram_grid_plot(data, save=True):
+def histogram_grid_plot(data):
     """Plot a grid of histograms in the same shape as the ROIs.
 
     data: dictionary with keys:
@@ -243,10 +250,10 @@ def histogram_grid_plot(data, save=True):
             exposure_time: image exposure time
             experiment_path: experiment path string
             meas_per_iteration: goal measurements per iteration
-    save: [Optional] boolean to save the image to disk, default: True
 
     Returns a MPL figure
     """
+    logger.debug('Starting plot generation for shot {}'.format(data['shot']))
     # get the ranges to use in the shot histograms
     x_max, x_min, y_max, y_min = get_hist_domain_range(data['hist_data'])
     # create the figure
@@ -270,9 +277,9 @@ def histogram_grid_plot(data, save=True):
     # make histograms for each site
     for i in range(data['roi_rows']):
         for j in range(data['roi_columns']):
+            # choose correct saved data
+            n = data['roi_columns'] * i + j
             try:
-                # choose correct saved data
-                n = data['roi_columns']*i+j
                 hist_data = data['hist_data'][n]
                 # create new plot
                 ax = fig.add_subplot(gs1[i, j])
@@ -341,6 +348,7 @@ def histogram_grid_plot(data, save=True):
                 msg = 'Could not plot histogram for shot {} roi {}'
                 logger.exception(msg.format(data['shot'], n))
 
+    logger.debug('Starting plot formatting for shot {}'.format(data['shot']))
     # make stats for each row
     cols = data['roi_columns']
     rows = data['roi_rows']
@@ -392,21 +400,8 @@ def histogram_grid_plot(data, save=True):
     fig.text(.05, .955, 'cutoffs from {}'.format(data['cutoff_source']))
     fig.text(.05, .94, 'target # measurements = {}'.format(data['meas_per_iteration']))
 
-    # if save:
-    #     plt.savefig(
-    #         '{save_path}_{iteration}_{shot}.pdf'.format(**data),
-    #         format='pdf',
-    #         dpi=data['dpi'],
-    #         transparent=True,
-    #         bbox_inches='tight',
-    #         pad_inches=.25,
-    #         frameon=False
-    #     )
-        # plt.close(fig)
-    logger.info('hey')
-    pf = pl.dumps(fig)
-    # logger.info(pf)
-    return pf
+    logger.debug('Ending plot generation for shot {}'.format(data['shot']))
+    return fig
 
 
 def histogram_patch(ax, x, y, color):
@@ -456,3 +451,21 @@ def simple_histogram(ax, data):
     x = data['hist_x'][:-1]
     y = data['hist_y']
     ax.step(x, y, where='post')
+
+
+def save_fig(fig, save_path):
+    logger.debug('Started saving pdf')
+    try:
+        fig.savefig(
+            save_path+'.pdf',
+            format='pdf',
+            dpi=80,
+            transparent=True,
+            bbox_inches='tight',
+            pad_inches=.25,
+            frameon=False
+        )
+    except:
+        logger.exception('something went wrong saving the pdf')
+    logger.debug('Done saving pdf')
+    fig.clf()

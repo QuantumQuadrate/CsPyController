@@ -4,10 +4,9 @@ import logging
 import os
 import time
 from multiprocessing import Pool
-from histogram_analysis_helpers import calculate_histogram, histogram_grid_plot
+from histogram_analysis_helpers import calculate_histogram, histogram_grid_plot, save_fig
 # MPL plotting
 import matplotlib as mpl
-import pickle as pl
 
 
 from atom.api import Bool, Member, Str, observe, Int, List
@@ -39,16 +38,15 @@ class HistogramAnalysis(AnalysisWithFigure):
         self.queueAfterMeasurement = True
         self.measurementDependencies += [self.ROI_source]
 
-    def preIteration(self, iterationResults, experimentResults):
+    def preIteration(self, iteration_results, experiment_results):
         # reset the histogram data
         self.all_shots_array = None
 
-    def analyzeMeasurement(self, measurementResults, iterationResults,
-                           experimentResults):
+    def analyzeMeasurement(self, measurement_results, iteration_results, experiment_results):
         if self.enable:
             # every measurement, update a big array of all the ROI sums, then
             # histogram only the requested shot/site
-            d = measurementResults[self.ROI_source.meas_analysis_path]
+            d = measurement_results[self.ROI_source.meas_analysis_path]
             if self.all_shots_array is None:
                 self.all_shots_array = np.array([d])
             else:
@@ -125,7 +123,8 @@ class HistogramGrid(ROIAnalysis):
     cutoff_shot_mapping = Str()
     cutoffs_from_which_experiment = Str()
     ROI_source = Member()
-    figures = Member([])  # stores figures for each shot from the last iteration
+    figures = Member()  # stores figures for each shot from the last iteration
+    pool = Member()
 
     def __init__(self, name, experiment, description=''):
         super(HistogramGrid, self).__init__(name, experiment, description)
@@ -140,6 +139,8 @@ class HistogramGrid(ROIAnalysis):
         ]
         self.queueAfterMeasurement = True
         self.measurementDependencies += [self.ROI_source]
+        self.figures = []
+        self.pool = Pool(2)
 
     def set_rois(self):
         pass
@@ -148,9 +149,9 @@ class HistogramGrid(ROIAnalysis):
         super(HistogramGrid, self).fromHDF5(hdf)
         self.find_camera()
 
-    def preExperiment(self, experimentResults):
-        # call therading setup code
-        super(HistogramGrid, self).preExperiment(experimentResults)
+    def preExperiment(self, experiment_results):
+        # call threading setup code
+        super(HistogramGrid, self).preExperiment(experiment_results)
 
         if self.enable and self.experiment.saveData:
             # create the nearly complete path name to save pdfs to.
@@ -163,12 +164,12 @@ class HistogramGrid(ROIAnalysis):
                 '{}_histogram_grid'.format(self.experiment.experimentPath)
             )
 
-    def analyzeIteration(self, iterationResults, experimentResults):
+    def analyzeIteration(self, iteration_results, experiment_results):
         if self.enable:
             # all_shots_array will be shape (measurements,shots,rois)
             # or (measurements, sub-measurements shots, rois)
             data_path = self.ROI_source.iter_analysis_path
-            all_shots_array = iterationResults[data_path].value
+            all_shots_array = iteration_results[data_path].value
             # flatten sub-measurements
             if len(all_shots_array.shape) == 4:
                 all_shots_array = all_shots_array.reshape(-1, *all_shots_array.shape[2:])
@@ -180,12 +181,12 @@ class HistogramGrid(ROIAnalysis):
                 self.use_cutoffs()
 
             # save data to hdf5
-            # TODO: convert histogram results back to custom numpy dataset
+            # convert histogram results back to custom numpy dataset
             data_path = 'analysis/histogram_results'
-            iterationResults[data_path] = self.convert_histogram_results()
+            iteration_results[data_path] = self.convert_histogram_results()
 
             # make the histograms and save them
-            self.make_figures(iterationResults.attrs['iteration'])
+            self.make_figures(iteration_results.attrs['iteration'])
 
             # update the figure to show the histograms for the selected shot
             self.updateFigure()
@@ -252,7 +253,6 @@ class HistogramGrid(ROIAnalysis):
             pe = None
             ex = None
         hist_data_shots = []
-        # self.figures = []
         for shot in range(len(self.histogram_results)):
             hist_data_shots.append({
                 'dpi': 80,
@@ -270,15 +270,17 @@ class HistogramGrid(ROIAnalysis):
                 'exposure_time': ex,
                 'meas_per_iteration': self.experiment.measurementsPerIteration
             })
-            # self.figures.append(pl.loads(histogram_grid_plot(hist_data_shots[-1], save=self.experiment.saveData)))
-        # run in another process
-        # save = self.experiment.saveData
-        pool = Pool()
-        pickled_figs = pool.map(histogram_grid_plot, hist_data_shots)
-        self.figures = []
-        for pf in pickled_figs:
-            self.figures.append(pl.loads(pf))
-        # self.figures = pool.map(lambda x: histogram_grid_plot(x, save=save), hist_data_shots)
+        # clean old figures out of memory
+        for f in self.figures:
+            f.clf()
+        # create new figures in parallel processes
+        self.figures = self.pool.map(histogram_grid_plot, hist_data_shots)
+        # save the results in parallel async process
+        if self.experiment.saveData:
+            for shot, f in enumerate(self.figures):
+                logger.info('{}: {}'.format(type(f), f))
+                save_path = '{}_{}_{}'.format(self.pdf_path, iteration, shot)
+                self.pool.apply_async(save_fig, args=(f, save_path))
 
     def updateFigure(self):
         if self.draw_fig:
@@ -326,6 +328,7 @@ class HistogramGrid(ROIAnalysis):
         roi_data = [[None for r in range(rois)] for s in range(shots)]
 
         # go through each shot and roi and format for a multiprocessing pool
+        start = time.time()
         for shot in range(shots):
             for roi in range(rois):
                 # get old cutoffs
@@ -345,8 +348,8 @@ class HistogramGrid(ROIAnalysis):
                 }
         # create the pool and start the job, separate by shot (could also flatten...)
         for shot in range(shots):
-            pool = Pool()  # automatically uses cpu count to get processes
-            self.histogram_results[shot] = pool.map(calculate_histogram, roi_data[shot])
+            self.histogram_results[shot] = self.pool.map(calculate_histogram, roi_data[shot])
+        logger.info("hist fit time: {:.3f} s".format(time.time() - start))
 
         # make a note of which cutoffs were used
         if self.calculate_new_cutoffs:
@@ -375,7 +378,11 @@ class HistogramGrid(ROIAnalysis):
 
     def analytic_cutoff(self, x1, x2, w1, w2, a1, a2):
         """Find the cutoffs analytically.  See MTL thesis for derivation."""
-        return np.where(w1 == w2, self.intersection_of_two_gaussians_of_equal_width(x1, x2, w1, w2, a1, a2), self.intersection_of_two_gaussians(x1, x2, w1, w2, a1, a2))
+        return np.where(
+            w1 == w2,
+            self.intersection_of_two_gaussians_of_equal_width(x1, x2, w1, w2, a1, a2),
+            self.intersection_of_two_gaussians(x1, x2, w1, w2, a1, a2)
+        )
 
     def intersection_of_two_gaussians_of_equal_width(self, x1, x2, w1, w2, a1, a2):
         return (- x1**2 + x2**2 + w1**2/2*np.log(a1/a2))/(2*(x2-x1))
@@ -386,4 +393,3 @@ class HistogramGrid(ROIAnalysis):
         b = w1*w2*np.sqrt((x1-x2)**2 + (w2**2 - w1**2)*np.log(a1/a2)/2.0)
         c = w2**2 - w1**2
         return (a+b)/c  # use the positive root, as that will be the one between x1 and x2
-

@@ -340,7 +340,7 @@ class Analysis(Prop):
 
 class AnalysisWithFigure(Analysis):
 
-    #matplotlib figures
+    # matplotlib figures
     figure = Typed(Figure)
     backFigure = Typed(Figure)
     figure1 = Typed(Figure)
