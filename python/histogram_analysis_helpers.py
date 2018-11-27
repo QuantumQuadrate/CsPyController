@@ -38,6 +38,7 @@ def calculate_histogram(data):
             # if failed fall back on previous cut
             cutoff = data['backup_cutoff']
             result['cuts'] = [cutoff]
+            # logger.warning('cutoff calc failed: {}, using last cutoff {}'.format(cut, result['cuts']))
         else:
             cutoff = cut
     else:
@@ -69,7 +70,7 @@ def fit_distribution(data, method='gaussian'):
     """
     max_atoms = 1  # maybe update later for arb. n
     # use a gaussian mixture model to find initial guess at signal distributions
-    gmix = mixture.GaussianMixture(n_components=max_atoms + 1)
+    gmix = mixture.GaussianMixture(n_components=max_atoms + 1, covariance_type='diag')
     gmix.fit(np.array([data['data']]).transpose())
     # order the components by the size of the signal
     indices = np.argsort(gmix.means_.flatten())
@@ -85,7 +86,7 @@ def fit_distribution(data, method='gaussian'):
         guess_gauss.append([
             gmix.weights_[idx],  # amplitudes
             gmix.means_.flatten()[idx],  # x0s
-            np.sqrt(gmix.means_.flatten()[idx])  # sigmas
+            np.sqrt(gmix.covariances_.flatten()[idx])  # sigmas
         ])
     # reorder the parameters, drop the 0 atom amplitude
     guess = np.transpose(guess).flatten()[1:]
@@ -127,11 +128,11 @@ def fit_distribution(data, method='gaussian'):
                 logger.warning('Poissonian fit failed, trying Guassian.')
             guess = guess_gauss
             func = dblgauss
+            method = 'gaussian'  # set flag so we know what type
             popt, pcov = optimize.curve_fit(func, bin_edges[:-1], hist, p0=guess)
             success = True
-            method = 'gaussian'  # set flag so we know what type
         except RuntimeError:
-            logger.exception("Unable to fit data")
+            logger.error("Unable to fit data")
         except TypeError:
             msg = "There may not be enough data for a fit. ( {} x {} )"
             logger.exception(msg.format(len(bin_edges) - 1, len(hist)))
@@ -143,8 +144,11 @@ def fit_distribution(data, method='gaussian'):
     if success:
         cut = [intersection(method, popt)]
         rload = frac(popt)
+    else:
+        popt = guess
 
-    return {
+    result = {
+        'success': success,
         'hist_x': bin_edges,
         'hist_y': hist,
         'max_atoms': max_atoms,
@@ -156,13 +160,21 @@ def fit_distribution(data, method='gaussian'):
         'method': method,
         'function': func,
     }
+    return result
 
 
 def intersection(ftype, fparams):
     """Returns the intersection of two distributions"""
     if ftype == 'gaussian':
         a1, m0, m1, s0, s1 = fparams
-        temp = m1*s0**2-m0*s1**2-np.sqrt(s0**2*s1**2*(m0**2-2*m0*m1+m1**2+2*np.log((1-a1)/a1)*(s1**2-s0**2)))
+        if a1 < 0 or a1 > 1:
+            logger.debug('bad fit params: {}'.format(fparams))
+            return np.nan
+        temp = s0**2*s1**2*(m0**2-2*m0*m1+m1**2+2*np.log((1-a1)/a1)*(s1**2-s0**2))
+        if temp < 0:
+            logger.debug('bad fit params: {}'.format(fparams))
+            return np.nan         
+        temp = m1*s0**2-m0*s1**2-np.sqrt(temp)
         return temp/(s0**2-s1**2)
     if ftype == 'poisson':
         a1, m0, m1 = fparams
@@ -345,6 +357,9 @@ def histogram_grid_plot(data):
                 # plot cutoff line
                 ax.vlines(cut, 0, y_max)
                 ax.tick_params(labelsize=data['font'])
+                # color background if fit failed
+                if not hist_data['success']:
+                    ax.set_axis_bgcolor('#fa8072')
             except:
                 msg = 'Could not plot histogram for shot {} roi {}'
                 logger.exception(msg.format(data['shot'], n))
