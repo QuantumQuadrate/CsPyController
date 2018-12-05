@@ -3,8 +3,8 @@ import numpy
 import h5py
 import requests
 
-from atom.api import Bool, Str, Member, Int, Float
-from instrument_property import Prop, EvalProp, ListProp, FloatProp
+from atom.api import Bool, Str, Member, Int, Float, List
+from instrument_property import Prop, EvalProp, IntProp, ListProp, FloatProp
 from cs_instruments import Instrument
 from colors import green_cmap
 from time import sleep
@@ -12,21 +12,49 @@ from time import sleep
 logger = logging.getLogger(__name__)
 
 
-class Site_Offset(Prop):
+class Fit_Sites(Prop):
     # must keep track of position changes and send only difference
-    site = Int() #site to apply offsets
-    Frequency_offset_x = Member() #x frequency offset
-    Frequency_offset_y = Member() #y frequency offset
+    Fit_site = Int() #site to apply offsets
+    Fit_Frequency_x = Member() #x frequency for fit
+    Fit_Frequency_y = Member() #y frequency for fit
 
     def __init__(self, name, experiment, description=''):
-        super(Site_Offset, self).__init__(name, experiment, description)
-        self.Frequency_offset_x = FloatProp('Frequency_offset_x', experiment, 'the offset for the x frequency','0')
-        self.Frequency_offset_y = FloatProp('Frequency_offset_y', experiment, 'the offset for the y frequency','0')
-        self.properties += ['site', 'Frequency_offset_x', 'Frequency_offset_y']
+        super(Fit_Sites, self).__init__(name, experiment, description)
+        self.Fit_Frequency_x = FloatProp('Fit_Frequency_x', experiment, 'the fit for the x frequency','0')
+        self.Fit_Frequency_y = FloatProp('Fit_Frequency_y', experiment, 'the fit for the y frequency','0')
+        self.properties += ['Fit_site', 'Fit_Frequency_x', 'Fit_Frequency_y']
 
     def update(self):
         # calculate relative move necessary
-        return self.site, self.Frequency_offset_x, self.Frequency_offset_y
+        return self.Fit_site, self.Fit_Frequency_x, self.Fit_Frequency_y
+
+class Force_Sites(Prop):
+    # must keep track of position changes and send only difference
+    Force_site = Int() #site to apply offsets
+    Force_Frequency_x = Member() #force x frequency
+    Force_Frequency_y = Member() #force y frequency
+
+    def __init__(self, name, experiment, description=''):
+        super(Force_Sites, self).__init__(name, experiment, description)
+        self.Force_Frequency_x = FloatProp('Force_Frequency_x', experiment, 'force the x frequency','0')
+        self.Force_Frequency_y = FloatProp('Force_Frequency_y', experiment, 'force the y frequency','0')
+        self.properties += ['Force_site', 'Force_Frequency_x', 'Force_Frequency_y']
+
+    def update(self):
+        # calculate relative move necessary
+        return self.Force_site, self.Force_Frequency_x, self.Force_Frequency_y
+
+class Pattern_Sites(Prop):
+    # must keep track of position changes and send only difference
+    occupation_site = Int() #site to apply offsets
+    pattern_num = Int() #force x frequency
+
+    def __init__(self, name, experiment, description=''):
+        super(Pattern_Sites, self).__init__(name, experiment, description)
+
+    def update(self):
+        # calculate relative move necessary
+        return self.occupation_site, self.pattern_num
 
 
 class Rearrange(Instrument):
@@ -36,32 +64,40 @@ class Rearrange(Instrument):
     IP = Str()
     port = Int()
     enable = Bool()
-
-    jump_time = Member()
-    frequency_increment = Member()
-    laser_ramp_on_time = Member()
     iter_analysis_base_path = Str()
-    frequency_occupation_array = Member()# a numpy array holding an xfrequency, yfrequency, and occupation status in each row
+
+# Arduino Dictionary Settings
+    frequency_increment = Member()
+    jump_time = Member()
+    laser_ramp_on_time = Member()
+    fit_freq_sites = Member()
+    force_freq_sites = Member()
+
+# Python Dictionary Settings    
     rows = Int()
     columns = Int()
+    sub_array_left = Int()
+    sub_array_top = Int()
+    sub_array_width = Int()
+    sub_array_height = Int()
     gaussian_roi_params = Member()
+    site_pattern = Member()  # a numpy array holding and occupation status in each row
     s0_thresholds = Member()
-    site_offsets = Member()
-    enable = Bool()
-    version = '2018.06.18'
 
 
     def __init__(self, name, experiment, description=''):
         super(Rearrange, self).__init__(name, experiment, description='') 
         self.properties += ['version', 'IP', 'port','enable']
         
-        dtype = [('xfrequency', numpy.float16),('yfrequency', numpy.float16),('occupation', numpy.int16)]
-        self.frequency_occupation_array = numpy.zeros(121, dtype=dtype)  # initialize with a blank array
-        self.jump_time = FloatProp('jump_time', experiment, 'the target power 1 percentage','100')
         self.frequency_increment = FloatProp('frequency_increment', experiment, 'the target power 1 percentage','100')
+        self.jump_time = FloatProp('jump_time', experiment, 'the target power 1 percentage','100')
         self.laser_ramp_on_time = FloatProp('laser_ramp_on_time', experiment, 'the target power 1 percentage','100')
-        self.site_offsets = ListProp('site_offsets', experiment, 'A of sites fequency offsets which can take variable inputs', listElementType=Site_Offset,listElementName='site_offset')        
-        self.properties += ['jump_time', 'frequency_increment', 'laser_ramp_on_time', 'frequency_occupation_array','site_offsets','enable', 'version']
+        self.fit_freq_sites = ListProp('fit_freq_sites', experiment, 'A of sites fequency offsets which can take variable inputs', listElementType=Fit_Sites,listElementName='fit_site_freq')   
+        self.force_freq_sites = ListProp('force_freq_sites', experiment, 'A of sites fequency offsets which can take variable inputs', listElementType=Force_Sites,listElementName='force_site_freq')
+        self.site_pattern = ListProp('site_pattern', experiment, 'A of sites fequency offsets which can take variable inputs', listElementType=Pattern_Sites,listElementName='site_occupation')
+                
+        #self.site_pattern = List('site_pattern', experiment, 'occupation', listElementType=Site_Offset,listElementName='occupation signature')         
+        self.properties += ['jump_time', 'frequency_increment', 'laser_ramp_on_time','enable', 'version']
 
         # where we are going to dump data after analysis
         self.iter_analysis_base_path = 'analysis'
@@ -100,23 +136,36 @@ class Rearrange(Instrument):
 
     def update_values(self):
         # return the new voltage value'
-        xfrequencies = numpy.zeros(self.rows*self.columns)
-        yfrequencies = numpy.zeros(self.rows*self.columns)
-        desired_occupation = numpy.zeros(self.rows*self.columns, dtype = int)
-        for x in range(self.rows*self.columns):
-            xfrequencies[x] = self.frequency_occupation_array[x][0]
-            yfrequencies[x] =  self.frequency_occupation_array[x][1]
-            desired_occupation[x] =  self.frequency_occupation_array[x][2]
+
+        fit_sites = []
+        Fit_Frequencies_x = []
+        Fit_Frequencies_y = []
+        force_sites = []
+        Force_Frequencies_x = []
+        Force_Frequencies_y = []
+        pattern = numpy.full(self.rows*self.columns,2)
+        for i in self.fit_freq_sites:
+            Fit_site, Fit_Frequency_x, Fit_Frequency_y = i.update()
+            fit_sites = numpy.append(fit_sites, Fit_site)
+            Fit_Frequencies_x = numpy.append(Fit_Frequencies_x, Fit_Frequency_x)
+            Fit_Frequencies_y = numpy.append(Fit_Frequencies_y, Fit_Frequency_y)
+        fit_site_array = zip(fit_sites, Fit_Frequencies_x, Fit_Frequencies_y)
+        
+        for i in self.force_freq_sites:
+            Force_site, Force_Frequency_x, Force_Frequency_y = i.update()
+            force_sites = numpy.append(force_sites, Force_site)
+            Force_Frequencies_x = numpy.append(Force_Frequencies_x, Force_Frequency_x)
+            Force_Frequencies_y = numpy.append(Force_Frequencies_y, Force_Frequency_y)
+        force_site_array = zip(force_sites, Force_Frequencies_x, Force_Frequencies_y)
+        
+        for i in self.site_pattern:
+            occupation_site, pattern_num = i.update()
+            pattern[occupation_site] = pattern_num
             
-        for i in self.site_offsets:
-            site, Frequency_offset_x, Frequency_offset_y = i.update()
-            xfrequencies[site] += Frequency_offset_x.value
-            yfrequencies[site] += Frequency_offset_y.value  
-        arduino_dict = {'xfrequencies': list(xfrequencies), 'yfrequencies': list(yfrequencies), 'frequency_increment': self.frequency_increment.value, 
-            'jump_time': self.jump_time.value, 'laser_ramp_on_time': self.laser_ramp_on_time.value}
-            
-        #python_dict = {'desired_occupation': list(desired_occupation), 'gaussian_roi_params': self.gaussian_roi_params, 's0_thresholds': list(self.s0_thresholds)}
-        python_dict = {'gaussian_roi_params': self.gaussian_roi_params}
+        arduino_dict = {'freq_increment': self.frequency_increment.value, 'jump_time': self.jump_time.value, 'laser_ramp_on_time': self.laser_ramp_on_time.value, 
+            'fitfrequencies': fit_site_array, 'forcefrequencies': force_site_array}
+        python_dict = {'doRearrangement': self.enable, 'columns': self.columns, 'rows': self.rows, 'gaussian_roi_params': self.gaussian_roi_params, 'left': self.sub_array_left, 
+            'top': self.sub_array_top, 'width': self.sub_array_width, 'height': self.sub_array_height, 'pattern': pattern, 's0_thresholds': list(self.s0_thresholds)}
         return python_dict, arduino_dict
         
         
@@ -146,5 +195,5 @@ class Rearrange(Instrument):
             else:
             
                 desired_occupation = numpy.zeros(121)            
-                python_dict = {'desired_occupation': desired_occupation} 
+                python_dict = {'pattern': pattern} 
                 requests.post(python_address, json=python_dict)

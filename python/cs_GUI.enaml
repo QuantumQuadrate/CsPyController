@@ -4245,7 +4245,7 @@ enamldef BILTcards(Window):
                         iterable << BILT.channels
                         viewType = BILTcard
 
-enamldef Site_Offset(Container):
+enamldef Fit_Sites(Container):
     attr item
 
     hug_width = 'strong'
@@ -4255,41 +4255,57 @@ enamldef Site_Offset(Container):
         hug_width = 'strong'
         hug_height = 'strong'
         Label:
-            text = 'site'
+            text = 'Fit site'
         IntField:
-            value := item.site
+            value := item.Fit_site
         Label:
-            text = 'Frequency offset x'
+            text = 'Fit Frequency x'
         EvalProp:
-            prop << item.Frequency_offset_x
+            prop << item.Fit_Frequency_x
         Label:
-            text = 'Frequency offset y'
+            text = 'Fit Frequency y'
         EvalProp:
-            prop << item.Frequency_offset_y
-
-enamldef Site_frequencies_and_occupation(Container):
+            prop << item.Fit_Frequency_y
+            
+enamldef Force_Sites(Container):
     attr item
-    attr num
-    hug_height='strong'
-    hug_width='strong'
-    constraints=[hbox(l0,f0,f1,f2)]
-    Label: l0:
-        constraints = [(width==50)|'strong']
-        text=str(num)
-    MyFloatField: f0:
-        constraints = [(width==50)|'strong']
-        placeholder='xfrequency'
-        value := item['xfrequency']
-    MyFloatField: f1:
-        constraints = [(width==50)|'strong']
-        placeholder='yfrequency'
-        value := item['yfrequency']
-    MyIntField: f2:
-        constraints = [(width==50)|'strong']
-        placeholder='occupation'
-        value := item['occupation']
 
+    hug_width = 'strong'
+    hug_height = 'strong'
 
+    Container:
+        hug_width = 'strong'
+        hug_height = 'strong'
+        Label:
+            text = 'Force site'
+        IntField:
+            value := item.Force_site
+        Label:
+            text = 'Force Frequency x'
+        EvalProp:
+            prop << item.Force_Frequency_x
+        Label:
+            text = 'Force Frequency y'
+        EvalProp:
+            prop << item.Force_Frequency_y
+            
+enamldef Pattern_Sites(Container):
+    attr item
+
+    hug_width = 'strong'
+    hug_height = 'strong'
+
+    Container:
+        hug_width = 'strong'
+        hug_height = 'strong'
+        Label:
+            text = 'Site Occupation'
+        IntField:
+            value := item.occupation_site
+        Label:
+            text = 'Pattern Number'
+        IntField:
+            value := item.pattern_num
 
 enamldef Rearrange(Window):
     attr rearrange
@@ -4338,41 +4354,36 @@ enamldef Rearrange(Window):
                             Label:
                                 text = 'laser_ramp_on_time'
                             EvalProp:
-                                prop << rearrange.laser_ramp_on_time    
-                    IndexedContainer:
-                        iterable << rearrange.site_offsets
-                        viewType = Site_Offset
+                                prop << rearrange.laser_ramp_on_time
                     Container:
-                        hug_height='ignore'
-                        hug_width='ignore'
-                        constraints=[hbox(dynoCont),align('top',dynoCont)]
-                        Container: dynoCont:
-                            Container:
-                                hug_height='strong'
-                                hug_width='strong'
-                                constraints=[hbox(l0,l1,l2,l3)]
-                                Label: l0:
-                                    constraints = [(width==50)|'strong']
-                                    text = 'ROI#'
-                                Label: l1:
-                                    constraints = [(width==50)|'strong']
-                                    text = 'xfrequency'
-                                Label: l2:
-                                    constraints = [(width==50)|'strong']
-                                    text = 'yfrequency'
-                                Label: l3:
-                                    constraints = [(width==50)|'strong']
-                                    text = 'occupation'
-                            Include: dyno:
-                                objects<<[Site_frequencies_and_occupation(item=x,num=i)for i,x in enumerate(rearrange.frequency_occupation_array)]
-                    
-
-
-
-
-
-
-
+                        hug_width = 'strong'
+                        hug_height = 'strong'
+                        Form:
+                            Label:
+                                text = 'sub array left'
+                            IntField:
+                                value := rearrange.sub_array_left
+                            Label:
+                                text = 'sub array top'
+                            IntField:
+                                value := rearrange.sub_array_top
+                            Label:
+                                text = 'sub array width'
+                            IntField:
+                                value := rearrange.sub_array_width 
+                            Label:
+                                text = 'sub array height'
+                            IntField:
+                                value := rearrange.sub_array_height   
+                    IndexedContainer:
+                        iterable << rearrange.fit_freq_sites
+                        viewType = Fit_Sites
+                    IndexedContainer:
+                        iterable << rearrange.force_freq_sites
+                        viewType = Force_Sites
+                    IndexedContainer:
+                        iterable << rearrange.site_pattern
+                        viewType = Pattern_Sites
 
 enamldef PyPico(Window):
     attr pypico
