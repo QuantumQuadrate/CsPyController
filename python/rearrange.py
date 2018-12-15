@@ -26,7 +26,7 @@ class Fit_Sites(Prop):
 
     def update(self):
         # calculate relative move necessary
-        return self.Fit_site, self.Fit_Frequency_x, self.Fit_Frequency_y
+        return self.Fit_site, self.Fit_Frequency_x.value, self.Fit_Frequency_y.value
 
 class Force_Sites(Prop):
     # must keep track of position changes and send only difference
@@ -42,7 +42,7 @@ class Force_Sites(Prop):
 
     def update(self):
         # calculate relative move necessary
-        return self.Force_site, self.Force_Frequency_x, self.Force_Frequency_y
+        return self.Force_site, self.Force_Frequency_x.value, self.Force_Frequency_y.value
 
 class Pattern_Sites(Prop):
     # must keep track of position changes and send only difference
@@ -51,6 +51,7 @@ class Pattern_Sites(Prop):
 
     def __init__(self, name, experiment, description=''):
         super(Pattern_Sites, self).__init__(name, experiment, description)
+        self.properties += ['occupation_site', 'pattern_num']
 
     def update(self):
         # calculate relative move necessary
@@ -87,7 +88,7 @@ class Rearrange(Instrument):
 
     def __init__(self, name, experiment, description=''):
         super(Rearrange, self).__init__(name, experiment, description='') 
-        self.properties += ['version', 'IP', 'port','enable']
+        self.properties += ['version', 'IP', 'port','enable', 'sub_array_left', 'sub_array_top', 'sub_array_width', 'sub_array_height']
         
         self.frequency_increment = FloatProp('frequency_increment', experiment, 'the target power 1 percentage','100')
         self.jump_time = FloatProp('jump_time', experiment, 'the target power 1 percentage','100')
@@ -97,7 +98,7 @@ class Rearrange(Instrument):
         self.site_pattern = ListProp('site_pattern', experiment, 'A of sites fequency offsets which can take variable inputs', listElementType=Pattern_Sites,listElementName='site_occupation')
                 
         #self.site_pattern = List('site_pattern', experiment, 'occupation', listElementType=Site_Offset,listElementName='occupation signature')         
-        self.properties += ['jump_time', 'frequency_increment', 'laser_ramp_on_time','enable', 'version']
+        self.properties += ['jump_time', 'frequency_increment', 'laser_ramp_on_time','enable', 'version','fit_freq_sites','force_freq_sites','site_pattern']
 
         # where we are going to dump data after analysis
         self.iter_analysis_base_path = 'analysis'
@@ -160,12 +161,15 @@ class Rearrange(Instrument):
         
         for i in self.site_pattern:
             occupation_site, pattern_num = i.update()
-            pattern[occupation_site] = pattern_num
+            pattern[occupation_site] = pattern_num  
             
-        arduino_dict = {'freq_increment': self.frequency_increment.value, 'jump_time': self.jump_time.value, 'laser_ramp_on_time': self.laser_ramp_on_time.value, 
-            'fitfrequencies': fit_site_array, 'forcefrequencies': force_site_array}
+        arduino_dict = {'frequency_increment': self.frequency_increment.value, 'jump_time': self.jump_time.value, 'laser_ramp_on_time': self.laser_ramp_on_time.value, 
+            'fitfrequencies': list(fit_site_array), 'forcefrequencies': list(force_site_array)}
         python_dict = {'doRearrangement': self.enable, 'columns': self.columns, 'rows': self.rows, 'gaussian_roi_params': self.gaussian_roi_params, 'left': self.sub_array_left, 
-            'top': self.sub_array_top, 'width': self.sub_array_width, 'height': self.sub_array_height, 'pattern': pattern, 's0_thresholds': list(self.s0_thresholds)}
+            'top': self.sub_array_top, 'width': self.sub_array_width, 'height': self.sub_array_height, 'pattern': list(pattern), 's0_thresholds': list(self.s0_thresholds)}
+        #arduino_dict = {'frequency_increment': self.frequency_increment.value}
+        #python_dict = {'columns': self.columns, 'rows': self.rows}  
+            
         return python_dict, arduino_dict
         
         

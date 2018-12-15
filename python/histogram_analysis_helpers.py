@@ -129,7 +129,13 @@ def fit_distribution(data, method='gaussian'):
             guess = guess_gauss
             func = dblgauss
             method = 'gaussian'  # set flag so we know what type
-            popt, pcov = optimize.curve_fit(func, bin_edges[:-1], hist, p0=guess)
+            popt, pcov = optimize.curve_fit(
+                func,
+                bin_edges[:-1],
+                hist,
+                p0=guess,
+                bounds=[(0, 0, 0, 0, 0), (1, np.inf, np.inf, np.inf, np.inf)]
+            )
             success = True
         except RuntimeError:
             logger.error("Unable to fit data")
