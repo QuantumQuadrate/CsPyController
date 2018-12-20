@@ -329,7 +329,7 @@ class HistogramGrid(ROIAnalysis):
                     cuts[s, r] = self.histogram_results[s][r]['cuts'][0]
                 except OverflowError:
                     logger.error('overflow error occured with cut[{}][{}]: {}'.format(s, r, self.histogram_results[s][r]['cuts'][0]))
-        self.experiment.thresholdROIAnalysis.set_thresholds(cuts, experiment_timestamp, exclude_shot=[1])
+        self.experiment.thresholdROIAnalysis.set_thresholds(cuts, experiment_timestamp)
 
     def calculate_all_histograms(self, all_shots_array):
         """Calculate histograms and thresholds for each shot and roi"""
