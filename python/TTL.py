@@ -54,7 +54,7 @@ class TTL_filters(Analysis):
             if numpy.any(a):
                 # report the true inputs
                 text = 'TTL Filters failed:\n'
-                for i,b in enumerate(a):
+                for i, b in enumerate(a):
                     # print out the row and column of the True input
                     text += 'Check {}: Laser(s) {}\n'.format(i, numpy.arange(len(b))[b])
                 # record to the log and screen
