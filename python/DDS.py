@@ -95,6 +95,7 @@ class DDS(TCP_Instrument):
     def getDDSDeviceList(self):
         logger.info('DDS: Requesting device list ...')
         result = self.send('<LabView><getDDSDeviceList/></LabView>')
+        logger.info('DDS response: {}'.format(result))
         deviceListStr = result['DDS/devices']
         deferred_call(setattr, self, 'deviceList', deviceListStr.split('\n'))
         logger.info('DDS: ... done.')
@@ -207,13 +208,14 @@ class DDSchannel(Prop):
 
     def updateProfileDescriptionList(self):
         if self.profiles is not None:
-            #sets the descriptions shown in the combo box in the GUI
-            pdl = ['{} {}'.format(i, n.description) for i,n in enumerate(self.profiles)]
+            # sets the descriptions shown in the combo box in the GUI
+            pdl = ['{} {}'.format(i, n.description) for i, n in enumerate(self.profiles)]
             try:
                 deferred_call(setattr, self, 'profileDescriptionList', pdl)
             except RuntimeError:
-                #the GUI is not yet active
+                # the GUI is not yet active
                 self.profileDescriptionList = pdl
+
 
 class RAMStaticPoint(Prop):
     """ Used to send one point for the RAM static array to the LabView controller.
@@ -285,21 +287,28 @@ class DDSprofile(Prop):
         """
         output = ''
 
-        #go through list of single properties:
-        for p in self.properties: # I use a for loop instead of list comprehension so I can have more detailed error reporting.
+        # go through list of single properties:
+        # I use a for loop instead of list comprehension so I can have more detailed error reporting.
+        for p in self.properties:
             if p not in self.doNotSendToHardware:
-                #convert the string name to an actual object
+                # convert the string name to an actual object
                 try:
                     o = getattr(self, p)
                 except:
-                    logger.warning('In Prop.toHardware() for class '+self.name+': item '+p+' in properties list does not exist.\n')
+                    msg = 'In Prop.toHardware() for class {}: item {} in properties list does not exist.\n'
+                    logger.warning(msg.format(self.name, p))
                     continue
+                output += self.HardwareProtocol(o, p)
 
-                output+=self.HardwareProtocol(o, p)
-
-        #special formatting for RAMFunction
-        output += '<RAMFunction>{}\t{}\t{}\t{}</RAMFunction>'.format(self.RAMFunction.value, self.RAMInitialValue.value, self.RAMStepValue.value, self.RAMNumSteps.value)
-        output += '<RAMStaticArray>{}</RAMStaticArray>'.format('\n'.join(['{}\t{}'.format(i.fPhiA, i.Mag) for i in self.RAMStaticArray]))
+        # special formatting for RAMFunction
+        output += '<RAMFunction>{}\t{}\t{}\t{}</RAMFunction>'.format(
+            self.RAMFunction.value,
+            self.RAMInitialValue.value,
+            self.RAMStepValue.value,
+            self.RAMNumSteps.value
+        )
+        ram_array = ['{}\t{}'.format(i.fPhiA, i.Mag) for i in self.RAMStaticArray]
+        output += '<RAMStaticArray>{}</RAMStaticArray>'.format('\n'.join(ram_array))
 
         try:
             return '<{}>{}</{}>\n'.format(self.name, output, self.name)

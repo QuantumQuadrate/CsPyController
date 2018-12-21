@@ -119,7 +119,7 @@ class TCP_Instrument(Instrument):
     def __init__(self, name, experiment, description=''):
         super(TCP_Instrument, self).__init__(name, experiment, description)
 
-        #defaults
+        # defaults
         self.port = 0
         self.connected = False
         self.error = False
@@ -145,7 +145,7 @@ class TCP_Instrument(Instrument):
         if self.enable:
 
             logger.debug('Opening {} TCP.'.format(self.name))
-            #check for an old socket and delete it
+            # check for an old socket and delete it
             if self.sock is not None:
                 logger.debug('Closing previously open sock.')
                 try:
