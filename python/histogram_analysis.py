@@ -251,7 +251,6 @@ class HistogramGrid(ROIAnalysis):
             ex = None
         # clean old figures out of memory
         for f in self.figures:
-            logger.info(type(f))
             f.clf()
         self.figures = []
         # hist_data_shots = []
@@ -326,8 +325,11 @@ class HistogramGrid(ROIAnalysis):
         cuts = np.zeros((shots, rois), dtype='int')
         for s in range(shots):
             for r in range(rois):
-                cuts[s, r] = self.histogram_results[s][r]['cuts'][0]
-        self.experiment.thresholdROIAnalysis.set_thresholds(cuts, experiment_timestamp, exclude_shot=[1])
+                try:
+                    cuts[s, r] = self.histogram_results[s][r]['cuts'][0]
+                except OverflowError:
+                    logger.error('overflow error occured with cut[{}][{}]: {}'.format(s, r, self.histogram_results[s][r]['cuts'][0]))
+        self.experiment.thresholdROIAnalysis.set_thresholds(cuts, experiment_timestamp)
 
     def calculate_all_histograms(self, all_shots_array):
         """Calculate histograms and thresholds for each shot and roi"""
@@ -363,7 +365,7 @@ class HistogramGrid(ROIAnalysis):
         # create the pool and start the job, separate by shot (could also flatten...)
         for shot in range(shots):
             self.histogram_results[shot] = self.pool.map(calculate_histogram, roi_data[shot])
-        logger.info("hist fit time: {:.3f} s".format(time.time() - start))
+        logger.debug("hist fit time: {:.3f} s".format(time.time() - start))
 
         # make a note of which cutoffs were used
         if self.calculate_new_cutoffs:
