@@ -194,6 +194,9 @@ class LabView(Instrument):
                     raise PauseError
                 try:
                     hdf5[key] = array
+                    #lets try something CrAzY!
+                    #print array[0,22:26]
+                    #hdf5['AI/test'] = array[0,22:26]
                 except:
                     logger.error('in LabView.writeResults() doing hdf5[{}]'.format(key))
                     raise PauseError

@@ -37,7 +37,7 @@ class AQuAAIAnalysis(Analysis):
         if self.experiment.Config.config.get('EXPERIMENT', 'Name') == 'AQUA':
             self.enable = True
         else:
-            self.enable = False
+            self.enable = True
 
     def analyzeMeasurement(self, measResults, iterationResults, experimentResults):
         if self.enable:
@@ -46,4 +46,5 @@ class AQuAAIAnalysis(Analysis):
             By = np.nanmean(raw_data[1])
             Bz = np.nanmean(raw_data[2])
             processed_data = [Bx, By, Bz]
-            measResults['analysis/processed_AI/data'] = processed_data
+            # measResults['analysis/processed_AI/data'] = processed_data
+            measResults['analysis/processed_AI/data'] = 11

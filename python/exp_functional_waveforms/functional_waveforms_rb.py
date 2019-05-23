@@ -91,7 +91,7 @@ ryd780a_dds_profiles = {
 ################################################################################
 # Ryd 780B DDS SETUP ################################################################
 ################################################################################
-ryd780b_dds_pinout = (-1,-1,-1) # -1 indicates pins that are not being used
+ryd780b_dds_pinout = (-1,34,33) # -1 indicates pins that are not being used
 ryd780b_dds_profiles = {
     'off' : (0,0,0),
     'r1' : (0,0,1),
@@ -245,6 +245,14 @@ ryd780a_aom_switch_chan = 21
 ryd780a_aom_switch_profile = {'on':1, 'off':0}
 # timing delay parameter
 ryd780a_aom_switch_delay = 0
+################################################################################
+# Ryd 780B AOM SWITCH SETUP ##########################################################
+################################################################################
+ryd780b_aom_switch_chan = 32
+# this is the default profile, we dont have to pass it in if we dont want to
+ryd780b_aom_switch_profile = {'on':1, 'off':0}
+# timing delay parameter
+ryd780b_aom_switch_delay = 0
 
 ################################################################################
 # Red Pointing AOM SWITCH SETUP ##########################################################
@@ -346,6 +354,15 @@ pointgrey2_trigger_profile = {'on':1, 'off':0} # Does this work?
 # timing delay parameter
 pointgrey2_trigger_delay = 0
 
+################################################################################
+# UV LIAD SETUP ###############################################
+################################################################################
+UV_trigger_chan = 57 # 57 - 32 = 25
+# this is the default profile, we dont have to pass it in if we dont want to
+UV_trigger_profile = {'on':1, 'off':0} # Does this work?
+# timing delay parameter
+UV_trigger_delay = 0
+
 
 ################################################################################
 ################################################################################
@@ -369,6 +386,13 @@ class Rb(object):
         self.blue_pointing_dds = DDS(HSDIO, blue_pointing_dds_pinout, blue_pointing_dds_profiles)
         self.microwave_dds = DDS(HSDIO, microwave_dds_pinout, microwave_dds_profiles)
         self.ryd780a_dds = DDS(HSDIO, ryd780a_dds_pinout, ryd780a_dds_profiles)
+
+        # 3rd DDS
+        self.ryd780b_dds = DDS(HSDIO, ryd780b_dds_pinout, ryd780b_dds_profiles)
+        #self.blue_pointing_dds = DDS(HSDIO, blue_pointing_dds_pinout, blue_pointing_dds_profiles)
+        #self.microwave_dds = DDS(HSDIO, microwave_dds_pinout, microwave_dds_profiles)
+        #self.ryd780a_dds = DDS(HSDIO, ryd780a_dds_pinout, ryd780a_dds_profiles)
+
 
         # declare switches
 
@@ -489,6 +513,12 @@ class Rb(object):
             profiles=ryd780a_aom_switch_profile,
             delay=ryd780a_aom_switch_delay
         )
+        self.ryd780b_aom_switch = Switch(
+            HSDIO,
+            ryd780b_aom_switch_chan,
+            profiles=ryd780b_aom_switch_profile,
+            delay=ryd780b_aom_switch_delay
+        )
         self.ground_aom_switch = Switch(
             HSDIO,
             ground_aom_switch_chan,
@@ -535,83 +565,10 @@ class Rb(object):
             profiles=ryd780A_NE_trigger_profile,
             delay=ryd780A_NE_trigger_delay
         )
-# # Copied from fnode functional_waveform
-# ################################################################################
-# # HSDIO STUFF ##################################################################
-# ################################################################################
-#
-#
-# def chop(t, channels, phases, period):
-#     """Add a single cycle of a chopping pattern to the HSDIO transition list.
-#
-#     If the phase for a channel is 0 it turns on at time t
-#     If the phase for a channel is 1>p>0 it turns on at time (t+period*phase)
-#     If the phase for a channel is 0>p>-1 it starts on and turns off at time (t + period*(1 + phase))
-#
-#     channels is a list of channel numbers
-#     phases is a list of phases between -1 and 1 equal in length to the number of
-#         channels being switched
-#     period is the period of the cycle
-#     returns t + period
-#     """
-#     if len(channels) != len(phases):
-#         print "Chop function requries equal length lists of channels and phases"
-#         raise PauseError
-#
-#     for i, c in enumerate(channels):
-#         p = phases[i]
-#         if abs(p) > 1:
-#             print "Chop function expects phases to be within abs(p)<=1"
-#             raise ValueError
-#         init_state = p < 0
-#         # if phase is negative substract from end of phase
-#         if init_state:
-#             p = 1 + p
-#         # put in initial value for the cycle
-#         msg = "ch[{}]: t({}) = {}"
-#         print(msg.format(c, 0, init_state))
-#         HSDIO(t, c, init_state)
-#         # put in transition
-#         print(msg.format(c, p, not init_state))
-#         HSDIO(t + (p * period), c, not init_state)
-#     return t + period
-#
-#
-# def chop_dds(channels, phases, profiles, period):
-#     """Add a single cycle of a chopping pattern for DDS profiles.
-#
-#     If the phase for a channel is 0 it turns on at time t
-#     If the phase for a channel is 1>p>0 it turns on at time (t+period*phase)
-#
-#     channels is a list of channel numbers
-#     phases is a list of phases between 0 and 1 equal in length to the number of
-#         channels being switched
-#     profiles is a list of length 2 lists of dds profile names, index 0 is the initial profile
-#     period is the period of the cycle
-#     returns t + period
-#     """
-#     if len(channels) != len(phases) or len(channels) != len(profiles):
-#         print "Chop function requries equal length lists of channels and phases"
-#         raise PauseError
-#
-#     def chop_function(t):
-#         # TODO: check that profiles are grey coded!!!!!!!!
-#         print t
-#         for i, c in enumerate(channels):
-#             # set up initial state
-#             init_state = profiles[i][0]
-#             msg = "ch[{}]: t({}) = {}"
-#             #print(msg.format(c, 0, init_state))
-#             c(t, init_state)
-#             # now change state at phase list
-#             for j, p in enumerate(phases[i]):
-#                 if p > 1 or p < 0:
-#                     print "chop_dds function expects phases to be within 0<p<1"
-#                     raise ValueError
-#                 # put in initial value for the cycle
-#                 # put in transition
-#                 #print(msg.format(c, p, profiles[i][j + 1]))
-#                 c(t + (p * period), profiles[i][j + 1])
-#         return t + period
-#
-#     return chop_function
+
+        self.UV_trigger_switch = Switch(
+            HSDIO,
+            UV_trigger_chan,
+            profiles=UV_trigger_profile,
+            delay=UV_trigger_delay
+        )
