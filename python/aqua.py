@@ -55,7 +55,7 @@ except:
 
 # analyses
 from SquareROIAnalysis import SquareROIAnalysis
-from AQuAAIAnalysis import AQuAAIAnalysis
+from RbAIAnalysis import RbAIAnalysis
 from recent_shot_analysis import RecentShotAnalysis
 from image_sum_analysis import ImageSumAnalysis
 from threshold_analysis import ThresholdROIAnalysis
@@ -102,7 +102,7 @@ class AQuA(Experiment):
     AI_graph = Member()
     AI_filter = Member()
     squareROIAnalysis = Member()
-    AQuAAIAnalysis = Member()
+    RbAIAnalysis = Member()
     thresholdROIAnalysis = Member()
     gaussian_roi = Member()
     loading_filters = Member()
@@ -195,7 +195,7 @@ class AQuA(Experiment):
         self.AI_filter = AnalogInput.AI_Filter('AI_filter', self, 'Analog Input filter')
         self.first_measurements_filter = analysis.DropFirstMeasurementsFilter('first_measurements_filter', self, 'drop the first N measurements')
         self.squareROIAnalysis = SquareROIAnalysis(self)
-        self.AQuAAIAnalysis = AQuAAIAnalysis(self)
+        self.RbAIAnalysis = RbAIAnalysis(self)
         self.gaussian_roi = roi_fitting.GaussianROI('gaussian_roi', self)
         self.counter_graph = Counter.CounterAnalysis('counter_graph', self, 'Graphs the counter data after each measurement.')
         self.thresholdROIAnalysis = ThresholdROIAnalysis(self)
@@ -231,7 +231,7 @@ class AQuA(Experiment):
         # need not update on iterations, etc.
         # origin needs to be the last analysis always
         self.analyses += [
-            self.TTL_filters, self.AI_graph, self.AI_filter, self.AQuAAIAnalysis,
+            self.TTL_filters, self.AI_graph, self.AI_filter, self.RbAIAnalysis,
             # ROI analyses go here ------------------------------------------
             self.squareROIAnalysis, self.counter_graph, self.gaussian_roi,
             # ---------------------------------------------------------------
@@ -251,7 +251,7 @@ class AQuA(Experiment):
         ]
 
         self.properties += [
-            'Config', 'AQuAAIAnalysis',
+            'Config', 'RbAIAnalysis',
             'functional_waveforms', 'LabView', 'functional_waveforms_graph',
             'DDS', 'aerotechs', 'picomotors', 'noise_eaters', 'BILT','rearrange', 'pyPicoServer', 'conexes',
             'Andors', 'PICams', 'DC_noise_eaters', 'blackfly_client',

@@ -3,7 +3,7 @@ from __future__ import division
 import logging
 logger = logging.getLogger(__name__)
 
-import socket, pickle     
+import socket, pickle
 
 from atom.api import Bool, Str, Member, Int, List, observe
 from enaml.application import deferred_call
@@ -14,10 +14,10 @@ import numpy
 
 class Noise_Eater(Prop):
     # must keep track of position changes and send only difference
-    target_setting1 = Member() #set from 0 to 100
-    target_setting2 = Member() #set from 0 to 100
-    target_setting3 = Member() #set from 0 to 100
-    target_setting4 = Member() #set from 0 to 100
+    target_setting1 = Member()  # set from 0 to 100
+    target_setting2 = Member()  # set from 0 to 100
+    target_setting3 = Member()  # set from 0 to 100
+    target_setting4 = Member()  # set from 0 to 100
     IP = Str()
     port = Int()
     setting_array = List()
@@ -27,18 +27,18 @@ class Noise_Eater(Prop):
         self.target_setting1 = FloatProp('target_setting1', experiment, 'the target power 1 percentage','100')
         self.target_setting2 = FloatProp('target_setting2', experiment, 'the target power 2 percentage','100')
         self.target_setting3 = FloatProp('target_setting3', experiment, 'the target power 3 percentage','100')
-        self.target_setting4 = FloatProp('target_setting4', experiment, 'the target power 4 percentage','100') 
+        self.target_setting4 = FloatProp('target_setting4', experiment, 'the target power 4 percentage','100')
         self.properties += ['target_setting1', 'target_setting2', 'target_setting3', 'target_setting4', 'IP', 'port']
         self.setting_array = [self.target_setting1, self.target_setting2, self.target_setting3, self.target_setting4]
 
     def update(self):
         # calculate relative move necessary
         return self.IP, self.port, self.setting_array
-        
 
-class Noise_Eaters(Instrument):   
-    version = '2017.07.21'  
-    #host = '10.141.210.242' # ip of raspberry pi 
+
+class Noise_Eaters(Instrument):
+    version = '2017.07.21'
+    #host = '10.141.210.242' # ip of raspberry pi
     #port = 12345
     #arr = [1,5,3,4]
 
@@ -65,12 +65,12 @@ class Noise_Eaters(Instrument):
         Every iteration, send the motors updated positions.
         """
         self.resultsArray = numpy.delete(numpy.empty([1,4]), (0), axis=0)
-        
+
         for i in self.pis:
             if self.enable:
                 #arr = update()
                 #arr2 = [1,2,3,4]
-                #IP2 = '10.141.210.242' # ip of raspberry pi 
+                #IP2 = '10.141.210.242' # ip of raspberry pi
                 #port2 = 12345
                 IP, port, settings_array = i.update()
                 self.s = socket.socket()
@@ -150,4 +150,3 @@ class Noise_EatersGraph(AnalysisWithFigure):
                 logger.warning('Problem in Noise_EaterGraph.updateFigure()\n:{}'.format(e))
             finally:
                 self.update_lock = False
-       

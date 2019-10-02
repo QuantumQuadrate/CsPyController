@@ -154,7 +154,8 @@ class HSDIO(Instrument):
         self.transition_list.append((time, channel, state))
 
     def add_repeat(self, time, function, repeats):
-        """Add a repeat loop to the script to take advantage of the HSDIO's builtin "Repeat" functionality.
+        """Add a repeat loop to the script to take advantage of the HSDIO's
+        built-in "Repeat" functionality.
 
         MUST USE CAREFULLY SO THAT NO CONFLICTS ARISE WITH NORMAL HSDIO USAGE!!!
 
@@ -415,7 +416,8 @@ class HSDIO(Instrument):
                 if cycles_per_repeat != t['cycles_per_repeat']:
                     logger.error("An overlapping repeat cycle was detected.")
                 if repeats_done:
-                    logger.error(first_cycle_err + "Also check that you aren't accidentally doing a dds grey code switch.")
+                    logger.error(first_cycle_err +
+                    " Also check that you aren't accidentally doing a dds grey code switch.")
                     raise PauseError
                 repeat_only_list.append(shallow_copy(t))
                 repeat_sample_clock_cycles += t['waitTime']
@@ -470,7 +472,9 @@ class HSDIO(Instrument):
                     logger.error('Transition at last repeat phase. Move the transition back one cycle.')
                     raise PauseError
                 else:
-                    new_repeat_only_list = self.update_transition_list(repeat_only_list, other_transitions[i+1])
+                    # the i+1 might be an indexing mistake... just fyi
+                    new_repeat_only_list = self.update_transition_list(repeat_only_list,
+                                                                       other_transitions[i])#+1])
                 extra_idx = 1  # assume we will ned another transition until proven otherwise
                 ctime = 0
                 for idx in range(len(repeat_only_list)):
@@ -620,6 +624,7 @@ class HSDIO(Instrument):
                     in_repeat_cycle = True
                     # check end condition
                     cumulative_time += waitTime
+
                     if self.repeats[i] != -1:
                         # append some extra info to transition dict
                         for key in ['cycles_per_repeat', 'repeats']:

@@ -414,6 +414,7 @@ if ExpMode==0:
     exp.mot_3d_y_shutter_switch.profile(0,'on')
     exp.mot_3d_z1_shutter_switch.profile(0,'on')
     exp.repumper_shutter_switch.profile(0,'on')
+    exp.mot_3d_z2_shutter_switch.profile(0,'on')
     exp.microwave_switch.profile(0,'off')
     exp.microwave_dds.profile(0,'off')
 
@@ -433,6 +434,7 @@ if ExpMode==0:
     ## 3D MOT Loading Phase
     exp.mot_2d_dds.profile(t_2DMOT_loading,'off') # turn off 2D MOT light
     exp.mot_2d_aom_switch.profile(t_2DMOT_loading,'off')
+    exp.mot_3d_z2_shutter_switch.profile(t_2DMOT_loading,'off')
 
     AO(t_2DMOT_loading+5,0,0) # turns off quadrupole fields
     AO(t_2DMOT_loading+5,1,0)
@@ -445,10 +447,14 @@ if ExpMode==0:
     exp.camera.take_shot(t_readout_MOT)
 
     ## Fall off Phase
-    AO(t_3DMOT_cutoff,2,coil_driver_polarity*-0.30) #X
-    AO(t_3DMOT_cutoff,3,coil_driver_polarity*-0.49) #Y
-    AO(t_3DMOT_cutoff,4,0) #Z
+    # AO(t_3DMOT_cutoff,2,coil_driver_polarity*-0.30) #X
+    # AO(t_3DMOT_cutoff,3,coil_driver_polarity*-0.49) #Y
+    # AO(t_3DMOT_cutoff,4,0) #Z
+    AO(t_3DMOT_cutoff,2,coil_driver_polarity*FOshimx) #X
+    AO(t_3DMOT_cutoff,3,coil_driver_polarity*FOshimy) #Y
+    AO(t_3DMOT_cutoff,4,FOshimz) #Z
     exp.mot_aom_switch.profile(t_3DMOT_cutoff,'off')
+    #exp.fort_dds.profile(111,'on')
     exp.hf_aom_switch.profile(t_3DMOT_cutoff,'off') #####
     AO(t_3DMOT_cutoff,7,0)
 
@@ -456,7 +462,9 @@ if ExpMode==0:
     AO(130,2,coil_driver_polarity*shimX_RO) #X
     AO(130,3,coil_driver_polarity*shimY_RO) #Y
     AO(130,4,coil_driver_polarity*shimZ_RO) #Z
+    exp.fort_dds.profile(140,'science')
     t_start=140
+    #exp.fort_dds.profile(140,'on')
     t_leadtime=0
     t_LAS_leadtime=0
     exp.mot_3d_dds.profile(t_start+t_LAS_leadtime,'RO')
@@ -464,7 +472,9 @@ if ExpMode==0:
     exp.camera.take_shot(t_start)
 
     readout(t_start+t_LAS_leadtime,t_leadtime+t_readoutduration+abs(t_LAS_leadtime))
+    #readout(t_start,t_readoutduration+t_gap)
     t_end=t_start+t_readoutduration+t_leadtime+abs(t_LAS_leadtime)
+    #t_end=t_start+t_readoutduration+t_gap
     AO(t_start,7,10)
     exp.mot_aom_switch.profile(t_end+0.001,'off')
     exp.hf_aom_switch.profile(t_start+t_LAS_leadtime,'on')
@@ -472,28 +482,31 @@ if ExpMode==0:
     #AO(t_end+t_PGC_duration+0.2,7,0)
     #exp.hf_aom_switch.profile(t_end+0.2,'off') ###
     AO(t_end+0.2,7,0)
+    exp.fort_dds.profile(t_end,'on')
     #prepareF1(t_end+0.3,t_F1prepare)
 
     #Poliarization Gradient Cooling (PGC) phase, nominally from 145-150 ms
     #Doing chopping
-    #
-    # AO(145.2,2,coil_driver_polarity*shimX_PGC) #X PGC
-    # AO(145.2,3,coil_driver_polarity*shimY_PGC) #Y PGC
-    # AO(145.2,4,coil_driver_polarity*shimZ_PGC) #Z PGC
-    # t_start=145.3
-    # t_end=t_start+t_PGC_duration
-    # if t_PGC_duration>0:
-    #     exp.mot_3d_dds.profile(t_start,'PGC')
-    #     #exp.fort_dds.profile(t_start+3*t_PGC_duration/4,'science') # lowered FORT during PGC
-    #     #exp.fort_dds.profile(t_end+0.1,'on')
-    #
-    #     readout(t_start,t_PGC_duration)
-    #     exp.mot_aom_switch.profile(t_start,'on')
-    #     exp.mot_aom_switch.profile(t_end,'off')
-    #     AO(t_start,7,10) # Reumper VCA
-    #     AO(t_end+0.2,7,0)
-    #     exp.hf_aom_switch.profile(t_start,'on')
-    #     exp.hf_aom_switch.profile(t_end+0.2,'off') ###
+
+    AO(145.2,2,coil_driver_polarity*shimX_PGC) #X PGC
+    AO(145.2,3,coil_driver_polarity*shimY_PGC) #Y PGC
+    AO(145.2,4,coil_driver_polarity*shimZ_PGC) #Z PGC
+    t_start=145.3
+    t_end=t_start+t_PGC_duration
+    if t_PGC_duration>0:
+        exp.fort_dds.profile(t_start,'low')
+        exp.fort_dds.profile(t_end+5,'on')
+        exp.mot_3d_dds.profile(t_start,'PGC')
+        #exp.fort_dds.profile(t_start+3*t_PGC_duration/4,'science') # lowered FORT during PGC
+        #exp.fort_dds.profile(t_end+0.1,'on')
+
+        readout(t_start,t_PGC_duration)
+        exp.mot_aom_switch.profile(t_start,'off')
+        #exp.mot_aom_switch.profile(t_end,'off')
+        AO(t_start,7,10) # Reumper VCA
+        AO(t_end+0.2,7,0)
+        exp.hf_aom_switch.profile(t_start,'on')
+        exp.hf_aom_switch.profile(t_end+0.2,'off') ###
 
     ## Optical Pumping Phase
     # AO(155,2,coil_driver_polarity*shimX_OP) #X
@@ -501,14 +514,19 @@ if ExpMode==0:
     # AO(155,4,coil_driver_polarity*shimZ_OP) #Z
     # AO(155,7,0) # repumper attenuator. repumper turned off.
     #
+    # AO(157,2,coil_driver_polarity*shimX_OP) #X
+    # AO(157,3,coil_driver_polarity*shimY_OP) #Y
+    # AO(157,4,coil_driver_polarity*shimZ_OP) #Z
+    # AO(157,7,0) # repumper attenuator. repumper turned off.
+    #
     # t_start=160
     # t_end=t_start+t_op+t_depump
-    # t_start=170-t_op-t_depump
-    # t_end=170
-    # AO(t_start,7,10)
-    # AO(t_start+t_op,7,0)
-    #exp.fort_dds.profile(t_start,'science')
-
+    # # t_start=170-t_op-t_depump
+    # # t_end=170
+    # # AO(t_start,7,10)
+    # # AO(t_start+t_op,7,0)
+    # #exp.fort_dds.profile(t_start,'science')
+    #
     # exp.op_dds.profile(t_start,'on')
     # exp.op_dds.profile(t_end,'off')
     # exp.hf_aom_switch.profile(t_start,'on')
@@ -529,24 +547,25 @@ if ExpMode==0:
     # exp.hf_aom_switch.profile(t_end-t_depump,'off')
     # opticalpumping2(t_start,t_end-t_start)
 
-    # AO(165,2,coil_driver_polarity*shimX_SCI) #X
-    # AO(165,3,coil_driver_polarity*shimY_SCI) #Y
-    # AO(165,4,coil_driver_polarity*shimZ_SCI) #Z
-    # exp.mot_3d_x_shutter_switch.profile(t_x_shutter_open,'off')
-    # exp.mot_3d_x_shutter_switch.profile(t_x_shutter_close,'on')
-    # exp.mot_3d_y_shutter_switch.profile(t_y_shutter_open,'off')
-    # exp.mot_3d_y_shutter_switch.profile(t_y_shutter_close,'on')
-    # exp.mot_3d_z1_shutter_switch.profile(t_z1_shutter_open,'off')
-    # exp.mot_3d_z1_shutter_switch.profile(t_z1_shutter_close,'on')
+    AO(165,2,coil_driver_polarity*shimX_SCI) #X
+    AO(165,3,coil_driver_polarity*shimY_SCI) #Y
+    AO(165,4,coil_driver_polarity*shimZ_SCI) #Z
+    exp.mot_3d_x_shutter_switch.profile(t_x_shutter_open,'off')
+    exp.mot_3d_x_shutter_switch.profile(t_x_shutter_close,'on')
+    exp.mot_3d_y_shutter_switch.profile(t_y_shutter_open,'off')
+    exp.mot_3d_y_shutter_switch.profile(t_y_shutter_close,'on')
+    exp.mot_3d_z1_shutter_switch.profile(t_z1_shutter_open,'off')
+    exp.mot_3d_z1_shutter_switch.profile(t_z1_shutter_close,'on')
+
 
     ## Science Phase 170 - 175 ms. t_science=170
 
     # reduce FORT trap depth during science phase
-    #exp.fort_dds.profile(t_science,'science')
-    #exp.fort_dds.profile(t_science+5,'on')
+    exp.fort_dds.profile(t_science,'science')
+    exp.fort_dds.profile(t_science+5,'on')
     #RamanRamsey(t_science, t_gap, t_raman, 'addressing', 'r2')
-    #raman(t_science+0.0007,t_raman,'r2')
-    #FORTdrop(t_science-0.001, t_FORTdrop)
+    #raman(t_science+0.001,t_raman,'r2')
+    FORTdrop(t_science+0.001, t_FORTdrop)
     ##FORTdrop(t_science+t_microwave, t_FORTdrop)
     #MicrowaveRamsey(t_science,t_gap,t_microwavepiover2)
     #MicrowaveRamsey_and_780A(t_science, t_gap, t_microwavepiover2, 'addressing', 'r2')
@@ -556,7 +575,7 @@ if ExpMode==0:
     #SpinEcho(t_science,t_gap,t_microwavepiover2)
     #Microwave(t_science,t_microwave)
    ##Microwave(t_science,t_microwave) # Microwave for Ryd780B
-    #Ryd780A(t_science,t_Ryd780A,'r2','r2')
+    #Ryd780A(t_science+0.001,t_Ryd780A,'r2','r2')
     ##Ryd780B(t_science+t_microwave+0.001,t_Ryd780B,'r2','r2')
     #Ryd780A(t_science-0.005,0.1,'r2','r2')
     #Ryd780A_pulsed(t, cycle_time, pointing_profile, intensity_profile, pulse_ontime, num_of_pulses): # region_profile example: 'r2'
@@ -569,49 +588,42 @@ if ExpMode==0:
     #Blue480(1,200,'r2')
 
 
-    #exp.red_pointing_dds.profile(175,'off')
-    #exp.red_pointing_aom_switch.profile(175,'off')
-    #exp.red_pointing_aom_switch.profile(175,'on')
+    # exp.red_pointing_dds.profile(175,'off')
+    # exp.red_pointing_aom_switch.profile(175,'off')
+    # #exp.red_pointing_aom_switch.profile(175,'on')
+    #
+    ## Blow-away Phase 176ms
 
-    # ## Blow-away Phase 176ms
-    #
-    # AO(175,0,coil_driver_polarity*-0.1)
-    # AO(175,1,coil_driver_polarity*0.1)
-    # AO(175,2, coil_driver_polarity*shimX_BA) #X
-    # AO(175,3,coil_driver_polarity*shimY_BA) #Y
-    # AO(175,4,coil_driver_polarity*shimZ_BA) #Z
-    #
-    # t_start=176
-    # t_end=t_start+t_BA
-    # exp.fort_dds.profile(t_start,'science')
-    # exp.mot_3d_dds.profile(t_start,'Blowaway')
-    # t_pulsewidth=0.001*2
-    # t_period=0.001*4
-    # for i in range(int(round((t_end-t_start)/t_period))):
-    #     exp.mot_aom_switch.profile(t_start+i*t_period+t_BA_offset,'on')
-    #     exp.mot_aom_switch.profile(t_start+i*t_period+t_pulsewidth+t_BA_offset,'off')
-    #
-    # for i in range(int(round((t_end-t_start)/t_period))):
-    #     exp.fort_aom_switch.profile(t_start+i*t_period,'off')
-    #     exp.fort_aom_switch.profile(t_start+i*t_period+t_pulsewidth,'on')
-    #
-    # exp.fort_dds.profile(t_end,'on')
+    AO(175,0,coil_driver_polarity*-0.1)
+    AO(175,1,coil_driver_polarity*0.1)
+    AO(175,2, coil_driver_polarity*shimX_BA) #X
+    AO(175,3,coil_driver_polarity*shimY_BA) #Y
+    AO(175,4,coil_driver_polarity*shimZ_BA) #Z
+
+    t_start=176
+    t_end=t_start+t_BA
+    exp.fort_dds.profile(t_start,'science')
+    exp.mot_3d_dds.profile(t_start,'Blowaway')
+    t_pulsewidth=0.001*2
+    t_period=0.001*4
+    for i in range(int(round((t_end-t_start)/t_period))):
+        exp.mot_aom_switch.profile(t_start+i*t_period+t_BA_offset,'on')
+        exp.mot_aom_switch.profile(t_start+i*t_period+t_pulsewidth+t_BA_offset,'off')
+
+    for i in range(int(round((t_end-t_start)/t_period))):
+        exp.fort_aom_switch.profile(t_start+i*t_period,'off')
+        exp.fort_aom_switch.profile(t_start+i*t_period+t_pulsewidth,'on')
+
+    exp.fort_dds.profile(t_end,'on')
 
 
     ## Readout Phase
-    #AO(180,0,0) # turn off quadrupole fields
-    #AO(180,1,0)
-    #AO(180,2, coil_driver_polarity*shimX_RO) #X
-    #AO(180,3, coil_driver_polarity*shimY_RO) #Y
-    #AO(180,4, coil_driver_polarity*shimZ_RO) #Z
-    #t_readout_2nd=195
-    ## Readout Phase
-    AO(176-t_gap,0,0) # turn off quadrupole fields
-    AO(176-t_gap,1,0)
-    AO(176-t_gap,2, coil_driver_polarity*shimX_RO) #X
-    AO(176-t_gap,3, coil_driver_polarity*shimY_RO) #Y
-    AO(176-t_gap,4, coil_driver_polarity*shimZ_RO) #Z
-    t_readout_2nd=180-t_gap
+    AO(180,0,0) # turn off quadrupole fields
+    AO(180,1,0)
+    AO(180,2, coil_driver_polarity*shimX_RO) #X
+    AO(180,3, coil_driver_polarity*shimY_RO) #Y
+    AO(180,4, coil_driver_polarity*shimZ_RO) #Z
+    t_readout_2nd=195
     t_start=t_readout_2nd
     exp.mot_3d_dds.profile(t_start,'RO')
     exp.camera.pulse_length=t_exposure
@@ -645,8 +657,82 @@ elif ExpMode==1:
     ## Coil currents are same as actual experiment cycle to keep thermal loads as close as possible.
     ## If you need continuous MOT loading, go to expmode code 2
     # Camera will not take any pictures to prevent accidental damage due to CW lasers on.
-    print "Not Implemented"
+    #print "Not Implemented"
+    ## Initilization
+        #for i in range(5):
+        #    AO(0,i,0)
+        AO(0,0,coil_driver_polarity*I_Q1)
+        AO(0,1,coil_driver_polarity*I_Q2)
+        AO(0,2,coil_driver_polarity*ShimX_Loading) #X
+        AO(0,3,coil_driver_polarity*ShimY_Loading) #Y
+        AO(0,4,coil_driver_polarity*ShimZ_Loading) #Z
+        AO(0,5,coil_driver_polarity*-2.2)
+        AO(0,6,coil_driver_polarity*2.8)
+        AO(0,7,10)
 
+        # UV switching
+        exp.UV_trigger_switch.profile(0,'off')
+        exp.UV_trigger_switch.profile(0.1,'on')
+        exp.UV_trigger_switch.profile(0.1+1500,'off')
+        #define MOT scope drigger to be off
+        exp.MOT_scope_trigger_switch.profile(0,'off')
+        #define unneeded dds profiles
+        exp.blue_pointing_dds.profile(0,'off')
+        exp.blue_pointing_aom_switch.profile(0,'on')
+        #exp.blue_pointing_aom_switch.profile(0,'off')
+        exp.scope_trigger_switch.profile(140,'on')
+        exp.scope_trigger_switch.profile(141,'off')
+        exp.fort_aom_switch.profile(0,'off')
+        exp.fort_dds.profile(0,'off')
+        exp.op_dds.profile(0,'off')
+        exp.op_aom_switch.profile(0,'off')
+        exp.hf_aom_switch.profile(0,'on')
+        exp.microwave_switch.profile(0,'off')
+        exp.microwave_dds.profile(0,'off')
+
+        #open mot shutters
+        exp.mot_3d_x_shutter_switch.profile(0,'on')
+        exp.mot_3d_y_shutter_switch.profile(0,'on')
+        exp.mot_3d_z1_shutter_switch.profile(0,'on')
+        exp.mot_3d_z2_shutter_switch.profile(0,'on')#switched polarity
+        exp.repumper_shutter_switch.profile(0,'on')
+
+        ## 2D MOT Loading Phase
+        exp.mot_3d_dds.profile(0,'MOT')
+        exp.mot_2d_dds.profile(0,'on')
+        exp.mot_aom_switch.profile(0,'on')
+        exp.mot_2d_aom_switch.profile(0,'on')
+
+        ## 3D MOT Loading Phase
+        motoff = 2000
+        # turn off 2D MOT light 1 full second early and close shutters
+        exp.mot_2d_dds.profile(motoff-500,'off')
+        exp.mot_2d_aom_switch.profile(motoff-500,'off')
+        exp.mot_3d_z2_shutter_switch.profile(motoff-500,'off')
+        #early mot image
+        # exp.camera.pulse_length=0.2#t_MOT_imaging_exposure # Changes HSDIO pulse width to control exposure
+        # t_readout_MOT=1995
+        # exp.camera.take_shot(t_readout_MOT)
+        AO(motoff,0,0) # turns off quadrupole fields
+        AO(motoff,1,0)
+        exp.mot_aom_switch.profile(motoff,'off')
+        #exp.mot_3d_dds.profile(motoff,'PGC')
+        exp.hf_aom_switch.profile(motoff,'off') #####
+        #AO(motoff,7,0)
+        cameratime = motoff+0.004
+        exp.MOT_scope_trigger_switch.profile(cameratime,'on')
+        exp.MOT_scope_trigger_switch.profile(cameratime+3,'off')
+        exp.camera.pulse_length=0.2#t_MOT_imaging_exposure # Changes HSDIO pulse width to control exposure
+        exp.camera.take_shot(cameratime+t_gap)
+
+
+        exp.mot_aom_switch.profile(motoff+t_gap,'on')
+        exp.mot_3d_dds.profile(motoff,'PGC')
+        exp.hf_aom_switch.profile(motoff+t_gap,'on') #####
+        AO(motoff+t_gap,7,10)
+        exp.mot_aom_switch.profile(motoff+t_gap+0.2,'off')
+        exp.hf_aom_switch.profile(motoff+t_gap+0.2,'off') #####
+        AO(motoff+t_gap+0.2,7,0)
 
     ## End of expmode 1
 
@@ -696,12 +782,13 @@ elif ExpMode==2:
         exp.MOT_scope_trigger_switch.profile(0,'off')
         exp.MOT_scope_trigger_switch.profile(140,'on')
         exp.MOT_scope_trigger_switch.profile(145,'off')
-        exp.mot_3d_x_shutter_switch.profile(t_x_shutter_open,'off')
-        exp.mot_3d_x_shutter_switch.profile(t_x_shutter_close,'on')
-        exp.mot_3d_y_shutter_switch.profile(t_y_shutter_open,'off')
-        exp.mot_3d_y_shutter_switch.profile(t_y_shutter_close,'on')
-        exp.mot_3d_z1_shutter_switch.profile(t_z1_shutter_open,'off')
-        exp.mot_3d_z1_shutter_switch.profile(t_z1_shutter_close,'on')
+        exp.mot_3d_z2_shutter_switch.profile(0,'on')#switched polarity
+        # exp.mot_3d_x_shutter_switch.profile(t_x_shutter_open,'off')
+        # exp.mot_3d_x_shutter_switch.profile(t_x_shutter_close,'on')
+        # exp.mot_3d_y_shutter_switch.profile(t_y_shutter_open,'off')
+        # exp.mot_3d_y_shutter_switch.profile(t_y_shutter_close,'on')
+        # exp.mot_3d_z1_shutter_switch.profile(t_z1_shutter_open,'off')
+        # exp.mot_3d_z1_shutter_switch.profile(t_z1_shutter_close,'on')
         exp.scope_trigger_switch.profile(170,'on')
         exp.scope_trigger_switch.profile(171,'off')
         exp.op_dds.profile(0,'on')
