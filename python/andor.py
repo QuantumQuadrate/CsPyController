@@ -652,6 +652,7 @@ class AndorCamera(Instrument):
     def SetImage(self):
         hstart, hend, hbin, vstart, vend, vbin = self.ROI
         # andor expects first pixel = 1, python has first pixel = 0
+        print hstart, hend, hbin, vstart, vend, vbin
         error = self.dll.SetImage(hbin, vbin, hstart+1, hend+1, vstart+1, vend+1)
         self.DLLError(sys._getframe().f_code.co_name, error)
 
@@ -659,7 +660,7 @@ class AndorCamera(Instrument):
         self.setCamera()
         error = self.dll.StartAcquisition()
         if (ERROR_CODE[error] == 'DRV_ACQUIRING'):
-            logger.error("Acquisition in process... is camera assigned twice?")
+            self.logger.error("Acquisition in process... is camera assigned twice?")
         self.DLLError(sys._getframe().f_code.co_name, error)
 
     def WaitForAcquisition(self):
@@ -703,6 +704,7 @@ class AndorCamera(Instrument):
         plot to be redrawn whenever a new image is captured."""
 
         try:
+            self.dim = self.subimage_size[0]*self.subimage_size[1]
             c_image_array_type = c_int * self.dim
             self.c_image_array = c_image_array_type()
 
@@ -1303,10 +1305,10 @@ class Andors(Instrument, Analysis):
         try:
             for i in self.motors:
                 if i.camera.enable:
-                    logger.debug( "Acquiring data from camera {}".format(i.camera.CurrentHandle))
+                    logger.debug("Acquiring data from camera {}".format(i.camera.CurrentHandle))
                     msg = i.camera.acquire_data()
         except Exception as e:
-            logger.exception('Problem acquiring Andor camera data.')
+            logger.exception('Problem acquiring Andor camera data. {}'.format(msg))
             self.isInitialized = False
             raise PauseError
 

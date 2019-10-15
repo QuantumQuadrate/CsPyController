@@ -5,7 +5,8 @@ logger = logging.getLogger(__name__)
 
 from cs_errors import PauseError
 
-import threading, numpy, traceback, time
+import threading, traceback, time
+import numpy as np
 
 import matplotlib as mpl
 mpl.use('PDF')
@@ -19,7 +20,6 @@ from mpl_toolkits.axes_grid1 import make_axes_locatable
 from enaml.application import deferred_call
 
 from atom.api import Bool, Typed, Str, Member, List, Int, observe, Float
-np = numpy
 from scipy.optimize import curve_fit
 from scipy.special import erf
 

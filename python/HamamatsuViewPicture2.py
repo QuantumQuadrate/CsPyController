@@ -50,16 +50,17 @@ def Initialize (interfacename):
 
 def Video (bpnp,artist,bufferpointer):
 
-    while(True):                                       
-        dll.imgGrab(Sess_ID, byref(pointer(bufferpointer)), 0)    
+    while(True):
+        dll.imgGrab(Sess_ID, byref(pointer(bufferpointer)), 0)
         print "grabbed frame"
         print bpnp.shape
         print bpnp[0,0]
         print np.ctypeslib.as_array(bufferpointer)[0,0]
-        artist.autoscale()
+        #artist.autoscale()#--------------------------------------------------------------------------------------------------------
+        artist.set_data(bpnp)
         fig.canvas.draw()
         fig.canvas.flush_events()
-        time.sleep(.2)
+        time.sleep(0.2)
     error = dll.imgClose(Sess_ID, 1)
 
 
@@ -86,8 +87,8 @@ def StartVideo(Sess_ID):                                       # Start data aqui
     WriteSerial(Sess_ID, 'AMD N')        # Free running mode
     WriteSerial(Sess_ID, 'SMD N')        # Scan Mode Normal (no binning)
     WriteSerial(Sess_ID, 'BGC F')        # Background Control Off
-    exptime = WriteSerial(Sess_ID, 'AET 0.07')
-    WriteSerial(Sess_ID, 'EMG 100.36')
+    exptime = WriteSerial(Sess_ID, 'AET 0.060')
+    WriteSerial(Sess_ID, 'EMG 20.0')
     rotime = WriteSerial(Sess_ID, '?RAT') #ask for exposure time
 
     print "Acquire Exposure time in seconds = {}".format(exptime)
@@ -122,7 +123,8 @@ def StartAcquire(Sess_ID,bufferpointer,height,width):
     fig.clf()
     ax = fig.add_subplot(111)
     bpnp = np.reshape(np.ctypeslib.as_array(bufferpointer),(height.value,width.value))
-    artist = ax.imshow(bpnp)
+    #artist = ax.imshow(bpnp)
+    artist = ax.imshow(bpnp,vmin=0.0,vmax=3.4e3,cmap='brg')
     fig.show()
     print "fig shown"
     return bpnp,artist
@@ -142,16 +144,16 @@ interfacename = c_char_p('img0')   # Interface name
 
 print "Interface Name: {}".format(interfacename.value)
 
-ID_pointer,Sess_ID,height,width,bufferpointer = Initialize (interfacename)                # Initialize
+ID_pointer,Sess_ID,height,width,bufferpointer = Initialize(interfacename)                # Initialize
 
 
 
 print "About to do GrabSetup"
 
 StartVideo(Sess_ID)
-bpnp, artist = StartAcquire (Sess_ID,bufferpointer,height,width)   # Start aquisition
+bpnp, artist = StartAcquire(Sess_ID, bufferpointer,  height, width)   # Start aquisition
 
-Video (bpnp,artist,bufferpointer)   # View images as video
+Video(bpnp,artist,bufferpointer)   # View images as video
 
 
 

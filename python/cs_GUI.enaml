@@ -1947,6 +1947,10 @@ enamldef NewportStage(Window):
                         text = 'enable'
                     CheckBox:
                         checked := newportstage.enable
+                    Label:
+                        text = 'show status after measurement'
+                    CheckBox:
+                        checked := newportstage.statusmeasurement
                     EvalProp:
                         prop << newportstage.comport
                     EvalProp:
@@ -1959,7 +1963,7 @@ enamldef NewportStage(Window):
                         clicked :: newportstage.moveStage()
                     EvalProp:
                         prop << newportstage.setposition
-        Label:
+                    Label:
                         text << 'Current position: {} mm'.format(newportstage.mypos)
                     PushButton: Calibrate:
                         text = 'Calibrate'
@@ -3434,6 +3438,10 @@ enamldef CounterGraph(Window):
                         text = 'draw_fig'
                     CheckBox:
                         checked := analysis.draw_fig
+                    Label:
+                        text = 'show after iteration'
+                    CheckBox:
+                        checked := analysis.iterationonly
                     Label:
                         text = 'pre-Data Bins'
                     IntField:

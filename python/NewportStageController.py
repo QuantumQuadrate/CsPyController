@@ -25,6 +25,7 @@ class Newport():
         self.ser = serial.Serial(self.ser_add)
         if self.ser.isOpen() == False:
             try:
+                print("{} is not open".format(comport))
                 ser.open()
             except Exception as e:
                 print e
