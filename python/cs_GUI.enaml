@@ -4745,7 +4745,8 @@ window_dictionary = {'':'',
                      'CounterHistAnalysis': 'CounterHistAnalysis(analysis = main.experiment.counter_hist)',
                      'Unlock Monitor': 'Unlock_Pause(unlock_pause = main.experiment.unlock_pause)',
                      'Origin Interface': 'Origin(origin = main.experiment.origin)',
-                     'National Instruments Scopes': 'NIScopes(niscopes = main.experiment.NIScopes)'
+                     'National Instruments Scopes': 'NIScopes(niscopes = main.experiment.NIScopes)',
+                     ''
                      }
 window_keys = window_dictionary.keys()
 window_keys.sort()
