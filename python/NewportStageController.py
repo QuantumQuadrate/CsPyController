@@ -46,6 +46,7 @@ class Newport():
     def WriteThenStore(self,s):
         self.ser.write((s+'\n\r').encode('utf-8'))
         response = self.ser.readlines()
+        print(response)
         return response
 
     def home(self): self.WriteThenStore(self.axis+'H')
@@ -101,7 +102,18 @@ class Newport():
             self.axis='X'
 
 
+    def test_port(self):
+        '''
+        Tests the current COM port to make sure correct device is being addressed. Currently a hacky workaround.
 
+        :return: Nothing
+        '''
+        try:
+            self.whereAmI()
+        except IndexError:
+            print "There was an index Error. Probably wrong COM port"
+
+        print "No Errors, probably the right port"
 
 
 

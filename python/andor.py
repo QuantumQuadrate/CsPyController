@@ -671,6 +671,12 @@ class AndorCamera(Instrument):
     def GetAcquiredData(self, dump=False):
         c_image_array_type = c_int * self.dim * self.shotsPerMeasurement.value
         c_image_array = c_image_array_type()
+        print self.dim * self.shotsPerMeasurement.value
+        print self.dim
+        print self.shotsPerMeasurement
+        print self.width
+        print self.height
+
 
         if self.acquisitionChoices[self.acquisitionMode]!=5:
             error = self.dll.GetAcquiredData(byref(c_image_array), self.dim * self.shotsPerMeasurement.value)
