@@ -1612,6 +1612,9 @@ enamldef RFGenPage(Window):
                     iterable=LabView.RF_generators.HP83712B_list
                     viewType=RF_gen
 
+enamldef HP8648B(Window):
+
+
 enamldef CameraPage(Window):
     attr camera
 
