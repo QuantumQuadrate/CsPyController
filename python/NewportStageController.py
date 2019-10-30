@@ -101,19 +101,20 @@ class Newport():
             print "Invalid axis parameter passed to NewportMotionController class. Valid values are X, Y, Z. Defaulting to X."
             self.axis='X'
 
-
     def test_port(self):
         '''
         Tests the current COM port to make sure correct device is being addressed. Currently a hacky workaround.
 
-        :return: Nothing
+        :return: Good port: Boolean, Is the port the correct port?
         '''
         try:
             self.whereAmI()
         except IndexError:
             print "There was an index Error. Probably wrong COM port"
+            return False
 
         print "No Errors, probably the right port"
+        return True
 
 
 

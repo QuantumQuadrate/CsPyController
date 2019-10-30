@@ -1613,6 +1613,44 @@ enamldef RFGenPage(Window):
                     viewType=RF_gen
 
 enamldef HP8648B(Window):
+    attr hp
+    title = 'Rydberg 595 Generator'
+
+    style_class << 'valid' if experiment.valid else 'invalid'
+    Container:
+        padding = 0
+        style_class << 'valid' if experiment.valid else 'invalid'
+        hug_width = 'strong'
+        hug_height = 'strong'
+        Form:
+            Label:
+                text = 'enable'
+            CheckBox:
+                checked := hp.enable
+            Label:
+                text = 'Keep Locked'
+            CheckBox:
+                checked := hp.keep_locked
+        EvalProp:
+            prop << hp.frequency
+        EvalProp:
+            prop << hp.freq_step
+        EvalProp:
+            prop << hp.power
+        EvalProp:
+            prop << hp.addr
+        PushButton:
+            text = 'Open Communication'
+            clicked :: hp.initialize()
+        PushButton:
+            text = 'toggle RF output'
+            clicked :: hp.output_toggle()
+        PushButton:
+            text = 'Update Parameters'
+            clicked :: hp.update()
+        PushButton:
+            text = 'Close Connection'
+            clicked :: hp.gen.close()
 
 
 enamldef CameraPage(Window):
@@ -4746,7 +4784,7 @@ window_dictionary = {'':'',
                      'Unlock Monitor': 'Unlock_Pause(unlock_pause = main.experiment.unlock_pause)',
                      'Origin Interface': 'Origin(origin = main.experiment.origin)',
                      'National Instruments Scopes': 'NIScopes(niscopes = main.experiment.NIScopes)',
-                     ''
+                     'Rydberg RF Generator': 'HP8648B(hp = main.experiment.RydHP)'
                      }
 window_keys = window_dictionary.keys()
 window_keys.sort()

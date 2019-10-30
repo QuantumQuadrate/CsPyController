@@ -20,6 +20,7 @@ from atom.api import Bool, Int, Float, Str, Typed, Member, observe, Atom
 from enaml.application import deferred_call
 from instrument_property import Prop, BoolProp, IntProp, FloatProp, StrProp, ListProp
 from cs_instruments import Instrument
+from cs_errors import PauseError
 
 logger = logging.getLogger(__name__)
 
@@ -73,6 +74,9 @@ class HP8648B:
 
     Communication is based on GPIB, using PyVisa with the NIVISA backend
     """
+
+    unit_fac = {"MHZ": 1.0e6, "KHZ": 1.0e3, "HZ":1.0}
+
     def __init__(self, address, verbose=False):
         """
         Initializes communication with device.
@@ -132,7 +136,7 @@ class HP8648B:
         visa_stat = self.inst.last_status
         return visa_stat
 
-    def stat_check(self, command=None, chk=False):
+    def stat_check(self, command=None, chk=False, visa_stat = None, dev_stat = None):
         """
         Checks the status of the  device after command was sent, raising errors and warnings based of chk.
 
@@ -142,9 +146,10 @@ class HP8648B:
         :return: stat, 0 if good, 1 if something has gone wrong
         :return: msg, message attached to current status
         """
-
-        visa_stat = self.vis_chk()
-        dev_stat = self.dev_chk()
+        if visa_stat is None:
+            visa_stat = self.vis_chk()
+        if dev_stat is None:
+            dev_stat = self.dev_chk()
 
         self.visa_stat = visa_stat
         self.dev_stat = dev_stat
@@ -160,7 +165,7 @@ class HP8648B:
             self.stat = 1
             if chk:
                 logger.error("Error from VISA: " + msg)
-                raise VisaError(msg)
+                raise PauseError(msg)
             else:
                 logger.warning("Warning from VISA: " + msg)
         # Messages < 0 are GPIB errors
@@ -168,7 +173,7 @@ class HP8648B:
             self.stat = 1
             if chk:
                 logger.error("Error from GPIB: " + msg)
-                raise DevGPIBError(msg)
+                raise PauseError(msg)
             else:
                 logger.warning("Warning from GPIB: " + msg)
         # Some messages > 0 are front panel errors. A few are not errors but messages related to memory copying. I don't
@@ -177,7 +182,7 @@ class HP8648B:
             self.stat = 1
             if chk:
                 logger.error("Error from Front Panel " + msg)
-                raise DevFrontPanelError(msg)
+                raise PauseError(msg)
             else:
                 logger.warning("Warning from Front Panel " + msg)
 
@@ -198,9 +203,9 @@ class HP8648B:
         :return: stat, 0 if good, 1 if something has gone wrong
         :return msg, message attached to current status
         """
-        self.inst.write(command)
+        ret = self.inst.write(command)
 
-        return self.stat_check(command, chk)
+        return self.stat_check(command, chk, visa_stat=ret[1])
 
     def query_chk(self, command, chk=False):
         """
@@ -272,15 +277,12 @@ class HP8648B:
 
         value = abs(value)
 
-        allowed_units = ["MHZ", "KHZ", "HZ"]
-        units_factors = [1.0e6, 1.0e3, 1.0]
-        unit_fac = dict(zip(allowed_units, units_factors))
-        assert units in allowed_units
+        assert units in self.unit_fac.keys()
 
         # Fulfill up to 10 Hz precision criteria
-        fq = value*unit_fac[units]
+        fq = value*self.unit_fac[units]
         fq = round(fq/10.0)*10.0
-        value = fq/unit_fac[units]
+        value = fq/self.unit_fac[units]
 
         # Fulfill up to 9 digits criteria
         valstr = repr(value)
@@ -288,7 +290,7 @@ class HP8648B:
             valstr = valstr[:10]
 
         cmd = "FREQ:CW {} {}".format(valstr, units)
-        self.frequency = value*unit_fac[units]
+        self.frequency = value*self.unit_fac[units]
         return self.write_chk(cmd, chk=True)
 
     def set_ref_freq(self, value, units):
@@ -304,15 +306,12 @@ class HP8648B:
 
         value = abs(value)
 
-        allowed_units = ["MHZ", "KHZ", "HZ"]
-        units_factors = [1.0e6, 1.0e3, 1.0]
-        unit_fac = dict(zip(allowed_units, units_factors))
-        assert units in allowed_units
+        assert units in self.unit_fac.keys()
 
         # Fulfill up to 10 Hz precision criteria
-        fq = value*unit_fac[units]
+        fq = value*self.unit_fac[units]
         fq = round(fq/10.0)*10.0
-        value = fq/unit_fac[units]
+        value = fq/self.unit_fac[units]
 
         # Fulfill up to 9 digits criteria
         valstr = repr(value)
@@ -320,7 +319,7 @@ class HP8648B:
             valstr = valstr[:10]
 
         cmd = "FREQ:REF {} {}".format(valstr, units)
-        self.ref_freq = value*unit_fac[units]
+        self.ref_freq = value*self.unit_fac[units]
         return self.write_chk(cmd, chk=True)
 
     def set_power(self, value):
@@ -349,7 +348,7 @@ class HP8648B:
         sgn = "-" if value < 0 else ""
         if whole_dig > 4:
             msg = "Entirely too many digits. {} dBm is too big or small to be a sensible power".format(value)
-            raise DevFrontPanelError(msg)
+            raise PauseError(msg)
         if whole_dig == 4:
             valstr = repr(int(round(value)))
         if whole_dig < 4:
@@ -386,7 +385,7 @@ class HP8648B:
         sgn = "-" if value < 0 else ""
         if whole_dig > 4:
             msg = "Entirely too many digits. {} dBm is too big or small to be a sensible power".format(value)
-            raise DevFrontPanelError(msg)
+            raise PauseError(msg)
         if whole_dig == 4:
             valstr = repr(int(round(value)))
         if whole_dig < 4:
@@ -440,26 +439,28 @@ class HP8648B:
         return self.write_chk(cmd, chk=True)
 
     # -- getters -------------------------------------------------------------------------------------------------------
-    def get_freq(self):
+    def get_freq(self, units="HZ"):
         """
         Reads output RF frequency
-        :return: float, output frequency in Hz
+        :param: string, units to give frequency. units must be "MHZ", "KZ", or "HZ"
+        :return: float, output frequency in <units>
         """
 
         self.query_chk("FREQ:CW?", chk=True)
         self.frequency = float(self.query)
 
-        return self.frequency
+        return self.frequency/self.unit_fac[units]
 
-    def get_ref_freq(self):
+    def get_ref_freq(self, units="HZ"):
         """
         Reads reference RF frequency from memory
+        :param: string, units to give frequency. units must be "MHZ", "KZ", or "HZ"
         :return: float, reference frequency in Hz
         """
 
         self.query_chk("FREQ:REF?", chk=True)
         self.ref_freq = float(self.query)
-        return self.ref_freq
+        return self.ref_freq/self.unit_fac[units]
 
     def get_ref_freq_stat(self):
         """
@@ -526,22 +527,19 @@ class HP8648B:
         :return: stat, 0 if good, 1 if something has gone wrong
         :return msg, message attached to current status
         """
-        allowed_units = ["MHZ", "KHZ", "HZ"]
-        units_factors = [1.0e6, 1.0e3, 1.0]
-        unit_fac = dict(zip(allowed_units, units_factors))
-        assert units in allowed_units
+        assert units in self.unit_fac.keys()
 
-        self.get_freq()
-        freq_c = self.frequency/unit_fac[units]
+        self.get_freq(units)
+        freq_c = self.frequency/self.unit_fac[units]
         freq_t = freq_c+value
         return self.set_freq(freq_t, units)
 
     def step_freq_adiabat(self, value, units, step=0.1, t_wait=None):
         """
-        Steps the output frequency by value in discrete steps of size <step> MHZ. Starts from self.frequency ends
+        Steps the output frequency to value in discrete steps of size <step> MHZ. Starts from self.frequency ends
         as <value> <units>. For reference, when t_wait = None, each step takes roughly 100ms. This
-        :param value: Float, Value of desired frequency step
-        :param units: String, unit of desired frequency step. Can be "MHZ", "KHZ", "HZ"
+        :param value: Float, Value of desired end frequency
+        :param units: String, unit of desired end frequency. Can be "MHZ", "KHZ", "HZ"
         :param step: Float, discrete step size in MHZ
         :param t_wait: Float, (S) wait time in between sending discrete step commands. If None, no waiting, time scale
                             of steps is set by GPIB communication time
@@ -550,14 +548,11 @@ class HP8648B:
         :return msg, message attached to current status
         """
 
-        allowed_units = ["MHZ", "KHZ", "HZ"]
-        units_factors = [1.0e6, 1.0e3, 1.0]
-        unit_fac = dict(zip(allowed_units, units_factors))
-        assert units in allowed_units
+        assert units in self.unit_fac.keys()
 
-        f_i = self.get_freq()/unit_fac[units]
-        f_f = f_i + value
-        f_step = step*unit_fac["MHZ"]/unit_fac[units]
+        f_i = self.get_freq(units)
+        f_f = value
+        f_step = step*self.unit_fac["MHZ"]/self.unit_fac[units]
 
         if f_i > f_f:
             sgn = -1
@@ -574,6 +569,77 @@ class HP8648B:
 class RydHP(Instrument):
     version = '2019.10.15'
 
-    def __init__(self, name, experiment, description=''):
-        super(RydHP, self).__init__(name, experiment, description)
+    frequency = Member()
+    freq_step = Member()
+    power = Member()
+    RF_on = Member()
+    keep_locked = Bool(True)
+    enable = Bool(True)
 
+#    freq_ref_on = Bool()
+#    pow_ref_on = Bool()
+#    ref_freq = Float()
+#    ref_pow = Float()
+    visa_stat = Int()
+    gen_stat = Int()
+
+    addr = Member()
+
+    gen = Member()
+
+    def __init__(self, name, experiment, description='HP8648B Signal Generator'):
+        super(RydHP, self).__init__(name, experiment, description)
+        self.frequency = FloatProp('frequency', experiment, 'Output Frequency (MHz)', '0')
+        self.freq_step = FloatProp('freq_step', experiment, 'Frequency Step when attempting to keep lock (MHz)', '0.1')
+        self.power = FloatProp('power', experiment, 'Output Power (dBm)', '0')
+#        self.RF_on = BoolProp('RF_on', experiment, 'RF output state (on/off)', 'True')
+#        self.freq_ref_on = BoolProp('freq_ref_on', experiment, 'Frequency Reference mode (on/off)', 'False')
+#        self.pow_ref_on = BoolProp('pow_ref_on', experiment, 'Power Reference Mode (on/off)', 'False')
+#        self.ref_freq = FloatProp('ref_freq', experiment, 'Reference Frequency (MHz)', '0')
+#        self.ref_pow = FloatProp('ref_pow', experiment, 'Reference Power (dBm)', '0')
+
+        #self.visa_stat = IntProp('visa_stat', experiment, 'NI Visa status code', '0')
+        #self.gen_stat = IntProp('generator status', experiment, 'RF generator status code', '0')
+
+        self.addr = StrProp('addr', experiment, 'GPIB address of Generator', '"GPIB1::20::INSTR"')
+
+        self.properties += ['frequency', 'power', 'RF_on', 'freq_step']# 'freq_ref_on', 'pow_ref_on', 'ref_freq', 'ref_pow']
+
+    def initialize(self):
+        if self.enable and not self.isInitialized:
+            if self.gen is not None:
+                try:
+                    self.gen.close()
+                except AttributeError:
+                    logger.warning("AttributeError raised when closing Gen. Issue with NoneType?")
+                del self.gen
+            logger.info("Instantiating Generator")
+            self.gen = HP8648B(address=self.addr.value)
+            logger.info("Generator : {}".format(self.gen.address))
+            self.isInitialized = True
+
+    def update(self):
+        logger.info("Updating, Fc = {} MHz, Fs = {} MHz".format(self.gen.get_freq("MHZ"), self.frequency.value))
+        if not self.isInitialized:
+            self.initialize()
+        if not self.enable:
+            return
+        if self.keep_locked:
+            logger.info("Sweeping Frequency")
+            # TODO : This boolean doesn't work lmao Fixed I think???
+            if self.frequency.value != self.gen.get_freq("MHZ"):
+                logger.info("Difference Detected")
+                self.gen.step_freq_adiabat(self.frequency.value, "MHZ", step=self.freq_step.value, t_wait=0.2)
+        else:
+            logger.info("Jumping Frequency")
+            if self.frequency.value != self.gen.get_freq("MHZ"):
+                logger.info("Difference Detected")
+                self.gen.set_freq(self.frequency.value, "MHZ")
+            logger.info("Jumping Power")
+        if self.power != self.gen.get_pow():
+            logger.info("Difference Detected")
+            self.gen.set_power(self.power.value)
+
+    def output_toggle(self):
+        if self.isInitialized:
+            self.gen.set_output_stat(not self.gen.get_output_stat())
