@@ -9,6 +9,7 @@ __author__ = 'jaisaacs'
 ###
 
 import serial
+import serial.tools.list_ports
 
 class Newport():
 
@@ -21,20 +22,71 @@ class Newport():
     def __init__(self,comport,axis='X'):
         self.axis = 'X'
         self.setaxis(axis)
+        ports = serial.tools.list_ports.comports()
+        # print ports
+
+        # Try comport first
+        self.comport_bad = False
         self.ser_add = comport
-        self.ser = serial.Serial(self.ser_add)
-        if self.ser.isOpen() == False:
-            try:
-                print("{} is not open".format(comport))
-                ser.open()
-            except Exception as e:
-                print e
+        try:
+            self.ser = serial.Serial(self.ser_add)
+        except serial.SerialException as e:
+            print e
+            self.comport_bad = True
+
+        if not self.comport_bad:
+            if not self.ser.isOpen():
+                try:
+                    self.ser.open()
+                except Exception as e:
+                    print e
+            self.ser.timeout = 1
+            self.ser.xonxoff = True
+
+            self.WriteThenPrint('COMOPT3')
+            self.comport_bad = not self.test_port()
+
+        if self.comport_bad:
+            for port in ports:
+                #print port[0]
+                if port[0] == comport:
+                    continue
+                try:
+                    self.ser = serial.Serial(port[0])
+                    print "Opened Port {}".format(port[0])
+                except serial.SerialException as e:
+                    print e
+                    continue
+                if not self.ser.isOpen():
+                    try:
+                        self.ser.open()
+                        print("{} is not open".format(comport))
+                    except Exception as e:
+                        print e
+                self.ser.timeout = 1
+                self.ser.xonxoff =True
+                self.WriteThenPrint('COMOPT3')
+                if self.test_port():
+                    print "Port {} is initialized, Axis = {}".format(port[0], self.axis)
+                    break
+                else:
+                    self.ser.close()
+                    self.ser = None
+
+        #self.ser_add = comport
+        #self.ser = serial.Serial(self.ser_add)
+        # if not self.ser.isOpen():
+        # try:
+          #  print("{} is not open".format(comport))
+          #  self.ser.open()
+        # except Exception as e:
+          #  print e
 
             #Communication options
-        self.ser.timeout = 1
-        self.ser.xonxoff = True
+        #self.ser.timeout = 1
+        #self.ser.xonxoff = True
 
-        self.WriteThenPrint('COMOPT3')
+        #self.WriteThenPrint('COMOPT3')
 
 
     def WriteThenPrint(self,s):

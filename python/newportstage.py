@@ -59,12 +59,13 @@ class NewportStage(Instrument):
             del self.nport
         if self.enable and not self.isInitialized:
             self.nport = newportcontroller.Newport(self.comport.value, self.axis.value)
-            if self.nport.test_port():
-                print "Port is initialized, Axis = {}.".format(self.axis.value)
-                self.isInitialized = True
-            else:
-                print "Wrong Port try again"
-                self.isInitialized = False
+            self.isInitialized = True
+            # if self.nport.test_port():
+            #    print "Port is initialized, Axis = {}.".format(self.axis.value)
+            #    self.isInitialized = True
+            # else:
+            #    print "Wrong Port try again"
+            #    self.isInitialized = False
 
     def start(self):
         self.isDone = True

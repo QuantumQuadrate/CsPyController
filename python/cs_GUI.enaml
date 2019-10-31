@@ -1639,6 +1639,8 @@ enamldef HP8648B(Window):
             prop << hp.power
         EvalProp:
             prop << hp.addr
+        Label:
+            text << 'RF on?: {}'.format(hp.RF_on)
         PushButton:
             text = 'Open Communication'
             clicked :: hp.initialize()
@@ -1650,7 +1652,7 @@ enamldef HP8648B(Window):
             clicked :: hp.update()
         PushButton:
             text = 'Close Connection'
-            clicked :: hp.gen.close()
+            clicked :: hp.close_connection()
 
 
 enamldef CameraPage(Window):

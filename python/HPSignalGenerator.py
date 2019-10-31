@@ -510,6 +510,7 @@ class HP8648B:
         """
         self.query_chk("OUTP:STAT?")
         self.output_status = bool(self.query)
+        print self.output_status
         return self.output_status
 
     def close(self):
@@ -563,6 +564,10 @@ class HP8648B:
         for frequency in f_list:
             self.set_freq(frequency, units)
             time.sleep(t_wait)
+
+        fc = self.get_freq(units)
+        if fc != value and fc-value <= step*self.unit_fac["MHZ"]/self.unit_fac[units]:
+            self.set_freq(value, units)
         return self.stat_check()
 
 
@@ -572,7 +577,7 @@ class RydHP(Instrument):
     frequency = Member()
     freq_step = Member()
     power = Member()
-    RF_on = Member()
+    RF_on = Bool()
     keep_locked = Bool(True)
     enable = Bool(True)
 
@@ -598,8 +603,8 @@ class RydHP(Instrument):
 #        self.ref_freq = FloatProp('ref_freq', experiment, 'Reference Frequency (MHz)', '0')
 #        self.ref_pow = FloatProp('ref_pow', experiment, 'Reference Power (dBm)', '0')
 
-        #self.visa_stat = IntProp('visa_stat', experiment, 'NI Visa status code', '0')
-        #self.gen_stat = IntProp('generator status', experiment, 'RF generator status code', '0')
+        # self.visa_stat = IntProp('visa_stat', experiment, 'NI Visa status code', '0')
+        # self.gen_stat = IntProp('generator status', experiment, 'RF generator status code', '0')
 
         self.addr = StrProp('addr', experiment, 'GPIB address of Generator', '"GPIB1::20::INSTR"')
 
@@ -618,28 +623,36 @@ class RydHP(Instrument):
             logger.info("Generator : {}".format(self.gen.address))
             self.isInitialized = True
 
+    def start(self):
+        self.isDone = True
+
     def update(self):
-        logger.info("Updating, Fc = {} MHz, Fs = {} MHz".format(self.gen.get_freq("MHZ"), self.frequency.value))
+        # logger.info("Updating, Fc = {} MHz, Fs = {} MHz".format(self.gen.get_freq("MHZ"), self.frequency.value))
         if not self.isInitialized:
             self.initialize()
         if not self.enable:
             return
         if self.keep_locked:
-            logger.info("Sweeping Frequency")
-            # TODO : This boolean doesn't work lmao Fixed I think???
+            # logger.info("Sweeping Frequency")
             if self.frequency.value != self.gen.get_freq("MHZ"):
-                logger.info("Difference Detected")
+                print("Sweeping Frequency from {} MHz to {} MHz".format(self.gen.get_freq("MHZ"), self.frequency.value))
                 self.gen.step_freq_adiabat(self.frequency.value, "MHZ", step=self.freq_step.value, t_wait=0.2)
+                print("Sweep Complete: F_current = {} MHz, F_set = {} MHz".format(self.gen.get_freq("MHZ"), self.frequency.value))
         else:
-            logger.info("Jumping Frequency")
             if self.frequency.value != self.gen.get_freq("MHZ"):
-                logger.info("Difference Detected")
+                print("Jumping Frequency from {} MHz to {} MHz".format(self.gen.get_freq("MHZ"), self.frequency.value))
                 self.gen.set_freq(self.frequency.value, "MHZ")
-            logger.info("Jumping Power")
-        if self.power != self.gen.get_pow():
-            logger.info("Difference Detected")
+
+        if self.power.value != self.gen.get_pow():
+            print("Jumping Power from {} dBm to {} dBm".format(self.gen.get_pow(), self.power.value))
             self.gen.set_power(self.power.value)
 
     def output_toggle(self):
+        #print self.isInitialized
         if self.isInitialized:
             self.gen.set_output_stat(not self.gen.get_output_stat())
+            self.RF_on = self.gen.get_output_stat()
+
+    def close_connection(self):
+        self.isInitialized = False
+        self.gen.close()
