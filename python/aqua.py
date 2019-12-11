@@ -89,6 +89,7 @@ class AQuA(Experiment):
     PICams = Member()
     LabView = Member()
     DDS = Member()
+    DDS2 = Member()
     DC_noise_eaters = Member()
     box_temperature = Member()
     unlock_pause = Member()
@@ -164,6 +165,7 @@ class AQuA(Experiment):
         self.NewportStage = newportstage.NewportStage('NewportStage', self, 'Newport Translation Stage')
         self.LabView = LabView.LabView(self)
         self.DDS = DDS.DDS('DDS', self, 'server for homemade DDS boxes')
+        self.DDS2 = DDS.DDS('DDS2', self, 'XML server for homemade DDS boxes')
         self.DC_noise_eaters = DCNoiseEater.DCNoiseEaters('DC_noise_eaters', self)
         self.box_temperature = Laird_temperature.LairdTemperature('box_temperature', self)
         self.unlock_pause = unlock_pause.UnlockMonitor('unlock_pause', self, 'Monitor for pausing when laser unlocks')
@@ -174,10 +176,10 @@ class AQuA(Experiment):
         # need not start/stop
         self.instruments += [
             self.box_temperature, self.picomotors, self.noise_eaters, self.pyPicoServer,
-            self.NIScopes, self.Andors, self.PICams,
-            self.DC_noise_eaters, self.BILT, self.rearrange, self.DDS, self.unlock_pause,
+            self.NIScopes, self.Andors, self.PICams, self.DC_noise_eaters,
+            self.BILT, self.rearrange, self.DDS, self.unlock_pause,
             self.Embezzletron, self.instekpsts,
-            self.vaunixs, self.NewportStage,
+            self.vaunixs, self.NewportStage, self.DDS2
         ]
         if aerotech_enable:
             self.instruments += self.aerotechs
@@ -253,11 +255,13 @@ class AQuA(Experiment):
         self.properties += [
             'Config', 'RbAIAnalysis',
             'functional_waveforms', 'LabView', 'functional_waveforms_graph',
-            'DDS', 'aerotechs', 'picomotors', 'noise_eaters', 'BILT','rearrange', 'pyPicoServer', 'conexes',
+            'DDS', 'DDS2', 'aerotechs', 'picomotors', 'noise_eaters', 'BILT',
+            'rearrange', 'pyPicoServer', 'conexes',
             'Andors', 'PICams', 'DC_noise_eaters', 'blackfly_client',
             'box_temperature', 'DAQmxAI', 'squareROIAnalysis', 'histogram_grid',
             'thresholdROIAnalysis', 'gaussian_roi', 'instekpsts', 'TTL_filters',
-            'AI_graph', 'AI_filter', 'NewportStage', 'loading_filters', 'error_filters',
+            'AI_graph', 'AI_filter', 'NewportStage', 'loading_filters',
+            'error_filters',
             'first_measurements_filter', 'vaunixs', 'imageSumAnalysis',
             'recent_shot_analysis', 'shotBrowserAnalysis', 'histogramAnalysis',
             'retention_analysis', 'measurements_graph',

@@ -200,6 +200,7 @@ class HSDIO(Instrument):
             ))
 
         # Check t0 times to make sure each repeat in repeat_list is unique
+        print("repeats is: ", repeats)
         if len(self.repeat_list) == 0 or sum([r['t0'] == t0 for r in self.repeat_list]) == 0:
             cycle_dict = {
                 't0': t0,
@@ -439,6 +440,8 @@ class HSDIO(Instrument):
         if sample_clock_cycles_to_next_ot < 0:
             sample_clock_cycles_to_next_ot = repeat_sample_clock_cycles
             sample_clock_cycles_to_next_ot *= repeat_only_list[0]['repeats']
+        #print("other_transitions is ", other_transitions)
+        #print("sample_clock_cycles_to_next_ot is ", sample_clock_cycles_to_next_ot)
         other_transitions[0]['waitTime'] = sample_clock_cycles_to_next_ot
 
         # now let make a list of transition_lists broken up by the other transitions
@@ -587,6 +590,9 @@ class HSDIO(Instrument):
         about a minute to upload and unpack.
         Using repeats reduces the size of waveforms and can lead to less dead time between iterations.
         """
+
+        #print("repeats: %s, " % (self.repeats))
+        #print("self.indices is", self.indices)
         if self.enable:
             # build dictionary of waveforms keyed on waveform name
             waveformsInUse = []
@@ -596,6 +602,7 @@ class HSDIO(Instrument):
             master_waveform_list = []
 
             if len(self.find_repeat_overlaps()) > 0:
+                print("***** No repeat overlaps *****")
                 self.repeat_list = []
                 logger.error('HSDIO Repeat Overlap Error: make sure HSDIO Repeat calls do not overlap')
                 raise PauseError
@@ -613,6 +620,7 @@ class HSDIO(Instrument):
                     'waitTime': waitTime,
                     'state': ' '.join([str(int(state)) for state in self.states[i]])
                 })
+                #print("transition_list(1) is: ",transition_list)
 
                 # check if transition is part of a repeat request, if so handle it separatly
                 if in_repeat_cycle or self.repeats[i] != -1:
@@ -629,10 +637,12 @@ class HSDIO(Instrument):
                         # append some extra info to transition dict
                         for key in ['cycles_per_repeat', 'repeats']:
                             transition_list[-1][key] = self.repeats[i][key]
+                    #print("transition_list(2) is: ",transition_list)
                     if cumulative_time > total_time:
                         # break out after this transition
                         in_repeat_cycle = False
                         # add all the stuff in now
+                        #print("transition_list(3) is: ",transition_list)
                         waveforms = self.add_repeat_waveform(transition_list, waveformsInUse)
                         # cycle might be broken up into multiple waveforms
                         for w in waveforms:

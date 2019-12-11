@@ -674,7 +674,7 @@ if ExpMode==0:
     exp.mot_3d_y_shutter_switch.profile(t_y_shutter_open+extension+t_depump,'off')
     exp.mot_3d_y_shutter_switch.profile(t_y_shutter_close+extension+t_depump,'on')
     exp.mot_3d_z1_shutter_switch.profile(t_z1_shutter_open+extension,'off')
-    exp.mot_3d_z1_shutter_switch.profile(t_z1_shutter_close+extension+t_depump,'on')
+    exp.mot_3d_z1_shutter_switch.profile(t_z1_shutter_close+extension+t_depump+2,'on')
     #exp.mot_aom_switch.profile(159.9,'off')
     # t_start=160
     # t_end=t_start+t_PGC_duration
@@ -756,13 +756,13 @@ if ExpMode==0:
     #SpinEcho(t_science,t_gap,t_microwavepiover2)
     #Microwave(t_science+extension+t_depump,t_microwave)
    ##Microwave(t_science,t_microwave) # Microwave for Ryd780B
-    # Ryd780A(t_science+0.001+extension,t_Ryd780A,'r2','r2')
+    Ryd780A(t_science+0.001+extension,t_Ryd780A,'r2','r2')
     FORTdrop(170+extension, t_FORTdrop)
-    # Blue480(t_science+extension-0.1, t_blueon,'r2')
+    Blue480(t_science+extension-0.1, t_blueon,'r2')
     ##Ryd780B(t_science+t_microwave+0.001,t_Ryd780B,'r2','r2')
     #Ryd780A(t_science-0.005,0.1,'r2','r2')
     #Ryd780A_pulsed(t, cycle_time, pointing_profile, intensity_profile, pulse_ontime, num_of_pulses): # region_profile example: 'r2'
-    #Ryd780A_pulsed(t_science+extension, 0.01, 'r2', 'r2', 0.0008, 100)
+    #Ryd780A_pulsed(t_science+extension, 0.01, 'r2', 'r2', 0.0008, 7)
     #Ryd780A_Ramsey(t_science, t_Rydberg_gap, t_Ryd780A_piover2, 'r2', 'r2')
     #Ryd780A_leadtime(t_science,0.005,t_Ryd780A,'r2','r2')
 

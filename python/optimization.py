@@ -188,8 +188,8 @@ class Optimization(AnalysisWithFigure):
                 for i, j in zip(self.optimization_variables, self.xi):
                     i.set_gui({'function': str(j)})
 
-                # update the ramsey fit guess
-                self.experiment.Ramsey.optimizer_update_guess()
+                # update the ramsey fit guess - all this does is update the GUI!!!
+                self.experiment.Ramsey.optimizer_update_guess() # in analysis.py
 
             # update the gui
             self.set_gui({'yi_str': str(self.yi), 'best_yi_str': str(self.best_yi),
@@ -347,6 +347,8 @@ class Optimization(AnalysisWithFigure):
     def simplex(self, x0):
         """Perform the simplex algorithm.  x is 2D array of settings.  y is a 1D array of costs at each of those settings.
         When comparisons are made, lower is better."""
+
+        # yields a numpy array of dimension # rows in x
 
         # x0 is assigned when this generator is created, but nothing else is done until the first time next() is called
 
@@ -562,7 +564,7 @@ class Optimization(AnalysisWithFigure):
                         y[i] = self.yi
 
     # Nelder-Mead downhill simplex method, with modifications to better suit AQuA reality
-    def smart_simplex(self, x0):
+    def smart_simplex(self, x0): # i think this is the smart Nelder-mead
         """Perform the smart simplex algorithm: compared to the original downhill simplex method, this method is more
           robust against the slow/sudden drift experienced a lot in this experimental project.
         x is 2D array of settings.  y is a 1D array of costs at each of those settings.

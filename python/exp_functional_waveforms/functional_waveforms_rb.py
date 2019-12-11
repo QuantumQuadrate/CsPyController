@@ -30,9 +30,24 @@ from camera import Camera
 '''I think these constants need to be defined here so that they can be
 overwritten at the global scope.
 '''
+################################################################################
+# Example DDS Profile ##########################################################
+################################################################################
+# ex_dds_pinout = (-1,2,5) # pins on the HDSIO to toggle DDS pins. -1: not in use
+# ex_dds_profiles = {
+#   'ex1' = (0,0,1) # pin 5 outputs high, dds sees 4 in grey code
+# }
 
 ################################################################################
-# 3D MOT DDS SETUP ################################################################
+# Adruino DDS Profile ##########################################################
+################################################################################
+test_dds_pinout = (-1,-1,-1) #
+test_dds_profiles = {
+  'test1' : (0,0,0) # only the last pin high
+}
+
+################################################################################
+# 3D MOT DDS SETUP #############################################################
 ################################################################################
 mot_3d_dds_pinout = (0,1,2)
 mot_3d_dds_profiles = {
@@ -376,25 +391,27 @@ class Rb(object):
 
     def __init__(self, HSDIO, AO, DO, label):
 
-        # declare dds channels
+        # DDS 1. declare dds channels. Up to four.
         self.mot_3d_dds = DDS(HSDIO, mot_3d_dds_pinout, mot_3d_dds_profiles)
         self.fort_dds = DDS(HSDIO, fort_dds_pinout, fort_dds_profiles)
         self.mot_2d_dds = DDS(HSDIO, mot_2d_dds_pinout, mot_2d_dds_profiles)
         self.op_dds = DDS(HSDIO, op_dds_pinout, op_dds_profiles)
 
-
+        # DDS .. 2?
         #self.ryd780b_dds_dds = DDS(HSDIO, ryd780b_dds_pinout, ryd780b_dds_profiles)
         self.red_pointing_dds = DDS(HSDIO, red_pointing_dds_pinout, red_pointing_dds_profiles)
         self.blue_pointing_dds = DDS(HSDIO, blue_pointing_dds_pinout, blue_pointing_dds_profiles)
         self.microwave_dds = DDS(HSDIO, microwave_dds_pinout, microwave_dds_profiles)
         self.ryd780a_dds = DDS(HSDIO, ryd780a_dds_pinout, ryd780a_dds_profiles)
 
-        # 3rd DDS
+        # 3rd DDS - but how to we bind this to a particular DDS???
         self.ryd780b_dds = DDS(HSDIO, ryd780b_dds_pinout, ryd780b_dds_profiles)
         #self.blue_pointing_dds = DDS(HSDIO, blue_pointing_dds_pinout, blue_pointing_dds_profiles)
         #self.microwave_dds = DDS(HSDIO, microwave_dds_pinout, microwave_dds_profiles)
         #self.ryd780a_dds = DDS(HSDIO, ryd780a_dds_pinout, ryd780a_dds_profiles)
 
+        # Arduino DDS (v. "1.5")
+        self.test_dds = DDS(HSDIO, test_dds_pinout, test_dds_profiles)
 
         # declare switches
 

@@ -581,11 +581,12 @@ if ExpMode==0:
     # AO(t_2DMOT_loading+5,shimcoil_3DY,coil_driver_polarity*shimY_RO)
     # AO(t_2DMOT_loading+5,shimcoil_3DZ,coil_driver_polarity*shimZ_RO)
 
-    exp.mot_aom_switch.profile(t_3DMOT_cutoff,'off')
+    loading_extension = 20  # [ms]
+    exp.mot_aom_switch.profile(t_3DMOT_cutoff+loading_extension,'off')
     #exp.fort_dds.profile(111,'on')
-    exp.hf_aom_switch.profile(t_3DMOT_cutoff,'off') #####
+    exp.hf_aom_switch.profile(t_3DMOT_cutoff+loading_extension,'off') #####
     AO(130,repumper,10)
-    exp.fort_dds.profile(t_3DMOT_cutoff,'on')
+    exp.fort_dds.profile(t_3DMOT_cutoff+loading_extension,'on')
     # AO(t_3DMOT_cutoff,5,10) # FORT VCA 8/22
 
     ## 1st Readout Phase, nominally from 140-145 ms

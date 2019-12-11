@@ -10,8 +10,20 @@ This file is not imported to CsPy. You'll have to copy-paste into the built-in e
 ExpMode
 0: Normal experiments
 1: Time-of-flight MOT temperature measurements
-2: Continuosly loading a MOT. Watch out for coil temperatures!
+2: Continuosly loading a MOT. Watch out for coil temperatures, and make sure
+    red beams are blocked before EMCCD!!
 """
+
+###############################################################################
+# August 2019, PH
+# Beta version hybrid PGC/RO1
+#
+# This functional_waveforms_rb file is to be the new, cleaner file. Note that
+# this uses new name conventions for the readout functions, defines AOM
+# channels with helpful names, and will remove several commented blocks of
+# unused/deprecated code.
+###############################################################################
+
 
 import exp_functional_waveforms.functional_waveforms_rb as Rb
 
@@ -24,17 +36,6 @@ label = experiment.functional_waveforms_graph.label
 exp = Rb.Rb(HSDIO, AO, DO, label)
 ###########################################################################
 # Definition Block
-
-# Analog output channels
-quadrupole1 = 0
-quadrupole2 = 1
-shimcoil_3DX = 2
-shimcoil_3DY = 3
-shimcoil_3DZ = 4
-shimcoil_2DX2 = 5
-shimcoil_2DY2 = 6
-repumper = 7
-
 
 def chop_readout(channels, phases, profiles, period):
     """Add a single cycle of a chopping pattern """
@@ -77,8 +78,6 @@ def readout1(t,duration,period_ms,profile=None):
     # which changes with the RO_chop_period, so if you change the period, check
     # that the pulses aren't overlapping on the scope.
 
-    label(t, 'readout')
-
     if profile is None:  # default: assumes 1.25 MHz chop period
         period = period_ms
         # optimal at 1.25 MHz chop period
@@ -120,7 +119,16 @@ def readout1(t,duration,period_ms,profile=None):
             [1, 0, 1]
             ,[0, 1, 0]
         ]
-
+    # For combined RO1/PGC phase
+    # profiles = [
+    #     [0, 1, 0],  # MOT: off,on,off
+    #     [1, 0, 1]   # FORT: on,off,on
+    # ]
+    # profiles = [
+    #     [1, 0, 1]
+    #     ,[0, 1, 0]
+    # ]
+    label(t, 'readout')
     cycles = int(duration/period)
     print("cycles")
     print(cycles)
@@ -191,8 +199,6 @@ def readout3(t,duration):
     # ]
     t = HSDIO_repeat(t, chop_readout(channels, phases, profiles, period_ms), cycles)
     return t
-
-
 def opticalpumping(t,duration):
     """Optical pumping to the clock state."""
     # Note that camera trigger is not included here. Exposure control needs to be done indepdently
@@ -262,7 +268,7 @@ def prepareF1(t,duration):
         exp.mot_aom_switch.profile(t,'on')
         exp.mot_aom_switch.profile(t+duration,'off')
         exp.hf_aom_switch.profile(t,'off')
-        AO(t,repumper,0)
+        AO(t,7,0)
     else:
         print "make sure your timings are valid"
 
@@ -429,22 +435,24 @@ def Blue480(t, duration, pointing_profile):
 
 t=0
 
-exp.camera.pulse_length=t_exposure  # Changes HSDIO pulse width to control exposure
+exp.camera.pulse_length=t_exposure # Changes HSDIO pulse width to control exposure
 
 # Abstractized experiment control
 
 ##### For Normal Experiment ######
 if ExpMode==0:
 ## Initilization
-
-    AO(0,quadrupole1,coil_driver_polarity*I_Q1)
-    AO(0,quadrupole2,coil_driver_polarity*I_Q2)
-    AO(0,shimcoil_3DX,coil_driver_polarity*ShimX_Loading) #X
-    AO(0,shimcoil_3DY,coil_driver_polarity*ShimY_Loading) #Y
-    AO(0,shimcoil_3DZ,coil_driver_polarity*ShimZ_Loading) #Z
-    AO(0,shimcoil_2DX2,coil_driver_polarity*-2.2)  # channel 5 temporarily used for FORT
-    AO(0,shimcoil_2DY2,coil_driver_polarity*2.8)
-    AO(0,repumper,loading_RP_V)
+    #for i in range(5):
+    #    AO(0,i,0)
+    AO(0,0,coil_driver_polarity*I_Q1)
+    AO(0,1,coil_driver_polarity*I_Q2)
+    AO(0,2,coil_driver_polarity*ShimX_Loading) #X
+    AO(0,3,coil_driver_polarity*ShimY_Loading) #Y
+    AO(0,4,coil_driver_polarity*ShimZ_Loading) #Z
+    AO(0,5,coil_driver_polarity*-2.2)  # channel 5 temporarily used for FORT
+    # AO(0,5,10)  # FORT. 10 is completely unattenuated
+    AO(0,6,coil_driver_polarity*2.8)
+    AO(0,7,loading_RP_V)
 
     # For pointgrey shot.
     exp.pointgrey_trigger_switch.profile(0,'off')
@@ -545,6 +553,8 @@ if ExpMode==0:
     exp.mot_2d_aom_switch.profile(t_2DMOT_loading,'off')
     exp.mot_3d_z2_shutter_switch.profile(t_2DMOT_loading,'off')# 2dmot shutters
 
+    ## FORT Transfer Phase
+    # AO(t_FORT_loading,5,8)
     exp.fort_aom_switch.profile(t_FORT_loading,'on')
     exp.fort_dds.profile(t_FORT_loading,'low')  # low is actually high
 
@@ -562,35 +572,38 @@ if ExpMode==0:
 
     # AO(t_2DMOT_loading+5,0,0) # turns off quadrupole fields
     # AO(t_2DMOT_loading+5,1,0)
-    AO(t_2DMOT_loading,quadrupole1,0) # turns off quadrupole fields
-    AO(t_2DMOT_loading,quadrupole2,0)
-    AO(t_2DMOT_loading,shimcoil_3DX,coil_driver_polarity*shimX_RO) #X
-    AO(t_2DMOT_loading,shimcoil_3DY,coil_driver_polarity*shimY_RO) #Y
-    AO(t_2DMOT_loading,shimcoil_3DZ,coil_driver_polarity*shimZ_RO) #Z
+    AO(t_2DMOT_loading,0,0) # turns off quadrupole fields
+    AO(t_2DMOT_loading,1,0)
+    AO(t_2DMOT_loading,2,coil_driver_polarity*shimX_RO) #X
+    AO(t_2DMOT_loading,3,coil_driver_polarity*shimY_RO) #Y
+    AO(t_2DMOT_loading,4,coil_driver_polarity*shimZ_RO) #Z
     # exp.mot_aom_switch.profile(t_2DMOT_loading-0.002,'off')
     # exp.mot_aom_switch.profile(t_2DMOT_loading+0.500,'on')
     ## Fall off Phase
-    # AO(t_3DMOT_cutoff,shimcoil_3DX,coil_driver_polarity*-0.30)
-    # AO(t_3DMOT_cutoff,shimcoil_3DY,coil_driver_polarity*-0.49)
-    # AO(t_3DMOT_cutoff,shimcoil_3DZ,0)
-    # AO(t_3DMOT_cutoff,shimcoil_3DX,coil_driver_polarity*FOshimx)
-    # AO(t_3DMOT_cutoff,shimcoil_3DY,coil_driver_polarity*FOshimy)
-    # AO(t_3DMOT_cutoff,shimcoil_3DZ,FOshimz)
-    # AO(t_2DMOT_loading+5,shimcoil_3DX,coil_driver_polarity*shimX_RO)
-    # AO(t_2DMOT_loading+5,shimcoil_3DY,coil_driver_polarity*shimY_RO)
-    # AO(t_2DMOT_loading+5,shimcoil_3DZ,coil_driver_polarity*shimZ_RO)
-
+    # AO(t_3DMOT_cutoff,2,coil_driver_polarity*-0.30) #X
+    # AO(t_3DMOT_cutoff,3,coil_driver_polarity*-0.49) #Y
+    # AO(t_3DMOT_cutoff,4,0) #Z
+    # AO(t_3DMOT_cutoff,2,coil_driver_polarity*FOshimx) #X
+    # AO(t_3DMOT_cutoff,3,coil_driver_polarity*FOshimy) #Y
+    # AO(t_3DMOT_cutoff,4,FOshimz) #Z
+    # AO(t_2DMOT_loading+5,2,coil_driver_polarity*shimX_RO) #X
+    # AO(t_2DMOT_loading+5,3,coil_driver_polarity*shimY_RO) #Y
+    # AO(t_2DMOT_loading+5,4,coil_driver_polarity*shimZ_RO) #Z
     exp.mot_aom_switch.profile(t_3DMOT_cutoff,'off')
     #exp.fort_dds.profile(111,'on')
     exp.hf_aom_switch.profile(t_3DMOT_cutoff,'off') #####
-    AO(130,repumper,10)
+    AO(130,7,10)
     exp.fort_dds.profile(t_3DMOT_cutoff,'on')
     # AO(t_3DMOT_cutoff,5,10) # FORT VCA 8/22
 
     ## 1st Readout Phase, nominally from 140-145 ms
-    AO(130,shimcoil_3DX,coil_driver_polarity*shimX_RO)
-    AO(130,shimcoil_3DY,coil_driver_polarity*shimY_RO)
-    AO(130,shimcoil_3DZ,coil_driver_polarity*shimZ_RO)
+    AO(130,2,coil_driver_polarity*shimX_RO) #X
+    AO(130,3,coil_driver_polarity*shimY_RO) #Y
+    AO(130,4,coil_driver_polarity*shimZ_RO) #Z
+
+    # TEMPORARY, WHILE VCA USED INSTEAD OF RAM MODE 8/22
+    # exp.fort_dds.profile(130,'low')  # low is actually high
+    # AO(130,5,7)
 
     t_start=140
     t_leadtime=0
@@ -608,11 +621,15 @@ if ExpMode==0:
     t_end=t_start+t_duration+t_leadtime+abs(t_LAS_leadtime)
 
     # TODO: reorder the on/off statements here to make chronological sense
-    AO(t_start,repumper,loading_RP_V)
+    AO(t_start,7,loading_RP_V)
     exp.mot_aom_switch.profile(t_end+0.001,'off')
     exp.hf_aom_switch.profile(t_start+t_LAS_leadtime,'on')
-    AO(t_end+0.2,repumper,0)
+    AO(t_end+0.2,7,0)
     exp.fort_dds.profile(t_end,'on')
+
+    # TEMPORARY, WHILE VCA USED INSTEAD OF RAM MODE 8/22
+    # exp.fort_dds.profile(t_end,'on')  # low is actually high
+    # AO(t_end,5,10)
 
     # prepareF1(t_end+0.3,t_F1prepare)
 
@@ -621,17 +638,17 @@ if ExpMode==0:
     # delays what follows pgc
     extension = t_extrareadout + t_PGC_duration + t_PGC2_duration + 5
 
-    # Decide to do PGC based on t_PGC_duration. t_PGC2_duration not considered
+    # 1st PGC phase
     if t_PGC_duration>0:
-        AO(145.2,shimcoil_3DX,coil_driver_polarity*shimX_PGC)  # X PGC
-        AO(145.2,shimcoil_3DY,coil_driver_polarity*shimY_PGC)  # Y PGC
-        AO(145.2,shimcoil_3DZ,coil_driver_polarity*shimZ_PGC)  # Z PGC
+        AO(145.2,2,coil_driver_polarity*shimX_PGC)  # X PGC
+        AO(145.2,3,coil_driver_polarity*shimY_PGC)  # Y PGC
+        AO(145.2,4,coil_driver_polarity*shimZ_PGC)  # Z PGC
 
         t_start=146+t_extrareadout
         t_end=t_start+t_PGC_duration
 
-        # 1st PGC phase, "PGC1"
-        AO(t_start,repumper,PGC1_RP_V) # Repumper VCA
+        # 1st PGC phase
+        AO(t_start,7,PGC1_RP_V) # Repumper VCA
         # AO(t_start,7,0) # Repumper VCA
         exp.mot_3d_dds.profile(t_start,'PGC')
         exp.fort_dds.profile(t_start,'low') # is low actually high -__-
@@ -645,24 +662,26 @@ if ExpMode==0:
         exp.mot_aom_switch.profile(t_end+0.001,'off')
         exp.hf_aom_switch.profile(t_end+0.1,'off')
 
-        AO(t_end+0.1,repumper,0) # turn off the RP
+        AO(t_end+0.1,7,0) # turn off the RP
+        # AO(t_end+0.0045,5,10) # no FORT attenuation 8/22
 
-        # 2nd PGC phase, "PGC2"
+        # 2nd PGC phase
         if t_PGC2_duration>0:
 
             t_start2=t_end+1 # HSDIO freaks out if < 1 ms gap between switch
             t_end=t_start2+t_PGC2_duration
 
-            AO(t_start2,repumper,PGC2_RP_V)
+            AO(t_start2,7,PGC2_RP_V)
             exp.mot_3d_dds.profile(t_start2,'PGC2')
-            exp.fort_dds.profile(t_start2,'on')
+            exp.fort_dds.profile(t_start2,'low')
             exp.fort_aom_switch.profile(t_start2-0.001,'off')
             readout1(t_start2,t_PGC2_duration,1,'PGC500kHz')
             exp.fort_aom_switch.profile(t_end+0.0012,'on')
             exp.fort_dds.profile(t_end+0.001,'on')
 
         exp.mot_aom_switch.profile(t_end+0.001,'off')
-        AO(t_end+0.2,repumper,0) # full RP attenuation
+        # AO(t_end,5,10) # no FORT attenuation
+        AO(t_end+0.2,7,0) # full RP attenuation
 
         # exp.hf_aom_switch.profile(t_start,'on')
         # exp.hf_aom_switch.profile(t_end+0.2,'off') ###
@@ -690,33 +709,34 @@ if ExpMode==0:
     #         exp.fort_dds.profile(t_start+x*timesteps+timesteps/2,'on')
 
     ## Optical Pumping Phase
-    # AO(155,shimcoil_3DX,coil_driver_polarity*shimX_OP)
-    # AO(155,shimcoil_3DY,coil_driver_polarity*shimY_OP)
-    # AO(155,shimcoil_3DZ,coil_driver_polarity*shimZ_OP)
-    # AO(155,repumper,0) # repumper turned off.
+    # AO(155,2,coil_driver_polarity*shimX_OP) #X
+    # AO(155,3,coil_driver_polarity*shimY_OP) #Y
+    # AO(155,4,coil_driver_polarity*shimZ_OP) #Z
+    # AO(155,7,0) # repumper attenuator. repumper turned off.
 
-    # AO(157,shimcoil_3DX,coil_driver_polarity*shimX_OP)
-    # AO(157,shimcoil_3DY,coil_driver_polarity*shimY_OP)
-    # AO(157,shimcoil_3DZ,coil_driver_polarity*shimZ_OP)
-    # AO(157,repumper,0) # repumper turned off.
+    # AO(157,2,coil_driver_polarity*shimX_OP) #X
+    # AO(157,3,coil_driver_polarity*shimY_OP) #Y
+    # AO(157,4,coil_driver_polarity*shimZ_OP) #Z
+    # AO(157,7,0) # repumper attenuator. repumper turned off.
     #
     # t_start=160
     # t_end=t_start+t_op+t_depump
     # # t_start=170-t_op-t_depump
     # # t_end=170
-    # # AO(t_start,repumper,10)
-    # # AO(t_start+t_op,repumper,0)
+    # # AO(t_start,7,10)
+    # # AO(t_start+t_op,7,0)
     # #exp.fort_dds.profile(t_start,'science')
     #
     # exp.op_dds.profile(t_start,'on')
     # exp.op_dds.profile(t_end,'off')
     # exp.hf_aom_switch.profile(t_start,'on')
     # exp.hf_aom_switch.profile(t_start+t_op,'off')
-    # AO(t_start,repumper,10)
-    # AO(t_start+t_op,repumper,0)
+    # AO(t_start,7,10)
+    # AO(t_start+t_op,7,0)
     # # exp.camera.pulse_length=t_op # Changes HSDIO pulse width to control exposure
     # # exp.camera.take_shot(t_start)
     # opticalpumping(t_start,t_end-t_start)
+
 
     # exp.ryd780b_dds.profile(t_start,'r2')
     # exp.red_pointing_dds.profile(t_start,'r2')
@@ -729,9 +749,9 @@ if ExpMode==0:
     # exp.hf_aom_switch.profile(t_end-t_depump,'off')
     # opticalpumping2(t_start,t_end-t_start)
     #
-    # AO(165,shimcoil_3DX,coil_driver_polarity*shimX_SCI)
-    # AO(165,shimcoil_3DY,coil_driver_polarity*shimY_SCI)
-    # AO(165,shimcoil_3DZ,coil_driver_polarity*shimZ_SCI)
+    # AO(165,2,coil_driver_polarity*shimX_SCI) #X
+    # AO(165,3,coil_driver_polarity*shimY_SCI) #Y
+    # AO(165,4,coil_driver_polarity*shimZ_SCI) #Z
     # exp.mot_3d_x_shutter_switch.profile(t_x_shutter_open,'off')
     # exp.mot_3d_x_shutter_switch.profile(t_x_shutter_close,'on')
     # exp.mot_3d_y_shutter_switch.profile(t_y_shutter_open,'off')
@@ -742,9 +762,9 @@ if ExpMode==0:
     # Microwave(t_science+extension-4,t_microwave)
     #
     # # Science Phase 170 - 175 ms. t_science=170
-    # AO(t_science+extension-3,shimcoil_3DX,coil_driver_polarity*shimX_PGC)
-    # AO(t_science+extension-3,shimcoil_3DY,coil_driver_polarity*shimY_PGC)
-    # AO(t_science+extension-3,shimcoil_3DZ,coil_driver_polarity*shimZ_PGC)
+    # AO(t_science+extension-3,2,coil_driver_polarity*shimX_PGC) #X PGC
+    # AO(t_science+extension-3,3,coil_driver_polarity*shimY_PGC) #Y PGC
+    # AO(t_science+extension-3,4,coil_driver_polarity*shimZ_PGC) #Z PGC
     # reduce FORT trap depth during science phase
     # exp.fort_dds.profile(t_science,'science')
     # exp.fort_dds.profile(t_science+5,'on')
@@ -772,17 +792,18 @@ if ExpMode==0:
     #Microwave(t_science+t_FORTdrop+0.001,1) # Rydberg killing microwave pulse.
     #Blue480(1,200,'r2')
 
+
     # exp.red_pointing_dds.profile(175,'off')
     # exp.red_pointing_aom_switch.profile(175,'off')
     # #exp.red_pointing_aom_switch.profile(175,'on')
     #
     ## Blow-away Phase at 176ms
     FORTdrop(170+extension, t_FORTdrop)
-    AO(175+extension,quadrupole1,coil_driver_polarity*-0.1)
-    AO(175+extension,quadrupole2,coil_driver_polarity*0.1)
-    AO(175+extension,shimcoil_3DX, coil_driver_polarity*shimX_BA)
-    AO(175+extension,shimcoil_3DY,coil_driver_polarity*shimY_BA)
-    AO(175+extension,shimcoil_3DZ,coil_driver_polarity*shimZ_BA)
+    AO(175+extension,0,coil_driver_polarity*-0.1)
+    AO(175+extension,1,coil_driver_polarity*0.1)
+    AO(175+extension,2, coil_driver_polarity*shimX_BA) #X
+    AO(175+extension,3,coil_driver_polarity*shimY_BA) #Y
+    AO(175+extension,4,coil_driver_polarity*shimZ_BA) #Z
 
     t_start=176+extension
     t_end=t_start+t_BA
@@ -801,11 +822,11 @@ if ExpMode==0:
     exp.fort_dds.profile(t_end,'on')
 
     ## 2nd Readout Phase
-    AO(180+extension,quadrupole1,0) # turn off quadrupole fields
-    AO(180+extension,quadrupole2,0)
-    AO(180+extension,shimcoil_3DX, coil_driver_polarity*shimX_RO)
-    AO(180+extension,shimcoil_3DY, coil_driver_polarity*shimY_RO)
-    AO(180+extension,shimcoil_3DZ, coil_driver_polarity*shimZ_RO)
+    AO(180+extension,0,0) # turn off quadrupole fields
+    AO(180+extension,1,0)
+    AO(180+extension,2, coil_driver_polarity*shimX_RO) #X
+    AO(180+extension,3, coil_driver_polarity*shimY_RO) #Y
+    AO(180+extension,4, coil_driver_polarity*shimZ_RO) #Z
     t_readout_2nd=195+extension
     t_start=t_readout_2nd
     exp.fort_dds.profile(t_start,'low')  # 'on')
@@ -815,13 +836,13 @@ if ExpMode==0:
     readout1(t_start,t_readoutduration,RO_chop_period)
     t_end=t_start+t_readoutduration
     #exp.mot_aom_switch.profile(t_end+0.001,'off') ###
-    AO(t_start,repumper,10) # Turn on repumper. Sets rf attenuator voltage to 10V
+    AO(t_start,7,10) # Turn on repumper. Sets rf attenuator voltage to 10V
     exp.hf_aom_switch.profile(t_start,'on')
     exp.hf_aom_switch.profile(t_start+exp.camera.pulse_length,'off')
-    AO(t_start+exp.camera.pulse_length,repumper,0)
+    AO(t_start+exp.camera.pulse_length,7,0)
     #Trying to see if making it the same as above affects the timing
     #exp.hf_aom_switch.profile(t_end,'off')
-    #AO(t_end,repumper,0)
+    #AO(t_end,7,0)
 
     #exp.fort_aom_switch.profile(t_readout_2nd+exp.camera.pulse_length,'off')
     exp.fort_dds.profile(t_readout_2nd+exp.camera.pulse_length,'off')
@@ -845,14 +866,14 @@ elif ExpMode==1:
     ## Initilization
         #for i in range(5):
         #    AO(0,i,0)
-        AO(0,quadrupole1,coil_driver_polarity*I_Q1)
-        AO(0,quadrupole2,coil_driver_polarity*I_Q2)
-        AO(0,shimcoil_3DX,coil_driver_polarity*ShimX_Loading) #X
-        AO(0,shimcoil_3DY,coil_driver_polarity*ShimY_Loading) #Y
-        AO(0,shimcoil_3DZ,coil_driver_polarity*ShimZ_Loading) #Z
-        AO(0,shimcoil_2DX2,coil_driver_polarity*-2.2)
-        AO(0,shimcoil_2DY2,coil_driver_polarity*2.8)
-        AO(0,repumper,10)
+        AO(0,0,coil_driver_polarity*I_Q1)
+        AO(0,1,coil_driver_polarity*I_Q2)
+        AO(0,2,coil_driver_polarity*ShimX_Loading) #X
+        AO(0,3,coil_driver_polarity*ShimY_Loading) #Y
+        AO(0,4,coil_driver_polarity*ShimZ_Loading) #Z
+        # AO(0,5,coil_driver_polarity*-2.2)  # used for FORT 8/21
+        AO(0,6,coil_driver_polarity*2.8)
+        AO(0,7,10)
 
         # UV switching
         exp.UV_trigger_switch.profile(0,'off')
@@ -897,8 +918,8 @@ elif ExpMode==1:
         exp.camera.pulse_length=0.2#t_MOT_imaging_exposure # Changes HSDIO pulse width to control exposure
         t_readout_MOT=1995
         exp.camera.take_shot(t_readout_MOT)
-        AO(motoff,quadrupole1,0) # turns off quadrupole fields
-        AO(motoff,quadrupole2,0)
+        AO(motoff,0,0) # turns off quadrupole fields
+        AO(motoff,1,0)
         exp.mot_aom_switch.profile(motoff+5,'off')
         #exp.mot_3d_dds.profile(motoff,'PGC')
         exp.hf_aom_switch.profile(motoff+5,'off') #####
@@ -927,65 +948,66 @@ elif ExpMode==2:
     # Camera will take pictures
 
     ## Initilization
-        AO(0,quadrupole1,coil_driver_polarity*I_Q1)
-        AO(0,quadrupole2,coil_driver_polarity*I_Q2)
-        AO(0,shimcoil_3DX,coil_driver_polarity*ShimX_Loading)
-        AO(0,shimcoil_3DY,coil_driver_polarity*ShimY_Loading)
-        AO(0,shimcoil_3DZ,coil_driver_polarity*ShimZ_Loading)
-        # AO(0,shimcoil_3DX,coil_driver_polarity*shimX_RO) #X
-        # AO(0,shimcoil_3DY,coil_driver_polarity*shimY_RO) #Y
-        # AO(0,shimcoil_3DZ,coil_driver_polarity*shimZ_RO) #Z
-        AO(0,shimcoil_2DX2,coil_driver_polarity*-2.2)
-        AO(0,shimcoil_2DY2,coil_driver_polarity*2.8)
-        AO(0,repumper,loading_RP_V)
+        AO(0,0,coil_driver_polarity*I_Q1)
+        AO(0,1,coil_driver_polarity*I_Q2)
+        AO(0,2,coil_driver_polarity*ShimX_Loading) #X
+        AO(0,3,coil_driver_polarity*ShimY_Loading) #Y
+        AO(0,4,coil_driver_polarity*ShimZ_Loading) #Z
+        # AO(0,2,coil_driver_polarity*shimX_RO) #X
+        # AO(0,3,coil_driver_polarity*shimY_RO) #Y
+        # AO(0,4,coil_driver_polarity*shimZ_RO) #Z
+        AO(0,5,coil_driver_polarity*-2.2)  # used for FORT 8/21
+        # AO(0,5,10)  # used for FORT 8/21-22
+        AO(0,6,coil_driver_polarity*2.8)
+        AO(0,7,loading_RP_V)
         # for i in range(20):
-        #     AO(i*10,quadrupole1,coil_driver_polarity*I_Q1*((2000-(i*10))/2000))
-        #     AO(i*10,quadrupole2,coil_driver_polarity*I_Q2*((2000-(i*10))/2000))
+        #     AO(i*10,0,coil_driver_polarity*I_Q1*((2000-(i*10))/2000))
+        #     AO(i*10,1,coil_driver_polarity*I_Q2*((2000-(i*10))/2000))
         # for i in range(20):
-        #     AO(i*10+200,quadrupole1,coil_driver_polarity*I_Q1*((1800+(i*10))/2000))
-        #     AO(i*10+200,quadrupole2,coil_driver_polarity*I_Q2*((1800+(i*10))/2000))
-        AO(100,quadrupole1,coil_driver_polarity*I_Q1)
-        AO(100,quadrupole2,coil_driver_polarity*I_Q2)
-        AO(100,shimcoil_3DX,coil_driver_polarity*ShimX_Loading) #X
-        AO(100,shimcoil_3DY,coil_driver_polarity*ShimY_Loading) #Y
-        AO(100,shimcoil_3DZ,coil_driver_polarity*ShimZ_Loading) #Z
-        # AO(0,shimcoil_3DX,coil_driver_polarity*shimX_RO) #X
-        # AO(0,shimcoil_3DY,coil_driver_polarity*shimY_RO) #Y
-        # AO(0,shimcoil_3DZ,coil_driver_polarity*shimZ_RO) #Z
-        AO(100,shimcoil_2DX2,coil_driver_polarity*-2.2)
-        AO(100,shimcoil_2DY2,coil_driver_polarity*2.8)
-        # AO(0,repumper,loading_RP_V)
+        #     AO(i*10+200,0,coil_driver_polarity*I_Q1*((1800+(i*10))/2000))
+        #     AO(i*10+200,1,coil_driver_polarity*I_Q2*((1800+(i*10))/2000))
+        AO(100,0,coil_driver_polarity*I_Q1)
+        AO(100,1,coil_driver_polarity*I_Q2)
+        AO(100,2,coil_driver_polarity*ShimX_Loading) #X
+        AO(100,3,coil_driver_polarity*ShimY_Loading) #Y
+        AO(100,4,coil_driver_polarity*ShimZ_Loading) #Z
+        # AO(0,2,coil_driver_polarity*shimX_RO) #X
+        # AO(0,3,coil_driver_polarity*shimY_RO) #Y
+        # AO(0,4,coil_driver_polarity*shimZ_RO) #Z
+        AO(100,5,coil_driver_polarity*-2.2)
+        AO(100,6,coil_driver_polarity*2.8)
+        # AO(0,7,loading_RP_V)
 
 
         #looking for molassis
-        # AO(0,quadrupole1,coil_driver_polarity*I_Q1*0)
-        # AO(0,quadrupole2,coil_driver_polarity*I_Q2*0)
-        # AO(0,shimcoil_3DX,coil_driver_polarity*shimX_RO) #X
-        # AO(0,shimcoil_3DY,coil_driver_polarity*shimY_RO) #Y
-        # AO(0,shimcoil_3DZ,coil_driver_polarity*shimZ_RO) #Z
-        # # AO(0,shimcoil_3DX,coil_driver_polarity*shimX_RO) #X
-        # # AO(0,shimcoil_3DY,coil_driver_polarity*shimY_RO) #Y
-        # # AO(0,shimcoil_3DZ,coil_driver_polarity*shimZ_RO) #Z
-        # AO(0,shimcoil_2DX2,coil_driver_polarity*-2.2)
-        # AO(0,shimcoil_2DY2,coil_driver_polarity*2.8)
-        # AO(0,repumper,10)
+        # AO(0,0,coil_driver_polarity*I_Q1*0)
+        # AO(0,1,coil_driver_polarity*I_Q2*0)
+        # AO(0,2,coil_driver_polarity*shimX_RO) #X
+        # AO(0,3,coil_driver_polarity*shimY_RO) #Y
+        # AO(0,4,coil_driver_polarity*shimZ_RO) #Z
+        # # AO(0,2,coil_driver_polarity*shimX_RO) #X
+        # # AO(0,3,coil_driver_polarity*shimY_RO) #Y
+        # # AO(0,4,coil_driver_polarity*shimZ_RO) #Z
+        # AO(0,5,coil_driver_polarity*-2.2)
+        # AO(0,6,coil_driver_polarity*2.8)
+        # AO(0,7,10)
         # # for i in range(20):
-        # #     AO(i*10,quadrupole1,coil_driver_polarity*I_Q1*((2000-(i*10))/2000))
-        # #     AO(i*10,quadrupole2,coil_driver_polarity*I_Q2*((2000-(i*10))/2000))
+        # #     AO(i*10,0,coil_driver_polarity*I_Q1*((2000-(i*10))/2000))
+        # #     AO(i*10,1,coil_driver_polarity*I_Q2*((2000-(i*10))/2000))
         # # for i in range(20):
-        # #     AO(i*10+200,quadrupole1,coil_driver_polarity*I_Q1*((1800+(i*10))/2000))
-        # #     AO(i*10+200,quadrupole2,coil_driver_polarity*I_Q2*((1800+(i*10))/2000))
-        # AO(100,quadrupole1,coil_driver_polarity*I_Q1*0)
-        # AO(100,quadrupole2,coil_driver_polarity*I_Q2*0)
-        # AO(100,shimcoil_3DX,coil_driver_polarity*shimX_RO) #X
-        # AO(100,shimcoil_3DY,coil_driver_polarity*shimY_RO) #Y
-        # AO(100,shimcoil_3DZ,coil_driver_polarity*shimZ_RO) #Z
-        # # AO(0,shimcoil_3DX,coil_driver_polarity*shimX_RO) #X
-        # # AO(0,shimcoil_3DY,coil_driver_polarity*shimY_RO) #Y
-        # # AO(0,shimcoil_3DZ,coil_driver_polarity*shimZ_RO) #Z
-        # AO(100,shimcoil_2DX2,coil_driver_polarity*-2.2)
-        # AO(100,shimcoil_2DY2,coil_driver_polarity*2.8)
-        # AO(100,repumper,10)
+        # #     AO(i*10+200,0,coil_driver_polarity*I_Q1*((1800+(i*10))/2000))
+        # #     AO(i*10+200,1,coil_driver_polarity*I_Q2*((1800+(i*10))/2000))
+        # AO(100,0,coil_driver_polarity*I_Q1*0)
+        # AO(100,1,coil_driver_polarity*I_Q2*0)
+        # AO(100,2,coil_driver_polarity*shimX_RO) #X
+        # AO(100,3,coil_driver_polarity*shimY_RO) #Y
+        # AO(100,4,coil_driver_polarity*shimZ_RO) #Z
+        # # AO(0,2,coil_driver_polarity*shimX_RO) #X
+        # # AO(0,3,coil_driver_polarity*shimY_RO) #Y
+        # # AO(0,4,coil_driver_polarity*shimZ_RO) #Z
+        # AO(100,5,coil_driver_polarity*-2.2)
+        # AO(100,6,coil_driver_polarity*2.8)
+        # AO(100,7,10)
 
         exp.ground_aom_switch.profile(0,'on')
         #exp.ground_aom_switch.profile(0,'off') #### dd
