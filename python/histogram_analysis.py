@@ -389,7 +389,8 @@ class HistogramGrid(ROIAnalysis):
         for s in range(shots):
             for r in xrange(rois):
                 cuts[s, r] = self.histogram_results[s][r]['cuts'][0]
-        self.experiment.thresholdROIAnalysis.set_thresholds(cuts, experiment_timestamp, exclude_shot=[1])
+        # self.experiment.thresholdROIAnalysis.set_thresholds(cuts, experiment_timestamp, exclude_shot=[1])
+        self.experiment.thresholdROIAnalysis.set_thresholds(cuts, experiment_timestamp)
 
     def calculate_all_histograms(self, all_shots_array):
         measurements, shots, rois = all_shots_array.shape
@@ -420,7 +421,7 @@ class HistogramGrid(ROIAnalysis):
                     # need to fill a place holder in case of error or there will be misalignment
                     result = self.calculate_histogram(roidata, self.bins, cutoff=cutoff, backup_cut=backup_cut)
                 except:
-                    logger.exception('Probelm fitting histogram for (s,r): ({},{})'.format(shot, roi))
+                    logger.exception('Problem fitting histogram for (s,r): ({},{})'.format(shot, roi))
                     result = None
                 self.histogram_results[-1].append(result)
 

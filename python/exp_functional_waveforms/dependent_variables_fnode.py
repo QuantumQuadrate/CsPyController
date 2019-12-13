@@ -100,14 +100,15 @@ if uwave_phase is not None:
 rb_qubit_freq_offset_khz += uwave_offset_khz
 cs_qubit_freq_offset_khz += uwave_offset_khz
 
+rb_rf_preamp_db = -4.5 # - 3 db from var attn
 rb_d2_aom_profiles = {
-    'mot': { 'freq': rb_d2_aom_calc(rb_d2_mot_det), 'amp': rb_d2_mot_amp },
-    'pgc': { 'freq': rb_d2_aom_calc(rb_d2_pgc_det), 'amp': rb_d2_pgc_amp  },
-    'pgc2': { 'freq': rb_d2_aom_calc(rb_d2_pgc2_det), 'amp': rb_d2_pgc2_amp  },
+    'mot': { 'freq': rb_d2_aom_calc(rb_d2_mot_det), 'amp': rb_d2_mot_amp - rb_rf_preamp_db },
+    'pgc': { 'freq': rb_d2_aom_calc(rb_d2_pgc_det), 'amp': rb_d2_pgc_amp - rb_rf_preamp_db  },
+    'pgc2': { 'freq': rb_d2_aom_calc(rb_d2_pgc2_det), 'amp': rb_d2_pgc2_amp - rb_rf_preamp_db  },
     'off': { 'freq': 0, 'amp': -100 },
-    'mon': { 'freq': rb_d2_aom_calc(-2.75), 'amp': -7.2},
-    'read': { 'freq': rb_d2_aom_calc(rb_d2_read_det), 'amp': rb_d2_read_amp },
-    'read_mz': { 'freq': rb_d2_aom_calc(rb_d2_read_mz_det), 'amp': rb_d2_read_mz_amp },
+    'mon': { 'freq': rb_d2_aom_calc(-2.75), 'amp': -7.2 - rb_rf_preamp_db},
+    'read': { 'freq': rb_d2_aom_calc(rb_d2_read_det), 'amp': rb_d2_read_amp - rb_rf_preamp_db },
+    'read_mz': { 'freq': rb_d2_aom_calc(rb_d2_read_mz_det), 'amp': rb_d2_read_mz_amp - rb_rf_preamp_db },
 }
 
 cs_rf_preamp_db = 19-3 # 19 db amp + 3 db from var attn
@@ -116,7 +117,7 @@ cs_d2_aom_profiles = {
     'pgc': { 'freq': cs_d2_aom_calc(cs_d2_pgc_det), 'amp': cs_d2_pgc_amp  - cs_rf_preamp_db},
     'pgc2': { 'freq': cs_d2_aom_calc(cs_d2_pgc2_det), 'amp': cs_d2_pgc2_amp  - cs_rf_preamp_db},
     'off': { 'freq': 0, 'amp': -100 },
-    'mon': { 'freq': 100.0, 'amp': -3 - cs_rf_preamp_db+0.5},
+    'mon': { 'freq': 105.8, 'amp': 3 - cs_rf_preamp_db},
     'read': { 'freq': cs_d2_aom_calc(cs_d2_read_det), 'amp': cs_d2_read_amp - cs_rf_preamp_db },
     'read_mz': { 'freq': cs_d2_aom_calc(cs_d2_read_mz_det), 'amp': cs_d2_read_mz_amp - cs_rf_preamp_db },
 }
@@ -130,16 +131,12 @@ fort_aom_profiles = {
 
 if exp_type in [fort_exp]:
     #mot_time = cycle_time - (2*readout_780 + drop_time + 10 + 0*gap_time + pgc_time + 5.2 + post_read_pgc_time)
-    mot_time = cycle_time - (2*readout_780 + drop_time + 1 + pgc_time + 5.2 + post_read_pgc_time + op_time_ms +8)
+    mot_time = cycle_time - (2*readout_780 + exra_readout_780 + max(op_time_ms, 2.5) + 2*uwave_gap_time_ms + drop_time + gap_time + 1 + pgc_time + 5.2 + post_read_pgc_time + op_time_ms +8)
 
     if test_mz_readout:
         cycle_time += test_mz_readout_duration
     if p_heating:
         cycle_time += p_heating_duration
-    cycle_time += exra_readout_780
-    cycle_time += max(op_time_ms, 2.5)
-    cycle_time += gap_time
-    cycle_time += 2*uwave_gap_time_ms
     print "mot_time: {}".format(mot_time)
 
 if dump_fort_at_end:
