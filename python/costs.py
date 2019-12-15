@@ -10,7 +10,7 @@ def load_data(h5file,source,iteration,measurements,shots):
         imdat = zeros((measurements,shots,len(roi[0,:]),len(roi[1,:])),dtype=int)
         for ms in range(measurements):
             for sht in range(shots):
-                datpath = '/experiments/0/iterations/{}/measurements/{}/data/Hamamatsu/shots/{}'.format(iteration,ms,sht)
+                datpath = '/iterations/{}/measurements/{}/data/Hamamatsu/shots/{}'.format(iteration,ms,sht)
                 #print filepath
                 try:
                     im = array(h5file[(datpath)])
@@ -41,7 +41,10 @@ def ret(histdat,cut,cuterr,popt):
         shot_error = sqrt(retention*(1-retention)/(histdat[:,0]>=cut).sum())
         ct_error_plus = abs(1.0*((histdat[:,0]>=cut+cuterr)*(histdat[:,1]>cut+cuterr)).sum()/(histdat[:,0]>=cut+cuterr).sum()-retention)
         ct_error_minus = abs(1.0*((histdat[:,0]>=cut-cuterr)*(histdat[:,1]>cut-cuterr)).sum()/(histdat[:,0]>=cut-cuterr).sum()-retention)
-        ovlp_error = get_overlap_error(cut,*abs(popt[:4]))
+        if popt is None:
+            ovlp_error = 0
+        else:
+            ovlp_error = get_overlap_error(cut, *abs(popt[:4]))
         print ct_error_plus,ct_error_minus
         retention_error = sqrt(shot_error**2+(ct_error_plus+ct_error_minus)**2*0.25+ovlp_error**2)
     else:
@@ -61,7 +64,7 @@ def fit_hist(histdat,guess=None):
 
     if guess is None:
         x0g = 21000
-        x1g = 24000
+        x1g = 28000
         std0g = 1000.0
         std1g = 2000.0
         a0g = 6.0e1
@@ -71,6 +74,14 @@ def fit_hist(histdat,guess=None):
     popt,pcov = opt.curve_fit(f=func,xdata=xdat,ydata=ydat,p0=guess)
     perr = sqrt(diag(pcov))
 
+    # if the means of the two fits are switched, the overlap error will blow up. Here we make sure that won't happen
+    if popt[1] < popt[0]:
+        pcop = copy(popt)
+        per_cop = copy(perr)
+        popt[[0,2,4]] = pcop[[1,3,5]]
+        popt[[1,3,5]] = pcop[[0,2,4]]
+        perr[[0,2,4]] = per_cop[[1,3,5]]
+        perr[[1,3,5]] = per_cop[[0,2,4]]
     return popt,perr
 
 

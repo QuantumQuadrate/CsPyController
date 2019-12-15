@@ -388,7 +388,7 @@ class Origin(Analysis):
 
         # prepare server interface if not already set up
         if self.isInitialized:
-            logger.info('Origin server already initialized.')
+            logger.debug('Origin server already initialized.')
         else:
             logger.info('Initializing Origin server interface...')
             self.server = server(self.config)
@@ -404,8 +404,8 @@ class Origin(Analysis):
         logger.debug('Registering per-iteration streams...done')
 
         logger.debug('Registering streams...done')
-        logger.info('Origin streams registered: {}'.format(cnt))
-        logger.info('Initializing Origin server interface...done')
+        logger.debug('Origin streams registered: {}'.format(cnt))
+        logger.debug('Initializing Origin server interface...done')
         return 0
 
     # ==========================================================================

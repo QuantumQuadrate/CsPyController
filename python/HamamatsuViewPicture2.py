@@ -124,7 +124,7 @@ def StartAcquire(Sess_ID,bufferpointer,height,width):
     ax = fig.add_subplot(111)
     bpnp = np.reshape(np.ctypeslib.as_array(bufferpointer),(height.value,width.value))
     #artist = ax.imshow(bpnp)
-    artist = ax.imshow(bpnp,vmin=0.0,vmax=3.4e3,cmap='brg')
+    artist = ax.imshow(bpnp,vmin=1.2e3,vmax=6.0e4,cmap='brg')
     fig.show()
     print "fig shown"
     return bpnp,artist
