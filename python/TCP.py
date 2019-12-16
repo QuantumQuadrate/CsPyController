@@ -126,7 +126,7 @@ class CsSock(socket.socket):
             logger.error('incorrect message size received')
             return
         #if we get here, we have gotten data of the right size
-        #print 'rawdata: {}...'.format(rawdata[:40])
+        print 'rawdata: {}...'.format(rawdata[:40])
         return rawdata
         #do something like this for data packets, but not here:  data=struct.unpack("!{}d".format(datalen/8),rawdata)
 
@@ -195,7 +195,7 @@ class CsClientSock(CsSock):
                 data=msg[i:i+L]
                 i+=L
                 result.update([(name,data)])
-                #print "name: {} length: {}".format(name,str(L))
+                print "name: {} length: {}".format(name,str(L))
         return result
 
 class CsServerSock(CsSock):

@@ -76,11 +76,11 @@ class Embezzletron(Instrument):
         y0 = 10
         grid = np.indices(bg.shape)
         xy0 = np.array([[[x0]], [[y0]]])
-        sigma = np.array([[[3]], [[3]]])
+        sigma = np.array([[[1.5]], [[1.5]]])
         spots = np.empty((sites, image_shape[0], image_shape[1]))
-        spacing = 15
+        spacing = 8
         i = 0
-        amp = 5
+        amp = 20
         atom = randint(2, size=sites)
         for r in range(rows):
             for c in range(cols):

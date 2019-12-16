@@ -4142,29 +4142,18 @@ enamldef Noise_Eater(Container):
         hug_width = 'strong'
         hug_height = 'strong'
         Label:
-            text = 'IP Address'
+            text = 'ip Address'
         Field:
-            text := item.IP
+            text := item.ip
         Label:
-            text = 'port'
+            text = 'ID'
         IntField:
-            value := item.port
+            value := item.ID
         Label:
-            text = 'Target Setting 1'
+            text = 'Target Setting'
         EvalProp:
-            prop << item.target_setting1
-        Label:
-            text = 'Target Setting 2'
-        EvalProp:
-            prop << item.target_setting2
-        Label:
-            text = 'Target Setting 3'
-        EvalProp:
-            prop << item.target_setting3
-        Label:
-            text = 'Target Setting 4'
-        EvalProp:
-            prop << item.target_setting4
+            prop << item.target_setting
+
 
 enamldef Noise_Eaters(Window):
     attr noise_eaters
@@ -4193,28 +4182,8 @@ enamldef Noise_Eaters(Window):
                             checked := noise_eaters.enable
 
                     IndexedContainer:
-                        iterable << noise_eaters.pis
+                        iterable << noise_eaters.NEchannels
                         viewType = Noise_Eater
-
-                # cumulative plot of noise eater data
-                GroupBox:
-                    title = 'Noise Eater plots'
-                    Form:
-                        Label:
-                            text = 'enable'
-                        CheckBox:
-                            checked := analysis.enable
-                        Label:
-                            text = 'specify pi and channel number'
-                        Field:
-                            text := analysis.list_of_what_to_plot
-                    PushButton:
-                        text = 'clear'
-                        clicked :: analysis.clear()
-                    MPLCanvas: canvas:
-                        constraints=[(height==500)|'strong']
-                        hug_width='ignore'
-                        figure << analysis.figure
 
 
 
@@ -4276,7 +4245,7 @@ enamldef BILTcards(Window):
                         iterable << BILT.channels
                         viewType = BILTcard
 
-enamldef Variable_settings(Container):
+enamldef Fit_Sites(Container):
     attr item
 
     hug_width = 'strong'
@@ -4286,45 +4255,60 @@ enamldef Variable_settings(Container):
         hug_width = 'strong'
         hug_height = 'strong'
         Label:
-            text = 'site'
+            text = 'Fit site'
         IntField:
-            value := item.site
+            value := item.Fit_site
         Label:
-            text = 'Frequency offset x'
+            text = 'Fit Frequency x'
         EvalProp:
-            prop << item.Frequency_offset_x
+            prop << item.Fit_Frequency_x
         Label:
-            text = 'Frequency offset y'
+            text = 'Fit Frequency y'
         EvalProp:
-            prop << item.Frequency_offset_y
-
-enamldef Site_frequencies_and_occupation(Container):
+            prop << item.Fit_Frequency_y
+            
+enamldef Force_Sites(Container):
     attr item
-    attr num
-    hug_height='strong'
-    hug_width='strong'
-    constraints=[hbox(l0,f0,f1,f2)]
-    Label: l0:
-        constraints = [(width==50)|'strong']
-        text=str(num)
-    MyFloatField: f0:
-        constraints = [(width==50)|'strong']
-        placeholder='xfrequency'
-        value := item['xfrequency']
-    MyFloatField: f1:
-        constraints = [(width==50)|'strong']
-        placeholder='yfrequency'
-        value := item['yfrequency']
-    MyIntField: f2:
-        constraints = [(width==50)|'strong']
-        placeholder='occupation'
-        value := item['occupation']
 
+    hug_width = 'strong'
+    hug_height = 'strong'
 
+    Container:
+        hug_width = 'strong'
+        hug_height = 'strong'
+        Label:
+            text = 'Force site'
+        IntField:
+            value := item.Force_site
+        Label:
+            text = 'Force Frequency x'
+        EvalProp:
+            prop << item.Force_Frequency_x
+        Label:
+            text = 'Force Frequency y'
+        EvalProp:
+            prop << item.Force_Frequency_y
+            
+enamldef Pattern_Sites(Container):
+    attr item
+
+    hug_width = 'strong'
+    hug_height = 'strong'
+
+    Container:
+        hug_width = 'strong'
+        hug_height = 'strong'
+        Label:
+            text = 'Site Occupation'
+        IntField:
+            value := item.occupation_site
+        Label:
+            text = 'Pattern Number'
+        IntField:
+            value := item.pattern_num
 
 enamldef Rearrange(Window):
     attr rearrange
-    attr rearrange_settings
 
     title = 'Rearrange'
     style_class << 'valid' if experiment.valid else 'invalid'
@@ -4362,48 +4346,44 @@ enamldef Rearrange(Window):
                             Label:
                                 text = 'Jump Time'
                             EvalProp:
-                                prop << rearrange_settings.jump_time
+                                prop << rearrange.jump_time
                             Label:
                                 text = 'frequency_increment'
                             EvalProp:
-                                prop << rearrange_settings.frequency_increment
+                                prop << rearrange.frequency_increment
                             Label:
                                 text = 'laser_ramp_on_time'
                             EvalProp:
-                                prop << rearrange_settings.laser_ramp_on_time
-                    IndexedContainer:
-                        iterable << rearrange_settings.site_offsets
-                        viewType = Variable_settings
-
+                                prop << rearrange.laser_ramp_on_time
                     Container:
-                        hug_height='ignore'
-                        hug_width='ignore'
-                        constraints=[hbox(dynoCont),align('top',dynoCont)]
-                        Container: dynoCont:
-                            Container:
-                                hug_height='strong'
-                                hug_width='strong'
-                                constraints=[hbox(l0,l1,l2,l3)]
-                                Label: l0:
-                                    constraints = [(width==50)|'strong']
-                                    text = 'ROI#'
-                                Label: l1:
-                                    constraints = [(width==50)|'strong']
-                                    text = 'xfrequency'
-                                Label: l2:
-                                    constraints = [(width==50)|'strong']
-                                    text = 'yfrequency'
-                                Label: l3:
-                                    constraints = [(width==50)|'strong']
-                                    text = 'occupation'
-                            Include: dyno:
-                                objects<<[Site_frequencies_and_occupation(item=x,num=i)for i,x in enumerate(rearrange_settings.frequency_occupation_array)]
-
-
-
-
-
-
+                        hug_width = 'strong'
+                        hug_height = 'strong'
+                        Form:
+                            Label:
+                                text = 'sub array left'
+                            IntField:
+                                value := rearrange.sub_array_left
+                            Label:
+                                text = 'sub array top'
+                            IntField:
+                                value := rearrange.sub_array_top
+                            Label:
+                                text = 'sub array width'
+                            IntField:
+                                value := rearrange.sub_array_width 
+                            Label:
+                                text = 'sub array height'
+                            IntField:
+                                value := rearrange.sub_array_height   
+                    IndexedContainer:
+                        iterable << rearrange.fit_freq_sites
+                        viewType = Fit_Sites
+                    IndexedContainer:
+                        iterable << rearrange.force_freq_sites
+                        viewType = Force_Sites
+                    IndexedContainer:
+                        iterable << rearrange.site_pattern
+                        viewType = Pattern_Sites
 
 enamldef PyPico(Window):
     attr pypico
@@ -4799,9 +4779,9 @@ window_dictionary = {'':'',
                      'Arroyo': 'Arroyo(experiment = main.experiment)',
                      'PI Piezo': 'PI_Piezo(piezo = main.experiment.LabView.piezo)',
                      'Picomotors': 'Picomotors(picomotors = main.experiment.picomotors)',
-                     'Noise Eaters': 'Noise_Eaters(noise_eaters = main.experiment.noise_eaters, analysis = main.experiment.Noise_EatersGraph)',
+                     'Noise Eaters': 'Noise_Eaters(noise_eaters = main.experiment.noise_eaters)',
                      'Cell Electrodes': 'BILTcards(BILT = main.experiment.BILT)',
-                     'Atom Rearranger': 'Rearrange(rearrange = main.experiment.rearrange, rearrange_settings = main.experiment.rearrange_settings)',
+                     'Atom Rearranger': 'Rearrange(rearrange = main.experiment.rearrange)',
                      'PyPico': 'PyPico(pypico = main.experiment.pyPicoServer)',
                      'AAS': 'AAS(aas = main.experiment.beam_position_analysis)',
                      'AAS2': 'AAS(aas = main.experiment.beam_position_analysis2)',
