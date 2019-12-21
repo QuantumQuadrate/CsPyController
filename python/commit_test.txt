@@ -1,1 +1,3 @@
-I made this file so that i can have something inconsequential to edit so that I can test pushing to github. - Preston
+12/20/19 I made this file so that i can have something inconsequential to edit so that I can test pushing to github. - Preston
+
+Still shows that Minho made the commit on Github, despite changing the credentials in Windows Cred Manager and in the terminal.
