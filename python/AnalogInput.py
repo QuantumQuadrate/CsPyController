@@ -90,24 +90,24 @@ class AI_Graph(AnalysisWithFigure):
                     fig.clf()
 
                     if self.data is not None:
-                        #parse the list of what to plot from a string to a list of numbers
+                        # parse the list of what to plot from a string to a list of numbers
                         try:
                             plotlist = eval(self.list_of_what_to_plot)
                         except Exception as e:
                             logger.warning('Could not eval plotlist in AIGraph:\n{}\n'.format(e))
                             return
-                        #make one plot
+                        # make one plot
                         ax = fig.add_subplot(111)
                         for i in plotlist:
                             try:
                                 data = numpy.average(self.data[:, i[0], i[1]], axis=1)  # All measurements. Selected channel, saverage over sampels.
-                                #data=numpy.average(self.data[:, i[0], i[1]], axis=1) # Show only the latest
+                                # data=numpy.average(self.data[:, i[0], i[1]], axis=1) # Show only the latest
                             except:
                                 logger.warning('Trying to plot data that does not exist in AIGraph: channel {} samples {}-{}'.format(i[0], min(i[1]), max(i[1])))
                                 continue
                             label = 'ch.{}'.format(i[0])
                             ax.plot(data, 'o', label=label)
-                        #add legend using the labels assigned during ax.plot()
+                        # add legend using the labels assigned during ax.plot()
                         ax.legend(bbox_to_anchor=(0., 1.02, 1., .102), loc=2, borderaxespad=0.0)
                         ax.grid('on')
                     super(AI_Graph, self).updateFigure()
@@ -134,12 +134,12 @@ class AI_Filter(Analysis):
         super(AI_Filter, self).__init__(name, experiment, description)
         self.properties += ['enable', 'what_to_filter', 'filter_level']
 
-    def analyzeMeasurement(self, measurementResults, iterationResults, experimentResults):
+    def analyzeMeasurement(self, measurement_results, iteration_results, experiment_results):
         text = ''
-        if self.enable and ('AI' in measurementResults['data']):
+        if self.enable and ('AI' in measurement_results['data']):
             failed = False  # keep track of if any of the filters fail
             # read the AI results
-            data = measurementResults['data/AI/data']
+            data = measurement_results['data/AI/data']
 
             # parse the "what_to_filter" string
             try:
@@ -163,9 +163,9 @@ class AI_Filter(Analysis):
                     text += 'Analog Input filter failed for channel {}.  Value was {}, below low limit {}.\n'.format(i[0], d, i[2])
                     failed = True
 
-            #check to see if any of the filters failed
+            # check to see if any of the filters failed
             if failed:
-                #record to the log and screen
+                # record to the log and screen
                 logger.warning(text)
                 self.set_gui({'text': text})
                 # User chooses whether or not to delete data.

@@ -81,6 +81,27 @@ def ramp(t, channel, v1, v2, duration):
     return t+duration  # return the end time
 
 
+def cal_ramp(t, channel, x1, x2, duration, cal=None):
+    """Sweep one analog output channel from v1 to v2."""
+    t_list = linspace(t, t+duration, 100)  # make 100 time steps
+    v_list = fort_attn_cal(linspace(x1, x2, 100))  # make 100 voltage steps
+    for t, v in zip(t_list, v_list):
+        # step through each value and assign it to the AO channel
+        AO(t, channel, v)
+    return t+duration  # return the end time
+
+
+def cal_mod(t, channel, f, amp, cycles, cal=None):
+    """Sweep one analog output channel from v1 to v2."""
+    duration = cycles/f
+    ppc = 20
+    t_list = linspace(t, t+duration, cycles*ppc)  # make 100 time steps
+    v_list = fort_attn_cal(1+amp*sin(2*pi*f*t_list))  # make 100 voltage steps
+    for t, v in zip(t_list, v_list):
+        # step through each value and assign it to the AO channel
+        AO(t, channel, v)
+    return t+duration  # return the end time
+
 ################################################################################
 # INIT AND TEARDOWN ############################################################
 ################################################################################
@@ -98,6 +119,8 @@ def init(t, b_field='mot'):
 
     for chan in Bfields[b_field]:
         AO(t, Bfield_channels[chan]['channel'], Bfields[b_field][chan]['voltage'])
+
+    AO(t, AO_channels['fort_attn']['channel'], 0)
 
     ts = []
     ts.append(RB_D2_DDS(t, 'mot'))
@@ -120,6 +143,7 @@ def end(t, b_field='mot'):
     for chan in Bfields[b_field]:
         AO(t, Bfield_channels[chan]['channel'], Bfields[b_field][chan]['voltage'])
 
+    AO(t, AO_channels['fort_attn']['channel'], 0)
     ts = []
     ts.append(RB_D2_DDS(t, 'mot'))
     ts.append(CS_D2_DDS(t, 'mot'))
@@ -294,7 +318,7 @@ def HF_shutter(t, state):
     # shift forward by the delay plus half the switching time
     # switch RB
     t_switch = t - RB_HF_shutter_delay_ms - RB_HF_shutter_time_ms/2
-    # HSDIO(t_switch, HSDIO_channels['rb_hf_shutter']['channel'], not state)
+    HSDIO(t_switch, HSDIO_channels['rb_hf_shutter']['channel'], not state)
     # switch CS
     t_switch = t - CS_HF_shutter_delay_ms - CS_HF_shutter_time_ms/2
     HSDIO(t_switch, HSDIO_channels['cs_hf_shutter']['channel'], state)
@@ -412,6 +436,7 @@ def mot_loading(t, duration):
         AO(t, Bfield_channels[chan]['channel'], Bfields[phase][chan]['voltage'])
 
     t = max(ts)
+
     t += duration
     return t
 
@@ -450,7 +475,7 @@ def pgc(t, duration, no_chop=False, bphase='pgc', fphase='on', phase='pgc', chop
             label(t + period_ms, 'fort load c1')
 
             channels = [FORT_DDS]
-            phases = [[0.1, 0.56]]
+            phases = [[0.5, 0.96]]
             profiles = [
                 [fphase, 'off', fphase]
             ]
@@ -603,7 +628,7 @@ def fort_readout(t, duration, mz_only=False, count=True, parallel_cnt=False, s1=
     phases = [
         [0.35+mot_timing_offset, 0.75+mot_timing_offset],
         [0.35+cs_mot_timing_offset, 0.75+cs_mot_timing_offset],
-        [0.1, 0.56]
+        [0.5, 0.96]
     ]
 
     foff = 'off'
@@ -853,7 +878,7 @@ def monitor(t, duration):
     ts.append(FORT_DDS(t, 'on'))
     t = max(ts)
     t += settle_time  # settling time
-    HSDIO(t, HSDIO_channels['ne_adc_trig_1']['channel'], True)
+    HSDIO(t, HSDIO_channels['ne_adc_trig_0']['channel'], True)
     t += (duration - 3*settle_time)/3
 
     # Cs power second
@@ -861,7 +886,7 @@ def monitor(t, duration):
     ts.append(CS_D2_DDS(t, phase))
     t = max(ts)
     t += settle_time
-    HSDIO(t, HSDIO_channels['ne_adc_trig_1']['channel'], False)
+    HSDIO(t, HSDIO_channels['ne_adc_trig_1']['channel'], True)
     t += (duration - 3*settle_time)/3
 
     # Both HF only for background subtraction
@@ -869,7 +894,7 @@ def monitor(t, duration):
     ts.append(CS_D2_DDS(t, 'off'))
     t = max(ts)
     t += settle_time
-    HSDIO(t, HSDIO_channels['ne_adc_trig_1']['channel'], True)
+    HSDIO(t, HSDIO_channels['ne_adc_trig_1']['channel'], False)
     t += (duration - 3*settle_time)/3
 
     ts.append(RB_D2_DDS(t, 'mot'))
@@ -877,6 +902,7 @@ def monitor(t, duration):
     ts.append(FORT_DDS(t, 'on'))
     t = max(ts)
 
+    HSDIO(t, HSDIO_channels['ne_adc_trig_0']['channel'], False)
     label(t, 'monitor end')
     return t
 
@@ -898,8 +924,8 @@ def fort_experiment():
 
     t = fort_readout(t, readout_780 + exra_readout_780, parallel_cnt=True, s1=False)
     t = drop_mot(t, 0.01)
+    # t = pgc(t, post_read_pgc_time, no_chop=False, bphase='pgc_post', fphase='on', phase='pgc2', chop_cooling=False)
     t = pgc(t, post_read_pgc_time, no_chop=False, bphase='pgc_post', fphase='on', phase='pgc2', chop_cooling=True)
-    #t = pgc(t, post_read_pgc_time, no_chop=False, bphase='pgc_post', fphase='low', phase='pgc2', chop_cooling=True)
 
     # close shutter for Mxy beam
     # wait for the shutter switch time so we dont turn off during pgc
@@ -931,7 +957,7 @@ def fort_experiment():
         FORT_DDS(t, 'on')
         t = depump(t, 2)
         FORT_DDS(t, 'high')
-        t = drop_mot(t,gap_time*0.75 - shutter_wait-2, b_phase='expt')
+        t = drop_mot(t, gap_time*0.75 - shutter_wait-2, b_phase='expt')
     else:
         t = drop_mot(t, gap_time*0.75 - shutter_wait, b_phase='expt')
 
@@ -950,7 +976,7 @@ def fort_experiment():
     t += 2
 
     # t = expmnt(t, pulse_459, fphase='low', exp_type='blue_align', drop=False, min_drop=6, min_time=5)
-    t = expmnt(t, fort_drop_us/1000, fphase='high', exp_type='fdrop')
+    t = expmnt(t, fort_drop_us/1000, fphase='on', exp_type='fdrop')
     t += 0.001
     t = uwave_rotation(t, rb_uwave_time_ms, gap=uwave_gap_time_ms, atom='rb', fort_phase='high')
     t += 0.01
@@ -965,12 +991,13 @@ def fort_experiment():
     # if not depump_hf:
     #     M_shutter(t-2.3, True)
     # t += 1.
-    t = fort_readout(t, readout_780, mz_only=True, parallel_cnt=True, s1=True, fphase='high')
+    t = fort_readout(t, readout_780 + exra_readout_780, parallel_cnt=True, s1=False)
+    # t = fort_readout(t, readout_780, mz_only=True, parallel_cnt=True, s1=True, fphase='high')
     # open shutter for mz readout
     # open shutter for Mxy beam
     MXY_shutter(t-2+3.5*0+1+1, True)  # fudge
     if SSRO:
-        HF_shutter(t + 0.6-3, True)
+        HF_shutter(t + 0.6-3*0, True)
     # MZ2_shutter(t-7.35, True)
     MZ2_shutter(t, True)
 
@@ -1017,18 +1044,42 @@ def mot_tof_experiment():
     t += 0.1
     t = pgc(t, pgc_time, no_chop=True)
     t = drop_mot(t, drop_time)
-    # set the aoms to the mot phase
+    # set the aoms to the near resonance
     t = pgc(t, 0.001, phase='mot', no_chop=True)
     HSDIO(t, HSDIO_channels['scope_trig_1']['channel'], True)
     HSDIO(t, HSDIO_channels['luca_trig_1']['channel'], True)
     t = mot_spcm_readout(t, readout_780)
     HSDIO(t, HSDIO_channels['luca_trig_1']['channel'], False)
     HSDIO(t, HSDIO_channels['scope_trig_1']['channel'], False)
+    t = drop_mot(t, 0.01)
     print t
     t = cycle_time
     t = init(t)
     print "actual(requested) cycle time {}({}) ms".format(t, cycle_time)
 
+
+# CW MOT
+def mot_grad_toggle_experiment():
+    # HSDIO initialization
+    t = 0
+    t = init(t)
+    # load mot
+    t = mot_loading(t, 1)
+    HSDIO(t, HSDIO_channels['scope_trig_1']['channel'], True)
+    t = mot_spcm_readout(t, readout_780)
+    HSDIO(t, HSDIO_channels['scope_trig_1']['channel'], False)
+    t = cycle_time - readout_780 - 10
+    t = mot_spcm_readout(t, readout_780)
+    t = cycle_time/2.
+
+    for chan in Bfields['pgc']:
+        AO(t, Bfield_channels[chan]['channel'], Bfields['pgc'][chan]['voltage'])
+    AO(t, Bfield_channels['Bq1']['channel'], 0.5)
+    AO(t, Bfield_channels['Bq2']['channel'], 0.5)
+
+    t = cycle_time
+    t = init(t)
+    print "actual(requested) cycle time {}({}) ms".format(t, cycle_time)
 
 ################################################################################
 # ERROR CHECKING################################################################
@@ -1049,6 +1100,7 @@ exps = {
     fort_exp: fort_experiment,
     mot_cw_exp: mot_cw_experiment,
     mot_tof_exp: mot_tof_experiment,
+    mot_gtoggle_exp: mot_grad_toggle_experiment,
 }
 
 # Experiment type switch

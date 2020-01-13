@@ -34,6 +34,7 @@ class TTL(Instrument):
             logger.debug('TTL.evaluate()')
             super(TTL, self).evaluate()
 
+
 class TTL_filters(Analysis):
     """This analysis monitors the TTL inputs and does either hard or soft cuts of the data accordingly.
     Low is good, high is bad."""
@@ -45,18 +46,18 @@ class TTL_filters(Analysis):
         super(TTL_filters, self).__init__(name, experiment, description)
         self.properties += ['text', 'filter_level']
 
-    def analyzeMeasurement(self, measurementResults, iterationResults, experimentResults):
+    def analyzeMeasurement(self, measurement_results, iteration_results, experiment_results):
         text = 'none'
-        if 'TTL/data' in measurementResults['data']:
-            a = measurementResults['data/TTL/data']
-            #check to see if any of the inputs were True
+        if 'TTL/data' in measurement_results['data']:
+            a = measurement_results['data/TTL/data']
+            # check to see if any of the inputs were True
             if numpy.any(a):
-                #report the true inputs
+                # report the true inputs
                 text = 'TTL Filters failed:\n'
-                for i,b in enumerate(a):
-                    #print out the row and column of the True input
+                for i, b in enumerate(a):
+                    # print out the row and column of the True input
                     text += 'Check {}: Laser(s) {}\n'.format(i, numpy.arange(len(b))[b])
-                #record to the log and screen
+                # record to the log and screen
                 logger.warning(text)
                 self.set_gui({'text': text})
                 self.experiment.set_gui({'valid': False})

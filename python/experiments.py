@@ -605,8 +605,8 @@ class Experiment(Prop):
                     # only at the start of a new optimization experiment loop
                     self.create_optimizer_iteration()
 
-                #loop until the desired number of measurements are taken
-                #self.measurement = 0
+                # loop until the desired number of measurements are taken
+                # self.measurement = 0
                 while (self.goodMeasurements < self.measurementsPerIteration) and (self.status == 'running'):
                     self.set_gui({'valid': True})  # reset all the red error background graphics to show no-error
                     logger.info('iteration {} measurement {}'.format(self.iteration, self.measurement))
@@ -686,10 +686,10 @@ class Experiment(Prop):
                     self.instrument_update_needed = True
 
         except PauseError:
-            #This should be the only place that PauseError is explicitly handed.
-            #All other non-fatal errors caught higher up in the experiment chain should
-            #gracefully handle the error, then 'raise PauseError' so that the experiment
-            #exits out to this point.
+            # This should be the only place that PauseError is explicitly handed.
+            # All other non-fatal errors caught higher up in the experiment chain should
+            # gracefully handle the error, then 'raise PauseError' so that the experiment
+            # exits out to this point.
 
             # Delete this measurement from the results, since the data is probably no good anyway, and the
             # measurement number may not have incremented and may have to be reused.
