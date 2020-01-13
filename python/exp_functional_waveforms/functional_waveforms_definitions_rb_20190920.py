@@ -736,8 +736,6 @@ if ExpMode==0:
     # exp.mot_3d_z1_shutter_switch.profile(t_z1_shutter_open,'on') #reversed pol 08232019
     # exp.mot_3d_z1_shutter_switch.profile(t_z1_shutter_close,'off')
  # for specific purposes
-    # Microwave(t_science+extension-4,t_microwave)
-    #
     # # Science Phase 170 - 175 ms. t_science=170
     # AO(t_science+extension-3,shimcoil_3DX,coil_driver_polarity*shimX_PGC)
     # AO(t_science+extension-3,shimcoil_3DY,coil_driver_polarity*shimY_PGC)
@@ -755,8 +753,7 @@ if ExpMode==0:
     #Ryd780B(t_science,t_gap,'PG','r3')
     # Ryd780B(t_science,t_gap,'addressing','r3')
     #SpinEcho(t_science,t_gap,t_microwavepiover2)
-    #Microwave(t_science+extension+t_depump,t_microwave)
-   ##Microwave(t_science,t_microwave) # Microwave for Ryd780B
+    Microwave(t_science+extension+t_depump,t_microwave)
     # Ryd780A(t_science+0.001+extension,t_Ryd780A,'r2','r2')
     FORTdrop(170+extension, t_FORTdrop)
     # Blue480(t_science+extension-0.1, t_blueon,'r2')
