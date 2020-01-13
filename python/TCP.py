@@ -195,6 +195,7 @@ class CsClientSock(CsSock):
                 data=msg[i:i+L]
                 i+=L
                 result.update([(name,data)])
+                #print "name: {} length: {}".format(name,str(L))
         return result
 
 class CsServerSock(CsSock):
