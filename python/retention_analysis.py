@@ -40,7 +40,6 @@ class RetentionAnalysis(Analysis):
         ), axis=0)
 
         loading = loaded.astype('float') / total
-
         retention = retained.astype('float') / loaded
         # find the 1 sigma confidence interval for binomial data using the
         # normal approximation:
@@ -202,6 +201,18 @@ class RetentionGraph(AnalysisWithFigure):
                     fig = self.backFigure
                     fig.clf()
 
+                    x_label = 'iteration'
+                    x_vals = []
+                    try:
+                        for i, ivar in enumerate(self.experiment.ivarNames):
+                            if len(self.experiment.ivarValueLists[i]) > 1:
+                                print "found iterated variable: {}".format(ivar)
+                                x_label = ivar
+                                print self.experiment.ivarValueLists[i]
+                                x_vals = self.experiment.ivarValueLists[i]
+                                break
+                    except TypeError:
+                        logger.debug("unable to iterate over {}".format(self.experiment.ivarNames))
                     if self.mean is not None:
                         # parse the list of what to plot from a string to a
                         # list of numbers
@@ -219,15 +230,21 @@ class RetentionGraph(AnalysisWithFigure):
                             except:
                                 logger.warning('Trying to plot data that does not exist in RetentionGraph: roi {}'.format(i))
                                 continue
+                            if x_vals == []:
+                                x_vals = np.arange(len(mean))
                             label = '({})'.format(i)
                             linestyle = '-o' if self.draw_connecting_lines else 'o'
                             if self.draw_error_bars:
-                                ax.errorbar(np.arange(len(mean)), mean, yerr=sigma, fmt=linestyle, label=label)
+                                ax.errorbar(x_vals[:len(mean)], mean, yerr=sigma, fmt=linestyle, label=label)
                             else:
-                                ax.plot(np.arange(len(mean)), mean, linestyle, label=label)
+                                ax.plot(x_vals[:len(mean)], mean, linestyle, label=label)
                         # adjust the limits so that the data isn't right on the
                         # edge of the graph
-                        ax.set_xlim(-.5, len(self.mean)+0.5)
+                        if len(x_vals) > 1:
+                            delta = abs(x_vals[1] - x_vals[0])
+                        else:
+                            delta = 1
+                        ax.set_xlim(min(x_vals[:len(mean)]) - 0.3*delta, max(x_vals[:len(mean)]) + 0.3*delta)
                         if self.ymin != '':
                             ax.set_ylim(bottom=float(self.ymin))
                         if self.ymax != '':
@@ -235,9 +252,11 @@ class RetentionGraph(AnalysisWithFigure):
                         # add legend using the labels assigned during ax.plot()
                         # or ax.errorbar()
                         ax.legend(bbox_to_anchor=(0., 1.02, 1., .102), loc=3, ncol=7, mode="expand", borderaxespad=0.)
+                        ax.set_xlabel(x_label)
+                        ax.set_ylabel('Retention')
 
                     super(RetentionGraph, self).updateFigure()
                 except Exception as e:
-                    logger.warning('Problem in RetentionGraph.updateFigure()\n{}\n{}\n'.format(e, traceback.format_exc()))
+                    logger.exception('Problem in RetentionGraph.updateFigure()')
                 finally:
                     self.update_lock = False

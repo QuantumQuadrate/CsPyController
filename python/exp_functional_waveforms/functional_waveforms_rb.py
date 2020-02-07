@@ -30,16 +30,38 @@ from camera import Camera
 '''I think these constants need to be defined here so that they can be
 overwritten at the global scope.
 '''
+################################################################################
+# Example DDS Profile ##########################################################
+#
+# these pinouts and profiles are used further down in this file in the Rb class
+# where they are used to define DDS or Switch objects
+################################################################################
+# ex_dds_pinout = (-1,2,5) # pins on the HDSIO to toggle DDS pins. -1: not in use
+# ex_dds_profiles = {
+#   'ex1' = (0,0,1) # pin 5 outputs high, dds sees 4 in grey code
+# }
+# what determines what profile this is though? see dds window in CsPy to set it
 
 ################################################################################
-# 3D MOT DDS SETUP ################################################################
+# DDS 1.5 Test Profile ##########################################################
+################################################################################
+test_dds_pinout = (-1,-1,-1) # actually hook this up to something
+test_dds_profiles = {
+  'on' : (0,0,0),
+  'off': (0,0,1)
+}
+
+################################################################################
+# 3D MOT DDS SETUP #############################################################
 ################################################################################
 mot_3d_dds_pinout = (0,1,2)
 mot_3d_dds_profiles = {
-    'MOT' : (0,0,0),
-    'off' : (0,0,1),
+    'MOT' : (0,0,0),#  (pin2, pin1, pin0)
+    'PGC' : (0,0,1),
     'Blowaway' : (0,1,0),
-    'RO' : (0,1,1)
+    'RO' : (0,1,1),
+    'PGC2' : (1,0,0),
+    'GM': (1,1,0)  # coming soon? O__o
 }
 
 ################################################################################
@@ -49,8 +71,8 @@ fort_dds_pinout = (-1,3,4) # -1 indicates pins that are not being used
 fort_dds_profiles = {
     'on' : (0,0,0),
     'off' : (0,0,1),
-    'Blowaway' : (0,1,0),
-    'RO' : (0,1,1)
+    'science' : (0,1,0),
+    'low' : (0,1,1)
 }
 ################################################################################
 # 2D MOT DDS SETUP ################################################################
@@ -85,13 +107,13 @@ ryd780a_dds_profiles = {
     'off' : (0,0,0),
     'r1' : (0,0,1),
     'r2' : (0,1,0),
-    'r3' : (0,1,1)
+    'PG' : (0,1,1)
 }
 
 ################################################################################
 # Ryd 780B DDS SETUP ################################################################
 ################################################################################
-ryd780b_dds_pinout = (-1,-1,-1) # -1 indicates pins that are not being used
+ryd780b_dds_pinout = (-1,34,33) # -1 indicates pins that are not being used
 ryd780b_dds_profiles = {
     'off' : (0,0,0),
     'r1' : (0,0,1),
@@ -104,7 +126,7 @@ ryd780b_dds_profiles = {
 red_pointing_dds_pinout = (-1,24,25) # -1 indicates pins that are not being used
 red_pointing_dds_profiles = {
     'off' : (0,0,0),
-    'r1' : (0,0,1),
+    'addressing' : (0,0,1),
     'r2' : (0,1,0),
     'PG' : (0,1,1)
 }
@@ -124,7 +146,7 @@ blue_pointing_dds_profiles = {
 ################################################################################
 mot_aom_switch_chan = 7
 # this is the default profile, we dont have to pass it in if we dont want to
-mot_aom_switch_profile = {'on':0, 'off':1}
+mot_aom_switch_profile = {'on':1, 'off':0}
 # timing delay parameter
 mot_aom_switch_delay = 0
 
@@ -178,7 +200,7 @@ mot_3d_x_shutter_switch_delay = 0
 ################################################################################
 mot_3d_y_shutter_switch_chan = 13
 # this is the default profile, we dont have to pass it in if we dont want to
-mot_3d_y_shutter_switch_profile = {'on':1, 'off':0}
+mot_3d_y_shutter_switch_profile = {'off':1, 'on':0}
 # timing delay parameter
 mot_3d_y_shutter_switch_delay = 0
 
@@ -211,7 +233,7 @@ repumper_shutter_switch_delay = 0
 
 
 ################################################################################
-# microwaver SWITCH SETUP ##########################################################
+# microwave SWITCH SETUP ##########################################################
 ################################################################################
 microwave_switch_chan = 18
 # this is the default profile, we dont have to pass it in if we dont want to
@@ -245,6 +267,14 @@ ryd780a_aom_switch_chan = 21
 ryd780a_aom_switch_profile = {'on':1, 'off':0}
 # timing delay parameter
 ryd780a_aom_switch_delay = 0
+################################################################################
+# Ryd 780B AOM SWITCH SETUP ##########################################################
+################################################################################
+ryd780b_aom_switch_chan = 32
+# this is the default profile, we dont have to pass it in if we dont want to
+ryd780b_aom_switch_profile = {'on':1, 'off':0}
+# timing delay parameter
+ryd780b_aom_switch_delay = 0
 
 ################################################################################
 # Red Pointing AOM SWITCH SETUP ##########################################################
@@ -284,7 +314,7 @@ scope_trigger_profile = {'on':1, 'off':0} # Does this work?
 scope_trigger_delay = 0
 
 ################################################################################
-# Pointgrey camera Trigger SETUP ###############################################
+# Pointgrey camera no.1 Trigger SETUP ###############################################
 ################################################################################
 pointgrey_trigger_chan = 46
 # this is the default profile, we dont have to pass it in if we dont want to
@@ -337,6 +367,24 @@ FORT_SW2_trigger_profile = {'on':1, 'off':0}
 # timing delay parameter
 FORT_SW2_trigger_delay = 0
 
+################################################################################
+# Pointgrey camera no.2 Trigger SETUP ###############################################
+################################################################################
+pointgrey2_trigger_chan = 53 # 53 - 32 = 21
+# this is the default profile, we dont have to pass it in if we dont want to
+pointgrey2_trigger_profile = {'on':1, 'off':0} # Does this work?
+# timing delay parameter
+pointgrey2_trigger_delay = 0
+
+################################################################################
+# UV LIAD SETUP ###############################################
+################################################################################
+UV_trigger_chan = 57 # 57 - 32 = 25
+# this is the default profile, we dont have to pass it in if we dont want to
+UV_trigger_profile = {'on':1, 'off':0} # Does this work?
+# timing delay parameter
+UV_trigger_delay = 0
+
 
 ################################################################################
 ################################################################################
@@ -348,18 +396,27 @@ class Rb(object):
 
     def __init__(self, HSDIO, AO, DO, label):
 
-        # declare dds channels
+        # DDS 1. declare dds channels. Up to four.
         self.mot_3d_dds = DDS(HSDIO, mot_3d_dds_pinout, mot_3d_dds_profiles)
         self.fort_dds = DDS(HSDIO, fort_dds_pinout, fort_dds_profiles)
         self.mot_2d_dds = DDS(HSDIO, mot_2d_dds_pinout, mot_2d_dds_profiles)
         self.op_dds = DDS(HSDIO, op_dds_pinout, op_dds_profiles)
 
-
+        # DDS .. 2?
         #self.ryd780b_dds_dds = DDS(HSDIO, ryd780b_dds_pinout, ryd780b_dds_profiles)
         self.red_pointing_dds = DDS(HSDIO, red_pointing_dds_pinout, red_pointing_dds_profiles)
         self.blue_pointing_dds = DDS(HSDIO, blue_pointing_dds_pinout, blue_pointing_dds_profiles)
         self.microwave_dds = DDS(HSDIO, microwave_dds_pinout, microwave_dds_profiles)
         self.ryd780a_dds = DDS(HSDIO, ryd780a_dds_pinout, ryd780a_dds_profiles)
+
+        # 3rd DDS - but how to we bind this to a particular DDS???
+        self.ryd780b_dds = DDS(HSDIO, ryd780b_dds_pinout, ryd780b_dds_profiles)
+        #self.blue_pointing_dds = DDS(HSDIO, blue_pointing_dds_pinout, blue_pointing_dds_profiles)
+        #self.microwave_dds = DDS(HSDIO, microwave_dds_pinout, microwave_dds_profiles)
+        #self.ryd780a_dds = DDS(HSDIO, ryd780a_dds_pinout, ryd780a_dds_profiles)
+
+        # Arduino DDS (v. "1.5")
+        self.test_dds = DDS(HSDIO, test_dds_pinout, test_dds_profiles)
 
         # declare switches
 
@@ -454,8 +511,12 @@ class Rb(object):
             delay=pointgrey_trigger_delay,
             pulse_length=1 # in millisecond. this can be overwrttten in functional waveform window
         )
-
-
+        self.PGcamera2 = Camera( # Pointgret camera, standard trigger control
+            HSDIO=HSDIO,
+            channel=pointgrey2_trigger_chan,
+            delay=pointgrey2_trigger_delay,
+            pulse_length=1 # in millisecond. this can be overwrttten in functional waveform window
+        )
         self.red_pointing_aom_switch = Switch(
             HSDIO,
             red_pointing_aom_switch_chan,
@@ -475,6 +536,12 @@ class Rb(object):
             ryd780a_aom_switch_chan,
             profiles=ryd780a_aom_switch_profile,
             delay=ryd780a_aom_switch_delay
+        )
+        self.ryd780b_aom_switch = Switch(
+            HSDIO,
+            ryd780b_aom_switch_chan,
+            profiles=ryd780b_aom_switch_profile,
+            delay=ryd780b_aom_switch_delay
         )
         self.ground_aom_switch = Switch(
             HSDIO,
@@ -503,7 +570,12 @@ class Rb(object):
             profiles=pointgrey_trigger_profile,
             delay=pointgrey_trigger_delay
         )
-
+        self.pointgrey2_trigger_switch = Switch(
+            HSDIO,
+            pointgrey2_trigger_chan,
+            profiles=pointgrey2_trigger_profile,
+            delay=pointgrey2_trigger_delay
+        )
         self.FORT_NE_trigger_switch = Switch(
             HSDIO,
             FORT_NE_trigger_chan,
@@ -516,4 +588,11 @@ class Rb(object):
             ryd780A_NE_trigger_chan,
             profiles=ryd780A_NE_trigger_profile,
             delay=ryd780A_NE_trigger_delay
+        )
+
+        self.UV_trigger_switch = Switch(
+            HSDIO,
+            UV_trigger_chan,
+            profiles=UV_trigger_profile,
+            delay=UV_trigger_delay
         )
