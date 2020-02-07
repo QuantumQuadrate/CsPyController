@@ -32,18 +32,23 @@ overwritten at the global scope.
 '''
 ################################################################################
 # Example DDS Profile ##########################################################
+#
+# these pinouts and profiles are used further down in this file in the Rb class
+# where they are used to define DDS or Switch objects
 ################################################################################
 # ex_dds_pinout = (-1,2,5) # pins on the HDSIO to toggle DDS pins. -1: not in use
 # ex_dds_profiles = {
 #   'ex1' = (0,0,1) # pin 5 outputs high, dds sees 4 in grey code
 # }
+# what determines what profile this is though? see dds window in CsPy to set it
 
 ################################################################################
-# Adruino DDS Profile ##########################################################
+# DDS 1.5 Test Profile ##########################################################
 ################################################################################
-test_dds_pinout = (-1,-1,-1) #
+test_dds_pinout = (-1,-1,-1) # actually hook this up to something
 test_dds_profiles = {
-  'test1' : (0,0,0) # only the last pin high
+  'on' : (0,0,0),
+  'off': (0,0,1)
 }
 
 ################################################################################

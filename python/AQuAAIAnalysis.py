@@ -37,7 +37,7 @@ class AQuAAIAnalysis(Analysis):
         if self.experiment.Config.config.get('EXPERIMENT', 'Name') == 'AQUA':
             self.enable = True
         else:
-            self.enable = True
+            self.enable = False
 
     def analyzeMeasurement(self, measResults, iterationResults, experimentResults):
         if self.enable:

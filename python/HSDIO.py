@@ -154,8 +154,7 @@ class HSDIO(Instrument):
         self.transition_list.append((time, channel, state))
 
     def add_repeat(self, time, function, repeats):
-        """Add a repeat loop to the script to take advantage of the HSDIO's
-        built-in "Repeat" functionality.
+        """Add a repeat loop to the script to take advantage of the HSDIO's builtin "Repeat" functionality.
 
         MUST USE CAREFULLY SO THAT NO CONFLICTS ARISE WITH NORMAL HSDIO USAGE!!!
 
