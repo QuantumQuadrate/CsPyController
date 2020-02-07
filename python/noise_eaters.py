@@ -20,16 +20,20 @@ class Noise_Eater(Prop):
         super(Noise_Eater, self).__init__(name, experiment, description)
         self.target_setting = FloatProp('target_setting1', experiment, 'the target Voltage','1')
         self.properties += ['target_setting', 'ip', 'ID']
-        
-        
+
+
+
+
     def update(self):
         # calculate relative move necessary
         data = {'setpointv': self.target_setting.value}
         return self.ip, data, self.ID
-        
 
-class Noise_Eaters(Instrument):   
-    version = '2017.07.21'  
+
+
+class Noise_Eaters(Instrument):
+    version = '2017.07.21'
+
     NEchannels = Member()
 
 
@@ -66,7 +70,9 @@ class Noise_Eaters(Instrument):
     def update(self):
         """
         Every iteration, send the motors updated positions.
-        """        
+
+        """
+
         for i in self.NEchannels:
             if self.enable:
                 ip, data, ID = i.update()
