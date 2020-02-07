@@ -20,6 +20,7 @@ logger = logging.getLogger(__name__)
 from atom.api import Bool, Str, Member, Int, Float
 from instrument_property import Prop, FloatProp, IntProp, ListProp, BoolProp, StrProp
 from cs_instruments import Instrument
+from analysis import Analysis
 import TCP
 from cs_errors import PauseError
 import time
@@ -137,7 +138,7 @@ class Conexes(Instrument):
             self.isInitialized = True
 
 
-    def postMeasurement(self, measurementresults, iterationresults, hdf5):
+    def postMeasurement(self, callbutt, measurementresults, iterationresults, hdf5):
         return
 
     def postIteration(self, iterationresults, hdf5):
@@ -200,3 +201,14 @@ class Conexes(Instrument):
                         #i.socket.close()
                         i.isInitialized = False
                         raise PauseError
+
+    def start(self):
+        self.isDone = True
+        return
+
+    def update(self):
+        self.preIteration(0,0)
+        return
+
+    def initialize(self):
+        self.preExperiment(0)

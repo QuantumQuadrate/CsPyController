@@ -376,6 +376,7 @@ pointgrey2_trigger_profile = {'on':1, 'off':0} # Does this work?
 # timing delay parameter
 pointgrey2_trigger_delay = 0
 
+
 ################################################################################
 # UV LIAD SETUP ###############################################
 ################################################################################
@@ -384,6 +385,7 @@ UV_trigger_chan = 57 # 57 - 32 = 25
 UV_trigger_profile = {'on':1, 'off':0} # Does this work?
 # timing delay parameter
 UV_trigger_delay = 0
+
 
 
 ################################################################################
@@ -590,9 +592,11 @@ class Rb(object):
             delay=ryd780A_NE_trigger_delay
         )
 
+
         self.UV_trigger_switch = Switch(
             HSDIO,
             UV_trigger_chan,
             profiles=UV_trigger_profile,
             delay=UV_trigger_delay
         )
+

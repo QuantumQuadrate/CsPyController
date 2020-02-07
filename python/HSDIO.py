@@ -14,6 +14,7 @@ from __future__ import division
 import logging
 import numpy as np
 import dicttoxml
+import pprint
 
 from cs_errors import PauseError
 
@@ -176,6 +177,8 @@ class HSDIO(Instrument):
         # check that dt is an integer multiple of cycles
         req_cycles_per_repeat = dt*self.clockRate.value*self.units.value
         cycles_per_repeat = int(round(req_cycles_per_repeat))
+        print self.hardwareAlignmentQuantum.value
+        cycles_per_repeat -= cycles_per_repeat % 2
         # warn if cycle error is too large (remember finite precision for FPs)
         if abs(req_cycles_per_repeat - cycles_per_repeat) < 0.1:
             msg = (
@@ -346,9 +349,15 @@ class HSDIO(Instrument):
         for tnum, t in enumerate(transition_list):
             for q in range(hardware_quanta):
                 # add in the transition
-                transitions.append(str(time))
-                # move time counter up one cycle
-                time += 1
+                if q == 0 and time % hardware_quanta:
+                    # if not synchronous with the hardware quanta move transition forward
+                    logger.warning('Detected a hardware quanta roudin event. Auto fixing by one cycle')
+                    transitions.append(str(time-(time % hardware_quanta)))
+                    # dont move time counter up to account for shift
+                else:
+                    transitions.append(str(time))
+                    # move time counter up one cycle
+                    time += 1
                 # and the state
                 states.append(t['state'])
             time += t['waitTime'] - 1*hardware_quanta
@@ -386,23 +395,32 @@ class HSDIO(Instrument):
         sample_clock_cycles_to_next_ot = -1
         # keeps track of wait time when there are state changes during the repeat from other channels
         sample_clock_cycles_to_next_ot_option = -1
+        cycles_per_repeat = transition_list[0]['cycles_per_repeat']
+        print cycles_per_repeat
+
+        first_cycle_err = "An HSDIO state change was detected during the first repeat cycle."
         for t in transition_list:
             if self.repeats[t['index']] == -1:
+                if repeat_sample_clock_cycles < cycles_per_repeat:
+                    logger.error(first_cycle_err)
+                    raise PauseError
                 if not repeats_done or sample_clock_cycles_to_next_ot < 0:
                     # mark the total time to first other transition, use from before but cant overwrite
                     # because I am dumb
                     sample_clock_cycles_to_next_ot = sample_clock_cycles_to_next_ot_option
+                #if sample_clock_cycles_to_next_ot <
                 repeats_done = True
                 other_transitions.append(shallow_copy(t))
             else:
+                if cycles_per_repeat != t['cycles_per_repeat']:
+                    logger.error("An overlapping repeat cycle was detected.")
                 if repeats_done:
-                    logger.error("""An HSDIO state change was detected during the first repeat cycle.
-                        Also check that you are accidentally doing a dds grey code switch.""")
+                    logger.error(first_cycle_err + "Also check that you aren't accidentally doing a dds grey code switch.")
                     raise PauseError
                 repeat_only_list.append(shallow_copy(t))
                 repeat_sample_clock_cycles += t['waitTime']
                 sample_clock_cycles_to_next_ot_option = repeat_sample_clock_cycles
-                if repeat_sample_clock_cycles > t['cycles_per_repeat']:
+                if repeat_sample_clock_cycles >= t['cycles_per_repeat']:
                     # clean up waits
                     repeat_only_list[-1]['waitTime'] -= repeat_sample_clock_cycles - t['cycles_per_repeat']+1
                     repeat_sample_clock_cycles = t['cycles_per_repeat']
@@ -430,7 +448,6 @@ class HSDIO(Instrument):
             # calculate how many full cycles before each other transition
             sample_clock_cycles_to_next_ot = ot['waitTime']
             if modulo:  # from last round
-                print "modulo!!!!"
                 sample_clock_cycles_to_next_ot -= repeat_only_list[0]['cycles_per_repeat'] - modulo
             full_cycles, modulo = divmod(sample_clock_cycles_to_next_ot, repeat_sample_clock_cycles)
             if cycle_count + full_cycles > repeat_only_list[0]['repeats']:
@@ -444,22 +461,44 @@ class HSDIO(Instrument):
             cycle_count += full_cycles
             # generate a patch waveform if a cycle is interrupted
             if modulo > 0:
-                print modulo
-                logger.error("""Breaking up a repeat cycle in the middle of a cycle, is broken right now,
-                 bother MFE about debugging, or change your func waveforms to interrupt synced with a repeat
-                 cycle.""")
-                raise PauseError
                 # step through repeat waveform and switch to new_repeat_only_list, when cycles are exceeded
                 transition_lists.append([])
                 transition_cycles.append(1)
-                t = 0
                 cycle_count += 1
-                new_repeat_only_list = self.update_transition_list(repeat_only_list, other_transitions[i+1])
+                # copy the old transitions in, and switch after modulo time
+                if i>=len(other_transitions):
+                    logger.error('Transition at last repeat phase. Move the transition back one cycle.')
+                    raise PauseError
+                else:
+                    new_repeat_only_list = self.update_transition_list(repeat_only_list, other_transitions[i+1])
+                extra_idx = 1  # assume we will ned another transition until proven otherwise
+                ctime = 0
                 for idx in range(len(repeat_only_list)):
-                    if t >= modulo:
-                        transition_lists[-1].append(new_repeat_only_list[idx])
-                    else:
-                        transition_lists[-1].append(repeat_only_list[idx])
+                    if ctime < modulo:
+                        transition_lists[-1].append(shallow_copy(repeat_only_list[idx]))
+                    if ctime == modulo:
+                        transition_lists[-1].append(shallow_copy(new_repeat_only_list[idx]))
+                        extra_idx = 0  # the transition occurred during an existing transition
+                    if ctime > modulo:
+                        transition_lists[-1].append(shallow_copy(new_repeat_only_list[idx-extra_idx]))
+                    ctime += repeat_only_list[idx]['waitTime']
+                # add in the last transition if we had to make a new one
+                if extra_idx:
+                    transition_lists[-1].append(shallow_copy(new_repeat_only_list[-1]))
+                    # fix waitTimes
+                    ctime = 0
+                    for idx, tt in enumerate(transition_lists[-1]):
+                        ctime += tt['waitTime']
+                        if ctime > modulo:
+                            tt['waitTime'] -= ctime-modulo
+                            transition_lists[-1][idx+1]['waitTime'] = ctime-modulo
+                            break
+                    ctime = 0
+                    for tt in transition_lists[-1]:
+                        ctime += tt['waitTime']
+                    if ctime != repeat_sample_clock_cycles-1:
+                        logger.error('Error in repeat loop, wrong cycle count')
+                        raise PauseError
 
         # now that we have split up the lists and applied the other transisions, generate the new waveforms
         waveforms = []
@@ -501,13 +540,11 @@ class HSDIO(Instrument):
     def find_repeat_overlaps(self):
         """Go through the list of repeats and return a list of overlaps."""
         # replace with an array of t0's and tf's then sort
-        sorted_rpt = np.sort(self.repeat_list, axis=0)
         overlap = []
-        logger.warning("Repeat overlap not implemented well")
-        for i in xrange(len(self.repeat_list)-1):
-            if sorted_rpt[i]['tf'] > sorted_rpt[i+1]['t0']:
+        for i in np.argsort([r['t0'] for r in self.repeat_list])[:-1]:
+            if self.repeat_list[i]['tf'] > self.repeat_list[i+1]['t0']:
                 overlap.append(i)
-                logger.warning('HSDIO Repeat Overlap at ts={}'.format(sorted_rpt[i+1][0]))
+                logger.warning('HSDIO Repeat Overlap at ts={}'.format(self.repeat_list[i+1]['t0']))
         return overlap
 
     def add_wait(self, script, waitTime):
@@ -628,6 +665,8 @@ class HSDIO(Instrument):
                 '\n'.join(script),
                 '\n'.join(master_waveform_list)
             )
+            #pprint.pprint(script)
+            #pprint.pprint(master_waveform_list)
             # [7:] removes the <HSDIO> on what is returned from super.toHardware
             return xml_str + super(HSDIO, self).toHardware()[7:]
         else:

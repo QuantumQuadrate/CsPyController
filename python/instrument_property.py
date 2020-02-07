@@ -15,7 +15,7 @@ from atom.api import Atom, Str, Bool, Int, Float, List, Member, Value, observe
 from enaml.validator import Validator
 from enaml.application import deferred_call
 
-import pickle, traceback, h5py, numpy
+import pickle, h5py, numpy
 import cs_evaluate
 
 
@@ -39,7 +39,7 @@ class Prop(Atom):
     description = Str()
     experiment = Member()
     properties = Member()
-    #GUI = Member()  # an optional enaml object that represents this class in the GUI, and has an update() method, to be run on eval
+    # GUI = Member()  # an optional enaml object that represents this class in the GUI, and has an update() method, to be run on eval
     doNotSendToHardware = Member()
 
     def __init__(self, name, experiment, description=''):
@@ -97,7 +97,6 @@ class Prop(Atom):
 
         #go through the list of properties:
         for p in self.properties:
-
             #convert the string name to an actual object
             try:
                 o = getattr(self, p)
@@ -194,7 +193,7 @@ class Prop(Atom):
                             # this is an error, but we will not pass it on, in order to finish loading
                             continue
                         except Exception as e:
-                            logger.warning('While trying attribute'+i+'.fromHDF5() in Prop.fromHDF5() in '+self.name+'.\n'+str(e)+'\n'+str(traceback.format_exc())+'\n')
+                            logger.exception('While trying attribute '+i+'.fromHDF5() in Prop.fromHDF5() in '+self.name+'.')
                             # this is an error, but we will not pass it on, in order to finish loading
                             continue
                     else:
@@ -219,7 +218,7 @@ class Prop(Atom):
                             # use the unpickled value
                             setattr(self, i, x)
                         except Exception as e:
-                            logger.warning('in ' + self.name + ' in Prop.fromHDF5() while setting variable ' + i + ' in ' + self.name + '\n' + str(e) + '\n')
+                            logger.exception('in ' + self.name + ' in Prop.fromHDF5() while setting variable ' + i + ' in ' + self.name)
                             # this is an error, but we will not pass it on, in order to finish loading
                             continue
 
@@ -247,7 +246,7 @@ class Prop(Atom):
                         # must be important so we will pass it on
                         raise PauseError
                     except Exception as e:
-                        logger.warning('While trying '+i+'.fromHDF5() in Prop.fromHDF5() in '+self.name+'.\n'+str(e)+'\n'+str(traceback.format_exc())+'\n')
+                        logger.exception('While trying '+i+'.fromHDF5() in Prop.fromHDF5() in '+self.name+'.')
                         # this is an error, but we will not pass it on, in order to finish loading
                         continue
                 else:
@@ -292,16 +291,17 @@ class Prop(Atom):
         function information that leads to those values.'''
         output=''
 
-        #go through list of single properties:
-        for p in self.properties: # I use a for loop instead of list comprehension so I can have more detailed error reporting.
+        # go through list of single properties:
+        # I use a for loop instead of list comprehension so I can have more detailed error reporting.
+        for p in self.properties:
             if p not in self.doNotSendToHardware:
-                #convert the string name to an actual object
+                # convert the string name to an actual object
                 try:
-                    o=getattr(self,p)
+                    o = getattr(self, p)
                 except:
-                    logger.warning('In Prop.toHardware() for class '+self.name+': item '+p+' in properties list does not exist.\n')
+                    msg = 'In Prop.toHardware() for class {}: item {} in properties list does not exist.\n'
+                    logger.warning(msg.format(self.name, p))
                     raise PauseError
-
                 output += self.HardwareProtocol(o, p)
 
         try:
@@ -402,7 +402,7 @@ class EvalProp(Prop):
                 self.value = value
                 self.set_gui({'valueStr': str(value)})
             except TypeError as e:
-                #this type of error is raised by Atom type checking
+                # this type of error is raised by Atom type checking
                 logger.error('TypeError while evaluating:\nproperty: '+self.name+'\ndescription: '+self.description+'\nfunction: '+self.function+'\n'+str(e)+'\n')
                 self.set_gui({'valid': False, 'valueStr': ''})
                 raise PauseError
@@ -411,16 +411,17 @@ class EvalProp(Prop):
                 self.set_gui({'valid': False, 'valueStr': ''})
                 raise PauseError
 
-            #if we made it through all that, then the evaluation was okay
+            # if we made it through all that, then the evaluation was okay
             self.set_gui({'valid': True})
 
     def toHardware(self):
         try:
-            valueStr = str(self.value)
+            value_str = str(self.value)
         except Exception as e:
-            logger.warning('Exception in str(self.value) in EvalProp.toHardware() in '+self.name+' .\n'+str(e))
+            msg = 'Exception in str(self.value) in EvalProp.toHardware() in {} .\n{}'
+            logger.warning(msg.format(self.name, e))
             raise PauseError
-        return '<{}>{}</{}>\n'.format(self.name,valueStr,self.name)
+        return '<{}>{}</{}>\n'.format(self.name, value_str, self.name)
 
 
 class StrProp(EvalProp):
@@ -644,7 +645,7 @@ class ListProp(Prop):
                     except PauseError:
                         raise PauseError
                     except Exception as e:
-                        logger.warning('Evaluating list item '+str(i)+' '+o.name+' in ListProp.evaluate() in '+self.name+'.\n'+str(e)+'\n'+str(traceback.format_exc())+'\n')
+                        logger.exception('Evaluating list item '+str(i)+' '+o.name+' in ListProp.evaluate() in '+self.name+'.')
                         raise PauseError
         self.refreshGUI()
 
@@ -656,7 +657,6 @@ class ListProp(Prop):
 
         #go through the listProperty and toHDF5 each item
         for i,o in enumerate(self.listProperty):
-
             try:
             #attempt to use given name
                 name = o.name
@@ -669,7 +669,7 @@ class ListProp(Prop):
                 except PauseError:
                     raise PauseError
                 except Exception as e:
-                    logger.warning('Uncaught exception on list item {} in ListProp.toHDF5item() in {}.\n{}\n{}\n'.format(i,self.name,str(e),str(traceback.format_exc())))
+                    logger.exception('Uncaught exception on list item {} in ListProp.toHDF5item() in {}.'.format(i,self.name))
                     raise PauseError
         return list_node
 
@@ -682,7 +682,7 @@ class ListProp(Prop):
             except PauseError:
                 raise PauseError
             except Exception as e:
-                logger.warning('While trying toHDF5() on list item {} in ListProp.toHDF5() in {}.\n{}\n{}\n'.format(name, self.name, str(e), str(traceback.format_exc())))
+                logger.warning('While trying toHDF5() on list item {} in ListProp.toHDF5() in {}.'.format(name, self.name))
                 raise PauseError
         else:
         #try to save it as an attribute, then as a dataset.  If that fails, save its pickle
@@ -713,7 +713,7 @@ class ListProp(Prop):
         except PauseError:
             raise PauseError
         except Exception as e:
-            logger.warning('in {} in ListProp.fromHDF5() for hdf node {}\n{}\n{}\n'.format(self.name, hdf.name, e, traceback.format_exc()))
+            logger.warning('in {} in ListProp.fromHDF5() for hdf node {}.'.format(self.name, hdf.name))
             raise PauseError
         self.refreshGUI()
         return self
@@ -760,14 +760,14 @@ class Numpy1DProp(Prop):
         try:
             hdf.create_dataset(self.name, data=self.array, dtype=self.hdf_dtype)#, compression="gzip", chunks=True)
         except Exception as e:
-            logger.warning('While trying to create dataset in Numpy1DProp.toHDF5() in '+self.name+'.\n'+str(e)+'\n'+str(traceback.format_exc())+'\n')
+            logger.exception('While trying to create dataset in Numpy1DProp.toHDF5() in '+self.name+'.')
             raise PauseError
 
     def fromHDF5(self, hdf):
         try:
             self.array = hdf.value.astype(self.dtype)
         except Exception as e:
-            logger.warning(' in Numpy1DProp.fromHDF5() in {} for hdf node {}\n{}\n{}\n'.format(self.name, hdf.name, e, traceback.format_exc()))
+            logger.exception(' in Numpy1DProp.fromHDF5() in {} for hdf node {}.'.format(self.name, hdf.name))
             raise PauseError
 
 
@@ -808,7 +808,7 @@ class Numpy2DProp(Prop):
         try:
             hdf.create_dataset(self.name, data=self.array, dtype=self.hdf_dtype)#, compression="gzip", chunks=True)
         except Exception as e:
-            logger.warning('While trying to create dataset in Numpy2DProp.toHDF5() in '+self.name+'.\n'+str(e)+'\n'+str(traceback.format_exc())+'\n')
+            logger.exception('While trying to create dataset in Numpy2DProp.toHDF5() in '+self.name+'.')
             raise PauseError
 
     def fromHDF5(self, hdf):

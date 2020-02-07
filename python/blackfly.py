@@ -19,7 +19,23 @@ from atom.api import Typed, Member, Int, Float, Bool
 from cs_instruments import Instrument
 import zmq_instrument
 from instrument_property import Prop
-from PyCapture2 import PROPERTY_TYPE, BUS_SPEED, GRAB_MODE, PIXEL_FORMAT
+
+try:
+    from PyCapture2 import PROPERTY_TYPE, BUS_SPEED, GRAB_MODE, PIXEL_FORMAT
+except:
+    # just make fake values so stuff doesnt crash when testing
+    print("PyCapture2 not installed, blackfly cameras are not usuable")
+    class ptype(object):
+        def __init__(self):
+            self.TRIGGER_DELAY = 1
+            self.BUFFER_FRAMES = 2
+            self.S_FASTEST = 3
+            self.MONO8 = 4
+
+    PROPERTY_TYPE = ptype()
+    BUS_SPEED = ptype()
+    GRAB_MODE = ptype()
+    PIXEL_FORMAT = ptype()
 
 __author__ = 'Matthew Ebert'
 logger = logging.getLogger(__name__)
@@ -84,7 +100,7 @@ class BFConfiguration(BFProperty):
     server.
     """
 
-    numBuffers = Int(10)  # image buffers on camera (shotsPerMeasurement)
+    numBuffers = Int(2)  # image buffers on camera (shotsPerMeasurement)
     numImageNotification = Int(0)  # number of notifications per image
     grabTimeout = Int(1)  # time in ms before retrieve buffer times out
     grabMode = Int(GRAB_MODE.BUFFER_FRAMES)  # grab mode for camera
@@ -148,6 +164,7 @@ class BFGigEStreamChannel(BFProperty):
             'packetSize', 'interPacketDelay'
         ]
 
+
 class BFGigEImageSettings(BFProperty):
     """Class containing the Configuration properties for a Blackfly camera.
 
@@ -158,7 +175,7 @@ class BFGigEImageSettings(BFProperty):
 
     offsetX = Int(1)
     offsetY = Int(1)
-    width = Int(1280)#
+    width = Int(1280)
     height = Int(960)
     pixelFormat = Int(PIXEL_FORMAT.MONO8)
 
@@ -171,13 +188,12 @@ class BFGigEImageSettings(BFProperty):
         ]
 
 
-
 class BlackflyCamera(Instrument):
     """An actual camera object."""
 
     serial = Int(0)
     exposureTime = Float(5.0)
-    shotsPerMeasurement = Int(2)
+    shotsPerMeasurement = Int(1)
     triggerDelay = Member()
     configuration = Member()
     gigEConfig = Member()
@@ -248,6 +264,7 @@ class BlackflyCamera(Instrument):
                     self.HardwareProtocol(o, p, settings)
         return settings
 
+
 class Blackfly(Instrument):
     """A camera object for display purposes."""
 
@@ -304,15 +321,23 @@ class BlackflyClient(zmq_instrument.ZMQInstrument):
                 try:
                     f = hdf5.create_group('{}/{}'.format(key, serial))
                     f['error'] = value[serial]['error']
-                    f = f.create_group('shots')
-                    for key in value[serial]['data']:
-                        shot = value[serial]['data'][key]
-                        shot_grp = f.create_group(str(key))
-                        raw_data = np.array(shot['image'])
-                        shot_grp.create_dataset('raw_data', data=raw_data)
-                        stat_grp = shot_grp.create_group('stats')
-                        for stat in shot['stats']:
-                            stat_grp[stat] = shot['stats'][stat]
+                    raw_data = np.array(value[serial]['data'])
+                    f.create_dataset('raw_data', data=raw_data)
+                    f = f.create_group('stats')
+                    for stat in value[serial]['stats']:
+                        f[stat] = value[serial]['stats'][stat]
+                    # f = hdf5.create_group('{}/{}'.format(key, serial))
+                    # f['error'] = value[serial]['error']
+                    # f = f.create_group('shots')
+                    # for key in value[serial]['data']:
+                    #     print key
+                    #     shot = value[serial]['data'][key]
+                    #     shot_grp = f.create_group(str(key))
+                    #     raw_data = np.array(shot['image'])
+                    #     shot_grp.create_dataset('raw_data', data=raw_data)
+                    #     stat_grp = shot_grp.create_group('stats')
+                    #     for stat in shot['stats']:
+                    #         stat_grp[stat] = shot['stats'][stat]
                 except:
                     logger.exception('problem')
 

@@ -24,8 +24,10 @@ from analysis import Analysis
 import TCP
 from cs_errors import PauseError
 import subprocess
-import sys
-sys.path.append(r'..\csharp\Aerotech_Ensemble_Server')
+import sys, os
+print os.getcwd()
+sys.path.append(r'{}\..\csharp\Aerotech_Ensemble_Server'.format(os.getcwd()))
+print sys.path
 import clr
 clr.AddReference("Aerotech.Common")
 clr.AddReference("Aerotech.Ensemble")
@@ -145,7 +147,14 @@ class Aerotechs(Instrument,Analysis):
         self.OneAerotech.waitForGlobals()
         self.preIteration(0,0)
         return
-        
+
     def start(self):
         self.isDone = True
         return
+
+    def update(self):
+        self.preIteration(0,0)
+        return
+
+    def initialize(self):
+        self.preExperiment(0)

@@ -118,6 +118,7 @@ class Experiment(Prop):
     pauseAfterMeasurement = Bool()
     pauseAfterError = Bool()
     reload_settings_after_pause = Bool()
+    repeat_experiment_automatically = Bool()
     saveData = Bool()
     saveSettings = Bool()
     settings_path = Str()
@@ -232,7 +233,8 @@ class Experiment(Prop):
 
         self.properties += ['version', 'constantsStr', 'independentVariables', 'dependentVariablesStr',
                             'pauseAfterIteration', 'pauseAfterMeasurement', 'pauseAfterError',
-                            'reload_settings_after_pause', 'saveData', 'saveSettings', 'settings_path',
+                            'reload_settings_after_pause', 'experiment.repeat_experiment_automatically',
+                            'saveData', 'saveSettings', 'settings_path',
                             'save_separate_notes', 'save2013styleFiles', 'localDataPath', 'networkDataPath',
                             'copyDataToNetwork', 'experimentDescriptionFilenameSuffix', 'measurementTimeout',
                             'measurementsPerIteration', 'willSendEmail', 'emailAddresses', 'progress', 'progressGUI',
@@ -495,7 +497,7 @@ class Experiment(Prop):
             logger.debug('Experiment.evaluate() ...')
 
             # start with the constants
-            self.vars = self.constants.copy()
+            self.evaluate_constants()
 
             # add the independent variables current values to the dict
             self.updateIndependentVariables()
@@ -567,7 +569,7 @@ class Experiment(Prop):
 
         #check if we are ready to do an experiment
         if not self.status.startswith('paused'):
-            logger.info('Current status is {}. Cannot continue an experiment unless status is paused.'.format(self.status))
+            logger.warning('Current status is {}. Cannot continue an experiment unless status is paused.'.format(self.status))
             return  # exit
         self.set_status('running')  # prevent another experiment from being started at the same time
         self.set_gui({'valid': True})
@@ -579,7 +581,6 @@ class Experiment(Prop):
             logger.debug('Before go() loop: status = {}, and optimizer.is_done = {}'.format(self.status, self.optimizer.is_done))
             while (self.status == 'running') and ((not self.optimizer.enable) or (not self.optimizer.is_done)):
                 logger.debug("starting new iteration")
-
 
                 # at the start of a new iteration, or every time if requested
                 if self.instrument_update_needed or self.reload_settings_after_pause:
@@ -599,8 +600,8 @@ class Experiment(Prop):
                     # only at the start of a new optimization experiment loop
                     self.create_optimizer_iteration()
 
-                #loop until the desired number of measurements are taken
-                #self.measurement = 0
+                # loop until the desired number of measurements are taken
+                # self.measurement = 0
                 while (self.goodMeasurements < self.measurementsPerIteration) and (self.status == 'running'):
                     self.set_gui({'valid': True})  # reset all the red error background graphics to show no-error
                     logger.info('iteration {} measurement {}'.format(self.iteration, self.measurement))
@@ -634,7 +635,7 @@ class Experiment(Prop):
                 if self.goodMeasurements >= self.measurementsPerIteration:
 
                     # We have completed this iteration, move on to the next one
-                    logger.debug("Finished iteration")
+                    logger.info("Finished iteration")
 
                     self.postIteration()  # run analysis
 
@@ -643,7 +644,9 @@ class Experiment(Prop):
 
                         logger.debug("Finished all iterations")
                         self.postExperiment()  # run analyses
-                        self.optimizer.update(self.hdf5, self.experiment_hdf5)  # update optimizer variables
+                        self.optimizer.update(self.hdf5, self.experiment_hdf5)  # update optimizer variables\
+                        for i in self.analyses:
+                            self.preExperiment()
                         if self.optimizer.is_done:
                             # the experiment is finished, run final analysis, upload data, and exit loop
                             for i in self.analyses:
@@ -678,10 +681,10 @@ class Experiment(Prop):
                     self.instrument_update_needed = True
 
         except PauseError:
-            #This should be the only place that PauseError is explicitly handed.
-            #All other non-fatal errors caught higher up in the experiment chain should
-            #gracefully handle the error, then 'raise PauseError' so that the experiment
-            #exits out to this point.
+            # This should be the only place that PauseError is explicitly handed.
+            # All other non-fatal errors caught higher up in the experiment chain should
+            # gracefully handle the error, then 'raise PauseError' so that the experiment
+            # exits out to this point.
 
             # Delete this measurement from the results, since the data is probably no good anyway, and the
             # measurement number may not have incremented and may have to be reused.
@@ -807,7 +810,7 @@ class Experiment(Prop):
                         threading.Thread(target=i.start).start()
                     else:
                         i.start()
-        logger.info('all instruments started')
+        logger.debug('all instruments started')
 
         # loop until all instruments are done
         # TODO: can we do this with a callback?
@@ -817,7 +820,7 @@ class Experiment(Prop):
                 logger.warning('The following instruments timed out: '+str([i.name for i in self.instruments if not i.isDone]))
                 return  # exit without saving results
             time.sleep(.01)  # wait a bit, then check again
-        logger.info('all instruments done')
+        logger.debug('all instruments done')
 
         # give each instrument a chance to acquire final data
         for i in self.instruments:
@@ -938,7 +941,7 @@ class Experiment(Prop):
                     # delete data when done
                     good = False
                     delete = True
-                    logger.warning('Analysis Error code 3 is no longer supported')
+                    logger.warning('Analysis Error code 3 is no longer supported and will not stop other analyses.')
                 else:
                     msg = (
                         'bad return value {} in experiment.postMeasurement()'
@@ -950,7 +953,6 @@ class Experiment(Prop):
                 resultDict['good'] = good
                 resultDict['delete'] = delete
                 analysisList.append(resultDict)
-                #print(analysisList)
                 logger.debug("{}: {}/{}".format(analysis.name, len(analysisList), len(self.analyses)))
 
                 if len(analysisList) == len(self.analyses):
@@ -1195,9 +1197,13 @@ class Experiment(Prop):
         self.hdf5['notes'] = self.notes
 
         #store the log
-        logger.info('Storing log ...')
-        self.log.flush()
-        self.hdf5['log'] = self.log.getvalue()
+        # logger.info('Storing log ...')
+        # self.log.flush()
+        # try:
+        #     self.hdf5['log'] = self.log.getvalue()
+        # except ValueError:
+        #     # this throws an error at the end of an optimization experiment
+        #     logger.exception('Exception occured when accessing self.log')
         self.hdf5.flush()
 
         #copy to network
@@ -1211,6 +1217,9 @@ class Experiment(Prop):
         self.update_gui()
         if self.enable_sounds:
             sound.complete_sound()
+        if self.experiment.repeat_experiment_automatically:
+            logger.info('Automatically repeating the same experiment')
+            self.resetAndGo()
 
     def upload_now(self):
         """Skip straight to uploading the current data."""
