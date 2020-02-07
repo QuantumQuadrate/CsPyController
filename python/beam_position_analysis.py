@@ -10,8 +10,10 @@ created = '2017.09.06'
 """
 
 import logging
+
 import time
 from atom.api import Bool, Str, Float, Member, List
+
 from analysis import Analysis
 import numpy as np
 import os.path
@@ -20,6 +22,11 @@ import scipy.ndimage.measurements as measurements
 from scipy.ndimage.morphology import binary_opening
 from scipy.optimize import curve_fit
 
+import scipy.ndimage.measurements as measurements
+from scipy.ndimage.morphology import binary_opening
+from scipy.optimize import curve_fit
+
+
 logger = logging.getLogger(__name__)
 
 
@@ -27,6 +34,7 @@ class BeamPositionAnalysis(Analysis):
     """Acts as the error signal generator and process controller in a feedback
     loop to stabilize beam position.
     """
+
 
     version = '2018.02.26'
 
@@ -51,6 +59,7 @@ class BeamPositionAnalysis(Analysis):
     tau_h = Float(2)  # smoothing factor timescale in hours
     k_p = Float(0.3)
     k_i = Float(0.1)
+
     positions = Member()
     position_iter_stat = Member()
     actuator_vname_X = Str()
@@ -67,7 +76,9 @@ class BeamPositionAnalysis(Analysis):
             'Error signal and feedback for beam position'
         )
         # set up with the default configuration
+
         self.set_position_paths()
+
         self.initialize_positions()
         self.position_iter_stat = {
             'x': 0, 'y': 0, 'sigma_x': 0, 'sigma_y': 0,
@@ -77,6 +88,7 @@ class BeamPositionAnalysis(Analysis):
         self.queueAfterMeasurement = True
         # properties to save
         self.properties += [
+
             'version', 'enable', 'enable_feedback', 'enable_TemperatureCorrection',
             'invert_TemperatureCorrection_X','invert_TemperatureCorrection_Y',
             'setpoint_X', 'setpoint_Y',
@@ -91,10 +103,12 @@ class BeamPositionAnalysis(Analysis):
         positions_path_base = 'data/'
         try:
             positions_paths = self.experiment.Config.config.get(section, datagroup)
+
         except:
             msg = 'ConfigParser was unable to find entry: `{}.{}`. Disabling module.'
             logger.exception(msg.format(section, datagroup))
             self.enable = False
+
             return
 
         positions_paths = positions_paths.split(',')
@@ -106,10 +120,12 @@ class BeamPositionAnalysis(Analysis):
         ]
         self.positions_paths = [positions_path_base + path for path in positions_paths]
 
+
     def initialize_positions(self):
         # stores positions from each measurement for an iteration
         self.positions = {
             'valid_cnt': 0,
+
             'x': np.array([]),  # relative position
             'y': np.array([]),
             'x0': np.array([]),  # absolute positions
@@ -118,6 +134,7 @@ class BeamPositionAnalysis(Analysis):
             'y1': np.array([]),
             'Xcorrection': np.array([]),
             'Ycorrection': np.array([]),
+
         }
 
     def calc_beam_position(self, img):
@@ -187,9 +204,11 @@ class BeamPositionAnalysis(Analysis):
             self.positions['valid_cnt'] += 1
             # print(self.positions)
 
+
     def analyzeMeasurement(self, measResults, iterResults, expResults):
         if self.enable:
             # check that the data exists and it is valid
+
             for i, path in enumerate(self.positions_paths):
                 if path in measResults:
                     data = measResults[path]
@@ -210,6 +229,7 @@ class BeamPositionAnalysis(Analysis):
                         logger.error(msg.format(path))
                 else:
                     logger.error("Unable to find positions in measurementResults[{}].".format(path))
+
 
     def savetohdf5(self, iterationResults):
         for key in self.position_iter_stat:
@@ -232,6 +252,7 @@ class BeamPositionAnalysis(Analysis):
         super(BeamPositionAnalysis, self).preExperiment(expResults)
 
     def calculateError(self):
+
         cutoff=200 # last 200 samples.
         xs = self.positions['x']
         ys = self.positions['y']
@@ -243,6 +264,7 @@ class BeamPositionAnalysis(Analysis):
         y = np.nanmedian(ys[-num_of_samples:])
         sigma_y = np.nanstd(ys[-num_of_samples:])
         # Sometimes shots can be in the wrong order
+
         if self.enable_reorder and (sigma_x > 0 and sigma_y > 0):
             logger.info("testing for swaps")
             # look for events where the x and y are more than 5 sigma away
@@ -255,10 +277,12 @@ class BeamPositionAnalysis(Analysis):
             xs_fixed = np.where(swaps, np.multiply(-1.0, xs), xs)
             ys_fixed = np.where(swaps, np.multiply(-1.0, ys), ys)
             # recalculate positions
+
             x = np.nanmean(xs_fixed)
             sigma_x = np.nanstd(xs_fixed)
             y = np.nanmean(ys_fixed)
             sigma_y = np.nanstd(ys_fixed)
+
         self.position_iter_stat['x'] = x
         self.position_iter_stat['sigma_x'] = sigma_x
         self.position_iter_stat['y'] = y
@@ -268,6 +292,7 @@ class BeamPositionAnalysis(Analysis):
         self.position_iter_stat['error_x'] = error_x
         error_y = (y - self.setpoint_Y) * self.calibration_Y
         self.position_iter_stat['error_y'] = error_y
+
         # print self.position_iter_stat
         # apply pi filter
         self.ts = time.time()
@@ -291,6 +316,7 @@ class BeamPositionAnalysis(Analysis):
             return 0
         else:
             return err_to_return
+
 
     def find_ivar(self, ivar_name):
         for ivar in self.experiment.independentVariables:
@@ -323,18 +349,24 @@ class BeamPositionAnalysis(Analysis):
         # only correct drift if we aren't already stepping position variable
         if (len(self.actuator_variable_X.valueList) == 1 and
                 len(self.actuator_variable_Y.valueList == 1)):
+
             msg = "Moving actuator {} to position: {:.3f}, error: {:.3f}, delta: {:.3f}"
+
 
             print "old X value: {}".format(self.actuator_variable_X.currentValue)
             self.updateIndependentVariableDelta(
                 self.actuator_variable_X,
+
                 self.actuator_X.current_position - self.position_iter_stat['ctrl_x']
+
             )
             logger.info(msg.format(
                 'X',
                 self.actuator_variable_X.currentValue,
+
                 self.position_iter_stat['error_x'],
                 self.position_iter_stat['ctrl_x']
+
             ))
 
             print "old Y value: {}".format(self.actuator_variable_Y.currentValue)
@@ -345,8 +377,10 @@ class BeamPositionAnalysis(Analysis):
             logger.info(msg.format(
                 'Y',
                 self.actuator_variable_Y.currentValue,
+
                 self.position_iter_stat['error_y'],
                 self.position_iter_stat['ctrl_y']
+
             ))
         else:
             logger.warning("Detected that actuator position is being stepped. Feedback is turned off.")
@@ -357,6 +391,7 @@ class BeamPositionAnalysis(Analysis):
         ivar.currentValue = ivar.valueList[0]
         ivar.function = str(ivar.currentValue)
         ivar.set_gui({'currentValueStr': str(ivar.currentValue)})
+
 
     def gaussian(self, x, c1, mu1, sigma1, B):
         res = c1 * np.exp(-(x - mu1)**2.0 / (2.0 * sigma1**2.0)) + B
@@ -392,3 +427,4 @@ class BeamPositionAnalysis(Analysis):
         else:
             [COM_Y, COM_X] = measurements.center_of_mass(temp2)  # Center of mass.
         return [COM_X, COM_Y]
+
