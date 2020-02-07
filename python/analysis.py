@@ -340,12 +340,12 @@ class Analysis(Prop):
 
 class AnalysisWithFigure(Analysis):
 
-    #matplotlib figures
+    # matplotlib figures
     figure = Typed(Figure)
     backFigure = Typed(Figure)
     figure1 = Typed(Figure)
     figure2 = Typed(Figure)
-    draw_fig = Bool(False) # do not draw the figure unless told to
+    draw_fig = Bool(False)  # do not draw the figure unless told to
 
     def __init__(self, name, experiment, description=''):
         super(AnalysisWithFigure, self).__init__(name, experiment, description)
@@ -364,10 +364,10 @@ class AnalysisWithFigure(Analysis):
         self.figure = temp
 
     def updateFigure(self):
-        #signal the GUI to redraw figure
+        # signal the GUI to redraw figure
         try:
             deferred_call(self.swapFigures)
-        except RuntimeError: #application not started yet
+        except RuntimeError: # application not started yet
             self.swapFigures()
 
     def blankFigure(self):
@@ -423,6 +423,7 @@ class ROIAnalysis(AnalysisWithFigure):
     def preExperiment(self, experimentResults):
         self.set_rois()
         super(ROIAnalysis, self).preExperiment(experimentResults)
+
 
 class TextAnalysis(Analysis):
     #Text output that can be updated back to the GUI
@@ -791,7 +792,8 @@ class IterationsGraph(AnalysisWithFigure):
         if self.enable:  # and self.update_every_measurement:
             if (not self.add_only_filtered_data) or (('analysis/loading_filter' in measurementResults) and measurementResults['analysis/loading_filter'].value):
 
-                d = numpy.array([measurementResults['analysis/squareROIsums']])
+                #d = numpy.array([measurementResults['analysis/squareROIsums']])
+                d = numpy.array([measurementResults['analysis/gaussian_roi']])
 
                 if self.current_iteration_data is None:
                     # on first measurement of an iteration, start anew

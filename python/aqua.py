@@ -124,7 +124,6 @@ class AQuA(Experiment):
     picam_viewer = Member()
     DC_noise_eater_graph = Member()
     DC_noise_eater_filter = Member()
-    Noise_EatersGraph = Member()
     retention_analysis = Member()
     counter_graph = Member()
     counter_hist = Member()
@@ -137,7 +136,6 @@ class AQuA(Experiment):
     ROI_columns = Int(1)
     ROI_bg_rows = Int(0)
     ROI_bg_columns = Int(0)
-    rearrange_settings = Member()
     Ramsey = Member()
 
     def __init__(self):
@@ -154,7 +152,6 @@ class AQuA(Experiment):
         self.noise_eaters = noise_eaters.Noise_Eaters('noise_eaters', self,'rotating wave-plate noise eaters')
         self.BILT = BILT.BILTcards('BILT',self, 'BILT DC Voltage sources')
         self.rearrange = rearrange.Rearrange('rearrange', self, 'atom rearranging system')
-        self.rearrange_settings = rearrange.Rearrange_settings('rearrange_settings', self, 'atom rearranging system settings update and save')
         self.instekpsts = instek_pst.InstekPSTs('instekpsts', self, 'Instek PST power supply')
         self.Andors = andor.Andors('Andors', self, 'Andor Luca measurementResults')
         if pycap:
@@ -216,7 +213,6 @@ class AQuA(Experiment):
         # self.picam_viewer = picam.PICamViewer('picam_viewer', self, 'show the most recent PICam image')
         self.DC_noise_eater_graph = DCNoiseEater.DCNoiseEaterGraph('DC_noise_eater_graph', self, 'DC Noise Eater graph')
         self.DC_noise_eater_filter = DCNoiseEater.DCNoiseEaterFilter('DC_noise_eater_filter', self, 'DC Noise Eater Filter')
-        self.Noise_EatersGraph = noise_eaters.Noise_EatersGraph('Noise_EatersGraph', self, 'Graph of new DC Noise eater output')
         self.Ramsey = analysis.Ramsey('Ramsey', self, 'Fit a cosine to retention results')
         self.retention_analysis = RetentionAnalysis('retention_analysis', self, 'calculate the loading and retention')
         self.counter_hist = Counter.CounterHistogramAnalysis('counter_hist', self, 'Fits histograms of counter data and plots hist and fits.')
@@ -243,7 +239,7 @@ class AQuA(Experiment):
             self.imageSumAnalysis, self.recent_shot_analysis,
             self.shotBrowserAnalysis, self.measurements_graph,
             self.iterations_graph, self.DC_noise_eater_graph,
-            self.DC_noise_eater_filter, self.Noise_EatersGraph, self.Andors,
+            self.DC_noise_eater_filter, self.Andors, 
             self.PICams, self.Ramsey, self.DAQmxAI, self.unlock_pause,
             self.retention_analysis, self.retention_graph,
             self.save_notes, self.save2013Analysis, self.NIScopes,

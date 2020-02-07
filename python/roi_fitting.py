@@ -171,8 +171,8 @@ class GaussianROI(ROIAnalysis):
         out = np.sum(spots, axis=0) + blacklevel
         return out.ravel()
 
-    def get_rois(self, image_shape, x0, y0,row_offset_x, row_offset_y, spacing, 
-                  grid_angle, amplitude,wx, wy, spot_angle, blacklevel):
+    def get_rois(self, image_shape, x0, y0, row_offset_x, row_offset_y, spacing,
+                  grid_angle, amplitude, wx, wy, spot_angle, blacklevel):
         """Create a set of ROI masks from the fit parameters.
         Use 1 for all the amplitudes so they are weighted the same."""
 
@@ -219,46 +219,49 @@ class GaussianROI(ROIAnalysis):
 
     def postIteration(self, iterationResults, experimentResults):
         if self.enable:
-            # compile all images from the chosen shot over the whole iteration
-            all_images = np.array([
-                [s.value for s in m[self.shots_path].itervalues()]
-                for m in iterationResults['measurements'].itervalues()
-            ])
-            images = all_images[:, self.shot]
-            self.image_shape = (images.shape[1], images.shape[2])
-            if self.subtract_background:
-                images = images - self.experiment.imageSumAnalysis.background_array
-            if self.enable_grid_fit:
-                # we use a big try block, and if there are any errors, just set
-                # the amplitude to 0 and move on
-                try:
-                    self.fitParams, self.fitCovariances = self.fit_grid(
-                        images,
-                        self.backFigure,
-                        self.useICA,
-                        self.rows,
-                        self.columns,
-                        self.bottom,
-                        self.top,
-                        self.right,
-                        self.left
-                    )
-                    if self.automatically_use_rois:
-                        self.use_current_rois()
-                except Exception:
-                    # note the error, set the amplitude to 0 and move on:
-                    logger.exception("Exception in GaussianROI.postIteration")
-                    # set the amplitude to 0 and move on
-                    self.fitParams = (0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0)
-                    self.fitCovariances = np.zeros(1)
-                # --- save analysis ---
-                data_path = self.iter_analysis_base_path + '/fit_params'
-                iterationResults[data_path] = self.fitParams
-                data_path = self.iter_analysis_base_path + '/covariance_matrix'
-                iterationResults[data_path] = self.fitCovariances
+            try:
+                # compile all images from the chosen shot over the whole iteration
+                all_images = np.array([
+                    [s.value for s in m[self.shots_path].itervalues()]
+                    for m in iterationResults['measurements'].itervalues()
+                ])
+                images = all_images[:, self.shot]
+                self.image_shape = (images.shape[1], images.shape[2])
+                if self.subtract_background:
+                    images = images - self.experiment.imageSumAnalysis.background_array
+                if self.enable_grid_fit:
+                    # we use a big try block, and if there are any errors, just set
+                    # the amplitude to 0 and move on
+                    try:
+                        self.fitParams, self.fitCovariances = self.fit_grid(
+                            images,
+                            self.backFigure,
+                            self.useICA,
+                            self.rows,
+                            self.columns,
+                            self.bottom,
+                            self.top,
+                            self.right,
+                            self.left
+                        )
+                        if self.automatically_use_rois:
+                            self.use_current_rois()
+                    except Exception:
+                        # note the error, set the amplitude to 0 and move on:
+                        logger.exception("Exception in GaussianROI.postIteration")
+                        # set the amplitude to 0 and move on
+                        self.fitParams = (0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0)
+                        self.fitCovariances = np.zeros(1)
+                    # --- save analysis ---
+                    data_path = self.iter_analysis_base_path + '/fit_params'
+                    iterationResults[data_path] = self.fitParams
+                    data_path = self.iter_analysis_base_path + '/covariance_matrix'
+                    iterationResults[data_path] = self.fitCovariances
 
-            if self.enable_calculate_sums:
-                iterationResults[self.iter_analysis_path] = self.calculate_sums(all_images)
+                if self.enable_calculate_sums:
+                    iterationResults[self.iter_analysis_path] = self.calculate_sums(all_images)
+            except TypeError:
+                logger.exception("Measurement error from threading. Not fitting.")
 
     def calculate_sums(self, images):
         if self.subtract_background_from_sums:
@@ -271,11 +274,11 @@ class GaussianROI(ROIAnalysis):
             images.shape[2] * images.shape[3]
         )
         mask = np.floor(1.3*self.rois/np.max(self.rois))
-        #mask1 = np.floor(1.3*self.rois/np.max(self.rois))
-        #mask2 = np.floor(1.95*np.round(100*self.rois/np.max(self.rois))/np.max(np.round(100*self.rois/np.max(self.rois))))
-        #data = 10000*np.dot(a, mask1)/(np.dot(a, mask2)-np.dot(a, mask1))
+        # mask1 = np.floor(1.3*self.rois/np.max(self.rois))
+        # mask2 = np.floor(1.95*np.round(100*self.rois/np.max(self.rois))/np.max(np.round(100*self.rois/np.max(self.rois))))
+        # data = 10000*np.dot(a, mask1)/(np.dot(a, mask2)-np.dot(a, mask1))
         data = np.dot(a, mask)
-        #data = np.dot(a, self.rois)
+        # data = np.dot(a, self.rois)
         return data
 
     def fit_grid(self, images, fig, useICA, rows, columns, bottom, top, right,
