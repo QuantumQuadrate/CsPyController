@@ -151,9 +151,9 @@ class AI_Filter(Analysis):
                 # read the data for the channel
                 d = numpy.float(numpy.average(data[i[0], i[1]]))
                 try:
-                    measurementResults['data/AI/BinAve/channel'+ numpy.str(i[0])] = d
+                    measurement_results['data/AI/BinAve/channel'+ numpy.str(i[0])] = d
                 except:
-                    measurementResults['data/AI/BinAve/channel'+ numpy.str(i[0])+'2'] = d
+                    measurement_results['data/AI/BinAve/channel'+ numpy.str(i[0])+'2'] = d
                 if d > i[3]:
                     # data is above the high limit
                     text += 'Analog Input filter failed for channel {}.  Value was {}, above high limit {}.\n'.format(i[0], d, i[3])

@@ -4265,7 +4265,7 @@ enamldef Picomotor(Container):
         CheckBox:
             checked := item.enable_motor
 
-    enamldef PyPico(Window):
+enamldef PyPico(Window):
     attr pypico
 
     title = 'PyPico Server'
