@@ -661,44 +661,6 @@
 				<Property Name="TgtF_targetfileGUID" Type="Str">{E529E6B2-6B9F-4862-9C48-85AA592EF063}</Property>
 				<Property Name="TgtF_targetfileName" Type="Str">Application.exe</Property>
 			</Item>
-			<Item Name="server2" Type="EXE">
-				<Property Name="App_copyErrors" Type="Bool">true</Property>
-				<Property Name="App_INI_aliasGUID" Type="Str">{C3DA7FB6-DACF-40DC-9A24-A1FD6863F1F0}</Property>
-				<Property Name="App_INI_GUID" Type="Str">{73E84751-A333-42DD-92AD-7189CFA2ABF3}</Property>
-				<Property Name="App_serverConfig.httpPort" Type="Int">8002</Property>
-				<Property Name="Bld_autoIncrement" Type="Bool">true</Property>
-				<Property Name="Bld_buildCacheID" Type="Str">{FB20BE6B-6CAC-40A2-A537-2A2D132E87F2}</Property>
-				<Property Name="Bld_buildSpecName" Type="Str">server2</Property>
-				<Property Name="Bld_excludeInlineSubVIs" Type="Bool">true</Property>
-				<Property Name="Bld_excludeLibraryItems" Type="Bool">true</Property>
-				<Property Name="Bld_excludePolymorphicVIs" Type="Bool">true</Property>
-				<Property Name="Bld_localDestDir" Type="Path">../builds/NI_AB_PROJECTNAME/server2</Property>
-				<Property Name="Bld_localDestDirType" Type="Str">relativeToCommon</Property>
-				<Property Name="Bld_modifyLibraryFile" Type="Bool">true</Property>
-				<Property Name="Bld_previewCacheID" Type="Str">{027D9905-41BA-47D8-89A9-7AD9D184E02F}</Property>
-				<Property Name="Bld_version.build" Type="Int">1</Property>
-				<Property Name="Bld_version.major" Type="Int">1</Property>
-				<Property Name="Destination[0].destName" Type="Str">Application.exe</Property>
-				<Property Name="Destination[0].path" Type="Path">../builds/NI_AB_PROJECTNAME/server2/Application.exe</Property>
-				<Property Name="Destination[0].preserveHierarchy" Type="Bool">true</Property>
-				<Property Name="Destination[0].type" Type="Str">App</Property>
-				<Property Name="Destination[1].destName" Type="Str">Support Directory</Property>
-				<Property Name="Destination[1].path" Type="Path">../builds/NI_AB_PROJECTNAME/server2/data</Property>
-				<Property Name="DestinationCount" Type="Int">2</Property>
-				<Property Name="Source[0].itemID" Type="Str">{02EA1BAF-ADF4-44D2-A67A-D06C2100C909}</Property>
-				<Property Name="Source[0].type" Type="Str">Container</Property>
-				<Property Name="Source[1].destinationIndex" Type="Int">0</Property>
-				<Property Name="Source[1].itemID" Type="Ref">/My Computer/Experiment.lvclass/server.vi</Property>
-				<Property Name="Source[1].sourceInclusion" Type="Str">TopLevel</Property>
-				<Property Name="Source[1].type" Type="Str">VI</Property>
-				<Property Name="SourceCount" Type="Int">2</Property>
-				<Property Name="TgtF_fileDescription" Type="Str">server2</Property>
-				<Property Name="TgtF_internalName" Type="Str">server2</Property>
-				<Property Name="TgtF_legalCopyright" Type="Str">Copyright © 2018 </Property>
-				<Property Name="TgtF_productName" Type="Str">server2</Property>
-				<Property Name="TgtF_targetfileGUID" Type="Str">{37CBE4DE-35CA-4993-A08A-07002D723821}</Property>
-				<Property Name="TgtF_targetfileName" Type="Str">Application.exe</Property>
-			</Item>
 		</Item>
 	</Item>
 </Project>
