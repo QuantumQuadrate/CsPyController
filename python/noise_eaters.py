@@ -23,6 +23,7 @@ class Noise_Eater(Prop):
 
 
 
+
     def update(self):
         # calculate relative move necessary
         data = {'setpointv': self.target_setting.value}
@@ -70,7 +71,10 @@ class Noise_Eaters(Instrument):
         """
         Every iteration, send the motors updated positions.
 
+        """
+
         for i in self.NEchannels:
             if self.enable:
                 ip, data, ID = i.update()
                 self.configChangeRequest(ip, data, str(ID))
+
