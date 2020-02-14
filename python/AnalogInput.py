@@ -150,10 +150,18 @@ class AI_Filter(Analysis):
             for i in filter_list:
                 # read the data for the channel
                 d = numpy.float(numpy.average(data[i[0], i[1]]))
+                trysecondpath=False
                 try:
                     measurement_results['data/AI/BinAve/channel'+ numpy.str(i[0])] = d
                 except:
-                    measurement_results['data/AI/BinAve/channel'+ numpy.str(i[0])+'2'] = d
+                    trysecondpath = True
+                    logger.info("Unable to find data in first path. Trying second")
+
+                if trysecondpath:
+                    try:
+                        measurement_results['data/AI/BinAve/channel'+ numpy.str(i[0])+'2'] = d
+                    except:
+                        logger.error("Unable to find AI data in either of the paths")
                 if d > i[3]:
                     # data is above the high limit
                     text += 'Analog Input filter failed for channel {}.  Value was {}, above high limit {}.\n'.format(i[0], d, i[3])

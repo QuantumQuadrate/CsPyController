@@ -35,12 +35,11 @@ class RbAIAnalysis(Analysis):
             experiment,
             'Does pre-analysis on Analog Inputs for Origin Server'
         )
-        # if self.experiment.Config.config.get('EXPERIMENT', 'Name') == 'AQUA':
-        #     self.enable = True
-        # else:
-        #     self.enable = False
-#for now im just going to enable it and see what happend 10/22/2018 CY
-        self.enable = True
+        if self.experiment.Config.config.get('EXPERIMENT', 'Name') == 'Rb':
+            self.enable = True
+        else:
+            self.enable = False
+
 
     def analyzeMeasurement(self, measResults, iterationResults, experimentResults):
         if self.enable:
