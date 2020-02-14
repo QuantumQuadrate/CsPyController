@@ -114,18 +114,20 @@ class ThresholdROIAnalysis(ROIAnalysis):
         
         # temporary 2D threshold array, ROIs are 1D
         threshold_array = np.zeros(shape, dtype=np.bool_)
+        try:
+            #shots_to_ignore = self.experiment.Config.config.getint('CAMERA', 'ShotsToIgnore')
+            shots_to_ignore_str = self.experiment.Config.config.get('CAMERA', 'ShotsToIgnore')
+            shots_to_ignore=map(int,shots_to_ignore_str.split(","))
+        except:
+            shots_to_ignore=[]
+
+        to_include= [x for x in range(0,len(shot_array)) if x not in shots_to_ignore]
+        #print to_include
         for i, shot in enumerate(shot_array):
             # TODO: more complicated threshold
             # (per shot threshold & 2+ atom threshold)
-            # print self.threshold_array[i]['1']
-            shots_to_ignore = 0
-            try:
-                shots_to_ignore = self.experiment.Config.config.getint('CAMERA', 'ShotsToIgnore')
-            except:
-                pass
-            # Rubidium uses shot2 for alignment pupose so do not apply threshold for this shot
-            if i < len(shot_array) - shots_to_ignore:
-                threshold_array[i] = shot.flatten() >= self.threshold_array[i]['1']
+            if i in to_include:
+                threshold_array[to_include.index(i)] = shot.flatten() >= self.threshold_array[to_include.index(i)]['1']
 
         self.loading_array = threshold_array.reshape((
             shape[0],

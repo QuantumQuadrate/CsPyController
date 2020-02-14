@@ -31,6 +31,7 @@ def is_error_msg(msg):
 class PyPicomotor(Picomotor):
     current_position = Float()
     max_angle_error = Float(0.2)  # maximum error to accept without trying to correct
+    enable_motor = Bool(False) # To allow motor independent enable.
 
     enable_motor = Bool(False) # To allow motor independent enable.
 
@@ -173,6 +174,7 @@ class PyPicoServer(Instrument):
         #list_of_motors_allowed_to_move
         try:
             for m in list_of_motors:
+
                 # the motor class can make up its own commands
                 # As an initial attempt, we will make partial correction, leaving only forward correction.
                 cmd = m.update(settler=True)
@@ -181,6 +183,7 @@ class PyPicoServer(Instrument):
                     logger.info("Settling trial")
             for m in list_of_motors:
                 # the motor class can make up its own commands
+
                 cmd = m.update(settler=False)
                 if cmd: # '' is falsy
                     for trial in range(2):

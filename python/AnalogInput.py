@@ -88,7 +88,7 @@ class AI_Graph(AnalysisWithFigure):
                     self.update_lock = True
                     fig = self.backFigure
                     fig.clf()
-    
+
                     if self.data is not None:
                         # parse the list of what to plot from a string to a list of numbers
                         try:
@@ -149,7 +149,19 @@ class AI_Filter(Analysis):
                 raise PauseError
             for i in filter_list:
                 # read the data for the channel
-                d = numpy.average(data[i[0], i[1]])
+                d = numpy.float(numpy.average(data[i[0], i[1]]))
+                trysecondpath=False
+                try:
+                    measurement_results['data/AI/BinAve/channel'+ numpy.str(i[0])] = d
+                except:
+                    trysecondpath = True
+                    logger.info("Unable to find data in first path. Trying second")
+
+                if trysecondpath:
+                    try:
+                        measurement_results['data/AI/BinAve/channel'+ numpy.str(i[0])+'2'] = d
+                    except:
+                        logger.error("Unable to find AI data in either of the paths")
                 if d > i[3]:
                     # data is above the high limit
                     text += 'Analog Input filter failed for channel {}.  Value was {}, above high limit {}.\n'.format(i[0], d, i[3])

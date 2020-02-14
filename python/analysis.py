@@ -894,7 +894,7 @@ class IterationsGraph(AnalysisWithFigure):
                             except:
                                 logger.warning('Trying to plot data that does not exist in IterationsGraph: shot {} roi {}'.format(i[0], i[1]))
                                 continue
-                                label = '(shot:{},roi:{})'.format(i[0],i[1])
+                            label = '(shot:{},roi:{})'.format(i[0],i[1])
                             linestyle = '-o' if self.draw_connecting_lines else 'o'
                             if self.draw_error_bars:
                                 ax.errorbar(numpy.arange(len(mean)), mean, yerr=sigma, fmt=linestyle, label=label)

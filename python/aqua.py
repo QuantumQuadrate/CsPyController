@@ -55,7 +55,7 @@ except:
 
 # analyses
 from SquareROIAnalysis import SquareROIAnalysis
-from AQuAAIAnalysis import AQuAAIAnalysis
+from RbAIAnalysis import RbAIAnalysis
 from recent_shot_analysis import RecentShotAnalysis
 from image_sum_analysis import ImageSumAnalysis
 from threshold_analysis import ThresholdROIAnalysis
@@ -89,6 +89,7 @@ class AQuA(Experiment):
     PICams = Member()
     LabView = Member()
     DDS = Member()
+    DDS2 = Member()
     DC_noise_eaters = Member()
     box_temperature = Member()
     unlock_pause = Member()
@@ -102,7 +103,7 @@ class AQuA(Experiment):
     AI_graph = Member()
     AI_filter = Member()
     squareROIAnalysis = Member()
-    AQuAAIAnalysis = Member()
+    RbAIAnalysis = Member()
     thresholdROIAnalysis = Member()
     gaussian_roi = Member()
     loading_filters = Member()
@@ -161,6 +162,7 @@ class AQuA(Experiment):
         self.NewportStage = newportstage.NewportStage('NewportStage', self, 'Newport Translation Stage')
         self.LabView = LabView.LabView(self)
         self.DDS = DDS.DDS('DDS', self, 'server for homemade DDS boxes')
+        self.DDS2 = DDS.DDS('DDS2', self, 'XML server for homemade DDS boxes')
         self.DC_noise_eaters = DCNoiseEater.DCNoiseEaters('DC_noise_eaters', self)
         self.box_temperature = Laird_temperature.LairdTemperature('box_temperature', self)
         self.unlock_pause = unlock_pause.UnlockMonitor('unlock_pause', self, 'Monitor for pausing when laser unlocks')
@@ -171,10 +173,10 @@ class AQuA(Experiment):
         # need not start/stop
         self.instruments += [
             self.box_temperature, self.picomotors, self.noise_eaters, self.pyPicoServer,
-            self.NIScopes, self.Andors, self.PICams,
-            self.DC_noise_eaters, self.BILT, self.rearrange, self.DDS, self.unlock_pause,
+            self.NIScopes, self.Andors, self.PICams, self.DC_noise_eaters,
+            self.BILT, self.rearrange, self.DDS, self.unlock_pause,
             self.Embezzletron, self.instekpsts,
-            self.vaunixs, self.NewportStage,
+            self.vaunixs, self.NewportStage, self.DDS2
         ]
         if aerotech_enable:
             self.instruments += self.aerotechs
@@ -192,7 +194,7 @@ class AQuA(Experiment):
         self.AI_filter = AnalogInput.AI_Filter('AI_filter', self, 'Analog Input filter')
         self.first_measurements_filter = analysis.DropFirstMeasurementsFilter('first_measurements_filter', self, 'drop the first N measurements')
         self.squareROIAnalysis = SquareROIAnalysis(self)
-        self.AQuAAIAnalysis = AQuAAIAnalysis(self)
+        self.RbAIAnalysis = RbAIAnalysis(self)
         self.gaussian_roi = roi_fitting.GaussianROI('gaussian_roi', self)
         self.counter_graph = Counter.CounterAnalysis('counter_graph', self, 'Graphs the counter data after each measurement.')
         self.thresholdROIAnalysis = ThresholdROIAnalysis(self)
@@ -219,7 +221,7 @@ class AQuA(Experiment):
         self.beam_position_analysis = BeamPositionAnalysis(self)
         self.beam_position_analysis2 = BeamPositionAnalysis(self)
         # setup path for second beam position analysis
-        self.beam_position_analysis2.set_position_path(datagroup='Camera1DataGroup')
+        self.beam_position_analysis2.set_position_paths(datagroup='Camera1DataGroup')
         # self.vitalsignsound=Vitalsign('vital_sign_sound',self,'beeps when atoms are loaded')
         self.origin = origin_interface.Origin('origin', self, 'saves selected data to the origin data server')
 
@@ -227,7 +229,7 @@ class AQuA(Experiment):
         # need not update on iterations, etc.
         # origin needs to be the last analysis always
         self.analyses += [
-            self.TTL_filters, self.AI_graph, self.AI_filter, self.AQuAAIAnalysis,
+            self.TTL_filters, self.AI_graph, self.AI_filter, self.RbAIAnalysis,
             # ROI analyses go here ------------------------------------------
             self.squareROIAnalysis, self.counter_graph, self.gaussian_roi,
             # ---------------------------------------------------------------
@@ -247,13 +249,15 @@ class AQuA(Experiment):
         ]
 
         self.properties += [
-            'Config', 'AQuAAIAnalysis',
+            'Config', 'RbAIAnalysis',
             'functional_waveforms', 'LabView', 'functional_waveforms_graph',
-            'DDS', 'aerotechs', 'picomotors', 'noise_eaters', 'BILT','rearrange', 'pyPicoServer', 'conexes',
+            'DDS', 'DDS2', 'aerotechs', 'picomotors', 'noise_eaters', 'BILT',
+            'rearrange', 'pyPicoServer', 'conexes',
             'Andors', 'PICams', 'DC_noise_eaters', 'blackfly_client',
             'box_temperature', 'DAQmxAI', 'squareROIAnalysis', 'histogram_grid',
             'thresholdROIAnalysis', 'gaussian_roi', 'instekpsts', 'TTL_filters',
-            'AI_graph', 'AI_filter', 'NewportStage', 'loading_filters', 'error_filters',
+            'AI_graph', 'AI_filter', 'NewportStage', 'loading_filters',
+            'error_filters',
             'first_measurements_filter', 'vaunixs', 'imageSumAnalysis',
             'recent_shot_analysis', 'shotBrowserAnalysis', 'histogramAnalysis',
             'retention_analysis', 'measurements_graph',
@@ -261,7 +265,7 @@ class AQuA(Experiment):
             'DC_noise_eater_graph', 'Ramsey', 'counter_graph', 'counter_hist',
             'unlock_pause', 'ROI_rows', 'ROI_columns', 'ROI_bg_rows',
             'ROI_bg_columns', 'NIScopes', 'beam_position_analysis',
-            'origin'
+            'beam_position_analysis2', 'origin'
         ]
 
         try:

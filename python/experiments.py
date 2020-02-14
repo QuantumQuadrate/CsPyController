@@ -4,6 +4,8 @@ how an iteration based experiment is run.
 
 author=Martin Lichtman
 """
+# filename whitespace problem may have been fixed. See
+# IndependentVariable.__init__ - PH
 
 from __future__ import division
 
@@ -61,7 +63,9 @@ class IndependentVariable(EvalProp):
     optimizer_end_tolerance = Float()
 
     def __init__(self, name, experiment, description='', function=''):
-        super(IndependentVariable, self).__init__(name, experiment, description, function)
+        # super(IndependentVariable, self).__init__(name, experiment, description, function)
+        super(IndependentVariable, self).__init__(name, experiment,
+                                                  description, function)
         self.steps = 0
         self.index = 0
         self.valueList = numpy.array([]).flatten()
@@ -233,7 +237,7 @@ class Experiment(Prop):
 
         self.properties += ['version', 'constantsStr', 'independentVariables', 'dependentVariablesStr',
                             'pauseAfterIteration', 'pauseAfterMeasurement', 'pauseAfterError',
-                            'reload_settings_after_pause', 'experiment.repeat_experiment_automatically',
+                            'reload_settings_after_pause', 'repeat_experiment_automatically',
                             'saveData', 'saveSettings', 'settings_path',
                             'save_separate_notes', 'save2013styleFiles', 'localDataPath', 'networkDataPath',
                             'copyDataToNetwork', 'experimentDescriptionFilenameSuffix', 'measurementTimeout',
@@ -339,7 +343,7 @@ class Experiment(Prop):
 
             #build the path
             self.dailyPath = datetime.datetime.fromtimestamp(self.timeStarted).strftime('%Y_%m_%d')
-            self.experimentPath = datetime.datetime.fromtimestamp(self.timeStarted).strftime('%Y_%m_%d_%H_%M_%S_')+self.experimentDescriptionFilenameSuffix
+            self.experimentPath = datetime.datetime.fromtimestamp(self.timeStarted).strftime('%Y_%m_%d_%H_%M_%S_')+self.experimentDescriptionFilenameSuffix.rstrip()
             self.path = os.path.join(self.localDataPath, self.dailyPath, self.experimentPath)
 
             #check that it doesn't exist first
@@ -465,6 +469,7 @@ class Experiment(Prop):
         except Exception as e:
             logger.warning('Uncaught Exception in experiment.end:\n{}\n{}'.format(e, traceback.format_exc()))
             self.set_status('paused after error')
+
 
     def eval_general(self, string):
         return cs_evaluate.evalWithDict(string, self.vars)
@@ -1206,6 +1211,7 @@ class Experiment(Prop):
         #     logger.exception('Exception occured when accessing self.log')
         self.hdf5.flush()
 
+
         #copy to network
         if self.copyDataToNetwork:
             logger.info('Copying data to network...')
@@ -1217,9 +1223,6 @@ class Experiment(Prop):
         self.update_gui()
         if self.enable_sounds:
             sound.complete_sound()
-        if self.experiment.repeat_experiment_automatically:
-            logger.info('Automatically repeating the same experiment')
-            self.resetAndGo()
 
     def upload_now(self):
         """Skip straight to uploading the current data."""

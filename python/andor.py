@@ -27,7 +27,7 @@ import logging
 logger = logging.getLogger(__name__)
 from cs_errors import PauseError
 
-from ctypes import CDLL, c_int, c_float, c_long, c_char_p, byref
+from ctypes import CDLL, c_int, c_float, c_long, c_char_p, byref, windll
 import os, sys, threading, time
 import numpy
 from atom.api import Int, Tuple, List, Str, Float, Bool, Member, observe
@@ -196,6 +196,7 @@ class AndorCamera(Instrument):
             self.CoolerON()
             self.StartAcquisition()
             self.isDone = True
+            
 
     def update(self):
         if self.enable:  # If enable checkbox is checked,
@@ -677,7 +678,7 @@ class AndorCamera(Instrument):
             #    time.sleep(.1)
             #    self.WaitForAcquisition()
             #    error = self.dll.GetAcquiredData(byref(c_image_array), self.dim * self.shotsPerMeasurement.value)
-            print self.dim
+            #print self.dim
             self.DLLError(sys._getframe().f_code.co_name, error, dump)
 
         elif self.acquisitionChoices[self.acquisitionMode]==5: # If acqusition mode is Run till abort, data must be read from circular buffer. Attempting dll.GetAcquiredData will not run as it is still acquiring.
@@ -1323,6 +1324,10 @@ class Andors(Instrument, Analysis):
                     logger.error('Error in ShutDown:\n{}'.format(ERROR_CODE[error]))
             except Exception as e:
                 logger.warning("Error in ShutDown: {}".format(e))
+            handle = self.dll._handle
+            del self.dll
+            windll.kernel32.FreeLibrary(handle)
+        self.isInitialized = False
 
 
     def analyzeMeasurement(self,measurementresults,iterationresults,hdf5):

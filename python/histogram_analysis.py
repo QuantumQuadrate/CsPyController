@@ -85,11 +85,8 @@ class HistogramAnalysis(AnalysisWithFigure):
                         ax = fig.add_subplot(111)
                         shots = [i[0] for i in plotlist]
                         rois = [i[1] for i in plotlist]
-                        data = self.all_shots_array[:, shots, rois]
-                        bins = int(1.5 * np.rint(np.sqrt(len(data))))
-                        # if the number of bins is not great then just do every bin
-                        if 2*np.nanmax(data) < bins:
-                            bins = np.arange(np.nanmax(data)+1)
+                        data = self.all_shots_array[:, shots, 0, rois]
+                        bins = int(1.2 * np.rint(np.sqrt(len(data))))
                         labels = [
                             '({},{})'.format(i[0], i[1]) for i in plotlist
                         ]
