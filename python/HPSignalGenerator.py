@@ -106,7 +106,7 @@ class HP8648B:
         else:
             self.inst = None
             msg = "Device Unavailable : '{}' is not in list_resources {}. Try Again"
-            logger.error(msg.format(address, self.rm.list_resources()))
+            logger.error(msg.format(address, self.iptyrm.list_resources()))
 
     # --- Some Error Handling functions --------------------------------------------------------------------------------
 

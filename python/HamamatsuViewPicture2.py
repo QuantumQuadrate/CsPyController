@@ -22,6 +22,7 @@ def Initialize (interfacename):
     error = dll.imgInterfaceOpen(interfacename, byref(ID_pointer))  # ID_pointer directs to interface ID  
     if error !=0:
         print "Error in imgInterfaceOpen: {}".format(error)
+        CheckError(error)
     print "ID_Pointer={}".format(ID_pointer.value)
 
     Sess_ID = c_ulong(0)
@@ -56,7 +57,7 @@ def Video (bpnp,artist,bufferpointer):
         print bpnp.shape
         print bpnp[0,0]
         print np.ctypeslib.as_array(bufferpointer)[0,0]
-        #artist.autoscale()#--------------------------------------------------------------------------------------------------------
+        artist.autoscale()#--------------------------------------------------------------------------------------------------------
         artist.set_data(bpnp)
         fig.canvas.draw()
         fig.canvas.flush_events()
@@ -70,6 +71,8 @@ def WriteSerial(Sess_ID, mystring, timeout=1000):                               
     sizeofstringtosend = c_ulong(len(stringtosend.value))
     #print "sizeofstringtosend={}".format(sizeofstringtosend)
     error = dll.imgSessionSerialWrite(Sess_ID, stringtosend, byref(sizeofstringtosend), timeout)  # Set Serial communication
+    bufsize, buffer = ReadSerial(Sess_ID, timeout)  # check for response from camera
+    print "bufsize = {}, buffer = {}".format(bufsize, buffer)
     CheckError(error)
     bufsize, buffer = ReadSerial(Sess_ID, timeout) #check for response from camera
     return buffer  #return response from camera
@@ -123,8 +126,8 @@ def StartAcquire(Sess_ID,bufferpointer,height,width):
     fig.clf()
     ax = fig.add_subplot(111)
     bpnp = np.reshape(np.ctypeslib.as_array(bufferpointer),(height.value,width.value))
-    #artist = ax.imshow(bpnp)
-    artist = ax.imshow(bpnp,vmin=1.2e3,vmax=6.0e4,cmap='brg')
+    artist = ax.imshow(bpnp)
+    # artist = ax.imshow(bpnp,vmin=1.2e3,vmax=6.0e4,cmap='brg')
     fig.show()
     print "fig shown"
     return bpnp,artist
