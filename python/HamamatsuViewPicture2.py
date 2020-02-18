@@ -2,7 +2,7 @@
 # Import numpy and matplotlib 
 
 import numpy as np  
-import os,sys
+import os
 
 import matplotlib.pyplot as plt
 from ctypes import *

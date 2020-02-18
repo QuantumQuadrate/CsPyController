@@ -26,8 +26,8 @@ import logging
 logger = logging.getLogger(__name__)
 from cs_errors import PauseError
 
-from ctypes import CDLL, c_int, c_float, c_long, c_char_p, byref
-import os, sys, threading, time
+from ctypes import c_int, c_char_p, byref
+import sys, threading, time
 import numpy
 from atom.api import Int, Tuple, List, Str, Float, Bool, Member, observe
 from instrument_property import IntProp, FloatProp, ListProp, StrProp

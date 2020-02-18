@@ -15,13 +15,11 @@ __author__ = 'Martin Lichtman'
 import logging
 logger = logging.getLogger(__name__)
 
-from atom.api import Bool, Str, Member, Int, Float
-from instrument_property import Prop, FloatProp, IntProp, ListProp, EvalProp, StrProp, BoolProp
+from atom.api import Bool, Str, Member, Int
+from instrument_property import FloatProp, IntProp, StrProp, BoolProp
 from cs_instruments import Instrument
 from analysis import Analysis
-import TCP
 from cs_errors import PauseError
-import subprocess
 from ctypes import *
 import numpy
 

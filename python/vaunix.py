@@ -15,14 +15,14 @@ __author__ = 'Martin Lichtman'
 import logging
 logger = logging.getLogger(__name__)
 
-from atom.api import Bool, Str, Member, Int, Float
-from instrument_property import Prop, IntProp, ListProp, FloatProp, StrProp, BoolProp
+from atom.api import Bool, Str, Member, Int
+from instrument_property import Prop, IntProp, ListProp, FloatProp
 from cs_instruments import Instrument
-import serial
+
 from cs_errors import PauseError
 
 from ctypes import *
-import os
+
 
 class Vaunix(Prop):
     isInitialized = Bool(False)

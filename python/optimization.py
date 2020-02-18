@@ -29,7 +29,6 @@ from math import isnan
 import matplotlib as mpl
 mpl.use('PDF')
 import matplotlib.pyplot as plt
-from matplotlib.backends.backend_pdf import PdfPages
 
 from atom.api import Bool, Member, Float, Int, Str
 from analysis import AnalysisWithFigure

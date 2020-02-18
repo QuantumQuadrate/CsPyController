@@ -3,7 +3,7 @@ __author__ = 'Martin Lichtman'
 import logging
 logger = logging.getLogger(__name__)
 
-from atom.api import Bool, Float, Str, Typed, Member
+from atom.api import Float, Str, Typed, Member
 from instrument_property import Prop, BoolProp, FloatProp, ListProp
 from cs_instruments import Instrument
 

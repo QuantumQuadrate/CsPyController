@@ -12,7 +12,6 @@ logger = logging.getLogger(__name__)
 from cs_errors import PauseError
 
 from atom.api import Atom, Str, Bool, Int, Float, List, Member, Value, observe
-from enaml.validator import Validator
 from enaml.application import deferred_call
 
 import pickle, h5py, numpy

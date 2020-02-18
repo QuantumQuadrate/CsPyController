@@ -21,9 +21,7 @@ from atom.api import Bool, Str, Member, Int, Float
 from instrument_property import Prop, FloatProp, IntProp, ListProp, EvalProp
 from cs_instruments import Instrument
 from analysis import Analysis
-import TCP
 from cs_errors import PauseError
-import subprocess
 import sys, os
 print os.getcwd()
 sys.path.append(r'{}\..\csharp\Aerotech_Ensemble_Server'.format(os.getcwd()))

@@ -16,8 +16,6 @@ logger = logging.getLogger(__name__)
 from cs_errors import PauseError
 
 from atom.api import Typed, Member, Int, Str
-from enaml.application import deferred_call
-from matplotlib.ticker import NullFormatter
 from instrument_property import BoolProp, FloatProp, StrProp
 from cs_instruments import Instrument
 import numpy as np
