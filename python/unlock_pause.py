@@ -65,13 +65,12 @@ class UnlockMonitor(Instrument, Analysis):
             try:
                 self.s = self.open_connection(None, False)
             except Exception as e:
-                logger.error("Somethin' done went wrong: {}".format(e))
+                logger.error("Error connecting to Raspberry Pi in Lock Monitor: {}".format(e))
                 raise PauseError
             self.s.sendall('%f' % self.Threshold.value)
         return
 
-    #paused = Bool(False) # why is this here? MFE
-    def analyzeMeasurement(self,measurementresults,iterationresults,hdf5):
+    def analyzeMeasurement(self, measurementresults, iterationresults, hdf5):
         if self.enable:
             if self.paused:
                 self.s.sendall('Experiment Resumed')
