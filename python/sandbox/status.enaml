@@ -1,9 +1,0 @@
-from enaml.widgets.api import MainWindow, ProgressBar, StatusBar, StatusItem, Field
-
-enamldef Main(MainWindow):
-    StatusBar:
-        StatusItem:
-            ProgressBar:
-                pass
-    Field:
-        status_tip << text
