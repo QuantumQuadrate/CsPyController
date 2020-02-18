@@ -10,16 +10,8 @@ analysis, and TCP server for communication with LabView.
 """
 __author__ = 'Martin Lichtman'
 
-# The following no longer applies now that:
-# On Windows you must do "set ETS_TOOLKIT=qt4" from the command line before running this.
-# The file cs.bat performs this task for you and then runs 'python cs.py'.
-
-# The following is not supported until we figure out how to launch GUI from a background thread without it complaining.
-# To run from a shell call: import cs; exp=cs.new()
-
 import enaml
 from enaml.qt.qt_application import QtApplication
-import threading
 import cs_errors
 import logging
 cs_errors.setup_log()
@@ -48,14 +40,6 @@ def guiThread(exp):
 
     logger.info('starting QtApplication')
     app.start()
-
-
-def new():
-    logger.info('Started CsPyController')
-    exp = aqua.AQuA()
-    # start in a new thread so you can continue to use the shell
-    threading.Thread(target=guiThread, args=[exp]).start()
-    return exp
 
 
 if __name__ == '__main__':
