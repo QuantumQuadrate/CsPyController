@@ -4922,7 +4922,7 @@ window_dictionary = {'':'',
                      'Functional Waveforms Graph': 'FunctionalWaveformsGraph(graph = main.experiment.functional_waveforms_graph)',
                      'CounterGraph': 'CounterGraph(analysis = main.experiment.counter_graph)',
                      'CounterHistAnalysis': 'CounterHistAnalysis(analysis = main.experiment.counter_hist)',
-                     'Unlock Monitor': 'Unlock_Pause(unlock_pause = main.experiment.unlock_pause)',
+                     'Pi Lock Monitor': 'Unlock_Pause(unlock_pause = main.experiment.unlock_pause)',
                      'Origin Interface': 'Origin(origin = main.experiment.origin)',
                      'National Instruments Scopes': 'NIScopes(niscopes = main.experiment.NIScopes)'
                      }

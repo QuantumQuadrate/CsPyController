@@ -649,8 +649,8 @@ class Experiment(Prop):
 
                         logger.debug("Finished all iterations")
                         self.postExperiment()  # run analyses
-                        self.optimizer.update(self.hdf5, self.experiment_hdf5)  # update optimizer variables\
-                        for i in self.analyses:
+                        self.optimizer.update(self.hdf5, self.experiment_hdf5)  # update optimizer variables
+                        if self.optimizer.enable:
                             self.preExperiment()
                         if self.optimizer.is_done:
                             # the experiment is finished, run final analysis, upload data, and exit loop
