@@ -5,7 +5,7 @@ import socket
 from atom.api import Bool, Member, Float
 from instrument_property import IntProp, FloatProp, StrProp
 from cs_instruments import Instrument
-from analysis import, Analysis
+from analysis import Analysis
 from cs_errors import PauseError
 import logging
 logger = logging.getLogger(__name__)
