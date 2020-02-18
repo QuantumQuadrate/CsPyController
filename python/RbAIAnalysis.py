@@ -54,10 +54,10 @@ class RbAIAnalysis(Analysis):
             MOTX = X1/X2 # x1-x2
             MOTY = Y1/Y2 # y1-y2
             MOTZ = Z1/Z2 # z1-z2
-            print('X1/X2 = ', MOTX," Total X Power: ", X1+X2 )
-            print('Y1/Y2 = ', MOTY," Total Y Power: ", Y1+Y2 )
-            print('Z1/Z2 = ', MOTZ," Total Z Power: ", Z1+Z2 )
-            print('TOTAL = %s uW' % MOTtot)
+            logger.info('X1/X2 = ', MOTX," Total X Power: ", X1+X2 )
+            logger.info('Y1/Y2 = ', MOTY," Total Y Power: ", Y1+Y2 )
+            logger.info('Z1/Z2 = ', MOTZ," Total Z Power: ", Z1+Z2 )
+            logger.info('TOTAL = %s uW' % MOTtot)
             # print " X1 voltage is ", np.nanmean(raw_data[5,1:10])*1000
             # print " X1 is ", X1
             # print " X2 voltage is ", np.nanmean(raw_data[6,1:10])*1000
