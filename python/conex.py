@@ -17,14 +17,12 @@ __author__ = 'Martin Lichtman'
 import logging
 logger = logging.getLogger(__name__)
 
-from atom.api import Bool, Str, Member, Int, Float
-from instrument_property import Prop, FloatProp, IntProp, ListProp, BoolProp, StrProp
+from atom.api import Bool, Member, Int, Float
+from instrument_property import Prop, FloatProp, ListProp, StrProp
 from cs_instruments import Instrument
-from analysis import Analysis
-import TCP
+
 from cs_errors import PauseError
 import time
-import subprocess
 import sys
 sys.path.append(r'C:\Program Files\Newport\MotionControl\CONEX-CC\Python')
 sys.path.append(r'C:\Program Files (x86)\Newport\MotionControl\CONEX-CC\Python')

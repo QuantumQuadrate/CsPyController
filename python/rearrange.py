@@ -3,10 +3,10 @@ import numpy
 import h5py
 import requests
 
-from atom.api import Bool, Str, Member, Int, Float, List
-from instrument_property import Prop, EvalProp, IntProp, ListProp, FloatProp
+from atom.api import Bool, Str, Member, Int
+from instrument_property import Prop, ListProp, FloatProp
 from cs_instruments import Instrument
-from colors import green_cmap
+
 from time import sleep
 
 logger = logging.getLogger(__name__)

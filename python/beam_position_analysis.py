@@ -18,9 +18,6 @@ from analysis import Analysis
 import numpy as np
 import os.path
 import h5py
-import scipy.ndimage.measurements as measurements
-from scipy.ndimage.morphology import binary_opening
-from scipy.optimize import curve_fit
 
 import scipy.ndimage.measurements as measurements
 from scipy.ndimage.morphology import binary_opening

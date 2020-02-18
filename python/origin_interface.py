@@ -19,9 +19,9 @@
 __author__ = 'Matthew Ebert'
 
 # Use Atom traits to automate Enaml updating
-from atom.api import Int, Float, Str, Member, Bool, Long, Typed
+from atom.api import Int, Str, Member, Bool, Long
 
-from instrument_property import Prop, ListProp, BoolProp, StrProp, FloatProp
+from instrument_property import Prop, ListProp
 
 from analysis import Analysis
 
@@ -46,7 +46,7 @@ sys.path.append(config.get('ORIGIN', 'OriginLibPath'))
 #print config.get('ORIGIN','OriginLibPath')
 
 from origin.client import server
-from origin import current_time, TIMESTAMP, data_types
+from origin import  TIMESTAMP, data_types
 
 preExperimentMsg    = 'PEXP'
 postExperimentMsg   = 'EXPR'

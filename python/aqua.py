@@ -15,43 +15,34 @@ import noise_eaters
 import DDS, roi_fitting
 import picomotors, andor, picampython, vaunix, DCNoiseEater, Laird_temperature, AnalogInput
 import Counter, unlock_pause, niscope, newportstage, nidaq_ai
-
+logger = logging.getLogger(__name__)
+config = import_config()
+import origin_interface
+import FakeInstrument  # for testing
+from pypico import PyPicoServer  # for communicating with a picomotor server
 try:
     import conex
     conex_enable = True
 except:
-    "Conex disabled"
+    logger.warning("Conex could not be loaded."
+                   "Conex translation stages will not work.")
     conex_enable = False
 try:
     import aerotech
     aerotech_enable = True
 except:
-    "aerotech disabled"
+    logger.warning("Aerotech could not be loaded."
+                   "If it is needed, check that pythonnet is installed.")
     aerotech_enable = False
 
-import origin_interface
-import FakeInstrument  # for testing
-from pypico import PyPicoServer  # for communicating with a picomotor server
 try:
-	import conex
-	conexfound=True
-except:
-	print "Conex could not be loaded. Conex translation stages will not work."
-	conexfound=False
-try:
-	import aerotech
-	aerotechfound=True
-except:
-	print "Aerotech could not be loaded. If it is needed, check that pythonnet is installed."
-	aerotechfound=False
-
-try:
-    from blackfly import BlackflyClient  # communicates with Blackfly camera server
+    # communicates with Blackfly camera server
+    from blackfly import BlackflyClient
     pycap = True
 except:
-    print "Blackfly client disabled, install PyCapture2 module to enable"
+    logger.warning("Blackfly client disabled,"
+                   "install PyCapture2 module to enable")
     pycap = False
-# from vital_sign_sound import Vitalsign
 
 # analyses
 from SquareROIAnalysis import SquareROIAnalysis
@@ -66,8 +57,7 @@ from beam_position_analysis import BeamPositionAnalysis
 from experiments import Experiment
 
 __author__ = 'Martin Lichtman'
-logger = logging.getLogger(__name__)
-config = import_config()
+
 
 
 class AQuA(Experiment):

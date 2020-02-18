@@ -4362,100 +4362,6 @@ enamldef Pattern_Sites(Container):
         IntField:
             value := item.pattern_num
 
-enamldef Rearrange(Window):
-    attr rearrange
-
-    title = 'PyPico Server'
-    style_class << 'valid' if experiment.valid else 'invalid'
-    Container:
-        padding = 0
-        style_class << 'valid' if experiment.valid else 'invalid'
-        ScrollArea:
-            style_class << 'valid' if experiment.valid else 'invalid'
-            Container:
-                style_class << 'valid' if experiment.valid else 'invalid'
-
-                Container:
-                    hug_width = 'strong'
-                    hug_height = 'strong'
-                    Form:
-                        hug_width = 'strong'
-                        hug_height = 'strong'
-                        Label:
-                            text = 'enable'
-                        CheckBox:
-                            checked := pypico.enable
-                        Label:
-                            text = 'enable_measurement'
-                        CheckBox:
-                            checked := pypico.enable_measurement
-                        Label:
-                            text = 'enable_iteration'
-                        CheckBox:
-                            checked := pypico.enable_iteration
-                        Label:
-                            text = 'enable_movement'
-                        CheckBox:
-                            checked := pypico.enable_movement
-                        Label:
-                            text = 'IP Address'
-                        Field:
-                            text := pypico.IP
-                        Label:
-                            text = 'port'
-                        IntField:
-                            value := pypico.port
-                        Label:
-                            text = 'timeout (ms)'
-                        IntField:
-                            value := pypico.timeout
-
-                    Container:
-                        hug_width = 'strong'
-                        hug_height = 'strong'
-                        Form:
-                            Label:
-                                text = 'Jump Time'
-                            EvalProp:
-                                prop << rearrange.jump_time
-                            Label:
-                                text = 'frequency_increment'
-                            EvalProp:
-                                prop << rearrange.frequency_increment
-                            Label:
-                                text = 'laser_ramp_on_time'
-                            EvalProp:
-                                prop << rearrange.laser_ramp_on_time
-                    Container:
-                        hug_width = 'strong'
-                        hug_height = 'strong'
-                        Form:
-                            Label:
-                                text = 'sub array left'
-                            IntField:
-                                value := rearrange.sub_array_left
-                            Label:
-                                text = 'sub array top'
-                            IntField:
-                                value := rearrange.sub_array_top
-                            Label:
-                                text = 'sub array width'
-                            IntField:
-                                value := rearrange.sub_array_width
-                            Label:
-                                text = 'sub array height'
-                            IntField:
-                                value := rearrange.sub_array_height
-                    IndexedContainer:
-                        iterable << rearrange.fit_freq_sites
-                        viewType = Fit_Sites
-                    IndexedContainer:
-                        iterable << rearrange.force_freq_sites
-                        viewType = Force_Sites
-                    IndexedContainer:
-                        iterable << rearrange.site_pattern
-                        viewType = Pattern_Sites
-
 enamldef PyPico(Window):
     attr pypico
 
@@ -4860,7 +4766,6 @@ window_dictionary = {'':'',
                      'Picomotors': 'Picomotors(picomotors = main.experiment.picomotors)',
                      'Noise Eaters': 'Noise_Eaters(noise_eaters = main.experiment.noise_eaters)',
                      'Cell Electrodes': 'BILTcards(BILT = main.experiment.BILT)',
-                     'Atom Rearranger': 'Rearrange(rearrange = main.experiment.rearrange)',
                      'PyPico': 'PyPico(pypico = main.experiment.pyPicoServer)',
                      'AAS': 'AAS(aas = main.experiment.beam_position_analysis)',
                      'AAS2': 'AAS(aas = main.experiment.beam_position_analysis2)',

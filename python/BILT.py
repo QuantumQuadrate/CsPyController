@@ -14,14 +14,11 @@
 import logging
 logger = logging.getLogger(__name__)
 from cs_errors import PauseError
-import TCP
+
 import time
-from ctypes import CDLL, c_int, c_float, c_long, c_char_p, byref
-import os, threading, time
-import numpy
 import socket
-from atom.api import Int, Tuple, List, Str, Float, Bool, Member
-from instrument_property import Prop, IntProp, FloatProp, ListProp
+from atom.api import Int, Str, Member
+from instrument_property import Prop, FloatProp, ListProp
 from cs_instruments import Instrument
 
 

@@ -3,11 +3,11 @@ from __future__ import division
 import logging
 logger = logging.getLogger(__name__)
 
-from atom.api import Str, Member, Int, List, observe
-from enaml.application import deferred_call
+from atom.api import Str, Member, Int
+
 from instrument_property import Prop, ListProp, FloatProp
 from cs_instruments import Instrument
-import numpy
+
 import requests
 
 class Noise_Eater(Prop):

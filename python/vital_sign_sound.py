@@ -1,7 +1,7 @@
 import logging
 import numpy as np
-import threading
-from atom.api import Bool, Str, Member, Int, observe
+
+from atom.api import Bool, Member
 
 from analysis import Analysis
 import winsound

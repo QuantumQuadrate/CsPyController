@@ -15,7 +15,7 @@ import logging
 logger = logging.getLogger(__name__)
 
 import numpy
-from atom.api import Bool, Str, Int
+from atom.api import Str, Int
 from cs_instruments import Instrument
 from analysis import Analysis
 import sound
