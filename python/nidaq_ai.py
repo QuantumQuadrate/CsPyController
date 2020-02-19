@@ -97,16 +97,16 @@ class NIDAQmxAI(Instrument,Analysis):
             except Exception as e:
                 logger.error("Failed to eval DAQmx channel list (did you remember quotes?): {}".format(e))
                 raise PauseError
-            print self.channellist
+            logger.info(self.channellist)
             self.data = numpy.zeros((self.samples_per_measurement.value*len(self.channellist),),dtype=numpy.float64)
-            print self.data.shape
+            logger.info(self.data.shape)
             mychans = ""
             for i,chan in enumerate(self.channellist):
                 if i<len(self.channellist)-1:
                     mychans+=self.DeviceName.value+"/"+chan+", "
                 else:
                     mychans+=self.DeviceName.value+"/"+chan
-            print mychans
+            logger.info(mychans)
             self.CHK(self.nidaq.DAQmxCreateAIVoltageChan(self.taskHandle,c_char_p(mychans),"",
                                                     self.DAQmx_Val_RSE,c_double(-5.0),c_double(5.0),
                                                     self.DAQmx_Val_Volts,None),"CreateAIVoltageChan")
