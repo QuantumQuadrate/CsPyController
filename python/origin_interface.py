@@ -26,7 +26,8 @@ from instrument_property import Prop, ListProp
 from analysis import Analysis
 
 from h5py import Dataset, File
-import sys, traceback, os.path
+import traceback
+import os.path
 
 import time
 
@@ -42,11 +43,9 @@ config = import_config()
 
 # still need to import config parser for origin
 import ConfigParser
-sys.path.append(config.get('ORIGIN', 'OriginLibPath'))
-#print config.get('ORIGIN','OriginLibPath')
 
 from origin.client import server
-from origin import  TIMESTAMP, data_types
+from origin import TIMESTAMP, data_types
 
 preExperimentMsg    = 'PEXP'
 postExperimentMsg   = 'EXPR'
