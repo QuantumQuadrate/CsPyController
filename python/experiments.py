@@ -138,6 +138,7 @@ class Experiment(Prop):
     notes = Str()
     enable_sounds = Bool()
     enable_instrument_threads = Bool()
+    settings_path = Str()
     cache_settings_path = Str()
     temp_settings_path = Str()
 
@@ -224,6 +225,7 @@ class Experiment(Prop):
         super(Experiment, self).__init__('experiment', self)
 
         # default values
+        self.settings_path = '__project_cache__'
         self.cache_settings_path = '__project_cache__/settings.hdf5'
         self.temp_settings_path = '__project_cache__/previous_settings.hdf5'
         self.constantReport = StrProp('constantReport', self, 'Important output that does not change with iterations', '""')
@@ -757,10 +759,12 @@ class Experiment(Prop):
         if zipfile.is_zipfile(path):
             zf = zipfile.ZipFile(path)
             filecontents = zf.read(os.path.basename(os.path.splitext(path)[0]))
-            tempfile = open("unzipped.hdf5", "wb")
+            tempfile = open(os.path.join(self.settings_path,
+                                         "unzipped.hdf5"),
+                            "wb")
             tempfile.write(filecontents)
             tempfile.close()
-            path = "unzipped.hdf5"
+            path = os.path.join(self.settings_path, "unzipped.hdf5")
 
         try:
             f = h5py.File(path, 'r')
