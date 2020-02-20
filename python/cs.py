@@ -12,14 +12,65 @@ __author__ = 'Martin Lichtman'
 
 import enaml
 from enaml.qt.qt_application import QtApplication
-import cs_errors
 import logging
-cs_errors.setup_log()
-logger = logging.getLogger(__name__)
+import logging.handlers
+import colorlog
 import aqua
 
 
+def setup_log():
+    """
+    This function sets up the error logging to both console and file. Logging
+    can be set up at the top of each file by doing:
+    import logging
+    logger = logging.getLogger(__name__)
+    """
+
+    # get the root logger
+    logger = logging.getLogger()
+    logger.setLevel(logging.INFO)
+
+    # set up logging to console for INFO and worse
+    sh = colorlog.StreamHandler()
+    sh.setLevel(logging.INFO)
+
+    sh_formatter = colorlog.ColoredFormatter("%(log_color)s%(levelname)-8s - "
+                                             "%(name)-25s - %(threadName)-15s -"
+                                             " %(asctime)s - %(cyan)s \n  "
+                                             "%(message)s\n",
+                                             datefmt=None,
+                                             reset=True,
+                                             log_colors={
+                                                         'DEBUG':    'cyan',
+                                                         'INFO':     'green',
+                                                         'WARNING':  'yellow',
+                                                         'ERROR':    'red',
+                                                         'CRITICAL': 'red,'
+                                                                     'bg_white',
+                                                         },
+                                             secondary_log_colors={},
+                                             style='%'
+                                             )
+    sh.setFormatter(sh_formatter)
+
+    # set up logging to file for ALL messages
+    fh = logging.handlers.TimedRotatingFileHandler('__project_cache__/log.txt',
+                                                   when='midnight',
+                                                   interval=1, backupCount=7)
+    fh.setLevel(logging.INFO)
+    fh_formatter = logging.Formatter(fmt='%(asctime)s.%(msecs)03d - %(threadNam'
+                                         'e)s - %(filename)s.%(funcName)s.%(lin'
+                                         'eno)s - %(levelname)s\n%(message)s\n'
+                                         '\n', datefmt='%Y/%m/%d %H:%M:%S')
+    fh.setFormatter(fh_formatter)
+
+    # put the handlers to use
+    logger.addHandler(sh)
+    logger.addHandler(fh)
+
+
 def guiThread(exp):
+    logger = logging.getLogger(__name__)
     logger.debug('importing GUI')
     with enaml.imports():
         from cs_GUI import Main
@@ -43,7 +94,10 @@ def guiThread(exp):
 
 
 if __name__ == '__main__':
-    logger.info('Started CsPyController')
+    setup_log()
+    logger = logging.getLogger(__name__)
+    logger.info('Starting up CsPyController...')
+
     exp = aqua.AQuA()
 
     # start without creating a new thread
