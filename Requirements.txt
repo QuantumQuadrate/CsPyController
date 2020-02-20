@@ -18,6 +18,7 @@ pyparsing==2.0.3
 pyserial==2.7
 PySide==1.2.2
 python-dateutil==2.4.2
+pythonnet==2.4.0
 pytz==2014.9
 PyVISA==1.10.1
 pyzmq==16.0.0
