@@ -143,13 +143,12 @@ class Vaunix(Prop):
         return
         
     def getparams(self):
-        logger.info("Parameters for Vaunix # {}".format(self.ID))
-        logger.info("Frequency: {} MHz".format(
-            self.va.fnLMS_GetFrequency(self.ID)/100000))
-        logger.info("Power Level: {} dBm".format(
-            self.va.fnLMS_GetPowerLevel(self.ID)/4))
+        print "Parameters for Vaunix # {}".format(self.ID)
+        print "Frequency: {} MHz".format(self.va.fnLMS_GetFrequency(self.ID)/100000)
+        print "Power Level: {} dBm".format(self.va.fnLMS_GetPowerLevel(self.ID)/4)
         
         
+
 class Vaunixs(Instrument):
     version = '2015.11.19'
     motors = Member()

@@ -75,7 +75,7 @@ class BILTcards(Instrument):
                     self.socket.send(msg)
                     time.sleep(0.2)
                     self.socket.send('meas:volt ?\n')
-                    logger.info(self.socket.recv(1024))
+                    print(self.socket.recv(1024))
                     self.socket.close()
                     time.sleep(0.2)
                     

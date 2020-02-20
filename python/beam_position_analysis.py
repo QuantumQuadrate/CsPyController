@@ -99,13 +99,13 @@ class BeamPositionAnalysis(Analysis):
         # location of position data in hdf5
         positions_path_base = 'data/'
         try:
-            positions_paths = self.experiment.Config.config.get(section,
-                                                                datagroup)
+            positions_paths = self.experiment.Config.config.get(section, datagroup)
+
         except:
-            msg = 'ConfigParser was unable to find entry: `{}.{}`.'
-            'Disabling module.'
-            logger.warning(msg.format(section, datagroup))
+            msg = 'ConfigParser was unable to find entry: `{}.{}`. Disabling module.'
+            logger.exception(msg.format(section, datagroup))
             self.enable = False
+
             return
 
         positions_paths = positions_paths.split(',')
@@ -150,7 +150,7 @@ class BeamPositionAnalysis(Analysis):
                 x, error_x = self.gaussianfit(img, COM_X, Xsigma_guess, 0) # last argument is axis.
                 y, error_y = self.gaussianfit(img, COM_Y, Ysigma_guess, 1)
                 error = 0
-                logger.info('480 x: {}, 480 y:{}'.format(x,y))
+                print '480 x: {}, 480 y:{}'.format(x,y)
             except:
                 error = 1
         if error == 1:
@@ -347,11 +347,10 @@ class BeamPositionAnalysis(Analysis):
         if (len(self.actuator_variable_X.valueList) == 1 and
                 len(self.actuator_variable_Y.valueList == 1)):
 
-            msg = ("Moving actuator {} to position: {:.3f}, "
-                   "error: {:.3f}, delta: {:.3f}")
+            msg = "Moving actuator {} to position: {:.3f}, error: {:.3f}, delta: {:.3f}"
 
-            logger.info("old X value: "
-                        "{}".format(self.actuator_variable_X.currentValue))
+
+            print "old X value: {}".format(self.actuator_variable_X.currentValue)
             self.updateIndependentVariableDelta(
                 self.actuator_variable_X,
 
@@ -367,8 +366,7 @@ class BeamPositionAnalysis(Analysis):
 
             ))
 
-            logger.info("old Y value: "
-                        "{}".format(self.actuator_variable_Y.currentValue))
+            print "old Y value: {}".format(self.actuator_variable_Y.currentValue)
             self.updateIndependentVariableDelta(
                 self.actuator_variable_Y,
                 self.actuator_Y.current_position - self.position_iter_stat['error_y']

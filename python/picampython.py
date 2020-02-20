@@ -244,45 +244,42 @@ class PICamCamera(Instrument):
         thread.start()
 
     def addDemoCamera(self):
-        logger.info('Adding Demo Camera')
+        print 'Adding Demo Camera'
 
         modelListType = ctypes.POINTER(PicamModel)
         modelList = modelListType()
         model_count = piint(0)
         Picam_GetAvailableDemoCameraModels(byref(modelList),byref(model_count))
-        logger.info("Available Demo Camera Model numbers:\n")
+        print "Available Demo Camera Model numbers:\n"
         for i in range(model_count.value):
-            logger.info(modelList[i])
+            print modelList[i]
+        print "\n"
 
         model = c_int(604)
         serial_number = c_char_p('Demo Cam 1')
         PicamID = PicamCameraID()
-        logger.info("ConnectDemoCamera returned: {}".format(
-                    Picam_ConnectDemoCamera(model, serial_number,
-                                            pointer(PicamID))))
+        print "ConnectDemoCamera returned: {}".format(Picam_ConnectDemoCamera(model,serial_number,pointer(PicamID)))
         self.printCameraID(PicamID)
         if self.useDemo:
             self.currentID = PicamID
             self.currentCamera.value = PicamID.serial_number
         return
 
-    def printCameraID(self, PicamID):
-        logger.info("Camera Model: {}".format(PicamID.model))
-        logger.info("Camera computer interface is: "
-                    "{}".format(PicamID.computer_interface))
-        logger.info("Camera sensor name is: {}".format(PicamID.sensor_name))
-        logger.info("Camera serial number is: {}".format(PicamID.serial_number))
+    def printCameraID(self,PicamID):
+        print "Camera Model: {}".format(PicamID.model)
+        print "Camera computer interface is: {}".format(PicamID.computer_interface)
+        print "Camera sensor name is: {}".format(PicamID.sensor_name)
+        print "Camera serial number is: {}".format(PicamID.serial_number)
         return
+
+
 
     def sendparameters(self):
         self.GetDetector()
         
         if self.enableROI:
             self.setROIvalues()
-            logger.info("ROI: x={}, x_binning={}, y={}, y_binning={}, width={}, "
-                        "height={}".format(self.ROI.x, self.ROI.x_binning,
-                                           self.ROI.y, self.ROI.y_binning,
-                                           self.ROI.width, self.ROI.height))
+            print "ROI: x={}, x_binning={}, y={}, y_binning={}, width={}, height={}".format(self.ROI.x, self.ROI.x_binning, self.ROI.y, self.ROI.y_binning, self.ROI.width, self.ROI.height)
             self.SetImage()
         else:
             self.setSingleROI()
@@ -296,7 +293,7 @@ class PICamCamera(Instrument):
         exptime = piflt(int(self.exposureTime.value*1000)/1000.0)
         error = Picam_SetParameterFloatingPointValue(self.currentHandle, PicamParameter_ExposureTime, exptime)
         self.DLLError(str(sys._getframe().f_code.co_name) + ' (parameter ExposureTime, value={})'.format(exptime), error)
-        logger.info('exptime={}'.format(exptime))
+        print 'exptime={}'.format(exptime)
 
 
         error = Picam_SetParameterIntegerValue(self.currentHandle, PicamParameter_CleanUntilTrigger, piint(1))
@@ -360,7 +357,7 @@ class PICamCamera(Instrument):
         if self.enableROI:
             self.setROIvalues()
             p6 = self.ROI.y_binning
-            logger.info("p6 = {}".format(p6))
+            print "p6 = {}".format(p6)
             self.SetImage() 
         else:
             if self.binChoices[self.binMode] > 1:
@@ -508,7 +505,7 @@ class PICamCamera(Instrument):
         self.cameraIDDict = dict(zip([self.currentHandleList[i].serial_number for i in range(self.num_cameras.value)],range(self.num_cameras.value)))
 
         #try:
-        logger.info(self.cameraIDDict)
+        print self.cameraIDDict
         self.currentID = self.currentHandleList[self.cameraIDDict[self.currentCamera.value]]
 
         #except Exception as e:
@@ -524,23 +521,20 @@ class PICamCamera(Instrument):
 
 
     def PrintParameters(self):
-        logger.info("Parameters for Princeton Instruments Camera "
-                    "{}\n".format(self.currentHandle))
-        logger.info("Exposure Status:")
-        logger.info("Exposure Time: {}".format(
-            self.getFloat(PicamParameter_ExposureTime)))
-        logger.info("Shutter Timing Mode: {}".
-                    format(self.getInt(PicamParameter_ShutterTimingMode)))
-        logger.info("Sensor Temperature Set Point: {}".format(
-            self.getFloat(PicamParameter_SensorTemperatureSetPoint)))
-        logger.info("Sensor Temperature Reading: {}".format(
-            self.getFloat(PicamParameter_SensorTemperatureReading)))
-        logger.info("Sensor Temperature Status: {}".format(
-            self.getInt(PicamParameter_SensorTemperatureStatus)))
-        logger.info("Disable Cooling Fan: {}".format(
-            self.getInt(PicamParameter_DisableCoolingFan)))
-        logger.info("Clean Until Trigger: {}".format(
-            self.getInt(PicamParameter_CleanUntilTrigger)))
+        print ("Parameters for Princeton Instruments Camera {}".format(self.currentHandle))
+        print ""
+        print "Exposure Status:"
+        print ("Exposure Time: {}".format(self.getFloat(PicamParameter_ExposureTime)))
+        print ("Shutter Timing Mode: {}".format(self.getInt(PicamParameter_ShutterTimingMode)))
+        print ""
+        print "Temperature Status:"
+        print ("Sensor Temperature Set Point: {}".format(self.getFloat(PicamParameter_SensorTemperatureSetPoint)))
+        print ("Sensor Temperature Reading: {}".format(self.getFloat(PicamParameter_SensorTemperatureReading)))
+        print ("Sensor Temperature Status: {}".format(self.getInt(PicamParameter_SensorTemperatureStatus)))
+        print ("Disable Cooling Fan: {}".format(self.getInt(PicamParameter_DisableCoolingFan)))
+        print ""
+        print "Sensor Cleaning:"
+        print ("Clean Until Trigger: {}".format(self.getInt(PicamParameter_CleanUntilTrigger)))
         
      
     def getInt(self,param):
@@ -731,13 +725,8 @@ class PICamCamera(Instrument):
                     try:
                         data = numpy.reshape(dat, (1, self.height, self.width))
                     except:
-                        logger.info("dat.shape={}".format(
-                            numpy.array(dat).shape))
-                        logger.info("available.readout_count={}, self.height={}"
-                                    ", self.width={}, a*h*w={}".format
-                                    (available.readout_count, self.height,
-                                     self.width, available.readout_count *
-                                     self.height * self.width))
+                        print "dat.shape={}".format(numpy.array(dat).shape)
+                        print "available.readout_count={}, self.height={}, self.width={}, a*h*w={}".format(available.readout_count, self.height, self.width,available.readout_count*self.height*self.width)
                 readout += 1
         self.AbortAcquisition()
         carp = PicamAvailableData(0,0)

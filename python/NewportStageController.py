@@ -9,8 +9,7 @@ __author__ = 'jaisaacs'
 ###
 
 import serial
-import logging
-logger = logging.getLogger(__name__)
+
 class Newport():
 
     #ser_add = '' #'COM6'# Address of serial controller for stage
@@ -28,7 +27,7 @@ class Newport():
             try:
                 ser.open()
             except Exception as e:
-                logger.exception(e)
+                print e
 
             #Communication options
         self.ser.timeout = 1
@@ -41,7 +40,7 @@ class Newport():
         self.ser.write((s+'\n\r').encode('utf-8'))
         response = self.ser.readlines()
         for i in response:
-            logger.info(i.rstrip())
+            print i.rstrip()
 
     def WriteThenStore(self,s):
         self.ser.write((s+'\n\r').encode('utf-8'))
@@ -64,8 +63,8 @@ class Newport():
         done = ''
         while done != self.axis+'D':
             done = self.status()
-            logger.info('Status: {}\n'.format(done))
-        logger.info('Calibration: Complete!')
+            print('Status: {}\n'.format(done))
+        print('Calibration: Complete!')
 
     def status(self): return self.WriteThenStore(self.axis+'STAT')[0].rstrip()[-2:]
 
@@ -80,8 +79,8 @@ class Newport():
         done = ''
         while done != self.axis+'D':
             done = self.status()
-            logger.info('Status: {}\n'.format(done))
-        logger.info('Center: Found!')
+            print('Status: {}\n'.format(done))
+        print('Center: Found!')
 
 
     def calibrateStage(self):
@@ -89,17 +88,15 @@ class Newport():
         done = ''
         while done != self.axis+'D':
             done = self.status()
-            logger.info('Status: {}\n'.format(done))
-        logger.info('Calibration: Complete!')
+            print('Status: {}\n'.format(done))
+        print('Calibration: Complete!')
         
     def setaxis(self,axis):
         if axis in ['X','Y','Z']:
             self.axis = axis
             #print 'Axis is {}'.format(self.axis)
         else:
-            logger.warning("Invalid axis parameter passed to "
-                           "NewportMotionController class. "
-                           "Valid values are X, Y, Z. Defaulting to X.")
+            print "Invalid axis parameter passed to NewportMotionController class. Valid values are X, Y, Z. Defaulting to X."
             self.axis='X'
 
 

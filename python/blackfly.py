@@ -19,12 +19,12 @@ from atom.api import Typed, Member, Int, Float, Bool
 from cs_instruments import Instrument
 import zmq_instrument
 from instrument_property import Prop
-logger = logging.getLogger(__name__)
+
 try:
     from PyCapture2 import PROPERTY_TYPE, BUS_SPEED, GRAB_MODE, PIXEL_FORMAT
 except:
     # just make fake values so stuff doesnt crash when testing
-    logger.warning("PyCapture2 not installed, blackfly cameras are not usuable")
+    print("PyCapture2 not installed, blackfly cameras are not usuable")
     class ptype(object):
         def __init__(self):
             self.TRIGGER_DELAY = 1
@@ -38,7 +38,7 @@ except:
     PIXEL_FORMAT = ptype()
 
 __author__ = 'Matthew Ebert'
-
+logger = logging.getLogger(__name__)
 
 
 class BFProperty(Prop):

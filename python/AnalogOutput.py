@@ -109,9 +109,8 @@ class AnalogOutput(Instrument):
                 try:
                     value_list[index:, channels[i]] = values[i]
                 except Exception as e:
-                    logger.exception("probably invalid slice....... "
-                                     "Exception: {}".format(e))
-                    logger.info("index={}".format(index))
+                    print "probably invalid slice....... Exception: {}".format(e)
+                    print "index={}".format(index)
                     raise PauseError
 
             # update the exposed variables

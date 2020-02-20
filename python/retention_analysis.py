@@ -206,23 +206,20 @@ class RetentionGraph(AnalysisWithFigure):
                     try:
                         for i, ivar in enumerate(self.experiment.ivarNames):
                             if len(self.experiment.ivarValueLists[i]) > 1:
-                                logger.info("found iterated variable: "
-                                            "{}".format(ivar))
+                                print "found iterated variable: {}".format(ivar)
                                 x_label = ivar
-                                logger.info(self.experiment.ivarValueLists[i])
+                                print self.experiment.ivarValueLists[i]
                                 x_vals = self.experiment.ivarValueLists[i]
                                 break
                     except TypeError:
-                        logger.debug("unable to iterate over "
-                                     "{}".format(self.experiment.ivarNames))
+                        logger.debug("unable to iterate over {}".format(self.experiment.ivarNames))
                     if self.mean is not None:
                         # parse the list of what to plot from a string to a
                         # list of numbers
                         try:
                             plotlist = eval(self.list_of_what_to_plot)
                         except Exception as e:
-                            logger.warning('Could not eval plotlist in '
-                                           'RetentionGraph:\n{}\n'.format(e))
+                            logger.warning('Could not eval plotlist in RetentionGraph:\n{}\n'.format(e))
                             return
                         # make one plot
                         ax = fig.add_subplot(111)
@@ -231,9 +228,7 @@ class RetentionGraph(AnalysisWithFigure):
                                 mean = self.mean[:, i]
                                 sigma = self.sigma[:, i]
                             except:
-                                logger.warning('Trying to plot data that does '
-                                               'not exist in RetentionGraph: '
-                                               'roi {}'.format(i))
+                                logger.warning('Trying to plot data that does not exist in RetentionGraph: roi {}'.format(i))
                                 continue
                             if x_vals == []:
                                 x_vals = np.arange(len(mean))

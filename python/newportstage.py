@@ -79,15 +79,12 @@ class NewportStage(Instrument):
         loopcounter=0
         while done != self.axis.value + 'D':
             done = self.nport.status()
-            logger.info('Status: {}\n'.format(done))
+            print('Status: {}\n'.format(done))
             loopcounter += 1
-            # controller sometimes gets confused,
-            # resulting in it returning B continuously.
-            # If this happens, reset the driver and try again.
-            if loopcounter > 10:
+            if loopcounter > 10:     #controller sometimes gets confused, resulting in it returning B continuously. If this happens, reset the driver and try again.
                 self.isInitialized = False
                 self.moveStage(recurse=recurse+1)
-        logger.info('Status: {}\n'.format(done))
+        print('Status: {}\n'.format(done))
         self.mypos = self.whereAmI()
         loopcounter=0
         maxloops=3

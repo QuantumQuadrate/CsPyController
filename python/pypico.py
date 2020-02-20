@@ -72,16 +72,14 @@ class PyPicomotor(Picomotor):
                 if abs(diff) < self.max_angle_error:
                     return ''
 
-            # For settling purpose, we will not make a movement.
             cmd = 'MOVE:ABS:MOT{}:{} DEG'.format(
                 self.motor_number,
-                self.desired_position.value-settling_offset
+                self.desired_position.value-settling_offset # For settling purpose, we will not make a movement.
             )
             return cmd
         else:
-            logger.info("Motor deactivated : {}".format(self.motor_number))
+            print "Motor deactivated : {}".format(self.motor_number)
             return ''
-
 
 class PyPicoServer(Instrument):
     version = '2018.07.07'
@@ -90,8 +88,7 @@ class PyPicoServer(Instrument):
     motors = Member()
     context = Member()
     socket = Member()
-    # default is 10 secs, since motor movement can take a while
-    timeout = Int(20000)
+    timeout = Int(20000)  # default is 10 secs, since motor movement can take a while
     enable_measurement = Bool()
     enable_iteration = Bool()
     enable_movement = Bool()

@@ -249,7 +249,7 @@ class NumpyWaveform(Prop):
             #if the waveform doesn't start with time 0, add it, and add defaultStates's to the beginning of statelist
             #LabView will modify the waveform in unpredictable ways if it doesn't start with time 0
             if timeList[0]>0:
-                logger.info('inserting timelist 0')
+                print 'inserting timelist 0'
                 timeList=numpy.insert(timeList,0,0,axis=0)
                 stateList=numpy.insert(stateList,0,defaultState,axis=0)
             
