@@ -125,7 +125,6 @@ class Experiment(Prop):
     repeat_experiment_automatically = Bool()
     saveData = Bool()
     saveSettings = Bool()
-    settings_path = Str()
     save_separate_notes = Bool()
     save2013styleFiles = Bool()
     localDataPath = Str()
