@@ -20,6 +20,7 @@ import cStringIO
 import numpy
 import h5py
 import zipfile
+import inspect
 
 # Use Atom traits to automate Enaml updating
 from atom.api import Int, Float, Str, Member, Bool
@@ -114,7 +115,7 @@ class Experiment(Prop):
 
     version = '2014.04.30'
 
-    #experiment control
+    # experiment control
     status = Str('idle')
     statusStr = Str()
     valid = Bool(True)  # the window will flash red on error
@@ -125,7 +126,6 @@ class Experiment(Prop):
     repeat_experiment_automatically = Bool()
     saveData = Bool()
     saveSettings = Bool()
-    settings_path = Str()
     save_separate_notes = Bool()
     save2013styleFiles = Bool()
     localDataPath = Str()
@@ -139,6 +139,9 @@ class Experiment(Prop):
     notes = Str()
     enable_sounds = Bool()
     enable_instrument_threads = Bool()
+    cache_dir = Str()
+    setting_path = Str()
+    temp_path = Str()
 
     #iteration traits
     progress = Int()
@@ -207,6 +210,7 @@ class Experiment(Prop):
     ivarBases = Member()
     instrument_update_needed = Bool(True)
 
+
     # threading
     exp_thread = Member()  # thread running the exp so gui is not blocked
     restart = Member()  # threading event for communication
@@ -218,16 +222,23 @@ class Experiment(Prop):
         self.setup_logger()
 
         self.allow_evaluation = False
+        # name is 'experiment', associated experiment is self
+        super(Experiment, self).__init__('experiment', self)
 
-        super(Experiment, self).__init__('experiment', self) #name is 'experiment', associated experiment is self
+        # This only works if the current working directory is never changed!!
+        filename = inspect.getframeinfo(inspect.currentframe()).filename
+        path = os.path.dirname(os.path.abspath(filename))
+        # default values
+        self.cache_dir = os.path.join(path, '__project_cache__')
+        self.setting_path = os.path.join(self.cache_dir, 'settings.hdf5')
+        self.temp_path = os.path.join(self.cache_dir, 'previous_settings.hdf5')
 
-        #default values
         self.constantReport = StrProp('constantReport', self, 'Important output that does not change with iterations', '""')
         self.variableReport = StrProp('variableReport', self, 'Important output that might change with iterations', '""')
         self.optimizer = optimization.Optimization('optimizer', self, 'updates independent variables to minimize cost function')
 
-
-        self.instruments = []  # a list of the instruments this experiment has defined
+        # a list of the instruments this experiment has defined
+        self.instruments = []
         self.completedMeasurementsByIteration = []
         self.independentVariables = ListProp('independentVariables', self, listElementType=IndependentVariable,
                                              listElementName='independentVariable')
@@ -238,7 +249,7 @@ class Experiment(Prop):
         self.properties += ['version', 'constantsStr', 'independentVariables', 'dependentVariablesStr',
                             'pauseAfterIteration', 'pauseAfterMeasurement', 'pauseAfterError',
                             'reload_settings_after_pause', 'repeat_experiment_automatically',
-                            'saveData', 'saveSettings', 'settings_path',
+                            'saveData', 'saveSettings',
                             'save_separate_notes', 'save2013styleFiles', 'localDataPath', 'networkDataPath',
                             'copyDataToNetwork', 'experimentDescriptionFilenameSuffix', 'measurementTimeout',
                             'measurementsPerIteration', 'willSendEmail', 'emailAddresses', 'progress', 'progressGUI',
@@ -305,31 +316,31 @@ class Experiment(Prop):
 
     def autosave(self):
         logger.debug('Saving settings to default settings.hdf5 ...')
-        #remove old autosave file
+        # remove old autosave file
         try:
-            os.remove('previous_settings.hdf5')
+            os.remove(self.temp_path)
         except Exception as e:
             logger.debug('Could not delete previous_settings.hdf5:\n'+str(e))
         try:
-            os.rename('settings.hdf5','previous_settings.hdf5')
+            os.rename(self.setting_path, self.temp_path)
         except Exception as e:
-            logger.error('Could not rename old settings.hdf5 to previous_settings.hdf5:\n'+str(e))
-
-        #create file
-        f = h5py.File('settings.hdf5', 'w')
-        #recursively add all properties
+            logger.error('Could not rename old settings.hdf5 to '
+                         'previous_settings.hdf5:\n'+str(e))
+        # create file
+        f = h5py.File(self.setting_path, 'w')
+        # recursively add all properties
         x = f.create_group('settings')
         self.toHDF5(x)
         f.flush()
         return f
-        #you will need to do autosave().close() wherever this is called
+        # you will need to do autosave().close() wherever this is called
 
     def create_data_files(self):
         """Create a new HDF5 file to store results.  This is done at the
         beginning of every experiment.
         """
 
-        #if a prior HDF5 results file is open, then close it
+        # if a prior HDF5 results file is open, then close it
         if hasattr(self, 'hdf5') and (self.hdf5 is not None):
             try:
                 self.hdf5.flush()
@@ -723,45 +734,47 @@ class Experiment(Prop):
                 sound.error_sound()
 
     def loadDefaultSettings(self):
-        """Look for settings.hdf5 in this directory, and if it exists, load it."""
+        """Look for settings.hdf5 in cache and if it exists, load it."""
         logger.debug('Loading default settings ...')
 
-        if os.path.isfile('settings.hdf5'):
-            self.load('settings.hdf5')
+        if os.path.isfile(self.setting_path):
+            self.load(self.setting_path)
         else:
             logger.debug('Default settings.hdf5 does not exist.')
 
     def load(self, path):
         logger.debug('Loading file: '+path)
 
-        #set path as default
-        self.settings_path = os.path.dirname(path)
-
-        #Disable any equation evaluation while loading.  We will evaluate everything after.
+        # Disable any equation evaluation while loading.
+        # We will evaluate everything after.
         if self.allow_evaluation:
             allow_evaluation_was_toggled = True
             self.allow_evaluation = False
         else:
             allow_evaluation_was_toggled = False
 
-        #load hdf5 from a file
+        # load hdf5 from a file
         if not os.path.isfile(path):
             logger.debug('Settings file {} does not exist'.format(path))
             raise PauseError
 
-        #check if the requested file is a zip file, and if so, convert it to a form h5py can read
+        # check if the requested file is a zip file, and if so,
+        # convert it to a form h5py can read
         if zipfile.is_zipfile(path):
             zf = zipfile.ZipFile(path)
             filecontents = zf.read(os.path.basename(os.path.splitext(path)[0]))
-            tempfile = open("unzipped.hdf5","wb")
+            tempfile = open(os.path.join(self.cache_dir,
+                                         "unzipped.hdf5"),
+                            "wb")
             tempfile.write(filecontents)
             tempfile.close()
-            path = "unzipped.hdf5"
+            path = os.path.join(self.cache_dir, "unzipped.hdf5")
 
         try:
             f = h5py.File(path, 'r')
         except Exception as e:
-            logger.warning('Problem loading HDF5 settings file in experiment.load().\n{}\n{}\n'.format(e, traceback.format_exc()))
+            logger.warning('Problem loading HDF5 settings file in experiment.l'
+                           'oad().\n{}\n{}\n'.format(e, traceback.format_exc()))
             raise PauseError
 
         settings = f['settings/experiment']
@@ -769,9 +782,10 @@ class Experiment(Prop):
         try:
             self.fromHDF5(settings)
         except Exception as e:
-            logger.warning('in experiment.load()\n'+str(e)+'\n'+str(traceback.format_exc()))
-            # this is an error, but we will not pass it on, in order to finish loading
-
+            logger.warning('in experiment.load()\n'+str(e)+'\n'+
+                           str(traceback.format_exc()))
+            # this is an error, but we will not pass it on,
+            # in order to finish loading
 
         f.close()
         logger.debug('File load done.')
@@ -779,7 +793,7 @@ class Experiment(Prop):
         if allow_evaluation_was_toggled:
             self.allow_evaluation = True
 
-        #now re-evaluate everything
+        # now re-evaluate everything
         self.evaluateAll()
 
     def measure(self):
@@ -1074,15 +1088,12 @@ class Experiment(Prop):
 
         logger.info('Saving...')
 
-        #set path as default
-        self.settings_path = os.path.dirname(path)
-
-        #HDF5
+        # HDF5
         self.autosave().close()
 
-        #copy to default location
+        # copy to default location
         logger.debug('Copying HDF5 to save path...')
-        shutil.copy('settings.hdf5', path)
+        shutil.copy(self.setting_path, path)
 
         #XML
         #logger.debug('Creating XML...')
