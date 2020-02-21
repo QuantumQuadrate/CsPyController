@@ -22,9 +22,11 @@ from instrument_property import Prop, FloatProp, ListProp
 from cs_instruments import Instrument
 from analysis import Analysis
 from cs_errors import PauseError
-import sys
-import os
-sys.path.append(r'{}\..\csharp\Aerotech_Ensemble_Server'.format(os.getcwd()))
+import sys, os, inspect
+filename = inspect.getframeinfo(inspect.currentframe()).filename
+path = os.path.dirname(os.path.abspath(filename))
+aerotech_path = os.path.join(path, '..\csharp\Aerotech_Ensemble_Server')
+sys.path.append(aerotech_path)
 import clr
 clr.AddReference("Aerotech.Common")
 clr.AddReference("Aerotech.Ensemble")
