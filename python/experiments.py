@@ -228,11 +228,10 @@ class Experiment(Prop):
         # This only works if the current working directory is never changed!!
         filename = inspect.getframeinfo(inspect.currentframe()).filename
         path = os.path.dirname(os.path.abspath(filename))
-        cache = os.path.join(path, '__project_cache__')
         # default values
-        self.cache_dir = cache
-        self.setting_path = os.path.join(cache, 'settings.hdf5')
-        self.temp_path = os.path.join(cache, 'previous_settings.hdf5')
+        self.cache_dir = os.path.join(path, '__project_cache__')
+        self.setting_path = os.path.join(self.cache_dir, 'settings.hdf5')
+        self.temp_path = os.path.join(self.cache_dir, 'previous_settings.hdf5')
 
         self.constantReport = StrProp('constantReport', self, 'Important output that does not change with iterations', '""')
         self.variableReport = StrProp('variableReport', self, 'Important output that might change with iterations', '""')
