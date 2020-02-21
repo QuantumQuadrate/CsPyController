@@ -43,8 +43,8 @@ try:
 except:
     logger.warning("pyniscope not installed. "
                    "NI-SCOPE will not work. "
-                   "Run the following commands to install it:\n"
-                   "cd pyniscope-master\n"
+                   "Run the following commands in the pyniscope-master "
+                   "directory to install it:\n"
                    "python setup.py build\n"
                    "python setup.py install\n")
     niScopeImported = False
