@@ -244,7 +244,7 @@ enamldef CsMenuBar(MenuBar): menuBar:
                     parent=menuBar,
                     title='Choose file to load',
                     mode='open_file',
-                    path=experiment.settings_path,
+                    path=experiment.setting_path,
                     callback=get_load_file_callback(experiment),
                     ).open()
         Action:
@@ -254,9 +254,13 @@ enamldef CsMenuBar(MenuBar): menuBar:
                     parent=menuBar,
                     title='Save As?',
                     mode='save_file',
-                    path=os.path.join(experiment.settings_path,'settings-{}.hdf5'.format(datetime.datetime.now().strftime('%Y-%m-%d-%H-%M-%S'))),
-                    callback=get_save_file_callback(experiment),
-                    ).open()
+                    path=os.path.join(experiment.setting_path,
+                                      'settings-{}.hdf5'.format(
+                                      datetime.datetime.now().strftime(
+                                      '%Y-%m-%d-%H-%M-%S'))),
+                                      callback=get_save_file_callback(
+                                      experiment),
+                                ).open()
         Action:
             text = 'Quit\tCtrl+Q'
             triggered::
