@@ -3,15 +3,16 @@ certifi==2019.11.28
 chardet==3.0.4
 colorama==0.3.7
 colorlog==2.10.0
--e git+https://github.com/mfe5003/dicttoxml@8223324d700f031371842468e808f7cbb4770e98#egg=dicttoxml
+-e git+https://github.com/mfe5003/dicttoxml#egg=dicttoxml
 enaml==0.9.8
 enum34==1.1.6
 h5py==2.7.0
 idna==2.7
 kiwisolver==0.1.3
 matplotlib==1.4.3
+niscope==0.5.0
 numpy==1.11.3
--e git+https://github.com/QuantumQuadrate/Origin@8c4e72247cdff745a99803c1c5570188d1407acf#egg=Origin
+-e git+https://github.com/QuantumQuadrate/Origin#egg=Origin
 ply==3.8
 PyAudio==0.2.11
 pyparsing==2.0.3

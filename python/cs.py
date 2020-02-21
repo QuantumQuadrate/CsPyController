@@ -19,9 +19,6 @@ import os
 import inspect
 
 
-
-
-
 def setup_log():
     """
     This function sets up the error logging to both console and file. Logging

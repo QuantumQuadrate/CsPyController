@@ -114,6 +114,7 @@ class AQuA(Experiment):
             import conex
             self.conexes = conex.Conexes('conexes', self, 'CONEX-CC')
             self.instruments += [self.conexes]
+            self.properties += ['conexes']
         except:
             logger.warning("Conex could not be instantiated."
                            "Conex translation stages will not work.")
@@ -122,14 +123,16 @@ class AQuA(Experiment):
             self.aerotechs = aerotech.Aerotechs('aerotechs', self,
                                                 'Aerotech Ensemble')
             self.instruments += [self.aerotechs]
+            self.properties += ['aerotechs']
         except:
-            logger.warning("Aerotech could not be instantiated."
-                           "If it is needed, check that pythonnet is installed.")
+            logger.warning("Aerotech could not be instantiated. If it is needed"
+                           ", check that pythonnet and pywin32 are installed.")
         try:
             # communicates with Blackfly camera server
             from blackfly import BlackflyClient
             self.blackfly_client = BlackflyClient('BlackflyClient', self)
             self.instruments += [self.blackfly_client]
+            self.properties += ['blackfly_client']
         except:
             logger.warning("Blackfly client disabled,"
                            "install PyCapture2 module to enable")
@@ -227,23 +230,21 @@ class AQuA(Experiment):
         ]
 
         self.properties += [
-            'Config', 'RbAIAnalysis',
-            'functional_waveforms', 'LabView', 'functional_waveforms_graph',
-            'DDS', 'DDS2', 'aerotechs', 'picomotors', 'noise_eaters', 'BILT',
-            'pyPicoServer', 'conexes',
-            'Andors', 'PICams', 'DC_noise_eaters', 'blackfly_client',
-            'box_temperature', 'DAQmxAI', 'squareROIAnalysis', 'histogram_grid',
-            'thresholdROIAnalysis', 'gaussian_roi', 'instekpsts', 'TTL_filters',
-            'AI_graph', 'AI_filter', 'NewportStage', 'loading_filters',
-            'error_filters',
+            'Config', 'RbAIAnalysis', 'functional_waveforms', 'LabView',
+            'functional_waveforms_graph', 'DDS', 'DDS2', 'picomotors',
+            'noise_eaters', 'BILT', 'pyPicoServer', 'Andors', 'PICams',
+            'DC_noise_eaters', 'box_temperature', 'DAQmxAI',
+            'squareROIAnalysis', 'histogram_grid', 'thresholdROIAnalysis',
+            'gaussian_roi', 'instekpsts', 'TTL_filters', 'AI_graph',
+            'AI_filter', 'NewportStage', 'loading_filters', 'error_filters',
             'first_measurements_filter', 'vaunixs', 'imageSumAnalysis',
             'recent_shot_analysis', 'shotBrowserAnalysis', 'histogramAnalysis',
-            'retention_analysis', 'measurements_graph',
-            'iterations_graph', 'retention_graph', 'DC_noise_eater_filter',
-            'DC_noise_eater_graph', 'Ramsey', 'counter_graph', 'counter_hist',
-            'unlock_pause', 'ROI_rows', 'ROI_columns', 'ROI_bg_rows',
-            'ROI_bg_columns', 'NIScopes', 'beam_position_analysis',
-            'beam_position_analysis2', 'origin'
+            'retention_analysis', 'measurements_graph', 'iterations_graph',
+            'retention_graph', 'DC_noise_eater_filter', 'DC_noise_eater_graph',
+            'Ramsey', 'counter_graph', 'counter_hist', 'unlock_pause',
+            'ROI_rows', 'ROI_columns', 'ROI_bg_rows', 'ROI_bg_columns',
+            'NIScopes', 'beam_position_analysis', 'beam_position_analysis2',
+            'origin'
         ]
 
         try:
