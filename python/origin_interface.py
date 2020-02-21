@@ -454,7 +454,7 @@ class Origin(Analysis):
         super(Origin, self).toHDF5(experimentResults[self.settings])
         # and to settings file
         try:
-            f = File(self.experiment.cache_settings_path, 'a')
+            f = File(self.experiment.setting_path, 'a')
             super(Origin, self).toHDF5(f['settings/experiment'])
             f.flush()  # write changes
         except Exception as e:

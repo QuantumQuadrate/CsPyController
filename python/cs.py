@@ -16,6 +16,7 @@ import logging
 import logging.handlers
 import colorlog
 import aqua
+import os, inspect
 
 
 def setup_log():
@@ -53,10 +54,15 @@ def setup_log():
                                              )
     sh.setFormatter(sh_formatter)
 
+    # This only works if the current working directory is never changed!!
+    filename = inspect.getframeinfo(inspect.currentframe()).filename
+    path = os.path.dirname(os.path.abspath(filename))
     # set up logging to file for ALL messages
-    fh = logging.handlers.TimedRotatingFileHandler('__project_cache__/log.txt',
-                                                   when='midnight',
-                                                   interval=1, backupCount=7)
+    fh = logging.handlers.TimedRotatingFileHandler(
+        os.path.join(path, '__project_cache__/log.txt'),
+        when='midnight',
+        interval=1,
+        backupCount=7)
     fh.setLevel(logging.INFO)
     fh_formatter = logging.Formatter(fmt='%(asctime)s.%(msecs)03d - %(threadNam'
                                          'e)s - %(filename)s.%(funcName)s.%(lin'

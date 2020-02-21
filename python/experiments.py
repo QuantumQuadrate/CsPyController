@@ -20,6 +20,7 @@ import cStringIO
 import numpy
 import h5py
 import zipfile
+import inspect
 
 # Use Atom traits to automate Enaml updating
 from atom.api import Int, Float, Str, Member, Bool
@@ -138,9 +139,9 @@ class Experiment(Prop):
     notes = Str()
     enable_sounds = Bool()
     enable_instrument_threads = Bool()
-    settings_path = Str()
-    cache_settings_path = Str()
-    temp_settings_path = Str()
+    cache_dir = Str()
+    setting_path = Str()
+    temp_path = Str()
 
     #iteration traits
     progress = Int()
@@ -224,10 +225,15 @@ class Experiment(Prop):
         # name is 'experiment', associated experiment is self
         super(Experiment, self).__init__('experiment', self)
 
+        # This only works if the current working directory is never changed!!
+        filename = inspect.getframeinfo(inspect.currentframe()).filename
+        path = os.path.dirname(os.path.abspath(filename))
+        cache = os.path.join(path, '__project_cache__')
         # default values
-        self.settings_path = '__project_cache__'
-        self.cache_settings_path = '__project_cache__/settings.hdf5'
-        self.temp_settings_path = '__project_cache__/previous_settings.hdf5'
+        self.cache_dir = cache
+        self.setting_path = os.path.join(cache, 'settings.hdf5')
+        self.temp_path = os.path.join(cache, 'previous_settings.hdf5')
+
         self.constantReport = StrProp('constantReport', self, 'Important output that does not change with iterations', '""')
         self.variableReport = StrProp('variableReport', self, 'Important output that might change with iterations', '""')
         self.optimizer = optimization.Optimization('optimizer', self, 'updates independent variables to minimize cost function')
@@ -244,7 +250,7 @@ class Experiment(Prop):
         self.properties += ['version', 'constantsStr', 'independentVariables', 'dependentVariablesStr',
                             'pauseAfterIteration', 'pauseAfterMeasurement', 'pauseAfterError',
                             'reload_settings_after_pause', 'repeat_experiment_automatically',
-                            'saveData', 'saveSettings', 'settings_path',
+                            'saveData', 'saveSettings',
                             'save_separate_notes', 'save2013styleFiles', 'localDataPath', 'networkDataPath',
                             'copyDataToNetwork', 'experimentDescriptionFilenameSuffix', 'measurementTimeout',
                             'measurementsPerIteration', 'willSendEmail', 'emailAddresses', 'progress', 'progressGUI',
@@ -313,17 +319,16 @@ class Experiment(Prop):
         logger.debug('Saving settings to default settings.hdf5 ...')
         # remove old autosave file
         try:
-            os.remove(self.temp_settings_path)
+            os.remove(self.temp_path)
         except Exception as e:
             logger.debug('Could not delete previous_settings.hdf5:\n'+str(e))
         try:
-            os.rename(self.cache_settings_path, self.temp_settings_path)
+            os.rename(self.setting_path, self.temp_path)
         except Exception as e:
             logger.error('Could not rename old settings.hdf5 to '
                          'previous_settings.hdf5:\n'+str(e))
-
         # create file
-        f = h5py.File(self.cache_settings_path, 'w')
+        f = h5py.File(self.setting_path, 'w')
         # recursively add all properties
         x = f.create_group('settings')
         self.toHDF5(x)
@@ -733,8 +738,8 @@ class Experiment(Prop):
         """Look for settings.hdf5 in cache and if it exists, load it."""
         logger.debug('Loading default settings ...')
 
-        if os.path.isfile(self.cache_settings_path):
-            self.load(self.cache_settings_path)
+        if os.path.isfile(self.setting_path):
+            self.load(self.setting_path)
         else:
             logger.debug('Default settings.hdf5 does not exist.')
 
@@ -759,12 +764,12 @@ class Experiment(Prop):
         if zipfile.is_zipfile(path):
             zf = zipfile.ZipFile(path)
             filecontents = zf.read(os.path.basename(os.path.splitext(path)[0]))
-            tempfile = open(os.path.join(self.settings_path,
+            tempfile = open(os.path.join(self.cache_dir,
                                          "unzipped.hdf5"),
                             "wb")
             tempfile.write(filecontents)
             tempfile.close()
-            path = os.path.join(self.settings_path, "unzipped.hdf5")
+            path = os.path.join(self.cache_dir, "unzipped.hdf5")
 
         try:
             f = h5py.File(path, 'r')
@@ -1089,7 +1094,7 @@ class Experiment(Prop):
 
         # copy to default location
         logger.debug('Copying HDF5 to save path...')
-        shutil.copy(self.cache_settings_path, path)
+        shutil.copy(self.setting_path, path)
 
         #XML
         #logger.debug('Creating XML...')
