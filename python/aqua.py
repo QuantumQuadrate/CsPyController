@@ -162,6 +162,12 @@ class AQuA(Experiment):
             self.Embezzletron, self.instekpsts,
             self.vaunixs, self.NewportStage, self.DDS2
         ]
+        if aerotech_enable:
+            self.instruments += [self.aerotechs]
+        if conex_enable:
+            self.instruments += [self.conexes]
+        if pycap:
+            self.instruments += [self.blackfly_client]
         # Labview must be last at least until someone fixes the start command
         self.instruments += [self.LabView]
 
