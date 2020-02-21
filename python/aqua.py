@@ -169,9 +169,9 @@ class AQuA(Experiment):
             self.vaunixs, self.NewportStage, self.DDS2
         ]
         if aerotech_enable:
-            self.instruments += self.aerotechs
+            self.instruments += [self.aerotechs]
         if conex_enable:
-            self.instruments += self.conexes
+            self.instruments += [self.conexes]
         if pycap:
             self.instruments += [self.blackfly_client]
         # Labview must be last at least until someone fixes the start command
