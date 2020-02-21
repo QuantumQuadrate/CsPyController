@@ -15,8 +15,11 @@ from enaml.qt.qt_application import QtApplication
 import logging
 import logging.handlers
 import colorlog
-import aqua
-import os, inspect
+import os
+import inspect
+
+
+
 
 
 def setup_log():
@@ -103,7 +106,7 @@ if __name__ == '__main__':
     setup_log()
     logger = logging.getLogger(__name__)
     logger.info('Starting up CsPyController...')
-
+    import aqua
     exp = aqua.AQuA()
 
     # start without creating a new thread

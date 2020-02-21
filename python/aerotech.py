@@ -27,6 +27,8 @@ filename = inspect.getframeinfo(inspect.currentframe()).filename
 path = os.path.dirname(os.path.abspath(filename))
 aerotech_path = os.path.join(path, '..\csharp\Aerotech_Ensemble_Server')
 sys.path.append(aerotech_path)
+import pythoncom
+pythoncom.CoInitialize()
 import clr
 clr.AddReference("Aerotech.Common")
 clr.AddReference("Aerotech.Ensemble")

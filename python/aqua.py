@@ -113,7 +113,7 @@ class AQuA(Experiment):
         try:
             import conex
             self.conexes = conex.Conexes('conexes', self, 'CONEX-CC')
-            self.instruments += self.conexes
+            self.instruments += [self.conexes]
         except:
             logger.warning("Conex could not be instantiated."
                            "Conex translation stages will not work.")
@@ -121,7 +121,7 @@ class AQuA(Experiment):
             import aerotech
             self.aerotechs = aerotech.Aerotechs('aerotechs', self,
                                                 'Aerotech Ensemble')
-            self.instruments += self.aerotechs
+            self.instruments += [self.aerotechs]
         except:
             logger.warning("Aerotech could not be instantiated."
                            "If it is needed, check that pythonnet is installed.")
@@ -162,12 +162,6 @@ class AQuA(Experiment):
             self.Embezzletron, self.instekpsts,
             self.vaunixs, self.NewportStage, self.DDS2
         ]
-        if aerotech_enable:
-            self.instruments += [self.aerotechs]
-        if conex_enable:
-            self.instruments += [self.conexes]
-        if pycap:
-            self.instruments += [self.blackfly_client]
         # Labview must be last at least until someone fixes the start command
         self.instruments += [self.LabView]
 
