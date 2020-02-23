@@ -33,7 +33,6 @@ from enaml.stdlib.fields import FloatField, IntField
 from enaml.core.api import Looper, Conditional
 from enaml.styling import StyleSheet, Style, Setter
 from enaml.validator import Validator
-#from PySide.QtGui import QMessageBox
 from atom.api import Member, Bool, Typed, observe, Callable
 import threading, datetime, time, os, itertools
 import numpy, itertools
