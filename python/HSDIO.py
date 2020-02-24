@@ -179,7 +179,7 @@ class HSDIO(Instrument):
         logger.info(self.hardwareAlignmentQuantum.value)
         cycles_per_repeat -= cycles_per_repeat % 2
         # warn if cycle error is too large (remember finite precision for FPs)
-        if abs(req_cycles_per_repeat - cycles_per_repeat) < 0.1:
+        if abs(req_cycles_per_repeat - cycles_per_repeat) > 0.1:
             msg = (
                 "Requested repeat cycle time is not an integer number of cycles"
                 ".  Requested cycles: `{}`, actual: `{}`"
