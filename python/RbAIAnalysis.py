@@ -35,6 +35,7 @@ class RbAIAnalysis(Analysis):
             experiment,
             'Does pre-analysis on Analog Inputs for Origin Server'
         )
+        self.properties += ['version']
         if self.experiment.Config.config.get('EXPERIMENT', 'Name') == 'Rb':
             self.enable = True
         else:

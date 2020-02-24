@@ -376,7 +376,7 @@ class CounterHistogramAnalysis(AnalysisWithFigure):
                     optout[i] = np.ones(6)*np.nan
             iterationResults['analysis/dblGaussPopt'] = optout
             iterationResults['analysis/dblGaussFit'] = fitout
-            logger.info(histout)
+            logger.info("histout: {}".format(histout))
             iterationResults['analysis/histogram'] = np.array(histout,
                                                               dtype='uint32')
             self.updateFigure(iterationResults)

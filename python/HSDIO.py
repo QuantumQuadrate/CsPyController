@@ -176,7 +176,8 @@ class HSDIO(Instrument):
         # check that dt is an integer multiple of cycles
         req_cycles_per_repeat = dt*self.clockRate.value*self.units.value
         cycles_per_repeat = int(round(req_cycles_per_repeat))
-        logger.info(self.hardwareAlignmentQuantum.value)
+        logger.info("HSDIO: hardwareAlignmentQuantum.value: {}".format(
+            self.hardwareAlignmentQuantum.value))
         cycles_per_repeat -= cycles_per_repeat % 2
         # warn if cycle error is too large (remember finite precision for FPs)
         if abs(req_cycles_per_repeat - cycles_per_repeat) > 0.1:
@@ -390,9 +391,11 @@ class HSDIO(Instrument):
         # keeps track of wait time when there are state changes during the repeat from other channels
         sample_clock_cycles_to_next_ot_option = -1
         cycles_per_repeat = transition_list[0]['cycles_per_repeat']
-        logger.info(cycles_per_repeat)
+        logger.info("cycles per repeated in add_repeat_waveform: {}".format(
+            cycles_per_repeat))
 
-        first_cycle_err = "An HSDIO state change was detected during the first repeat cycle."
+        first_cycle_err = "An HSDIO state change was detected during the first"
+        " repeat cycle."
         for t in transition_list:
             if self.repeats[t['index']] == -1:
                 if repeat_sample_clock_cycles < cycles_per_repeat:

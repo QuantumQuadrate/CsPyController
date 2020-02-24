@@ -69,7 +69,7 @@ class NIDAQmxAI(Instrument,Analysis):
         self.triggerEdge = StrProp('triggerEdge',experiment,'Trigger Edge (\"Rising\" or \"Falling\")','Rising')
         self.properties += ['enable','DeviceName','chanList','samples_per_measurement',
                             'sample_rate','waitForStartTrigger','triggerSource','triggerEdge',
-                            'applyFormula','formula']
+                            'applyFormula','formula', 'version']
 
     def preExperiment(self,hdf5):
         if self.enable and not self.isInitialized:

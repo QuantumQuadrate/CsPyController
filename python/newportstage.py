@@ -47,7 +47,8 @@ class NewportStage(Instrument):
         self.axis = StrProp('axis',experiment,'Axis','X')
         self.velocity = FloatProp('velocity',experiment,'Velocity (mm/s)','10')
         self.command = StrProp('command',experiment,'Command to send','')
-        self.properties += ['setposition','comport','velocity','axis']
+        self.properties += ['setposition', 'comport', 'velocity', 'axis',
+                            'version']
 
     def initialize(self):
         if self.nport is not None:

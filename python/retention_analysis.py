@@ -209,7 +209,8 @@ class RetentionGraph(AnalysisWithFigure):
                                 logger.info("found iterated variable: "
                                             "{}".format(ivar))
                                 x_label = ivar
-                                logger.info(self.experiment.ivarValueLists[i])
+                                logger.info("Values of iterated variable:"
+                                            " {}".format(self.experiment.ivarValueLists[i]))
                                 x_vals = self.experiment.ivarValueLists[i]
                                 break
                     except TypeError:

@@ -318,7 +318,7 @@ class Origin(Analysis):
         )
 
         self.properties += ['measurementDataList', 'iterationDataList', 'enable']
-        self.properties += ['streamNameSpace']
+        self.properties += ['streamNameSpace', 'version']
 
         # threading stuff
         self.queueAfterMeasurement = True
