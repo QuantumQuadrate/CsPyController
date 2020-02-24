@@ -16,7 +16,10 @@ import logging
 import logging.handlers
 import colorlog
 import aqua
-import os, inspect
+import os
+import inspect
+import ConfigParser
+from cs_errors import PauseError
 
 
 def setup_log():
@@ -75,6 +78,22 @@ def setup_log():
     logger.addHandler(fh)
 
 
+def import_config():
+    # import config file
+    logger = logging.getLogger(__name__)
+    CONFIG_FILE = 'config/config.cfg'
+    configuration = ConfigParser.ConfigParser()
+    try:
+        # This only works if the current working directory is never changed!!
+        filename = inspect.getframeinfo(inspect.currentframe()).filename
+        path = os.path.dirname(os.path.abspath(filename))
+        configuration.read(os.path.join(path, CONFIG_FILE))
+    except ConfigParser.NoSectionError:
+        logger.critical('Could not find config file at %s', CONFIG_FILE)
+        raise PauseError
+    return configuration
+
+
 def guiThread(exp):
     logger = logging.getLogger(__name__)
     logger.debug('importing GUI')
@@ -84,7 +103,9 @@ def guiThread(exp):
     app = QtApplication()
     logger.debug('assigning experiment backend to GUI')
     main = Main(experiment=exp)
-    # controller = Controller(exp=exp, view=main)
+
+    logger.debug('give the experiment a reference to the gui')
+    exp.gui = main
 
     logger.debug('gui show')
     main.show()
@@ -92,10 +113,7 @@ def guiThread(exp):
     main.activate_window()
     logger.debug('gui to front')
     main.send_to_front()
-    logger.debug('give the experiment a reference to the gui')
-    exp.gui = main
-
-    logger.info('starting QtApplication')
+    logger.info('Launching GUI Application')
     app.start()
 
 
@@ -103,8 +121,10 @@ if __name__ == '__main__':
     setup_log()
     logger = logging.getLogger(__name__)
     logger.info('Starting up CsPyController...')
-
-    exp = aqua.AQuA()
-
+    logger.info('looking for config file')
+    config = import_config()
+    logger.info('Found config.. Making experiment')
+    exp = aqua.AQuA(config=config)
+    logger.info('Experiment built, building GUI')
     # start without creating a new thread
     guiThread(exp)

@@ -4,9 +4,6 @@ import logging
 from cs_errors import PauseError
 from atom.api import Member, Int
 
-# get the config file
-from __init__ import import_config
-
 # Bring in other files in this package
 from ConfigInstrument import Config
 import functional_waveforms, analysis, instek_pst, save2013style, TTL, LabView
@@ -16,7 +13,6 @@ import DDS, roi_fitting
 import picomotors, andor, picampython, vaunix, DCNoiseEater, Laird_temperature, AnalogInput
 import Counter, unlock_pause, niscope, newportstage, nidaq_ai
 logger = logging.getLogger(__name__)
-config = import_config()
 import origin_interface
 import FakeInstrument  # for testing
 from pypico import PyPicoServer  # for communicating with a picomotor server
@@ -128,11 +124,12 @@ class AQuA(Experiment):
     ROI_bg_columns = Int(0)
     Ramsey = Member()
 
-    def __init__(self):
-        super(AQuA, self).__init__()
+    def __init__(self, config=None):
+        super(AQuA, self).__init__(config)
 
         # instruments CONFIG MUST BE FIRST INSTRUMENT
-        self.Config = Config('Config', self, 'Configuration file')
+        self.Config = Config('Config', self, 'Configuration file',
+                             config=self.config)
         self.functional_waveforms = functional_waveforms.FunctionalWaveforms('functional_waveforms', self, 'Waveforms for HSDIO, DAQmx DIO, and DAQmx AO; defined as functions')
         if aerotech_enable:
             self.aerotechs = aerotech.Aerotechs('aerotechs', self, 'Aerotech Ensemble')

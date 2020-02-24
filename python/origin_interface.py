@@ -36,11 +36,6 @@ import numpy as np
 import logging
 logger = logging.getLogger(__name__)
 
-
-# get the config file
-from __init__ import import_config
-config = import_config()
-
 # still need to import config parser for origin
 import ConfigParser
 

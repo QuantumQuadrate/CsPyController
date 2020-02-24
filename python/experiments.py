@@ -142,6 +142,7 @@ class Experiment(Prop):
     cache_dir = Str()
     setting_path = Str()
     temp_path = Str()
+    config = Member()
 
     #iteration traits
     progress = Int()
@@ -216,7 +217,7 @@ class Experiment(Prop):
     restart = Member()  # threading event for communication
     task = Member()  # signaling which task should be completed
 
-    def __init__(self):
+    def __init__(self, config=None):
         """Defines a set of instruments, and a sequence of what to do with them."""
         logger.debug('experiment.__init__()')
         self.setup_logger()
@@ -224,7 +225,10 @@ class Experiment(Prop):
         self.allow_evaluation = False
         # name is 'experiment', associated experiment is self
         super(Experiment, self).__init__('experiment', self)
-
+        if not config:
+            logger.critical("No config given to Experiment")
+            raise PauseError
+        self.config = config
         # This only works if the current working directory is never changed!!
         filename = inspect.getframeinfo(inspect.currentframe()).filename
         path = os.path.dirname(os.path.abspath(filename))
