@@ -54,10 +54,10 @@ class RbAIAnalysis(Analysis):
             MOTtot = Y1+Y2+X1+X2+Z1+Z2
             MOTX = X1/X2 # x1-x2
             MOTY = Y1/Y2 # y1-y2
-            MOTZ = Z1/Z2 # z1-z2
-            logger.info('X1/X2 = ', MOTX," Total X Power: ", X1+X2 )
-            logger.info('Y1/Y2 = ', MOTY," Total Y Power: ", Y1+Y2 )
-            logger.info('Z1/Z2 = ', MOTZ," Total Z Power: ", Z1+Z2 )
+            MOTZ = Z1/Z2 # z1-z2"
+            logger.info('X1/X2 = {} Total X Power: {}'.format(MOTX, X1+X2))
+            logger.info('Y1/Y2 = {} Total Y Power: {}'.format(MOTY, Y1+Y2))
+            logger.info('Z1/Z2 = {} Total Z Power: {}'.format(MOTZ, Z1+Z2))
             logger.info('TOTAL = %s uW' % MOTtot)
             # print " X1 voltage is ", np.nanmean(raw_data[5,1:10])*1000
             # print " X1 is ", X1
@@ -66,7 +66,7 @@ class RbAIAnalysis(Analysis):
             # print "MOTX is ",MOTX
             # MOTtot = np.nanmean(raw_data[9,1:10])
 
-            processed_data = [MOTX,MOTY,MOTZ,MOTtot]
+            processed_data = [MOTX, MOTY, MOTZ, MOTtot]
             measResults['analysis/processed_AI/data'] = processed_data
             # hdf5['AI/test'] = 11.0
 
