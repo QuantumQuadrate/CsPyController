@@ -160,12 +160,15 @@ class Channel(Prop):
     def print_settings(self):
         # print all the settings for this channel
 
-        print 'channel {} mode {} warnSetting {} limitRange {} invert {} integrationTime {} trigNum {} measNum {} kp {} ki {} setpoint {}'.format(
-            self.mode, self.warnSetting, self.limitRange, self.invert, self.integrationTime,
-            self.trigNum, self.measNum, self.kp.value, self.ki.value, self.setpoint)
-        print 'average {} error {} vin {} vout {} warning {}'.format(
-            self.average, self.error, self.vin, self.vout, self.warning)
-        print '\n'
+        logger.info('channel {} mode {} warnSetting {} limitRange {} invert {} '
+                    'integrationTime {} trigNum {} measNum {} kp {} ki {} '
+                    'setpoint {}'.format(self.mode, self.warnSetting,
+                                         self.limitRange, self.invert,
+                                         self.integrationTime, self.trigNum,
+                                         self.measNum, self.kp.value,
+                                         self.ki.value, self.setpoint))
+        logger.info('average {} error {} vin {} vout {} warning {}'.format(
+            self.average, self.error, self.vin, self.vout, self.warning)+'\n')
 
 
 class DCNoiseEater(Instrument):

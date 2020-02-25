@@ -85,7 +85,7 @@ class Controller(object):
     def write_to_file(self):
         try:
             # write data to file
-            print self.name, ' '.join(map(str, self.data))
+            logger.info(self.name, ' '.join(map(str, self.data)))
             datestring = datetime.datetime.now().strftime('%Y/%m/%d %H:%M:%S')
             datastring = '\t'.join(map((lambda x: '{:.6f}'.format(x)), self.data))
 
@@ -148,9 +148,9 @@ if __name__ == '__main__':
 
         # every 5 minutes, write to file
         if i>=300:
-            print '\n'
-            print datetime.datetime.now().strftime('%Y/%m/%d %H:%M:%S')
-            print ' '.join(labels)
+            logger.info('\n' +
+                        datetime.datetime.now().strftime('%Y/%m/%d %H:%M:%S') +
+                        ' '.join(labels))
             for controller in controllers:
                 controller.write_to_file()
             i=0  # reset the counter

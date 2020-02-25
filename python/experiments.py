@@ -422,7 +422,11 @@ class Experiment(Prop):
         for key, value in self.vars.iteritems():
             if key not in ignoreList:
                 try:
-                    v[key] = value
+                    if not inspect.isfunction(value):
+                        if isinstance(value, dict):
+                            v[key] = str(value)
+                        else:
+                            v[key] = value
                 except Exception as e:
                     logger.warning('Could not save variable '+key+' as an hdf5 dataset with value: '+str(value)+'\n'+str(e))
 

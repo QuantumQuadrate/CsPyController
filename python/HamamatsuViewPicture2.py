@@ -3,11 +3,11 @@
 
 import numpy as np  
 import os
-
+import logging
 import matplotlib.pyplot as plt
 from ctypes import *
 import time
-
+logger = logging.getLogger(__name__)
 dll = CDLL(os.path.join("C:\Windows\System32", "imaq.dll"))
 
 fig = plt.figure () 
@@ -19,16 +19,18 @@ fig = plt.figure ()
 def Initialize (interfacename): 
 
     ID_pointer = c_ulong(0)
-    error = dll.imgInterfaceOpen(interfacename, byref(ID_pointer))  # ID_pointer directs to interface ID  
-    if error !=0:
-        print "Error in imgInterfaceOpen: {}".format(error)
-    print "ID_Pointer={}".format(ID_pointer.value)
+    # ID_pointer directs to interface ID
+    error = dll.imgInterfaceOpen(interfacename, byref(ID_pointer))
+    if error != 0:
+        logger.warning("Error in imgInterfaceOpen: {}".format(error))
+    logger.info("ID_Pointer={}".format(ID_pointer.value))
 
     Sess_ID = c_ulong(0)
-    error = dll.imgSessionOpen(ID_pointer, byref(Sess_ID))   # generate session ID 
-    if error !=0:
-        print "Error in imgSessionOpen: {}".format(error)
-    print "Sess_ID={}".format(Sess_ID.value)
+    # generate session ID
+    error = dll.imgSessionOpen(ID_pointer, byref(Sess_ID))
+    if error != 0:
+        logger.warning("Error in imgSessionOpen: {}".format(error))
+    logger.info("Sess_ID={}".format(Sess_ID.value))
     
     height = c_uint(0)
     width = c_uint(0)
@@ -41,8 +43,8 @@ def Initialize (interfacename):
     sizeNeeded = c_ulong(0)
     error = dll.imgSessionGetBufferSize(Sess_ID,byref(sizeNeeded))  # Get size of image 
     if error !=0:
-        print "Error in imgSessionGetBufferSize: {}".format(error) 
-    print "sizeNeeded={}".format(sizeNeeded.value)
+        logger.warning("Error in imgSessionGetBufferSize: {}".format(error))
+    logger.info("sizeNeeded={}".format(sizeNeeded.value))
 
     IMG_HOST_FRAME = c_int(0)
     return ID_pointer,Sess_ID,height,width,bufferpointer
@@ -50,12 +52,13 @@ def Initialize (interfacename):
 
 def Video (bpnp,artist,bufferpointer):
 
-    while(True):                                       
+    while True:
         dll.imgGrab(Sess_ID, byref(pointer(bufferpointer)), 0)    
-        print "grabbed frame"
-        print bpnp.shape
-        print bpnp[0,0]
-        print np.ctypeslib.as_array(bufferpointer)[0,0]
+        logger.info("grabbed frame "
+                    "{} {} {}".format(bpnp.shape, bpnp[0, 0],
+                                      np.ctypeslib.as_array(bufferpointer)[0, 0]
+                                      )
+                    )
         artist.autoscale()
         fig.canvas.draw()
         fig.canvas.flush_events()
@@ -90,21 +93,21 @@ def StartVideo(Sess_ID):                                       # Start data aqui
     WriteSerial(Sess_ID, 'EMG 100.36')
     rotime = WriteSerial(Sess_ID, '?RAT') #ask for exposure time
 
-    print "Acquire Exposure time in seconds = {}".format(exptime)
-    print "Readout time in seconds = {}".format(rotime)
+    logger.info("Acquire Exposure time in seconds = {}".format(exptime))
+    logger.info("Readout time in seconds = {}".format(rotime))
 
-    print WriteSerial(Sess_ID, '?CAI T')
-    print WriteSerial(Sess_ID, '?CAI H')
-    print WriteSerial(Sess_ID, '?CAI V')
-    print WriteSerial(Sess_ID, '?CAI A')
-    print WriteSerial(Sess_ID, '?CAI I')
-    print WriteSerial(Sess_ID, '?CAI S')
-    print WriteSerial(Sess_ID, '?CAI B')
-    print WriteSerial(Sess_ID, '?CAI C')
-    print WriteSerial(Sess_ID, '?CAI N')
+    logger.info(WriteSerial(Sess_ID, '?CAI T'))
+    logger.info(WriteSerial(Sess_ID, '?CAI H'))
+    logger.info(WriteSerial(Sess_ID, '?CAI V'))
+    logger.info(WriteSerial(Sess_ID, '?CAI A'))
+    logger.info(WriteSerial(Sess_ID, '?CAI I'))
+    logger.info(WriteSerial(Sess_ID, '?CAI S'))
+    logger.info(WriteSerial(Sess_ID, '?CAI B'))
+    logger.info(WriteSerial(Sess_ID, '?CAI C'))
+    logger.info(WriteSerial(Sess_ID, '?CAI N'))
 
 
-def StartExperiment(Sess_ID):                                       # Start data aquistion
+def StartExperiment(Sess_ID):            # Start data aquistion
     WriteSerial(Sess_ID, 'AMD E')        # Free running mode
     WriteSerial(Sess_ID, 'EMD E')        # Free running mode
     WriteSerial(Sess_ID, 'SMD N')        # Scan Mode Normal (no binning)
@@ -112,11 +115,13 @@ def StartExperiment(Sess_ID):                                       # Start data
     WriteSerial(Sess_ID, 'AET 0.03052')
     WriteSerial(Sess_ID, '?RAT') #ask for exposure time
     exptimelen, exptime = ReadSerial(Sess_ID)
-    print "String length = {} Exposure time = {}".format(exptimelen,exptime)
+    logger.info("String length = {} Exposure time = {}".format(exptimelen,
+                                                               exptime))
 
 
 def StartAcquire(Sess_ID,bufferpointer,height,width):
-    error = dll.imgGrabSetup(Sess_ID, 1)     # Setup. The "one" tells it to start the aquistion immediately 
+    # Setup. The "one" tells it to start the aquistion immediately
+    error = dll.imgGrabSetup(Sess_ID, 1)
     CheckError(error)
 
     fig.clf()
@@ -124,34 +129,31 @@ def StartAcquire(Sess_ID,bufferpointer,height,width):
     bpnp = np.reshape(np.ctypeslib.as_array(bufferpointer),(height.value,width.value))
     artist = ax.imshow(bpnp)
     fig.show()
-    print "fig shown"
-    return bpnp,artist
-
-def CheckError (error):                             # Check for error in serial communication
-    if error !=0:
-        print "Error in imgSessionSerialWrite: {}".format(error) 
-        errorcode = c_char_p(' '*257)
-        errorerror = dll.imgShowError(error, errorcode)
-        print "{}".format(errorcode)
+    logger.info("fig shown")
+    return bpnp, artist
 
 
-
+def CheckError(error):    # Check for error in serial communication
+    if error != 0:
+        logger.warning("Error in imgSessionSerialWrite: {}".format(error))
+        logger.warning("{}".format(c_char_p(' '*257)))
 
 
 interfacename = c_char_p('img0')   # Interface name 
 
-print "Interface Name: {}".format(interfacename.value)
+logger.info("Interface Name: {}".format(interfacename.value))
+# Initialize
+ID_pointer, Sess_ID, height, width, bufferpointer = Initialize(interfacename)
 
-ID_pointer,Sess_ID,height,width,bufferpointer = Initialize (interfacename)                # Initialize
 
 
-
-print "About to do GrabSetup"
+logger.info("About to do GrabSetup")
 
 StartVideo(Sess_ID)
-bpnp, artist = StartAcquire (Sess_ID,bufferpointer,height,width)   # Start aquisition
+# Start aquisition
+bpnp, artist = StartAcquire(Sess_ID, bufferpointer, height, width)
 
-Video (bpnp,artist,bufferpointer)   # View images as video
+Video(bpnp, artist, bufferpointer)   # View images as video
 
 
 

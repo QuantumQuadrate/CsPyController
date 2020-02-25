@@ -41,18 +41,16 @@ try:
     import niScope
     niScopeImported = True
 except:
-    logger.warning('''pyniscope not installed. NI-SCOPE will not work. Run the following commands to install it:
-    
-    cd pyniscope-maser
-    python setup.py build
-    python setup.py install
-    
-    ''')
+    logger.warning("pyniscope not installed. "
+                   "NI-SCOPE will not work. "
+                   "Run the following commands in the pyniscope-master "
+                   "directory to install it:\n"
+                   "python setup.py build\n"
+                   "python setup.py install\n")
     niScopeImported = False
 
 # imports for viewer
 from analysis import AnalysisWithFigure, Analysis
-from colors import my_cmap
 from enaml.application import deferred_call
 
 class NIScopeInstrument(Instrument):
@@ -226,12 +224,12 @@ class NIScopeInstrument(Instrument):
                 each measurement run to make sure all pictures have been acquired."""
         if self.enable:
             data = self.scope.Fetch(channelList='0,1').T
-            print "data.shape={}".format(data.shape)
+            logger.info("data.shape={}".format(data.shape))
             fx, FFTdata = self.scope.FetchMeasurement(channelList='0,1',arrayMeasurement=NISCOPE_VAL_FFT_AMP_SPECTRUM_DB)
             x = numpy.linspace(0,self.horizscales[self.HorizScale],self.HorizRecordLength.value)
             self.data = numpy.stack((x,data[0],data[1]))
-            print "fx.shape={}".format(fx.shape)
-            print "FFTdata.shape={}".format(FFTdata.shape)
+            logger.info("fx.shape={}".format(fx.shape))
+            logger.info("FFTdata.shape={}".format(FFTdata.shape))
             self.FFTdata = numpy.stack((fx[0],FFTdata[0],FFTdata[1]))
             
             

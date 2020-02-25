@@ -17,18 +17,18 @@ __author__ = 'Martin Lichtman'
 import logging
 logger = logging.getLogger(__name__)
 
-from atom.api import Bool, Str, Member, Int, Float
-from instrument_property import Prop, FloatProp, IntProp, ListProp, EvalProp
+from atom.api import Bool, Str, Member, Int
+from instrument_property import Prop, FloatProp, ListProp
 from cs_instruments import Instrument
 from analysis import Analysis
 from cs_errors import PauseError
 import sys, os, inspect
-print os.getcwd()
 filename = inspect.getframeinfo(inspect.currentframe()).filename
 path = os.path.dirname(os.path.abspath(filename))
 aerotech_path = os.path.join(path, '..\csharp\Aerotech_Ensemble_Server')
 sys.path.append(aerotech_path)
-print sys.path
+import pythoncom
+pythoncom.CoInitialize()
 import clr
 clr.AddReference("Aerotech.Common")
 clr.AddReference("Aerotech.Ensemble")

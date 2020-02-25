@@ -195,7 +195,7 @@ class Rearrange(Instrument):
                 requests.post(python_address, json=python_dict)
                 sleep(0.005)
                 requests.post(arduino_address, json=arduino_dict)
-                print 'updating atom rearranger'
+                logger.info('updating atom rearranger')
             else:
             
                 desired_occupation = numpy.zeros(121)            

@@ -27,10 +27,10 @@ logger = logging.getLogger(__name__)
 def print_conf(conf, title):
     """Print a json string nicely"""
     line_break = "*"*40
-    print(line_break)
-    print(title+'\n')
+    logger.info(line_break)
+    logger.info(title+'\n')
     pprint.pprint(conf)
-    print(line_break)
+    logger.info(line_break)
 
 
 def query_yes_no(question, default="yes"):
