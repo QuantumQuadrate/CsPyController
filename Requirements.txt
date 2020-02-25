@@ -17,6 +17,6 @@ pyserial==2.7.0
 PyAudio==0.2.11
 -e git+https://github.com/mfe5003/dicttoxml#egg=dicttoxml
 scikit-learn==0.18.1
-requests==2.13.0
+requests==2.20.0
 pyzmq==16.0.0
 
