@@ -15,12 +15,16 @@
     You should have received a copy of the GNU General Public License
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 """
+import logging
+logger = logging.getLogger(__name__)
+
 import ctypes as ctypes
 picamDll = 'Picam.dll'
 try:
     picam = ctypes.cdll.LoadLibrary(picamDll)
 except:
-    print "Could not load Princeton Instruments DLL.  Make sure that Picam.dll is in the system path"
+    logger.warning("Could not load Princeton Instruments DLL."
+                   "  Make sure that Picam.dll is in the system path")
     
 ### Begin imported Functions
 

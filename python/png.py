@@ -146,7 +146,8 @@ And now, my famous members
 from __future__ import generators
 
 __version__ = "0.0.16"
-
+import logging
+logger = logging.getLogger(__name__)
 from array import array
 try: # See :pyver:old
     import itertools
@@ -2749,4 +2750,4 @@ if __name__ == '__main__':
     try:
         _main(sys.argv)
     except Error, e:
-        print >>sys.stderr, e
+        logger.exception(e)

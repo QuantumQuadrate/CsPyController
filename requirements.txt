@@ -21,6 +21,7 @@ python-dateutil==2.4.2
 pythonnet==2.4.0
 pytz==2014.9
 PyVISA==1.10.1
+pywin32==227
 pyzmq==16.0.0
 requests==2.20.0
 scikit-learn==0.18.1

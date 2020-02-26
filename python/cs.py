@@ -15,11 +15,11 @@ from enaml.qt.qt_application import QtApplication
 import logging
 import logging.handlers
 import colorlog
-import aqua
 import os
 import inspect
 import ConfigParser
 from cs_errors import PauseError
+
 
 
 def setup_log():
@@ -124,6 +124,7 @@ if __name__ == '__main__':
     logger.info('looking for config file')
     config = import_config()
     logger.info('Found config.. Making experiment')
+    import aqua
     exp = aqua.AQuA(config=config)
     logger.info('Experiment built, building GUI')
     # start without creating a new thread

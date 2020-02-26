@@ -497,8 +497,8 @@ class AndorCamera(Instrument):
         first = c_long()
         last = c_long()
         error = self.dll.GetNumberNewImages(byref(first), byref(last))
-        print "first index : {}".format(first.value)
-        print "last index : {}".format(last.value)
+        logger.info("first index : {}".format(first.value))
+        logger.info("last index : {}".format(last.value))
         if not dump:
             if ERROR_CODE[error] != 'DRV_SUCCESS':
                 logger.error('Error in GetNumberNewImages:\n{}'.format(ERROR_CODE[error]))
