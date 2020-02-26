@@ -61,27 +61,28 @@ for dtype in data_types.keys():
 
 
 def print_attrs(name, obj):
-    print name
+    logger.info(name)
     for key, val in obj.attrs.iteritems():
-        print("    {}: {}".format(key, val))
+        logger.info("    {}: {}".format(key, val))
+
 
 def print_dsets(name, obj):
     if isinstance(obj, Dataset):
-        print '-'*10
-        print name
-        print obj.dtype
-        print obj[()]
-        print '-'*10
+        logger.info("{}{}{}{}{}".format('-'*10, name, obj.dtype, obj[()],
+                                        '-'*10))
+
 
 def pass_measurement(dset):
     if dset.dtype in dtype_list:
         return True
     return False
 
+
 def pass_iteration(dset):
     if (dset.dtype in dtype_list) and not ('/measurements/' in dset.name):
         return True
     return False
+
 
 def formatData(data):
     '''returns data into relevant type
@@ -317,7 +318,7 @@ class Origin(Analysis):
         )
 
         self.properties += ['measurementDataList', 'iterationDataList', 'enable']
-        self.properties += ['streamNameSpace']
+        self.properties += ['streamNameSpace', 'version']
 
         # threading stuff
         self.queueAfterMeasurement = True
