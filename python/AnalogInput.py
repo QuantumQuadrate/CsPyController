@@ -20,7 +20,9 @@ import numpy
 import h5py
 from atom.api import Str, Typed, Member, Bool, observe, Int
 
-from instrument_property import BoolProp, FloatProp, StrProp, IntProp, Numpy1DProp
+from instrument_property import (BoolProp, FloatProp, StrProp, IntProp,
+                                 Numpy1DProp)
+from cs_errors import PauseError
 from cs_instruments import Instrument
 from analysis import Analysis, AnalysisWithFigure
 
@@ -99,10 +101,15 @@ class AI_Graph(AnalysisWithFigure):
                         ax = fig.add_subplot(111)
                         for i in plotlist:
                             try:
-                                data = numpy.average(self.data[:, i[0], i[1]], axis=1)  # All measurements. Selected channel, saverage over sampels.
-                                # data=numpy.average(self.data[:, i[0], i[1]], axis=1) # Show only the latest
-                            except:
-                                logger.warning('Trying to plot data that does not exist in AIGraph: channel {} samples {}-{}'.format(i[0], min(i[1]), max(i[1])))
+                                # All measurements. Selected channel,
+                                # average over samples.
+                                data = numpy.average(self.data[:, i[0], i[1]],
+                                                     axis=1)
+                            except Exception as e:
+                                logger.exception(
+                                    'Trying to plot data that does not exist in'
+                                    ' AIGraph: channel {} samples {}-{}'.format(
+                                        i[0], min(i[1]), max(i[1])))
                                 continue
                             label = 'ch.{}'.format(i[0])
                             ax.plot(data, 'o', label=label)
@@ -118,14 +125,16 @@ class AI_Graph(AnalysisWithFigure):
 
 class AI_Filter(Analysis):
     """
-    This analysis monitors the Analog Inputs and does either hard or soft cuts of the data accordingly.
-    The filters are specified by the what_to_filter string, which is a list in the form:
+    This analysis monitors the Analog Inputs and does either hard or soft cuts
+    of the data accordingly. The filters are specified by the what_to_filter
+    string, which is a list in the form:
     [(channel,sample_list,low,high), (channel,sample_list,low,high)]
     The samples in sample_list will be averaged.
     """
 
     enable = Bool()
-    what_to_filter = Str()  # string representing a list of [(channel,low,high), (channel,low,high)]
+    # string representing a list of [(channel,low,high), (channel,low,high)]
+    what_to_filter = Str()
     text = Str()
     filter_level = Int()
 
@@ -133,7 +142,8 @@ class AI_Filter(Analysis):
         super(AI_Filter, self).__init__(name, experiment, description)
         self.properties += ['enable', 'what_to_filter', 'filter_level']
 
-    def analyzeMeasurement(self, measurement_results, iteration_results, experiment_results):
+    def analyzeMeasurement(self, measurement_results, iteration_results,
+                           experiment_results):
         text = ''
         if self.enable and ('AI' in measurement_results['data']):
             failed = False  # keep track of if any of the filters fail
@@ -144,30 +154,37 @@ class AI_Filter(Analysis):
             try:
                 filter_list = eval(self.what_to_filter)
             except Exception as e:
-                logger.warning('Could not eval what_to_filter in AI_Filter:\n{}\n'.format(e))
+                logger.warning('Could not eval what_to_filter in '
+                               'AI_Filter:\n{}'.format(e))
                 raise PauseError
             for i in filter_list:
                 # read the data for the channel
                 d = numpy.float(numpy.average(data[i[0], i[1]]))
                 trysecondpath=False
                 try:
-                    measurement_results['data/AI/BinAve/channel'+ numpy.str(i[0])] = d
-                except:
+                    measurement_results['data/AI/BinAve/channel' +
+                                        numpy.str(i[0])] = d
+                except Exception:
                     trysecondpath = True
-                    logger.info("Unable to find data in first path. Trying second")
+                    logger.info("Unable to find data in first path."
+                                " Trying second")
 
                 if trysecondpath:
                     try:
-                        measurement_results['data/AI/BinAve/channel'+ numpy.str(i[0])+'2'] = d
-                    except:
-                        logger.error("Unable to find AI data in either of the paths")
+                        measurement_results['data/AI/BinAve/channel' +
+                                            numpy.str(i[0]) + '2'] = d
+                    except Exception:
+                        logger.error("Unable to find AI data in either of the"
+                                     " paths")
                 if d > i[3]:
                     # data is above the high limit
-                    text += 'Analog Input filter failed for channel {}.  Value was {}, above high limit {}.\n'.format(i[0], d, i[3])
+                    text += 'Analog Input filter failed for channel {}.  '
+                    'Value was {}, above high limit {}.\n'.format(i[0], d, i[3])
                     failed = True
                 elif d < i[2]:
                     # data is below the low limit
-                    text += 'Analog Input filter failed for channel {}.  Value was {}, below low limit {}.\n'.format(i[0], d, i[2])
+                    text += 'Analog Input filter failed for channel {}.  Value'
+                    ' was {}, below low limit {}.\n'.format(i[0], d, i[2])
                     failed = True
 
             # check to see if any of the filters failed

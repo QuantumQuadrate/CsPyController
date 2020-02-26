@@ -364,7 +364,7 @@ def histogram_grid_plot(data):
                 # color background if fit failed
                 if not hist_data['success']:
                     ax.set_axis_bgcolor('#fa8072')
-            except:
+            except Exception:
                 msg = 'Could not plot histogram for shot {} roi {}'
                 logger.exception(msg.format(data['shot'], n))
 
@@ -489,6 +489,6 @@ def save_fig(result):
             pad_inches=.25,
             frameon=False
         )
-    except:
+    except Exception:
         logger.exception('something went wrong saving the pdf')
     logger.info('Done saving pdf')

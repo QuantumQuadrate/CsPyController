@@ -234,7 +234,7 @@ class TCP_Instrument(Instrument):
                 logger.warning('Timeout while waiting for return data in {}.send():\n{}\n'.format(self.name, e))
                 self.connected = False
                 raise PauseError
-            except:
+            except Exception:
                 logger.exception('Exception in {}.sock.receive.')
                 self.connected = False
                 raise PauseError

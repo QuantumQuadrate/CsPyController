@@ -49,7 +49,7 @@ class DDS(TCP_Instrument):
         self.restart = threading.Event()
         self.dds_thread = threading.Thread(
             target=self.dds_loop,
-            name='dds_thread'
+            name='dds_thread',
         )
         self.dds_thread.daemon = True
         self.dds_thread.start()
@@ -282,20 +282,23 @@ class DDSprofile(Prop):
 
     def toHardware(self):
         """
-        Override from Prop to give special formating of RAMFunction and RAMStaticArray.
-        They are in doNotSendToHardware, so they will not otherwise be sent.
+        Override from Prop to give special formating of RAMFunction and
+        RAMStaticArray. They are in doNotSendToHardware, so they will not
+        otherwise be sent.
         """
         output = ''
 
         # go through list of single properties:
-        # I use a for loop instead of list comprehension so I can have more detailed error reporting.
+        # I use a for loop instead of list comprehension so I can have more
+        # detailed error reporting.
         for p in self.properties:
             if p not in self.doNotSendToHardware:
                 # convert the string name to an actual object
                 try:
                     o = getattr(self, p)
-                except:
-                    msg = 'In Prop.toHardware() for class {}: item {} in properties list does not exist.\n'
+                except AttributeError:
+                    msg = "In Prop.toHardware() for class {}: item {} in "
+                    "properties list does not exist."
                     logger.warning(msg.format(self.name, p))
                     continue
                 output += self.HardwareProtocol(o, p)

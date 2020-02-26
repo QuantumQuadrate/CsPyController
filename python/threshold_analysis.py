@@ -106,58 +106,30 @@ class ThresholdROIAnalysis(ROIAnalysis):
         # reset the measurement enable flag
         self.meas_enable = True
 
-    """def process_measurement(self, shot_array, shape):
-        Process a single sub-measurement.  If there are multiple sub-measurements,
-        Then call this multiple times.
-
-        Returns a threshold array for single sub-measurement
-        
-        # temporary 2D threshold array, ROIs are 1D
-        threshold_array = np.zeros(shape, dtype=np.bool_)
-        try:
-            #shots_to_ignore = self.experiment.Config.config.getint('CAMERA', 'ShotsToIgnore')
-            shots_to_ignore_str = self.experiment.Config.config.get('CAMERA', 'ShotsToIgnore')
-            shots_to_ignore=map(int,shots_to_ignore_str.split(","))
-        except:
-            shots_to_ignore=[]
-
-        to_include= [x for x in range(0,len(shot_array)) if x not in shots_to_ignore]
-        #print to_include
-        for i, shot in enumerate(shot_array):
-            # TODO: more complicated threshold
-            # (per shot threshold & 2+ atom threshold)
-            if i in to_include:
-                threshold_array[to_include.index(i)] = shot.flatten() >= self.threshold_array[to_include.index(i)]['1']
-
-        self.loading_array = threshold_array.reshape((
-            shape[0],
-            self.experiment.ROI_rows,
-            self.experiment.ROI_columns
-        ))
-        return threshold_array"""
-
-
     def process_measurement(self, shot_array, shape):
-        """Process a single sub-measurement.  If there are multiple sub-measurements,
-        Then call this multiple times.
+        """Process a single sub-measurement. f there are multiple
+        sub-measurements, Then call this multiple times.
         Returns a threshold array for single sub-measurement
         """
         # temporary 2D threshold array, ROIs are 1D
         threshold_array = np.zeros(shape, dtype=np.bool_)
         try:
-            #shots_to_ignore = self.experiment.Config.config.getint('CAMERA', 'ShotsToIgnore')
-            shots_to_ignore_str = self.experiment.Config.config.get('CAMERA', 'ShotsToIgnore')
+            shots_to_ignore_str = self.experiment.Config.config.get(
+                'CAMERA', 'ShotsToIgnore')
             shots_to_ignore=map(int,shots_to_ignore_str.split(","))
-        except:
+        except Exception:
             shots_to_ignore=[]
 
-        to_include= [x for x in range(0,len(shot_array)) if x not in shots_to_ignore]
-        #print to_include
+        to_include = [x for x in range(0,len(shot_array)) if x not in
+                      shots_to_ignore]
         for i, shot in enumerate(shot_array):
             # TODO: more complicated threshold
             # (per shot threshold & 2+ atom threshold)
             if i in to_include:
-                threshold_array[to_include.index(i)] = shot.flatten() >= self.threshold_array[to_include.index(i)]['1']
+                threshold_array[to_include.index(i)] = (
+                        shot.flatten() >=
+                        self.threshold_array[to_include.index(i)]['1']
+                )
 
         self.loading_array = threshold_array.reshape((
             shape[0],

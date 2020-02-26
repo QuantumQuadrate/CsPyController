@@ -157,8 +157,9 @@ class CounterAnalysis(AnalysisWithFigure):
             except ValueError:
                 errmsg = "Error retrieving counter data.  Offending counter data shape: {}"
                 logger.exception(errmsg.format(array.shape))
-            except:
-                logger.exception('Unhandled counter data exception')
+            except Exception as e:
+                logger.exception(
+                    'Unhandled counter data exception: {}'.format(e))
 
             # write this cycle's data into hdf5 file so that the threshold analysis can read it
             # when multiple counter support is enabled, the ROIs parameter will hold the count
@@ -276,14 +277,15 @@ class CounterAnalysis(AnalysisWithFigure):
                                     histtype='step'
                                 )
                                 legends.append("c{}_s{}".format(roi, s))
-                        #end merge conflict
 
                         ax.set_title('Binned Data')
                         ax2.legend(legends, fontsize='small', loc=0)
                         super(CounterAnalysis, self).updateFigure()
 
-                    except:
-                        logger.exception('Problem in CounterAnalysis.updateFigure()')
+                    except Exception as e:
+                        logger.exception(
+                            'Exception in CounterAnalysis.updateFigure():'
+                            ' {}'.format(e))
                     finally:
                         self.update_lock = False
 
@@ -419,7 +421,9 @@ class CounterHistogramAnalysis(AnalysisWithFigure):
 
                         super(CounterHistogramAnalysis, self).updateFigure()
 
-                    except:
-                        logger.exception('Problem in CounterHistogramAnalysis.updateFigure().')
+                    except Exception as e:
+                        logger.exception(
+                            'Problem in CounterHistogramAnalysis.updateFigure()'
+                            ' {}'.format(e))
                     finally:
                         self.update_lock = False

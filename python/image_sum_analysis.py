@@ -97,35 +97,48 @@ class ImageSumAnalysis(AnalysisWithFigure):
             self.updateFigure()  # only update figure if image was loaded
 
     def update_min_max(self):
-        if (self.mean_array is not None) and (self.shot < len(self.mean_array)):
-            #update the min/max that this and other image plots will use
+        if self.mean_array is not None and self.shot < len(self.mean_array):
+            # update the min/max that this and other image plots will use
             if self.min_str == '':
                 self.min = np.amin(self.mean_array[self.shot])
                 try:
                     if self.subtract_background:
-                        self.min_minus_bg = np.amin(self.mean_array[self.shot]-self.background_array)
-                except:
-                    logger.warning('Could not subtract background array to create min in ImageSumAnalysis.analyzeMeasurement')
-                    logger.warning('array shapes: mean_array: {} background_array: {}'.format(self.mean_array[self.shot].shape, self.background_array.shape))
+                        self.min_minus_bg = np.amin(self.mean_array[self.shot] -
+                                                    self.background_array)
+                except Exception:
+                    logger.warning('Could not subtract background array to '
+                                   'create min in '
+                                   'ImageSumAnalysis.analyzeMeasurement')
+                    logger.warning('array shapes: mean_array: {} '
+                                   'background_array: {}'.format(
+                        self.mean_array[self.shot].shape,
+                        self.background_array.shape))
             else:
                 try:
                     self.min = float(self.min_str)
                     self.min_minus_bg = self.min
-                except:
-                    logger.warning('Could not cast string to float in to create min in ImageSumAnalysis.analyzeMeasurement')
+                except Exception:
+                    logger.warning('Could not cast string to float in to create'
+                                   ' min in '
+                                   'ImageSumAnalysis.analyzeMeasurement')
             if self.max_str == '':
                 self.max = np.amax(self.mean_array[self.shot])
                 try:
                     if self.subtract_background:
-                        self.max_minus_bg = np.amax(self.mean_array[self.shot]-self.background_array)
-                except:
-                    logger.warning('Could not subtract background array to create max in ImageSumAnalysis.analyzeMeasurement')
+                        self.max_minus_bg = np.amax(self.mean_array[self.shot] -
+                                                    self.background_array)
+                except Exception:
+                    logger.warning('Could not subtract background array to '
+                                   'create max in '
+                                   'ImageSumAnalysis.analyzeMeasurement')
             else:
                 try:
                     self.max = float(self.max_str)
                     self.max_minus_bg = self.max
-                except:
-                    logger.warning('Could not cast string to float in to create max in ImageSumAnalysis.analyzeMeasurement')
+                except Exception:
+                    logger.warning('Could not cast string to float in to create'
+                                   ' max in '
+                                   'ImageSumAnalysis.analyzeMeasurement')
 
     def analyzeIteration(self, iterationResults, experimentResults):
         if self.enable:

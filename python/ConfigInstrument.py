@@ -97,7 +97,7 @@ class Config(Instrument):
             conf_str = json.dumps(self.config_dict, sort_keys=True)
             # store in hdf file
             hdf.attrs[self.name] = numpy.string_(conf_str)
-        except:
+        except Exception:
             logger.exception('Error saving config to hdf file.')
 
     def fromHDF5(self, hdf):
@@ -106,7 +106,7 @@ class Config(Instrument):
             conf_str = hdf
         except AttributeError:
             logger.warning('No configuration string found on hdf import.')
-        except:
+        except Exception:
             logger.exception('Error reading config to hdf file.')
         else:
             # compute the hash

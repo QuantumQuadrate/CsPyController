@@ -231,7 +231,7 @@ class RetentionGraph(AnalysisWithFigure):
                             try:
                                 mean = self.mean[:, i]
                                 sigma = self.sigma[:, i]
-                            except:
+                            except Exception:
                                 logger.warning('Trying to plot data that does '
                                                'not exist in RetentionGraph: '
                                                'roi {}'.format(i))

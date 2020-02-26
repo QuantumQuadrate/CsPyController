@@ -126,27 +126,34 @@ class Noise_EatersGraph(AnalysisWithFigure):
                 fig.clf()
 
                 if self.data is not None:
-                    #parse the list of what to plot from a string to a list of numbers
+                    # parse the list of what to plot from a string to a list of
+                    # numbers
                     try:
                         plotlist = eval(self.list_of_what_to_plot)
                     except Exception as e:
-                        logger.warning('Could not eval plotlist in DCNoiseEaterGraph:\n{}\n'.format(e))
+                        logger.warning('Could not eval plotlist in '
+                                       'DCNoiseEaterGraph:\n{}'.format(e))
                         return
-                    #make one plot
+                    # make one plot
                     ax = fig.add_subplot(111)
                     for i in plotlist:
                         try:
-                            data = self.data[:, 4*i[0] + i[1]]  # All measurements. Selected pi and channel.
-                        except:
-                            logger.warning('Trying to plot data that does not exist in MeasurementsGraph: box {} channel {}'.format(i[0], i[1]))
+                            # All measurements. Selected pi and channel.
+                            data = self.data[:, 4*i[0] + i[1]]
+                        except Exception:
+                            logger.warning('Trying to plot data that does not '
+                                           'exist in MeasurementsGraph: box {} '
+                                           'channel {}'.format(i[0], i[1]))
                             continue
                         label = '({},{})'.format(i[0], i[1])
                         ax.plot(data, 'o', label=label)
-                    #add legend using the labels assigned during ax.plot()
-                    ax.legend(bbox_to_anchor=(0., 1.02, 1., .102), loc=2, ncol = 4, mode = "expand", borderaxespad=0.0)
+                    # add legend using the labels assigned during ax.plot()
+                    ax.legend(bbox_to_anchor=(0., 1.02, 1., .102),
+                              loc=2, ncol=4, mode="expand", borderaxespad=0.0)
                     ax.grid('on')
                 super(Noise_EatersGraph, self).updateFigure()
             except Exception as e:
-                logger.warning('Problem in Noise_EaterGraph.updateFigure()\n:{}'.format(e))
+                logger.warning('Problem in Noise_EaterGraph.updateFigure()'
+                               '\n:{}'.format(e))
             finally:
                 self.update_lock = False

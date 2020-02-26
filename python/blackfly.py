@@ -22,7 +22,7 @@ from instrument_property import Prop
 logger = logging.getLogger(__name__)
 try:
     from PyCapture2 import PROPERTY_TYPE, BUS_SPEED, GRAB_MODE, PIXEL_FORMAT
-except:
+except ImportError:
     # just make fake values so stuff doesnt crash when testing
     logger.warning("PyCapture2 not installed, blackfly cameras are not usuable")
     class ptype(object):
@@ -55,7 +55,7 @@ class BFProperty(Prop):
         for p in self.properties:
             try:
                 prop = getattr(self, p)
-            except:
+            except AttributeError:
                 msg = (
                     'In BFProperty.HardwareProtocol() for class `{}`: item'
                     ' `{}` in properties list does not exist.'
@@ -251,7 +251,7 @@ class BlackflyCamera(Instrument):
                 # convert the string name to an actual object
                 try:
                     o = getattr(self, p)
-                except:
+                except AttributeError:
                     msg = (
                         'In ZMQInstrument.toHardware() for class `{}`: item'
                         ' `{}` in properties list does not exist.'
@@ -260,7 +260,7 @@ class BlackflyCamera(Instrument):
                     raise PauseError
                 try:
                     o.HardwareProtocol(o, p, settings)
-                except:
+                except Exception:
                     self.HardwareProtocol(o, p, settings)
         return settings
 
@@ -326,19 +326,7 @@ class BlackflyClient(zmq_instrument.ZMQInstrument):
                     f = f.create_group('stats')
                     for stat in value[serial]['stats']:
                         f[stat] = value[serial]['stats'][stat]
-                    # f = hdf5.create_group('{}/{}'.format(key, serial))
-                    # f['error'] = value[serial]['error']
-                    # f = f.create_group('shots')
-                    # for key in value[serial]['data']:
-                    #     print key
-                    #     shot = value[serial]['data'][key]
-                    #     shot_grp = f.create_group(str(key))
-                    #     raw_data = np.array(shot['image'])
-                    #     shot_grp.create_dataset('raw_data', data=raw_data)
-                    #     stat_grp = shot_grp.create_group('stats')
-                    #     for stat in shot['stats']:
-                    #         stat_grp[stat] = shot['stats'][stat]
-                except:
+                except Exception:
                     logger.exception('problem')
 
     def get_available_cameras(self):
@@ -362,7 +350,7 @@ class BlackflyClient(zmq_instrument.ZMQInstrument):
                     msg = 'Initializing camera ser. no.: {}'
                     logger.info(msg.format(i.camera.serial))
                     msg = i.camera.initialize()
-            except:
+            except Exception:
                 msg = 'Problem initializing Blackfly camera ser. no.: {}.'
                 logger.exception(msg.format(i.camera.serial))
                 self.isInitialized = False

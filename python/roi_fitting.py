@@ -300,7 +300,7 @@ class GaussianROI(ROIAnalysis):
                     ica.fit(X)
                     A_ica = ica.components_  # Get estimated mixing matrix
                     image_sum = np.sum(np.abs(A_ica),axis=0).reshape(images.shape[1], images.shape[2])
-                except:
+                except Exception:
                     # ICA failed, but just note the error in the log and move
                     # on
                     logger.exception("ICA failed")
@@ -367,7 +367,7 @@ class GaussianROI(ROIAnalysis):
                 y,
                 p0=initial_guess
             )
-        except:
+        except Exception:
             # set the amplitude to 0 and move on
             logger.exception("Fit failed in GaussianROI")
             fitParams = (0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0)

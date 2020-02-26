@@ -57,10 +57,11 @@ class CsSock(socket.socket):
         while 1:
             try:
                 data = sock.recv(4096)
-            except:
-                break;
-            #print 'draining: {}...'.format(data[:40])
-            if not data: break
+            except Exception:
+                break
+            # print 'draining: {}...'.format(data[:40])
+            if not data:
+                break
         sock.settimeout(timeout)
 
     def receive(self,sock):
@@ -218,7 +219,9 @@ class CsServerSock(CsSock):
             logger.warning('error on CsServerSock.bind({}):\n{}'.format(server_address,str(e)))
             exit()
         logger.info('server starting up on %s port %s' % self.getsockname())
-        threading.Thread(target=self.readLoop).start()
+        thread = threading.Thread(target=self.readLoop)
+        thread.daemon = True
+        thread.start()
 
     def closeConnection(self):
         if self.connection is not None:
@@ -234,31 +237,32 @@ class CsServerSock(CsSock):
         return super(CsServerSock, self).receive(self.connection)
 
     def readLoop(self):
-        self.listen(0) #the 0 means do not listen to any backlogged connections
+        self.listen(0) # the 0 means do not listen to any backlogged connections
         while True:
             logger.info('waiting for a connection')
-            #the sock is blocking so it will wait for a connection
+            # the sock is blocking so it will wait for a connection
             try:
                 self.connection, client_address = self.accept()
                 logger.info('client connected: '+str(client_address))
-            except:
+            except Exception:
                 logger.warning('error in CsServerSock self.accept()')
                 self.closeConnection()
                 continue
             while True:
                 try:
                     data = self.receive()
-                except:
+                except Exception:
                     logger.warning('error in CsServerSock receive')
                     self.closeConnection()
                     break
-                #print 'received: {}'.format(data[:40])
-                if (data is not None):
+                # print 'received: {}'.format(data[:40])
+                if data is not None:
                     msg = self.parsemsg(data)
                     try:
                         self.sendmsg(msg)
                     except Exception as e:
-                        logger.warning('error in CsServerSock sendmsg\n{}'.format(e))
+                        logger.warning('error in CsServerSock '
+                                       'sendmsg\n{}'.format(e))
                         self.closeConnection()
                         break
 
@@ -267,11 +271,11 @@ class CsServerSock(CsSock):
         a=data.find('<EchoBox>')
         b=data.find('</EchoBox>')
 
-        if (a!=-1) and (b!=-1) and (b>a):
-            #load echo data into echoBox
+        if a != -1 and b != -1 and b > a:
+            # load echo data into echoBox
             self.echo=data[a+9:b]
-            #print 'echoBox settings loaded'
-            msg = makemsg('log','Okay')
+            # print 'echoBox settings loaded'
+            msg = makemsg('log', 'Okay')
 
         elif data.startswith('<LabView><command>measure</command></LabView>'):
             logger.info('got measure command')
@@ -282,6 +286,7 @@ class CsServerSock(CsSock):
             msg = makemsg('error', 'unknown command received')
 
         return msg
+
 
 if __name__ == '__main__':
     CsServerSock(9000)

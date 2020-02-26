@@ -174,28 +174,33 @@ class LabView(Instrument):
                 try:
                     dims = map(int, self.results['TTL/dimensions'].split(','))
                     array.resize(dims)
-                except:
-                    logger.exception('unable to resize TTL data, check for TTL/dimensions in returned data.')
+                except Exception:
+                    logger.exception('unable to resize TTL data, check for '
+                                     'TTL/dimensions in returned data.')
                     raise PauseError
                 try:
                     hdf5[key] = array
-                except:
-                    logger.exception('in LabView.writeResults() doing hdf5[{}]'.format(key))
+                except Exception:
+                    logger.exception('in LabView.writeResults() '
+                                     'doing hdf5[{}]'.format(key))
                     raise PauseError
 
             elif key == 'AI/data':
-                # analog data was stored as big-endian (network order) doubles floats (8-bytes)
+                # analog data was stored as big-endian (network order)
+                # doubles floats (8-bytes)
                 array = numpy.array(struct.unpack('!'+str(int(len(value)/8))+'d', value), dtype=numpy.float64)
                 try:
                     dims = map(int, self.results['AI/dimensions'].split(','))
                     array.resize(dims)
-                except:
-                    logger.exception('unable to resize AI data, check for AI/dimensions in returned data.')
+                except Exception:
+                    logger.exception('unable to resize AI data, check for '
+                                     'AI/dimensions in returned data.')
                     raise PauseError
                 try:
                     hdf5[key] = array
-                except:
-                    logger.error('in LabView.writeResults() doing hdf5[{}]'.format(key))
+                except Exception:
+                    logger.error('in LabView.writeResults() '
+                                 'doing hdf5[{}]'.format(key))
                     raise PauseError
 
             elif key == 'counter/data':
@@ -204,8 +209,9 @@ class LabView(Instrument):
                 try:
                     dims = map(int, self.results['counter/dimensions'].split(','))
                     array.resize(dims)
-                except:
-                    logger.exception('unable to resize counter data, check for counter/dimensions in returned data.')
+                except Exception:
+                    logger.exception('unable to resize counter data, check '
+                                     'for counter/dimensions in returned data.')
                     raise PauseError
 
                 # take the difference of successive elements.
@@ -215,23 +221,26 @@ class LabView(Instrument):
                 array[:, 1:] = array[:, 1:] - array[:, :-1]
                 try:
                     hdf5[key] = array
-                except:
-                    logger.exception('in LabView.writeResults() doing hdf5[{}]'.format(key))
+                except Exception:
+                    logger.exception('in LabView.writeResults() '
+                                     'doing hdf5[{}]'.format(key))
                     raise PauseError
 
             else:
                 # no special protocol
                 try:
                     hdf5[key] = value
-                except:
-                    logger.error('in LabView.writeResults() doing hdf5[key]=value for key='+key+'\n'+str(e))
+                except Exception:
+                    logger.error('in LabView.writeResults() doing '
+                                 'hdf5[key]=value for key={}'.format(key))
                     raise PauseError
 
     def send(self, msg):
         results = {}
         if self.enable:
             if not (self.isInitialized and self.connected):
-                logger.debug("TCP is not both initialized and connected.  Reinitializing TCP in LabView.send().")
+                logger.debug("TCP is not both initialized and connected."
+                             "  Reinitializing TCP in LabView.send().")
                 self.initialize()
 
             #display message on GUI
@@ -242,12 +251,14 @@ class LabView(Instrument):
             try:
                 self.sock.settimeout(self.timeout.value)
                 self.sock.sendmsg(msg)
-            except IOError:
-                logger.warning('Timeout while waiting for LabView to send data in LabView.send():\n{}\n'.format(e))
+            except IOError as e:
+                logger.warning('Timeout while waiting for LabView to send data '
+                               'in LabView.send():\n{}'.format(e))
                 self.connected = False
                 raise PauseError
             except Exception as e:
-                logger.warning('while sending message in LabView.send():\n{}\n{}\n'.format(e, traceback.format_exc()))
+                logger.warning('while sending message in LabView.send():'
+                               '\n{}\n{}'.format(e, traceback.format_exc()))
                 self.connected = False
                 raise PauseError
 
@@ -256,11 +267,13 @@ class LabView(Instrument):
             try:
                 rawdata = self.sock.receive()
             except IOError as e:
-                logger.warning('Timeout while waiting for LabView to return data in LabView.send():\n{}\n'.format(e))
+                logger.warning('Timeout while waiting for LabView to return '
+                               'data in LabView.send():\n{}'.format(e))
                 self.connected = False
                 raise PauseError
             except Exception as e:
-                logger.warning('in LabView.sock.receive:\n{}\n{}\n'.format(e, traceback.format_exc()))
+                logger.warning('in LabView.sock.receive:'
+                               '\n{}\n{}'.format(e, traceback.format_exc()))
                 self.connected = False
                 raise PauseError
 
@@ -279,7 +292,8 @@ class LabView(Instrument):
                 error = toBool(results['error'])
                 self.set_gui({'error': error})
                 if error:
-                    logger.warning('Error returned from LabView.send:\n{}\n'.format(log))
+                    logger.warning('Error returned from '
+                                   'LabView.send:\n{}'.format(log))
                     raise PauseError
 
         self.results = results

@@ -142,14 +142,15 @@ class Optimization(AnalysisWithFigure):
                 logger.error('Exception evaluating cost function:\n{}\n{}'.format(e, traceback.format_exc()))
                 self.yi = numpy.inf
                 self.y_stat_sigma = 0
-            # if the evaluated value is nan, set it to inf so it will always be the worst point
+            # if the evaluated value is nan, set it to inf so it will always be
+            # the worst point
             if isnan(self.yi):
                 self.yi = numpy.inf
                 self.y_stat_sigma = 0
             try:
                 if isnan(self.y_stat_sigma):
                     self.y_stat_sigma = 0
-            except:
+            except Exception:
                 self.y_stat_sigma = 0
 
             # store this data point

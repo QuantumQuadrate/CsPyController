@@ -381,8 +381,9 @@ class Experiment(Prop):
             try:
                 logger.debug('Copying autosave data to current HDF5')
                 autosave_file['settings'].copy(autosave_file['settings'], self.hdf5)
-            except:
-                logger.warning('Problem trying to copy autosave settings to HDF5 results file.')
+            except Exception as e:
+                logger.warning('Problem trying to copy autosave settings to '
+                               'HDF5 results file. {}'.format(e))
                 raise PauseError
             finally:
                 autosave_file.close()
@@ -701,17 +702,21 @@ class Experiment(Prop):
                     self.instrument_update_needed = True
 
         except PauseError:
-            # This should be the only place that PauseError is explicitly handed.
-            # All other non-fatal errors caught higher up in the experiment chain should
-            # gracefully handle the error, then 'raise PauseError' so that the experiment
-            # exits out to this point.
+            # This should be the only place that PauseError is explicitly
+            # handled. All other non-fatal errors caught higher up in the
+            # experiment chain should gracefully handle the error, then 'raise
+            # PauseError' so that the experiment exits out to this point.
 
-            # Delete this measurement from the results, since the data is probably no good anyway, and the
-            # measurement number may not have incremented and may have to be reused.
+            # Delete this measurement from the results, since the data is
+            # probably no good anyway, and the measurement number may not have
+            # incremented and may have to be reused.
             try:
-                del self.measurementResults  # remove the reference to the bad data
-                del self.hdf5['iterations/{}/measurements/{}'.format(self.iteration, self.measurement)]  # really remove the bad data
-            except:
+                del self.measurementResults
+                del self.hdf5[
+                    'iterations/{}/measurements/{}'.format(self.iteration,
+                                                           self.measurement)
+                ]
+            except Exception:
                 pass
 
             if self.pauseAfterError:
@@ -723,12 +728,15 @@ class Experiment(Prop):
         except Exception as e:
             logger.error('Exception during experiment:\n'+str(e)+'\n'+str(traceback.format_exc())+'\n')
 
-            # Delete this measurement from the results, since the data is probably no good anyway, and the
-            # measurement number may not have incremented and may have to be reused.
+            # Delete this measurement from the results, since the data is
+            # probably no good anyway, and the measurement number may not have
+            # incremented and may have to be reused.
             try:
-                del self.measurementResults  # remove the reference to the bad data
-                del self.hdf5['iterations/{}/measurements/{}'.format(self.iteration, self.measurement)]  # really remove the bad data
-            except:
+                del self.measurementResults
+                del self.hdf5[
+                    'iterations/{}/measurements/{}'.format(self.iteration,
+                                                           self.measurement)]
+            except Exception:
                 pass
 
             if self.pauseAfterError:
@@ -828,9 +836,12 @@ class Experiment(Prop):
                     # set a flag to indicate each instrument is now busy
                     i.isDone = False
                     # let each instrument begin measurement
-                    # put each in a different thread, so they can proceed simultaneously
+                    # put each in a different thread, so they can proceed
+                    # simultaneously
                     if self.enable_instrument_threads:
-                        threading.Thread(target=i.start).start()
+                        instrument_thread = threading.Thread(target=i.start)
+                        instrument_thread.daemon = True
+                        instrument_thread.start()
                     else:
                         i.start()
         logger.debug('all instruments started')
@@ -912,7 +923,7 @@ class Experiment(Prop):
                 del measResults
                 # really remove the bad data
                 del iterResults['measurements/'+str(m)]
-            except:
+            except Exception:
                 logger.exception('error when trying to delete measurement')
 
         if good:

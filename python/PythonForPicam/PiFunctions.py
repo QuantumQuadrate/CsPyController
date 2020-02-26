@@ -22,7 +22,7 @@ import ctypes as ctypes
 picamDll = 'Picam.dll'
 try:
     picam = ctypes.cdll.LoadLibrary(picamDll)
-except:
+except Exception:
     logger.warning("Could not load Princeton Instruments DLL."
                    "  Make sure that Picam.dll is in the system path")
     

@@ -29,12 +29,13 @@ import sound
 from instrument_property import Prop, IntProp, ListProp
 from cs_instruments import Instrument
 from analysis import Analysis, AnalysisWithFigure
+import threading
 
 
 class DCNoiseEaters(Instrument):
-    # Communicates with a bunch of DC Noise Eater boxes that are attached directly to the experiment
-    # computer via USB-to-serial Parallax Prop Plugs.  These present themselves to python as simple
-    # COM ports.
+    # Communicates with a bunch of DC Noise Eater boxes that are attached
+    # directly to the experiment computer via USB-to-serial Parallax Prop Plugs.
+    # These present themselves to python as simple COM ports.
 
     version = '2014.09.01'
     boxes = Typed(ListProp)
@@ -44,7 +45,8 @@ class DCNoiseEaters(Instrument):
 
     def __init__(self, name, experiment, description='DC Noise Eaters'):
         super(DCNoiseEaters, self).__init__(name, experiment, description)
-        self.boxes = ListProp('boxes', experiment, listElementType=DCNoiseEater, listElementName='box')
+        self.boxes = ListProp('boxes', experiment, listElementType=DCNoiseEater,
+                              listElementName='box')
         self.properties += ['version', 'boxes', 'deviceList']
 
     def initialize(self):
@@ -323,27 +325,35 @@ class DCNoiseEaterGraph(AnalysisWithFigure):
                     fig.clf()
 
                     if self.data is not None:
-                        #parse the list of what to plot from a string to a list of numbers
+                        # parse the list of what to plot from a string to a list
+                        # of numbers
                         try:
                             plotlist = eval(self.list_of_what_to_plot)
                         except Exception as e:
-                            logger.warning('Could not eval plotlist in DCNoiseEaterGraph:\n{}\n'.format(e))
+                            logger.warning('Could not eval plotlist in '
+                                           'DCNoiseEaterGraph:\n{}'.format(e))
                             return
-                        #make one plot
+                        # make one plot
                         ax = fig.add_subplot(111)
                         for i in plotlist:
                             try:
-                                data = self.data[:, i[0], i[1], i[2]]  # All measurements. Selected box, channel, and var.
-                            except:
-                                logger.warning('Trying to plot data that does not exist in MeasurementsGraph: box {} channel {} var {}'.format(i[0], i[1], i[2]))
+                                # All measurements. Selected box, channel,
+                                # and var.
+                                data = self.data[:, i[0], i[1], i[2]]
+                            except Exception:
+                                logger.warning(
+                                    'Trying to plot data that does not exist in'
+                                    ' MeasurementsGraph: box {} channel {} var '
+                                    '{}'.format(i[0], i[1], i[2]))
                                 continue
                             label = '({},{},{})'.format(i[0], i[1], i[2])
                             ax.plot(data, 'o', label=label)
-                        #add legend using the labels assigned during ax.plot()
+                        # add legend using the labels assigned during ax.plot()
                         ax.legend()
                     super(DCNoiseEaterGraph, self).updateFigure()
                 except Exception as e:
-                    logger.warning('Problem in DCNoiseEaterGraph.updateFigure()\n:{}'.format(e))
+                    logger.warning('Problem in DCNoiseEaterGraph.updateFigure()'
+                                   '\n:{}'.format(e))
                 finally:
                     self.update_lock = False
 

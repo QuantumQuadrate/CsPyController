@@ -119,11 +119,12 @@ def setup_threshold(thld, thld_val, **kwargs):
         else:
             try:
                 setattr(thld, key, value)
-            except:
+            except Exception:
                 pass
     # need to reinitialize rois/thresholds
     thld.set_rois()
-    ta = np.full((kwargs['ROI_rows']*kwargs['ROI_columns'], kwargs['shots']), thld_val)
+    ta = np.full((kwargs['ROI_rows']*kwargs['ROI_columns'], kwargs['shots']),
+                 thld_val)
     thld.set_thresholds(ta, 0)
 
 

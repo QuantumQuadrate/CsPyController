@@ -115,27 +115,36 @@ class AQuA(Experiment):
             self.conexes = conex.Conexes('conexes', self, 'CONEX-CC')
             self.instruments += [self.conexes]
             self.properties += ['conexes']
-        except:
-            logger.warning("Conex could not be instantiated."
+        except ImportError:
+            logger.warning("Conex could not be imported."
                            "Conex translation stages will not work.")
+        except Exception as e:
+            logger.warning("Conex could not be instantiated due to an unknown"
+                           " error. {}".format(e))
         try:
             import aerotech
             self.aerotechs = aerotech.Aerotechs('aerotechs', self,
                                                 'Aerotech Ensemble')
             self.instruments += [self.aerotechs]
             self.properties += ['aerotechs']
-        except:
-            logger.warning("Aerotech could not be instantiated. If it is needed"
+        except ImportError:
+            logger.warning("Aerotech could not be imported. If it is needed"
                            ", check that pythonnet and pywin32 are installed.")
+        except Exception as e:
+            logger.warning("Aerotech could not be instantiated due to an "
+                           "unknown error. {}".format(e))
         try:
             # communicates with Blackfly camera server
             from blackfly import BlackflyClient
             self.blackfly_client = BlackflyClient('BlackflyClient', self)
             self.instruments += [self.blackfly_client]
             self.properties += ['blackfly_client']
-        except:
-            logger.warning("Blackfly client disabled,"
+        except ImportError:
+            logger.warning("Blackfly client unable to import,"
                            "install PyCapture2 module to enable")
+        except Exception as e:
+            logger.warning("BlackFly could not be instantiated due to an "
+                           "unknown error. {}".format(e))
         self.functional_waveforms = functional_waveforms.FunctionalWaveforms('functional_waveforms', self, 'Waveforms for HSDIO, DAQmx DIO, and DAQmx AO; defined as functions')
         self.picomotors = picomotors.Picomotors('picomotors', self, 'Newport Picomotors')
         self.noise_eaters = noise_eaters.Noise_Eaters('noise_eaters', self,'rotating wave-plate noise eaters')
@@ -254,9 +263,11 @@ class AQuA(Experiment):
             self.allow_evaluation = True
             self.evaluateAll()
         except PauseError:
-            logger.warning('Loading default settings aborted in AQuA.__init__().  PauseError')
-        except:
-            logger.exception('Loading default settings aborted in AQuA.__init__().')
+            logger.warning('Loading default settings aborted in '
+                           'AQuA.__init__().  PauseError')
+        except Exception as e:
+            logger.exception('Loading default settings aborted in '
+                             'AQuA.__init__(). {}'.format(e))
 
         # make sure evaluation is allowed now
         self.allow_evaluation = True

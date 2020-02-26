@@ -214,11 +214,11 @@ class Analysis(Prop):
                     try:
                         # use the function pointer that was stored in the list
                         result = m_data[0](*m_data[1])
-                    except:
+                    except Exception as e:
                         msg = (
                             'Measurement analysis thread encountered an error'
-                            ' on analysis `{}` at `{}:{}`.'
-                        ).format(self.name, *m_data[2])
+                            ' on analysis `{}` {} at `{}:{}... `.'
+                        ).format(self.name, e, *m_data[2])
                         logger.exception(msg)
 
                     msg = (
@@ -279,13 +279,19 @@ class Analysis(Prop):
                 time.sleep(0.1)
 
         if self.queueAfterIteration:
-            if not self.iterationProcessing:  # check to see if a processing queue is already going
+            # check to see if a processing queue is already going
+            if not self.iterationProcessing:
                 self.iterationProcessing = True
-                self.iterationQueue.append((iterationResults, experimentResults))
-                threading.Thread(target=self.iterationProcessLoop).start()
+                self.iterationQueue.append((iterationResults,
+                                            experimentResults))
+                thread = threading.Thread(target=self.iterationProcessLoop)
+                thread.daemon = True
+                thread.start()
             elif not self.dropIterationIfSlow:
-                # if a queue is already going, add to it, unless we can't tolerate being behind
-                self.iterationQueue.append((iterationResults, experimentResults))
+                # if a queue is already going, add to it, unless we can't
+                # tolerate being behind
+                self.iterationQueue.append((iterationResults,
+                                            experimentResults))
         else:
             self.analyzeIteration(iterationResults, experimentResults)
 
@@ -722,27 +728,35 @@ class MeasurementsGraph(AnalysisWithFigure):
                     fig.clf()
 
                     if self.data is not None:
-                        #parse the list of what to plot from a string to a list of numbers
+                        # parse the list of what to plot from a string to a list
+                        # of numbers
                         try:
                             plotlist = eval(self.list_of_what_to_plot)
                         except Exception as e:
-                            logger.warning('Could not eval plotlist in MeasurementsGraph:\n{}\n'.format(e))
+                            logger.warning('Could not eval plotlist in '
+                                           'MeasurementsGraph:\n{}\n'.format(e))
                             return
-                        #make one plot
+                        # make one plot
                         ax = fig.add_subplot(111)
                         for i in plotlist:
                             try:
-                                    data = self.data[:, i[0], 0, i[1]] #hardcoded '0' is to select the submeasurement No. 0
-                            except:
-                                logger.warning('Trying to plot data that does not exist in MeasurementsGraph: shot {} roi {}'.format(i[0], i[1]))
+                                # hardcoded '0' is to select the submeasurement
+                                # No. 0
+                                data = self.data[:, i[0], 0, i[1]]
+                            except Exception:
+                                logger.warning('Trying to plot data that does '
+                                               'not exist in MeasurementsGraph:'
+                                               ' shot {} roi {}'.format(i[0],
+                                                                        i[1]))
                                 continue
                                 label = '({},{})'.format(i[0], 0, i[1])
                             ax.plot(data, 'o', label=label)
-                        #add legend using the labels assigned during ax.plot()
+                        # add legend using the labels assigned during ax.plot()
                         ax.legend()
                     super(MeasurementsGraph, self).updateFigure()
                 except Exception as e:
-                    logger.warning('Problem in MeasurementsGraph.updateFigure()\n:{}'.format(e))
+                    logger.warning('Problem in MeasurementsGraph.updateFigure()'
+                                   '\n:{}'.format(e))
                 finally:
                     self.update_lock = False
 
@@ -888,10 +902,16 @@ class IterationsGraph(AnalysisWithFigure):
                         ax = fig.add_subplot(111)
                         for i in plotlist:
                             try:
-                                    mean = self.mean[:, i[0], 0, i[1]] # i[0] : shot, i[1]: submeasurement? , i[2] : roi
-                                    sigma = self.sigma[:, i[0], 0, i[1]]
-                            except:
-                                logger.warning('Trying to plot data that does not exist in IterationsGraph: shot {} roi {}'.format(i[0], i[1]))
+                                # i[0] : shot
+                                # i[1]: submeasurement?
+                                # i[2] : roi
+                                mean = self.mean[:, i[0], 0, i[1]]
+                                sigma = self.sigma[:, i[0], 0, i[1]]
+                            except Exception:
+                                logger.warning('Trying to plot data that does '
+                                               'not exist in IterationsGraph: '
+                                               'shot {} roi {}'.format(i[0],
+                                                                       i[1]))
                                 continue
                             label = '(shot:{},roi:{})'.format(i[0],i[1])
                             linestyle = '-o' if self.draw_connecting_lines else 'o'

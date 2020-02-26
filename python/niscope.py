@@ -40,7 +40,7 @@ try:
     from ordered_symbols import *
     import niScope
     niScopeImported = True
-except:
+except ImportError:
     logger.warning("pyniscope not installed. "
                    "NI-SCOPE will not work. "
                    "Run the following commands in the pyniscope-master "
@@ -179,7 +179,7 @@ class NIScopeInstrument(Instrument):
 
     def setup_video_thread(self, analysis):
         thread = threading.Thread(target=self.setup_video, args=(analysis,))
-        #thread.daemon = True
+        thread.daemon = True
         thread.start()
 
     def setup_video(self, analysis):
@@ -288,15 +288,10 @@ class NIScopeViewer(AnalysisWithFigure):
         if not self.update_lock and (self.mycam.mode != 'video'):
             try:
                 self.update_lock = True
-                try:
-                    xlimit, ylimit = self.mycam.getLimits()
-                    limits = True
-                except:
-                    limits = False
                 fig = self.backFigure
                 fig.clf()
 
-                if (self.data is not None):
+                if self.data is not None:
                     ax = fig.add_subplot(211)
                     axFFT = fig.add_subplot(212)
                     
@@ -342,8 +337,8 @@ class NIScopeViewer(AnalysisWithFigure):
                 self.update_lock = False
 
     def setup_video(self, data):
-        """Use this method to connect the analysis figure to an array that will be rapidly updated
-        in video mode."""
+        """Use this method to connect the analysis figure to an array that will
+         be rapidly updatedin video mode."""
         self.data = data
         fig = self.backFigure
         fig.clf()
@@ -353,8 +348,9 @@ class NIScopeViewer(AnalysisWithFigure):
         super(NIScopeViewer, self).updateFigure()
 
     def redraw_video(self):
-        """First update self.data using NIScope methods, then redraw screen using this."""
-        if (self.mycam.autoscale):
+        """First update self.data using NIScope methods, then redraw screen
+        using this."""
+        if self.mycam.autoscale:
             self.artist.autoscale()
         else:
             self.artist.set_data(self.data)
@@ -397,12 +393,11 @@ class NIScopes(Instrument,Analysis):
                 if i.scope.enable:
                     msg = i.scope.initialize()
         except Exception as e:
-            logger.error('Problem initializing NIScope:\n{}\n{}\n'.format(msg,e))
+            logger.error('Problem initializing NIScope:\n{}\n{}'.format(msg, e))
             self.isInitialized = False
             raise PauseError
 
     def initialize(self, cameras=False):
-        msg=''
         if niScopeImported:
             self.enable = True
             self.isInitialized = True
@@ -410,26 +405,21 @@ class NIScopes(Instrument,Analysis):
             self.enable = False
             self.isInitialized = False
             return
-        if (cameras):
+        if cameras:
             self.initializecameras()
 
     def start(self):
         msg = ''
         try:
             for i in self.motors:
-                #logger.warning('About to start NIScope')
                 if i.scope.enable:
-                    #logger.warning('Starting NIScope')
                     msg = i.scope.start()
         except Exception as e:
-            logger.error('Problem starting NIScope:\n{}\n{}\n'.format(msg, e))
+            logger.error('Problem starting NIScope:\n{}\n{}'.format(msg, e))
             self.isInitialized = False
             raise PauseError
 
         self.isDone = True
-
-
-
 
     def update(self):
         msg = ''
@@ -439,7 +429,7 @@ class NIScopes(Instrument,Analysis):
                 if i.scope.enable:
                     msg = i.scope.update()
         except Exception as e:
-            logger.error('Problem updating NIScope:\n{}\n{}\n'.format(msg, e))
+            logger.error('Problem updating NIScope:\n{}\n{}'.format(msg, e))
             self.isInitialized = False
             raise PauseError
 
@@ -449,7 +439,7 @@ class NIScopes(Instrument,Analysis):
             for i in self.motors:
                 msg = i.evaluate()
         except Exception as e:
-            logger.error('Problem evaluating NIScope:\n{}\n{}\n'.format(msg, e))
+            logger.error('Problem evaluating NIScope:\n{}\n{}'.format(msg, e))
             self.isInitialized = False
             raise PauseError
 
@@ -460,7 +450,7 @@ class NIScopes(Instrument,Analysis):
                 if i.scope.enable:
                     msg = i.scope.writeResults(hdf5)
         except Exception as e:
-            logger.error('Problem writing NIScope data:\n{}\n{}\n'.format(msg, e))
+            logger.error('Problem writing NIScope data:\n{}\n{}'.format(msg, e))
             self.isInitialized = False
             raise PauseError
 
@@ -469,11 +459,11 @@ class NIScopes(Instrument,Analysis):
         try:
             for i in self.motors:
                 if i.scope.enable:
-                    #logger.warning( "Acquiring data from NIScope {}".format(i.scope.DeviceName.value))
                     msg = i.scope.acquire_data()
         except Exception as e:
-            logger.error('Problem acquiring NIScope data:\n{}\n{}\n'.format(msg, e))
-            logger.error('Traceback:\n')
+            logger.error('Problem acquiring NIScope data:\n{}\n{}'.format(msg,
+                                                                          e))
+            logger.error('Traceback:')
             exc_type, exc_value, exc_traceback = sys.exc_info()
             traceback.print_tb(exc_traceback,file=sys.stdout)
             self.isInitialized = False
@@ -485,10 +475,12 @@ class NIScopes(Instrument,Analysis):
         try:
             for i in self.motors:
                 if i.scope.enable:
-                    #logger.warning("Displaying data from NIScope {}".format(i.scope.DeviceName.value))
-                    msg = i.analysis.analyzeMeasurement(measurementresults,iterationresults,hdf5)
+                    msg = i.analysis.analyzeMeasurement(measurementresults,
+                                                        iterationresults,
+                                                        hdf5)
         except Exception as e:
-            logger.error('Problem displaying NIScope data:\n{}\n{}\n'.format(msg, e))
+            logger.error('Problem displaying NIScope data:\n{}\n{}'.format(msg,
+                                                                           e))
             self.isInitialized = False
             raise PauseError
         return 0

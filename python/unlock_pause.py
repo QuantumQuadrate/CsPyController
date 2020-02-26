@@ -108,7 +108,7 @@ class UnlockMonitor(Instrument, Analysis):
                 # Required to be twice if halted while lock is broken
                 self.s.sendall("Experiment Finished")
                 self.s.sendall("Experiment Finished")
-            except:
+            except Exception:
                 pass
             try:
                 self.close_connection(self.s)

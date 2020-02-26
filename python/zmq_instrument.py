@@ -95,7 +95,7 @@ class ZMQInstrument(Instrument, Analysis):
                 raise PauseError
             logger.info(msg + 'successful.')
             return True
-        except:
+        except Exception:
             logger.exception(msg + 'failed.')
             return False
 
@@ -137,7 +137,7 @@ class ZMQInstrument(Instrument, Analysis):
                 msg = 'ZMQInstrument.send_json failed for `{}`.'
                 logger.exception(msg.format(self.name))
                 raise PauseError
-        except:
+        except Exception:
             msg = 'ZMQInstrument.send_json failed for `{}`.'
             logger.exception(msg.format(self.name))
             raise PauseError
@@ -177,7 +177,7 @@ class ZMQInstrument(Instrument, Analysis):
                 # convert the string name to an actual object
                 try:
                     o = getattr(self, p)
-                except:
+                except AttributeError:
                     msg = (
                         'In ZMQInstrument.toHardware() for class `{}`: item'
                         ' `{}` in properties list does not exist.'
@@ -186,7 +186,7 @@ class ZMQInstrument(Instrument, Analysis):
                     raise PauseError
                 try:
                     o.HardwareProtocol(o, p, settings)
-                except:
+                except Exception:
                     self.HardwareProtocol(o, p, settings)
                     logger.exception("custom error")
         return settings
@@ -231,12 +231,12 @@ class ZMQInstrument(Instrument, Analysis):
                 # This can happen when trying to set the value as an empty dict
                 try:
                     self.data_handler(hdf5, key, value)
-                except:
+                except Exception:
                     logger.warning((
                         'Possbile empty dict encountered in '
                         'ZMQInstrument.writeResults. [{}]'
                     ).format(key))
-            except:
+            except Exception:
                 msg = (
                     'Exception in {}.writeResults() doing hdf5[key]=value for'
                     ' key={}'

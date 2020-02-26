@@ -101,7 +101,7 @@ class BeamPositionAnalysis(Analysis):
         try:
             positions_paths = self.experiment.Config.config.get(section,
                                                                 datagroup)
-        except:
+        except Exception:
             msg = 'ConfigParser was unable to find entry: `{}.{}`.'
             'Disabling module.'
             logger.warning(msg.format(section, datagroup))
@@ -145,13 +145,15 @@ class BeamPositionAnalysis(Analysis):
             error = 1
         # Width guesses
         else:
-            [Xsigma_guess, Ysigma_guess] = [2.0, 2.0]  # use your guess. Units of pixels.
+            # use your guess. Units of pixels.
+            [Xsigma_guess, Ysigma_guess] = [2.0, 2.0]
             try:
-                x, error_x = self.gaussianfit(img, COM_X, Xsigma_guess, 0) # last argument is axis.
+                # last argument is axis.
+                x, error_x = self.gaussianfit(img, COM_X, Xsigma_guess, 0)
                 y, error_y = self.gaussianfit(img, COM_Y, Ysigma_guess, 1)
                 error = 0
                 logger.info('480 x: {}, 480 y:{}'.format(x,y))
-            except:
+            except Exception:
                 error = 1
         if error == 1:
             x = np.NaN
@@ -169,7 +171,7 @@ class BeamPositionAnalysis(Analysis):
         # of memory, so maybe we should try to not do all these appends
         try:
             assert(i in [0, 1])
-        except:
+        except AssertionError:
             logger.error('Too many shots detected for beam position analysis.')
             return
 

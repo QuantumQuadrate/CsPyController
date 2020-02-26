@@ -36,19 +36,21 @@ from cs_instruments import Instrument
 from PiParameterLookup import *
 try:
     from PythonForPicam import *
-except:
-    logger.warning('''PythonForPicam not installed. Picam will not work. Run the following commands to install it:
+except ImportError:
+    logger.warning(
+    '''PythonForPicam not installed. Picam will not work. Run the following 
+    commands to install it:
 
     cd PythonForPicam
     python setup.py build
     python setup.py install
-
     ''')
 
 # imports for viewer
 from analysis import AnalysisWithFigure, Analysis
 from colors import my_cmap
 from enaml.application import deferred_call
+
 
 def pointer(x):
     """Returns a ctypes pointer"""
@@ -240,7 +242,7 @@ class PICamCamera(Instrument):
 
     def setup_video_thread(self, analysis):
         thread = threading.Thread(target=self.setup_video, args=(analysis,))
-        #thread.daemon = True
+        thread.daemon = True
         thread.start()
 
     def addDemoCamera(self):
@@ -393,9 +395,6 @@ class PICamCamera(Instrument):
         # run the video loop in a new thread
 
         self.start_video_thread()
-        #thread = threading.Thread(target=self.start_video_thread)
-        #thread.daemon = True
-        #thread.start()
 
     def SetImage(self):   
         ROIS = PicamRois(1)
@@ -403,9 +402,7 @@ class PICamCamera(Instrument):
         error = Picam_SetParameterRoisValue(self.currentHandle, PicamParameter_Rois, ROIS)
         self.DLLError(sys._getframe().f_code.co_name, error)
         return
-        
-        
-        
+
     def commitParameters(self):
         failed_parameter_count = piint()
         failed_parameter_array = piint()
@@ -727,10 +724,10 @@ class PICamCamera(Instrument):
 
                 try:
                     data = numpy.append(data, numpy.reshape(dat, (1, self.height, self.width)),axis=0)
-                except:
+                except Exception:
                     try:
                         data = numpy.reshape(dat, (1, self.height, self.width))
-                    except:
+                    except Exception:
                         logger.info("dat.shape={}".format(
                             numpy.array(dat).shape))
                         logger.info("available.readout_count={}, self.height={}"
@@ -840,10 +837,10 @@ class PICamViewer(AnalysisWithFigure):
                 try:
                     self.update_lock = True
                     try:
-                        xlimit = numpy.array(self.ax.get_xlim(), dtype = int)
-                        ylimit = numpy.array(self.ax.get_ylim(), dtype = int)
+                        xlimit = numpy.array(self.ax.get_xlim(), dtype=int)
+                        ylimit = numpy.array(self.ax.get_ylim(), dtype=int)
                         limits = True
-                    except:
+                    except Exception:
                         limits = False
                     fig = self.backFigure
                     fig.clf()
