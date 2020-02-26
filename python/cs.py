@@ -10,26 +10,14 @@ analysis, and TCP server for communication with LabView.
 """
 __author__ = 'Martin Lichtman'
 
-import enaml
-from enaml.qt.qt_application import QtApplication
-import logging
-import logging.handlers
-import colorlog
-import os
-import inspect
-import ConfigParser
-from cs_errors import PauseError
 
-
-
-def setup_log():
+def setup_logging_handlers():
     """
     This function sets up the error logging to both console and file. Logging
     can be set up at the top of each file by doing:
     import logging
     logger = logging.getLogger(__name__)
     """
-
     # get the root logger
     logger = logging.getLogger()
     logger.setLevel(logging.INFO)
@@ -78,23 +66,27 @@ def setup_log():
     logger.addHandler(fh)
 
 
-def import_config():
-    # import config file
+def get_config_from_location(config_location):
+    """
+    Loads a configuration file from a specified location.
+    """
     logger = logging.getLogger(__name__)
-    CONFIG_FILE = 'config/config.cfg'
     configuration = ConfigParser.ConfigParser()
     try:
         # This only works if the current working directory is never changed!!
         filename = inspect.getframeinfo(inspect.currentframe()).filename
         path = os.path.dirname(os.path.abspath(filename))
-        configuration.read(os.path.join(path, CONFIG_FILE))
+        configuration.read(os.path.join(path, config_location))
     except ConfigParser.NoSectionError:
-        logger.critical('Could not find config file at %s', CONFIG_FILE)
+        logger.critical('Could not find config file at %s', config_location)
         raise PauseError
     return configuration
 
 
-def guiThread(exp):
+def launch_gui_with_experiment(experiment):
+    """
+    Launches the GUI with a specific instance of the Experiment class
+    """
     logger = logging.getLogger(__name__)
     logger.debug('importing GUI')
     with enaml.imports():
@@ -102,10 +94,10 @@ def guiThread(exp):
     logger.debug('starting GUI application')
     app = QtApplication()
     logger.debug('assigning experiment backend to GUI')
-    main = Main(experiment=exp)
+    main = Main(experiment=experiment)
 
     logger.debug('give the experiment a reference to the gui')
-    exp.gui = main
+    experiment.gui = main
 
     logger.debug('gui show')
     main.show()
@@ -118,14 +110,57 @@ def guiThread(exp):
 
 
 if __name__ == '__main__':
-    setup_log()
+    import logging
+    import logging.handlers
+    import os
+    import inspect
+    import enaml
+    import ConfigParser
+    import colorlog
+    from enaml.qt.qt_application import QtApplication
+    from cs_errors import PauseError
+    from ConfigInstrument import Config
+    import h5py
+
+    setup_logging_handlers()
     logger = logging.getLogger(__name__)
     logger.info('Starting up CsPyController...')
+
     logger.info('looking for config file')
-    config = import_config()
-    logger.info('Found config.. Making experiment')
+    config_instrument_name = 'Config'
+    # Initially we have a ConfigInstrument that doesn't know which Experiment it
+    # is a part of.
+    config_instrument = Config(name=config_instrument_name,
+                               experiment=None,
+                               description='Configuration File',
+                               config=get_config_from_location(
+                                   'config/config.cfg')
+                               )
+
+    # The instrument can however resolve whether we want to use the config file
+    # or the saved config from the previous experiment before choosing an
+    # experiment.
+    logger.info('Found config.. Checking that it matches with settings...')
+    cache_location = '__project_cache__/'
+    settings_location = os.path.join(cache_location, 'settings.hdf5')
+    temp_location = os.path.join(cache_location, 'previous_settings.hdf5')
+    with h5py.File(name=settings_location, mode='r+') as hdf:
+        group = hdf['settings/experiment']
+        config_instrument.fromHDF5(group.attrs[config_instrument_name])
+        config_instrument.toHDF5(group)
+
+    logger.info('Config finalized.. Making experiment according to config')
+    # Now that we have a choice of config, we can import and construct different
+    # Experiment child classes unique to your experiment. The Experiment class
+    # let's the ConfigInstrument know what experiment it is a part of at this
+    # stage. For now we just have aqua.AQuA, but we could condition on the
+    # "Name" field of the config file to determine which experiment to
+    # construct.
     import aqua
-    exp = aqua.AQuA(config=config)
+    experiment = aqua.AQuA(config_instrument=config_instrument,
+                           cache_location=cache_location,
+                           settings_location=settings_location,
+                           temp_location=temp_location)
+
     logger.info('Experiment built, building GUI')
-    # start without creating a new thread
-    guiThread(exp)
+    launch_gui_with_experiment(experiment)

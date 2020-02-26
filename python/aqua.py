@@ -36,7 +36,7 @@ __author__ = 'Martin Lichtman'
 class AQuA(Experiment):
     """A subclass of Experiment which knows about all our particular hardware"""
 
-    Config = Member()
+
     picomotors = Member()
     noise_eaters = Member()
     BILT = Member()
@@ -101,12 +101,16 @@ class AQuA(Experiment):
     ROI_bg_columns = Int(0)
     Ramsey = Member()
 
-    def __init__(self, config=None):
-        super(AQuA, self).__init__(config)
+    def __init__(self,
+                 config_instrument=None,
+                 cache_location=None,
+                 settings_location=None,
+                 temp_location=None):
 
-        # instruments CONFIG MUST BE FIRST INSTRUMENT
-        self.Config = Config('Config', self, 'Configuration file',
-                             config=self.config)
+        super(AQuA, self).__init__(config_instrument=config_instrument,
+                                   cache_location=cache_location,
+                                   settings_location=settings_location,
+                                   temp_location=temp_location)
         try:
             import conex
             self.conexes = conex.Conexes('conexes', self, 'CONEX-CC')
