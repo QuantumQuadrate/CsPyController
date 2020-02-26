@@ -4886,8 +4886,7 @@ enamldef Main(MainWindow): main:
     #icon = loadIcon()
     open_windows = {}
     closing ::
-        self.cleanUp()
-        #confirm_close(self, change['value'])
+        confirm_close(self, change['value'])
 
     func cleanUp():
         for value in self.open_windows.values():
