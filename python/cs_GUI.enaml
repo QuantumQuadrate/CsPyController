@@ -77,7 +77,7 @@ class MyBoolValidator(Validator):
     def validate(self,text):
         try:
             value = self.experiment.eval_bool(text)
-        except:
+        except Exception:
             return False
         return True
 
@@ -94,13 +94,13 @@ class MyEnumValidator(Validator):
     def validate(self,text):
         try:
             value = self.experiment.eval_general(text)
-        #check for parsing errors
-        except:
+        # check for parsing errors
+        except Exception:
             return False
-        #check if the value is one of the ones allowed by this particular Enum
+        # check if the value is one of the ones allowed by this particular Enum
         if value not in self.allowedValues:
             return False
-        #if we've gotten this far, all tests have passed
+        # if we've gotten this far, all tests have passed
         return True
 
 #TODO: make these Fields have validation and able to process statements
@@ -3579,7 +3579,7 @@ enamldef TTL_filters(GroupBox):
 def get_num_optimization_variables(experiment):
     try:
         return len(experiment.optimizer.optimization_variables)
-    except:
+    except Exception:
         return 0
 
 enamldef Optimizer(Window):
