@@ -30,6 +30,9 @@ from experiments import Experiment
 
 class FNODE(Experiment):
     """A subclass of Experiment which knows about all our particular hardware"""
+
+    window_dict = Member()
+
     Andors = Member()
     DAQmxAI = Member()
     LabView = Member()
@@ -193,6 +196,36 @@ class FNODE(Experiment):
             'ROI_rows', 'ROI_columns', 'ROI_bg_rows', 'ROI_bg_columns',
             'origin'
         ]
+
+        self.window_dict = {
+            '': '',
+            'Experiment': 'ExperimentPage(experiment = main.experiment)',
+            'Independent Variables': 'IndependentVariables(independentVariables = main.experiment.independentVariables)',
+            'Constants and Dependent Vars': 'Variables(experiment = main.experiment)',
+            'PXI Communication': 'LabViewPage(LabView = main.experiment.LabView)',
+            'HSDIO': 'HSDIO_DigitalOutPage(HSDIO = main.experiment.LabView.HSDIO)',
+            'DAQmx': 'DAQmxDigitalOutPage(DAQmx = main.experiment.LabView.DAQmxDO)',
+            'DAQmxAI': 'DAQmxAI(NIDAQmxAI = main.experiment.DAQmxAI)',
+            'DDS': 'DDS_Page(DDS = main.experiment.DDS)',
+            'RF Generators': 'RFGenPage(LabView = main.experiment.LabView)',
+            'Andor Cameras': 'Andors(andors = main.experiment.Andors)',
+            'Analog Output': 'AnalogOutput(AO = main.experiment.LabView.AnalogOutput)',
+            'Analog Input': 'AnalogInput(AI = main.experiment.LabView.AnalogInput, filters = main.experiment.AI_filter, analysis = main.experiment.AI_graph)',
+            'Threshold ROI': 'ThresholdROIContainer(experiment = main.experiment, analysis = main.experiment.thresholdROIAnalysis)',
+            'Histogram': 'Histogram(experiment = main.experiment, analysis = main.experiment.histogramAnalysis)',
+            'Measurements Graph': 'MeasurementsGraph(experiment = main.experiment, analysis = main.experiment.measurements_graph)',
+            'Retention Graph': 'RetentionGraph(experiment = main.experiment, analysis = main.experiment.retention_graph)',
+            'Filters': 'Filters(experiment = main.experiment)',
+            'Optimization': 'Optimizer(experiment = main.experiment, analysis = main.experiment.optimizer)',
+            'Ramsey': 'Ramsey(analysis = main.experiment.Ramsey)',
+            'Retention Analysis': 'RetentionAnalysis(analysis = main.experiment.retention_analysis)',
+            'Counters': 'Counters(counters = main.experiment.LabView.Counters)',
+            'Functional Waveforms': 'FunctionalWaveforms(waveforms = main.experiment.functional_waveforms)',
+            'Functional Waveforms Graph': 'FunctionalWaveformsGraph(graph = main.experiment.functional_waveforms_graph)',
+            'CounterGraph': 'CounterGraph(analysis = main.experiment.counter_graph)',
+            'CounterHistAnalysis': 'CounterHistAnalysis(analysis = main.experiment.counter_hist)',
+            'Origin Interface': 'Origin(origin = main.experiment.origin)',
+                             }
 
         try:
             self.allow_evaluation = False
