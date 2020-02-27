@@ -28,7 +28,7 @@ from analysis import Analysis
 from h5py import Dataset, File
 import traceback
 import os.path
-
+import inspect
 import time
 
 import numpy as np
@@ -323,8 +323,13 @@ class Origin(Analysis):
 
     # ==========================================================================
     def configure(self):
-        # read in the correct config file
-        cfg_path = self.experiment.Config.config.get('ORIGIN', 'OriginCfgPath')
+        # This only works if the current working directory is never changed!!
+        filename = inspect.getframeinfo(inspect.currentframe()).filename
+        path = os.path.dirname(os.path.abspath(filename))
+        cfg_path = os.path.join(
+            path,
+            self.experiment.Config.config.get('ORIGIN', 'OriginCfgPath')
+        )
         if self.experiment.Config.config.getboolean('ORIGIN', 'OriginTest'):
             logger.warning("Origin is running in test mode")
             configfile = os.path.join(cfg_path, "origin-server-test.cfg")

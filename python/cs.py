@@ -127,6 +127,9 @@ if __name__ == '__main__':
     logger.info('Starting up CsPyController...')
 
     logger.info('looking for config file')
+    # This only works if the current working directory is never changed!!
+    filename = inspect.getframeinfo(inspect.currentframe()).filename
+    path = os.path.dirname(os.path.abspath(filename))
     config_instrument_name = 'Config'
     # Initially we have a ConfigInstrument that doesn't know which Experiment it
     # is a part of.
@@ -134,14 +137,14 @@ if __name__ == '__main__':
                                experiment=None,
                                description='Configuration File',
                                config=get_config_from_location(
-                                   'config/config.cfg')
+                                   os.path.join(path, 'config\\config.cfg'))
                                )
-
     # The instrument can however resolve whether we want to use the config file
     # or the saved config from the previous experiment before choosing an
     # experiment.
     logger.info('Found config.. Checking that it matches with settings...')
-    cache_location = '__project_cache__/'
+    # This only works if the current working directory is never changed!!
+    cache_location = os.path.join(path, '__project_cache__\\')
     settings_location = os.path.join(cache_location, 'settings.hdf5')
     temp_location = os.path.join(cache_location, 'previous_settings.hdf5')
     with h5py.File(name=settings_location, mode='r+') as hdf:
