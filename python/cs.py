@@ -151,11 +151,10 @@ if __name__ == '__main__':
 
     logger.info('Config finalized.. Making experiment according to config')
     # Now that we have a choice of config, we can import and construct different
-    # Experiment child classes unique to your experiment. The Experiment class
-    # let's the ConfigInstrument know what experiment it is a part of at this
-    # stage. For now we just have aqua.AQuA, but we could condition on the
-    # "Name" field of the config file to determine which experiment to
-    # construct.
+    # Experiment child classes unique to your experiment. This allows each
+    # experiment to only have the instruments, analyses, properties, and so on
+    # that are relevant to them, and can choose from all the available ones
+    # defined in the code base.
     experiment_name = config_instrument.config.get('EXPERIMENT', 'Name')
     experiment_args = {
         'config_instrument': config_instrument,
