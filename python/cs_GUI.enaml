@@ -4877,6 +4877,9 @@ def confirm_close(calling_window, event):
 enamldef Main(MainWindow): main:
     attr experiment
     attr open_windows
+    attr window_dict = (
+    experiment.window_dict if hasattr(experiment, 'window_dict')
+    else window_dictionary)
 
 
     title='Saffmanlab experiment controller'
@@ -4886,7 +4889,8 @@ enamldef Main(MainWindow): main:
     #icon = loadIcon()
     open_windows = {}
     closing ::
-        confirm_close(self, change['value'])
+        confirm_close(self, change['value']) #PyQt4
+        # self.cleanUp() #PySide
 
     func cleanUp():
         for value in self.open_windows.values():
@@ -4900,7 +4904,7 @@ enamldef Main(MainWindow): main:
                 open_windows[selected_item].send_to_front()
             else:
                 # if no, make a new one and add it to the dict
-                new = eval(window_dictionary[selected_item])
+                new = eval(window_dict[selected_item])
                 open_windows[selected_item] = new
                 new.show()
                 new.send_to_front()
@@ -4930,6 +4934,6 @@ enamldef Main(MainWindow): main:
             clicked :: openNewWindow(combo.selected_item)
 
         ComboBox: combo:
-            items = window_keys
+            items =  sorted(window_dict.keys())
             index :: openNewWindow(selected_item)
 
