@@ -156,11 +156,18 @@ if __name__ == '__main__':
     # stage. For now we just have aqua.AQuA, but we could condition on the
     # "Name" field of the config file to determine which experiment to
     # construct.
-    import aqua
-    experiment = aqua.AQuA(config_instrument=config_instrument,
-                           cache_location=cache_location,
-                           settings_location=settings_location,
-                           temp_location=temp_location)
-
+    experiment_name = config_instrument.config.get('EXPERIMENT', 'Name')
+    if experiment_name == 'FNODE':
+        import fnode
+        experiment = fnode.FNODE(config_instrument=config_instrument,
+                                 cache_location=cache_location,
+                                 settings_location=settings_location,
+                                 temp_location=temp_location)
+    else:
+        import aqua
+        experiment = aqua.AQuA(config_instrument=config_instrument,
+                               cache_location=cache_location,
+                               settings_location=settings_location,
+                               temp_location=temp_location)
     logger.info('Experiment built, building GUI')
     launch_gui_with_experiment(experiment)
