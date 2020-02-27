@@ -55,10 +55,10 @@ class FNODE(Experiment):
     counter_graph = Member()
     counter_hist = Member()
     origin = Member()
-    ROI_rows = Int(1)
+    ROI_rows = Int(3)
     ROI_columns = Int(1)
-    ROI_bg_rows = Int(0)
-    ROI_bg_columns = Int(0)
+    ROI_bg_rows = Int(1)
+    ROI_bg_columns = Int(1)
     Ramsey = Member()
 
     def __init__(self,
@@ -197,34 +197,37 @@ class FNODE(Experiment):
             'origin'
         ]
 
+        # You can specify your own combo box menu by taking the default
+        # dictionary from cs_GUI.enaml and pasting it here, removing undesired
+        # entries.
         self.window_dict = {
             '': '',
-            'Experiment': 'ExperimentPage(experiment = main.experiment)',
-            'Independent Variables': 'IndependentVariables(independentVariables = main.experiment.independentVariables)',
-            'Constants and Dependent Vars': 'Variables(experiment = main.experiment)',
-            'PXI Communication': 'LabViewPage(LabView = main.experiment.LabView)',
-            'HSDIO': 'HSDIO_DigitalOutPage(HSDIO = main.experiment.LabView.HSDIO)',
-            'DAQmx': 'DAQmxDigitalOutPage(DAQmx = main.experiment.LabView.DAQmxDO)',
-            'DAQmxAI': 'DAQmxAI(NIDAQmxAI = main.experiment.DAQmxAI)',
-            'DDS': 'DDS_Page(DDS = main.experiment.DDS)',
-            'RF Generators': 'RFGenPage(LabView = main.experiment.LabView)',
-            'Andor Cameras': 'Andors(andors = main.experiment.Andors)',
-            'Analog Output': 'AnalogOutput(AO = main.experiment.LabView.AnalogOutput)',
-            'Analog Input': 'AnalogInput(AI = main.experiment.LabView.AnalogInput, filters = main.experiment.AI_filter, analysis = main.experiment.AI_graph)',
-            'Threshold ROI': 'ThresholdROIContainer(experiment = main.experiment, analysis = main.experiment.thresholdROIAnalysis)',
-            'Histogram': 'Histogram(experiment = main.experiment, analysis = main.experiment.histogramAnalysis)',
-            'Measurements Graph': 'MeasurementsGraph(experiment = main.experiment, analysis = main.experiment.measurements_graph)',
-            'Retention Graph': 'RetentionGraph(experiment = main.experiment, analysis = main.experiment.retention_graph)',
-            'Filters': 'Filters(experiment = main.experiment)',
-            'Optimization': 'Optimizer(experiment = main.experiment, analysis = main.experiment.optimizer)',
-            'Ramsey': 'Ramsey(analysis = main.experiment.Ramsey)',
-            'Retention Analysis': 'RetentionAnalysis(analysis = main.experiment.retention_analysis)',
-            'Counters': 'Counters(counters = main.experiment.LabView.Counters)',
-            'Functional Waveforms': 'FunctionalWaveforms(waveforms = main.experiment.functional_waveforms)',
-            'Functional Waveforms Graph': 'FunctionalWaveformsGraph(graph = main.experiment.functional_waveforms_graph)',
-            'CounterGraph': 'CounterGraph(analysis = main.experiment.counter_graph)',
-            'CounterHistAnalysis': 'CounterHistAnalysis(analysis = main.experiment.counter_hist)',
-            'Origin Interface': 'Origin(origin = main.experiment.origin)',
+            'Experiment': 'ExperimentPage(experiment = main.experiment, creator = main, name = "Experiment")',
+            'Independent Variables': 'IndependentVariables(independentVariables = main.experiment.independentVariables, creator = main, name = "Independent Variables")',
+            'Constants and Dependent Vars': 'Variables(experiment = main.experiment, creator = main, name = "Constants and Dependent Vars")',
+            'PXI Communication': 'LabViewPage(LabView = main.experiment.LabView, creator = main, name = "PXI Communication")',
+            'HSDIO': 'HSDIO_DigitalOutPage(HSDIO = main.experiment.LabView.HSDIO, creator = main, name = "HSDIO")',
+            'DAQmx': 'DAQmxDigitalOutPage(DAQmx = main.experiment.LabView.DAQmxDO, creator = main, name = "DAQmx")',
+            'DAQmxAI': 'DAQmxAI(NIDAQmxAI = main.experiment.DAQmxAI, creator = main, name = "DAQmxAI")',
+            'DDS': 'DDS_Page(DDS = main.experiment.DDS, creator = main, name = "DDS")',
+            'RF Generators': 'RFGenPage(LabView = main.experiment.LabView, creator = main, name = "RF Generators")',
+            'Andor Cameras': 'Andors(andors = main.experiment.Andors, creator = main, name = "Andor Cameras")',
+            'Analog Output': 'AnalogOutput(AO = main.experiment.LabView.AnalogOutput, creator = main, name = "Analog Output")',
+            'Analog Input': 'AnalogInput(AI = main.experiment.LabView.AnalogInput, filters = main.experiment.AI_filter, analysis = main.experiment.AI_graph, creator = main, name = "Analog Input")',
+            'Threshold ROI': 'ThresholdROIContainer(experiment = main.experiment, analysis = main.experiment.thresholdROIAnalysis, creator = main, name = "Threshold ROI")',
+            'Histogram': 'Histogram(experiment = main.experiment, analysis = main.experiment.histogramAnalysis, creator = main, name = "Histogram")',
+            'Measurements Graph': 'MeasurementsGraph(experiment = main.experiment, analysis = main.experiment.measurements_graph, creator = main, name = "Measurements Graph")',
+            'Retention Graph': 'RetentionGraph(experiment = main.experiment, analysis = main.experiment.retention_graph, creator = main, name = "Retention Graph")',
+            'Filters': 'Filters(experiment = main.experiment, creator = main, name = "Filters")',
+            'Optimization': 'Optimizer(experiment = main.experiment, analysis = main.experiment.optimizer, creator = main, name = "Optimization")',
+            'Ramsey': 'Ramsey(analysis = main.experiment.Ramsey, creator = main, name = "Ramsey")',
+            'Retention Analysis': 'RetentionAnalysis(analysis = main.experiment.retention_analysis, creator = main, name = "Retention Analysis")',
+            'Counters': 'Counters(counters = main.experiment.LabView.Counters, creator = main, name = "Counters")',
+            'Functional Waveforms': 'FunctionalWaveforms(waveforms = main.experiment.functional_waveforms, creator = main, name = "Functional Waveforms")',
+            'Functional Waveforms Graph': 'FunctionalWaveformsGraph(graph = main.experiment.functional_waveforms_graph, creator = main, name = "Functional Waveforms Graph")',
+            'CounterGraph': 'CounterGraph(analysis = main.experiment.counter_graph, creator = main, name = "CounterGraph")',
+            'CounterHistAnalysis': 'CounterHistAnalysis(analysis = main.experiment.counter_hist, creator = main, name = "CounterHistAnalysis")',
+            'Origin Interface': 'Origin(origin = main.experiment.origin, creator = main, name = "Origin Interface")',
                              }
 
         try:
@@ -244,5 +247,8 @@ class FNODE(Experiment):
         self.allow_evaluation = True
 
     def exiting(self):
+        """
+        Clean-up that should be performed whenever CsPy closes.
+        """
         self.Andors.__del__()
         return
