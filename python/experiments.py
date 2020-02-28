@@ -1243,3 +1243,6 @@ class Experiment(Prop):
             self.task = 'upload'
             self.restart.set()
             self.restart.clear()
+
+    def exiting(self):
+        pass

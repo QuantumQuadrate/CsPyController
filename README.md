@@ -12,6 +12,15 @@ Alomost everything can be installed with:
 ```bash
 $ pip install -r requirements.txt
 ```
+This gives us most of our python dependencies. Some additional dependencies may
+exist on a per-experiment basis if hardware that your experiment uses requires
+dlls or other external code. One additional requirement we all need but 
+unfortunately cannot pip install is PyQT4. Instead, you can find a windows wheel
+for PyQt4 at the below link. The filename of the wheel you want is most likely
+PyQt4‑4.11.4‑cp27‑cp27m‑win_amd64.whl. Download the wheel and pip install it in
+your virtual environment.
+
+[QT Wheels](https://www.lfd.uci.edu/~gohlke/pythonlibs/#pyqt4)
 ## Configuration files
 
 Some parameters need to be specified before the controller is started, sich as DLL paths and python modules not installed globally.

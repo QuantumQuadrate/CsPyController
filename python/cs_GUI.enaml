@@ -27,6 +27,8 @@ from enaml.icon import Icon, IconImage
 from enaml.image import Image
 from enaml.core.declarative import d_
 from enaml.core.include import Include
+from enaml.stdlib.dialog_buttons import DialogButton
+from enaml.stdlib.message_box import question
 from enaml.stdlib.fields import FloatField, IntField
 from enaml.core.api import Looper, Conditional
 from enaml.styling import StyleSheet, Style, Setter
@@ -393,7 +395,8 @@ enamldef LabelField(VGroup):
 enamldef ExperimentPage(Window):
     attr experiment
     title = 'Experiment'
-
+    attr creator
+    closing :: creator.open_windows.pop(name)
     Container:
         padding = 0
         style_class << 'valid' if experiment.valid else 'invalid'
@@ -586,7 +589,8 @@ enamldef VariableEntry(GroupBox):
 
 enamldef IndependentVariables(Window):
     attr independentVariables
-
+    attr creator
+    closing :: creator.open_windows.pop(name)
     title = 'Independent Variables'
     style_class << 'valid' if experiment.valid else 'invalid'
     Container:
@@ -621,7 +625,8 @@ enamldef IndependentVariables(Window):
 
 enamldef Variables(Window):
     attr experiment
-
+    attr creator
+    closing :: creator.open_windows.pop(name)
     title = 'Constants and Dependent Variables'
 
     style_class << 'valid' if experiment.valid else 'invalid'
@@ -663,7 +668,8 @@ enamldef Variables(Window):
 
 enamldef Reports(Window):
     attr experiment
-
+    attr creator
+    closing :: creator.open_windows.pop(name)
     title = 'Reports'
     style_class << 'valid' if experiment.valid else 'invalid'
     Container:
@@ -700,7 +706,8 @@ enamldef Reports(Window):
 
 enamldef LabViewPage(Window):
     attr LabView
-
+    attr creator
+    closing :: creator.open_windows.pop(name)
     title = 'PXI communication'
     style_class << 'valid' if experiment.valid else 'invalid'
     Container:
@@ -1124,7 +1131,8 @@ def get_load_waveform_callback(HSDIO):
 
 enamldef FunctionalWaveforms(Window):
     attr waveforms
-
+    attr creator
+    closing :: creator.open_windows.pop(name)
     title = 'Functional Waveform Definitions'
     style_class << 'valid' if experiment.valid else 'invalid'
     Container:
@@ -1148,7 +1156,8 @@ enamldef FunctionalWaveforms(Window):
 
 enamldef FunctionalWaveformsGraph(Window):
     attr graph
-
+    attr creator
+    closing :: creator.open_windows.pop(name)
     title = 'Functional Waveforms Graph'
     style_class << 'valid' if experiment.valid else 'invalid'
     Container:
@@ -1215,7 +1224,8 @@ enamldef FunctionalWaveformsGraph(Window):
 
 enamldef HSDIO_DigitalOutPage(Window):
     attr HSDIO
-
+    attr creator
+    closing :: creator.open_windows.pop(name)
     title = 'HSDIO'
     style_class << 'valid' if experiment.valid else 'invalid'
     Container:
@@ -1246,7 +1256,8 @@ enamldef HSDIO_DigitalOutPage(Window):
 
 enamldef DAQmxDigitalOutPage(Window):
     attr DAQmx
-
+    attr creator
+    closing :: creator.open_windows.pop(name)
     title = 'DAQmx Digital Pulse Output'
     style_class << 'valid' if experiment.valid else 'invalid'
 
@@ -1448,7 +1459,8 @@ enamldef DDS_box(Form):
 
 enamldef DDS_Page(Window):
     attr DDS
-
+    attr creator
+    closing :: creator.open_windows.pop(name)
     title = 'DDS'
     style_class << 'valid' if experiment.valid else 'invalid'
     Container:
@@ -1587,7 +1599,8 @@ enamldef HP83623A(StackItem):
 
 enamldef RFGenPage(Window):
     attr LabView
-
+    attr creator
+    closing :: creator.open_windows.pop(name)
     title = 'RF Generators'
     style_class << 'valid' if experiment.valid else 'invalid'
     Container:
@@ -1618,7 +1631,8 @@ enamldef RFGenPage(Window):
 
 enamldef CameraPage(Window):
     attr camera
-
+    attr creator
+    closing :: creator.open_windows.pop(name)
     title = 'Hamamatsu Camera'
     style_class << 'valid' if experiment.valid else 'invalid'
     Container:
@@ -1691,7 +1705,8 @@ enamldef CameraPage(Window):
 
 enamldef Andors(Window):
     attr andors
-
+    attr creator
+    closing :: creator.open_windows.pop(name)
     title = 'Andor Cameras'
     style_class << 'valid' if experiment.valid else 'invalid'
     Container:
@@ -1847,7 +1862,8 @@ enamldef Andor(Form):
 
 enamldef BlackflyClient(Window):
     attr blackfly_client
-
+    attr creator
+    closing :: creator.open_windows.pop(name)
     title = 'Blackfly Camera Client'
     style_class << 'valid' if experiment.valid else 'invalid'
     Container:
@@ -1897,7 +1913,8 @@ enamldef Blackfly(Form):
 
 enamldef DAQmxAI(Window):
     attr NIDAQmxAI
-
+    attr creator
+    closing :: creator.open_windows.pop(name)
     title = 'DAQmx Analog Input'
     style_class << 'valid' if experiment.valid else 'invalid'
     Container:
@@ -1933,7 +1950,8 @@ enamldef DAQmxAI(Window):
 
 enamldef NewportStage(Window):
     attr newportstage
-
+    attr creator
+    closing :: creator.open_windows.pop(name)
     title = 'Newport Translation Stage'
     style_class << 'valid' if experiment.valid else 'invalid'
     Container:
@@ -1991,7 +2009,8 @@ enamldef NewportStage(Window):
 
 enamldef NIScopes(Window):
     attr niscopes
-
+    attr creator
+    closing :: creator.open_windows.pop(name)
     title = 'National Instruments Scopes'
     style_class << 'valid' if experiment.valid else 'invalid'
     Container:
@@ -2128,7 +2147,8 @@ enamldef NIScope(Form):
 
 enamldef PICams(Window):
     attr picams
-
+    attr creator
+    closing :: creator.open_windows.pop(name)
     title = 'Princeton Instruments Cameras'
     style_class << 'valid' if experiment.valid else 'invalid'
     Container:
@@ -2310,7 +2330,8 @@ enamldef AOequation(StackItem):
 
 enamldef AnalogOutput(Window):
     attr AO
-
+    attr creator
+    closing :: creator.open_windows.pop(name)
     title = 'Analog Output'
     style_class << 'valid' if experiment.valid else 'invalid'
     Container:
@@ -2360,7 +2381,8 @@ enamldef AnalogInput(Window):
     attr AI
     attr filters
     attr analysis
-
+    attr creator
+    closing :: creator.open_windows.pop(name)
     title = 'Analog Input'
     style_class << 'valid' if experiment.valid else 'invalid'
     Container:
@@ -2448,7 +2470,8 @@ enamldef AnalogInput(Window):
 
 enamldef Counters(Window):
     attr counters
-
+    attr creator
+    closing :: creator.open_windows.pop(name)
     title = 'Counters'
     style_class << 'valid' if experiment.valid else 'invalid'
     Container:
@@ -2593,7 +2616,8 @@ enamldef DCNoiseEaters(Window):
     attr DC_noise_eaters
     attr analysis
     attr filters
-
+    attr creator
+    closing :: creator.open_windows.pop(name)
     title = 'DC Noise Eaters'
     style_class << 'valid' if experiment.valid else 'invalid'
     Container:
@@ -2722,6 +2746,8 @@ enamldef PiezoController(StackItem):
 
 enamldef PI_Piezo(Window):
     attr piezo
+    attr creator
+    closing :: creator.open_windows.pop(name)
     style_class << 'valid' if experiment.valid else 'invalid'
 
     title = 'PI_Piezo'
@@ -2755,7 +2781,8 @@ enamldef MultiImage(Window):
     attr analysis0
     attr analysis2
     attr analysis3
-
+    attr creator
+    closing :: creator.open_windows.pop(name)
     title = 'Live Images'
     style_class << 'valid' if experiment.valid else 'invalid'
     Container:
@@ -2840,7 +2867,8 @@ enamldef MultiImage(Window):
 enamldef ImageBrowser(Window):
     attr experiment
     attr analysis1
-
+    attr creator
+    closing :: creator.open_windows.pop(name)
     title = 'Past Image Browser'
     style_class << 'valid' if experiment.valid else 'invalid'
     Container:
@@ -2915,7 +2943,8 @@ enamldef SquareROI(Container):
 enamldef SquareROIContainer(Window):
     attr experiment
     attr analysis
-
+    attr creator
+    closing :: creator.open_windows.pop(name)
     title = 'Square ROIs'
     style_class << 'valid' if experiment.valid else 'invalid'
     Container:
@@ -2995,7 +3024,8 @@ enamldef ThresholdROI(Container):
 enamldef ThresholdROIContainer(Window):
     attr experiment
     attr analysis
-
+    attr creator
+    closing :: creator.open_windows.pop(name)
     title = 'Threshold ROIs'
     style_class << 'valid' if experiment.valid else 'invalid'
     Container:
@@ -3042,7 +3072,8 @@ enamldef ThresholdROIContainer(Window):
 
 enamldef GaussianROI(Window):
     attr analysis
-
+    attr creator
+    closing :: creator.open_windows.pop(name)
     title = 'Gaussian ROIs'
     style_class << 'valid' if experiment.valid else 'invalid'
     Container:
@@ -3179,7 +3210,8 @@ enamldef FirstMeasurementsFilter(GroupBox):
 enamldef Histogram(Window):
     attr experiment
     attr analysis
-
+    attr creator
+    closing :: creator.open_windows.pop(name)
     title = 'Histogram'
     style_class << 'valid' if experiment.valid else 'invalid'
     Container:
@@ -3210,7 +3242,8 @@ enamldef Histogram(Window):
 enamldef HistogramGrid(Window):
     attr experiment
     attr analysis
-
+    attr creator
+    closing :: creator.open_windows.pop(name)
     title = 'Histogram Grid'
     style_class << 'valid' if experiment.valid else 'invalid'
     Container:
@@ -3257,7 +3290,8 @@ enamldef HistogramGrid(Window):
 enamldef MeasurementsGraph(Window):
     attr experiment
     attr analysis
-
+    attr creator
+    closing :: creator.open_windows.pop(name)
     title = 'Measurements Graph'
     style_class << 'valid' if experiment.valid else 'invalid'
     Container:
@@ -3291,7 +3325,8 @@ enamldef MeasurementsGraph(Window):
 enamldef IterationsGraph(Window):
     attr experiment
     attr analysis
-
+    attr creator
+    closing :: creator.open_windows.pop(name)
     title = 'Iterations Graphs'
     style_class << 'valid' if experiment.valid else 'invalid'
     Container:
@@ -3350,7 +3385,8 @@ enamldef IterationsGraph(Window):
 enamldef RetentionGraph(Window):
     attr experiment
     attr analysis
-
+    attr creator
+    closing :: creator.open_windows.pop(name)
     title = 'Retention Graph'
     style_class << 'valid' if experiment.valid else 'invalid'
     Container:
@@ -3404,7 +3440,8 @@ enamldef RetentionGraph(Window):
 
 enamldef CounterGraph(Window):
     attr analysis
-
+    attr creator
+    closing :: creator.open_windows.pop(name)
     title = 'Counter Graph'
     style_class << 'valid' if experiment.valid else 'invalid'
     Container:
@@ -3440,7 +3477,8 @@ enamldef CounterGraph(Window):
 
 enamldef CounterHistAnalysis(Window):
     attr analysis
-
+    attr creator
+    closing :: creator.open_windows.pop(name)
     title = 'Counter Histogram Analysis'
     style_class << 'valid' if experiment.valid else 'invalid'
     Container:
@@ -3473,7 +3511,8 @@ enamldef CounterHistAnalysis(Window):
 
 enamldef Ramsey(Window):
     attr analysis
-
+    attr creator
+    closing :: creator.open_windows.pop(name)
     title = 'Ramsey analysis'
     style_class << 'valid' if experiment.valid else 'invalid'
     Container:
@@ -3585,7 +3624,8 @@ def get_num_optimization_variables(experiment):
 enamldef Optimizer(Window):
     attr experiment
     attr analysis
-
+    attr creator
+    closing :: creator.open_windows.pop(name)
     title = 'Optimizer'
     style_class << 'valid' if experiment.valid else 'invalid'
     Container:
@@ -3721,7 +3761,8 @@ enamldef Instek_PST(Container):
 
 enamldef Instek_PSTs(Window):
     attr instek_psts
-
+    attr creator
+    closing :: creator.open_windows.pop(name)
     title = 'Instek PST Power Supplies'
     style_class << 'valid' if experiment.valid else 'invalid'
     Container:
@@ -3841,7 +3882,8 @@ enamldef Vaunix(Container):
 
 enamldef Vaunixs(Window):
     attr vaunixs
-
+    attr creator
+    closing :: creator.open_windows.pop(name)
     title = 'Vaunix signal generators'
     style_class << 'valid' if experiment.valid else 'invalid'
     Container:
@@ -3891,7 +3933,8 @@ enamldef AerotechGlobal(GroupBox):
 
 enamldef Aerotechs(Window):
     attr aerotechs
-
+    attr creator
+    closing :: creator.open_windows.pop(name)
     title = 'Aerotech'
     style_class << 'valid' if experiment.valid else 'invalid'
     Container:
@@ -4003,7 +4046,8 @@ enamldef Aerotech(Container):
 
 enamldef Conexes(Window):
     attr conexes
-
+    attr creator
+    closing :: creator.open_windows.pop(name)
     title = 'CONEX-CC'
     style_class << 'valid' if experiment.valid else 'invalid'
     Container:
@@ -4075,7 +4119,8 @@ enamldef Conex(Container):
 
 enamldef Picomotors(Window):
     attr picomotors
-
+    attr creator
+    closing :: creator.open_windows.pop(name)
     title = 'Picomotors'
     style_class << 'valid' if experiment.valid else 'invalid'
     Container:
@@ -4135,7 +4180,8 @@ enamldef Noise_Eater(Container):
 enamldef Noise_Eaters(Window):
     attr noise_eaters
     attr analysis
-
+    attr creator
+    closing :: creator.open_windows.pop(name)
 
     title = 'Noise Eaters'
     style_class << 'valid' if experiment.valid else 'invalid'
@@ -4188,7 +4234,8 @@ enamldef BILTcard(Container):
 
 enamldef BILTcards(Window):
     attr BILT
-
+    attr creator
+    closing :: creator.open_windows.pop(name)
     title = 'BILTcards'
     style_class << 'valid' if experiment.valid else 'invalid'
     Container:
@@ -4255,7 +4302,8 @@ enamldef Picomotor(Container):
 
 enamldef PyPico(Window):
     attr pypico
-
+    attr creator
+    closing :: creator.open_windows.pop(name)
     title = 'PyPico Server'
     style_class << 'valid' if experiment.valid else 'invalid'
     Container:
@@ -4368,7 +4416,8 @@ enamldef Pattern_Sites(Container):
 
 enamldef PyPico(Window):
     attr pypico
-
+    attr creator
+    closing :: creator.open_windows.pop(name)
     title = 'PyPico Server'
     style_class << 'valid' if experiment.valid else 'invalid'
     Container:
@@ -4416,7 +4465,8 @@ enamldef PyPico(Window):
 
 enamldef AAS(Window):
     attr aas
-
+    attr creator
+    closing :: creator.open_windows.pop(name)
     title = 'Automatic Alignment System'
     style_class << 'valid' if experiment.valid else 'invalid'
     Container:
@@ -4509,7 +4559,8 @@ enamldef AAS(Window):
 
 enamldef Unlock_Pause(Window):
     attr unlock_pause
-
+    attr creator
+    closing :: creator.open_windows.pop(name)
     title = 'Laser Unlock Monitor'
     style_class << 'valid' if experiment.valid else 'invalid'
     Container:
@@ -4548,7 +4599,8 @@ enamldef Unlock_Pause(Window):
 
 enamldef Filters(Window):
     attr experiment
-
+    attr creator
+    closing :: creator.open_windows.pop(name)
     title = 'Filters'
     style_class << 'valid' if experiment.valid else 'invalid'
     Container:
@@ -4571,9 +4623,11 @@ enamldef Filters(Window):
 
 enamldef BoxTemperature(Window):
     attr box_temperature
-
+    attr creator
+    closing :: creator.open_windows.pop(name)
     title = 'Box Temperature'
     style_class << 'valid' if experiment.valid else 'invalid'
+
     Container:
         padding = 0
         style_class << 'valid' if experiment.valid else 'invalid'
@@ -4636,7 +4690,8 @@ template ScrollWindow(Title, Content):
 
 enamldef RetentionAnalysis(Window):
     attr analysis
-
+    attr creator
+    closing :: creator.open_windows.pop(name)
     title = 'Retention Analysis'
     style_class << 'valid' if experiment.valid else 'invalid'
     Container:
@@ -4657,7 +4712,8 @@ enamldef RetentionAnalysis(Window):
 
 enamldef Origin(Window):
     attr origin
-
+    attr creator
+    closing :: creator.open_windows.pop(name)
     title = 'Origin Interface'
     style_class << 'valid' if experiment.valid else 'invalid'
     Container:
@@ -4746,73 +4802,113 @@ enamldef Stream(Form):
                         checked := item.stream
 
 
-window_dictionary = {'':'',
-                     'Experiment': 'ExperimentPage(experiment = main.experiment)',
-                     'Independent Variables': 'IndependentVariables(independentVariables = main.experiment.independentVariables)',
-                     'Constants and Dependent Vars': 'Variables(experiment = main.experiment)',
-                     'Report': 'Reports(experiment = main.experiment)',
-                     'PXI Communication': 'LabViewPage(LabView = main.experiment.LabView)',
-                     'HSDIO': 'HSDIO_DigitalOutPage(HSDIO = main.experiment.LabView.HSDIO)',
-                     'DAQmx': 'DAQmxDigitalOutPage(DAQmx = main.experiment.LabView.DAQmxDO)',
-                     'DAQmxAI': 'DAQmxAI(NIDAQmxAI = main.experiment.DAQmxAI)',
-                     'DDS': 'DDS_Page(DDS = main.experiment.DDS)',
-                     'DDS2':'DDS_Page(DDS = main.experiment.DDS2)',
-                     'RF Generators': 'RFGenPage(LabView = main.experiment.LabView)',
-                     'Hamamatsu': 'CameraPage(camera = main.experiment.LabView.camera)',
-                     'Andor Cameras': 'Andors(andors = main.experiment.Andors)',
-                     'Blackfly Client': 'BlackflyClient(blackfly_client = main.experiment.blackfly_client)',
-                     'Princeton Instruments Camera': 'PICams(picams = main.experiment.PICams)',
-                     'Vaunix Signal Generators': 'Vaunixs(vaunixs = main.experiment.vaunixs)',
-                     'Newport Translation Stage': 'NewportStage(newportstage = main.experiment.NewportStage)',
-                     'Analog Output': 'AnalogOutput(AO = main.experiment.LabView.AnalogOutput)',
-                     'Analog Input': 'AnalogInput(AI = main.experiment.LabView.AnalogInput, filters = main.experiment.AI_filter, analysis = main.experiment.AI_graph)',
-                     'PI Piezo': 'PI_Piezo(piezo = main.experiment.LabView.piezo)',
-                     'Picomotors': 'Picomotors(picomotors = main.experiment.picomotors)',
-                     'Noise Eaters': 'Noise_Eaters(noise_eaters = main.experiment.noise_eaters)',
-                     'Cell Electrodes': 'BILTcards(BILT = main.experiment.BILT)',
-                     'PyPico': 'PyPico(pypico = main.experiment.pyPicoServer)',
-                     'AAS': 'AAS(aas = main.experiment.beam_position_analysis)',
-                     'AAS2': 'AAS(aas = main.experiment.beam_position_analysis2)',
-                     'Instek PST Power Supplies': 'Instek_PSTs(instek_psts = main.experiment.instekpsts)',
-                     'Aerotech': 'Aerotechs(aerotechs = main.experiment.aerotechs)',
-                     'CONEX-CC': 'Conexes(conexes = main.experiment.conexes)',
-                     'Live Images': 'MultiImage(experiment = main.experiment, analysis0 = main.experiment.recent_shot_analysis, analysis2 = main.experiment.imageSumAnalysis, analysis3 = main.experiment.text_analysis)',
-                     'Image Browser': 'ImageBrowser(experiment = main.experiment, analysis1 = main.experiment.shotBrowserAnalysis)',
-                     'Square ROI':  'SquareROIContainer(experiment = main.experiment, analysis = main.experiment.squareROIAnalysis)',
-                     'Threshold ROI':  'ThresholdROIContainer(experiment = main.experiment, analysis = main.experiment.thresholdROIAnalysis)',
-                     'Gaussian ROI': 'GaussianROI(analysis = main.experiment.gaussian_roi)',
-                     'Histogram': 'Histogram(experiment = main.experiment, analysis = main.experiment.histogramAnalysis)',
-                     'Histogram Grid': 'HistogramGrid(experiment = main.experiment, analysis = main.experiment.histogram_grid)',
-                     'Measurements Graph': 'MeasurementsGraph(experiment = main.experiment, analysis = main.experiment.measurements_graph)',
-                     'Iterations Graph': 'IterationsGraph(experiment = main.experiment, analysis = main.experiment.iterations_graph)',
-                     'Retention Graph': 'RetentionGraph(experiment = main.experiment, analysis = main.experiment.retention_graph)',
-                     'Filters': 'Filters(experiment = main.experiment)',
-                     'Optimization': 'Optimizer(experiment = main.experiment, analysis = main.experiment.optimizer)',
-                     'DC Noise Eaters': 'DCNoiseEaters(DC_noise_eaters = main.experiment.DC_noise_eaters, analysis = main.experiment.DC_noise_eater_graph, filters = main.experiment.DC_noise_eater_filter)',
-                     'Box Temperature': 'BoxTemperature(box_temperature = main.experiment.box_temperature)',
-                     'Ramsey': 'Ramsey(analysis = main.experiment.Ramsey)',
-                     'Retention Analysis': 'RetentionAnalysis(analysis = main.experiment.retention_analysis)',
-                     'Counters': 'Counters(counters = main.experiment.LabView.Counters)',
-                     'Functional Waveforms': 'FunctionalWaveforms(waveforms = main.experiment.functional_waveforms)',
-                     'Functional Waveforms Graph': 'FunctionalWaveformsGraph(graph = main.experiment.functional_waveforms_graph)',
-                     'CounterGraph': 'CounterGraph(analysis = main.experiment.counter_graph)',
-                     'CounterHistAnalysis': 'CounterHistAnalysis(analysis = main.experiment.counter_hist)',
-                     'Pi Lock Monitor': 'Unlock_Pause(unlock_pause = main.experiment.unlock_pause)',
-                     'Origin Interface': 'Origin(origin = main.experiment.origin)',
-                     'National Instruments Scopes': 'NIScopes(niscopes = main.experiment.NIScopes)'
-                     }
+window_dictionary = {
+'':'',
+'Experiment': 'ExperimentPage(experiment = main.experiment, creator=main, name ="Experiment")',
+'Independent Variables': 'IndependentVariables(independentVariables = main.experiment.independentVariables, creator=main, name="Independent Variables")',
+'Constants and Dependent Vars': 'Variables(experiment = main.experiment, creator=main, name="Constants and Dependent Vars")',
+'Report': 'Reports(experiment = main.experiment, creator=main, name="Report" )',
+'PXI Communication': 'LabViewPage(LabView = main.experiment.LabView, creator=main, name="PXI Communication")',
+'HSDIO': 'HSDIO_DigitalOutPage(HSDIO = main.experiment.LabView.HSDIO, creator=main, name="HSDIO")',
+'DAQmx': 'DAQmxDigitalOutPage(DAQmx = main.experiment.LabView.DAQmxDO, creator=main, name="DAQmx")',
+'DAQmxAI': 'DAQmxAI(NIDAQmxAI = main.experiment.DAQmxAI, creator=main, name="DAQmxAI")',
+'DDS': 'DDS_Page(DDS = main.experiment.DDS, creator=main, name="DDS")',
+'DDS2':'DDS_Page(DDS = main.experiment.DDS2, creator=main, name="DDS2")',
+'RF Generators': 'RFGenPage(LabView = main.experiment.LabView, creator=main, name="RF Generators")',
+'Hamamatsu': 'CameraPage(camera = main.experiment.LabView.camera, creator=main, name="Hamamatsu")',
+'Andor Cameras': 'Andors(andors = main.experiment.Andors, creator=main, name="Andor Cameras")',
+'Blackfly Client': 'BlackflyClient(blackfly_client = main.experiment.blackfly_client, creator=main, name="Blackfly Client")',
+'Princeton Instruments Camera': 'PICams(picams = main.experiment.PICams, creator=main, name="Princeton Instruments Camera")',
+'Vaunix Signal Generators': 'Vaunixs(vaunixs = main.experiment.vaunixs, creator=main, name="Vaunix Signal Generators")',
+'Newport Translation Stage': 'NewportStage(newportstage = main.experiment.NewportStage, creator=main, name="Newport Translation Stage")',
+'Analog Output': 'AnalogOutput(AO = main.experiment.LabView.AnalogOutput, creator=main, name="Analog Output")',
+'Analog Input': 'AnalogInput(AI = main.experiment.LabView.AnalogInput, filters = main.experiment.AI_filter, analysis = main.experiment.AI_graph, creator=main, name="Analog Input")',
+'PI Piezo': 'PI_Piezo(piezo = main.experiment.LabView.piezo, creator=main, name="PI Piezo")',
+'Picomotors': 'Picomotors(picomotors = main.experiment.picomotors, creator=main, name="Picomotors")',
+'Noise Eaters': 'Noise_Eaters(noise_eaters = main.experiment.noise_eaters, creator=main, name="Noise Eaters")',
+'Cell Electrodes': 'BILTcards(BILT = main.experiment.BILT, creator=main, name="Cell Electrodes")',
+'PyPico': 'PyPico(pypico = main.experiment.pyPicoServer, parent=main, name="PyPico")',
+'AAS': 'AAS(aas = main.experiment.beam_position_analysis, creator=main, name="AAS")',
+'AAS2': 'AAS(aas = main.experiment.beam_position_analysis2, creator=main, name="AAS2")',
+'Instek PST Power Supplies': 'Instek_PSTs(instek_psts = main.experiment.instekpsts, creator=main, name="Instek PST Power Supplies")',
+'Aerotech': 'Aerotechs(aerotechs = main.experiment.aerotechs, creator=main, name="Aerotech")',
+'CONEX-CC': 'Conexes(conexes = main.experiment.conexes, creator=main, name="CONEX-CC")',
+'Live Images': 'MultiImage(experiment = main.experiment, analysis0 = main.experiment.recent_shot_analysis, analysis2 = main.experiment.imageSumAnalysis, analysis3 = main.experiment.text_analysis, creator=main, name="Live Images")',
+'Image Browser': 'ImageBrowser(experiment = main.experiment, analysis1 = main.experiment.shotBrowserAnalysis, creator=main, name ="Image Browser")',
+'Square ROI':  'SquareROIContainer(experiment = main.experiment, analysis = main.experiment.squareROIAnalysis, creator=main, name="Square ROI")',
+'Threshold ROI':  'ThresholdROIContainer(experiment = main.experiment, analysis = main.experiment.thresholdROIAnalysis, creator=main, name="Threshold ROI")',
+'Gaussian ROI': 'GaussianROI(analysis = main.experiment.gaussian_roi, creator=main, name="Gaussian ROI")',
+'Histogram': 'Histogram(experiment = main.experiment, analysis = main.experiment.histogramAnalysis, creator=main, name="Histogram")',
+'Histogram Grid': 'HistogramGrid(experiment = main.experiment, analysis = main.experiment.histogram_grid, creator=main, name="Histogram Grid")',
+'Measurements Graph': 'MeasurementsGraph(experiment = main.experiment, analysis = main.experiment.measurements_graph, creator=main, name="Measurements Graph")',
+'Iterations Graph': 'IterationsGraph(experiment = main.experiment, analysis = main.experiment.iterations_graph, creator=main, name="Iterations Graph")',
+'Retention Graph': 'RetentionGraph(experiment = main.experiment, analysis = main.experiment.retention_graph, creator=main, name="Retention Graph")',
+'Filters': 'Filters(experiment = main.experiment, creator=main, name="Filters")',
+'Optimization': 'Optimizer(experiment = main.experiment, analysis = main.experiment.optimizer, creator=main, name="Optimization")',
+'DC Noise Eaters': 'DCNoiseEaters(DC_noise_eaters = main.experiment.DC_noise_eaters, analysis = main.experiment.DC_noise_eater_graph, filters = main.experiment.DC_noise_eater_filter, creator=main, name="DC Noise Eaters")',
+'Box Temperature': 'BoxTemperature(box_temperature = main.experiment.box_temperature, creator=main, name = "Box Temperature")',
+'Ramsey': 'Ramsey(analysis = main.experiment.Ramsey, creator=main, name="Ramsey")',
+'Retention Analysis': 'RetentionAnalysis(analysis = main.experiment.retention_analysis, creator=main, name="Retention Analysis")',
+'Counters': 'Counters(counters = main.experiment.LabView.Counters, creator=main, name="Counters")',
+'Functional Waveforms': 'FunctionalWaveforms(waveforms = main.experiment.functional_waveforms, creator=main, name="Functional Waveforms")',
+'Functional Waveforms Graph': 'FunctionalWaveformsGraph(graph = main.experiment.functional_waveforms_graph, creator=main, name="Functional Waveforms Graph")',
+'CounterGraph': 'CounterGraph(analysis = main.experiment.counter_graph, creator=main, name="CounterGraph")',
+'CounterHistAnalysis': 'CounterHistAnalysis(analysis = main.experiment.counter_hist, creator=main, name="CounterHistAnalysis")',
+'Pi Lock Monitor': 'Unlock_Pause(unlock_pause = main.experiment.unlock_pause, creator=main, name="Pi Lock Monitor")',
+'Origin Interface': 'Origin(origin = main.experiment.origin, creator=main, name="Origin Interface")',
+'National Instruments Scopes': 'NIScopes(niscopes = main.experiment.NIScopes, creator=main, name="National Instruments Scopes")'
+}
 window_keys = window_dictionary.keys()
 window_keys.sort()
 
+def confirm_close(calling_window, event):
+    dialog = question(
+    calling_window,
+    'Message',
+    'Closing this window will terminate the program.\nAre you sure you want to'
+    ' close the program?'
+    )
+    if dialog and dialog.action == 'accept':
+        calling_window.cleanUp()
+        event.accept()
+    else:
+        event.ignore()
 
 enamldef Main(MainWindow): main:
     attr experiment
+    attr open_windows
+    attr window_dict = (
+    experiment.window_dict if hasattr(experiment, 'window_dict')
+    else window_dictionary)
+
 
     title='Saffmanlab experiment controller'
+
     #initial_position=(0,0)
     #initial_size=(1500,1100)
     #icon = loadIcon()
-    closing :: main.experiment.exiting()
+    open_windows = {}
+    closing ::
+        confirm_close(self, change['value']) #PyQt4
+        # self.cleanUp() #PySide
+
+    func cleanUp():
+        for value in self.open_windows.values():
+            value.close()
+        self.experiment.exiting()
+
+    func openNewWindow(selected_item):
+        if selected_item != '':
+            # check if selected is in open window keys
+            if selected_item in open_windows.keys():
+                open_windows[selected_item].restore()
+                open_windows[selected_item].send_to_front()
+            else:
+                # if no, make a new one and add it to the dict
+                new = eval(window_dict[selected_item])
+                open_windows[selected_item] = new
+                new.show()
+                new.send_to_front()
 
     MyStyleSheet:
         #just implement the style sheet defined separately
@@ -4831,21 +4927,14 @@ enamldef Main(MainWindow): main:
                 maximum=100
                 value<<int(experiment.progressGUI)
 
-
-
-
     HGroup:
         align_widths = False
         Label: text = 'Select a window to open:'
         PushButton:
             text = 'open'
-            clicked ::
-                if combo.selected_item != '':
-                    new = eval(window_dictionary[combo.selected_item])
-                    new.show()
+            clicked :: openNewWindow(combo.selected_item)
+
         ComboBox: combo:
-            items = window_keys
-            index ::
-                if selected_item != '':
-                    new = eval(window_dictionary[selected_item])
-                    new.show()
+            items =  sorted(window_dict.keys())
+            index :: openNewWindow(selected_item)
+
