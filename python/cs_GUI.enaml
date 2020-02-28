@@ -4901,6 +4901,7 @@ enamldef Main(MainWindow): main:
         if selected_item != '':
             # check if selected is in open window keys
             if selected_item in open_windows.keys():
+                open_windows[selected_item].restore()
                 open_windows[selected_item].send_to_front()
             else:
                 # if no, make a new one and add it to the dict
