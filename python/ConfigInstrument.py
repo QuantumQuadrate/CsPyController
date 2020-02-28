@@ -14,11 +14,9 @@ import json
 import pprint
 import sys
 import ConfigParser
+from cs_errors import PauseError
 
-# get the config file
-from __init__ import import_config
 import logging
-config = import_config()
 
 __author__ = 'Matthew Ebert'
 logger = logging.getLogger(__name__)
@@ -27,10 +25,10 @@ logger = logging.getLogger(__name__)
 def print_conf(conf, title):
     """Print a json string nicely"""
     line_break = "*"*40
-    logger.info(line_break)
-    logger.info(title+'\n')
+    print(line_break)
+    print(title+'\n')
     pprint.pprint(conf)
-    logger.info(line_break)
+    print(line_break)
 
 
 def query_yes_no(question, default="yes"):
@@ -73,8 +71,11 @@ class Config(Instrument):
     config_json = Member()  # serialized dictionary
     config_hash = Member()  # stores a hash of the json serialized config_dict
 
-    def __init__(self, name, experiment, description=''):
+    def __init__(self, name, experiment, description='', config=None):
         super(Config, self).__init__(name, experiment, description)
+        if not config:
+            logger.critical("No config given to ConfigInstrument")
+            raise PauseError
         self.config = config
         # save the config file as a dictionary
         self.config_dict = {s: dict(config.items(s)) for s in config.sections()}

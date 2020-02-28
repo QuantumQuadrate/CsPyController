@@ -26,8 +26,9 @@ from instrument_property import Prop, ListProp
 from analysis import Analysis
 
 from h5py import Dataset, File
-import sys, traceback, os.path
-
+import traceback
+import os.path
+import inspect
 import time
 
 import numpy as np
@@ -35,18 +36,11 @@ import numpy as np
 import logging
 logger = logging.getLogger(__name__)
 
-
-# get the config file
-from __init__ import import_config
-config = import_config()
-
 # still need to import config parser for origin
 import ConfigParser
-sys.path.append(config.get('ORIGIN', 'OriginLibPath'))
-#print config.get('ORIGIN','OriginLibPath')
 
 from origin.client import server
-from origin import  TIMESTAMP, data_types
+from origin import TIMESTAMP, data_types
 
 preExperimentMsg    = 'PEXP'
 postExperimentMsg   = 'EXPR'
@@ -329,8 +323,13 @@ class Origin(Analysis):
 
     # ==========================================================================
     def configure(self):
-        # read in the correct config file
-        cfg_path = self.experiment.Config.config.get('ORIGIN', 'OriginCfgPath')
+        # This only works if the current working directory is never changed!!
+        filename = inspect.getframeinfo(inspect.currentframe()).filename
+        path = os.path.dirname(os.path.abspath(filename))
+        cfg_path = os.path.join(
+            path,
+            self.experiment.Config.config.get('ORIGIN', 'OriginCfgPath')
+        )
         if self.experiment.Config.config.getboolean('ORIGIN', 'OriginTest'):
             logger.warning("Origin is running in test mode")
             configfile = os.path.join(cfg_path, "origin-server-test.cfg")
