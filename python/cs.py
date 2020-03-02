@@ -168,6 +168,9 @@ if __name__ == '__main__':
     if experiment_name == 'FNODE':
         import fnode
         experiment = fnode.FNODE(**experiment_args)
+    elif experiment_name == 'Rb':
+        import rubidium
+        experiment = rubidium.Rb(**experiment_args)
     else:
         import aqua
         experiment = aqua.AQuA(**experiment_args)
