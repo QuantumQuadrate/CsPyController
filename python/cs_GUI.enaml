@@ -292,9 +292,6 @@ enamldef CsMenuBar(MenuBar): menuBar:
                 checkable = True
                 text = 'After Error'
                 checked := experiment.pauseAfterError
-            Action:
-                text = 'Now\tCtrl+P'
-                triggered :: experiment.pause_now()
         Action:
             text = 'End and Upload'
             triggered::experiment.end_now()
