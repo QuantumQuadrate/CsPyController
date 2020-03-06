@@ -74,7 +74,7 @@ def WriteSerial(Sess_ID, mystring, timeout=1000):                               
     #print "sizeofstringtosend={}".format(sizeofstringtosend)
     error = dll.imgSessionSerialWrite(Sess_ID, stringtosend, byref(sizeofstringtosend), timeout)  # Set Serial communication
     bufsize, buffer = ReadSerial(Sess_ID, timeout)  # check for response from camera
-    print "bufsize = {}, buffer = {}".format(bufsize, buffer)
+    logger.info("bufsize = {}, buffer = {}".format(bufsize, buffer))
     CheckError(error)
     bufsize, buffer = ReadSerial(Sess_ID, timeout) #check for response from camera
     return buffer  #return response from camera
