@@ -583,7 +583,7 @@ class RydHP(Instrument):
     power = Member()
     RF_on = Bool()
     keep_locked = Bool(True)
-    enable = Bool(True)
+    enable = Bool(False)
 
 #    freq_ref_on = Bool()
 #    pow_ref_on = Bool()
@@ -610,7 +610,7 @@ class RydHP(Instrument):
         # self.visa_stat = IntProp('visa_stat', experiment, 'NI Visa status code', '0')
         # self.gen_stat = IntProp('generator status', experiment, 'RF generator status code', '0')
 
-        self.addr = StrProp('addr', experiment, 'GPIB address of Generator', '"GPIB1::20::INSTR"')
+        self.addr = StrProp('addr', experiment, 'GPIB address of Generator', '\'GPIB1::20::INSTR\'')
 
         self.properties += ['frequency', 'power', 'RF_on', 'freq_step']# 'freq_ref_on', 'pow_ref_on', 'ref_freq', 'ref_pow']
 
