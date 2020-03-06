@@ -107,6 +107,10 @@ class HP8648B:
             self.inst = None
             msg = "Device Unavailable : '{}' is not in list_resources {}. Try Again"
             logger.error(msg.format(address, self.rm.list_resources()))
+        try:
+            assert self.inst is not None
+        except AssertionError:
+            raise AssertionError
 
     # --- Some Error Handling functions --------------------------------------------------------------------------------
 
@@ -619,12 +623,16 @@ class RydHP(Instrument):
                     logger.warning("AttributeError raised when closing Gen. Issue with NoneType?")
                 del self.gen
             logger.info("Instantiating Generator")
-            self.gen = HP8648B(address=self.addr.value)
-            logger.info("Generator : {}".format(self.gen.address))
-            self.isInitialized = True
+            try:
+                self.gen = HP8648B(address=self.addr.value)
+                logger.info("Generator : {}".format(self.gen.address))
+                self.isInitialized = True
+            except AssertionError:
+                self.isInitialized = False
+                self.enable = False
 
     def start(self):
-        self.isDone = True
+        self.isDone = Trueg
 
     def update(self):
         # logger.info("Updating, Fc = {} MHz, Fs = {} MHz".format(self.gen.get_freq("MHZ"), self.frequency.value))
