@@ -510,7 +510,7 @@ class HP8648B:
         """
         self.query_chk("OUTP:STAT?")
         self.output_status = bool(self.query)
-        print self.output_status
+        logger.info(self.output_status)
         return self.output_status
 
     def close(self):
@@ -635,20 +635,20 @@ class RydHP(Instrument):
         if self.keep_locked:
             # logger.info("Sweeping Frequency")
             if self.frequency.value != self.gen.get_freq("MHZ"):
-                print("Sweeping Frequency from {} MHz to {} MHz".format(self.gen.get_freq("MHZ"), self.frequency.value))
+                logger.info("Sweeping Frequency from {} MHz to {} MHz".format(self.gen.get_freq("MHZ"), self.frequency.value)))
                 self.gen.step_freq_adiabat(self.frequency.value, "MHZ", step=self.freq_step.value, t_wait=0.2)
-                print("Sweep Complete: F_current = {} MHz, F_set = {} MHz".format(self.gen.get_freq("MHZ"), self.frequency.value))
+                logger.info(("Sweep Complete: F_current = {} MHz, F_set = {} MHz".format(self.gen.get_freq("MHZ"), self.frequency.value)))
         else:
             if self.frequency.value != self.gen.get_freq("MHZ"):
-                print("Jumping Frequency from {} MHz to {} MHz".format(self.gen.get_freq("MHZ"), self.frequency.value))
+                logger.info(("Jumping Frequency from {} MHz to {} MHz".format(self.gen.get_freq("MHZ"), self.frequency.value)))
                 self.gen.set_freq(self.frequency.value, "MHZ")
 
         if self.power.value != self.gen.get_pow():
-            print("Jumping Power from {} dBm to {} dBm".format(self.gen.get_pow(), self.power.value))
+            logger.info(("Jumping Power from {} dBm to {} dBm".format(self.gen.get_pow(), self.power.value)))
             self.gen.set_power(self.power.value)
 
     def output_toggle(self):
-        #print self.isInitialized
+        #logger.info( self.isInitialized
         if self.isInitialized:
             self.gen.set_output_stat(not self.gen.get_output_stat())
             self.RF_on = self.gen.get_output_stat()
