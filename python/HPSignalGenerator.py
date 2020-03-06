@@ -106,7 +106,7 @@ class HP8648B:
         else:
             self.inst = None
             msg = "Device Unavailable : '{}' is not in list_resources {}. Try Again"
-            logger.error(msg.format(address, self.iptyrm.list_resources()))
+            logger.error(msg.format(address, self.rm.list_resources()))
 
     # --- Some Error Handling functions --------------------------------------------------------------------------------
 
@@ -635,16 +635,16 @@ class RydHP(Instrument):
         if self.keep_locked:
             # logger.info("Sweeping Frequency")
             if self.frequency.value != self.gen.get_freq("MHZ"):
-                logger.info("Sweeping Frequency from {} MHz to {} MHz".format(self.gen.get_freq("MHZ"), self.frequency.value)))
+                logger.info("Sweeping Frequency from {} MHz to {} MHz".format(self.gen.get_freq("MHZ"), self.frequency.value))
                 self.gen.step_freq_adiabat(self.frequency.value, "MHZ", step=self.freq_step.value, t_wait=0.2)
-                logger.info(("Sweep Complete: F_current = {} MHz, F_set = {} MHz".format(self.gen.get_freq("MHZ"), self.frequency.value)))
+                logger.info("Sweep Complete: F_current = {} MHz, F_set = {} MHz".format(self.gen.get_freq("MHZ"), self.frequency.value))
         else:
             if self.frequency.value != self.gen.get_freq("MHZ"):
-                logger.info(("Jumping Frequency from {} MHz to {} MHz".format(self.gen.get_freq("MHZ"), self.frequency.value)))
+                logger.info("Jumping Frequency from {} MHz to {} MHz".format(self.gen.get_freq("MHZ"), self.frequency.value))
                 self.gen.set_freq(self.frequency.value, "MHZ")
 
         if self.power.value != self.gen.get_pow():
-            logger.info(("Jumping Power from {} dBm to {} dBm".format(self.gen.get_pow(), self.power.value)))
+            logger.info("Jumping Power from {} dBm to {} dBm".format(self.gen.get_pow(), self.power.value))
             self.gen.set_power(self.power.value)
 
     def output_toggle(self):
