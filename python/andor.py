@@ -201,7 +201,6 @@ class AndorCamera(Instrument):
     def update(self):
         if self.enable:  # If enable checkbox is checked,
             self.setCamera()  # Set the camera
-            # print "Updating Andor camera {}".format(self.CurrentHandle)
             self.mode = 'experiment'  # set the mode to experiment.
             if self.GetStatus() == 'DRV_ACQUIRING':
                 # self.GetAcquiredData(True)
@@ -239,12 +238,8 @@ class AndorCamera(Instrument):
             self.SetImageFlip(0, 0)
             # these variables aren't used
             # currentgain = self.GetEMCCDGain()
-            # gain_range = self.GetEMGainRange()
-            # print "EMGainRange: {}".format(gain_range)
+            # gain_range = self.GetEMGainRange()=
             exposure, accumulate, kinetic = self.GetAcquisitionTimings()
-            # print "Values returned by GetAcquisitionTimings: exposure: {}, accumulate:{}, kinetic: {}".format(exposure,accumulate,kinetic)
-        # else:
-        #    print "Andor camera {} is not enabled".format(self.CurrentHandle)
 
     def setup_video_thread(self, analysis):
         thread = threading.Thread(target=self.setup_video, args=(analysis,))
@@ -277,14 +272,12 @@ class AndorCamera(Instrument):
         self.SetTriggerMode(0)
         self.SetReadMode(4)  # image mode
         self.CoolerON()
-        # print "bin size: {}".format(self.binChoices[self.binMode])
 
         self.setROIvalues()
         self.SetImage()
         self.SetAcquisitionMode(5)  # run till abort
         self.SetKineticCycleTime(0)  # no delay
 
-        # print self.width, self.height, self.dim
         if self.binChoices[self.binMode] > 1:
             self.width = self.width / self.binChoices[self.binMode]
             self.height = self.height / self.binChoices[self.binMode]
@@ -318,7 +311,7 @@ class AndorCamera(Instrument):
     def acquire_data(self):
         """Overwritten from Instrument, this function is called by the experiment after
                 each measurement run to make sure all pictures have been acquired."""
-        # print "acquire_data is called"
+         
         if self.enable:
             if (self.acquisitionChoices[self.acquisitionMode]!=2 or (self.acquisitionChoices[self.acquisitionMode]==2 and self.experiment.measurement == self.experiment.measurementsPerIteration - 1)):
                 self.setCamera()
@@ -582,7 +575,6 @@ class AndorCamera(Instrument):
         self.dim = self.width * self.height
 
         self.ROI = [0, self.width, 1, 0, self.height, 1 ]
-        #print 'Andor: width {}, height {}'.format(self.width, self.height)
         return self.width, self.height
 
     def DLLError(self, func, error, NoPause=False):
@@ -652,7 +644,7 @@ class AndorCamera(Instrument):
     def SetImage(self):
         hstart, hend, hbin, vstart, vend, vbin = self.ROI
         # andor expects first pixel = 1, python has first pixel = 0
-        print hstart, hend, hbin, vstart, vend, vbin
+        logger.debug((hstart, hend, hbin, vstart, vend, vbin))
         error = self.dll.SetImage(hbin, vbin, hstart+1, hend+1, vstart+1, vend+1)
         self.DLLError(sys._getframe().f_code.co_name, error)
 
@@ -671,12 +663,6 @@ class AndorCamera(Instrument):
     def GetAcquiredData(self, dump=False):
         c_image_array_type = c_int * self.dim * self.shotsPerMeasurement.value
         c_image_array = c_image_array_type()
-        print self.dim * self.shotsPerMeasurement.value
-        print self.dim
-        print self.shotsPerMeasurement
-        print self.width
-        print self.height
-
 
         if self.acquisitionChoices[self.acquisitionMode]!=5:
             error = self.dll.GetAcquiredData(byref(c_image_array), self.dim * self.shotsPerMeasurement.value)
@@ -685,7 +671,6 @@ class AndorCamera(Instrument):
             #    time.sleep(.1)
             #    self.WaitForAcquisition()
             #    error = self.dll.GetAcquiredData(byref(c_image_array), self.dim * self.shotsPerMeasurement.value)
-            #print self.dim
             self.DLLError(sys._getframe().f_code.co_name, error, dump)
 
         elif self.acquisitionChoices[self.acquisitionMode]==5: # If acqusition mode is Run till abort, data must be read from circular buffer. Attempting dll.GetAcquiredData will not run as it is still acquiring.
@@ -1128,11 +1113,10 @@ class AndorViewer(AnalysisWithFigure):
 
     def analyzeMeasurement(self, measurementResults, iterationResults, experimentResults):
         self.data = []
-        #print "analyzeMeasurement: Looking for 'data/Andor_{}'".format(self.mycam.CurrentHandle)
+        # "analyzeMeasurement: Looking for 'data/Andor_{}'".format(self.mycam.CurrentHandle)
         if 'data/Andor_{0}/shots/{1}'.format(self.mycam.CurrentHandle,self.shot) in measurementResults:
             #for each image
             self.data = measurementResults['data/Andor_{0}/shots/{1}'.format(self.mycam.CurrentHandle,self.shot)]
-            #print measurementResults['data/Andor_{0}/shots/{1}'.format(self.mycam.CurrentHandle,self.shot)]
         self.updateFigure()  # only update figure if image was loaded
 
     @observe('shot')
