@@ -6,6 +6,8 @@ import pyaudio
 import wave
 import os
 
+# TODO replace with LoZ sounds
+
 def minor_error_sound():
     play(os.path.join('sounds', 'crowd_boo.wav'))
 

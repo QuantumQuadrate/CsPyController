@@ -3,6 +3,7 @@ Part of the AQuA Cesium Controller software package
 
 author=Matthew Ebert
 created=2017-05-25
+modified=2018-07-07 by Minho Kwon to solve unreliable hardware operation taken care by software.
 
 This instrument communicates with the pypcio server running in another process
 using zmq and SCPI commands.
@@ -20,7 +21,7 @@ from picomotors import Picomotor
 from cs_errors import PauseError
 
 from atom.api import Float, Str, Int, Member, Bool
-
+import random
 
 def is_error_msg(msg):
     error_str = "Error : "
@@ -30,12 +31,16 @@ def is_error_msg(msg):
 class PyPicomotor(Picomotor):
     current_position = Float()
     max_angle_error = Float(0.2)  # maximum error to accept without trying to correct
+    enable_motor = Bool(False) # To allow motor independent enable.
+
+    enable_motor = Bool(False) # To allow motor independent enable.
+
 
 
     def __init__(self, name, experiment, description=''):
         super(PyPicomotor, self).__init__(name, experiment, description)
         self.desired_position = FloatProp('desired_position', experiment, 'the desired position','0')
-        self.properties += ['current_position']
+        self.properties += ['current_position','enable_motor']
 
     def readPosition(self, socket):
         socket.send('READ:MOT{}'.format(self.motor_number))
@@ -52,21 +57,32 @@ class PyPicomotor(Picomotor):
                 msg = 'Exception when attempting to read motor `{}` position.'
                 logger.exception(msg.format(self.motor_number))
 
-    def update(self):
+    def update(self,settler=False):
         '''generates command to move to desired position. If no movement is
         necessary then it returns an empty string
         '''
-        diff = (self.desired_position.value - self.current_position)
-        if abs(diff) < self.max_angle_error:
+        if self.enable_motor:
+            if settler==True: # Wiggling permitted. Before approaching to final destination, it'll back out by settling_offset
+                settling_offset=1.0
+            elif settler==False: # Approach to final destination at once.
+                settling_offset=0.0
+
+            diff = (self.desired_position.value - settling_offset- self.current_position)
+            if settler==False:
+                if abs(diff) < self.max_angle_error:
+                    return ''
+
+            cmd = 'MOVE:ABS:MOT{}:{} DEG'.format(
+                self.motor_number,
+                self.desired_position.value-settling_offset # For settling purpose, we will not make a movement.
+            )
+            return cmd
+        else:
+            print "Motor deactivated : {}".format(self.motor_number)
             return ''
-        cmd = 'MOVE:ABS:MOT{}:{} DEG'.format(
-            self.motor_number,
-            self.desired_position.value
-        )
-        return cmd
 
 class PyPicoServer(Instrument):
-    version = '2017.05.25'
+    version = '2018.07.07'
     IP = Str('127.0.0.1')
     port = Int(5000)
     motors = Member()
@@ -121,6 +137,7 @@ class PyPicoServer(Instrument):
             m.readPosition(self.socket)
 
     def move_motor(self, m, cmd):
+
         self.socket.send(cmd)
         message = self.socket.recv()
         if is_error_msg(message):
@@ -149,13 +166,30 @@ class PyPicoServer(Instrument):
 
     def moveit(self):
         msg = ''
+        list_of_motors=[]
+        for m in self.motors:
+            list_of_motors.append(m)
+        random.shuffle(list_of_motors)
+        #
+        #list_of_motors_allowed_to_move
         try:
-            for m in self.motors:
+            for m in list_of_motors:
+
                 # the motor class can make up its own commands
-                cmd = m.update()
+                # As an initial attempt, we will make partial correction, leaving only forward correction.
+                cmd = m.update(settler=True)
+                if cmd: # '' is falsy
+                    self.move_motor(m, cmd)
+                    logger.info("Settling trial")
+            for m in list_of_motors:
+                # the motor class can make up its own commands
+
+                cmd = m.update(settler=False)
                 if cmd: # '' is falsy
                     for trial in range(2):
                         if self.move_motor(m, cmd):
+                            logger.info("Final approach")
+
                             break
                         else:
                             logger.info("Missed trying again")

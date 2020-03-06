@@ -291,16 +291,17 @@ class Prop(Atom):
         function information that leads to those values.'''
         output=''
 
-        #go through list of single properties:
-        for p in self.properties: # I use a for loop instead of list comprehension so I can have more detailed error reporting.
+        # go through list of single properties:
+        # I use a for loop instead of list comprehension so I can have more detailed error reporting.
+        for p in self.properties:
             if p not in self.doNotSendToHardware:
-                #convert the string name to an actual object
+                # convert the string name to an actual object
                 try:
-                    o=getattr(self,p)
+                    o = getattr(self, p)
                 except:
-                    logger.warning('In Prop.toHardware() for class '+self.name+': item '+p+' in properties list does not exist.\n')
+                    msg = 'In Prop.toHardware() for class {}: item {} in properties list does not exist.\n'
+                    logger.warning(msg.format(self.name, p))
                     raise PauseError
-
                 output += self.HardwareProtocol(o, p)
 
         try:
@@ -401,7 +402,7 @@ class EvalProp(Prop):
                 self.value = value
                 self.set_gui({'valueStr': str(value)})
             except TypeError as e:
-                #this type of error is raised by Atom type checking
+                # this type of error is raised by Atom type checking
                 logger.error('TypeError while evaluating:\nproperty: '+self.name+'\ndescription: '+self.description+'\nfunction: '+self.function+'\n'+str(e)+'\n')
                 self.set_gui({'valid': False, 'valueStr': ''})
                 raise PauseError
@@ -410,16 +411,17 @@ class EvalProp(Prop):
                 self.set_gui({'valid': False, 'valueStr': ''})
                 raise PauseError
 
-            #if we made it through all that, then the evaluation was okay
+            # if we made it through all that, then the evaluation was okay
             self.set_gui({'valid': True})
 
     def toHardware(self):
         try:
-            valueStr = str(self.value)
+            value_str = str(self.value)
         except Exception as e:
-            logger.warning('Exception in str(self.value) in EvalProp.toHardware() in '+self.name+' .\n'+str(e))
+            msg = 'Exception in str(self.value) in EvalProp.toHardware() in {} .\n{}'
+            logger.warning(msg.format(self.name, e))
             raise PauseError
-        return '<{}>{}</{}>\n'.format(self.name,valueStr,self.name)
+        return '<{}>{}</{}>\n'.format(self.name, value_str, self.name)
 
 
 class StrProp(EvalProp):

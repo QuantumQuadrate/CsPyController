@@ -105,6 +105,8 @@ class PICamCamera(Instrument):
     readoutstride = Int()
     framestride = Int()
     framesize = Int()
+    
+    currentTemp = Float(0)
 
     numPixX = Int()
     numPixY = Int()
@@ -175,12 +177,14 @@ class PICamCamera(Instrument):
             logger.warning('Aborting old acquisition')
             self.AbortAcquisition()
         self.StartAcquisition()
+        self.currentTemp = self.getFloat(PicamParameter_SensorTemperatureReading)
         self.isDone = True
 
     def update(self):
         if self.enable:
             self.mode = 'experiment'
             if not self.isInitialized:
+                logger.warning('Initializing Picam')
                 self.initialize()
 
             if self.isAcquisitionRunning():
@@ -286,8 +290,10 @@ class PICamCamera(Instrument):
         error = Picam_SetParameterIntegerValue(self.currentHandle, PicamParameter_AdcEMGain, self.AdcEMGain.value)
         self.DLLError(str(sys._getframe().f_code.co_name) + ' (parameter AdcEMGain)', error)
 
-        error = Picam_SetParameterFloatingPointValue(self.currentHandle, PicamParameter_ExposureTime, piflt(self.exposureTime.value))
-        self.DLLError(str(sys._getframe().f_code.co_name) + ' (parameter ExposureTime)', error)
+        exptime = piflt(int(self.exposureTime.value*1000)/1000.0)
+        error = Picam_SetParameterFloatingPointValue(self.currentHandle, PicamParameter_ExposureTime, exptime)
+        self.DLLError(str(sys._getframe().f_code.co_name) + ' (parameter ExposureTime, value={})'.format(exptime), error)
+        print 'exptime={}'.format(exptime)
 
 
         error = Picam_SetParameterIntegerValue(self.currentHandle, PicamParameter_CleanUntilTrigger, piint(1))
@@ -377,6 +383,8 @@ class PICamCamera(Instrument):
         self.getReadoutStride()
 
         self.data = self.CreateAcquisitionBuffer()
+        
+        self.currentTemp = self.getFloat(PicamParameter_SensorTemperatureReading)
 
         analysis.setup_video(self.data)
         # run the video loop in a new thread
@@ -454,6 +462,7 @@ class PICamCamera(Instrument):
                 if (self.averageMeasurements):# or (self.averageMeasurements and self.experiment.measurement == self.experiment.measurementsPerIteration):  #(Removed +1 after self.experiment.measurement)
                     logger.info("Writing data for PICam")
                     hdf5['PICam_{}'.format(self.currentSerial)] = self.data
+                    logger.warning('picampython: self.data dimensions: {}'.format(self.data.shape))
             except Exception as e:
                 logger.error('in PICam.writeResults:\n{}'.format(e))
                 raise PauseError                
@@ -486,7 +495,13 @@ class PICamCamera(Instrument):
         self.num_cameras = piint(0)
         logger.debug( "Getting Available Camera IDs: {}".format(Picam_GetAvailableCameraIDs(byref(self.currentHandleList),byref(self.num_cameras))))
         logger.debug("Number of Princeton Instruments cameras detected: {}".format(self.num_cameras.value))
-        self.printCameraID(self.currentHandleList[0])
+        try: 
+            self.printCameraID(self.currentHandleList[0])
+        except Exception as e:
+            logger.info("Number of Princeton Instruments cameras detected: {}".format(self.num_cameras.value))
+            logger.info("Camera Handle returned from GetAvailableCameraIDs is Null. Is the camera actually available?")
+            self.isInitialized = False
+            return
         self.cameraIDDict = dict(zip([self.currentHandleList[i].serial_number for i in range(self.num_cameras.value)],range(self.num_cameras.value)))
 
         #try:
@@ -505,6 +520,50 @@ class PICamCamera(Instrument):
         self.currentSerial = self.currentID.serial_number
 
 
+    def PrintParameters(self):
+        print ("Parameters for Princeton Instruments Camera {}".format(self.currentHandle))
+        print ""
+        print "Exposure Status:"
+        print ("Exposure Time: {}".format(self.getFloat(PicamParameter_ExposureTime)))
+        print ("Shutter Timing Mode: {}".format(self.getInt(PicamParameter_ShutterTimingMode)))
+        print ""
+        print "Temperature Status:"
+        print ("Sensor Temperature Set Point: {}".format(self.getFloat(PicamParameter_SensorTemperatureSetPoint)))
+        print ("Sensor Temperature Reading: {}".format(self.getFloat(PicamParameter_SensorTemperatureReading)))
+        print ("Sensor Temperature Status: {}".format(self.getInt(PicamParameter_SensorTemperatureStatus)))
+        print ("Disable Cooling Fan: {}".format(self.getInt(PicamParameter_DisableCoolingFan)))
+        print ""
+        print "Sensor Cleaning:"
+        print ("Clean Until Trigger: {}".format(self.getInt(PicamParameter_CleanUntilTrigger)))
+        
+     
+    def getInt(self,param):
+        value = piint(0)
+        try:
+            error = Picam_GetParameterIntegerValue(self.currentID, param, byref(value))
+            if error != 'PicamError_None':
+                value = "Could not retreive parameter: {}".format(error)
+            else:
+                value = value.value
+        except Exception as e:
+            value = "Could not retrieve parameter: {}".format(e)
+        return value
+    
+    def getFloat(self,param):
+        value = piflt(0)
+        try:
+            error = Picam_GetParameterFloatingPointValue(self.currentHandle, param, byref(value))
+            if error != 'PicamError_None':
+                value = "Could not retreive parameter: {}".format(error)
+            else:
+                value = value.value
+        except Exception as e:
+            value = "Could not retrieve parameter: {}".format(e)
+        return value
+        
+
+        
+        
 
     def setCamera(self):
         if not self.isInitialized:
@@ -553,6 +612,9 @@ class PICamCamera(Instrument):
     def GetDetector(self):
         width = piint(0)
         height = piint(0)
+        if self.currentHandle is None:
+            logger.info('CameraHandle is Null. Why?')
+            self.initialize()
         logger.info('self.currentHandle: {}'.format(self.currentHandle))
         logger.info('Getting detector width')
         error = Picam_GetParameterIntegerValue(self.currentHandle, c_int(PicamParameter_SensorActiveWidth), byref(width))
@@ -648,13 +710,13 @@ class PICamCamera(Instrument):
             self.getReadoutStride()
             sz = self.framesize/2
 
-            logger.debug('Getting DataPointer. Readout_count={}'.format(available.readout_count))
+            logger.info('Getting DataPointer. Readout_count={}'.format(available.readout_count))
 
             DataArrayPointerType = ctypes.POINTER(pi16u*sz)
 
             readout=0
             while readout < available.readout_count:
-                DataPointer = ctypes.cast(available.initial_readout+self.framestride/2*readout,DataArrayPointerType)
+                DataPointer = ctypes.cast(available.initial_readout+self.readoutstride*readout,DataArrayPointerType)
                 dat = DataPointer.contents
 
                 try:
@@ -813,7 +875,7 @@ class PICamViewer(AnalysisWithFigure):
         fig.clf()
         ax = fig.add_subplot(111)
 
-        self.artist = ax.imshow(data, vmin=self.mycam.minPlot.value, vmax=self.mycam.maxPlot.value)
+        self.artist = ax.imshow(data, vmin=self.mycam.minPlot.value, vmax=self.mycam.maxPlot.value,interpolation='None')
         super(PICamViewer, self).updateFigure()
 
     def redraw_video(self):

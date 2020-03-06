@@ -4,6 +4,8 @@ how an iteration based experiment is run.
 
 author=Martin Lichtman
 """
+# filename whitespace problem may have been fixed. See
+# IndependentVariable.__init__ - PH
 
 from __future__ import division
 
@@ -61,7 +63,9 @@ class IndependentVariable(EvalProp):
     optimizer_end_tolerance = Float()
 
     def __init__(self, name, experiment, description='', function=''):
-        super(IndependentVariable, self).__init__(name, experiment, description, function)
+        # super(IndependentVariable, self).__init__(name, experiment, description, function)
+        super(IndependentVariable, self).__init__(name, experiment,
+                                                  description, function)
         self.steps = 0
         self.index = 0
         self.valueList = numpy.array([]).flatten()
@@ -339,7 +343,7 @@ class Experiment(Prop):
 
             #build the path
             self.dailyPath = datetime.datetime.fromtimestamp(self.timeStarted).strftime('%Y_%m_%d')
-            self.experimentPath = datetime.datetime.fromtimestamp(self.timeStarted).strftime('%Y_%m_%d_%H_%M_%S_')+self.experimentDescriptionFilenameSuffix
+            self.experimentPath = datetime.datetime.fromtimestamp(self.timeStarted).strftime('%Y_%m_%d_%H_%M_%S_')+self.experimentDescriptionFilenameSuffix.rstrip()
             self.path = os.path.join(self.localDataPath, self.dailyPath, self.experimentPath)
 
             #check that it doesn't exist first
@@ -601,8 +605,8 @@ class Experiment(Prop):
                     # only at the start of a new optimization experiment loop
                     self.create_optimizer_iteration()
 
-                #loop until the desired number of measurements are taken
-                #self.measurement = 0
+                # loop until the desired number of measurements are taken
+                # self.measurement = 0
                 while (self.goodMeasurements < self.measurementsPerIteration) and (self.status == 'running'):
                     self.set_gui({'valid': True})  # reset all the red error background graphics to show no-error
                     logger.info('iteration {} measurement {}'.format(self.iteration, self.measurement))
@@ -682,10 +686,10 @@ class Experiment(Prop):
                     self.instrument_update_needed = True
 
         except PauseError:
-            #This should be the only place that PauseError is explicitly handed.
-            #All other non-fatal errors caught higher up in the experiment chain should
-            #gracefully handle the error, then 'raise PauseError' so that the experiment
-            #exits out to this point.
+            # This should be the only place that PauseError is explicitly handed.
+            # All other non-fatal errors caught higher up in the experiment chain should
+            # gracefully handle the error, then 'raise PauseError' so that the experiment
+            # exits out to this point.
 
             # Delete this measurement from the results, since the data is probably no good anyway, and the
             # measurement number may not have incremented and may have to be reused.

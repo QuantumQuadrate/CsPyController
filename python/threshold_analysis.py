@@ -93,11 +93,12 @@ class ThresholdROIAnalysis(ROIAnalysis):
                 )
             logger.warning('new thresholds: {}'.format(self.threshold_array))
 
-    def set_thresholds(self, new_thresholds, timestamp):
+    def set_thresholds(self, new_thresholds, timestamp, exclude_shot=[]):
         # the same threshold is used for all shots
         for j, shot in enumerate(new_thresholds):
-            for i, t in enumerate(shot):
-                self.threshold_array[j, i] = (t,)
+            if j not in exclude_shot:
+                for i, t in enumerate(shot):
+                    self.threshold_array[j, i] = (t,)
         self.cutoffs_from_which_experiment = timestamp
 
     def preExperiment(self, experimentResults):
@@ -105,26 +106,58 @@ class ThresholdROIAnalysis(ROIAnalysis):
         # reset the measurement enable flag
         self.meas_enable = True
 
+    """def process_measurement(self, shot_array, shape):
+        Process a single sub-measurement.  If there are multiple sub-measurements,
+        Then call this multiple times.
+
+        Returns a threshold array for single sub-measurement
+        
+        # temporary 2D threshold array, ROIs are 1D
+        threshold_array = np.zeros(shape, dtype=np.bool_)
+        try:
+            #shots_to_ignore = self.experiment.Config.config.getint('CAMERA', 'ShotsToIgnore')
+            shots_to_ignore_str = self.experiment.Config.config.get('CAMERA', 'ShotsToIgnore')
+            shots_to_ignore=map(int,shots_to_ignore_str.split(","))
+        except:
+            shots_to_ignore=[]
+
+        to_include= [x for x in range(0,len(shot_array)) if x not in shots_to_ignore]
+        #print to_include
+        for i, shot in enumerate(shot_array):
+            # TODO: more complicated threshold
+            # (per shot threshold & 2+ atom threshold)
+            if i in to_include:
+                threshold_array[to_include.index(i)] = shot.flatten() >= self.threshold_array[to_include.index(i)]['1']
+
+        self.loading_array = threshold_array.reshape((
+            shape[0],
+            self.experiment.ROI_rows,
+            self.experiment.ROI_columns
+        ))
+        return threshold_array"""
+
+
     def process_measurement(self, shot_array, shape):
         """Process a single sub-measurement.  If there are multiple sub-measurements,
         Then call this multiple times.
-
         Returns a threshold array for single sub-measurement
         """
         # temporary 2D threshold array, ROIs are 1D
         threshold_array = np.zeros(shape, dtype=np.bool_)
+        try:
+            #shots_to_ignore = self.experiment.Config.config.getint('CAMERA', 'ShotsToIgnore')
+            shots_to_ignore_str = self.experiment.Config.config.get('CAMERA', 'ShotsToIgnore')
+            shots_to_ignore=map(int,shots_to_ignore_str.split(","))
+        except:
+            shots_to_ignore=[]
+
+        to_include= [x for x in range(0,len(shot_array)) if x not in shots_to_ignore]
+        #print to_include
         for i, shot in enumerate(shot_array):
             # TODO: more complicated threshold
             # (per shot threshold & 2+ atom threshold)
-            # print self.threshold_array[i]['1']
-            shots_to_ignore = 0
-            try:
-                shots_to_ignore = self.experiment.Config.config.getint('CAMERA', 'ShotsToIgnore')
-            except:
-                pass
-            # Rubidium uses shot2 for alignment pupose so do not apply threshold for this shot
-            if i < len(shot_array) - shots_to_ignore:
-                threshold_array[i] = shot.flatten() >= self.threshold_array[i]['1']
+            if i in to_include:
+                threshold_array[to_include.index(i)] = shot.flatten() >= self.threshold_array[to_include.index(i)]['1']
 
         self.loading_array = threshold_array.reshape((
             shape[0],
@@ -152,7 +185,7 @@ class ThresholdROIAnalysis(ROIAnalysis):
                     # if not add it
                     logger.warning('ROI_source for threshold_analysis does not have sub-measurement support.')
                     shot_array = np.array([shot_array])
-                
+
                 n_sub_meas, n_shots, n_rows, n_cols = shot_array.shape
                 threshold_array = np.zeros((n_sub_meas, n_shots, n_rows*n_cols), dtype=np.bool_)
                 for sm in xrange(n_sub_meas):
@@ -185,7 +218,7 @@ class ThresholdROIAnalysis(ROIAnalysis):
                 meas_results_path = 'measurements/{}'.format(i)
                 meas_results = iterationResults[meas_results_path]
                 self.analyzeMeasurement(meas_results, iterationResults, experimentResults)
-            
+
             # if the per measurement threshold analysis is disabled we then
             # need to go fetch the results from elsewhere
             if self.meas_enable:

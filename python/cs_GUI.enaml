@@ -2182,16 +2182,16 @@ enamldef PICams(Window):
             Container:
                 style_class << 'valid' if experiment.valid else 'invalid'
 
-            Container:
-                hug_width = 'strong'
-                hug_height = 'strong'
-            Form:
-                hug_width = 'strong'
-                hug_height = 'strong'
+                Container:
+                    hug_width = 'strong'
+                    hug_height = 'strong'
+                    Form:
+                        hug_width = 'strong'
+                        hug_height = 'strong'
 
-            IndexedContainer:
-                iterable << picams.motors
-                viewType = Picam
+                    IndexedContainer:
+                        iterable << picams.motors
+                        viewType = Picam
 
 enamldef Picam(Form):
     attr item
@@ -2258,36 +2258,36 @@ enamldef Picam(Form):
                         clicked :: item.camera.setCamera()
                 HGroup:
                     padding = 0
-            Label:
+                    Label:
                         text := 'Camera Serial Number: {}'.format(str(item.camera.currentSerial))
-                    #Label:
-                    #    text := 'CCD Temperature (C): {:.4}'.format(item.camera.temperature)
-            Label:
+                    Label:
+                        text := 'CCD Temperature (C): {:.4}'.format(item.camera.currentTemp)
+                    Label:
                         text := 'Maximum Pixel Value: {}, Mean Pixel Value: {}'.format(item.analysis.maxPixel,item.analysis.meanPixel)
-            LabelBox:
-                text = 'enable'
-                checked := item.camera.enable
-            EvalProp:
-                prop << item.camera.AdcEMGain
-            ComboBox:
-                items = ['Low Analog Gain', 'Medium Analog Gain', 'High Analog Gain']
-                index := item.camera.AdcAnalogGain
-            EvalProp:
-                prop << item.camera.exposureTime
-            HGroup:
-                padding = 0
+                LabelBox:
+                    text = 'enable'
+                    checked := item.camera.enable
+                EvalProp:
+                    prop << item.camera.AdcEMGain
                 ComboBox:
-                    items = ['Rising Edge', 'Falling Edge', 'Level', 'Auto']
-                    index := item.camera.triggerMode
-                ComboBox:
-                    items = ['Shutter Normal', 'Shutter Always Closed', 'Shutter Always Open', 'Shutter Open Before Trigger']
-                    index := item.camera.shutterMode
-                ComboBox:
-                    items = ['Bin Mode: 1x1', 'Bin Mode: 2x2', 'Bin Mode: 4x4']
-                    index := item.camera.binMode
-                ComboBox:
-                    items = ['Readout Control: Dual Imaging', 'Readout Control: Frame Transfer', 'Readout Control: Full Frame', 'Readout Control: Kinetics', 'Readout Control: Spectra Kinetics']
-                    index := item.camera.ReadoutControl
+                    items = ['Low Analog Gain', 'Medium Analog Gain', 'High Analog Gain']
+                    index := item.camera.AdcAnalogGain
+                EvalProp:
+                    prop << item.camera.exposureTime
+                HGroup:
+                    padding = 0
+                    ComboBox:
+                        items = ['Rising Edge', 'Falling Edge', 'Level', 'Auto']
+                        index := item.camera.triggerMode
+                    ComboBox:
+                        items = ['Shutter Normal', 'Shutter Always Closed', 'Shutter Always Open', 'Shutter Open Before Trigger']
+                        index := item.camera.shutterMode
+                    ComboBox:
+                        items = ['Bin Mode: 1x1', 'Bin Mode: 2x2', 'Bin Mode: 4x4']
+                        index := item.camera.binMode
+                    ComboBox:
+                        items = ['Readout Control: Dual Imaging', 'Readout Control: Frame Transfer', 'Readout Control: Full Frame', 'Readout Control: Kinetics', 'Readout Control: Spectra Kinetics']
+                        index := item.camera.ReadoutControl
                 #HGroup:
                     #padding = 0
                     #ComboBox:
@@ -2321,6 +2321,9 @@ enamldef Picam(Form):
                 LabelBox:
                     text = 'Use Demo Camera'
                     checked := item.camera.useDemo
+                PushButton:
+                    text = 'Print Parameters'
+                    clicked :: item.camera.PrintParameters()
 
 
 
@@ -4133,41 +4136,6 @@ enamldef Conex(Container):
             text << "Most recent position: {} mm".format(item.curpos)
 
 
-
-
-
-
-
-enamldef Picomotor(Container):
-    attr item
-
-    hug_width = 'strong'
-    hug_height = 'strong'
-
-    Container:
-        hug_width = 'strong'
-        hug_height = 'strong'
-        Label:
-            text = 'serial number'
-        Field:
-            text := item.serial_number
-        Label:
-            text = 'motor number'
-        Field:
-            text := item.motor_number
-        Label:
-            text = 'position'
-        EvalProp:
-            prop << item.desired_position
-        Label:
-            text = str(item.current_position)
-        Label:
-            text = 'max error'
-        Field:
-            text := str(item.max_angle_error)
-
-
-
 enamldef Picomotors(Window):
     attr picomotors
 
@@ -4180,7 +4148,6 @@ enamldef Picomotors(Window):
             style_class << 'valid' if experiment.valid else 'invalid'
             Container:
                 style_class << 'valid' if experiment.valid else 'invalid'
-
                 Container:
                     hug_width = 'strong'
                     hug_height = 'strong'
@@ -4200,9 +4167,9 @@ enamldef Picomotors(Window):
                         IntField:
                             value := picomotors.port
 
-                    IndexedContainer:
-                        iterable << picomotors.motors
-                        viewType = Picomotor
+                            IndexedContainer:
+                                iterable << picomotors.motors
+                                viewType = Picomotor
 
 
 enamldef Noise_Eater(Container):
@@ -4215,29 +4182,18 @@ enamldef Noise_Eater(Container):
         hug_width = 'strong'
         hug_height = 'strong'
         Label:
-            text = 'IP Address'
+            text = 'ip Address'
         Field:
-            text := item.IP
+            text := item.ip
         Label:
-            text = 'port'
+            text = 'ID'
         IntField:
-            value := item.port
+            value := item.ID
         Label:
-            text = 'Target Setting 1'
+            text = 'Target Setting'
         EvalProp:
-            prop << item.target_setting1
-        Label:
-            text = 'Target Setting 2'
-        EvalProp:
-            prop << item.target_setting2
-        Label:
-            text = 'Target Setting 3'
-        EvalProp:
-            prop << item.target_setting3
-        Label:
-            text = 'Target Setting 4'
-        EvalProp:
-            prop << item.target_setting4
+            prop << item.target_setting
+
 
 enamldef Noise_Eaters(Window):
     attr noise_eaters
@@ -4266,28 +4222,8 @@ enamldef Noise_Eaters(Window):
                             checked := noise_eaters.enable
 
                     IndexedContainer:
-                        iterable << noise_eaters.pis
+                        iterable << noise_eaters.NEchannels
                         viewType = Noise_Eater
-
-                # cumulative plot of noise eater data
-                GroupBox:
-                    title = 'Noise Eater plots'
-                    Form:
-                        Label:
-                            text = 'enable'
-                        CheckBox:
-                            checked := analysis.enable
-                        Label:
-                            text = 'specify pi and channel number'
-                        Field:
-                            text := analysis.list_of_what_to_plot
-                    PushButton:
-                        text = 'clear'
-                        clicked :: analysis.clear()
-                    MPLCanvas: canvas:
-                        constraints=[(height==500)|'strong']
-                        hug_width='ignore'
-                        figure << analysis.figure
 
 
 
@@ -4348,6 +4284,244 @@ enamldef BILTcards(Window):
                     IndexedContainer:
                         iterable << BILT.channels
                         viewType = BILTcard
+enamldef Picomotor(Container):
+    attr item
+
+    hug_width = 'strong'
+    hug_height = 'strong'
+
+    Container:
+        hug_width = 'strong'
+        hug_height = 'strong'
+        Label:
+            text = 'serial number'
+        Field:
+            text := item.serial_number
+        Label:
+            text = 'motor number'
+        Field:
+            text := item.motor_number
+        Label:
+            text = 'position'
+        EvalProp:
+            prop << item.desired_position
+        Label:
+            text = str(item.current_position)
+        Label:
+            text = 'max error'
+        Field:
+            text := str(item.max_angle_error)
+        Label:
+            text = 'enable this motor?'
+        CheckBox:
+            checked := item.enable_motor
+
+enamldef PyPico(Window):
+    attr pypico
+
+    title = 'PyPico Server'
+    style_class << 'valid' if experiment.valid else 'invalid'
+    Container:
+        padding = 0
+        style_class << 'valid' if experiment.valid else 'invalid'
+        ScrollArea:
+            style_class << 'valid' if experiment.valid else 'invalid'
+            Container:
+                style_class << 'valid' if experiment.valid else 'invalid'
+
+                Container:
+                    hug_width = 'strong'
+                    hug_height = 'strong'
+                    Form:
+                        hug_width = 'strong'
+                        hug_height = 'strong'
+                        Label:
+                            text = 'enable'
+                        CheckBox:
+                            checked := pypico.enable
+                        Label:
+                            text = 'enable_measurement'
+                        CheckBox:
+                            checked := pypico.enable_measurement
+                        Label:
+                            text = 'enable_iteration'
+                        CheckBox:
+                            checked := pypico.enable_iteration
+                        Label:
+                            text = 'enable_movement'
+                        CheckBox:
+                            checked := pypico.enable_movement
+                        Label:
+                            text = 'IP Address'
+                        Field:
+                            text := pypico.IP
+                        Label:
+                            text = 'port'
+                        IntField:
+                            value := pypico.port
+                        Label:
+                            text = 'timeout (ms)'
+                        IntField:
+                            value := pypico.timeout
+                    IndexedContainer:
+                        iterable << pypico.motors
+                        viewType = Picomotor
+
+enamldef Fit_Sites(Container):
+    attr item
+
+    hug_width = 'strong'
+    hug_height = 'strong'
+
+    Container:
+        hug_width = 'strong'
+        hug_height = 'strong'
+        Label:
+            text = 'Fit site'
+        IntField:
+            value := item.Fit_site
+        Label:
+            text = 'Fit Frequency x'
+        EvalProp:
+            prop << item.Fit_Frequency_x
+        Label:
+            text = 'Fit Frequency y'
+        EvalProp:
+            prop << item.Fit_Frequency_y
+
+enamldef Force_Sites(Container):
+    attr item
+
+    hug_width = 'strong'
+    hug_height = 'strong'
+
+    Container:
+        hug_width = 'strong'
+        hug_height = 'strong'
+        Label:
+            text = 'Force site'
+        IntField:
+            value := item.Force_site
+        Label:
+            text = 'Force Frequency x'
+        EvalProp:
+            prop << item.Force_Frequency_x
+        Label:
+            text = 'Force Frequency y'
+        EvalProp:
+            prop << item.Force_Frequency_y
+
+enamldef Pattern_Sites(Container):
+    attr item
+
+    hug_width = 'strong'
+    hug_height = 'strong'
+
+    Container:
+        hug_width = 'strong'
+        hug_height = 'strong'
+        Label:
+            text = 'Site Occupation'
+        IntField:
+            value := item.occupation_site
+        Label:
+            text = 'Pattern Number'
+        IntField:
+            value := item.pattern_num
+
+enamldef Rearrange(Window):
+    attr rearrange
+
+    title = 'PyPico Server'
+    style_class << 'valid' if experiment.valid else 'invalid'
+    Container:
+        padding = 0
+        style_class << 'valid' if experiment.valid else 'invalid'
+        ScrollArea:
+            style_class << 'valid' if experiment.valid else 'invalid'
+            Container:
+                style_class << 'valid' if experiment.valid else 'invalid'
+
+                Container:
+                    hug_width = 'strong'
+                    hug_height = 'strong'
+                    Form:
+                        hug_width = 'strong'
+                        hug_height = 'strong'
+                        Label:
+                            text = 'enable'
+                        CheckBox:
+                            checked := pypico.enable
+                        Label:
+                            text = 'enable_measurement'
+                        CheckBox:
+                            checked := pypico.enable_measurement
+                        Label:
+                            text = 'enable_iteration'
+                        CheckBox:
+                            checked := pypico.enable_iteration
+                        Label:
+                            text = 'enable_movement'
+                        CheckBox:
+                            checked := pypico.enable_movement
+                        Label:
+                            text = 'IP Address'
+                        Field:
+                            text := pypico.IP
+                        Label:
+                            text = 'port'
+                        IntField:
+                            value := pypico.port
+                        Label:
+                            text = 'timeout (ms)'
+                        IntField:
+                            value := pypico.timeout
+
+                    Container:
+                        hug_width = 'strong'
+                        hug_height = 'strong'
+                        Form:
+                            Label:
+                                text = 'Jump Time'
+                            EvalProp:
+                                prop << rearrange.jump_time
+                            Label:
+                                text = 'frequency_increment'
+                            EvalProp:
+                                prop << rearrange.frequency_increment
+                            Label:
+                                text = 'laser_ramp_on_time'
+                            EvalProp:
+                                prop << rearrange.laser_ramp_on_time
+                    Container:
+                        hug_width = 'strong'
+                        hug_height = 'strong'
+                        Form:
+                            Label:
+                                text = 'sub array left'
+                            IntField:
+                                value := rearrange.sub_array_left
+                            Label:
+                                text = 'sub array top'
+                            IntField:
+                                value := rearrange.sub_array_top
+                            Label:
+                                text = 'sub array width'
+                            IntField:
+                                value := rearrange.sub_array_width
+                            Label:
+                                text = 'sub array height'
+                            IntField:
+                                value := rearrange.sub_array_height
+                    IndexedContainer:
+                        iterable << rearrange.fit_freq_sites
+                        viewType = Fit_Sites
+                    IndexedContainer:
+                        iterable << rearrange.force_freq_sites
+                        viewType = Force_Sites
+                    IndexedContainer:
+                        iterable << rearrange.site_pattern
+                        viewType = Pattern_Sites
 
 enamldef PyPico(Window):
     attr pypico
@@ -4429,6 +4603,18 @@ enamldef AAS(Window):
                         CheckBox:
                             checked := aas.enable_feedback
                         Label:
+                            text = 'enable temperature correction'
+                        CheckBox:
+                            checked := aas.enable_TemperatureCorrection
+                        Label:
+                            text = 'Invert X correction'
+                        CheckBox:
+                            checked := aas.invert_TemperatureCorrection_X
+                        Label:
+                            text = 'Invert Y correction '
+                        CheckBox:
+                            checked := aas.invert_TemperatureCorrection_Y
+                        Label:
                             text = 'iter_analysis_path'
                         Field:
                             text := aas.iter_analysis_path
@@ -4443,13 +4629,13 @@ enamldef AAS(Window):
                         Label:
                             text = 'time constant (hrs)'
                         FloatField:
-                            value := aas.tau_h                                                      
+                            value := aas.tau_h
                         Label:
                             text = 'calibration X (pixels to degrees)'
                         FloatField:
                             value := aas.calibration_X
                         Label:
-                            text = 'Setpoint X (pixels)'
+                            text = 'Setpoint X (um)'
                         FloatField:
                             value := aas.setpoint_X
                         Label:
@@ -4461,7 +4647,7 @@ enamldef AAS(Window):
                         FloatField:
                             value := aas.calibration_Y
                         Label:
-                            text = 'Setpoint Y (pixels)'
+                            text = 'Setpoint Y (um)'
                         FloatField:
                             value := aas.setpoint_Y
                         Label:
@@ -4469,7 +4655,7 @@ enamldef AAS(Window):
                         Field:
                             text := aas.actuator_vname_Y
                         Label:
-                            text = 'Relative Position (pixels)'
+                            text = 'Relative Position (um)'
                         Label:
                             text = '(' + str(aas.position_iter_stat['x']) + ', ' + str(aas.position_iter_stat['y']) + ')'
                         Label:
@@ -4533,6 +4719,8 @@ enamldef Filters(Window):
                 TTL_filters:
                     instrument = experiment.LabView.TTL
                     filters = experiment.TTL_filters
+                LoadingFilters:
+                    filters = experiment.error_filters
                 LoadingFilters:
                     filters = experiment.loading_filters
                 FirstMeasurementsFilter:
@@ -4741,6 +4929,7 @@ window_dictionary = {'':'',
                      'DAQmx': 'DAQmxDigitalOutPage(DAQmx = main.experiment.LabView.DAQmxDO)',
                      'DAQmxAI': 'DAQmxAI(NIDAQmxAI = main.experiment.DAQmxAI)',
                      'DDS': 'DDS_Page(DDS = main.experiment.DDS)',
+                     'DDS2':'DDS_Page(DDS = main.experiment.DDS2)',
                      'RF Generators': 'RFGenPage(LabView = main.experiment.LabView)',
                      'Hamamatsu': 'CameraPage(camera = main.experiment.LabView.camera)',
                      'Andor Cameras': 'Andors(andors = main.experiment.Andors)',
@@ -4753,8 +4942,9 @@ window_dictionary = {'':'',
                      'Arroyo': 'Arroyo(experiment = main.experiment)',
                      'PI Piezo': 'PI_Piezo(piezo = main.experiment.LabView.piezo)',
                      'Picomotors': 'Picomotors(picomotors = main.experiment.picomotors)',
-                     'Noise Eaters': 'Noise_Eaters(noise_eaters = main.experiment.noise_eaters, analysis = main.experiment.Noise_EatersGraph)',
+                     'Noise Eaters': 'Noise_Eaters(noise_eaters = main.experiment.noise_eaters)',
                      'Cell Electrodes': 'BILTcards(BILT = main.experiment.BILT)',
+                     'Atom Rearranger': 'Rearrange(rearrange = main.experiment.rearrange)',
                      'PyPico': 'PyPico(pypico = main.experiment.pyPicoServer)',
                      'AAS': 'AAS(aas = main.experiment.beam_position_analysis)',
                      'AAS2': 'AAS(aas = main.experiment.beam_position_analysis2)',
@@ -4798,7 +4988,7 @@ enamldef Main(MainWindow): main:
     title='Saffmanlab experiment controller'
     #initial_position=(0,0)
     #initial_size=(1500,1100)
-    icon = loadIcon()
+    #icon = loadIcon()
     closing :: main.experiment.exiting()
 
     MyStyleSheet:
