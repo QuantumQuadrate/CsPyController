@@ -14,7 +14,7 @@ import logging
 logger = logging.getLogger(__name__)
 
 from atom.api import Typed
-from instrument_property import BoolProp, FloatProp, StrProp, IntRangeProp, FloatRangeProp, EnumProp
+from instrument_property import BoolProp, FloatProp, IntRangeProp, FloatRangeProp, EnumProp
 from cs_instruments import Instrument
 
 #---- instrument ----

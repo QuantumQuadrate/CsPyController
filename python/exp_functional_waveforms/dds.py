@@ -23,6 +23,8 @@ t1_0 = MOT(t, 'MOT')
 # set the MOT DDS to profile 'PGC' at time t
 t1_0 = MOT(t, 'PGC')
 '''
+import logging
+logger = logging.getLogger(__name__)
 
 class DDS(object):
     """This class represents a single DDS channel controlled by one or more HSDIO channels.
@@ -63,7 +65,7 @@ class DDS(object):
     def delay(self, t):
         """Add a DDS delay if it is needed, and update the last_change parameter."""
         DDS_profile_delay = 0.0001  # DDS delay set to 0. It needs to be accessible externally.
-        print "Warning! Non-grey code switching detected, delaying by 1 us."
+        logger.warning("Non-grey code switching detected, delaying by 1 us.")
         if t <= (self.last_change + DDS_profile_delay):
             t += DDS_profile_delay
         # update the last_change parameter

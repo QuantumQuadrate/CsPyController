@@ -15,14 +15,14 @@ __author__ = 'Martin Lichtman'
 import logging
 logger = logging.getLogger(__name__)
 
-from atom.api import Bool, Str, Member, Int, Float
-from instrument_property import Prop, IntProp, ListProp, FloatProp, StrProp, BoolProp
+from atom.api import Bool, Str, Member, Int
+from instrument_property import Prop, IntProp, ListProp, FloatProp
 from cs_instruments import Instrument
-import serial
+
 from cs_errors import PauseError
 
 from ctypes import *
-import os
+
 
 class Vaunix(Prop):
     isInitialized = Bool(False)
@@ -143,12 +143,13 @@ class Vaunix(Prop):
         return
         
     def getparams(self):
-        print "Parameters for Vaunix # {}".format(self.ID)
-        print "Frequency: {} MHz".format(self.va.fnLMS_GetFrequency(self.ID)/100000)
-        print "Power Level: {} dBm".format(self.va.fnLMS_GetPowerLevel(self.ID)/4)
+        logger.info("Parameters for Vaunix # {}".format(self.ID))
+        logger.info("Frequency: {} MHz".format(
+            self.va.fnLMS_GetFrequency(self.ID)/100000))
+        logger.info("Power Level: {} dBm".format(
+            self.va.fnLMS_GetPowerLevel(self.ID)/4))
         
         
-
 class Vaunixs(Instrument):
     version = '2015.11.19'
     motors = Member()

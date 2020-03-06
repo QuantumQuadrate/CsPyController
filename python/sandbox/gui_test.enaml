@@ -1,6 +1,0 @@
-from enaml.widgets.api import (MainWindow, EnableCanvas)
-
-enamldef Main(MainWindow): main:
-    attr AO
-    EnableCanvas:
-        component=AO.plot

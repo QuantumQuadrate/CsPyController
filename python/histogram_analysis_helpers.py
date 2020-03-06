@@ -5,10 +5,8 @@ from scipy import optimize
 from sklearn import mixture
 from scipy.stats import poisson
 import matplotlib as mpl
-import pickle as pl
 from matplotlib import figure
 from matplotlib.backends.backend_agg import FigureCanvasAgg
-import matplotlib.pyplot as plt
 import matplotlib.patches as patches
 from matplotlib.gridspec import GridSpec
 

@@ -17,7 +17,7 @@
 """
 
 
-import ctypes as ctypes
+import ctypes
 
 ################################
 ##### PicamParameterLookup #####

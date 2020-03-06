@@ -2,13 +2,14 @@
 """
 __author__ = 'Aquarius'
 import socket
-from atom.api import Bool, Str, Member, Int, Float
-from instrument_property import Prop, IntProp, ListProp, FloatProp, StrProp
+from atom.api import Bool, Member, Float
+from instrument_property import IntProp, FloatProp, StrProp
 from cs_instruments import Instrument
-from analysis import AnalysisWithFigure, Analysis
+from analysis import Analysis
 from cs_errors import PauseError
 import logging
 logger = logging.getLogger(__name__)
+
 
 class UnlockMonitor(Instrument, Analysis):
     version = '2017.04.03'
@@ -22,17 +23,27 @@ class UnlockMonitor(Instrument, Analysis):
 
     def __init__(self, name, experiment, description=''):
         super(UnlockMonitor, self).__init__(name, experiment, description)
-        self.IP = StrProp('IP', experiment, 'IP Address of Raspberry Pi', '10.141.196.160')
+        # These are default values which will usually be overwritten in the GUI
+        self.IP = StrProp('IP', experiment,
+                          'IP Address of Raspberry Pi', '10.141.196.160')
         self.Port = IntProp('Port', experiment, 'Port', '50007')
-        self.Threshold = FloatProp('Threshold', experiment, 'Threshold for locked/unlocked', '30')
+        self.Threshold = FloatProp('Threshold', experiment,
+                                   'Threshold for locked/unlocked', '30')
+
         self.properties += ['version', 'IP', 'Port', 'Threshold']
+
+        # Close previous connection to lock monitor to allow the Pi to connect
+        # again in case CsPy last closed improperly
+        s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        s.close()
 
     # lock_flag is 0 for unlocked, 1 for locked
     def get_brightness(self, lock_flag):
         try:
             s = self.open_connection(5, True)
         except Exception as e:
-            logger.error('Connection to Raspberry Pi failed. Error {}'.format(e))
+            logger.error('Connection to Raspberry Pi failed in Lock Monitor ' +
+                         'module. Error: {}'.format(e))
             raise PauseError
 
         s.sendall('Brightness')
@@ -65,13 +76,13 @@ class UnlockMonitor(Instrument, Analysis):
             try:
                 self.s = self.open_connection(None, False)
             except Exception as e:
-                logger.error("Somethin' done went wrong: {}".format(e))
+                logger.error("Error connecting to Raspberry Pi in " +
+                             "Lock Monitor module: {}".format(e))
                 raise PauseError
             self.s.sendall('%f' % self.Threshold.value)
         return
 
-    #paused = Bool(False) # why is this here? MFE
-    def analyzeMeasurement(self,measurementresults,iterationresults,hdf5):
+    def analyzeMeasurement(self, measurementresults, iterationresults, hdf5):
         if self.enable:
             if self.paused:
                 self.s.sendall('Experiment Resumed')

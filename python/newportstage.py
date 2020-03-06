@@ -17,13 +17,10 @@ __author__ = 'Martin Lichtman'
 import logging
 logger = logging.getLogger(__name__)
 
-from atom.api import Bool, Str, Member, Int, Float
-from instrument_property import Prop, FloatProp, IntProp, ListProp, EvalProp, StrProp
+from atom.api import Bool, Member, Float
+from instrument_property import FloatProp, StrProp
 from cs_instruments import Instrument
-from analysis import Analysis
-import TCP
 from cs_errors import PauseError
-import subprocess
 import NewportStageController as newportcontroller
 import time
 
@@ -51,7 +48,8 @@ class NewportStage(Instrument):
         self.axis = StrProp('axis',experiment,'Axis','X')
         self.velocity = FloatProp('velocity',experiment,'Velocity (mm/s)','10')
         self.command = StrProp('command',experiment,'Command to send','')
-        self.properties += ['setposition','comport','velocity','axis','statusmeasurement']
+        self.properties += ['setposition', 'comport', 'velocity', 'axis',
+                            'version','statusmeasurement']
 
     def initialize(self):
         if self.nport is not None:
@@ -88,12 +86,15 @@ class NewportStage(Instrument):
         loopcounter=0
         while done != self.axis.value + 'D':
             done = self.nport.status()
-            print('Status: {}\n'.format(done))
+            logger.info('Status: {}\n'.format(done))
             loopcounter += 1
-            if loopcounter > 10:     #controller sometimes gets confused, resulting in it returning B continuously. If this happens, reset the driver and try again.
+            # controller sometimes gets confused,
+            # resulting in it returning B continuously.
+            # If this happens, reset the driver and try again.
+            if loopcounter > 10:
                 self.isInitialized = False
                 self.moveStage(recurse=recurse+1)
-        print('Status: {}\n'.format(done))
+        logger.info('Status: {}\n'.format(done))
         self.mypos = self.whereAmI()
         loopcounter=0
         maxloops=3

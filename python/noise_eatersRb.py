@@ -6,10 +6,10 @@ logger = logging.getLogger(__name__)
 import socket, pickle
 
 from atom.api import Bool, Str, Member, Int, List, observe
-from enaml.application import deferred_call
-from instrument_property import Prop, IntProp, ListProp, FloatProp
+
+from instrument_property import Prop, ListProp, FloatProp
 from cs_instruments import Instrument
-from analysis import Analysis, AnalysisWithFigure
+from analysis import AnalysisWithFigure
 import numpy
 
 class Noise_Eater(Prop):

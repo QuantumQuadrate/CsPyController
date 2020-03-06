@@ -8,7 +8,9 @@ log.txt*
 *.lvlps
 venv
 python/config/config.cfg
-__enamlcache__
-cpp/Picam/projects/vs2010/bin/x64/Debug/Advanced.ilk
+*__enamlcache__
+*.aliases
+*.lvlps
 *.cache
-labview/builds/*
+*.db
+*.bak

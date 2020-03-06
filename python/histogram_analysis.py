@@ -9,7 +9,7 @@ from histogram_analysis_helpers import calculate_histogram, histogram_grid_plot,
 import matplotlib as mpl
 
 
-from atom.api import Bool, Member, Str, observe, Int, List
+from atom.api import Bool, Member, Str, observe, Int
 
 from analysis import AnalysisWithFigure, ROIAnalysis
 

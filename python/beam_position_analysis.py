@@ -18,9 +18,6 @@ from analysis import Analysis
 import numpy as np
 import os.path
 import h5py
-import scipy.ndimage.measurements as measurements
-from scipy.ndimage.morphology import binary_opening
-from scipy.optimize import curve_fit
 
 import scipy.ndimage.measurements as measurements
 from scipy.ndimage.morphology import binary_opening
@@ -102,13 +99,13 @@ class BeamPositionAnalysis(Analysis):
         # location of position data in hdf5
         positions_path_base = 'data/'
         try:
-            positions_paths = self.experiment.Config.config.get(section, datagroup)
-
+            positions_paths = self.experiment.Config.config.get(section,
+                                                                datagroup)
         except:
-            msg = 'ConfigParser was unable to find entry: `{}.{}`. Disabling module.'
-            logger.exception(msg.format(section, datagroup))
+            msg = 'ConfigParser was unable to find entry: `{}.{}`.'
+            'Disabling module.'
+            logger.warning(msg.format(section, datagroup))
             self.enable = False
-
             return
 
         positions_paths = positions_paths.split(',')
@@ -153,7 +150,7 @@ class BeamPositionAnalysis(Analysis):
                 x, error_x = self.gaussianfit(img, COM_X, Xsigma_guess, 0) # last argument is axis.
                 y, error_y = self.gaussianfit(img, COM_Y, Ysigma_guess, 1)
                 error = 0
-                print '480 x: {}, 480 y:{}'.format(x,y)
+                logger.info('480 x: {}, 480 y:{}'.format(x,y))
             except:
                 error = 1
         if error == 1:
@@ -350,10 +347,11 @@ class BeamPositionAnalysis(Analysis):
         if (len(self.actuator_variable_X.valueList) == 1 and
                 len(self.actuator_variable_Y.valueList == 1)):
 
-            msg = "Moving actuator {} to position: {:.3f}, error: {:.3f}, delta: {:.3f}"
+            msg = ("Moving actuator {} to position: {:.3f}, "
+                   "error: {:.3f}, delta: {:.3f}")
 
-
-            print "old X value: {}".format(self.actuator_variable_X.currentValue)
+            logger.info("old X value: "
+                        "{}".format(self.actuator_variable_X.currentValue))
             self.updateIndependentVariableDelta(
                 self.actuator_variable_X,
 
@@ -369,7 +367,8 @@ class BeamPositionAnalysis(Analysis):
 
             ))
 
-            print "old Y value: {}".format(self.actuator_variable_Y.currentValue)
+            logger.info("old Y value: "
+                        "{}".format(self.actuator_variable_Y.currentValue))
             self.updateIndependentVariableDelta(
                 self.actuator_variable_Y,
                 self.actuator_Y.current_position - self.position_iter_stat['error_y']

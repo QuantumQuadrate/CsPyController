@@ -5,27 +5,27 @@ logger = logging.getLogger(__name__)
 
 from cs_errors import PauseError
 
-import threading, traceback, time
 import numpy as np
+import threading, traceback, time
 
 import matplotlib as mpl
 mpl.use('PDF')
 
-import matplotlib.pyplot as plt
+
 from matplotlib.figure import Figure
 from matplotlib.path import Path
 import matplotlib.patches as patches
-from mpl_toolkits.axes_grid1 import make_axes_locatable
-#from matplotlib.backends.backend_pdf import PdfPages
+
 from enaml.application import deferred_call
 
 from atom.api import Bool, Typed, Str, Member, List, Int, observe, Float
+
 from scipy.optimize import curve_fit
-from scipy.special import erf
 
-from colors import my_cmap, green_cmap
 
-from instrument_property import Prop,StrProp
+from colors import my_cmap
+
+from instrument_property import Prop
 import cs_evaluate
 
 def mpl_rectangle(ax, ROI):
@@ -462,12 +462,12 @@ class TTL_filters(Analysis):
         if self.experiment.LabView.TTL.enable and ('TTL/data' in measurementResults['data']):
             a = measurementResults['data/TTL/data']
             #check to see if any of the inputs were True
-            if numpy.any(a):
+            if np.any(a):
                 #report the true inputs
                 text = 'TTL Filters failed:\n'
                 for i, b in enumerate(a):
                     #print out the row and column of the True input
-                    text += 'Check {}: Laser(s) {}\n'.format(i, numpy.arange(len(b))[b])
+                    text += 'Check {}: Laser(s) {}\n'.format(i, np.arange(len(b))[b])
                 #record to the log and screen
                 logger.warning(text)
                 self.set_gui({'text': text})
@@ -499,8 +499,8 @@ class SampleXYAnalysis(XYPlotAnalysis):
     '''This analysis plots the sum of the whole camera image every measurement.'''
     def analyzeMeasurement(self,measurementResults,iterationResults,experimentResults):
         if 'data/Andor_4522/shots' in measurementResults:
-            self.Y = numpy.append(self.Y,numpy.sum(measurementResults['data/Andor_4522/shots/0']))
-            self.X = numpy.arange(len(self.Y))
+            self.Y = np.append(self.Y,np.sum(measurementResults['data/Andor_4522/shots/0']))
+            self.X = np.arange(len(self.Y))
         self.updateFigure()
 
 
@@ -554,7 +554,7 @@ class ShotsBrowserAnalysis(AnalysisWithFigure):
                 for i in self.experimentResults['iterations'].itervalues():
                     # find the first iteration that matches all the selected
                     # ivar indices
-                    if numpy.all(i.attrs['ivarIndex'] == self.selection):
+                    if np.all(i.attrs['ivarIndex'] == self.selection):
                         try:
                             path = 'measurements/{}' + self.data_path + '{}'
                             self.array = i[path.format(m, s)]
@@ -701,9 +701,9 @@ class MeasurementsGraph(AnalysisWithFigure):
             # histogram only the requested shot/site
             d = measurementResults[self.ROI_source.meas_analysis_path]
             if self.data is None:
-                self.data = numpy.array([d])
+                self.data = np.array([d])
             else:
-                self.data = numpy.append(self.data, numpy.array([d]), axis=0)
+                self.data = np.append(self.data, np.array([d]), axis=0)
             self.updateFigure()
 
     @observe('list_of_what_to_plot')
@@ -792,8 +792,8 @@ class IterationsGraph(AnalysisWithFigure):
         if self.enable:  # and self.update_every_measurement:
             if (not self.add_only_filtered_data) or (('analysis/loading_filter' in measurementResults) and measurementResults['analysis/loading_filter'].value):
 
-                #d = numpy.array([measurementResults['analysis/squareROIsums']])
-                d = numpy.array([measurementResults['analysis/gaussian_roi']])
+                #d = np.array([measurementResults['analysis/squareROIsums']])
+                d = np.array([measurementResults['analysis/gaussian_roi']])
 
                 if self.current_iteration_data is None:
                     # on first measurement of an iteration, start anew
@@ -802,13 +802,13 @@ class IterationsGraph(AnalysisWithFigure):
                 else:
                     # else append
                     new_iteration = False
-                    self.current_iteration_data = numpy.append(self.current_iteration_data, d, axis=0)
+                    self.current_iteration_data = np.append(self.current_iteration_data, d, axis=0)
 
                 # average across measurements
                 # keepdims gives result with size (1 x shots X rois)
-                mean = numpy.mean(self.current_iteration_data, axis=0, keepdims=True)
+                mean = np.mean(self.current_iteration_data, axis=0, keepdims=True)
                 # find standard deviation of the mean
-                sigma = numpy.std(self.current_iteration_data, axis=0, keepdims=True)/numpy.sqrt(len(self.current_iteration_data))
+                sigma = np.std(self.current_iteration_data, axis=0, keepdims=True)/np.sqrt(len(self.current_iteration_data))
 
                 if self.mean is None:
                     # on first iteration start anew
@@ -817,8 +817,8 @@ class IterationsGraph(AnalysisWithFigure):
                 else:
                     if new_iteration:
                         # append
-                        self.mean = numpy.append(self.mean, mean, axis=0)
-                        self.sigma = numpy.append(self.sigma, sigma, axis=0)
+                        self.mean = np.append(self.mean, mean, axis=0)
+                        self.sigma = np.append(self.sigma, sigma, axis=0)
                     else:
                         # replace last entry
                         self.mean[-1] = mean
@@ -833,7 +833,7 @@ class IterationsGraph(AnalysisWithFigure):
             if self.enable:
                 if (not self.add_only_filtered_data) or (('analysis/loading_filter' in measurementResults) and measurementResults['analysis/loading_filter'].value):
 
-                    d = numpy.array([measurementResults['analysis/squareROIsums']])
+                    d = np.array([measurementResults['analysis/squareROIsums']])
 
                     if self.current_iteration_data is None:
                         #on first measurement of an iteration, start anew
@@ -842,13 +842,13 @@ class IterationsGraph(AnalysisWithFigure):
                     else:
                         #else append
                         new_iteration = False
-                        self.current_iteration_data = numpy.append(self.current_iteration_data, d, axis=0)
+                        self.current_iteration_data = np.append(self.current_iteration_data, d, axis=0)
 
                     # average across measurements
                     # keepdims gives result with size (1 x shots X rois)
-                    mean = numpy.mean(self.current_iteration_data, axis=0, keepdims=True)
+                    mean = np.mean(self.current_iteration_data, axis=0, keepdims=True)
                     #find standard deviation
-                    sigma = numpy.std(self.current_iteration_data, axis=0, keepdims=True)/numpy.sqrt(len(self.current_iteration_data))
+                    sigma = np.std(self.current_iteration_data, axis=0, keepdims=True)/np.sqrt(len(self.current_iteration_data))
 
                     if self.mean is None:
                         #on first iteration start anew
@@ -857,8 +857,8 @@ class IterationsGraph(AnalysisWithFigure):
                     else:
                         if new_iteration:
                             #append
-                            self.mean = numpy.append(self.mean, mean, axis=0)
-                            self.sigma = numpy.append(self.sigma, sigma, axis=0)
+                            self.mean = np.append(self.mean, mean, axis=0)
+                            self.sigma = np.append(self.sigma, sigma, axis=0)
                         else:
                             #replace last entry
                             self.mean[-1] = mean
@@ -897,9 +897,9 @@ class IterationsGraph(AnalysisWithFigure):
                             label = '(shot:{},roi:{})'.format(i[0],i[1])
                             linestyle = '-o' if self.draw_connecting_lines else 'o'
                             if self.draw_error_bars:
-                                ax.errorbar(numpy.arange(len(mean)), mean, yerr=sigma, fmt=linestyle, label=label)
+                                ax.errorbar(np.arange(len(mean)), mean, yerr=sigma, fmt=linestyle, label=label)
                             else:
-                                ax.plot(numpy.arange(len(mean)), mean, linestyle, label=label)
+                                ax.plot(np.arange(len(mean)), mean, linestyle, label=label)
                         #adjust the limits so that the data isn't right on the edge of the graph
                         ax.set_xlim(-.5, len(self.mean)+0.5)
                         if self.ymin != '':
@@ -950,7 +950,7 @@ class Ramsey(AnalysisWithFigure):
         ]
 
     def fitFunc(self, t, amplitude, frequency, offset, decay):
-        return amplitude*numpy.cos(2*numpy.pi*frequency*t)*numpy.exp(t/decay)+offset
+        return amplitude*np.cos(2*np.pi*frequency*t)*np.exp(t/decay)+offset
 
     def analyzeExperiment(self, experimentResults):
         """For all iterations in this experiment, calculate the retention fraction.  This should result in a cosine
@@ -958,9 +958,9 @@ class Ramsey(AnalysisWithFigure):
 
         if self.enable:
             num_iterations = len(experimentResults)
-            self.y = numpy.zeros(num_iterations, dtype=numpy.float64)
-            self.t = numpy.zeros(num_iterations, dtype=numpy.float64)
-            self.sigma = numpy.zeros(num_iterations, dtype=numpy.float64)
+            self.y = np.zeros(num_iterations, dtype=np.float64)
+            self.t = np.zeros(num_iterations, dtype=np.float64)
+            self.sigma = np.zeros(num_iterations, dtype=np.float64)
             for i in xrange(num_iterations):
                 # check to see if retention analysis was done
                 if 'analysis/loading_retention' not in experimentResults['iterations/{}'.format(i)]:
@@ -981,7 +981,7 @@ class Ramsey(AnalysisWithFigure):
                 logger.warning("Exception in Ramsey.analyzeExperiment:\n{}\n".format(e))
                 # set the results to zero
                 self.fitParams = (0, 0, 0, 0)
-                fitCovariances = numpy.zeros((4, 4))
+                fitCovariances = np.zeros((4, 4))
 
             experimentResults['analysis/Ramsey/amplitude'] = self.fitParams[0]
             experimentResults['analysis/Ramsey/frequency'] = self.fitParams[1]
@@ -1010,13 +1010,13 @@ class Ramsey(AnalysisWithFigure):
                     ax.plot(self.t, self.y, linestyle)
                     # adjust the limits so that the data isn't right on the edge of
                     # the graph
-                span = numpy.amax(self.t) - numpy.amin(self.t)
-                xmin = numpy.amin(self.t)-.02*span
-                xmax = numpy.amax(self.t)+.02*span
+                span = np.amax(self.t) - np.amin(self.t)
+                xmin = np.amin(self.t)-.02*span
+                xmax = np.amax(self.t)+.02*span
                 ax.set_xlim(xmin, xmax)
 
                 # draw the fit
-                t = numpy.linspace(xmin, xmax, 200)
+                t = np.linspace(xmin, xmax, 200)
                 ax.plot(t, self.fitFunc(t, *self.fitParams), '-')
                 super(Ramsey, self).updateFigure()
             except Exception as e:

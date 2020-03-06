@@ -4,54 +4,19 @@ import logging
 from cs_errors import PauseError
 from atom.api import Member, Int
 
-# get the config file
-from __init__ import import_config
-
 # Bring in other files in this package
 from ConfigInstrument import Config
 import functional_waveforms, analysis, instek_pst, save2013style, TTL, LabView
-import BILT, rearrange
+import BILT
 import noise_eaters
 import DDS, roi_fitting
 import picomotors, andor, picampython, vaunix, DCNoiseEater, Laird_temperature, AnalogInput
+
 import Counter, unlock_pause, niscope, newportstage, nidaq_ai, HPSignalGenerator
-
-try:
-    import conex
-    conex_enable = True
-except:
-    "Conex disabled"
-    conex_enable = False
-try:
-    import aerotech
-    aerotech_enable = True
-except:
-    "aerotech disabled"
-    aerotech_enable = False
-
+logger = logging.getLogger(__name__)
 import origin_interface
 import FakeInstrument  # for testing
 from pypico import PyPicoServer  # for communicating with a picomotor server
-try:
-	import conex
-	conexfound=True
-except:
-	print "Conex could not be loaded. Conex translation stages will not work."
-	conexfound=False
-try:
-	import aerotech
-	aerotechfound=True
-except:
-	print "Aerotech could not be loaded. If it is needed, check that pythonnet is installed."
-	aerotechfound=False
-
-try:
-    from blackfly import BlackflyClient  # communicates with Blackfly camera server
-    pycap = True
-except:
-    print "Blackfly client disabled, install PyCapture2 module to enable"
-    pycap = False
-# from vital_sign_sound import Vitalsign
 
 # analyses
 from SquareROIAnalysis import SquareROIAnalysis
@@ -66,14 +31,13 @@ from beam_position_analysis import BeamPositionAnalysis
 from experiments import Experiment
 
 __author__ = 'Martin Lichtman'
-logger = logging.getLogger(__name__)
-config = import_config()
+
 
 
 class AQuA(Experiment):
     """A subclass of Experiment which knows about all our particular hardware"""
 
-    Config = Member()
+
     picomotors = Member()
     noise_eaters = Member()
     BILT = Member()
@@ -139,24 +103,49 @@ class AQuA(Experiment):
     ROI_bg_columns = Int(0)
     Ramsey = Member()
 
-    def __init__(self):
-        super(AQuA, self).__init__()
+    def __init__(self,
+                 config_instrument=None,
+                 cache_location=None,
+                 settings_location=None,
+                 temp_location=None):
 
-        # instruments CONFIG MUST BE FIRST INSTRUMENT
-        self.Config = Config('Config', self, 'Configuration file')
-        self.functional_waveforms = functional_waveforms.FunctionalWaveforms('functional_waveforms', self, 'Waveforms for HSDIO, DAQmx DIO, and DAQmx AO; defined as functions')
-        if aerotech_enable:
-            self.aerotechs = aerotech.Aerotechs('aerotechs', self, 'Aerotech Ensemble')
-        if conex_enable:
+        super(AQuA, self).__init__(config_instrument=config_instrument,
+                                   cache_location=cache_location,
+                                   settings_location=settings_location,
+                                   temp_location=temp_location)
+        try:
+            import conex
             self.conexes = conex.Conexes('conexes', self, 'CONEX-CC')
+            self.instruments += [self.conexes]
+            self.properties += ['conexes']
+        except:
+            logger.warning("Conex could not be instantiated."
+                           "Conex translation stages will not work.")
+        try:
+            import aerotech
+            self.aerotechs = aerotech.Aerotechs('aerotechs', self,
+                                                'Aerotech Ensemble')
+            self.instruments += [self.aerotechs]
+            self.properties += ['aerotechs']
+        except:
+            logger.warning("Aerotech could not be instantiated. If it is needed"
+                           ", check that pythonnet and pywin32 are installed.")
+        try:
+            # communicates with Blackfly camera server
+            from blackfly import BlackflyClient
+            self.blackfly_client = BlackflyClient('BlackflyClient', self)
+            self.instruments += [self.blackfly_client]
+            self.properties += ['blackfly_client']
+        except:
+            logger.warning("Blackfly client disabled,"
+                           "install PyCapture2 module to enable")
+        self.functional_waveforms = functional_waveforms.FunctionalWaveforms('functional_waveforms', self, 'Waveforms for HSDIO, DAQmx DIO, and DAQmx AO; defined as functions')
         self.picomotors = picomotors.Picomotors('picomotors', self, 'Newport Picomotors')
         self.noise_eaters = noise_eaters.Noise_Eaters('noise_eaters', self,'rotating wave-plate noise eaters')
         self.BILT = BILT.BILTcards('BILT',self, 'BILT DC Voltage sources')
-        self.rearrange = rearrange.Rearrange('rearrange', self, 'atom rearranging system')
+        #self.rearrange = rearrange.Rearrange('rearrange', self, 'atom rearranging system')
         self.instekpsts = instek_pst.InstekPSTs('instekpsts', self, 'Instek PST power supply')
         self.Andors = andor.Andors('Andors', self, 'Andor Luca measurementResults')
-        if pycap:
-            self.blackfly_client = BlackflyClient('BlackflyClient', self)
         self.vaunixs = vaunix.Vaunixs('vaunixs', self, 'Vaunix Signal Generator')
         self.PICams = picampython.PICams('PICams', self, 'Princeton Instruments Cameras')
         self.DAQmxAI = nidaq_ai.NIDAQmxAI('DAQmxAI', self, 'NI-DAQmx Analog Input')
@@ -176,16 +165,10 @@ class AQuA(Experiment):
         self.instruments += [
             self.box_temperature, self.picomotors, self.noise_eaters, self.pyPicoServer,
             self.NIScopes, self.Andors, self.PICams, self.DC_noise_eaters,
-            self.BILT, self.rearrange, self.DDS, self.unlock_pause,
+            self.BILT, self.DDS, self.unlock_pause,
             self.Embezzletron, self.instekpsts,
             self.vaunixs, self.NewportStage, self.RydHP, self.DDS2
         ]
-        if aerotech_enable:
-            self.instruments += [self.aerotechs]
-        if conex_enable:
-            self.instruments += [self.conexes]
-        if pycap:
-            self.instruments += [self.blackfly_client]
         # Labview must be last at least until someone fixes the start command
         self.instruments += [self.LabView]
 
@@ -251,23 +234,21 @@ class AQuA(Experiment):
         ]
 
         self.properties += [
-            'Config', 'RbAIAnalysis',
-            'functional_waveforms', 'LabView', 'functional_waveforms_graph',
-            'DDS', 'DDS2', 'aerotechs', 'picomotors', 'noise_eaters', 'BILT',
-            'rearrange', 'pyPicoServer', 'conexes',
-            'Andors', 'PICams', 'DC_noise_eaters', 'blackfly_client',
-            'box_temperature', 'DAQmxAI', 'squareROIAnalysis', 'histogram_grid',
-            'thresholdROIAnalysis', 'gaussian_roi', 'instekpsts', 'TTL_filters',
-            'AI_graph', 'AI_filter', 'NewportStage', 'loading_filters',
-            'error_filters',
+            'Config', 'RbAIAnalysis', 'functional_waveforms', 'LabView',
+            'functional_waveforms_graph', 'DDS', 'DDS2', 'picomotors',
+            'noise_eaters', 'BILT', 'pyPicoServer', 'Andors', 'PICams',
+            'DC_noise_eaters', 'box_temperature', 'DAQmxAI',
+            'squareROIAnalysis', 'histogram_grid', 'thresholdROIAnalysis',
+            'gaussian_roi', 'instekpsts', 'TTL_filters', 'AI_graph',
+            'AI_filter', 'NewportStage', 'loading_filters', 'error_filters',
             'first_measurements_filter', 'vaunixs', 'imageSumAnalysis',
             'recent_shot_analysis', 'shotBrowserAnalysis', 'histogramAnalysis',
-            'retention_analysis', 'measurements_graph',
-            'iterations_graph', 'retention_graph', 'DC_noise_eater_filter',
-            'DC_noise_eater_graph', 'Ramsey', 'counter_graph', 'counter_hist',
-            'unlock_pause', 'ROI_rows', 'ROI_columns', 'ROI_bg_rows',
-            'ROI_bg_columns', 'NIScopes', 'beam_position_analysis',
-            'beam_position_analysis2', 'origin', 'RydHP'
+            'retention_analysis', 'measurements_graph', 'iterations_graph',
+            'retention_graph', 'DC_noise_eater_filter', 'DC_noise_eater_graph',
+            'Ramsey', 'counter_graph', 'counter_hist', 'unlock_pause',
+            'ROI_rows', 'ROI_columns', 'ROI_bg_rows', 'ROI_bg_columns',
+            'NIScopes', 'beam_position_analysis', 'beam_position_analysis2',
+            'origin','RydHP'
         ]
 
         try:

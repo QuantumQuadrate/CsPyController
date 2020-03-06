@@ -23,7 +23,6 @@ from analysis import AnalysisWithFigure, mpl_rectangle
 
 from colors import my_cmap
 
-import numpy as np
 
 class RecentShotAnalysis(AnalysisWithFigure):
     """Plots the currently incoming shot"""

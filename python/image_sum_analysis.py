@@ -12,7 +12,7 @@ modified >= '2017.05.09'
 
 import os.path
 import logging
-from colors import my_cmap, green_cmap
+from colors import my_cmap
 
 import numpy as np
 from atom.api import Bool, Str, Member, Int, observe

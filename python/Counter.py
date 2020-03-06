@@ -30,7 +30,7 @@ import time
 logger = logging.getLogger(__name__)
 
 gs = gridspec.GridSpec(2, 2)
-gmix = mixture.GMM(n_components=2)
+gmix = mixture.GaussianMixture(n_components=2)
 
 
 class Counters(Instrument):
@@ -205,7 +205,8 @@ class CounterAnalysis(AnalysisWithFigure):
             total_meas = len(self.binned_array)
             # drop superfluous ROI_columns dimension
             self.binned_array = res.reshape(res.shape[:4])
-            print('cut data: {}'.format(total_meas - len(self.binned_array)))
+            logger.info('cut data: {}'.format(total_meas -
+                                              len(self.binned_array)))
             iterationResults[self.iter_analysis_path] = self.binned_array
             if self.iterationonly:
                 self.updateFigure()
@@ -369,20 +370,21 @@ class CounterHistogramAnalysis(AnalysisWithFigure):
                     popt = np.abs(popt)
                     xc = self.intersection(*popt)
                     if np.isnan(xc):
-                        print 'Bad Cut on Shot: {}'.format(i)
+                        logger.warning('Bad Cut on Shot: {}'.format(i))
                         fitout[i] = np.nan, np.nan, np.nan
                         optout[i] = popt*np.nan
                     else:
                         fitout[i] = self.overlap(xc, *popt), self.frac(*popt), xc
                         optout[i] = popt
                 except (RuntimeError, RuntimeWarning, TypeError):
-                    print 'Bad fit on Shot: {} '.format(i)
+                    logger.exception('Bad fit on Shot: {} '.format(i))
                     fitout[i] = np.nan, np.nan, np.nan
                     optout[i] = np.ones(6)*np.nan
             iterationResults['analysis/dblGaussPopt'] = optout
             iterationResults['analysis/dblGaussFit'] = fitout
-            print histout
-            iterationResults['analysis/histogram'] = np.array(histout, dtype='uint32')
+            logger.info("histout: {}".format(histout))
+            iterationResults['analysis/histogram'] = np.array(histout,
+                                                              dtype='uint32')
             self.updateFigure(iterationResults)
         return
 

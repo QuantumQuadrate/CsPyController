@@ -11,6 +11,9 @@ __author__ = 'jaisaacs'
 import serial
 import serial.tools.list_ports
 
+import logging
+logger = logging.getLogger(__name__)
+
 class Newport():
 
     #ser_add = '' #'COM6'# Address of serial controller for stage
@@ -31,7 +34,7 @@ class Newport():
         try:
             self.ser = serial.Serial(self.ser_add)
         except serial.SerialException as e:
-            print e
+            logger.exception(e)
             self.comport_bad = True
 
         if not self.comport_bad:
@@ -39,7 +42,7 @@ class Newport():
                 try:
                     self.ser.open()
                 except Exception as e:
-                    print e
+                    logger.exception(e)
             self.ser.timeout = 1
             self.ser.xonxoff = True
 
@@ -53,52 +56,36 @@ class Newport():
                     continue
                 try:
                     self.ser = serial.Serial(port[0])
-                    print "Opened Port {}".format(port[0])
+                    logger.info("Opened Port {}".format(port[0]))
                 except serial.SerialException as e:
-                    print e
+                    logger.exception(e)
                     continue
                 if not self.ser.isOpen():
                     try:
                         self.ser.open()
-                        print("{} is not open".format(comport))
+                        logger.info("{} is not open".format(comport))
                     except Exception as e:
-                        print e
+                        logger.exception(e)
                 self.ser.timeout = 1
                 self.ser.xonxoff =True
                 self.WriteThenPrint('COMOPT3')
                 if self.test_port():
-                    print "Port {} is initialized, Axis = {}".format(port[0], self.axis)
+                    logger.info("Port {} is initialized, Axis = {}".format(port[0], self.axis))
                     break
                 else:
                     self.ser.close()
                     self.ser = None
 
-        #self.ser_add = comport
-        #self.ser = serial.Serial(self.ser_add)
-        # if not self.ser.isOpen():
-        # try:
-          #  print("{} is not open".format(comport))
-          #  self.ser.open()
-        # except Exception as e:
-          #  print e
-
-            #Communication options
-        #self.ser.timeout = 1
-        #self.ser.xonxoff = True
-
-        #self.WriteThenPrint('COMOPT3')
-
-
     def WriteThenPrint(self,s):
         self.ser.write((s+'\n\r').encode('utf-8'))
         response = self.ser.readlines()
         for i in response:
-            print i.rstrip()
+            logger.info(i.rstrip())
 
     def WriteThenStore(self,s):
         self.ser.write((s+'\n\r').encode('utf-8'))
         response = self.ser.readlines()
-        print(response)
+        logger.info(response)
         return response
 
     def home(self): self.WriteThenStore(self.axis+'H')
@@ -117,8 +104,8 @@ class Newport():
         done = ''
         while done != self.axis+'D':
             done = self.status()
-            print('Status: {}\n'.format(done))
-        print('Calibration: Complete!')
+            logger.info('Status: {}\n'.format(done))
+        logger.info('Calibration: Complete!')
 
     def status(self): return self.WriteThenStore(self.axis+'STAT')[0].rstrip()[-2:]
 
@@ -133,8 +120,8 @@ class Newport():
         done = ''
         while done != self.axis+'D':
             done = self.status()
-            print('Status: {}\n'.format(done))
-        print('Center: Found!')
+            logger.info('Status: {}\n'.format(done))
+        logger.info('Center: Found!')
 
 
     def calibrateStage(self):
@@ -142,15 +129,17 @@ class Newport():
         done = ''
         while done != self.axis+'D':
             done = self.status()
-            print('Status: {}\n'.format(done))
-        print('Calibration: Complete!')
+            logger.info('Status: {}\n'.format(done))
+        logger.info('Calibration: Complete!')
         
     def setaxis(self,axis):
         if axis in ['X','Y','Z']:
             self.axis = axis
             #print 'Axis is {}'.format(self.axis)
         else:
-            print "Invalid axis parameter passed to NewportMotionController class. Valid values are X, Y, Z. Defaulting to X."
+            logger.warning("Invalid axis parameter passed to "
+                           "NewportMotionController class. "
+                           "Valid values are X, Y, Z. Defaulting to X.")
             self.axis='X'
 
     def test_port(self):
@@ -162,10 +151,10 @@ class Newport():
         try:
             self.whereAmI()
         except IndexError:
-            print "There was an index Error. Probably wrong COM port"
+            logger.info("There was an index Error. Probably wrong COM port")
             return False
 
-        print "No Errors, probably the right port"
+        logger.info("No Errors, probably the right port")
         return True
 
 

@@ -8,7 +8,7 @@ import logging
 logger = logging.getLogger(__name__)
 
 from analysis import Analysis
-import os, numpy, time, shutil
+import os, numpy, time
 import png, itertools #for PyPNG support
 from atom.api import Bool, Member, Str
 

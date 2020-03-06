@@ -16,8 +16,6 @@ logger = logging.getLogger(__name__)
 from cs_errors import PauseError
 
 from atom.api import Typed, Member, Int, Str
-from enaml.application import deferred_call
-from matplotlib.ticker import NullFormatter
 from instrument_property import BoolProp, FloatProp, StrProp
 from cs_instruments import Instrument
 import numpy as np
@@ -111,8 +109,9 @@ class AnalogOutput(Instrument):
                 try:
                     value_list[index:, channels[i]] = values[i]
                 except Exception as e:
-                    print "probably invalid slice....... Exception: {}".format(e)
-                    print "index={}".format(index)
+                    logger.exception("probably invalid slice....... "
+                                     "Exception: {}".format(e))
+                    logger.info("index={}".format(index))
                     raise PauseError
 
             # update the exposed variables

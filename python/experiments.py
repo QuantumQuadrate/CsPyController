@@ -20,6 +20,7 @@ import cStringIO
 import numpy
 import h5py
 import zipfile
+import inspect
 
 # Use Atom traits to automate Enaml updating
 from atom.api import Int, Float, Str, Member, Bool
@@ -114,7 +115,8 @@ class Experiment(Prop):
 
     version = '2014.04.30'
 
-    #experiment control
+    # experiment control
+    Config = Member()
     status = Str('idle')
     statusStr = Str()
     valid = Bool(True)  # the window will flash red on error
@@ -125,7 +127,6 @@ class Experiment(Prop):
     repeat_experiment_automatically = Bool()
     saveData = Bool()
     saveSettings = Bool()
-    settings_path = Str()
     save_separate_notes = Bool()
     save2013styleFiles = Bool()
     localDataPath = Str()
@@ -139,6 +140,9 @@ class Experiment(Prop):
     notes = Str()
     enable_sounds = Bool()
     enable_instrument_threads = Bool()
+    cache_dir = Str()
+    setting_path = Str()
+    temp_path = Str()
 
     #iteration traits
     progress = Int()
@@ -200,34 +204,62 @@ class Experiment(Prop):
     measurementResults = Member()
     iterationResults = Member()
     allow_evaluation = Member()
-    log = Member()
-    log_handler = Member()
     gui = Member()  # a reference to the gui Main, for use in Prop.set_gui
     optimizer = Member()
     ivarBases = Member()
     instrument_update_needed = Bool(True)
+
 
     # threading
     exp_thread = Member()  # thread running the exp so gui is not blocked
     restart = Member()  # threading event for communication
     task = Member()  # signaling which task should be completed
 
-    def __init__(self):
-        """Defines a set of instruments, and a sequence of what to do with them."""
+    def __init__(self,
+                 config_instrument=None,
+                 cache_location=None,
+                 settings_location=None,
+                 temp_location=None):
+        """
+        Defines a set of instruments, and a sequence of what to do with them.
+        """
         logger.debug('experiment.__init__()')
-        self.setup_logger()
+
+        if config_instrument is None:
+            logger.critical(
+                "Experiment received no ConfigInstrument: {}".format(self))
+            raise PauseError
+        if cache_location is None:
+            logger.critical(
+                "Experiment received no cache location: {}".format(self))
+            raise PauseError
+        if settings_location is None:
+            logger.critical(
+                "Experiment received no settings file location: {}".format(self)
+            )
+            raise PauseError
+        if temp_location is None:
+            logger.critical(
+                "Experiment received no temporary file location:"
+                " {}".format(self))
+            raise PauseError
 
         self.allow_evaluation = False
+        # name is 'experiment', associated experiment is self
+        super(Experiment, self).__init__('experiment', self)
+        self.Config = config_instrument
+        self.Config.experiment = self
+        # default values
+        self.cache_dir = cache_location
+        self.setting_path = settings_location
+        self.temp_path = temp_location
 
-        super(Experiment, self).__init__('experiment', self) #name is 'experiment', associated experiment is self
-
-        #default values
         self.constantReport = StrProp('constantReport', self, 'Important output that does not change with iterations', '""')
         self.variableReport = StrProp('variableReport', self, 'Important output that might change with iterations', '""')
         self.optimizer = optimization.Optimization('optimizer', self, 'updates independent variables to minimize cost function')
 
-
-        self.instruments = []  # a list of the instruments this experiment has defined
+        # a list of the instruments this experiment has defined
+        self.instruments = []
         self.completedMeasurementsByIteration = []
         self.independentVariables = ListProp('independentVariables', self, listElementType=IndependentVariable,
                                              listElementName='independentVariable')
@@ -238,7 +270,7 @@ class Experiment(Prop):
         self.properties += ['version', 'constantsStr', 'independentVariables', 'dependentVariablesStr',
                             'pauseAfterIteration', 'pauseAfterMeasurement', 'pauseAfterError',
                             'reload_settings_after_pause', 'repeat_experiment_automatically',
-                            'saveData', 'saveSettings', 'settings_path',
+                            'saveData', 'saveSettings',
                             'save_separate_notes', 'save2013styleFiles', 'localDataPath', 'networkDataPath',
                             'copyDataToNetwork', 'experimentDescriptionFilenameSuffix', 'measurementTimeout',
                             'measurementsPerIteration', 'willSendEmail', 'emailAddresses', 'progress', 'progressGUI',
@@ -305,31 +337,31 @@ class Experiment(Prop):
 
     def autosave(self):
         logger.debug('Saving settings to default settings.hdf5 ...')
-        #remove old autosave file
+        # remove old autosave file
         try:
-            os.remove('previous_settings.hdf5')
+            os.remove(self.temp_path)
         except Exception as e:
             logger.debug('Could not delete previous_settings.hdf5:\n'+str(e))
         try:
-            os.rename('settings.hdf5','previous_settings.hdf5')
+            os.rename(self.setting_path, self.temp_path)
         except Exception as e:
-            logger.error('Could not rename old settings.hdf5 to previous_settings.hdf5:\n'+str(e))
-
-        #create file
-        f = h5py.File('settings.hdf5', 'w')
-        #recursively add all properties
+            logger.error('Could not rename old settings.hdf5 to '
+                         'previous_settings.hdf5:\n'+str(e))
+        # create file
+        f = h5py.File(self.setting_path, 'w')
+        # recursively add all properties
         x = f.create_group('settings')
         self.toHDF5(x)
         f.flush()
         return f
-        #you will need to do autosave().close() wherever this is called
+        # you will need to do autosave().close() wherever this is called
 
     def create_data_files(self):
         """Create a new HDF5 file to store results.  This is done at the
         beginning of every experiment.
         """
 
-        #if a prior HDF5 results file is open, then close it
+        # if a prior HDF5 results file is open, then close it
         if hasattr(self, 'hdf5') and (self.hdf5 is not None):
             try:
                 self.hdf5.flush()
@@ -411,7 +443,11 @@ class Experiment(Prop):
         for key, value in self.vars.iteritems():
             if key not in ignoreList:
                 try:
-                    v[key] = value
+                    if not inspect.isfunction(value):
+                        if isinstance(value, dict):
+                            v[key] = str(value)
+                        else:
+                            v[key] = value
                 except Exception as e:
                     logger.warning('Could not save variable '+key+' as an hdf5 dataset with value: '+str(value)+'\n'+str(e))
 
@@ -565,9 +601,15 @@ class Experiment(Prop):
                 self.ivarBases[0] = 1
 
     def goThread(self):
-        self.task = 'go'
-        self.restart.set()
-        self.restart.clear()
+        if self.progress == 100:
+            logger.info("Experiment is already complete. "
+                        "Reset to start a new one")
+        else:
+            if self.status == 'idle':
+                self.pause_now()
+            self.task = 'go'
+            self.restart.set()
+            self.restart.clear()
 
     def go(self):
         """Pick up the experiment wherever it was left off."""
@@ -649,8 +691,8 @@ class Experiment(Prop):
 
                         logger.debug("Finished all iterations")
                         self.postExperiment()  # run analyses
-                        self.optimizer.update(self.hdf5, self.experiment_hdf5)  # update optimizer variables\
-                        for i in self.analyses:
+                        self.optimizer.update(self.hdf5, self.experiment_hdf5)  # update optimizer variables
+                        if self.optimizer.enable:
                             self.preExperiment()
                         if self.optimizer.is_done:
                             # the experiment is finished, run final analysis, upload data, and exit loop
@@ -723,45 +765,47 @@ class Experiment(Prop):
                 sound.error_sound()
 
     def loadDefaultSettings(self):
-        """Look for settings.hdf5 in this directory, and if it exists, load it."""
+        """Look for settings.hdf5 in cache and if it exists, load it."""
         logger.debug('Loading default settings ...')
 
-        if os.path.isfile('settings.hdf5'):
-            self.load('settings.hdf5')
+        if os.path.isfile(self.setting_path):
+            self.load(self.setting_path)
         else:
             logger.debug('Default settings.hdf5 does not exist.')
 
     def load(self, path):
         logger.debug('Loading file: '+path)
 
-        #set path as default
-        self.settings_path = os.path.dirname(path)
-
-        #Disable any equation evaluation while loading.  We will evaluate everything after.
+        # Disable any equation evaluation while loading.
+        # We will evaluate everything after.
         if self.allow_evaluation:
             allow_evaluation_was_toggled = True
             self.allow_evaluation = False
         else:
             allow_evaluation_was_toggled = False
 
-        #load hdf5 from a file
+        # load hdf5 from a file
         if not os.path.isfile(path):
             logger.debug('Settings file {} does not exist'.format(path))
             raise PauseError
 
-        #check if the requested file is a zip file, and if so, convert it to a form h5py can read
+        # check if the requested file is a zip file, and if so,
+        # convert it to a form h5py can read
         if zipfile.is_zipfile(path):
             zf = zipfile.ZipFile(path)
             filecontents = zf.read(os.path.basename(os.path.splitext(path)[0]))
-            tempfile = open("unzipped.hdf5","wb")
+            tempfile = open(os.path.join(self.cache_dir,
+                                         "unzipped.hdf5"),
+                            "wb")
             tempfile.write(filecontents)
             tempfile.close()
-            path = "unzipped.hdf5"
+            path = os.path.join(self.cache_dir, "unzipped.hdf5")
 
         try:
             f = h5py.File(path, 'r')
         except Exception as e:
-            logger.warning('Problem loading HDF5 settings file in experiment.load().\n{}\n{}\n'.format(e, traceback.format_exc()))
+            logger.warning('Problem loading HDF5 settings file in experiment.l'
+                           'oad().\n{}\n{}\n'.format(e, traceback.format_exc()))
             raise PauseError
 
         settings = f['settings/experiment']
@@ -769,9 +813,10 @@ class Experiment(Prop):
         try:
             self.fromHDF5(settings)
         except Exception as e:
-            logger.warning('in experiment.load()\n'+str(e)+'\n'+str(traceback.format_exc()))
-            # this is an error, but we will not pass it on, in order to finish loading
-
+            logger.warning('in experiment.load()\n'+str(e)+'\n'+
+                           str(traceback.format_exc()))
+            # this is an error, but we will not pass it on,
+            # in order to finish loading
 
         f.close()
         logger.debug('File load done.')
@@ -779,7 +824,7 @@ class Experiment(Prop):
         if allow_evaluation_was_toggled:
             self.allow_evaluation = True
 
-        #now re-evaluate everything
+        # now re-evaluate everything
         self.evaluateAll()
 
     def measure(self):
@@ -848,9 +893,10 @@ class Experiment(Prop):
         self.postMeasurement()
 
     def pause_now(self):
-        """Pauses experiment as soon as possible.  It is much safer to use Pause after Measurement instead of this.
-        One use for this is to set the status to 'paused' when halt was previously selected (setting the status to
-        idle).  This will allow for the continuation of an experiment that was accidentally halted."""
+        """
+        Pauses experiment as soon as possible. Should only be called in
+        experiment logic, not via the GUI.
+        """
         # Manually force the status to idle, to cause the experiment to end
         self.status = 'paused immediate'
         # stop each instrument
@@ -1004,13 +1050,16 @@ class Experiment(Prop):
     def reset(self):
         """Reset the iteration variables and timing."""
 
-        # check if we are ready to do an experiment
+        if self.status.startswith('paused'):
+            self.stop()
+            self.pauseAfterError = False
+            self.pauseAfterIteration = False
+            self.pauseAfterMeasurement = False
+
         if self.status != 'idle':
             logger.info('Current status is {}. Cannot reset experiment unless status is idle.  Try halting first.'.format(self.status))
-            return  # exit
+            return False
 
-        # reset the log
-        self.reset_logger()
         logger.info('resetting experiment')
         self.set_gui({'valid': True})
 
@@ -1046,17 +1095,8 @@ class Experiment(Prop):
         self.instrument_update_needed = True
 
         self.set_status('paused before experiment')
-
-        return True  # returning True signals resetAndGo() to continue on to go()
-
-    def reset_logger(self):
-        #close old stream
-        if self.log is not None:
-            self.log.flush()
-            self.log.close()
-        #create a new one
-        self.log = cStringIO.StringIO()
-        self.log_handler.stream = self.log
+        # returning True signals resetAndGo() to continue on to go()
+        return True
 
     def resetAndGo(self):
         """Reset the iteration variables and timing, then proceed with an experiment."""
@@ -1074,15 +1114,12 @@ class Experiment(Prop):
 
         logger.info('Saving...')
 
-        #set path as default
-        self.settings_path = os.path.dirname(path)
-
-        #HDF5
+        # HDF5
         self.autosave().close()
 
-        #copy to default location
+        # copy to default location
         logger.debug('Copying HDF5 to save path...')
-        shutil.copy('settings.hdf5', path)
+        shutil.copy(self.setting_path, path)
 
         #XML
         #logger.debug('Creating XML...')
@@ -1103,16 +1140,6 @@ class Experiment(Prop):
     def set_status(self, s):
         self.status = s
         self.set_gui({'statusStr': s})
-
-    def setup_logger(self):
-        #allow logging to a variable
-        self.log = cStringIO.StringIO()
-        rootlogger = logging.getLogger()
-        self.log_handler = logging.StreamHandler(self.log)
-        self.log_handler.setLevel(logging.DEBUG)
-        formatter = logging.Formatter(fmt='%(asctime)s - %(threadName)s - %(filename)s.%(funcName)s.%(lineno)s - %(levelname)s\n%(message)s\n', datefmt='%Y/%m/%d %H:%M:%S')
-        self.log_handler.setFormatter(formatter)
-        rootlogger.addHandler(self.log_handler)
 
     def stop(self):
         """Stops output as soon as possible.  This is not run during the course of a normal experiment."""
@@ -1196,26 +1223,18 @@ class Experiment(Prop):
         self.completionTime = self.timeStarted+self.totalTime
 
     def upload(self):
-        #store the notes again
+        # store the notes again
         logger.info('Storing notes ...')
         del self.hdf5['notes']
         self.hdf5['notes'] = self.notes
-
-        #store the log
-        # logger.info('Storing log ...')
-        # self.log.flush()
-        # try:
-        #     self.hdf5['log'] = self.log.getvalue()
-        # except ValueError:
-        #     # this throws an error at the end of an optimization experiment
-        #     logger.exception('Exception occured when accessing self.log')
         self.hdf5.flush()
 
-
-        #copy to network
+        # copy to network
         if self.copyDataToNetwork:
             logger.info('Copying data to network...')
-            shutil.copytree(self.path, os.path.join(self.networkDataPath, self.dailyPath, self.experimentPath))
+            shutil.copytree(self.path, os.path.join(self.networkDataPath,
+                                                    self.dailyPath,
+                                                    self.experimentPath))
 
         self.set_status('idle')
         logger.info('Finished Experiment.')
@@ -1236,3 +1255,6 @@ class Experiment(Prop):
             self.task = 'upload'
             self.restart.set()
             self.restart.clear()
+
+    def exiting(self):
+        pass

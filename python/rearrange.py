@@ -3,10 +3,10 @@ import numpy
 import h5py
 import requests
 
-from atom.api import Bool, Str, Member, Int, Float, List
-from instrument_property import Prop, EvalProp, IntProp, ListProp, FloatProp
+from atom.api import Bool, Str, Member, Int
+from instrument_property import Prop, ListProp, FloatProp
 from cs_instruments import Instrument
-from colors import green_cmap
+
 from time import sleep
 
 logger = logging.getLogger(__name__)
@@ -198,7 +198,7 @@ class Rearrange(Instrument):
                 requests.post(python_address, json=python_dict)
                 sleep(0.005)
                 requests.post(arduino_address, json=arduino_dict)
-                print 'updating atom rearranger'
+                logger.info('updating atom rearranger')
             else:
             
                 desired_occupation = numpy.zeros(121)            

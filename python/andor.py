@@ -28,7 +28,7 @@ logger = logging.getLogger(__name__)
 from cs_errors import PauseError
 
 from ctypes import CDLL, c_int, c_float, c_long, c_char_p, byref, windll
-import os, sys, threading, time
+import sys, threading, time
 import numpy
 from atom.api import Int, Tuple, List, Str, Float, Bool, Member, observe
 from instrument_property import IntProp, FloatProp, ListProp
@@ -497,8 +497,8 @@ class AndorCamera(Instrument):
         first = c_long()
         last = c_long()
         error = self.dll.GetNumberNewImages(byref(first), byref(last))
-        print "first index : {}".format(first.value)
-        print "last index : {}".format(last.value)
+        logger.info("first index : {}".format(first.value))
+        logger.info("last index : {}".format(last.value))
         if not dump:
             if ERROR_CODE[error] != 'DRV_SUCCESS':
                 logger.error('Error in GetNumberNewImages:\n{}'.format(ERROR_CODE[error]))

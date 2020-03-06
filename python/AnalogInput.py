@@ -18,7 +18,6 @@ logger = logging.getLogger(__name__)
 
 import numpy
 import h5py
-import matplotlib.animation # For showing inputs over single experiment cycle
 from atom.api import Str, Typed, Member, Bool, observe, Int
 
 from instrument_property import BoolProp, FloatProp, StrProp, IntProp, Numpy1DProp

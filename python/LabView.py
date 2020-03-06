@@ -17,7 +17,7 @@ logger = logging.getLogger(__name__)
 
 from cs_errors import PauseError
 
-import TCP, HSDIO, piezo, DDS, RF_generators, AnalogOutput, AnalogInput, DAQmxDO, Camera, TTL, Counter
+import TCP, HSDIO, piezo, RF_generators, AnalogOutput, AnalogInput, DAQmxDO, Camera, TTL, Counter
 from atom.api import Bool, Str, Member, Typed
 from instrument_property import FloatProp
 from cs_instruments import Instrument

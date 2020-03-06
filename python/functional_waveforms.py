@@ -18,11 +18,11 @@ from __future__ import division
 __author__ = 'Martin Lichtman'
 import logging
 logger = logging.getLogger(__name__)
-from cs_errors import PauseError
+
 
 import traceback
 import numpy as np
-from atom.api import Str, Member, Float, Bool, Int, observe
+from atom.api import Str, Member, Float, Bool, observe
 
 import cs_evaluate
 from analysis import AnalysisWithFigure

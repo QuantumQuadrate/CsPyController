@@ -19,15 +19,16 @@
 __author__ = 'Matthew Ebert'
 
 # Use Atom traits to automate Enaml updating
-from atom.api import Int, Float, Str, Member, Bool, Long, Typed
+from atom.api import Int, Str, Member, Bool, Long
 
-from instrument_property import Prop, ListProp, BoolProp, StrProp, FloatProp
+from instrument_property import Prop, ListProp
 
 from analysis import Analysis
 
 from h5py import Dataset, File
-import sys, traceback, os.path
-
+import traceback
+import os.path
+import inspect
 import time
 
 import numpy as np
@@ -35,18 +36,11 @@ import numpy as np
 import logging
 logger = logging.getLogger(__name__)
 
-
-# get the config file
-from __init__ import import_config
-config = import_config()
-
 # still need to import config parser for origin
 import ConfigParser
-sys.path.append(config.get('ORIGIN', 'OriginLibPath'))
-#print config.get('ORIGIN','OriginLibPath')
 
 from origin.client import server
-from origin import current_time, TIMESTAMP, data_types
+from origin import TIMESTAMP, data_types
 
 preExperimentMsg    = 'PEXP'
 postExperimentMsg   = 'EXPR'
@@ -61,27 +55,28 @@ for dtype in data_types.keys():
 
 
 def print_attrs(name, obj):
-    print name
+    logger.info(name)
     for key, val in obj.attrs.iteritems():
-        print("    {}: {}".format(key, val))
+        logger.info("    {}: {}".format(key, val))
+
 
 def print_dsets(name, obj):
     if isinstance(obj, Dataset):
-        print '-'*10
-        print name
-        print obj.dtype
-        print obj[()]
-        print '-'*10
+        logger.info("{}{}{}{}{}".format('-'*10, name, obj.dtype, obj[()],
+                                        '-'*10))
+
 
 def pass_measurement(dset):
     if dset.dtype in dtype_list:
         return True
     return False
 
+
 def pass_iteration(dset):
     if (dset.dtype in dtype_list) and not ('/measurements/' in dset.name):
         return True
     return False
+
 
 def formatData(data):
     '''returns data into relevant type
@@ -317,7 +312,7 @@ class Origin(Analysis):
         )
 
         self.properties += ['measurementDataList', 'iterationDataList', 'enable']
-        self.properties += ['streamNameSpace']
+        self.properties += ['streamNameSpace', 'version']
 
         # threading stuff
         self.queueAfterMeasurement = True
@@ -328,8 +323,13 @@ class Origin(Analysis):
 
     # ==========================================================================
     def configure(self):
-        # read in the correct config file
-        cfg_path = self.experiment.Config.config.get('ORIGIN', 'OriginCfgPath')
+        # This only works if the current working directory is never changed!!
+        filename = inspect.getframeinfo(inspect.currentframe()).filename
+        path = os.path.dirname(os.path.abspath(filename))
+        cfg_path = os.path.join(
+            path,
+            self.experiment.Config.config.get('ORIGIN', 'OriginCfgPath')
+        )
         if self.experiment.Config.config.getboolean('ORIGIN', 'OriginTest'):
             logger.warning("Origin is running in test mode")
             configfile = os.path.join(cfg_path, "origin-server-test.cfg")
@@ -454,7 +454,7 @@ class Origin(Analysis):
         super(Origin, self).toHDF5(experimentResults[self.settings])
         # and to settings file
         try:
-            f = File('settings.hdf5', 'a')
+            f = File(self.experiment.setting_path, 'a')
             super(Origin, self).toHDF5(f['settings/experiment'])
             f.flush()  # write changes
         except Exception as e:

@@ -1,8 +1,0 @@
-from enaml.widgets.api import Window, Container, Label
-
-enamldef View(Window): main:
-    alias text: l.text
-
-    Container:
-        Label: l:
-            pass
