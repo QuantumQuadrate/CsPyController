@@ -255,7 +255,6 @@ class CounterAnalysis(AnalysisWithFigure):
                         ax2 = fig.add_subplot(222)
                         ptr = 0
                         ca = np.array(self.counter_array)
-                        print "ca shape = {}".format(ca.shape)
                         for s in range(self.shots):
                             xs = np.arange(ptr, ptr + self.bins)
                             ax.bar(xs, ca[-1, s, self.graph_roi])
