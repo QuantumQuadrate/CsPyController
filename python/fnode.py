@@ -23,8 +23,8 @@ import FakeInstrument  # for testing
 # analyses
 from threshold_analysis import ThresholdROIAnalysis
 from retention_analysis import RetentionAnalysis, RetentionGraph
-from histogram_analysis import HistogramAnalysis, HistogramGrid
-
+from histogram_analysis import HistogramAnalysis
+from fnodeanalysis import AIAnalysisFNODE
 from experiments import Experiment
 
 
@@ -44,6 +44,7 @@ class FNODE(Experiment):
     TTL_filters = Member()
     AI_graph = Member()
     AI_filter = Member()
+    AIAnalysisFNODE = Member()
     thresholdROIAnalysis = Member()
     loading_filters = Member()
     error_filters = Member()
@@ -157,6 +158,7 @@ class FNODE(Experiment):
             experiment=self,
             description='Fits histograms of counter data and plots hist and '
                         'fits.')
+        self.AIAnalysisFNODE = AIAnalysisFNODE(experiment=self)
         self.origin = origin_interface.Origin(
             name='origin',
             experiment=self,
@@ -178,6 +180,7 @@ class FNODE(Experiment):
             self.Ramsey, self.DAQmxAI,
             self.retention_analysis, self.retention_graph,
             self.counter_hist,
+            self.AIAnalysisFNODE,
             self.origin  # origin has to be last
         ]
 

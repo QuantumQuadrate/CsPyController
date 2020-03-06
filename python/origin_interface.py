@@ -383,7 +383,9 @@ class Origin(Analysis):
 
         # if the name space is empty do not allow the streams to be logged
         if not self.streamNameSpace:
-            logger.warning('The Origin data server interface is enabled, but you have not entered a namespace for you experiment so no data will be logged.')
+            logger.warning('The Origin data server interface is enabled, but '
+                           'you have not entered a namespace for your '
+                           'experiment so no data will be logged.')
             return 0
 
         # prepare server interface if not already set up
@@ -473,8 +475,9 @@ class Origin(Analysis):
 
     # ==========================================================================
     def processDatasets(self, data_list, pass_func):
-        '''pass in the data list to be scaned and a pass function returning True if
-        the object should be kept
+        '''
+        pass in the data list to be scanned and a pass function returning True
+        if the object should be kept
         '''
         def process(name, obj):
             if isinstance(obj, Dataset):
