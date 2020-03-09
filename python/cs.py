@@ -165,13 +165,18 @@ if __name__ == '__main__':
         'settings_location': settings_location,
         'temp_location': temp_location
     }
+    logger.info("Identified experiment name as... {}".format(experiment_name))
     if experiment_name == 'FNODE':
         import fnode
         experiment = fnode.FNODE(**experiment_args)
     elif experiment_name == 'Hybrid':
         import hybrid
         experiment = hybrid.Hybrid(**experiment_args)
+    elif experiment_name == 'Holmium':
+        import holmium
+        experiment = holmium.HOLMIUM(**experiment_args)
     else:
+        logger.info("Specific experiment setup not found, defaulting to aqua")
         import aqua
         experiment = aqua.AQuA(**experiment_args)
     logger.info('Experiment built, building GUI')
