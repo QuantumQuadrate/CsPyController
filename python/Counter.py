@@ -65,6 +65,7 @@ class CounterAnalysis(AnalysisWithFigure):
     meas_data_path = Str()
     iter_analysis_path = Str()
     update_lock = Bool(False)
+    iterationonly = Bool(False)
     enable = Bool()
     drops = Int(3)
     bins = Int(25)
@@ -77,7 +78,7 @@ class CounterAnalysis(AnalysisWithFigure):
         self.meas_analysis_path = 'analysis/counter_data'
         self.meas_data_path = 'data/counter/data'
         self.iter_analysis_path = 'shotData'
-        self.properties += ['enable', 'drops', 'bins', 'shots', 'graph_roi']
+        self.properties += ['enable', 'drops', 'bins', 'shots', 'graph_roi','draw_fig','iterationonly']
 
     def preIteration(self, iterationResults, experimentResults):
         self.counter_array = []
@@ -168,13 +169,14 @@ class CounterAnalysis(AnalysisWithFigure):
             measurementResults[self.meas_analysis_path] = sum_array
             # put the sum data in the expected format for display
             if self.binned_array is None:
-                self.binned_array = [sum_array.reshape((n_meas, n_shots, n_rois))]
+                self.binned_array = np.array([sum_array.reshape((n_meas, n_shots, n_rois))])
             else:
                 self.binned_array = np.concatenate((
                     self.binned_array,
                     [sum_array.reshape((n_meas, n_shots, n_rois))]
                 ))
-        self.updateFigure()
+        if not self.iterationonly:
+            self.updateFigure()
 
     def analyzeIteration(self, iterationResults, experimentResults):
         if self.enable:
@@ -206,6 +208,8 @@ class CounterAnalysis(AnalysisWithFigure):
             logger.info('cut data: {}'.format(total_meas -
                                               len(self.binned_array)))
             iterationResults[self.iter_analysis_path] = self.binned_array
+            if self.iterationonly:
+                self.updateFigure()
         return
 
     def updateFigure(self):
@@ -272,7 +276,8 @@ class CounterAnalysis(AnalysisWithFigure):
                                 # an error in the plot
                                 ax2.hist(
                                     self.binned_array[:, :, s, roi].flatten(),
-                                    bins=np.arange(np.max(self.binned_array[:, :, s, roi].flatten())+2),
+                                    bins=80,
+                                    range=(1.0,self.binned_array[:, :, s, roi].flatten().max()),
                                     histtype='step'
                                 )
                                 legends.append("c{}_s{}".format(roi, s))

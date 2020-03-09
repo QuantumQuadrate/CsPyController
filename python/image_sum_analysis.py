@@ -53,6 +53,7 @@ class ImageSumAnalysis(AnalysisWithFigure):
         self.min = 0
         self.max = 1
         self.shots_path = 'data/' + self.experiment.Config.config.get('CAMERA', 'DataGroup') + '/shots'
+        #print "self.shots_path = {}".format(self.shots_path)
         self.queueAfterMeasurement = True
         self.measurementDependencies += [self.experiment.squareROIAnalysis]
 
@@ -79,9 +80,11 @@ class ImageSumAnalysis(AnalysisWithFigure):
     def analyzeMeasurement(self, measurementResults, iterationResults, experimentResults):
 
         self.iteration = iterationResults.attrs['iteration']
-
+        #print("shots_path ", self.shots_path)
+        #print([el for el in measurementResults])#, measurementResults.value)
         if self.shots_path in measurementResults:
             if self.mean_array is None:
+                #print("None", [el for el in measurementResults[self.shots_path].itervalues()])
                 #start a sum array of the right shape
                 self.sum_array = np.array([shot for shot in measurementResults[self.shots_path].itervalues()], dtype=np.float64)
                 self.count_array = np.zeros(len(self.sum_array), dtype=np.float64)
@@ -89,7 +92,9 @@ class ImageSumAnalysis(AnalysisWithFigure):
 
             else:
                 #add new data
+                #print("Some", [el for el in measurementResults[self.shots_path].itervalues()])
                 for i, shot in enumerate(measurementResults[self.shots_path].itervalues()):
+                    #print shot.value
                     self.sum_array[i] += shot
                     self.count_array[i] += 1.0
                     self.mean_array[i] = self.sum_array[i]/self.count_array[i]

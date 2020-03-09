@@ -169,6 +169,9 @@ if __name__ == '__main__':
     if experiment_name == 'FNODE':
         import fnode
         experiment = fnode.FNODE(**experiment_args)
+    elif experiment_name == 'Hybrid':
+        import hybrid
+        experiment = hybrid.Hybrid(**experiment_args)
     elif experiment_name == 'Holmium':
         import holmium
         experiment = holmium.HOLMIUM(**experiment_args)

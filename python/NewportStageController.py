@@ -9,8 +9,11 @@ __author__ = 'jaisaacs'
 ###
 
 import serial
+import serial.tools.list_ports
+
 import logging
 logger = logging.getLogger(__name__)
+
 class Newport():
 
     #ser_add = '' #'COM6'# Address of serial controller for stage
@@ -22,20 +25,56 @@ class Newport():
     def __init__(self,comport,axis='X'):
         self.axis = 'X'
         self.setaxis(axis)
+        ports = serial.tools.list_ports.comports()
+        # print ports
+
+        # Try comport first
+        self.comport_bad = False
         self.ser_add = comport
-        self.ser = serial.Serial(self.ser_add)
-        if self.ser.isOpen() == False:
-            try:
-                ser.open()
-            except Exception as e:
-                logger.exception(e)
+        try:
+            self.ser = serial.Serial(self.ser_add)
+        except serial.SerialException as e:
+            logger.exception(e)
+            self.comport_bad = True
 
-            #Communication options
-        self.ser.timeout = 1
-        self.ser.xonxoff = True
+        if not self.comport_bad:
+            if not self.ser.isOpen():
+                try:
+                    self.ser.open()
+                except Exception as e:
+                    logger.exception(e)
+            self.ser.timeout = 1
+            self.ser.xonxoff = True
 
-        self.WriteThenPrint('COMOPT3')
+            self.WriteThenPrint('COMOPT3')
+            self.comport_bad = not self.test_port()
 
+        if self.comport_bad:
+            for port in ports:
+                #print port[0]
+                if port[0] == comport:
+                    continue
+                try:
+                    self.ser = serial.Serial(port[0])
+                    logger.info("Opened Port {}".format(port[0]))
+                except serial.SerialException as e:
+                    logger.exception(e)
+                    continue
+                if not self.ser.isOpen():
+                    try:
+                        self.ser.open()
+                        logger.info("{} is not open".format(comport))
+                    except Exception as e:
+                        logger.exception(e)
+                self.ser.timeout = 1
+                self.ser.xonxoff =True
+                self.WriteThenPrint('COMOPT3')
+                if self.test_port():
+                    logger.info("Port {} is initialized, Axis = {}".format(port[0], self.axis))
+                    break
+                else:
+                    self.ser.close()
+                    self.ser = None
 
     def WriteThenPrint(self,s):
         self.ser.write((s+'\n\r').encode('utf-8'))
@@ -46,6 +85,7 @@ class Newport():
     def WriteThenStore(self,s):
         self.ser.write((s+'\n\r').encode('utf-8'))
         response = self.ser.readlines()
+        logger.info(response)
         return response
 
     def home(self): self.WriteThenStore(self.axis+'H')
@@ -102,8 +142,20 @@ class Newport():
                            "Valid values are X, Y, Z. Defaulting to X.")
             self.axis='X'
 
+    def test_port(self):
+        '''
+        Tests the current COM port to make sure correct device is being addressed. Currently a hacky workaround.
 
+        :return: Good port: Boolean, Is the port the correct port?
+        '''
+        try:
+            self.whereAmI()
+        except IndexError:
+            logger.info("There was an index Error. Probably wrong COM port")
+            return False
 
+        logger.info("No Errors, probably the right port")
+        return True
 
 
 

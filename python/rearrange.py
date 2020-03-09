@@ -123,13 +123,14 @@ class Rearrange(Instrument):
         
         # get cutoffs to send to rearranger
         barecutoff = settings['settings/experiment/thresholdROIAnalysis/threshold_array'].value[0]
-        self.s0_thresholds = numpy.zeros(self.rows*self.columns)
-        if len(barecutoff) != len(self.s0_thresholds):
-            logger.warning('ROI number change detected, thresholds for rearrangement are invalid.')
-            barecutoff = numpy.resize(barecutoff, len(self.s0_thresholds))
-        for i in range(self.rows * self.columns):
-            self.s0_thresholds[i] = barecutoff[i][0]
-        self.s0_thresholds[i] = self.s0_thresholds[i]
+        if len(barecutoff.shape) > 1:  #This entire code is only relevant to experiments with ROI arrays. This breaks the code for other experiments.
+            self.s0_thresholds = numpy.zeros(self.rows*self.columns)
+            if len(barecutoff) != len(self.s0_thresholds):
+                logger.warning('ROI number change detected, thresholds for rearrangement are invalid.')
+                barecutoff = numpy.resize(barecutoff, len(self.s0_thresholds))
+            for i in range(self.rows * self.columns):
+                self.s0_thresholds[i] = barecutoff[i][0]
+            self.s0_thresholds[i] = self.s0_thresholds[i]
         
         #close hdf5 file
         settings.close()
