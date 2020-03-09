@@ -106,9 +106,9 @@ class HOLMIUM(Experiment):
             self.allow_evaluation = True
             self.evaluateAll()
         except PauseError:
-            logger.warning('Loading default settings aborted in AQuA.__init__().  PauseError')
+            logger.warning('Loading default settings aborted in Holmium.__init__().  PauseError')
         except:
-            logger.exception('Loading default settings aborted in AQuA.__init__().')
+            logger.exception('Loading default settings aborted in Holmium.__init__().')
 
         # make sure evaluation is allowed now
         self.allow_evaluation = True
