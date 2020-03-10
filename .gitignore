@@ -10,7 +10,7 @@ venv
 python/config/config.cfg
 *__enamlcache__
 *.aliases
-*.lvlps
+*.lvproj
 *.cache
 *.db
 *.bak
