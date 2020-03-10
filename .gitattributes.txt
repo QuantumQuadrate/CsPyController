@@ -1,3 +1,4 @@
+[attr]binary -diff -merge -text
 *.vi binary
 *.vim binary
 *.lvclass binary
