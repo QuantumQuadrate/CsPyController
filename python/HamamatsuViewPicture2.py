@@ -23,6 +23,7 @@ def Initialize (interfacename):
     error = dll.imgInterfaceOpen(interfacename, byref(ID_pointer))
     if error != 0:
         logger.warning("Error in imgInterfaceOpen: {}".format(error))
+        CheckError(error)
     logger.info("ID_Pointer={}".format(ID_pointer.value))
 
     Sess_ID = c_ulong(0)
@@ -51,18 +52,18 @@ def Initialize (interfacename):
 
 
 def Video (bpnp,artist,bufferpointer):
-
-    while True:
-        dll.imgGrab(Sess_ID, byref(pointer(bufferpointer)), 0)    
-        logger.info("grabbed frame "
+    while(True):
+        dll.imgGrab(Sess_ID, byref(pointer(bufferpointer)), 0)
+        logger.debug("grabbed frame "
                     "{} {} {}".format(bpnp.shape, bpnp[0, 0],
                                       np.ctypeslib.as_array(bufferpointer)[0, 0]
                                       )
                     )
-        artist.autoscale()
+        artist.autoscale()#--------------------------------------------------------------------------------------------------------
+        artist.set_data(bpnp)
         fig.canvas.draw()
         fig.canvas.flush_events()
-        time.sleep(.2)
+        time.sleep(0.2)
     error = dll.imgClose(Sess_ID, 1)
 
 
@@ -72,6 +73,8 @@ def WriteSerial(Sess_ID, mystring, timeout=1000):                               
     sizeofstringtosend = c_ulong(len(stringtosend.value))
     #print "sizeofstringtosend={}".format(sizeofstringtosend)
     error = dll.imgSessionSerialWrite(Sess_ID, stringtosend, byref(sizeofstringtosend), timeout)  # Set Serial communication
+    bufsize, buffer = ReadSerial(Sess_ID, timeout)  # check for response from camera
+    logger.info("bufsize = {}, buffer = {}".format(bufsize, buffer))
     CheckError(error)
     bufsize, buffer = ReadSerial(Sess_ID, timeout) #check for response from camera
     return buffer  #return response from camera
@@ -89,8 +92,8 @@ def StartVideo(Sess_ID):                                       # Start data aqui
     WriteSerial(Sess_ID, 'AMD N')        # Free running mode
     WriteSerial(Sess_ID, 'SMD N')        # Scan Mode Normal (no binning)
     WriteSerial(Sess_ID, 'BGC F')        # Background Control Off
-    exptime = WriteSerial(Sess_ID, 'AET 0.07')
-    WriteSerial(Sess_ID, 'EMG 100.36')
+    exptime = WriteSerial(Sess_ID, 'AET 0.060')
+    WriteSerial(Sess_ID, 'EMG 20.0')
     rotime = WriteSerial(Sess_ID, '?RAT') #ask for exposure time
 
     logger.info("Acquire Exposure time in seconds = {}".format(exptime))
@@ -128,6 +131,7 @@ def StartAcquire(Sess_ID,bufferpointer,height,width):
     ax = fig.add_subplot(111)
     bpnp = np.reshape(np.ctypeslib.as_array(bufferpointer),(height.value,width.value))
     artist = ax.imshow(bpnp)
+    # artist = ax.imshow(bpnp,vmin=1.2e3,vmax=6.0e4,cmap='brg')
     fig.show()
     logger.info("fig shown")
     return bpnp, artist
@@ -150,6 +154,7 @@ ID_pointer, Sess_ID, height, width, bufferpointer = Initialize(interfacename)
 logger.info("About to do GrabSetup")
 
 StartVideo(Sess_ID)
+
 # Start aquisition
 bpnp, artist = StartAcquire(Sess_ID, bufferpointer, height, width)
 

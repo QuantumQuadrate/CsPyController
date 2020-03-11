@@ -4,6 +4,7 @@ import logging
 logger = logging.getLogger(__name__)
 
 from cs_errors import PauseError
+
 import numpy as np
 import threading, traceback, time
 

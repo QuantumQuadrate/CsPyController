@@ -11,7 +11,8 @@ import BILT
 import noise_eaters
 import DDS, roi_fitting
 import picomotors, andor, picampython, vaunix, DCNoiseEater, Laird_temperature, AnalogInput
-import Counter, unlock_pause, niscope, newportstage, nidaq_ai
+
+import Counter, unlock_pause, niscope, newportstage, nidaq_ai, HPSignalGenerator
 logger = logging.getLogger(__name__)
 import origin_interface
 import FakeInstrument  # for testing
@@ -59,6 +60,7 @@ class AQuA(Experiment):
     pyPicoServer = Member()
     Embezzletron = Member()
     NIScopes = Member()
+    RydHP = Member()
 
     functional_waveforms = Member()
     functional_waveforms_graph = Member()
@@ -157,6 +159,7 @@ class AQuA(Experiment):
         self.pyPicoServer = PyPicoServer('PyPicomotor', self, 'PyPico server interface for controlling closed loop picomotors')
         self.Embezzletron = FakeInstrument.Embezzletron('Embezzletron', self, 'Fake instrument that generates random data for testing')
         self.NIScopes = niscope.NIScopes('NIScopes', self, 'National Instruments Scopes')
+        self.RydHP = HPSignalGenerator.RydHP('RydHP', self, 'controls HP8648B signal generator')
         # do not include functional_waveforms in self.instruments because it
         # need not start/stop
         self.instruments += [
@@ -164,7 +167,7 @@ class AQuA(Experiment):
             self.NIScopes, self.Andors, self.PICams, self.DC_noise_eaters,
             self.BILT, self.DDS, self.unlock_pause,
             self.Embezzletron, self.instekpsts,
-            self.vaunixs, self.NewportStage, self.DDS2
+            self.vaunixs, self.NewportStage, self.RydHP, self.DDS2
         ]
         # Labview must be last at least until someone fixes the start command
         self.instruments += [self.LabView]
@@ -245,7 +248,7 @@ class AQuA(Experiment):
             'Ramsey', 'counter_graph', 'counter_hist', 'unlock_pause',
             'ROI_rows', 'ROI_columns', 'ROI_bg_rows', 'ROI_bg_columns',
             'NIScopes', 'beam_position_analysis', 'beam_position_analysis2',
-            'origin'
+            'origin','RydHP'
         ]
 
         try:

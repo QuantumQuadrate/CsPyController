@@ -39,6 +39,7 @@ class NewportStage(Instrument):
     command=Member()
     mypos = Float()
     axis = Member()
+    statusmeasurement = Bool(True)
 
     def __init__(self, name, experiment, description=''):
         super(NewportStage, self).__init__(name, experiment, description)
@@ -48,7 +49,7 @@ class NewportStage(Instrument):
         self.velocity = FloatProp('velocity',experiment,'Velocity (mm/s)','10')
         self.command = StrProp('command',experiment,'Command to send','')
         self.properties += ['setposition', 'comport', 'velocity', 'axis',
-                            'version']
+                            'version','statusmeasurement']
 
     def initialize(self):
         if self.nport is not None:
@@ -56,8 +57,13 @@ class NewportStage(Instrument):
             del self.nport
         if self.enable and not self.isInitialized:
             self.nport = newportcontroller.Newport(self.comport.value, self.axis.value)
-            #print "Hey, I sent it {}. No idea why it's fucking up.".format(self.axis.value)
             self.isInitialized = True
+            # if self.nport.test_port():
+            #    print "Port is initialized, Axis = {}.".format(self.axis.value)
+            #    self.isInitialized = True
+            # else:
+            #    print "Wrong Port try again"
+            #    self.isInitialized = False
 
     def start(self):
         self.isDone = True
@@ -114,7 +120,7 @@ class NewportStage(Instrument):
         return self.nport.whereAmI()/1000
 
     def writeResults(self, hdf5):
-        if self.enable:
+        if self.enable and self.statusmeasurement:
             self.mypos = self.whereAmI()
         return
         

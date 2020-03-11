@@ -601,9 +601,15 @@ class Experiment(Prop):
                 self.ivarBases[0] = 1
 
     def goThread(self):
-        self.task = 'go'
-        self.restart.set()
-        self.restart.clear()
+        if self.progress == 100:
+            logger.info("Experiment is already complete. "
+                        "Reset to start a new one")
+        else:
+            if self.status == 'idle':
+                self.pause_now()
+            self.task = 'go'
+            self.restart.set()
+            self.restart.clear()
 
     def go(self):
         """Pick up the experiment wherever it was left off."""
@@ -887,9 +893,10 @@ class Experiment(Prop):
         self.postMeasurement()
 
     def pause_now(self):
-        """Pauses experiment as soon as possible.  It is much safer to use Pause after Measurement instead of this.
-        One use for this is to set the status to 'paused' when halt was previously selected (setting the status to
-        idle).  This will allow for the continuation of an experiment that was accidentally halted."""
+        """
+        Pauses experiment as soon as possible. Should only be called in
+        experiment logic, not via the GUI.
+        """
         # Manually force the status to idle, to cause the experiment to end
         self.status = 'paused immediate'
         # stop each instrument
@@ -1043,10 +1050,15 @@ class Experiment(Prop):
     def reset(self):
         """Reset the iteration variables and timing."""
 
-        # check if we are ready to do an experiment
+        if self.status.startswith('paused'):
+            self.stop()
+            self.pauseAfterError = False
+            self.pauseAfterIteration = False
+            self.pauseAfterMeasurement = False
+
         if self.status != 'idle':
             logger.info('Current status is {}. Cannot reset experiment unless status is idle.  Try halting first.'.format(self.status))
-            return  # exit
+            return False
 
         logger.info('resetting experiment')
         self.set_gui({'valid': True})
@@ -1083,8 +1095,8 @@ class Experiment(Prop):
         self.instrument_update_needed = True
 
         self.set_status('paused before experiment')
-
-        return True  # returning True signals resetAndGo() to continue on to go()
+        # returning True signals resetAndGo() to continue on to go()
+        return True
 
     def resetAndGo(self):
         """Reset the iteration variables and timing, then proceed with an experiment."""
