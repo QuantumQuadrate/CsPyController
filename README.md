@@ -39,7 +39,9 @@ all previously installed dependencies prior to installing the CsPy dependencies.
 It is highly recommended that you make a system restore point prior to your
 uninstallation process so that it may be reverted if that becomes necessary. If
 any of the drivers give you options for which LabVIEW versions to add support
-for, select only 32-bit LabVIEW 2014 and 2015.
+for, select only 32-bit LabVIEW 2014 and 2015. Any time the National Instruments
+update service tells you there is a Critical Update, install it. Always remain
+up to date on the Critical Updates. The non-critical updates are unnecessary.
 ### Configuration files
 
 Some parameters need to be specified before the controller is started, such as 
