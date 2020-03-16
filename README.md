@@ -32,7 +32,9 @@ to run these servers, some National Instruments drivers as well as a run-time
 version of LabVIEW is necessary. To be able to edit the servers, a development
 version is necessary. All of the necessary installers for National Instruments
 software compatible with Windows 7 or Windows 10 systems can be found in the
-public folder of the lab's Hexagon server. If CsPy is the only LabVIEW
+public folder of the lab's Hexagon server. A machine running the PXI server
+requires all of the dependencies whereas one only running the DDS server only
+needs the LabVIEW installation and the 845x drivers. If CsPy is the only LabVIEW
 dependency for your computer and you already have other development versions of
 LabVIEW installed, it is recommended to use the NI Package Manager to uninstall
 all previously installed dependencies prior to installing the CsPy dependencies.
