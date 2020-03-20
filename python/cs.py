@@ -147,10 +147,13 @@ if __name__ == '__main__':
     cache_location = os.path.join(path, '__project_cache__\\')
     settings_location = os.path.join(cache_location, 'settings.hdf5')
     temp_location = os.path.join(cache_location, 'previous_settings.hdf5')
-    with h5py.File(name=settings_location, mode='r+') as hdf:
-        group = hdf['settings/experiment']
-        config_instrument.fromHDF5(group.attrs[config_instrument_name])
-        config_instrument.toHDF5(group)
+    try:
+        with h5py.File(name=settings_location, mode='r+') as hdf:
+            group = hdf['settings/experiment']
+            config_instrument.fromHDF5(group.attrs[config_instrument_name])
+            config_instrument.toHDF5(group)
+    except KeyError:
+        logger.info("Couldn't find saved config, must use cfg file")
 
     logger.info('Config finalized.. Making experiment according to config')
     # Now that we have a choice of config, we can import and construct different
@@ -169,6 +172,9 @@ if __name__ == '__main__':
     if experiment_name == 'FNODE':
         import fnode
         experiment = fnode.FNODE(**experiment_args)
+    elif experiment_name == 'Rb':
+        import rubidium
+        experiment = rubidium.Rb(**experiment_args)
     elif experiment_name == 'Hybrid':
         import hybrid
         experiment = hybrid.Hybrid(**experiment_args)
