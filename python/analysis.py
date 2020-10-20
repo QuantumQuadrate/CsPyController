@@ -733,11 +733,11 @@ class MeasurementsGraph(AnalysisWithFigure):
                         ax = fig.add_subplot(111)
                         for i in plotlist:
                             try:
-                                    data = self.data[:, i[0], 0, i[1]] #hardcoded '0' is to select the submeasurement No. 0
+                                data = self.data[:, i[0], 0, i[1]] #hardcoded '0' is to select the submeasurement No. 0
                             except:
                                 logger.warning('Trying to plot data that does not exist in MeasurementsGraph: shot {} roi {}'.format(i[0], i[1]))
                                 continue
-                                label = '({},{})'.format(i[0], 0, i[1])
+                            label = '({},{})'.format(i[0], 0, i[1])
                             ax.plot(data, 'o', label=label)
                         #add legend using the labels assigned during ax.plot()
                         ax.legend()
