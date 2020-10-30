@@ -758,7 +758,7 @@ if ExpMode==0:
     #Ryd780B(t_science,t_gap,'PG','r3')
     # Ryd780B(t_science,t_gap,'addressing','r3')
     #SpinEcho(t_science,t_gap,t_microwavepiover2)
-    #Microwave(t_science+extension+t_depump,t_microwave)
+    Microwave(t_science+extension+t_depump,t_microwave)
     # Ryd780A(t_science+0.001+extension,t_Ryd780A,'r2','r2')
     FORTdrop(170+extension, t_FORTdrop)
     # Blue480(t_science+extension-0.1, t_blueon,'r2')
