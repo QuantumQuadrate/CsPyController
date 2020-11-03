@@ -208,6 +208,7 @@ class Experiment(Prop):
     optimizer = Member()
     ivarBases = Member()
     instrument_update_needed = Bool(True)
+    ROITypeString = Str()
 
 
     # threading
@@ -266,6 +267,7 @@ class Experiment(Prop):
         self.ivarIndex = []
         self.vars = {}
         self.analyses = []
+        self.ROITypeString = 'gaussian_roi'  # used in analysis.py; can be overwritten by experiment classes
 
         self.properties += ['version', 'constantsStr', 'independentVariables', 'dependentVariablesStr',
                             'pauseAfterIteration', 'pauseAfterMeasurement', 'pauseAfterError',

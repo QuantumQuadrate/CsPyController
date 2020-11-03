@@ -110,6 +110,7 @@ class Rb(Experiment):
 
         # analyses
         self.squareROIAnalysis = SquareROIAnalysis(self)
+        self.ROITypeString = 'squareROIsums'
         self.imageSumAnalysis = ImageSumAnalysis(self)
         self.TTL_filters = TTL.TTL_filters('TTL_filters', self)
         self.functional_waveforms_graph = functional_waveforms.FunctionalWaveformGraph('functional_waveforms_graph', self, 'Graph the HSDIO, DAQmx DO, and DAQmx AO settings')
