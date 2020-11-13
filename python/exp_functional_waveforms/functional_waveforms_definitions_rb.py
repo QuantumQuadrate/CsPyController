@@ -193,7 +193,7 @@ def readout3(t,duration):
     return t
 
 
-def chopped_blowaway(t_start,t_end,t_period,t_pulse,profileFORT='on',profileMOT='Blowaway'):
+def chopped_blowaway(t_start,t_end,t_period,t_pulsewidth): #,profileFORT='on',profileMOT='Blowaway',labl='blowaway'):
     """
     The blow-away phase in which the MOT and FORT are alternately chopped
     Args:
@@ -202,49 +202,42 @@ def chopped_blowaway(t_start,t_end,t_period,t_pulse,profileFORT='on',profileMOT=
         't_period': chop period in ms
         't_pulsewidth': pulse width in ms. offset between MOT and FORT controlled by
             independent variable t_BA_offset
+        'labl': the label to be used in the functional waveforms graph that doesn't actually work 2020.11.13
+    Return:
+        'func' the HSDIO_repeat function we built here
     ##TODO: This is similar enough to the chopped readout function to merit defining a generic mot pulse function
     """
-    #this is what we used to do. try to mimic it:
-    # t_start = 176 + extension + t_depump
-    # t_end = t_start + t_BA
+    label(t_start,"Blowaway") # for functional waveforms graph
 
-    # configure profiles here, not outsid of the function
-    exp.fort_dds.profile(t_start, profileFORT)
-    exp.mot_3d_dds.profile(t_start, profileMOT)
-    t_pulsewidth = 0.001 * 2
-    t_period = 0.001 * 4
-    for i in range(int(round((t_end-t_start)/t_period))):
-        exp.mot_aom_switch.profile(t_start+i*t_period+t_BA_offset,'on')
-        exp.mot_aom_switch.profile(t_start+i*t_period+t_pulsewidth+t_BA_offset,'off')
-
-    for i in range(int(round((t_end-t_start)/t_period))):
-        exp.fort_aom_switch.profile(t_start+i*t_period,'off')
-        exp.fort_aom_switch.profile(t_start+i*t_period+t_pulsewidth,'on')
-
-    # what we do now
+    # set up the pulse switching parameters
+    channels = [my_MOT_SW_channel, my_FORT_SW_channel]
     profiles = [
-        [1,0,1]
-
+        [1,0,1], # MOT on, MOT off, MOT on
+        [0,1,0] # FORT off, FORT on, FORT off
     ]
 
-    cycles = int(duration / period)
+    ##TODO: convert BA offset to a phase profile
+    phi_fudge = 0.07 # difference between MOT and FORT start
+    phi0_MOT = t_BA_offset/t_period + phi_fudge
+    phi1_MOT = phi0_MOT + t_pulsewidth/t_period
+    phi0_FORT = t_BA_offset/t_period
+    phi1_FORT = phi0_FORT + (1 - t_pulsewidth/t_period) #+ phi_fudge
 
-    label(t + period, 'readout c1')
-    label(t + cycles * period / 2, 'readout half')
-    print(t + cycles * period / 2)
-    channels = [my_MOT_SW_channel, my_FORT_SW_channel]
+    phases = [
+        [phi0_MOT, phi1_MOT], # pulse starting phase, ending phase
+        [phi0_FORT, phi1_FORT]
+    ]
 
-    t = HSDIO_repeat(t, chop_readout(channels, phases, profiles, period),
-                     cycles)
-    return t
+    cycles = int(round((t_end-t_start)/t_period))
 
-
+    func = HSDIO_repeat(t_start, chop_readout(channels, phases, profiles, t_period), cycles)
+    return func
 
 
 def opticalpumping(t,duration):
     """Optical pumping to the clock state."""
     # Note that camera trigger is not included here. Exposure control needs to be done indepdently
-    # Also magnetic field control is done sepearately.
+    # Also magnetic field control is done separately.
     if duration>0:
         label(t, 'OP')
         # chop FORT and MOT out of phase
@@ -838,16 +831,7 @@ if ExpMode==0:
     exp.mot_3d_dds.profile(t_start,'Blowaway')
     t_pulsewidth=0.001*2
     t_period=0.001*4
-
-    ## need to use the repeat function!!!
-    for i in range(int(round((t_end-t_start)/t_period))):
-        exp.mot_aom_switch.profile(t_start+i*t_period+t_BA_offset,'on')
-        exp.mot_aom_switch.profile(t_start+i*t_period+t_pulsewidth+t_BA_offset,'off')
-
-    for i in range(int(round((t_end-t_start)/t_period))):
-        exp.fort_aom_switch.profile(t_start+i*t_period,'off')
-        exp.fort_aom_switch.profile(t_start+i*t_period+t_pulsewidth,'on')
-
+    chopped_blowaway(t_start,t_end,t_period,t_pulsewidth)
     exp.fort_dds.profile(t_end,'on')
 
     ## 2nd Readout Phase
