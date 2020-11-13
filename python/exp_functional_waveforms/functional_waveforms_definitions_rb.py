@@ -122,8 +122,8 @@ def readout1(t,duration,period_ms,profile=None):
         ]
 
     cycles = int(duration/period)
-    print("cycles")
-    print(cycles)
+    # print("cycles")
+    # print(cycles)
     label(t + period, 'readout c1')
     label(t + cycles*period/2, 'readout half')
     print(t + cycles*period/2)
@@ -191,6 +191,54 @@ def readout3(t,duration):
     # ]
     t = HSDIO_repeat(t, chop_readout(channels, phases, profiles, period_ms), cycles)
     return t
+
+
+def chopped_blowaway(t_start,t_end,t_period,t_pulse,profileFORT='on',profileMOT='Blowaway'):
+    """
+    The blow-away phase in which the MOT and FORT are alternately chopped
+    Args:
+        't_start': time to start in ms from cycle trigger
+        't_end': time to stop in ms from cycle trigger
+        't_period': chop period in ms
+        't_pulsewidth': pulse width in ms. offset between MOT and FORT controlled by
+            independent variable t_BA_offset
+    ##TODO: This is similar enough to the chopped readout function to merit defining a generic mot pulse function
+    """
+    #this is what we used to do. try to mimic it:
+    # t_start = 176 + extension + t_depump
+    # t_end = t_start + t_BA
+
+    # configure profiles here, not outsid of the function
+    exp.fort_dds.profile(t_start, profileFORT)
+    exp.mot_3d_dds.profile(t_start, profileMOT)
+    t_pulsewidth = 0.001 * 2
+    t_period = 0.001 * 4
+    for i in range(int(round((t_end-t_start)/t_period))):
+        exp.mot_aom_switch.profile(t_start+i*t_period+t_BA_offset,'on')
+        exp.mot_aom_switch.profile(t_start+i*t_period+t_pulsewidth+t_BA_offset,'off')
+
+    for i in range(int(round((t_end-t_start)/t_period))):
+        exp.fort_aom_switch.profile(t_start+i*t_period,'off')
+        exp.fort_aom_switch.profile(t_start+i*t_period+t_pulsewidth,'on')
+
+    # what we do now
+    profiles = [
+        [1,0,1]
+
+    ]
+
+    cycles = int(duration / period)
+
+    label(t + period, 'readout c1')
+    label(t + cycles * period / 2, 'readout half')
+    print(t + cycles * period / 2)
+    channels = [my_MOT_SW_channel, my_FORT_SW_channel]
+
+    t = HSDIO_repeat(t, chop_readout(channels, phases, profiles, period),
+                     cycles)
+    return t
+
+
 
 
 def opticalpumping(t,duration):
@@ -790,6 +838,8 @@ if ExpMode==0:
     exp.mot_3d_dds.profile(t_start,'Blowaway')
     t_pulsewidth=0.001*2
     t_period=0.001*4
+
+    ## need to use the repeat function!!!
     for i in range(int(round((t_end-t_start)/t_period))):
         exp.mot_aom_switch.profile(t_start+i*t_period+t_BA_offset,'on')
         exp.mot_aom_switch.profile(t_start+i*t_period+t_pulsewidth+t_BA_offset,'off')
