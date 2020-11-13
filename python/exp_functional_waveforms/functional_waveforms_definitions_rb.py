@@ -659,8 +659,8 @@ if ExpMode==0:
 
 
     ## test the DDS 1.5:
-    exp.test_dds.profile(t_end,'on')
-    exp.test_dds.profile(t_end+5,'off')
+    # exp.test_dds.profile(t_end,'on')
+    # exp.test_dds.profile(t_end+5,'off')
 
     # prepareF1(t_end+0.3,t_F1prepare)
 
@@ -832,7 +832,9 @@ if ExpMode==0:
     t_pulsewidth=0.001*2
     t_period=0.001*4
     chopped_blowaway(t_start,t_end,t_period,t_pulsewidth)
-    exp.fort_dds.profile(t_end,'on')
+    exp.fort_aom_switch.profile(t_end+0.001,'on')
+    exp.mot_aom_switch.profile(t_end+0.001,'off')
+    exp.fort_dds.profile(t_end+0.001,'on')
 
     ## 2nd Readout Phase
     AO(180+extension+t_depump,quadrupole1,0) # turn off quadrupole fields
