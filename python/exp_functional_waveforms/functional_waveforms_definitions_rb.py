@@ -216,7 +216,7 @@ def chopped_blowaway(t_start,t_end,t_period,t_pulsewidth): #,profileFORT='on',pr
         [0,1,0] # FORT off, FORT on, FORT off
     ]
 
-    ##TODO: convert BA offset to a phase profile
+    # convert BA offset to a phase profile
     phi_fudge = 0.07 # difference between MOT and FORT start
     phi0_MOT = t_BA_offset/t_period + phi_fudge
     phi1_MOT = phi0_MOT + t_pulsewidth/t_period
@@ -394,17 +394,47 @@ def Ryd780A_leadtime(t,t_leadtime,duration,pointing_profile,intensity_profile): 
 def Ryd780A_pulsed(t, cycle_time, pointing_profile, intensity_profile, pulse_ontime, num_of_pulses): # region_profile example: 'r2'
     t_red_delay=0.950*0.001
     if t>=0: #make sure timings are valid
-        for i in range(0,num_of_pulses):
-            exp.red_pointing_dds.profile(t+t_red_delay+i*cycle_time,pointing_profile)
-            exp.red_pointing_dds.profile(t+t_red_delay+pulse_ontime+i*cycle_time,'off')
-            exp.ryd780a_dds.profile(t+t_red_delay+i*cycle_time,intensity_profile)
-            exp.ryd780a_dds.profile(t+t_red_delay+pulse_ontime+i*cycle_time,'off')
-            exp.red_pointing_aom_switch.profile(t+t_red_delay+i*cycle_time,'on')
-            exp.red_pointing_aom_switch.profile(t+t_red_delay+pulse_ontime+i*cycle_time,'off')
-            exp.ryd780a_aom_switch.profile(t+t_red_delay+i*cycle_time,'on')
-            exp.ryd780a_aom_switch.profile(t+t_red_delay+pulse_ontime+i*cycle_time,'off')
-            exp.fort_aom_switch.profile(t+i*cycle_time,'off')
-            exp.fort_aom_switch.profile(t+pulse_ontime+i*cycle_time,'on')
+        # for i in range(0,num_of_pulses):
+        #     exp.red_pointing_dds.profile(t+t_red_delay+i*cycle_time,pointing_profile)
+        #     exp.red_pointing_dds.profile(t+t_red_delay+pulse_ontime+i*cycle_time,'off')
+        #     exp.ryd780a_dds.profile(t+t_red_delay+i*cycle_time,intensity_profile)
+        #     exp.ryd780a_dds.profile(t+t_red_delay+pulse_ontime+i*cycle_time,'off')
+        #     exp.red_pointing_aom_switch.profile(t+t_red_delay+i*cycle_time,'on')
+        #     exp.red_pointing_aom_switch.profile(t+t_red_delay+pulse_ontime+i*cycle_time,'off')
+        #     exp.ryd780a_aom_switch.profile(t+t_red_delay+i*cycle_time,'on')
+        #     exp.ryd780a_aom_switch.profile(t+t_red_delay+pulse_ontime+i*cycle_time,'off')
+        #     exp.fort_aom_switch.profile(t+i*cycle_time,'off')
+        #     exp.fort_aom_switch.profile(t+pulse_ontime+i*cycle_time,'on')
+
+        # only need to set DDS profiles once, just before the pulse sequence
+        exp.red_pointing_dds.profile(t + t_red_delay, pointing_profile)
+        exp.red_pointing_dds.profile(t + t_red_delay+pulse_ontime,'off')
+        exp.ryd780a_dds.profile(t + t_red_delay,intensity_profile)
+        exp.ryd780a_dds.profile(t + t_red_delay+pulse_ontime,'off')
+
+        # set up the pulse switching parameters
+        channels = [ryd780A_dp_aom_channel, ryd780A_point_aom_channel] #TODO: CHRIS-- set me in constans_Rb.py,
+                                                                       # then don't forget to past the constants code into CsPy window
+        profiles = [
+            [1, 0, 1],  # 780A on, off, on
+            [0, 1, 0]  # FORT off, on, off
+        ]
+
+        # convert BA offset to a phase profile
+        phi_fudge = 0  # can use to fix pulse offset between 780A and FORT start
+        phi0_780A = t_red_delay / cycle_time
+        phi1_780A = phi0_MOT + t_pulsewidth / cycle_time
+        phi0_FORT = t_red_delay / cycle_time
+        phi1_FORT = phi0_FORT + (1 - pulse_ontime / cycle_time)
+
+        phases = [
+            [phi0_780A, phi1_780A],  # state starting phase, state change phase
+            [phi0_FORT, phi1_FORT]
+        ]
+
+        cycles = num_of_pulses
+        func = HSDIO_repeat(t_start, chop_readout(channels, phases, profiles, cycle_time), cycles)
+        return func
 
 def Ryd780A_Ramsey(t_start, t_gap, t_piover2, pointing_profile, intensity_profile):
     if t_start>=0 and t_piover2 >0 and t_gap>=0: #make sure timings are valid
