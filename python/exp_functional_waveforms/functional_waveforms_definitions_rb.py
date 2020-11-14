@@ -413,18 +413,21 @@ def Ryd780A_pulsed(t, cycle_time, pointing_profile, intensity_profile, pulse_ont
         exp.ryd780a_dds.profile(t + t_red_delay+pulse_ontime,'off')
 
         # set up the pulse switching parameters
-        channels = [ryd780A_dp_aom_channel, ryd780A_point_aom_channel] #TODO: CHRIS-- set me in constans_Rb.py,
-                                                                       # then don't forget to past the constants code into CsPy window
+        # channels = [ryd780A_dp_aom_channel, ryd780A_point_aom_channel] #TODO: CHRIS-- set me in constans_Rb.py,
+        #                                                                # then don't forget to past the constants code into CsPy window
+        channels = [ryd780A_point_aom_channel, my_FORT_SW_channel]  #
+
         profiles = [
-            [1, 0, 1],  # 780A on, off, on
-            [0, 1, 0]  # FORT off, on, off
+            [0, 1, 0],  # 780A off, on, off
+            [1, 0, 1]  # FORT on, off, on
         ]
 
         # convert BA offset to a phase profile
         phi_fudge = 0  # can use to fix pulse offset between 780A and FORT start
-        phi0_780A = t_red_delay / cycle_time
-        phi1_780A = phi0_MOT + t_pulsewidth / cycle_time
-        phi0_FORT = t_red_delay / cycle_time
+        total_delay = 0.1
+        phi0_780A =total_delay + t_red_delay / cycle_time
+        phi1_780A = phi0_780A + t_pulsewidth / cycle_time
+        phi0_FORT = total_delay
         phi1_FORT = phi0_FORT + (1 - pulse_ontime / cycle_time)
 
         phases = [
