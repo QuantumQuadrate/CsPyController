@@ -13,6 +13,7 @@ import analysis
 logger = logging.getLogger(__name__)
 
 from experiments import Experiment
+from atom.api import Member, Int
 
 
 class HOLMIUM(Experiment):
@@ -30,6 +31,10 @@ class HOLMIUM(Experiment):
     AI_graph = Member()
     AI_filter = Member()
     picam_viewer = Member()
+    ROI_rows = Int(1)
+    ROI_columns = Int(1)
+    ROI_bg_rows = Int(0)
+    ROI_bg_columns = Int(0)
     Ramsey = Member()
     window_dict = Member()
 

@@ -450,8 +450,12 @@ class PICamCamera(Instrument):
             try:
                 self.mostrecentresult = self.data
                 if (not self.averageMeasurements):# or (self.averageMeasurements and self.experiment.measurement == self.experiment.measurementsPerIteration):  #(Removed +1 after self.experiment.measurement)
-                    logger.info("Writing data for PICam")
-                    hdf5['PICam_{}'.format(self.currentSerial)] = self.data
+                    frame_count = self.data.shape[0]
+                    if frame_count == 1:
+                        hdf5['PICam_{}'.format(self.currentSerial)] = self.data[0]
+                    else:
+                        for frame_index in range(frame_count):
+                            hdf5['PICam_{}_{}'.format(self.currentSerial, frame_index)] = self.data[frame_index]
             except Exception as e:
                 logger.error('in PICam.writeResults:\n{}'.format(e))
                 raise PauseError
