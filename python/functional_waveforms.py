@@ -34,19 +34,43 @@ class FunctionalWaveforms(Instrument):
     version = '2015.05.24'
 
     text = Str()  # a text string that holds all the waveforms
+    text_last = Str() # the most recent waveform text string we used
 
     def __init__(self, name, experiment, description=''):
         super(FunctionalWaveforms, self).__init__(name, experiment, description)
         self.properties += ['version', 'text']
+        self.text_last = ""
 
     def evaluate(self):
         if self.enable and self.experiment.allow_evaluation:
             logger.debug('FunctionalWaveforms.evaluate()')
             self.experiment.LabView.HSDIO.repeat_list = [] # Prevents buildup
             #localvars = self.experiment.vars.copy()
+
+            # sometimes we edit the waveform in a file, then paste it into the FunctionWaveforms window text field
+            # this file is not guaranteed to be up-to-date unless all of the edits are made there. guarantee that the
+            # file is up-to-date by overwriting it when functional waveforms text has changed.
+            self.update_wfm_file()
+
             cs_evaluate.execWithGlobalDict(self.text) #, localvars)
 
             super(FunctionalWaveforms, self).evaluate()
+
+    def update_wfm_file(self):
+        """
+        if the experiment class used to define the experiment (e.g. rubidium) has defined a file in which to store
+        a backup of the funtional waveform (which is helpful so that more complicated edits can readily be made in
+        a proper IDE such as PyCharm), this will over-write the file if the text in the FunctionalWaveforms
+        multi-line field has been updated.
+        """
+
+        fname = self.experiment.functionalWaveformFileString
+        if fname != "":
+            if self.text != self.text_last:
+                with open(fname, 'w') as f:
+                    f.write(self.text)
+                self.text_last = self.text
+
 
 class FunctionalWaveformGraph(AnalysisWithFigure):
     """

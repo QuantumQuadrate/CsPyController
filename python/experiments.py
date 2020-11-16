@@ -209,6 +209,7 @@ class Experiment(Prop):
     ivarBases = Member()
     instrument_update_needed = Bool(True)
     ROITypeString = Str()
+    functionalWaveformFileString = Str()
 
 
     # threading
@@ -268,6 +269,7 @@ class Experiment(Prop):
         self.vars = {}
         self.analyses = []
         self.ROITypeString = 'gaussian_roi'  # used in analysis.py; can be overwritten by experiment classes
+        self.functionalWaveformFileString = ""
 
         self.properties += ['version', 'constantsStr', 'independentVariables', 'dependentVariablesStr',
                             'pauseAfterIteration', 'pauseAfterMeasurement', 'pauseAfterError',

@@ -1,4 +1,3 @@
-
 """
 These are the waveform functions for the Rubidium project.
 
@@ -158,6 +157,7 @@ def readout2(t,duration):
     t = HSDIO_repeat(t, chop_readout(channels, phases, profiles, period_ms),
                      cycles)
     return t
+
 def readout3(t,duration):
     """Image atom in FORT."""
     # Note that camera trigger is not included here. Exposure control needs to be done indepdently
