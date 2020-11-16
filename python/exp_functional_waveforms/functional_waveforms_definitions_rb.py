@@ -13,6 +13,7 @@ ExpMode
 """
 
 import exp_functional_waveforms.functional_waveforms_rb as Rb
+from exp_functional_waveforms.functional_waveforms_rb import ryd780a_aom_switch_chan,red_pointing_aom_switch_chan
 
 HSDIO = experiment.LabView.HSDIO.add_transition
 HSDIO_repeat = experiment.LabView.HSDIO.add_repeat
@@ -53,6 +54,7 @@ def chop_readout(channels, phases, profiles, period):
             # now change state at phase list
             for j, p in enumerate(phases[i]):
                 if p > 1 or p < 0:
+                    print p
                     print "chop_dds function expects phases to be within 0<p<1"
                     raise ValueError
                 # put in initial value for the cycle
@@ -408,36 +410,38 @@ def Ryd780A_pulsed(t, cycle_time, pointing_profile, intensity_profile, pulse_ont
 
         # only need to set DDS profiles once, just before the pulse sequence
         exp.red_pointing_dds.profile(t + t_red_delay, pointing_profile)
-        exp.red_pointing_dds.profile(t + t_red_delay+pulse_ontime,'off')
         exp.ryd780a_dds.profile(t + t_red_delay,intensity_profile)
-        exp.ryd780a_dds.profile(t + t_red_delay+pulse_ontime,'off')
 
         # set up the pulse switching parameters
-        # channels = [ryd780A_dp_aom_channel, ryd780A_point_aom_channel] #TODO: CHRIS-- set me in constans_Rb.py,
-        #                                                                # then don't forget to past the constants code into CsPy window
-        channels = [ryd780A_point_aom_channel, my_FORT_SW_channel]  #
-
-        profiles = [
-            [0, 1, 0],  # 780A off, on, off
-            [1, 0, 1]  # FORT on, off, on
-        ]
-
-        # convert BA offset to a phase profile
-        phi_fudge = 0  # can use to fix pulse offset between 780A and FORT start
-        total_delay = 0.1
-        phi0_780A =total_delay + t_red_delay / cycle_time
-        phi1_780A = phi0_780A + t_pulsewidth / cycle_time
-        phi0_FORT = total_delay
-        phi1_FORT = phi0_FORT + (1 - pulse_ontime / cycle_time)
-
-        phases = [
-            [phi0_780A, phi1_780A],  # state starting phase, state change phase
-            [phi0_FORT, phi1_FORT]
-        ]
-
-        cycles = num_of_pulses
-        func = HSDIO_repeat(t_start, chop_readout(channels, phases, profiles, cycle_time), cycles)
-        return func
+        # channels = [ryd780a_aom_switch_chan,
+        #             red_pointing_aom_switch_chan,
+        #             my_FORT_SW_channel]
+        #
+        # profiles = [
+        #     [0, 1, 0],  # 780A double pass off, on, off
+        #     [0, 1, 0],  # 780A pointing off, on, off
+        #     [1, 0, 1]  # FORT on, off, on
+        # ]
+        #
+        # # t_science + extension, 0.01, 'r2', 'r2', 0.0008, 100
+        # # convert offset to a phase profile
+        # phi_fudge = 0  # can use to fix pulse offset between 780A and FORT start
+        # total_delay = 0
+        # phi0_780A = total_delay + t_red_delay / cycle_time
+        # phi1_780A = phi0_780A + pulse_ontime / cycle_time
+        # phi0_FORT = total_delay
+        # phi1_FORT = phi0_FORT + (1 - pulse_ontime / cycle_time)
+        #
+        # phases = [
+        #     [phi0_780A, phi1_780A],  # state starting phase, state change phase
+        #     [phi0_780A, phi1_780A],  # state starting phase, state change phase
+        #     [phi0_FORT, phi1_FORT]
+        # ]
+        #
+        # cycles = num_of_pulses
+        # t_start = t
+        # func = HSDIO_repeat(t_start, chop_readout(channels, phases, profiles, cycle_time), cycles)
+        # return func
 
 def Ryd780A_Ramsey(t_start, t_gap, t_piover2, pointing_profile, intensity_profile):
     if t_start>=0 and t_piover2 >0 and t_gap>=0: #make sure timings are valid
@@ -815,7 +819,7 @@ if ExpMode==0:
     # exp.mot_3d_z1_shutter_switch.profile(t_z1_shutter_open,'on') #reversed pol 08232019
     # exp.mot_3d_z1_shutter_switch.profile(t_z1_shutter_close,'off')
  # for specific purposes
-    # # Science Phase 170 - 175 ms. t_science=170
+    # # Science Phase 170 - 175 ms. t_science=170, as defined in constants_Rb.py
     # AO(t_science+extension-3,shimcoil_3DX,coil_driver_polarity*shimX_PGC)
     # AO(t_science+extension-3,shimcoil_3DY,coil_driver_polarity*shimY_PGC)
     # AO(t_science+extension-3,shimcoil_3DZ,coil_driver_polarity*shimZ_PGC)
@@ -834,12 +838,12 @@ if ExpMode==0:
     #SpinEcho(t_science,t_gap,t_microwavepiover2)
     #Microwave(t_science+extension+t_depump,t_microwave)
     # Ryd780A(t_science+0.001+extension,t_Ryd780A,'r2','r2')
-    FORTdrop(170+extension, t_FORTdrop)
+    # FORTdrop(170+extension, t_FORTdrop)
     # Blue480(t_science+extension-0.1, t_blueon,'r2')
     ##Ryd780B(t_science+t_microwave+0.001,t_Ryd780B,'r2','r2')
     #Ryd780A(t_science-0.005,0.1,'r2','r2')
-    #Ryd780A_pulsed(t, cycle_time, pointing_profile, intensity_profile, pulse_ontime, num_of_pulses): # region_profile example: 'r2'
-    #Ryd780A_pulsed(t_science+extension, 0.01, 'r2', 'r2', 0.0008, 100)
+    # Ryd780A_pulsed(t, cycle_time, pointing_profile, intensity_profile, pulse_ontime, num_of_pulses): # region_profile example: 'r2'
+    Ryd780A_pulsed(t_science+extension, 0.01, 'r2', 'r2', 0.0008, 100)
     #Ryd780A_Ramsey(t_science, t_Rydberg_gap, t_Ryd780A_piover2, 'r2', 'r2')
     #Ryd780A_leadtime(t_science,0.005,t_Ryd780A,'r2','r2')
 
