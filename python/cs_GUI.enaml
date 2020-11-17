@@ -1135,31 +1135,47 @@ enamldef FunctionalWaveforms(Window):
     Container:
         padding = 0
         style_class << 'valid' if experiment.valid else 'invalid'
-        ScrollArea:
+        constraints = [
+            form.bottom == enable.bottom + 50,
+            form.left == contents_left,
+            form.right == contents_right,
+            scroll.top == form.bottom,
+            scroll.bottom == contents_bottom,
+            scroll.left == contents_left,
+            scroll.right == contents_right,
+            enable.top == contents_top,
+            enable.bottom + 5 == form.top,
+            enable.left== contents_left + 5
+            ]
+
+
+        LabelBox: enable:
+            text = 'enable'
+            checked := waveforms.enable
+
+        Form: form:
             style_class << 'valid' if experiment.valid else 'invalid'
             Container:
                 style_class << 'valid' if experiment.valid else 'invalid'
-                constraints = [form.bottom+5 = field.top, enable.left==contents_left, enable.bottom+5==form.top, enable.top==contents_top, field.left==contents_left, field.right==contents_right, field.bottom==contents_bottom]
+                constraints = [box.left == contents_left, path.right == contents_right, path.left == box.right + 5]
+                LabelBox: box:
+                    text = 'Load Waveforms from File?'
+                    checked := waveforms.load_file
+                Field: path:
+                    text := waveforms.filename
+                    placeholder = 'Full path to waveform file'
 
-                LabelBox: enable:
-                    text = 'enable'
-                    checked := waveforms.enable
-
-                Form: form:
-                    constraints = [(midline==left)|'strong'] #,(width==parent.contents_width)|'strong']
-
-                    Label:
-                        text = 'Load Waveforms from File?'
-                    CheckField:
-                        checked := waveforms.load_file
-                        text := waveforms.filename
-                        placeholder = 'Full path to waveform file'
+        ScrollArea: scroll:
+            style_class << 'valid' if experiment.valid else 'invalid'
+            Container:
+                style_class << 'valid' if experiment.valid else 'invalid'
+                constraints = [field.top == contents_top, field.left==contents_left, field.right==contents_right, field.bottom==contents_bottom]
 
                 MultilineField: field:
                     # waveform entry
                     hug_width = 'ignore'
                     hug_height = 'ignore'
-                    text := waveforms.text
+                    text := waveforms.field_text
 
 enamldef FunctionalWaveformsGraph(Window):
     attr graph
