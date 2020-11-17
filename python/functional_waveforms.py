@@ -39,24 +39,30 @@ class FunctionalWaveforms(Instrument):
     """
     version = '2015.05.24'
 
-    text = Str()  # a text string that holds all the waveforms
+    waveform_text = Str()  # a text string that holds all the waveforms
     """ load_file : if true, waveforms text is loaded from a file, overwriting the text in the
     # text box """
     load_file = Bool()
     filename = Str()  # File from which to load functional waveforms if load_file is true.
+    file_text = Str()  # Text loaded from a file
+    field_text = Str()  # Text string in the GUI field
 
     def __init__(self, name, experiment, description=''):
         super(FunctionalWaveforms, self).__init__(name, experiment, description)
-        self.properties += ['version', 'text', 'load_file', 'filename']
+        self.properties += ['version', 'waveform_text', 'file_text', 'field_text', 'load_file', 'filename']
 
     def evaluate(self):
         if self.enable and self.experiment.allow_evaluation:
             logger.debug('FunctionalWaveforms.evaluate()')
             self.experiment.LabView.HSDIO.repeat_list = []  # Prevents buildup
 
+            # default to using the text in the input field as the waveform
+            self.waveform_text = self.field_text
+
             # If load_file is checked, overwrite waveform with text from a file
             if self.load_file and os.path.isfile(self.filename):
                 self.load_text_from_file()
+                self.waveform_text = self.file_text
             elif self.load_file:
                 logger.warning(
                     "load_file is true but filename is not a valid file, defaulting to text box waveform\n"
@@ -64,7 +70,7 @@ class FunctionalWaveforms(Instrument):
                 )
 
             #localvars = self.experiment.vars.copy()
-            cs_evaluate.execWithGlobalDict(self.text) #, localvars)
+            cs_evaluate.execWithGlobalDict(self.waveform_text) #, localvars)
 
             super(FunctionalWaveforms, self).evaluate()
 
@@ -84,7 +90,7 @@ class FunctionalWaveforms(Instrument):
             logger.exception("Uncaught exception. Waveform not updated\n{}".format(e))
             raise
         else:
-            self.text = txt
+            self.file_text = txt
 
 
 class FunctionalWaveformGraph(AnalysisWithFigure):
