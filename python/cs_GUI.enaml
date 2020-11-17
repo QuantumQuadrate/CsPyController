@@ -1145,6 +1145,16 @@ enamldef FunctionalWaveforms(Window):
                     text = 'enable'
                     checked := waveforms.enable
 
+                Form: form:
+                    constraints = [(midline==left)|'strong'] #,(width==parent.contents_width)|'strong']
+
+                    Label:
+                        text = 'Load Waveforms from File?'
+                    CheckField:
+                        checked := waveforms.load_file
+                        text := waveforms.filename
+                        placeholder = 'Full path to waveform file'
+
                 MultilineField: field:
                     # waveform entry
                     hug_width = 'ignore'

@@ -23,30 +23,69 @@ logger = logging.getLogger(__name__)
 import traceback
 import numpy as np
 from atom.api import Str, Member, Float, Bool, observe
+import os
 
 import cs_evaluate
 from analysis import AnalysisWithFigure
 from cs_instruments import Instrument
+from cs_errors import PauseError
 
 
 class FunctionalWaveforms(Instrument):
-    """A virtual instrument that specifies the timing for HSDIO, DAQmx DIO, and DAQmx AO."""
+    """
+    A virtual instrument that specifies the timing for HSDIO, DAQmx DIO, and DAQmx AO.
+
+
+    """
     version = '2015.05.24'
 
     text = Str()  # a text string that holds all the waveforms
+    """ load_file : if true, waveforms text is loaded from a file, overwriting the text in the
+    # text box """
+    load_file = Bool()
+    filename = Str()  # File from which to load functional waveforms if load_file is true.
 
     def __init__(self, name, experiment, description=''):
         super(FunctionalWaveforms, self).__init__(name, experiment, description)
-        self.properties += ['version', 'text']
+        self.properties += ['version', 'text', 'load_file', 'filename']
 
     def evaluate(self):
         if self.enable and self.experiment.allow_evaluation:
             logger.debug('FunctionalWaveforms.evaluate()')
-            self.experiment.LabView.HSDIO.repeat_list = [] # Prevents buildup
+            self.experiment.LabView.HSDIO.repeat_list = []  # Prevents buildup
+
+            # If load_file is checked, overwrite waveform with text from a file
+            if self.load_file and os.path.isfile(self.filename):
+                self.load_text_from_file()
+            elif self.load_file:
+                logger.warning(
+                    "load_file is true but filename is not a valid file, defaulting to text box waveform\n"
+                    "filename : {}".format(self.filename)
+                )
+
             #localvars = self.experiment.vars.copy()
             cs_evaluate.execWithGlobalDict(self.text) #, localvars)
 
             super(FunctionalWaveforms, self).evaluate()
+
+    def load_text_from_file(self):
+        txt = ""
+        try:
+            with open(self.filename, 'r') as f:
+                for line in f:
+                    txt = txt + line
+        except IOError as e:
+            logger.exception(
+                "Opening file {} in FunctionalWaveforms. Waveform not updated\n{}".format(
+                    self.filename, e)
+            )
+            raise PauseError
+        except Exception as e:
+            logger.exception("Uncaught exception. Waveform not updated\n{}".format(e))
+            raise
+        else:
+            self.text = txt
+
 
 class FunctionalWaveformGraph(AnalysisWithFigure):
     """
