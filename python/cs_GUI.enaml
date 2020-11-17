@@ -1175,7 +1175,7 @@ enamldef FunctionalWaveforms(Window):
                     # waveform entry
                     hug_width = 'ignore'
                     hug_height = 'ignore'
-                    text := waveforms.field_text
+                    text := waveforms.text
 
 enamldef FunctionalWaveformsGraph(Window):
     attr graph
