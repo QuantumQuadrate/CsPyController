@@ -1139,7 +1139,7 @@ enamldef FunctionalWaveforms(Window):
             style_class << 'valid' if experiment.valid else 'invalid'
             Container:
                 style_class << 'valid' if experiment.valid else 'invalid'
-                constraints = [enable.left==contents_left, enable.bottom+5==field.top, enable.top==contents_top, field.left==contents_left, field.right==contents_right, field.bottom==contents_bottom]
+                constraints = [form.bottom+5 = field.top, enable.left==contents_left, enable.bottom+5==form.top, enable.top==contents_top, field.left==contents_left, field.right==contents_right, field.bottom==contents_bottom]
 
                 LabelBox: enable:
                     text = 'enable'
