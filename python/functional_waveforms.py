@@ -39,45 +39,82 @@ class FunctionalWaveforms(Instrument):
     """
     version = '2015.05.24'
 
+    SETTINGS_WAVEFORM = r"exp_functional_waveform\settings_waveform.py"
+
     waveform_text = Str()  # a text string that holds all the waveforms
     """ load_file : if true, waveforms text is loaded from a file, overwriting the text in the
     # text box """
     load_file = Bool()
+    load_from_settings = Bool()
     filename = Str()  # File from which to load functional waveforms if load_file is true.
     file_text = Str()  # Text loaded from a file
     text = Str()  # Text string in the GUI field
 
     def __init__(self, name, experiment, description=''):
         super(FunctionalWaveforms, self).__init__(name, experiment, description)
-        self.properties += ['version', 'text', 'file_text', 'waveform_text', 'load_file', 'filename']
+        self.properties += [
+            'version',
+            'text',
+            'file_text',
+            'waveform_text',
+            'load_file',
+            'load_from_settings',
+            'filename']
+
+        # Create the settings wavefrom file if it doesn't already exist
+        if not os.path.isfile(self.SETTINGS_WAVEFORM):
+            with open(self.SETTINGS_WAVEFORM, "x") as f:
+                f.write("")
 
     def evaluate(self):
         if self.enable and self.experiment.allow_evaluation:
             logger.debug('FunctionalWaveforms.evaluate()')
             self.experiment.LabView.HSDIO.repeat_list = []  # Prevents buildup
 
+            self.update_settings_waveform()
+
             # default to using the text in the input field as the waveform
             self.waveform_text = self.text
 
             # If load_file is checked, overwrite waveform with text from a file
-            if self.load_file and os.path.isfile(self.filename):
-                self.load_text_from_file()
+            if self.load_from_settings or self.load_file:
+                filename = self.SETTINGS_WAVEFORM if self.load_from_settings else self.filename
+                self.load_text_from_file(filename)
                 self.waveform_text = self.file_text
-            elif self.load_file:
-                logger.warning(
-                    "load_file is true but filename is not a valid file, defaulting to text box waveform\n"
-                    "filename : {}".format(self.filename)
-                )
 
             #localvars = self.experiment.vars.copy()
             cs_evaluate.execWithGlobalDict(self.waveform_text) #, localvars)
 
             super(FunctionalWaveforms, self).evaluate()
 
-    def load_text_from_file(self):
+    def update_settings_waveform(self):
+        """
+        Write the current waveform used by the experiment to the temporary file specified in
+        FunctionalWaveforms.SETTINGS_WAVEFORM
+        """
+        with open(self.SETTINGS_WAVEFORM, 'w') as f:
+            f.write(self.waveform_text)
+
+    def load_text_from_file(self, filename):
+        """
+        Loads functional waveforms from a file specified in self.filename. If
+        load_from_settings
+        is true, the waveform is loaded from self.SETTINGS_WAVEFORM instead.
+        :return:
+        :rtype:
+        """
+
+        if not os.path.isfile(filename):
+            logger.warning(
+                "failed to load waveform file, filename is not a valid file, defaulting to text "
+                "box waveform\n"
+                "filename : {}".format(self.filename)
+            )
+            return
+
         txt = ""
         try:
-            with open(self.filename, 'r') as f:
+            with open(filename, 'r') as f:
                 for line in f:
                     txt = txt + line
         except IOError as e:
