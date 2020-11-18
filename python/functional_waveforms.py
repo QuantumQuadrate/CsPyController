@@ -39,7 +39,7 @@ class FunctionalWaveforms(Instrument):
     """
     version = '2015.05.24'
 
-    SETTINGS_WAVEFORM = r"exp_functional_waveform\settings_waveform.py"
+    SETTINGS_WAVEFORM = os.path.join(os.getcwd(), r"exp_functional_waveforms\settings_waveform.py")
 
     waveform_text = Str()  # a text string that holds all the waveforms
     """ load_file : if true, waveforms text is loaded from a file, overwriting the text in the
@@ -63,7 +63,7 @@ class FunctionalWaveforms(Instrument):
 
         # Create the settings wavefrom file if it doesn't already exist
         if not os.path.isfile(self.SETTINGS_WAVEFORM):
-            with open(self.SETTINGS_WAVEFORM, "x") as f:
+            with open(self.SETTINGS_WAVEFORM, "w") as f:
                 f.write("")
 
     def evaluate(self):

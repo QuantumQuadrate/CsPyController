@@ -14,3 +14,4 @@ python/config/config.cfg
 *.cache
 *.db
 *.bak
+/python/exp_functional_waveforms/settings_waveform.py

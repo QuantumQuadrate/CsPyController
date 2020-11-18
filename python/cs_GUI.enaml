@@ -1145,7 +1145,7 @@ enamldef FunctionalWaveforms(Window):
             scroll.right == contents_right,
             enable.top == contents_top,
             enable.bottom + 5 == form.top,
-            enable.left == contents_left + 5
+            enable.left == contents_left + 5,
             settings.top == contents_top,
             settings.bottom + 5 == form.top,
             settings.left == enable.right + 5
@@ -1157,7 +1157,7 @@ enamldef FunctionalWaveforms(Window):
             checked := waveforms.enable
 
         LabelBox: settings:
-            text: 'load from settings file?'
+            text = 'load from settings file?'
             checked := waveforms.load_from_settings
 
         Form: form:
