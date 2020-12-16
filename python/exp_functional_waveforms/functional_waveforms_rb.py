@@ -43,9 +43,9 @@ overwritten at the global scope.
 # what determines what profile this is though? see dds window in CsPy to set it
 
 ################################################################################
-# DDS 1.5 Test Profile ##########################################################
+# DDS 1.5/2 Test Profile ##########################################################
 ################################################################################
-test_dds_pinout = (-1,-1,-1) # actually hook this up to something
+test_dds_pinout = (-1,-1,-1) # could actually hook this up to something
 test_dds_profiles = {
   'on' : (0,0,0),
   'off': (0,0,1)

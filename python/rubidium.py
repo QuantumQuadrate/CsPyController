@@ -34,6 +34,7 @@ class Rb(Experiment):
     LabView = Member()
     DDS = Member()
     DDS2 = Member()
+    DDS3 = Member()
     pyPicoServer = Member()
     imageSumAnalysis = Member()
     functional_waveforms = Member()
@@ -94,7 +95,8 @@ class Rb(Experiment):
         self.LabView = LabView.LabView(self)
         self.DAQmxAI = nidaq_ai.NIDAQmxAI('DAQmxAI', self, 'NI-DAQmx Analog Input')
         self.DDS = DDS.DDS('DDS', self, 'server for homemade DDS boxes')
-        self.DDS2 = DDS.DDS('DDS2', self, 'XML server for homemade DDS boxes')
+        self.DDS2 = DDS.DDS('DDS2', self, 'server for homemade DDS 1.5 boxes')
+        self.DDS3 = DDS.DDS('DDS3', self, 'server for homemade DDS 2.0 boxes')
         self.pyPicoServer = PyPicoServer('PyPicomotor', self, 'PyPico server interface for controlling closed loop picomotors')
         self.unlock_pause = unlock_pause.UnlockMonitor('unlock_pause', self, 'Monitor for pausing when laser unlocks')
         self.instruments += [
@@ -103,6 +105,7 @@ class Rb(Experiment):
             self.Andors,
             self.DDS,
             self.DDS2,
+            self.DDS3,
             self.unlock_pause
         ]
         # Labview must be last at least until someone fixes the start command
@@ -171,7 +174,7 @@ class Rb(Experiment):
             'beam_position_analysis2', 'functional_waveforms_graph',
             'unlock_pause', 'DAQmxAI', 'imageSumAnalysis',
             'RbAIAnalysis', 'functional_waveforms', 'LabView',
-            'DDS', 'DDS2',
+            'DDS', 'DDS2','DDS3',
             'pyPicoServer', 'Andors',
             'squareROIAnalysis', 'histogram_grid', 'thresholdROIAnalysis',
             'TTL_filters', 'AI_graph',
@@ -196,6 +199,7 @@ class Rb(Experiment):
             'HSDIO': 'HSDIO_DigitalOutPage(HSDIO = main.experiment.LabView.HSDIO, creator=main, name="HSDIO")',
             'DDS': 'DDS_Page(DDS = main.experiment.DDS, creator=main, name="DDS")',
             'DDS2':'DDS_Page(DDS = main.experiment.DDS2, creator=main, name="DDS2")',
+            'DDS3': 'DDS_Page(DDS = main.experiment.DDS3, creator=main, name="DDS3")',
             'Andor Cameras': 'Andors(andors = main.experiment.Andors, creator=main, name="Andor Cameras")',
             'Blackfly Client': 'BlackflyClient(blackfly_client = main.experiment.blackfly_client, creator=main, name="Blackfly Client")',
             'Analog Output': 'AnalogOutput(AO = main.experiment.LabView.AnalogOutput, creator=main, name="Analog Output")',
