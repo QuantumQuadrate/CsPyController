@@ -1157,7 +1157,7 @@ enamldef FunctionalWaveforms(Window):
             checked := waveforms.enable
 
         LabelBox: settings:
-            text = 'load from settings file?'
+            text = 'load from settings file? (check when loading old experiments)'
             checked := waveforms.load_from_settings
 
         Form: form:

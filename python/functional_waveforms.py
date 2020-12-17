@@ -37,7 +37,7 @@ class FunctionalWaveforms(Instrument):
 
 
     """
-    version = '2015.05.24'
+    version = '2020.12.17'
 
     SETTINGS_WAVEFORM = os.path.join(os.getcwd(), r"exp_functional_waveforms\settings_waveform.py")
 
@@ -129,6 +129,14 @@ class FunctionalWaveforms(Instrument):
         else:
             self.file_text = txt
 
+    def fromHDF5(self, hdf):
+        placeholder = "Placeholder"
+        self.waveform_text = placeholder
+        super(FunctionalWaveforms, self).fromHDF5(hdf)
+        # This indicates that the waveform_text attribute did not exist in the hdf5 file.
+        if self.waveform_text == placeholder:
+            # we overwrite the text with the text used to generate the waveform in the file.
+            self.waveform_text = self.text
 
 class FunctionalWaveformGraph(AnalysisWithFigure):
     """
