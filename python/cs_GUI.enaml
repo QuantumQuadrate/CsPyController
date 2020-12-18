@@ -28,7 +28,7 @@ from enaml.image import Image
 from enaml.core.declarative import d_
 from enaml.core.include import Include
 from enaml.stdlib.dialog_buttons import DialogButton
-from enaml.stdlib.message_box import question
+from enaml.stdlib.message_box import question, information
 from enaml.stdlib.fields import FloatField, IntField
 from enaml.core.api import Looper, Conditional
 from enaml.styling import StyleSheet, Style, Setter
@@ -242,13 +242,8 @@ enamldef CsMenuBar(MenuBar): menuBar:
         Action:
             text = 'Load\tCtrl+L'
             triggered::
-                dlg = FileDialog(
-                    parent=menuBar,
-                    title='Choose file to load',
-                    mode='open_file',
-                    path=experiment.setting_path,
-                    callback=get_load_file_callback(experiment),
-                    ).open()
+                confirm_load_file(menuBar, experiment)
+
         Action:
             text = 'Save\tCtrl+S'
             triggered::
@@ -4958,6 +4953,30 @@ def confirm_close(calling_window, event):
         event.accept()
     else:
         event.ignore()
+
+def confirm_load_file(parent, experiment):
+
+    dialog = question(
+    parent=None,
+    title='Load old experiment?',
+    text='Important: your waveform will now be read from the file you select. \n'
+     'To stop using the old waveform, uncheck "load from settings file" in FunctionalWaveforms',
+    buttons=[
+        DialogButton(
+                     text='Continue',
+                     action='accept'),
+        DialogButton(
+                     text='Nevermind',
+                     action='reject')]
+    )
+    if dialog and dialog.action == 'accept':
+        dlg = FileDialog(
+                    parent=parent,
+                    title='Choose file to load',
+                    mode='open_file',
+                    path=experiment.setting_path,
+                    callback=get_load_file_callback(experiment),
+                    ).open()
 
 enamldef Main(MainWindow): main:
     attr experiment
