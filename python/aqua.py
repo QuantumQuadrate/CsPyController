@@ -62,7 +62,6 @@ class AQuA(Experiment):
     NIScopes = Member()
     RydHP = Member()
 
-    functional_waveforms = Member()
     functional_waveforms_graph = Member()
     TTL_filters = Member()
     AI_graph = Member()
@@ -139,7 +138,6 @@ class AQuA(Experiment):
         except:
             logger.warning("Blackfly client disabled,"
                            "install PyCapture2 module to enable")
-        self.functional_waveforms = functional_waveforms.FunctionalWaveforms('functional_waveforms', self, 'Waveforms for HSDIO, DAQmx DIO, and DAQmx AO; defined as functions')
         self.picomotors = picomotors.Picomotors('picomotors', self, 'Newport Picomotors')
         self.noise_eaters = noise_eaters.Noise_Eaters('noise_eaters', self,'rotating wave-plate noise eaters')
         self.BILT = BILT.BILTcards('BILT',self, 'BILT DC Voltage sources')

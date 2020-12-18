@@ -31,6 +31,7 @@ import cs_evaluate
 import sound
 import optimization
 from instrument_property import Prop, EvalProp, ListProp, StrProp
+import functional_waveforms
 
 import logging
 __author__ = 'Martin Lichtman'
@@ -209,6 +210,7 @@ class Experiment(Prop):
     ivarBases = Member()
     instrument_update_needed = Bool(True)
     ROITypeString = Str()
+    functional_waveforms = Member()
 
 
     # threading
@@ -268,6 +270,8 @@ class Experiment(Prop):
         self.vars = {}
         self.analyses = []
         self.ROITypeString = 'gaussian_roi'  # used in analysis.py; can be overwritten by experiment classes
+        self.functional_waveforms = functional_waveforms.FunctionalWaveforms('functional_waveforms', self,
+                                                                             'Waveforms for HSDIO, DAQmx DIO, and DAQmx AO; defined as functions')
 
         self.properties += ['version', 'constantsStr', 'independentVariables', 'dependentVariablesStr',
                             'pauseAfterIteration', 'pauseAfterMeasurement', 'pauseAfterError',
@@ -771,11 +775,12 @@ class Experiment(Prop):
         logger.debug('Loading default settings ...')
 
         if os.path.isfile(self.setting_path):
-            self.load(self.setting_path)
+            self.load(self.setting_path, check_loaded_from_setting_box=False)
         else:
             logger.debug('Default settings.hdf5 does not exist.')
 
-    def load(self, path):
+
+    def load(self, path, check_loaded_from_setting_box=True):
         logger.debug('Loading file: '+path)
 
         # Disable any equation evaluation while loading.
@@ -828,6 +833,11 @@ class Experiment(Prop):
 
         # now re-evaluate everything
         self.evaluateAll()
+
+        # finally, check the load from settings box in functional waveforms to ensure the waveform
+        # in the loaded file is the one that gets use
+        if check_loaded_from_setting_box:
+            self.functional_waveforms.load_from_settings = True
 
     def measure(self):
         """Enables all instruments to begin a measurement.

@@ -187,3 +187,4 @@ if __name__ == '__main__':
         experiment = aqua.AQuA(**experiment_args)
     logger.info('Experiment built, building GUI')
     launch_gui_with_experiment(experiment)
+    experiment.functional_waveforms.load_from_settings = False
