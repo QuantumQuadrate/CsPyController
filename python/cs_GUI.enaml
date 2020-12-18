@@ -4959,7 +4959,7 @@ def confirm_load_file(parent, experiment):
     dialog = question(
     parent=None,
     title='Load old experiment?',
-    text='Important: your waveform will now be read from the file you select. \n'
+    text='Important: your waveform will now be read from the hdf5 file you select. \n'
      'To stop using the old waveform, uncheck "load from settings file" in FunctionalWaveforms',
     buttons=[
         DialogButton(

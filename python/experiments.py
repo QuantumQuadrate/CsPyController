@@ -831,13 +831,13 @@ class Experiment(Prop):
         if allow_evaluation_was_toggled:
             self.allow_evaluation = True
 
-        # now re-evaluate everything
-        self.evaluateAll()
-
-        # finally, check the load from settings box in functional waveforms to ensure the waveform
+        # check the load from settings box in functional waveforms to ensure the waveform
         # in the loaded file is the one that gets use
         if check_loaded_from_setting_box:
             self.functional_waveforms.load_from_settings = True
+
+        # now re-evaluate everything
+        self.evaluateAll()
 
     def measure(self):
         """Enables all instruments to begin a measurement.
