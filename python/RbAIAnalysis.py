@@ -11,6 +11,7 @@ created = '2014.09.08'
 modified >= '2014.09.08'
 modified >= '2017.05.04'
 modified >= '2018.10.22' CY
+modified >= '2021.01.21' CY
 """
 
 import logging
@@ -45,6 +46,10 @@ class RbAIAnalysis(Analysis):
     def analyzeMeasurement(self, measResults, iterationResults, experimentResults):
         if self.enable:
             raw_data = measResults['data/AI/data'].value
+
+            # to get data: raw_data[AI_channel_idx_on_the_card, range_of_sample_indices]
+
+            # 3D MOT arms powers from I2V curves
             Y1 = (13.0538+1.07403*(np.nanmean(raw_data[3,1:10])*1000))
             Y2 = (15.2633+1.03056*(np.nanmean(raw_data[4,1:10])*1000))
             X1 = (-5.48042+1.25244*(np.nanmean(raw_data[5,1:10])*1000))
@@ -55,6 +60,12 @@ class RbAIAnalysis(Analysis):
             MOTX = X1/X2 # x1-x2
             MOTY = Y1/Y2 # y1-y2
             MOTZ = Z1/Z2 # z1-z2"
+
+            # Sensor for B-fields in the Box
+            SBX = np.nanmean(raw_data[13,1:10])
+            SBY = np.nanmean(raw_data[14,1:10])
+            SBZ = np.nanmean(raw_data[15,1:10])
+
             logger.info('X1/X2 = {} Total X Power: {}'.format(MOTX, X1+X2))
             logger.info('Y1/Y2 = {} Total Y Power: {}'.format(MOTY, Y1+Y2))
             logger.info('Z1/Z2 = {} Total Z Power: {}'.format(MOTZ, Z1+Z2))
@@ -67,7 +78,10 @@ class RbAIAnalysis(Analysis):
             # MOTtot = np.nanmean(raw_data[9,1:10])
 
             processed_data = [MOTX, MOTY, MOTZ, MOTtot]
+
+            # add measurements to the measurement results
             measResults['analysis/processed_AI/data'] = processed_data
+            measResults['analysis/AI_magnetic_sensor_3axis'] = [SBX, SBY, SBZ]
             # hdf5['AI/test'] = 11.0
 
 

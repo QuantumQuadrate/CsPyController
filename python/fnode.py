@@ -39,7 +39,6 @@ class FNODE(Experiment):
     DDS = Member()
     Embezzletron = Member()
 
-    functional_waveforms = Member()
     functional_waveforms_graph = Member()
     TTL_filters = Member()
     AI_graph = Member()
@@ -71,11 +70,6 @@ class FNODE(Experiment):
                                     cache_location=cache_location,
                                     settings_location=settings_location,
                                     temp_location=temp_location)
-        self.functional_waveforms = functional_waveforms.FunctionalWaveforms(
-            name='functional_waveforms',
-            experiment=self,
-            description='Waveforms for HSDIO, DAQmx DIO, and DAQmx AO;'
-                        ' defined as functions')
         self.Andors = andor.Andors(
             name='Andors',
             experiment=self,

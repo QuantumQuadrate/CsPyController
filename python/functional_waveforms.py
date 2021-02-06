@@ -23,30 +23,120 @@ logger = logging.getLogger(__name__)
 import traceback
 import numpy as np
 from atom.api import Str, Member, Float, Bool, observe
+import os
 
 import cs_evaluate
 from analysis import AnalysisWithFigure
 from cs_instruments import Instrument
+from cs_errors import PauseError
 
 
 class FunctionalWaveforms(Instrument):
-    """A virtual instrument that specifies the timing for HSDIO, DAQmx DIO, and DAQmx AO."""
-    version = '2015.05.24'
+    """
+    A virtual instrument that specifies the timing for HSDIO, DAQmx DIO, and DAQmx AO.
 
-    text = Str()  # a text string that holds all the waveforms
+
+    """
+    version = '2020.12.17'
+
+    SETTINGS_WAVEFORM = os.path.join(os.getcwd(), r"exp_functional_waveforms\settings_waveform.py")
+
+    waveform_text = Str()  # a text string that holds all the waveforms
+    """ load_file : if true, waveforms text is loaded from a file, overwriting the text in the
+    # text box """
+    load_file = Bool()
+    load_from_settings = Bool()
+    filename = Str()  # File from which to load functional waveforms if load_file is true.
+    file_text = Str()  # Text loaded from a file
+    text = Str()  # Text string in the GUI field
 
     def __init__(self, name, experiment, description=''):
         super(FunctionalWaveforms, self).__init__(name, experiment, description)
-        self.properties += ['version', 'text']
+        self.properties += [
+            'version',
+            'text',
+            'file_text',
+            'waveform_text',
+            'load_file',
+            'load_from_settings',
+            'filename']
+
+        # Create the settings wavefrom file if it doesn't already exist
+        if not os.path.isfile(self.SETTINGS_WAVEFORM):
+            with open(self.SETTINGS_WAVEFORM, "w") as f:
+                f.write("")
 
     def evaluate(self):
         if self.enable and self.experiment.allow_evaluation:
             logger.debug('FunctionalWaveforms.evaluate()')
-            self.experiment.LabView.HSDIO.repeat_list = [] # Prevents buildup
+            self.experiment.LabView.HSDIO.repeat_list = []  # Prevents buildup
+
+            self.update_settings_waveform()
+
+            # default to using the text in the input field as the waveform
+            self.waveform_text = self.text
+
+            # If load_file is checked, overwrite waveform with text from a file
+            if self.load_from_settings or self.load_file:
+                filename = self.SETTINGS_WAVEFORM if self.load_from_settings else self.filename
+                self.load_text_from_file(filename)
+                self.waveform_text = self.file_text
+
             #localvars = self.experiment.vars.copy()
-            cs_evaluate.execWithGlobalDict(self.text) #, localvars)
+            cs_evaluate.execWithGlobalDict(self.waveform_text) #, localvars)
 
             super(FunctionalWaveforms, self).evaluate()
+
+    def update_settings_waveform(self):
+        """
+        Write the current waveform used by the experiment to the temporary file specified in
+        FunctionalWaveforms.SETTINGS_WAVEFORM
+        """
+        with open(self.SETTINGS_WAVEFORM, 'w') as f:
+            f.write(self.waveform_text)
+
+    def load_text_from_file(self, filename):
+        """
+        Loads functional waveforms from a file specified in self.filename. If
+        load_from_settings
+        is true, the waveform is loaded from self.SETTINGS_WAVEFORM instead.
+        :return:
+        :rtype:
+        """
+
+        if not os.path.isfile(filename):
+            logger.warning(
+                "failed to load waveform file, filename is not a valid file, defaulting to text "
+                "box waveform\n"
+                "filename : {}".format(self.filename)
+            )
+            return
+
+        txt = ""
+        try:
+            with open(filename, 'r') as f:
+                for line in f:
+                    txt = txt + line
+        except IOError as e:
+            logger.exception(
+                "Opening file {} in FunctionalWaveforms. Waveform not updated\n{}".format(
+                    self.filename, e)
+            )
+            raise PauseError
+        except Exception as e:
+            logger.exception("Uncaught exception. Waveform not updated\n{}".format(e))
+            raise
+        else:
+            self.file_text = txt
+
+    def fromHDF5(self, hdf):
+        placeholder = "Placeholder"
+        self.waveform_text = placeholder
+        super(FunctionalWaveforms, self).fromHDF5(hdf)
+        # This indicates that the waveform_text attribute did not exist in the hdf5 file.
+        if self.waveform_text == placeholder:
+            # we overwrite the text with the text used to generate the waveform in the file.
+            self.waveform_text = self.text
 
 class FunctionalWaveformGraph(AnalysisWithFigure):
     """

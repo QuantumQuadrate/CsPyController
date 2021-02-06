@@ -36,7 +36,6 @@ class Rb(Experiment):
     DDS2 = Member()
     pyPicoServer = Member()
     imageSumAnalysis = Member()
-    functional_waveforms = Member()
     functional_waveforms_graph = Member()
     DAQmxAI = Member()
     beam_position_analysis = Member()
@@ -88,7 +87,7 @@ class Rb(Experiment):
         except:
             logger.warning("Blackfly client disabled,"
                            "install PyCapture2 module to enable")
-        self.functional_waveforms = functional_waveforms.FunctionalWaveforms('functional_waveforms', self, 'Waveforms for HSDIO, DAQmx DIO, and DAQmx AO; defined as functions')
+        # self.functional_waveforms = functional_waveforms.FunctionalWaveforms('functional_waveforms', self, 'Waveforms for HSDIO, DAQmx DIO, and DAQmx AO; defined as functions')
 
         self.Andors = andor.Andors('Andors', self, 'Andor Luca measurementResults')
         self.LabView = LabView.LabView(self)
