@@ -25,7 +25,6 @@ class HOLMIUM(Experiment):
     DDS = Member()
     unlock_pause = Member()
 
-    functional_waveforms = Member()
     functional_waveforms_graph = Member()
     AI_graph = Member()
     AI_filter = Member()
@@ -44,7 +43,6 @@ class HOLMIUM(Experiment):
                                    settings_location=settings_location,
                                    temp_location=temp_location)
 
-        self.functional_waveforms = functional_waveforms.FunctionalWaveforms('functional_waveforms', self, 'Waveforms for HSDIO, DAQmx DIO, and DAQmx AO; defined as functions')
         self.Andors = andor.Andors('Andors', self, 'Andor Luca measurementResults')
         self.PICams = picampython.PICams('PICams', self, 'Princeton Instruments Cameras')
         self.DAQmxAI = nidaq_ai.NIDAQmxAI('DAQmxAI', self, 'NI-DAQmx Analog Input')
