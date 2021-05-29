@@ -612,7 +612,7 @@ class RydHP(Instrument):
 
         self.addr = StrProp('addr', experiment, 'GPIB address of Generator', '\'GPIB1::20::INSTR\'')
 
-        self.properties += ['frequency', 'power', 'RF_on', 'freq_step']# 'freq_ref_on', 'pow_ref_on', 'ref_freq', 'ref_pow']
+        self.properties += ['frequency', 'power', 'RF_on', 'freq_step', 'addr']# 'freq_ref_on', 'pow_ref_on', 'ref_freq', 'ref_pow']
 
     def initialize(self):
         if self.enable and not self.isInitialized:
@@ -632,7 +632,7 @@ class RydHP(Instrument):
                 self.enable = False
 
     def start(self):
-        self.isDone = Trueg
+        self.isDone = True
 
     def update(self):
         # logger.info("Updating, Fc = {} MHz, Fs = {} MHz".format(self.gen.get_freq("MHZ"), self.frequency.value))
