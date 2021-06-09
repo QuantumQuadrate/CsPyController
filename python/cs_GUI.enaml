@@ -1654,6 +1654,51 @@ enamldef RFGenPage(Window):
                     iterable=LabView.RF_generators.HP83712B_list
                     viewType=RF_gen
 
+enamldef HVcontrol(Window):
+    attr ctrl
+    attr creator
+    closing :: creator.open_windows.pop(name)
+    title = 'HV control DACs'
+
+    style_class << 'valid' if experiment.valid else 'invalid'
+
+    Container:
+        padding = 0
+        style_class << 'valid' if experiment.valid else 'invalid'
+        hug_width = 'strong'
+        hug_height = 'strong'
+        Form:
+            Label:
+                text = 'enable'
+            CheckBox:
+                checked := ctrl.enable
+        EvalProp:
+            prop << ctrl.address
+        EvalProp:
+            prop << ctrl.voltage1
+        EvalProp:
+            prop << ctrl.voltage2
+        EvalProp:
+            prop << ctrl.voltage3
+        EvalProp:
+            prop << ctrl.v_ref_n1
+        EvalProp:
+            prop << ctrl.v_ref_n2
+        EvalProp:
+            prop << ctrl.v_ref_n3
+        EvalProp:
+            prop << ctrl.v_ref_p1
+        EvalProp:
+            prop << ctrl.v_ref_p2
+        EvalProp:
+            prop << ctrl.v_ref_p3
+        PushButton:
+            text = 'Update Parameters'
+            clicked :: ctrl.update()
+        PushButton:
+            text = 'Initialize'
+            clicked :: ctrl.initialize()
+
 enamldef HP8648B(Window):
     attr hp
     attr creator
@@ -4935,7 +4980,8 @@ window_dictionary = {
 'Pi Lock Monitor': 'Unlock_Pause(unlock_pause = main.experiment.unlock_pause, creator=main, name="Pi Lock Monitor")',
 'Origin Interface': 'Origin(origin = main.experiment.origin, creator=main, name="Origin Interface")',
 'National Instruments Scopes': 'NIScopes(niscopes = main.experiment.NIScopes, creator=main, name="National Instruments Scopes")',
-'Rydberg RF Generator': 'HP8648B(hp = main.experiment.RydHP, creator=main, name="Rydberg RF Generator")'
+'Rydberg RF Generator': 'HP8648B(hp = main.experiment.RydHP, creator=main, name="Rydberg RF Generator")',
+'High Voltage Controller': 'HVcontrol(ctrl = main.experiment.HVcontrol, creator=main, name="High Voltage Controller")'
 }
 
 window_keys = window_dictionary.keys()
