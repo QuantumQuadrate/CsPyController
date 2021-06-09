@@ -386,3 +386,6 @@ class HighVoltageController(Instrument):
         self.controller.set_voltage(self.voltage3.value, 2)
         self.out_1, self.out_2, self.out_3 = self.controller.read_all()
 
+    def reinitialize(self):
+        self.isInitialized = False
+        self.initialize()

@@ -1697,7 +1697,7 @@ enamldef HVcontrol(Window):
             clicked :: ctrl.update()
         PushButton:
             text = 'Initialize'
-            clicked :: ctrl.initialize()
+            clicked :: ctrl.reinitialize()
 
 enamldef HP8648B(Window):
     attr hp
