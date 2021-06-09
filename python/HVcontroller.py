@@ -45,12 +45,32 @@ class hvbox:
         self.address = address
         self.n_dac = int(n_dac)
 
-        self.v_ref_pos = v_ref_pos
-        self.v_ref_neg = v_ref_neg
+        logger.info("Setting positive voltage reference")
+        # ensure voltage reference values are valid arrays
+        if v_ref_pos is None:
+            v_ref_pos = [10.0]*self.n_dac
+        if type(v_ref_pos) in [float,int]:
+            v_ref_pos = [float(v_ref_pos)]*self.n_dac
+        try:
+            self.v_ref_pos = [float(ref) for ref in v_ref_pos]
+        except (TypeError, ValueError):
+            raise TypeError(
+                "Reference Voltages must be a float or an int, or a list of floats or ints"
+            )
+
+        if v_ref_neg is None:
+            v_ref_neg = [10.0] * self.n_dac
+        if type(v_ref_neg) in [float, int]:
+            v_ref_neg = [float(v_ref_neg)] * self.n_dac
+        try:
+            self.v_ref_neg = [float(ref) for ref in v_ref_neg]
+        except (TypeError, ValueError):
+            raise TypeError(
+                "Reference Voltages must be a float or an int, or a list of floats or ints"
+            )
 
         self.serial = None
         self.open_connection()
-
 
     @property
     def v_ref_pos(self):
@@ -61,14 +81,14 @@ class hvbox:
 
     @v_ref_pos.setter
     def v_ref_pos(self, v_ref_pos):
+        logger.info("Setting positive voltage reference")
         # ensure voltage reference values are valid arrays
         if v_ref_pos is None:
             v_ref_pos = [10.0]*self.n_dac
         if type(v_ref_pos) in [float,int]:
             v_ref_pos = [float(v_ref_pos)]*self.n_dac
         try:
-            if any([type(ref) not in [float, int] for ref in v_ref_pos]):
-                raise ValueError("Reference voltages must be floats or ints")
+            self._v_ref_pos = [float(ref) for ref in v_ref_pos]
         except (TypeError, ValueError):
             raise TypeError("Reference Voltages must be a float or an int, or a list of floats or ints")
 
@@ -98,7 +118,9 @@ class hvbox:
         self._v_ref_neg = [float(ref) for ref in v_ref_neg]
 
     def open_connection(self):
-        self.serial = serial.Serial(self.address, self.TIMEOUT)
+        logger.info("Opening Serial Connection")
+        self.serial = serial.Serial(self.address, timeout=self.TIMEOUT)
+        logger.info("Serial port open : {}".format(self.serial))
 
     def close_connection(self):
         self.serial.close()
@@ -138,12 +160,12 @@ class hvbox:
         Set DAC output register on the board specified to output the voltage specified
         :param board: int, index of board which is having it's output modified
         :param voltage: float, desired output voltage of board
-        :return: Serial output from Arduino, either echo of command, or error code
         """
+        logger.info("Setting voltage on board {}".format(board))
         word = self.volt_to_dac(voltage, board)
         msg = struct.pack('>ccBLc', self.SET, self.OUTPUT, board, word, '\n')
         self.serial.write(msg)
-        return self.serial.read(len(msg))
+        logger.debug(self.serial.read(len(msg)))
 
     def read_voltage(self, board):
         """
@@ -265,6 +287,9 @@ class hvbox:
         self.serial.write(msg)
         return self.serial.readline()
 
+    def __repr__(self):
+        return "hvbox({},{},{}.{})".format(self.address, self.n_dac, self.v_ref_pos, self.v_ref_neg)
+
 
 class HighVoltageController(Instrument):
 
@@ -291,17 +316,17 @@ class HighVoltageController(Instrument):
 
     def __init__(self,  name, experiment, description='HV control board'):
         super(HighVoltageController, self).__init__(name, experiment, description)
-        self.address = StrProp("address", experiment, "COM port address of Arduino", "COM1")
+        self.address = StrProp("address", experiment, "COM port address of Arduino", "'COM1'")
         self.voltage1 = FloatProp("voltage1", experiment, "Voltage output from DAC 1", '0.0')
         self.voltage2 = FloatProp("voltage2", experiment, "Voltage output from DAC 2", '0.0')
         self.voltage3 = FloatProp("voltage3", experiment, "Voltage output from DAC 3", '0.0')
 
-        self.v_ref_p1 = FloatProp("v_ref_p1", experiment, "Positive Voltage Reference for DAC 1", '10.0')
-        self.v_ref_p2 = FloatProp("v_ref_p2", experiment, "Positive Voltage Reference for DAC 2", '10.0')
-        self.v_ref_p3 = FloatProp("v_ref_p3", experiment, "Positive Voltage Reference for DAC 3", '10.0')
-        self.v_ref_n1 = FloatProp("v_ref_n1", experiment, "Negative Voltage Reference for DAC 1", '0.0')
-        self.v_ref_n2 = FloatProp("v_ref_n2", experiment, "Negative Voltage Reference for DAC 2", '0.0')
-        self.v_ref_n3 = FloatProp("v_ref_n3", experiment, "Negative Voltage Reference for DAC 3", '0.0')
+        self.v_ref_p1 = FloatProp("v_ref_p1", experiment, "Positive Voltage Reference for DAC 1", '10')
+        self.v_ref_p2 = FloatProp("v_ref_p2", experiment, "Positive Voltage Reference for DAC 2", '10')
+        self.v_ref_p3 = FloatProp("v_ref_p3", experiment, "Positive Voltage Reference for DAC 3", '10')
+        self.v_ref_n1 = FloatProp("v_ref_n1", experiment, "Negative Voltage Reference for DAC 1", '0')
+        self.v_ref_n2 = FloatProp("v_ref_n2", experiment, "Negative Voltage Reference for DAC 2", '0')
+        self.v_ref_n3 = FloatProp("v_ref_n3", experiment, "Negative Voltage Reference for DAC 3", '0')
 
         self.properties += [
             "address",
@@ -330,19 +355,19 @@ class HighVoltageController(Instrument):
                     address=self.address.value,
                     n_dac=3,
                     v_ref_pos=[
-                        self.v_ref_p1,
-                        self.v_ref_p2,
-                        self.v_ref_p3
+                        self.v_ref_p1.value,
+                        self.v_ref_p2.value,
+                        self.v_ref_p3.value
                     ],
                     v_ref_neg=[
-                        self.v_ref_n1,
-                        self.v_ref_n2,
-                        self.v_ref_n3
+                        self.v_ref_n1.value,
+                        self.v_ref_n2.value,
+                        self.v_ref_n3.value
                     ]
                 )
                 logger.info("HV controller : {}".format(repr(self.controller)))
             except TypeError as e:
-                logger.warning("Failed to instantiate HV controller. Error : {}".format(e))
+                logger.warning("Failed to instantiate HV controller. Error : {}".format(e), exc_info=True)
                 self.isInitialized = False
                 self.enable = False
             else:
@@ -357,7 +382,7 @@ class HighVoltageController(Instrument):
         if not self.enable:
             return
         self.controller.set_voltage(self.voltage1.value, 0)
-        self.controller.set_voltage(self.voltage2.value, 0)
-        self.controller.set_voltage(self.voltage3.value, 0)
+        self.controller.set_voltage(self.voltage2.value, 1)
+        self.controller.set_voltage(self.voltage3.value, 2)
         self.out_1, self.out_2, self.out_3 = self.controller.read_all()
 
