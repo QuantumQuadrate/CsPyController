@@ -147,6 +147,7 @@ class LabView(Instrument):
         hierarchy for the current measurement."""
 
         for key, value in self.results.iteritems():
+            logger.debug("{}: {}".format(key, value))
             # print 'key: {} value: {}'.format(key,str(value)[:40])
             if key.startswith('Hamamatsu/shots/'):
                 # specific protocol for images: turn them into 2D numpy arrays
@@ -201,6 +202,8 @@ class LabView(Instrument):
             elif key == 'counter/data':
                 # counter data was stored as big-endian (network order) unsigned long (4-byte) integers
                 array = numpy.array(struct.unpack('!'+str(int(len(value)/4))+'L', value), dtype=numpy.uint32)
+                logger.debug("array = {}".format(array))
+                logger.debug("value = {}".format(value))
                 try:
                     dims = map(int, self.results['counter/dimensions'].split(','))
                     array.resize(dims)
@@ -266,6 +269,7 @@ class LabView(Instrument):
 
             # parse results
             logger.debug('Parsing TCP results ...')
+            logger.debug("Raw Data: {}".format(rawdata))
             results = self.sock.parsemsg(rawdata)
             # for key, value in self.results.iteritems():
             #    print 'key: {} value: {}'.format(key,str(value)[:40])
@@ -282,6 +286,7 @@ class LabView(Instrument):
                     logger.warning('Error returned from LabView.send:\n{}\n'.format(log))
                     raise PauseError
 
+        logger.debug("results written : {}".format(results))
         self.results = results
         self.isDone = True
         return results
