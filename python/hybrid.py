@@ -91,7 +91,8 @@ class Hybrid(Experiment):
             self.conexes = conex.Conexes('conexes', self, 'CONEX-CC')
             self.instruments += [self.conexes]
             self.properties += ['conexes']
-        except:
+        except Exception as e:
+            logger.exception(e,exc_info=True)
             logger.warning("Conex could not be instantiated."
                            "Conex translation stages will not work.")
         try:
