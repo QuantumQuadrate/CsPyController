@@ -8,7 +8,7 @@ Written by Martin Lichtman
 It is highly recommended that you use a pip-compatible environment manager to handle your dependency installation.
 Our recommendation is virtualenv with either virtualenvwrapper or virtualenvwrapper-win depending on your OS.
 
-Alomost everything can be installed with:
+Almost everything can be installed with:
 ```bash
 $ pip install -r requirements.txt
 ```
