@@ -1710,7 +1710,7 @@ enamldef HVcontrol(Window):
             clicked :: ctrl.reinitialize()
 
 enamldef HPGenerators(Window):
-    attr hp
+    attr hps
     attr creator
     closing :: creator.open_windows.pop(name)
     title = 'HP Signal Generators'
@@ -1725,33 +1725,55 @@ enamldef HPGenerators(Window):
             Label:
                 text = 'enable'
             CheckBox:
-                checked := hp.enable
+                checked := hps.enable
+
+        IndexedContainer:
+            iterable << hps.generators
+            viewType = HPGenerator
+
+
+enamldef HPGenerator(Container):
+    attr item
+    hug_width = 'strong'
+    hug_height = 'strong'
+
+
+    Container:
+        padding = 0
+        style_class << 'valid' if experiment.valid else 'invalid'
+        hug_width = 'strong'
+        hug_height = 'strong'
+        Form:
+            Label:
+                text = 'enable'
+            CheckBox:
+                checked := item.enable
             Label:
                 text = 'Sweep Frequency Changes'
             CheckBox:
-                checked := hp.ramp_frequency
+                checked := item.ramp_frequency
         EvalProp:
-            prop << hp.frequency
+            prop << item.frequency
         EvalProp:
-            prop << hp.frequency_step
+            prop << item.frequency_step
         EvalProp:
-            prop << hp.power
+            prop << item.power
         EvalProp:
-            prop << hp.address
+            prop << item.address
         Label:
-            text << 'RF on?: {}'.format(hp.RF_on)
+            text << 'RF on?: {}'.format(item.RF_on)
         PushButton:
             text = 'Open Communication'
-            clicked :: hp.initialize()
+            clicked :: item.initialize()
         PushButton:
             text = 'toggle RF output'
-            clicked :: hp.output_toggle()
+            clicked :: item.output_toggle()
         PushButton:
             text = 'Update Parameters'
-            clicked :: hp.update()
+            clicked :: item.update()
         PushButton:
             text = 'Close Connection'
-            clicked :: hp.close_connection()
+            clicked :: item.close_connection()
 
 
 enamldef CameraPage(Window):
@@ -4990,7 +5012,7 @@ window_dictionary = {
 'Pi Lock Monitor': 'Unlock_Pause(unlock_pause = main.experiment.unlock_pause, creator=main, name="Pi Lock Monitor")',
 'Origin Interface': 'Origin(origin = main.experiment.origin, creator=main, name="Origin Interface")',
 'National Instruments Scopes': 'NIScopes(niscopes = main.experiment.NIScopes, creator=main, name="National Instruments Scopes")',
-'HP Signal Generators': 'HPGenerators(hp = main.experiment.HPGenerators, creator=main, name="HP Signal Generators")'
+'HP Signal Generators': 'HPGenerators(hps = main.experiment.HPGenerators, creator=main, name="HP Signal Generators")',
 'High Voltage Controller': 'HVcontrol(ctrl = main.experiment.HVcontrol, creator=main, name="High Voltage Controller")'
 }
 

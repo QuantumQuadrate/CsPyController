@@ -219,7 +219,7 @@ class Hybrid(Experiment):
             'Functional Waveforms': 'FunctionalWaveforms(waveforms = main.experiment.functional_waveforms, creator=main, name="Functional Waveforms")',
             'Functional Waveforms Graph': 'FunctionalWaveformsGraph(graph = main.experiment.functional_waveforms_graph, creator=main, name="Functional Waveforms Graph")',
             'Origin Interface': 'Origin(origin = main.experiment.origin, creator=main, name="Origin Interface")',
-            'HP Signal Generators': 'HPGenerators(hp = main.experiment.HPGenerators, creator=main, name="HP Signal Generators")',
+            'HP Signal Generators': 'HPGenerators(hps = main.experiment.HPGenerators, creator=main, name="HP Signal Generators")',
             'High Voltage Controller': 'HVcontrol(ctrl = main.experiment.HVcontrol, creator=main, name="High Voltage Controller")'
         }
 

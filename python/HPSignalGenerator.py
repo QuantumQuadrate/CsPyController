@@ -100,7 +100,7 @@ class HPGen:
         self.address = address
         self.rm = visa.ResourceManager()
 
-        logger.debug("Connecting to device at address {}; Found Resources {}".format(address, self.rm.list_resources()))
+        logger.info("Connecting to device at address {}; Found Resources {}".format(address, self.rm.list_resources()))
         if self.address in self.rm.list_resources():
             self.inst = self.rm.open_resource(address)
         else:
@@ -575,7 +575,7 @@ class HPGen:
         return self.stat_check()
 
 
-class HPGenerators(Instrument):
+class HPGenerator(Prop):
     version = '2019.10.15'
 
     frequency = Member()
@@ -584,6 +584,7 @@ class HPGenerators(Instrument):
     RF_on = Bool()
     ramp_frequency = Bool(True)
     enable = Bool(False)
+    isInitialized = Bool(False)
 
 #    freq_ref_on = Bool()
 #    pow_ref_on = Bool()
@@ -597,7 +598,7 @@ class HPGenerators(Instrument):
     gen = Member()
 
     def __init__(self, name, experiment, description='HP Signal Generators'):
-        super(HPGenerators, self).__init__(name, experiment, description)
+        super(HPGenerator, self).__init__(name, experiment, description)
         self.frequency = FloatProp('frequency', experiment, 'Output Frequency (MHz)', '0')
         self.frequency_step = FloatProp('freq_step', experiment, 'Frequency Step when attempting to keep lock (MHz)', '0.1')
         self.power = FloatProp('power', experiment, 'Output Power (dBm)', '0')
@@ -619,15 +620,16 @@ class HPGenerators(Instrument):
             if self.gen is not None:
                 try:
                     self.gen.close()
-                except AttributeError:
-                    logger.warning("AttributeError raised when closing Gen. Issue with NoneType?")
+                except AttributeError as e:
+                    logger.warning("AttributeError {} raised when closing Gen. Issue with NoneType?".format(e))
                 del self.gen
             logger.info("Instantiating Generator")
             try:
                 self.gen = HPGen(address=self.address.value)
                 logger.info("Generator : {}".format(self.gen.address))
                 self.isInitialized = True
-            except AssertionError:
+            except AssertionError as e:
+                logger.warning("Failed to initialize RF generator {}.\n{}".format(self.__str__(),e))
                 self.isInitialized = False
                 self.enable = False
 
@@ -656,7 +658,6 @@ class HPGenerators(Instrument):
             self.gen.set_power(self.power.value)
 
     def output_toggle(self):
-        #logger.info( self.isInitialized
         if self.isInitialized:
             self.gen.set_output_stat(not self.gen.get_output_stat())
             self.RF_on = self.gen.get_output_stat()
@@ -664,3 +665,49 @@ class HPGenerators(Instrument):
     def close_connection(self):
         self.isInitialized = False
         self.gen.close()
+
+    def __repr__(self):
+        return "HPGenerator({}, {}, {})".format(self.name, self.experiment, self.description)
+
+    def __str__(self):
+        return "HPGenerator:\n\taddress: {}\n\tdescription :{}".format(self.address, self.description)
+
+class HPGenerators(Instrument):
+
+    version = '2021.08.13'
+
+    generators = Member()
+
+    def __init__(self, name, experiment, description):
+        super(HPGenerators, self).__init__(name, experiment, description)
+        self.generators = ListProp(
+            "generators",
+            experiment,
+            'A list of indivitual HP generators',
+            listElementType=HPGenerator,
+            listElementName="generator"
+        )
+
+        self.properties += ['version', 'generators']
+
+    def preExperiment(self, hdf5):
+        self.initialize()
+
+    def preIteration(self, iterationresults, hdf5):
+        self.update()
+
+    def update(self):
+        if self.enable:
+            for gen in self.generators:
+                gen.initialize()  # ensure it's initialized. Function checks gen.enable and gen.isInitialized
+                gen.update()
+
+    def initialize(self):
+        if self.enable:
+            for gen in self.generators:
+                gen.initialize()
+
+            self.isInitialized = all([gen.isInitialized for gen in self.generators])
+
+    def start(self):
+        self.isDone = True
