@@ -1672,6 +1672,16 @@ enamldef HVcontrol(Window):
                 text = 'enable'
             CheckBox:
                 checked := ctrl.enable
+        Form:
+            Label:
+                text = 'Wait after changing voltages?'
+            CheckBox:
+                checked := ctrl.rest_delay
+        Form:
+            Label:
+                text = 'Pause experiment before changing polarity?'
+            CheckBox:
+                checked := ctrl.manual_polarity
         EvalProp:
             prop << ctrl.address
         EvalProp:

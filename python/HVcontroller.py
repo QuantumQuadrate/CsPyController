@@ -2,14 +2,17 @@ from __future__ import division
 __author__ = 'Juan Bohorquez'
 import logging
 import serial
+import numpy as np
 import struct
-from atom.api import Bool, Int, Float, Str, Typed, Member, observe, Atom
-from enaml.application import deferred_call
-from instrument_property import Prop, BoolProp, IntProp, FloatProp, StrProp, ListProp
+from atom.api import Float, Member, Bool
+from time import sleep
+
+from instrument_property import FloatProp, StrProp, BoolProp
 from cs_instruments import Instrument
 from cs_errors import PauseError
 
 logger = logging.getLogger(__name__)
+
 
 class hvbox:
 
@@ -29,7 +32,7 @@ class hvbox:
 
     TIMEOUT = 1  # s
 
-    def __init__(self, address, n_dac = 3, v_ref_pos=None, v_ref_neg=None):
+    def __init__(self, address, n_dac=3, v_ref_pos=None, v_ref_neg=None, check_init_pol=True):
         """
         :param address: (str) COM port address corresponding to the arduino
         :param n_dac: (int) Number of dac boards being controlled
@@ -71,51 +74,22 @@ class hvbox:
 
         self.serial = None
         self.open_connection()
+        if check_init_pol:
+            self.sign = self.get_channel_polarities()
+        else:
+            self.sign = [np.sign(v_ref_neg[i]) for i in range(n_dac)]
 
-    @property
-    def v_ref_pos(self):
-        """
-        :return: (list) list of floats
-        """
-        return self._v_ref_pos
-
-    @v_ref_pos.setter
-    def v_ref_pos(self, v_ref_pos):
-        logger.info("Setting positive voltage reference")
-        # ensure voltage reference values are valid arrays
-        if v_ref_pos is None:
-            v_ref_pos = [10.0]*self.n_dac
-        if type(v_ref_pos) in [float,int]:
-            v_ref_pos = [float(v_ref_pos)]*self.n_dac
-        try:
-            self._v_ref_pos = [float(ref) for ref in v_ref_pos]
-        except (TypeError, ValueError):
-            raise TypeError("Reference Voltages must be a float or an int, or a list of floats or ints")
-
-        self._v_ref_pos = [float(ref) for ref in v_ref_pos]
-
-    @property
-    def v_ref_neg(self):
-        """
-        :return: (list) list of floats
-        """
-        return self._v_ref_neg
-
-    @v_ref_neg.setter
-    def v_ref_neg(self, v_ref_neg):
-        # ensure voltage reference values are valid arrays
-        if v_ref_neg is None:
-            v_ref_neg = [10.0] * self.n_dac
-        if type(v_ref_neg) in [float, int]:
-            v_ref_neg = [float(v_ref_neg)] * self.n_dac
-        try:
-            if any([type(ref) not in [float, int] for ref in v_ref_neg]):
-                raise ValueError("Reference voltages must be floats or ints")
-        except (TypeError, ValueError):
-            raise TypeError("Reference Voltages must be a float or an int, or a list of floats or ints")
-
-
-        self._v_ref_neg = [float(ref) for ref in v_ref_neg]
+    def get_channel_polarities(self):
+        pols = np.ones(self.n_dac, dtype=int)
+        msg = "What is polarity setting for HV board {}? (P)ositive/(n)egative: "
+        for i in range(self.n_dac):
+            if self.v_ref_neg[i] >= 0:
+                pol_char = raw_input(msg.format(i))[0].upper()
+                if pol_char == 'N':
+                    pols[i] = -1
+                else:
+                    pols[i] = 1
+        return pols
 
     def open_connection(self):
         logger.info("Opening Serial Connection")
@@ -162,6 +136,9 @@ class hvbox:
         :param voltage: float, desired output voltage of board
         """
         logger.info("Setting voltage on board {}".format(board))
+        if self.v_ref_neg[board] == 0:
+            self.sign[board] = np.sign(voltage) if voltage != 0 else self.sign[board]
+            voltage = abs(voltage)
         word = self.volt_to_dac(voltage, board)
         msg = struct.pack('>ccBLc', self.SET, self.OUTPUT, board, word, '\n')
         self.serial.write(msg)
@@ -179,10 +156,10 @@ class hvbox:
         self.serial.write(msg)
         if board < self.n_dac:
             return_msg = self.serial.read(4+1)
-            return self.dac_to_volt(struct.unpack('>Lc',return_msg)[0],board)
+            return self.sign[board]*self.dac_to_volt(struct.unpack('>Lc', return_msg)[0], board)
         else:
             return_msg = self.serial.read(self.n_dac*4+1)
-            return [self.dac_to_volt(d, board) for board, d in enumerate(
+            return [self.sign[board]*self.dac_to_volt(d, board) for board, d in enumerate(
                     struct.unpack('>LLLc', return_msg)[0:self.n_dac])]
 
     def read_all(self):
@@ -288,7 +265,7 @@ class hvbox:
         return self.serial.readline()
 
     def __repr__(self):
-        return "hvbox({},{},{}.{})".format(self.address, self.n_dac, self.v_ref_pos, self.v_ref_neg)
+        return "hvbox({},{},{},{})".format(self.address, self.n_dac, self.v_ref_pos, self.v_ref_neg)
 
 
 class HighVoltageController(Instrument):
@@ -311,6 +288,11 @@ class HighVoltageController(Instrument):
     out_1 = Float()
     out_2 = Float()
     out_3 = Float()
+
+    rest_delay = Bool()
+    manual_polarity = Bool()
+
+    Tau = 60
 
     controller = Member()
 
@@ -339,6 +321,8 @@ class HighVoltageController(Instrument):
             "v_ref_n1",
             "v_ref_n2",
             "v_ref_n3"
+            "rest_delay",
+            "manual_polarity"
         ]
 
     def initialize(self):
@@ -381,10 +365,49 @@ class HighVoltageController(Instrument):
             self.initialize()
         if not self.enable:
             return
-        self.controller.set_voltage(self.voltage1.value, 0)
-        self.controller.set_voltage(self.voltage2.value, 1)
-        self.controller.set_voltage(self.voltage3.value, 2)
+
+        dif = max([self.controller.v_ref_pos[i] - self.controller.v_ref_neg[i] for i in range(self.controller.n_dac)])
+        eps = dif/2**20  # smallest error in voltage setpoint we'll accept
+
         self.out_1, self.out_2, self.out_3 = self.controller.read_all()
+        voltage_sets = [self.voltage1, self.voltage2, self.voltage3]
+
+        logger.info("Current output voltages = [{}, {}, {}]".format(self.out_1, self.out_2, self.out_3))
+        logger.info("Output voltage setpoints = [{}, {}, {}]".format(
+            voltage_sets[0].value,
+            voltage_sets[1].value,
+            voltage_sets[2].value
+        ))
+        # Detect changes in output voltages
+        changed_voltage = [1, 1, 1]
+        changed_voltage[0] = abs(self.out_1 - self.voltage1.value) > eps
+        changed_voltage[1] = abs(self.out_2 - self.voltage2.value) > eps
+        changed_voltage[2] = abs(self.out_3 - self.voltage3.value) > eps
+
+        # Detect changes in output voltage polarity
+        changed_polarity = [0, 0, 0]
+        for i, ch in enumerate(changed_voltage):
+            if not changed_voltage:
+                continue
+            changed_polarity[i] = self.controller.sign[i] * voltage_sets[i].value < 0
+
+        # Change output voltages
+        for i, v_set in enumerate(voltage_sets):
+            if changed_voltage[i]:
+                self.controller.set_voltage(v_set.value, i)
+
+        # If polarity has changed, allow user to manually change the polarity on their devices
+        if any(changed_polarity) and self.manual_polarity:
+            raise PauseError(
+                "Polarity change on HV board(s) {} detected. Manually change polarity setting then continue experiment".format(
+                    np.where(changed_polarity)[0]
+                )
+            )
+
+        # If Output voltages have changed, allow HV box output time to settle
+        if any(changed_voltage) and self.rest_delay:
+            logger.info("Experiment paused for {}s to allow HV box voltage to settle".format(self.Tau))
+            sleep(self.Tau)  # prevent the experiment from starting before the voltages have settled
 
     def reinitialize(self):
         self.isInitialized = False
