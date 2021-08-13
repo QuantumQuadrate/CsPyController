@@ -1709,11 +1709,11 @@ enamldef HVcontrol(Window):
             text = 'Initialize'
             clicked :: ctrl.reinitialize()
 
-enamldef HP8648B(Window):
+enamldef HPGenerators(Window):
     attr hp
     attr creator
     closing :: creator.open_windows.pop(name)
-    title = 'Rydberg 595 Generator'
+    title = 'HP Signal Generators'
 
     style_class << 'valid' if experiment.valid else 'invalid'
     Container:
@@ -1727,17 +1727,17 @@ enamldef HP8648B(Window):
             CheckBox:
                 checked := hp.enable
             Label:
-                text = 'Keep Locked'
+                text = 'Sweep Frequency Changes'
             CheckBox:
-                checked := hp.keep_locked
+                checked := hp.ramp_frequency
         EvalProp:
             prop << hp.frequency
         EvalProp:
-            prop << hp.freq_step
+            prop << hp.frequency_step
         EvalProp:
             prop << hp.power
         EvalProp:
-            prop << hp.addr
+            prop << hp.address
         Label:
             text << 'RF on?: {}'.format(hp.RF_on)
         PushButton:
@@ -4990,7 +4990,7 @@ window_dictionary = {
 'Pi Lock Monitor': 'Unlock_Pause(unlock_pause = main.experiment.unlock_pause, creator=main, name="Pi Lock Monitor")',
 'Origin Interface': 'Origin(origin = main.experiment.origin, creator=main, name="Origin Interface")',
 'National Instruments Scopes': 'NIScopes(niscopes = main.experiment.NIScopes, creator=main, name="National Instruments Scopes")',
-'Rydberg RF Generator': 'HP8648B(hp = main.experiment.RydHP, creator=main, name="Rydberg RF Generator")',
+'HP Signal Generators': 'HPGenerators(hp = main.experiment.HPGenerators, creator=main, name="HP Signal Generators")'
 'High Voltage Controller': 'HVcontrol(ctrl = main.experiment.HVcontrol, creator=main, name="High Voltage Controller")'
 }
 

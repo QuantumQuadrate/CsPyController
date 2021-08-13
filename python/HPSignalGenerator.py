@@ -68,9 +68,9 @@ class DevFrontPanelError(Exception):
         return repr(self.msg)
 
 
-class HP8648B:
+class HPGen:
     """
-    Wrapper class to deal with connecting to the HP8648B signal generator, and making use of it's functionality.
+    Wrapper class to deal with connecting to the an HP signal generator, and making use of it's functionality.
 
     Communication is based on GPIB, using PyVisa with the NIVISA backend
     """
@@ -575,14 +575,14 @@ class HP8648B:
         return self.stat_check()
 
 
-class RydHP(Instrument):
+class HPGenerators(Instrument):
     version = '2019.10.15'
 
     frequency = Member()
-    freq_step = Member()
+    frequency_step = Member()
     power = Member()
     RF_on = Bool()
-    keep_locked = Bool(True)
+    ramp_frequency = Bool(True)
     enable = Bool(False)
 
 #    freq_ref_on = Bool()
@@ -592,14 +592,14 @@ class RydHP(Instrument):
     visa_stat = Int()
     gen_stat = Int()
 
-    addr = Member()
+    address = Member()
 
     gen = Member()
 
-    def __init__(self, name, experiment, description='HP8648B Signal Generator'):
-        super(RydHP, self).__init__(name, experiment, description)
+    def __init__(self, name, experiment, description='HP Signal Generators'):
+        super(HPGenerators, self).__init__(name, experiment, description)
         self.frequency = FloatProp('frequency', experiment, 'Output Frequency (MHz)', '0')
-        self.freq_step = FloatProp('freq_step', experiment, 'Frequency Step when attempting to keep lock (MHz)', '0.1')
+        self.frequency_step = FloatProp('freq_step', experiment, 'Frequency Step when attempting to keep lock (MHz)', '0.1')
         self.power = FloatProp('power', experiment, 'Output Power (dBm)', '0')
 #        self.RF_on = BoolProp('RF_on', experiment, 'RF output state (on/off)', 'True')
 #        self.freq_ref_on = BoolProp('freq_ref_on', experiment, 'Frequency Reference mode (on/off)', 'False')
@@ -610,9 +610,9 @@ class RydHP(Instrument):
         # self.visa_stat = IntProp('visa_stat', experiment, 'NI Visa status code', '0')
         # self.gen_stat = IntProp('generator status', experiment, 'RF generator status code', '0')
 
-        self.addr = StrProp('addr', experiment, 'GPIB address of Generator', '\'GPIB1::20::INSTR\'')
+        self.address = StrProp('addr', experiment, 'GPIB address of Generator', '')
 
-        self.properties += ['frequency', 'power', 'RF_on', 'freq_step', 'addr']# 'freq_ref_on', 'pow_ref_on', 'ref_freq', 'ref_pow']
+        self.properties += ['frequency', 'power', 'RF_on', 'frequency_step', 'address']# 'freq_ref_on', 'pow_ref_on', 'ref_freq', 'ref_pow']
 
     def initialize(self):
         if self.enable and not self.isInitialized:
@@ -624,7 +624,7 @@ class RydHP(Instrument):
                 del self.gen
             logger.info("Instantiating Generator")
             try:
-                self.gen = HP8648B(address=self.addr.value)
+                self.gen = HPGen(address=self.address.value)
                 logger.info("Generator : {}".format(self.gen.address))
                 self.isInitialized = True
             except AssertionError:
@@ -640,11 +640,11 @@ class RydHP(Instrument):
             self.initialize()
         if not self.enable:
             return
-        if self.keep_locked:
+        if self.ramp_frequency:
             # logger.info("Sweeping Frequency")
             if self.frequency.value != self.gen.get_freq("MHZ"):
                 logger.info("Sweeping Frequency from {} MHz to {} MHz".format(self.gen.get_freq("MHZ"), self.frequency.value))
-                self.gen.step_freq_adiabat(self.frequency.value, "MHZ", step=self.freq_step.value, t_wait=0.2)
+                self.gen.step_freq_adiabat(self.frequency.value, "MHZ", step=self.frequency_step.value, t_wait=0.2)
                 logger.info("Sweep Complete: F_current = {} MHz, F_set = {} MHz".format(self.gen.get_freq("MHZ"), self.frequency.value))
         else:
             if self.frequency.value != self.gen.get_freq("MHZ"):
