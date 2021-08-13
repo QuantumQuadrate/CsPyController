@@ -632,7 +632,7 @@ class RydHP(Instrument):
                 self.enable = False
 
     def start(self):
-        self.isDone = Trueg
+        self.isDone = True
 
     def update(self):
         # logger.info("Updating, Fc = {} MHz, Fs = {} MHz".format(self.gen.get_freq("MHZ"), self.frequency.value))
