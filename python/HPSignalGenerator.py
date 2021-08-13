@@ -623,8 +623,9 @@ class HPGen:
         return self.stat_check()
 
 
+# TODO : Backwards compatibility with old name : "RydHP"
 class HPGenerator(Prop):
-    version = '2019.10.15'
+    version = '2021.08.13'
 
     frequency = Member()
     frequency_step = Member()
