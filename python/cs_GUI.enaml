@@ -1760,6 +1760,8 @@ enamldef HPGenerator(Container):
             prop << item.power
         EvalProp:
             prop << item.address
+        EvalProp:
+            prop << item.model
         Label:
             text << 'RF on?: {}'.format(item.RF_on)
         PushButton:
@@ -1774,6 +1776,17 @@ enamldef HPGenerator(Container):
         PushButton:
             text = 'Close Connection'
             clicked :: item.close_connection()
+        EvalProp:
+            prop << item.command
+        PushButton:
+            text = 'Write above command to device'
+            clicked :: item.write_command(item.command.value)
+        EvalProp:
+            prop << item.query
+        PushButton:
+            text = 'Write above query to device'
+            clicked :: item.write_query(item.query.value)
+
 
 
 enamldef CameraPage(Window):

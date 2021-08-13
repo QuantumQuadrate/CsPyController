@@ -77,7 +77,40 @@ class HPGen:
 
     unit_fac = {"MHZ": 1.0e6, "KHZ": 1.0e3, "HZ":1.0}
 
-    def __init__(self, address, verbose=False):
+    COMMANDS = {
+        "HP8648B": {
+            "FREQUENCY": "FREQ:CW",
+            "FREQUENCY REFERENCE": "FREQ:REF",
+            "FREQUENCY REFERENCE STATUS": "FREQ:REF:STAT",
+            "POWER": "POW:AMPL",
+            "POWER REFERENCE": "POW:REF",
+            "POWER REFERENCE STATUS": "POW:REF:STAT",
+            "OUTPUT STATUS": "OUTP:STAT",
+            "CLEAR": "*CLS",
+            "RESET": "*RST",
+            "IDENTITY": "*IDN?",
+            "SELF TEST": "*TST?",
+            "WAIT": "*WAI",
+            "SYSTEM ERROR": "SYST:ERR?"
+        },
+        "HP83623A": {
+            "FREQUENCY": "FREQ:CW",
+            "FREQUENCY REFERENCE": "FREQ:OFFS",
+            "FREQUENCY REFERENCE STATUS": "FREQ:OFFS:STAT",
+            "POWER": "POW:LEVEL",
+            "POWER REFERENCE": "POW:OFFS",
+            "POWER REFERENCE STATUS": "POW:OFFS:STAT",
+            "OUTPUT STATUS": "POW:STAT",
+            "CLEAR": "*CLS",
+            "RESET": "*RST",
+            "IDENTITY": "*IDN?",
+            "SELF TEST": "*TST?",
+            "WAIT": "*WAI",
+            "SYSTEM ERROR": "SYST:ERR?"
+        }
+    }
+
+    def __init__(self, address, verbose=True, model=None):
         """
         Initializes communication with device.
         :param address: String, GPIB address of device
@@ -96,6 +129,13 @@ class HPGen:
         self.output_status = None
         self.freq_ref_stat = None
         self.pow_ref_stat = None
+
+        if model in HPGen.COMMANDS.keys():
+            self.model = model
+        else:
+            self.model = "HP8648B"
+
+        self.commands = HPGen.COMMANDS[self.model]
 
         self.address = address
         self.rm = visa.ResourceManager()
@@ -121,9 +161,9 @@ class HPGen:
         :return: dev_stat : tuple, (int, string) device status code followed by device status string
         """
 
-        self.frequency = self.inst.query("FREQ:CW?")
-        self.power = self.inst.query("POW:AMPL?")
-        dev_ret = self.inst.query("SYST:ERR?")
+        self.frequency = self.inst.query("{}?".format(self.commands["FREQUENCY"]))
+        self.power = self.inst.query("{}?".format(self.commands["POWER"]))
+        dev_ret = self.inst.query(self.commands["SYSTEM ERROR"])
         dev_stat = dev_ret.split(',')
         dev_stat[1] = dev_stat[1].split(";")[0]
         dev_stat[1] = dev_stat[1][1:]
@@ -207,7 +247,11 @@ class HPGen:
         :return: stat, 0 if good, 1 if something has gone wrong
         :return msg, message attached to current status
         """
+        if self.verbose:
+            logger.info("Writing Command {} to device {}".format(command, self))
         ret = self.inst.write(command)
+        if self.verbose:
+            logger.info("Returned message: {}".format(ret))
 
         return self.stat_check(command, chk, visa_stat=ret[1])
 
@@ -223,7 +267,11 @@ class HPGen:
         :return: stat, 0 if good, 1 if something has gone wrong
         :return msg, message attached to current status
         """
+        if self.verbose:
+            logger.info("Writing Query {} to device {}".format(command, self))
         self.query = self.inst.query(command)
+        if self.verbose:
+            logger.info("Returned message: {}".format(self.query))
 
         return self.stat_check(command, chk)
 
@@ -232,7 +280,7 @@ class HPGen:
         """
         Clears status and event registers
         """
-        self.inst.write("*CLS")
+        self.inst.write(self.commands["CLEAR"])
 
     def reset(self):
         """
@@ -241,14 +289,14 @@ class HPGen:
         :return: stat, 0 if good, 1 if something has gone wrong
         :return msg, message attached to current status
         """
-        return self.write_chk("*RST", chk=True)
+        return self.write_chk(self.commands["RESET"], chk=True)
 
     def identity(self):
         """
         Returns the instrument's identity
         :return: identity: string
         """
-        self.query_chk("*IDN?", chk=True)
+        self.query_chk(self.commands["IDENTITY"], chk=True)
         return self.query
 
     def self_test(self):
@@ -257,7 +305,7 @@ class HPGen:
 
         :return: string, self test result
         """
-        self.query_chk("*TST?", chk=True)
+        self.query_chk(self.commands["SELF TEST"], chk=True)
         return self.query
 
     def inst_wait(self):
@@ -266,7 +314,7 @@ class HPGen:
         :return: stat, 0 if good, 1 if something has gone wrong
         :return msg, message attached to current status
         """
-        return self.write_chk("*WAI", chk=True)
+        return self.write_chk(self.commands["WAIT"], chk=True)
 
     # -- setters -------------------------------------------------------------------------------------------------------
     def set_freq(self, value, units):
@@ -293,7 +341,7 @@ class HPGen:
         if len(valstr) > 10:
             valstr = valstr[:10]
 
-        cmd = "FREQ:CW {} {}".format(valstr, units)
+        cmd = "{} {} {}".format(self.commands["FREQUENCY"], valstr, units)
         self.frequency = value*self.unit_fac[units]
         return self.write_chk(cmd, chk=True)
 
@@ -322,7 +370,7 @@ class HPGen:
         if len(valstr) > 10:
             valstr = valstr[:10]
 
-        cmd = "FREQ:REF {} {}".format(valstr, units)
+        cmd = "{} {} {}".format(self.commands["FREQUENCY REFERENCE"], valstr, units)
         self.ref_freq = value*self.unit_fac[units]
         return self.write_chk(cmd, chk=True)
 
@@ -359,7 +407,7 @@ class HPGen:
             valstr = sgn + vallst[0] + "." + vallst[1][0]
 
         unit = "DBM"  # Hardcoded for now
-        cmd = "POW:AMPL {} {}".format(valstr, unit)
+        cmd = "{} {} {}".format(self.commands["POWER"], valstr, unit)
         self.power = value
         return self.write_chk(cmd, chk=True)
 
@@ -395,8 +443,8 @@ class HPGen:
         if whole_dig < 4:
             valstr = sgn + vallst[0] + "." + vallst[1][0]
 
-        unit = "DBM"  # Hardcoded for now
-        cmd = "POW:REF {} {}".format(valstr, unit)
+        unit = "DBM" if self.model == "HP8648B" else "DB"  # Hardcoded for now
+        cmd = "{} {} {}".format(self.commands["POWER REFERENCE"], valstr, unit)
         self.ref_pow = value
         return self.write_chk(cmd, chk=True)
 
@@ -410,7 +458,7 @@ class HPGen:
         """
 
         st = "ON" if state else "OFF"
-        cmd = "OUTP:STAT {}".format(st)
+        cmd = "{} {}".format(self.commands["OUTPUT STATUS"], st)
         self.output_status = state
         return self.write_chk(cmd, chk=True)
 
@@ -424,7 +472,7 @@ class HPGen:
         """
 
         st = "ON" if state else "OFF"
-        cmd = "POW:REF:STAT {}".format(st)
+        cmd = "{} {}".format(self.commands["POWER REFERENCE STATUS"], st)
         self.pow_ref_stat = state
         return self.write_chk(cmd, chk=True)
 
@@ -438,7 +486,7 @@ class HPGen:
         """
 
         st = "ON" if state else "OFF"
-        cmd = "FREQ:REF:STAT {}".format(st)
+        cmd = "{}} {}".format(self.commands["FREQUENCY REFERENCE STATUS"], st)
         self.freq_ref_stat = state
         return self.write_chk(cmd, chk=True)
 
@@ -450,7 +498,7 @@ class HPGen:
         :return: float, output frequency in <units>
         """
 
-        self.query_chk("FREQ:CW?", chk=True)
+        self.query_chk("{}?".format(self.commands["FREQUENCY"]), chk=True)
         self.frequency = float(self.query)
 
         return self.frequency/self.unit_fac[units]
@@ -462,7 +510,7 @@ class HPGen:
         :return: float, reference frequency in Hz
         """
 
-        self.query_chk("FREQ:REF?", chk=True)
+        self.query_chk("{}?".format(self.commands["FREQUENCY REFERENCE"]), chk=True)
         self.ref_freq = float(self.query)
         return self.ref_freq/self.unit_fac[units]
 
@@ -472,7 +520,7 @@ class HPGen:
         :return: boolean, reference frequency status (True, False) : frequency reference mode (on, off)
         """
 
-        self.query_chk("FREQ:REF:STAT?", chk=True)
+        self.query_chk("{}?".format(self.commands["FREQUENCY REFERENCE STATUS"]), chk=True)
         self.freq_ref_stat = bool(self.query)
 
         return self.freq_ref_stat
@@ -483,7 +531,7 @@ class HPGen:
         :return: float, output power in dBm
         """
 
-        self.query_chk("POW:AMPL?", chk=True)
+        self.query_chk("{}?".format(self.commands["POWER"]), chk=True)
         self.power = float(self.query)
         return self.power
 
@@ -493,7 +541,7 @@ class HPGen:
         :return: float, reference power in dBm
         """
 
-        self.query_chk("POW:REF?", chk=True)
+        self.query_chk("{}?".format(self.commands["POWER REFERENCE"]), chk=True)
         self.ref_pow = float(self.query)
         return self.ref_pow
 
@@ -503,7 +551,7 @@ class HPGen:
         :return: boolean, reference power status (True, False) : power reference mode (on, off)
         """
 
-        self.query_chk("FREQ:REF:STAT?", chk=True)
+        self.query_chk("{}?".format(self.commands["POWER REFERENCE STATUS"]), chk=True)
         self.pow_ref_stat = bool(self.query)
         return self.pow_ref_stat
 
@@ -512,8 +560,8 @@ class HPGen:
         Reads rf output status.
         :return: boolean, rf output status (True, False) : output (on, off)
         """
-        self.query_chk("OUTP:STAT?")
-        self.output_status = bool(self.query)
+        self.query_chk("{}?".format(self.commands["OUTPUT STATUS"]))
+        self.output_status = bool(int(self.query))
         logger.info(self.output_status)
         return self.output_status
 
@@ -594,6 +642,10 @@ class HPGenerator(Prop):
     gen_stat = Int()
 
     address = Member()
+    model = Member()
+
+    command = Member()
+    query = Member()
 
     gen = Member()
 
@@ -612,8 +664,12 @@ class HPGenerator(Prop):
         # self.gen_stat = IntProp('generator status', experiment, 'RF generator status code', '0')
 
         self.address = StrProp('addr', experiment, 'GPIB address of Generator', '')
+        self.model = StrProp('model', experiment, 'Model of HP signal Generator', '')
 
-        self.properties += ['frequency', 'power', 'RF_on', 'frequency_step', 'address']# 'freq_ref_on', 'pow_ref_on', 'ref_freq', 'ref_pow']
+        self.command = StrProp('command', experiment, 'Command to  be sent to device', '')
+        self.query = StrProp('query', experiment, 'Query to be sent to device', '')
+
+        self.properties += ['frequency', 'power', 'RF_on', 'frequency_step', 'address', 'model']# 'freq_ref_on', 'pow_ref_on', 'ref_freq', 'ref_pow']
 
     def initialize(self):
         if self.enable and not self.isInitialized:
@@ -625,7 +681,7 @@ class HPGenerator(Prop):
                 del self.gen
             logger.info("Instantiating Generator")
             try:
-                self.gen = HPGen(address=self.address.value)
+                self.gen = HPGen(address=self.address.value, model=self.model.value)
                 logger.info("Generator : {}".format(self.gen.address))
                 self.isInitialized = True
             except AssertionError as e:
@@ -665,6 +721,15 @@ class HPGenerator(Prop):
     def close_connection(self):
         self.isInitialized = False
         self.gen.close()
+
+    def write_command(self, command):
+        logger.info("Writing command {}".format(command))
+        self.gen.write_chk(command, True)
+
+    def write_query(self, command):
+        logger.info("Querying device with command {}".format(command))
+        self.gen.query_chk(command, True)
+        logger.info(self.gen.query)
 
     def __repr__(self):
         return "HPGenerator({}, {}, {})".format(self.name, self.experiment, self.description)
