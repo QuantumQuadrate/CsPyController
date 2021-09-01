@@ -27,6 +27,10 @@ from dds import DDS
 from switch import Switch
 from camera import Camera
 
+#TODO all of these pinouts should be set in a config/json file or a GUI window
+# and loaded up whenever the DDS is updated. OR, load this file in the same
+# fashion that the experiment waveform is loaded
+
 '''I think these constants need to be defined here so that they can be
 overwritten at the global scope.
 '''
@@ -121,14 +125,15 @@ ryd780b_dds_profiles = {
     'r3' : (0,1,1)
 }
 ################################################################################
-# Red pointing AOM DDS SETUP ################################################################
+# Red pointing AOM DDS SETUP (tentative 852 aom)################################################################
 ################################################################################
-red_pointing_dds_pinout = (-1,24,25) # -1 indicates pins that are not being used
+red_pointing_dds_pinout = (17,24,25) # -1 indicates pins that are not being used
 red_pointing_dds_profiles = {
     'off' : (0,0,0),
     'addressing' : (0,0,1),
     'r2' : (0,1,0),
-    'PG' : (0,1,1)
+    'PG' : (0,1,1),
+    'RAM Test' : (1,1,1)
 }
 ################################################################################
 # Blue pointing AOM DDS SETUP ################################################################
@@ -420,7 +425,7 @@ class Rb(object):
         # Arduino DDS (v. "1.5")
         self.test_dds = DDS(HSDIO, test_dds_pinout, test_dds_profiles)
 
-        # declare switches
+        # declare MOTes
 
         self.mot_aom_switch = Switch(
             HSDIO,
