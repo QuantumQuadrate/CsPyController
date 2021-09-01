@@ -4981,7 +4981,6 @@ window_dictionary = {
 'DAQmx': 'DAQmxDigitalOutPage(DAQmx = main.experiment.LabView.DAQmxDO, creator=main, name="DAQmx")',
 'DAQmxAI': 'DAQmxAI(NIDAQmxAI = main.experiment.DAQmxAI, creator=main, name="DAQmxAI")',
 'DDS': 'DDS_Page(DDS = main.experiment.DDS, creator=main, name="DDS")',
-'DDS2':'DDS_Page(DDS = main.experiment.DDS2, creator=main, name="DDS2")',
 'RF Generators': 'RFGenPage(LabView = main.experiment.LabView, creator=main, name="RF Generators")',
 'Hamamatsu': 'CameraPage(camera = main.experiment.LabView.camera, creator=main, name="Hamamatsu")',
 'Andor Cameras': 'Andors(andors = main.experiment.Andors, creator=main, name="Andor Cameras")',
