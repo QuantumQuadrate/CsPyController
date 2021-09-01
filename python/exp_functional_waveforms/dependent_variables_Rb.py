@@ -4,6 +4,8 @@ This is merely a scratchpad. The code needs to be copied & pasted to Dependent v
 to really apply the code.
 
 Minho Kwon 2018-02-27
+
+## TODO: backup to file in same way that we backup the functional waveforms
 '''
 
 f_3DMOT_Loading=f_MOT_baseline+f_3DMOT_loading_offset

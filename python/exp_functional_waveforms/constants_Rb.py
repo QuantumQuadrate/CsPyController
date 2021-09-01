@@ -4,6 +4,8 @@ This is merely a scratchpad. The code needs to be copied & pasted to CsPy Consta
 to really apply the code.
 
 Minho Kwon 2018-02-22
+
+P. Huft Updated 2020-11-13 to include 780A aom switches
 '''
 
 # Experiment
@@ -45,6 +47,8 @@ P_DDSRF_780A_PG=-4 # RF amplitude for DDS 780A profile : PG
 # some constants for testing.
 my_MOT_SW_channel=7
 my_FORT_SW_channel=8
+#ryd780A_dp_aom_channel= 21
+# ryd780A_point_aom_channel=22
 op_aom_switch_chan=10
 readout_chop_freq_MHz=1.25
 op_chop_freq_MHz=1.00

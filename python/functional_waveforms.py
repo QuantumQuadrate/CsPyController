@@ -66,6 +66,7 @@ class FunctionalWaveforms(Instrument):
             with open(self.SETTINGS_WAVEFORM, "w") as f:
                 f.write("")
 
+
     def evaluate(self):
         if self.enable and self.experiment.allow_evaluation:
             logger.debug('FunctionalWaveforms.evaluate()')
@@ -137,6 +138,7 @@ class FunctionalWaveforms(Instrument):
         if self.waveform_text == placeholder:
             # we overwrite the text with the text used to generate the waveform in the file.
             self.waveform_text = self.text
+
 
 class FunctionalWaveformGraph(AnalysisWithFigure):
     """

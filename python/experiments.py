@@ -212,7 +212,6 @@ class Experiment(Prop):
     ROITypeString = Str()
     functional_waveforms = Member()
 
-
     # threading
     exp_thread = Member()  # thread running the exp so gui is not blocked
     restart = Member()  # threading event for communication
