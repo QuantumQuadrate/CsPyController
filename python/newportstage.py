@@ -120,9 +120,10 @@ class NewportStage(Instrument):
         return self.nport.whereAmI()/1000
 
     def writeResults(self, hdf5):
-        if self.enable and self.statusmeasurement:
-            self.mypos = self.whereAmI()
-        return
+        #if self.enable and self.statusmeasurement:
+        #    self.mypos = self.whereAmI()
+        #return
+        pass
         
     def calibrate(self):
         if not self.isInitialized:

@@ -59,7 +59,7 @@ class AQuA(Experiment):
     pyPicoServer = Member()
     Embezzletron = Member()
     NIScopes = Member()
-    RydHP = Member()
+    HPGenerators = Member()
 
     functional_waveforms_graph = Member()
     TTL_filters = Member()
@@ -155,7 +155,7 @@ class AQuA(Experiment):
         self.pyPicoServer = PyPicoServer('PyPicomotor', self, 'PyPico server interface for controlling closed loop picomotors')
         self.Embezzletron = FakeInstrument.Embezzletron('Embezzletron', self, 'Fake instrument that generates random data for testing')
         self.NIScopes = niscope.NIScopes('NIScopes', self, 'National Instruments Scopes')
-        self.RydHP = HPSignalGenerator.RydHP('RydHP', self, 'controls HP8648B signal generator')
+        self.HPGenerators = HPSignalGenerator.HPGenerators('HPGenerators', self, 'controls HP8648B signal generator')
         # do not include functional_waveforms in self.instruments because it
         # need not start/stop
         self.instruments += [
@@ -163,7 +163,7 @@ class AQuA(Experiment):
             self.NIScopes, self.Andors, self.PICams, self.DC_noise_eaters,
             self.BILT, self.DDS, self.unlock_pause,
             self.Embezzletron, self.instekpsts,
-            self.vaunixs, self.NewportStage, self.RydHP
+            self.vaunixs, self.NewportStage, self.HPGenerators
         ]
         # Labview must be last at least until someone fixes the start command
         self.instruments += [self.LabView]
@@ -244,7 +244,7 @@ class AQuA(Experiment):
             'Ramsey', 'counter_graph', 'counter_hist', 'unlock_pause',
             'ROI_rows', 'ROI_columns', 'ROI_bg_rows', 'ROI_bg_columns',
             'NIScopes', 'beam_position_analysis', 'beam_position_analysis2',
-            'origin','RydHP'
+            'origin','HPGenerators'
         ]
 
         try:
