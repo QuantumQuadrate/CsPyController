@@ -9,7 +9,7 @@ import functional_waveforms, analysis, save2013style, TTL, LabView
 import DDS
 import andor, AnalogInput
 
-import Counter, unlock_pause, newportstage, nidaq_ai, HPSignalGenerator
+import Counter, unlock_pause, newportstage, nidaq_ai, HPSignalGenerator, HVcontroller
 logger = logging.getLogger(__name__)
 import origin_interface
 import FakeInstrument  # for testing
@@ -43,7 +43,8 @@ class Hybrid(Experiment):
     DDS = Member()
     unlock_pause = Member()
     Embezzletron = Member()
-    RydHP = Member()
+    HPGenerators = Member()
+    HVcontrol = Member()
 
 
     thresholdROIAnalysis = Member()
@@ -90,7 +91,8 @@ class Hybrid(Experiment):
             self.conexes = conex.Conexes('conexes', self, 'CONEX-CC')
             self.instruments += [self.conexes]
             self.properties += ['conexes']
-        except:
+        except Exception as e:
+            logger.exception(e,exc_info=True)
             logger.warning("Conex could not be instantiated."
                            "Conex translation stages will not work.")
         try:
@@ -119,12 +121,13 @@ class Hybrid(Experiment):
         self.DDS = DDS.DDS('DDS', self, 'server for homemade DDS boxes')
         self.unlock_pause = unlock_pause.UnlockMonitor('unlock_pause', self, 'Monitor for pausing when laser unlocks')
         self.Embezzletron = FakeInstrument.Embezzletron('Embezzletron', self, 'Fake instrument that generates random data for testing')
-        self.RydHP = HPSignalGenerator.RydHP('RydHP', self, 'controls HP8648B signal generator')
+        self.HPGenerators = HPSignalGenerator.HPGenerators('HPGenerators', self, 'controls HP8648B signal generator')
+        self.HVcontrol = HVcontroller.HighVoltageController('HVcontrol', self, 'Controls Hybrid HV DACs')
         # do not include functional_waveforms in self.instruments because it
         # need not start/stop
         self.instruments += [
             self.Andors, self.DDS, self.unlock_pause,
-            self.Embezzletron, self.NewportStage, self.RydHP
+            self.Embezzletron, self.NewportStage, self.HPGenerators, self.HVcontrol
         ]
         # Labview must be last at least until someone fixes the start command
         self.instruments += [self.LabView]
@@ -185,7 +188,7 @@ class Hybrid(Experiment):
             'retention_graph', 'Ramsey', 'counter_graph', 'counter_hist',
             'unlock_pause', 'ROI_rows', 'ROI_columns',
             'ROI_bg_rows', 'ROI_bg_columns',
-            'origin', 'RydHP', 'thresholdROIAnalysis', 'squareROIAnalysis'
+            'origin', 'HPGenerators', 'thresholdROIAnalysis', 'squareROIAnalysis', 'HVcontrol'
         ]
 
         self.window_dict = {
@@ -216,7 +219,8 @@ class Hybrid(Experiment):
             'Functional Waveforms': 'FunctionalWaveforms(waveforms = main.experiment.functional_waveforms, creator=main, name="Functional Waveforms")',
             'Functional Waveforms Graph': 'FunctionalWaveformsGraph(graph = main.experiment.functional_waveforms_graph, creator=main, name="Functional Waveforms Graph")',
             'Origin Interface': 'Origin(origin = main.experiment.origin, creator=main, name="Origin Interface")',
-            'Rydberg RF Generator': 'HP8648B(hp = main.experiment.RydHP, creator=main, name="Rydberg RF Generator")'
+            'HP Signal Generators': 'HPGenerators(hps = main.experiment.HPGenerators, creator=main, name="HP Signal Generators")',
+            'High Voltage Controller': 'HVcontrol(ctrl = main.experiment.HVcontrol, creator=main, name="High Voltage Controller")'
         }
 
         try:
