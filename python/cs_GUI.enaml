@@ -1568,6 +1568,114 @@ enamldef DDS_Page(Window):
                     Label: text='DDS log'
                     Label: text<<DDS.log
 
+enamldef AWG_channel(GroupBox):
+    attr channel
+    attr index
+
+    title='channel '+str(index)
+    constraints=[hbox(defaults,vbox(trigger,queue))]
+
+    GroupBox: trigger:
+        title='trigger setup'
+        flat=True
+
+        Label: text = 'externalSource'
+        ComboBox: combo:
+            items >> list(channel.trigger.externalSourceList)
+            index := channel.trigger.externalSource
+        Label: text = 'triggerBehavior'
+        ComboBox: combo:
+            items >> list(channel.trigger.triggerBehaviorList)
+            index := channel.trigger.triggerBehavior
+    GroupBox: defaults:
+        title='defaults'
+        flat = True
+        EvalProp:
+            prop<<channel.amplitude
+        EvalProp:
+            prop<<channel.frequency
+        ComboBox: combo:
+            items << list(channel.waveshapes)
+            index := channel.waveshape
+        Groupbox: modulation:
+            title='modulation setup'
+            EvalProp:
+                prop<<channel.modulation.modulationFunction
+            EvalProp:
+                prop<<channel.modulation.modulationType
+            EvalProp:
+                prop<<channel.modulation.deviationGain
+
+    GroupBox: queue:
+        title='waveform queue'
+        flat=True
+        EvalProp:
+            prop<<channel.RAMenable
+        EvalProp:
+            prop<<channel.RAMDestType
+        EvalProp:
+            prop<<channel.RAMDefaultFrequency
+        EvalProp:
+            prop<<channel.RAMDefaultAmplitude
+        EvalProp:
+            prop<<channel.RAMDefaultPhase
+
+
+        # todo: figure out how to refer to the channel queue so that a new entry
+        # with these params can be added
+        waveformNumber=chan, # the number of waveform in the RAM
+        triggerMode=wfm.trig_type, # see Manual 1.2.2.5 Trigger
+        startDelay=wfm.delay,
+        cycles=0, # 0: infinite cycles
+        prescaler=wfm.prescl
+
+enamldef AWG_Page(Window):
+    attr AWG
+    attr card
+    attr creator
+    closing :: creator.open_windows.pop(name)
+    title = 'Signadyne AWG Card'
+    style_class << 'valid' if experiment.valid else 'invalid'
+    Container:
+        padding = 0
+        style_class << 'valid' if experiment.valid else 'invalid'
+        ScrollArea:
+            style_class << 'valid' if experiment.valid else 'invalid'
+            Container:
+                style_class << 'valid' if experiment.valid else 'invalid'
+
+                GroupBox:
+                    title = 'AWG Card'
+                    HGroup:
+                        align_widths = False
+                        Label: text = 'PXI Slot'
+                        Field: text := AWG.slot
+
+                    Container:
+                        style_class << 'valid' if experiment.valid else 'invalid'
+
+                        GroupBox:
+                            hug_height='strong'
+                            hug_width='strong'
+                            title='card setup'
+                            Label: text = 'clockSetFrequency'
+                            IntField: value := AWG.f_clk
+                            Label: text = 'clockIOconfig'
+                            ComboBox: combo:
+                                items<<list(AWG.clockIOconfigList)
+                                index := AWG.clockIOConfig
+                        GroupBox:
+                            hug_height='strong'
+                            hug_width='strong'
+                            title='channels'
+                            RefreshableLooper:
+                                iterable<<card.channels
+                                AWG_channel:
+                                    index<<loop_index
+                                    channel<<loop_item
+
+
+
 enamldef RF_gen(StackItem):
     attr item
 
