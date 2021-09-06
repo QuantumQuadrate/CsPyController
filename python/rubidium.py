@@ -7,6 +7,7 @@ from atom.api import Member, Int
 # Bring in other files in this package
 import functional_waveforms, analysis, save2013style, TTL, LabView
 import DDS
+import AWG
 import andor, AnalogInput
 import unlock_pause, nidaq_ai
 logger = logging.getLogger(__name__)
@@ -33,6 +34,7 @@ class Rb(Experiment):
     blackfly_client = Member()
     LabView = Member()
     DDS = Member()
+    AWG = Member()
     pyPicoServer = Member()
     imageSumAnalysis = Member()
     functional_waveforms_graph = Member()
@@ -92,6 +94,7 @@ class Rb(Experiment):
         self.LabView = LabView.LabView(self)
         self.DAQmxAI = nidaq_ai.NIDAQmxAI('DAQmxAI', self, 'NI-DAQmx Analog Input')
         self.DDS = DDS.DDS('DDS', self, 'server for homemade DDS boxes')
+        self.AWG = AWG.AWG('AWG', self, 'Signadyne AWG Card')
         self.pyPicoServer = PyPicoServer('PyPicomotor', self, 'PyPico server interface for controlling closed loop picomotors')
         self.unlock_pause = unlock_pause.UnlockMonitor('unlock_pause', self, 'Monitor for pausing when laser unlocks')
         self.instruments += [
@@ -99,6 +102,7 @@ class Rb(Experiment):
             self.pyPicoServer,
             self.Andors,
             self.DDS,
+            self.AWG,
             self.unlock_pause
         ]
         # Labview must be last at least until someone fixes the start command
@@ -167,7 +171,7 @@ class Rb(Experiment):
             'beam_position_analysis2', 'functional_waveforms_graph',
             'unlock_pause', 'DAQmxAI', 'imageSumAnalysis',
             'RbAIAnalysis', 'functional_waveforms', 'LabView',
-            'DDS',
+            'DDS','AWG',
             'pyPicoServer', 'Andors',
             'squareROIAnalysis', 'histogram_grid', 'thresholdROIAnalysis',
             'TTL_filters', 'AI_graph',
@@ -191,6 +195,7 @@ class Rb(Experiment):
             'DAQmxAI': 'DAQmxAI(NIDAQmxAI = main.experiment.DAQmxAI, creator=main, name="DAQmxAI")',
             'HSDIO': 'HSDIO_DigitalOutPage(HSDIO = main.experiment.LabView.HSDIO, creator=main, name="HSDIO")',
             'DDS': 'DDS_Page(DDS = main.experiment.DDS, creator=main, name="DDS")',
+            'AWG': 'AWG_Page(AWG = main.experiment.AWG, creator=main, name="AWG")',
             'Andor Cameras': 'Andors(andors = main.experiment.Andors, creator=main, name="Andor Cameras")',
             'Blackfly Client': 'BlackflyClient(blackfly_client = main.experiment.blackfly_client, creator=main, name="Blackfly Client")',
             'Analog Output': 'AnalogOutput(AO = main.experiment.LabView.AnalogOutput, creator=main, name="Analog Output")',
