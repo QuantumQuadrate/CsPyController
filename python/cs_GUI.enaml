@@ -1590,21 +1590,26 @@ enamldef AWG_channel(GroupBox):
     GroupBox: defaults:
         title='defaults'
         flat = True
-        #EvalProp:
-            #prop<<channel.amplitude
-        #EvalProp:
-            #prop<<channel.frequency
-        #ComboBox: combo2:
-         #   items << list(channel.waveshapes)
-         #   index := channel.waveshape
-        #GroupBox: modulation:
-        #   title='modulation setup'
-        #    EvalProp:
-        #        prop<<channel.modulationFunction
-        #    EvalProp:
-        #        prop<<channel.modulationType
-        #    EvalProp:
-        #        prop<<channel.deviationGain
+        EvalProp:
+            prop<<channel.amplitude
+        EvalProp:
+            prop<<channel.frequency
+        ComboBox: combo2:
+            items << list(channel.waveshapeList)
+            index := channel.waveshape
+    GroupBox: modulation:
+        title='modulation setup'
+        HGroup:
+            Label: text = 'Modulation function'
+            ComboBox: combo3:
+                items >> list(channel.modulationFunctionList)
+                index := channel.modulationFunction
+            Label: text ='modulationType'
+            ComboBox: combo4:
+                items >> list(channel.modulationTypeDescriptions[channel.modulationFunction])
+                index := channel.modulationType
+            #Label: text = 'deviationGain'
+            #FloatField: value := channel.deviationGain
 
     GroupBox: queue:
         title='waveform queue'
@@ -1655,18 +1660,12 @@ enamldef AWG_Page(Window):
                         GroupBox:
                             hug_height='strong'
                             hug_width='strong'
-                            title='channel setup'
-
-                            hug_height='strong'
-                            hug_width='strong'
-                            title='Channel parameters'
+                            title='channels'
                             RefreshableLooper:
                                 iterable<<AWG.channels
                                 AWG_channel:
                                     index<<loop_index
-                                    #channel<<loop_item
-                                    channel << AWG.channels.listProperty[index]
-
+                                    channel<<AWG.channels.listProperty[loop_index]
 
 
 enamldef RF_gen(StackItem):

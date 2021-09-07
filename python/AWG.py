@@ -34,43 +34,59 @@ class AWG(Instrument):
         super(AWG, self).__init__(name, experiment, description)
 
         self.slot = IntProp('slot', self.experiment, 'The PXI crate slot number')
-        self.clockFrequency = IntProp('clockFrequency', self.experiment, 'Clock Frequency')
+        self.clockFrequency = IntProp('clockFrequency', self.experiment, 'Hz')
         self.channels = ListProp('channels', self.experiment,
                                  listProperty=[AWGchannel('channel {}'.format(i), self.experiment) for i in range(4)],
                                  listElementType=AWGchannel, listElementName='channel')
         self.properties += ['slot', 'clockFrequency', 'channels']
 
+        # logger.info("Instantiating AWG")
+        # logger.info(",".join(["{}".format(chan) for chan in self.channels]))
+
 
 class AWGchannel(Prop):
 
+    # props
     number = Typed(IntProp)
     amplitude = Typed(FloatProp)
     frequency = Typed(IntProp)
+
+    # combobox stuff
     waveshape = Int() # get combobox index
-    modulationFunction = Typed(IntProp) # get combobox index; amplitude, freq(phase) or none
+    modulationFunction = Int() # get combobox index; amplitude, freq(phase) or none
     modulationType = Int() # get combobox index
-    deviationGain = Typed(FloatProp)
     triggerBehavior = Int() # get combobox index
+    deviationGain = Int()
+
+
+    # other
     trigger = Member()
 
     # use lists to populate comboboxes, from which to choose defined parameter options
-    waveformTypeList = Typed(List)
-    # modulationFunctionList = Typed(List)
+    # waveshapeList = Typed(list)
+    waveshapeList = ['AOU_OFF', 'AOU_SINUSOIDAL', 'AOU_TRIANGULAR', 'AOU_SQUARE', 'AOU_DC', 'AOU_AWG',
+                          'AOU_PARTNER']
+    modulationFunctionList = ['amplitude','angle']
+    modulationTypeDescriptions = {'amplitude': ['Modulation off','Amplitude','Offset'],
+                          'angle': ['Modulation off','Frequency','Phase']}
+    modulationTypeDict = {'amplitude': ['AOU_MOD_OFF','AOU_MOD_AM','AOU_MOD_OFFSET'],
+                          'angle': ['AOU_MOD_OFF','AOU_MOD_FM','AOU_MOD_PM']}
 
-    def __init___(self, name, experiment, description=''):
+    def __init__(self, name, experiment, description=''):
         super(AWGchannel, self).__init__(name, experiment, description)
-        self.number = IntProp('number', self.experiment, '0-indexed chan. nums')
-        self.amplitude = FloatProp('amplitude', self.experiment, 'amplitude in Volts')
-        self.frequency = IntProp('frequency', self.experiment, 'frequency in Hz')
-        # self.waveshape = IntProp('waveshape', self.experiment, 'Table 12') # probably don't use Prop for combo box? idk
+        self.number = IntProp('number', self.experiment, '0-indexed chan. num')
+        self.amplitude = FloatProp('amplitude', self.experiment, 'Volts')
+        self.frequency = IntProp('frequency', self.experiment, 'Hz')
+        self.modulationFunction = 0 # amplitude by default
 
-        # self.modulationFunction = modulationFunction
-        # self.modulationType = modulationType
-        # self.deviationGain = deviationGain
-        # self.triggerBehavior = IntProp('triggerBehavior', experiment, 'int 1-4 specifying trigger behavior')
-        self.waveshapeList = ['AOU_OFF', 'AOU_SINUSOIDAL', 'AOU_TRIANGULAR', 'AOU_SQUARE', 'AOU_DC', 'AOU_AWG',
-                                 'AOU_PARTNER']
+        # lists
+
         self.trigger = ExternalTrigger()
+
+        # logger.info("Instantiated AWG channel {}".format(self.name))
+
+    def __repr__(self):
+        return "AWGchannel({},{},{})".format(self.name, self.experiment, self.description)
 
 
 # AWG_channel spits out "NoneType object has no attribute triggerBehavior" and so forth
