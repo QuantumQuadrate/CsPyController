@@ -1579,40 +1579,40 @@ enamldef AWG_channel(GroupBox):
         title='trigger setup'
         flat=True
 
-        Label: text = 'externalSource'
-        ComboBox: combo:
-            items >> list(channel.trigger.externalSourceList)
-            index := channel.trigger.externalSource
-        Label: text = 'triggerBehavior'
-        ComboBox: combo:
-            items >> list(channel.trigger.triggerBehaviorList)
-            index := channel.trigger.triggerBehavior
+        #Label: text = 'externalSource'
+        #ComboBox: combo:
+        #    items >> list(channel.trigger.externalSourceList)
+        #    index := channel.trigger.externalSource
+        #Label: text = 'triggerBehavior'
+        #ComboBox: combo1:
+        #    items >> list(channel.trigger.triggerBehaviorList)
+        #    index := channel.trigger.triggerBehavior
     GroupBox: defaults:
         title='defaults'
         flat = True
-        EvalProp:
-            prop<<channel.amplitude
-        EvalProp:
-            prop<<channel.frequency
-        ComboBox: combo:
-            items << list(channel.waveshapes)
-            index := channel.waveshape
-        GroupBox: modulation:
-            title='modulation setup'
-            EvalProp:
-                prop<<channel.modulationFunction
-            EvalProp:
-                prop<<channel.modulationType
-            EvalProp:
-                prop<<channel.deviationGain
+        #EvalProp:
+            #prop<<channel.amplitude
+        #EvalProp:
+            #prop<<channel.frequency
+        #ComboBox: combo2:
+         #   items << list(channel.waveshapes)
+         #   index := channel.waveshape
+        #GroupBox: modulation:
+        #   title='modulation setup'
+        #    EvalProp:
+        #        prop<<channel.modulationFunction
+        #    EvalProp:
+        #        prop<<channel.modulationType
+        #    EvalProp:
+        #        prop<<channel.deviationGain
 
     GroupBox: queue:
         title='waveform queue'
         flat=True
 
         # could have a plus button that adds an hgroup, and then updates the queue with a method
-        EvalProp:
-            prop<<channel.waveformQueue # list of dictionaries, where dict keys are the args of AWGqueueWaveform
+        #EvalProp:
+            #prop<<channel.waveformQueue # list of dictionaries, where dict keys are the args of AWGqueueWaveform
 
         # todo: figure out how to refer to the channel queue so that a new entry
         # with these params can be added
@@ -1637,7 +1637,7 @@ enamldef AWG_Page(Window):
                 style_class << 'valid' if experiment.valid else 'invalid'
 
                 GroupBox:
-                    title = 'AWG'
+                    title = 'Card parameters'
                     HGroup:
                         align_widths = False
                         EvalProp:
@@ -1655,7 +1655,17 @@ enamldef AWG_Page(Window):
                         GroupBox:
                             hug_height='strong'
                             hug_width='strong'
-                            title='card setup'
+                            title='channel setup'
+
+                            hug_height='strong'
+                            hug_width='strong'
+                            title='Channel parameters'
+                            RefreshableLooper:
+                                iterable<<AWG.channels
+                                AWG_channel:
+                                    index<<loop_index
+                                    #channel<<loop_item
+                                    channel << AWG.channels.listProperty[index]
 
 
 

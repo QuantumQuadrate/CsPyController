@@ -15,9 +15,9 @@ logger = logging.getLogger(__name__)
 
 import numpy
 import h5py
-from atom.api import Str, Typed, Member, Bool, observe, Int
+from atom.api import Str, Typed, Member, Bool, observe, Int, List
 
-from instrument_property import BoolProp, FloatProp, StrProp, IntProp, Numpy1DProp, ListProp
+from instrument_property import Prop, BoolProp, FloatProp, StrProp, IntProp, Numpy1DProp, ListProp
 from cs_instruments import Instrument
 from analysis import Analysis, AnalysisWithFigure
 
@@ -26,44 +26,68 @@ class AWG(Instrument):
     slot = Typed(IntProp)
     clockFrequency = Typed(IntProp)
     clockIOconfig = Int()
-    channels = Member()
+    channels = Typed(ListProp)
     clockIOconfigList = ['0: Disable external CLK connector',
                          '1: CLK connector outputs copy of reference clock']
 
     def __init__(self, name, experiment, description):
         super(AWG, self).__init__(name, experiment, description)
 
-        self.slot = IntProp('slot', experiment, 'The PXI crate chassis slot number')
-        self.clockFrequency = IntProp('clockFrequency', experiment, 'Clock Frequency')
-        # self.clockIOconfig = IntProp('clockIOconfig', experiment, 'CLK connector behavior')
-        self.channels = range(4)
-        self.properties += ['slot', 'channels', 'clockFrequency']
+        self.slot = IntProp('slot', self.experiment, 'The PXI crate slot number')
+        self.clockFrequency = IntProp('clockFrequency', self.experiment, 'Clock Frequency')
+        self.channels = ListProp('channels', self.experiment,
+                                 listProperty=[AWGchannel('channel {}'.format(i), self.experiment) for i in range(4)],
+                                 listElementType=AWGchannel, listElementName='channel')
+        self.properties += ['slot', 'clockFrequency', 'channels']
 
-class Channel:
 
-    def __init___(self, number):#, amplitude, frequency, waveshape, modulationFunction, modulationType, deviationGain):
-        self.number = number #number
-        # self.amplitude = amplitude
-        # self.frequency = frequency
-        # self.waveshape = waveshape
+class AWGchannel(Prop):
+
+    number = Typed(IntProp)
+    amplitude = Typed(FloatProp)
+    frequency = Typed(IntProp)
+    waveshape = Int() # get combobox index
+    modulationFunction = Typed(IntProp) # get combobox index; amplitude, freq(phase) or none
+    modulationType = Int() # get combobox index
+    deviationGain = Typed(FloatProp)
+    triggerBehavior = Int() # get combobox index
+    trigger = Member()
+
+    # use lists to populate comboboxes, from which to choose defined parameter options
+    waveformTypeList = Typed(List)
+    # modulationFunctionList = Typed(List)
+
+    def __init___(self, name, experiment, description=''):
+        super(AWGchannel, self).__init__(name, experiment, description)
+        self.number = IntProp('number', self.experiment, '0-indexed chan. nums')
+        self.amplitude = FloatProp('amplitude', self.experiment, 'amplitude in Volts')
+        self.frequency = IntProp('frequency', self.experiment, 'frequency in Hz')
+        # self.waveshape = IntProp('waveshape', self.experiment, 'Table 12') # probably don't use Prop for combo box? idk
+
         # self.modulationFunction = modulationFunction
         # self.modulationType = modulationType
         # self.deviationGain = deviationGain
         # self.triggerBehavior = IntProp('triggerBehavior', experiment, 'int 1-4 specifying trigger behavior')
+        self.waveshapeList = ['AOU_OFF', 'AOU_SINUSOIDAL', 'AOU_TRIANGULAR', 'AOU_SQUARE', 'AOU_DC', 'AOU_AWG',
+                                 'AOU_PARTNER']
+        self.trigger = ExternalTrigger()
 
 
+# AWG_channel spits out "NoneType object has no attribute triggerBehavior" and so forth
 class ExternalTrigger:
 
+    triggerBehavior = Int()
     triggerBehaviorList = ['1: Trigger active when high',
                            '2: Trigger active when low',
                            '3: Trigger active on rising edge',
                            '4: Trigger active on falling edge']
 
     externalSourceList = ['0: External', 'PXI trigger. Not currently supported']
+    externalSource = Int()
 
     def __init__(self):
-        self.c = IntProp('triggerBehavior', experiment, 'int 1-4 specifying trigger behavior')
         self.externalSource = 0
+
 
 # make this the waveform plot
 # class AI_Graph(AnalysisWithFigure):
