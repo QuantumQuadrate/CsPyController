@@ -1573,11 +1573,12 @@ enamldef AWG_channel(GroupBox):
     attr index
 
     title='channel '+str(index)
-    constraints=[hbox(defaults,vbox(trigger,queue))]
-
-    GroupBox: trigger:
-        title='trigger setup'
-        flat=True
+    #constraints=[hbox(defaults,queue)]
+        #vbox(trigger,queue))]
+    #Container: container 0:
+    #GroupBox: trigger:
+        #title='trigger setup'
+        #flat=True
 
         #Label: text = 'externalSource'
         #ComboBox: combo:
@@ -1599,21 +1600,25 @@ enamldef AWG_channel(GroupBox):
             index := channel.waveshape
     GroupBox: modulation:
         title='modulation setup'
-        HGroup:
-            Label: text = 'Modulation function'
-            ComboBox: combo3:
-                items >> list(channel.modulationFunctionList)
-                index := channel.modulationFunction
-            Label: text ='modulationType'
-            ComboBox: combo4:
-                items >> list(channel.modulationTypeDescriptions[channel.modulationFunction])
-                index := channel.modulationType
-            #Label: text = 'deviationGain'
-            #FloatField: value := channel.deviationGain
+        padding = 0
+        hug_height='strong'
+        hug_width='strong'
+        Container: container:
+            HGroup:
+                Label: text = 'Modulation function'
+                ComboBox: combo3:
+                    items >> list(channel.modulationFunctionList)
+                    index := channel.modulationFunction
+                Label: text ='modulationType'
+                ComboBox: combo4:
+                    items >> list(channel.modulationTypeDescriptions[channel.modulationFunction])
+                    index := channel.modulationType
+                #Label: text = 'deviationGain'
+                #FloatField: value := channel.deviationGain
 
-    GroupBox: queue:
-        title='waveform queue'
-        flat=True
+    #GroupBox: queue:
+        #title='waveform queue'
+        #flat=True
 
         # could have a plus button that adds an hgroup, and then updates the queue with a method
         #EvalProp:
