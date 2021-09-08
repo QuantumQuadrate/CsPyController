@@ -90,7 +90,7 @@ class AWGchannel(Prop):
 
 
 # AWG_channel spits out "NoneType object has no attribute triggerBehavior" and so forth
-class ExternalTrigger:
+class ExternalTrigger(Prop):
 
     triggerBehavior = Int()
     triggerBehaviorList = ['1: Trigger active when high',

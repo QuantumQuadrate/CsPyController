@@ -1575,46 +1575,49 @@ enamldef AWG_channel(GroupBox):
     title='channel '+str(index)
     #constraints=[hbox(defaults,queue)]
         #vbox(trigger,queue))]
-    #Container: container 0:
-    #GroupBox: trigger:
-        #title='trigger setup'
-        #flat=True
+    HGroup:
+        VGroup:
+            GroupBox: defaults:
+                title='defaults'
+                flat = True
+                EvalProp:
+                    prop<<channel.amplitude
+                EvalProp:
+                    prop<<channel.frequency
+                ComboBox: combo2:
+                    items << list(channel.waveshapeList)
+                    index := channel.waveshape
+            GroupBox: modulation:
+                title='modulation setup'
+                padding = 0
+                hug_height='strong'
+                hug_width='strong'
+                Container: container:
+                    HGroup:
+                        Label: text = 'Modulation function'
+                        ComboBox: combo3:
+                            items >> list(channel.modulationFunctionList)
+                            index := channel.modulationFunction
+                        Label: text ='modulationType'
+                        ComboBox: combo4:
+                            items >> list(channel.modulationTypeDescriptions[channel.modulationFunction])
+                            index := channel.modulationType
+                        #Label: text = 'deviationGain'
+                        #FloatField: value := channel.deviationGain
+        VGroup:
+            GroupBox: trigger:
+                title='trigger setup'
+                flat=True
 
-        #Label: text = 'externalSource'
-        #ComboBox: combo:
-        #    items >> list(channel.trigger.externalSourceList)
-        #    index := channel.trigger.externalSource
-        #Label: text = 'triggerBehavior'
-        #ComboBox: combo1:
-        #    items >> list(channel.trigger.triggerBehaviorList)
-        #    index := channel.trigger.triggerBehavior
-    GroupBox: defaults:
-        title='defaults'
-        flat = True
-        EvalProp:
-            prop<<channel.amplitude
-        EvalProp:
-            prop<<channel.frequency
-        ComboBox: combo2:
-            items << list(channel.waveshapeList)
-            index := channel.waveshape
-    GroupBox: modulation:
-        title='modulation setup'
-        padding = 0
-        hug_height='strong'
-        hug_width='strong'
-        Container: container:
-            HGroup:
-                Label: text = 'Modulation function'
-                ComboBox: combo3:
-                    items >> list(channel.modulationFunctionList)
-                    index := channel.modulationFunction
-                Label: text ='modulationType'
-                ComboBox: combo4:
-                    items >> list(channel.modulationTypeDescriptions[channel.modulationFunction])
-                    index := channel.modulationType
-                #Label: text = 'deviationGain'
-                #FloatField: value := channel.deviationGain
+                Label: text = 'externalSource'
+                ComboBox: combo:
+                    items >> list(channel.trigger.externalSourceList)
+                    index := channel.trigger.externalSource
+                Label: text = 'triggerBehavior'
+                ComboBox: combo1:
+                    items >> list(channel.trigger.triggerBehaviorList)
+                    index := channel.trigger.triggerBehavior
+
 
     #GroupBox: queue:
         #title='waveform queue'
