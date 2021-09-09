@@ -1638,6 +1638,7 @@ enamldef AWG_channel(GroupBox):
         #cycles=0, # 0: infinite cycles
         #prescaler=wfm.prescl
 
+# TODO: embed a plot to display the waveforms, and a plot to show the requested vs actual waveform time
 enamldef AWG_Page(Window):
     attr AWG
     attr creator
@@ -1651,6 +1652,10 @@ enamldef AWG_Page(Window):
             style_class << 'valid' if experiment.valid else 'invalid'
             Container:
                 style_class << 'valid' if experiment.valid else 'invalid'
+
+                LabelBox:
+                    text='enable'
+                    checked := AWG.enable
 
                 GroupBox:
                     title = 'Card parameters'

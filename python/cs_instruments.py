@@ -82,7 +82,7 @@ class Instrument(Prop):
         pass
 
     def initialize(self):
-        """Sends initialization commands to the instrument"""
+        """Sends initialization commadns to the instrument"""
         for i in self.instruments:
             i.initialize()
         self.isInitialized = True

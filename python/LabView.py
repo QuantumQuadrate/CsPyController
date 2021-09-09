@@ -17,7 +17,7 @@ logger = logging.getLogger(__name__)
 
 from cs_errors import PauseError
 
-import TCP, HSDIO, piezo, RF_generators, AnalogOutput, AnalogInput, DAQmxDO, Camera, TTL, Counter
+import TCP, HSDIO, piezo, RF_generators, AnalogOutput, AnalogInput, DAQmxDO, Camera, TTL, Counter, AWG
 from atom.api import Bool, Str, Member, Typed
 from instrument_property import FloatProp
 from cs_instruments import Instrument
@@ -45,6 +45,7 @@ class LabView(Instrument):
     AnalogOutput = Member()
     #AnalogOutput2 = Member() # Secondary analog output instrument.
     AnalogInput = Member()
+    AWG = Member()
     DAQmxDO = Member()
     Counters = Member()
     camera = Member()
@@ -71,6 +72,7 @@ class LabView(Instrument):
         self.RF_generators = RF_generators.RF_generators(experiment)
         self.AnalogOutput = AnalogOutput.AnalogOutput(experiment)
         self.AnalogInput = AnalogInput.AnalogInput(experiment)
+        self.AWG = AWG.AWG(experiment)
         self.Counters = Counter.Counters('Counters', experiment)
         self.DAQmxDO = DAQmxDO.DAQmxDO(experiment)
         self.camera = Camera.HamamatsuC9100_13(experiment)
@@ -78,14 +80,14 @@ class LabView(Instrument):
         self.results = {}
 
         self.instruments = [self.HSDIO, self.piezo, self.RF_generators, self.AnalogOutput, self.AnalogInput,
-                            self.Counters, self.DAQmxDO, self.camera, self.TTL]
+                            self.Counters, self.DAQmxDO, self.camera, self.TTL, self.AWG]
 
         self.sock = None
         self.connected = False
 
         self.timeout = FloatProp('timeout', experiment, 'how long before LabView gives up and returns [s]', '1.0')
 
-        self.properties += ['IP', 'port', 'timeout', 'AnalogOutput', 'AnalogInput', 'HSDIO',
+        self.properties += ['AWG', 'IP', 'port', 'timeout', 'AnalogOutput', 'AnalogInput', 'HSDIO',
                             'piezo', 'RF_generators', 'DAQmxDO', 'camera', 'TTL', 'Counters', 'cycleContinuously']
         self.doNotSendToHardware += ['IP', 'port', 'enable']
 

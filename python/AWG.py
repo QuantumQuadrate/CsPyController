@@ -40,7 +40,7 @@ class AWG(Instrument):
                         + '\n - Cycles: 0 if waveform should repeat with every trigger received, n > 0 to playback '
                         + 'for only the first n triggers')
 
-    def __init__(self, name, experiment, description):
+    def __init__(self, experiment, name='AWG', description='Signadyne AWG Card'):
         super(AWG, self).__init__(name, experiment, description)
 
         self.slot = IntProp('slot', self.experiment, 'The PXI crate slot number')
@@ -50,10 +50,7 @@ class AWG(Instrument):
                                  listElementType=AWGchannel, listElementName='channel')
         self.waveformList = StrProp('waveformList', self.experiment,
                                      'e.g.: [[exp(-x**2) for x in linspace(-5,5,100)],[x for x in linspace(0,1,20)]]')
-        self.properties += ['slot', 'clockFrequency', 'channels']
-
-        # logger.info("Instantiating AWG")
-        # logger.info(",".join(["{}".format(chan) for chan in self.channels]))
+        self.properties += ['slot', 'clockFrequency', 'channels', 'waveformList']
 
 
 class AWGchannel(Prop):
@@ -183,70 +180,3 @@ class ExternalTrigger(Prop):
 #                     logger.warning('Problem in AIGraph.updateFigure()\n:{}'.format(e))
 #                 finally:
 #                     self.update_lock = False ##
-
-
-class AI_Filter(Analysis):
-    """
-    This analysis monitors the Analog Inputs and does either hard or soft cuts of the data accordingly.
-    The filters are specified by the what_to_filter string, which is a list in the form:
-    [(channel,sample_list,low,high), (channel,sample_list,low,high)]
-    The samples in sample_list will be averaged.
-    """
-
-    enable = Bool()
-    what_to_filter = Str()  # string representing a list of [(channel,low,high), (channel,low,high)]
-    text = Str()
-    filter_level = Int()
-
-    def __init__(self, name, experiment, description=''):
-        super(AI_Filter, self).__init__(name, experiment, description)
-        self.properties += ['enable', 'what_to_filter', 'filter_level']
-
-    def analyzeMeasurement(self, measurement_results, iteration_results, experiment_results):
-        text = ''
-        if self.enable and ('AI' in measurement_results['data']):
-            failed = False  # keep track of if any of the filters fail
-            # read the AI results
-            data = measurement_results['data/AI/data']
-
-            # parse the "what_to_filter" string
-            try:
-                filter_list = eval(self.what_to_filter)
-            except Exception as e:
-                logger.warning('Could not eval what_to_filter in AI_Filter:\n{}\n'.format(e))
-                raise PauseError
-            for i in filter_list:
-                # read the data for the channel
-                d = numpy.float(numpy.average(data[i[0], i[1]]))
-                trysecondpath=False
-                try:
-                    measurement_results['data/AI/BinAve/channel'+ numpy.str(i[0])] = d
-                except:
-                    trysecondpath = True
-                    logger.info("Unable to find data in first path. Trying second")
-
-                if trysecondpath:
-                    try:
-                        measurement_results['data/AI/BinAve/channel'+ numpy.str(i[0])+'2'] = d
-                    except:
-                        logger.error("Unable to find AI data in either of the paths")
-                if d > i[3]:
-                    # data is above the high limit
-                    text += 'Analog Input filter failed for channel {}.  Value was {}, above high limit {}.\n'.format(i[0], d, i[3])
-                    failed = True
-                elif d < i[2]:
-                    # data is below the low limit
-                    text += 'Analog Input filter failed for channel {}.  Value was {}, below low limit {}.\n'.format(i[0], d, i[2])
-                    failed = True
-
-            # check to see if any of the filters failed
-            if failed:
-                # record to the log and screen
-                logger.warning(text)
-                self.set_gui({'text': text})
-                # User chooses whether or not to delete data.
-                # max takes care of ComboBox returning -1 for no selection
-                return max(0, self.filter_level)
-            else:
-                text = 'okay'
-        self.set_gui({'text': text})
