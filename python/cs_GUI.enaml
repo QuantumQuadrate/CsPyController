@@ -1584,23 +1584,24 @@ enamldef AWG_channel(GroupBox):
                     prop<<channel.amplitude
                 EvalProp:
                     prop<<channel.frequency
-                ComboBox: combo2:
+                Label: text = 'waveshape'
+                ComboBox: combo:
                     items << list(channel.waveshapeList)
                     index := channel.waveshape
             GroupBox: modulation:
                 title='modulation setup'
-                padding = 0
+                #padding = 0
                 hug_height='strong'
-                hug_width='strong'
+                #hug_width='strong'
                 Container: container:
                     HGroup:
                         Label: text = 'Modulation function'
-                        ComboBox: combo3:
-                            items >> list(channel.modulationFunctionList)
+                        ComboBox: combo1:
+                            items << list(channel.modulationFunctionList)
                             index := channel.modulationFunction
                         Label: text ='modulationType'
-                        ComboBox: combo4:
-                            items >> list(channel.modulationTypeDescriptions[channel.modulationFunction])
+                        ComboBox: combo2:
+                            items << list(channel.modulationTypeDescriptions[channel.modulationFunctionList[combo1.index]])
                             index := channel.modulationType
                         #Label: text = 'deviationGain'
                         #FloatField: value := channel.deviationGain
@@ -1610,22 +1611,24 @@ enamldef AWG_channel(GroupBox):
                 flat=True
 
                 Label: text = 'externalSource'
-                ComboBox: combo:
-                    items >> list(channel.trigger.externalSourceList)
+                ComboBox: combo3:
+                    items << list(channel.trigger.externalSourceList)
                     index := channel.trigger.externalSource
                 Label: text = 'triggerBehavior'
-                ComboBox: combo1:
-                    items >> list(channel.trigger.triggerBehaviorList)
+                ComboBox: combo4:
+                    items << list(channel.trigger.triggerBehaviorList)
                     index := channel.trigger.triggerBehavior
 
+            GroupBox: queue:
+                title='waveform queue'
+                flat=True
 
-    #GroupBox: queue:
-        #title='waveform queue'
-        #flat=True
+                # could have a plus button that adds an hgroup, and then updates the queue with a method
+                Label: text = 'a string representing a list of tuples for each queued waveform: [(waveformNumber, startDelay, cycles, prescaler)]'
+                # list of dictionaries, where dict keys are the args of AWGqueueWaveform
+                EvalProp:
+                    prop<<channel.waveformQueue
 
-        # could have a plus button that adds an hgroup, and then updates the queue with a method
-        #EvalProp:
-            #prop<<channel.waveformQueue # list of dictionaries, where dict keys are the args of AWGqueueWaveform
 
         # todo: figure out how to refer to the channel queue so that a new entry
         # with these params can be added
@@ -1651,16 +1654,23 @@ enamldef AWG_Page(Window):
 
                 GroupBox:
                     title = 'Card parameters'
-                    HGroup:
-                        align_widths = False
-                        EvalProp:
-                            prop<<AWG.slot
+                    VGroup:
+                        HGroup:
+                            align_widths = False
+                            EvalProp:
+                                prop<<AWG.slot
 
-                        EvalProp:
-                                prop<<AWG.clockFrequency
-                        ComboBox: combo:
-                            items<<list(AWG.clockIOconfigList)
-                            index := AWG.clockIOconfig
+                            EvalProp:
+                                    prop<<AWG.clockFrequency
+                            ComboBox: combo:
+                                items<<list(AWG.clockIOconfigList)
+                                index := AWG.clockIOconfig
+
+                        VGroup:
+                            Label: text << AWG.waveformQueueStr
+                            EvalProp:
+                                prop<<AWG.waveformList
+                            Label: text << AWG.prescalerNoteStr
 
                     Container:
                         style_class << 'valid' if experiment.valid else 'invalid'
@@ -1674,7 +1684,6 @@ enamldef AWG_Page(Window):
                                 AWG_channel:
                                     index<<loop_index
                                     channel<<AWG.channels.listProperty[loop_index]
-
 
 enamldef RF_gen(StackItem):
     attr item

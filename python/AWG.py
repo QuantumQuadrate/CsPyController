@@ -29,6 +29,16 @@ class AWG(Instrument):
     channels = Typed(ListProp)
     clockIOconfigList = ['0: Disable external CLK connector',
                          '1: CLK connector outputs copy of reference clock']
+    waveformList = Typed(StrProp)
+    waveformQueueStr = ("String representing list of waveforms to be stored in RAM, implicitly numbered"
+                        + "with 0-based indexing. Each channel's waveformQueue will be built from this list"
+                        + "\nby referring to a waveform by its index in the list here."
+                        + "Functions used in waveforms must belong to the numpy package, e.g. sin refers to numpy.sin")
+    prescalerNoteStr = ('Note about waveformQueue params:'
+                        + '\n - Prescaler: used to set rate at which RAM steps are deployed. Calculate based on the '
+                        + 'desired waveform duration tau: prescaler = int(tau*clockFrequency/(5*waveform_pts)).'
+                        + '\n - Cycles: 0 if waveform should repeat with every trigger received, n > 0 to playback '
+                        + 'for only the first n triggers')
 
     def __init__(self, name, experiment, description):
         super(AWG, self).__init__(name, experiment, description)
@@ -38,6 +48,8 @@ class AWG(Instrument):
         self.channels = ListProp('channels', self.experiment,
                                  listProperty=[AWGchannel('channel {}'.format(i), self.experiment) for i in range(4)],
                                  listElementType=AWGchannel, listElementName='channel')
+        self.waveformList = StrProp('waveformList', self.experiment,
+                                     'e.g.: [[exp(-x**2) for x in linspace(-5,5,100)],[x for x in linspace(0,1,20)]]')
         self.properties += ['slot', 'clockFrequency', 'channels']
 
         # logger.info("Instantiating AWG")
@@ -50,6 +62,7 @@ class AWGchannel(Prop):
     number = Typed(IntProp)
     amplitude = Typed(FloatProp)
     frequency = Typed(IntProp)
+    waveformQueue = Typed(StrProp)
 
     # combobox stuff
     waveshape = Int() # get combobox index
@@ -57,7 +70,6 @@ class AWGchannel(Prop):
     modulationType = Int() # get combobox index
     triggerBehavior = Int() # get combobox index
     deviationGain = Int()
-
 
     # other
     trigger = Member()
@@ -77,6 +89,7 @@ class AWGchannel(Prop):
         self.number = IntProp('number', self.experiment, '0-indexed chan. num')
         self.amplitude = FloatProp('amplitude', self.experiment, 'Volts')
         self.frequency = IntProp('frequency', self.experiment, 'Hz')
+        self.waveformQueue = StrProp('waveformQueue', self.experiment, 'e.g.: [(0,0,0,1),(1,0,0,1)]')
         self.modulationFunction = 0 # amplitude by default
 
         # lists
