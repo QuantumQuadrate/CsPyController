@@ -46,7 +46,7 @@ class AWG(Instrument):
         self.slot = IntProp('slot', self.experiment, 'The PXI crate slot number')
         self.clockFrequency = IntProp('clockFrequency', self.experiment, 'Hz')
         self.channels = ListProp('channels', self.experiment,
-                                 listProperty=[AWGchannel('channel {}'.format(i), self.experiment) for i in range(4)],
+                                 listProperty=[AWGchannel('channel{}'.format(i), self.experiment) for i in range(4)],
                                  listElementType=AWGchannel, listElementName='channel')
         self.waveformList = StrProp('waveformList', self.experiment,
                                      'e.g.: [[exp(-x**2) for x in linspace(-5,5,100)],[x for x in linspace(0,1,20)]]')
@@ -56,7 +56,6 @@ class AWG(Instrument):
 class AWGchannel(Prop):
 
     # props
-    number = Typed(IntProp)
     amplitude = Typed(FloatProp)
     frequency = Typed(IntProp)
     waveformQueue = Typed(StrProp)
@@ -65,7 +64,6 @@ class AWGchannel(Prop):
     waveshape = Int() # get combobox index
     modulationFunction = Int() # get combobox index; amplitude, freq(phase) or none
     modulationType = Int() # get combobox index
-    triggerBehavior = Int() # get combobox index
     deviationGain = Int()
 
     # other
@@ -83,7 +81,7 @@ class AWGchannel(Prop):
 
     def __init__(self, name, experiment, description=''):
         super(AWGchannel, self).__init__(name, experiment, description)
-        self.number = IntProp('number', self.experiment, '0-indexed chan. num')
+        # self.number = IntProp('number', self.experiment, '0-indexed chan. num')
         self.amplitude = FloatProp('amplitude', self.experiment, 'Volts')
         self.frequency = IntProp('frequency', self.experiment, 'Hz')
         self.waveformQueue = StrProp('waveformQueue', self.experiment, 'e.g.: [(0,0,0,1),(1,0,0,1)]')
@@ -91,7 +89,9 @@ class AWGchannel(Prop):
 
         # lists
 
-        self.trigger = ExternalTrigger()
+        self.trigger = ExternalTrigger(self.experiment)
+        self.properties += ['amplitude', 'frequency', 'waveformQueue', 'waveshape', 'modulationFunction',
+                            'modulationType', 'deviationGain', 'trigger']
 
         # logger.info("Instantiated AWG channel {}".format(self.name))
 
@@ -111,9 +111,10 @@ class ExternalTrigger(Prop):
     externalSourceList = ['0: External', 'PXI trigger. Not currently supported']
     externalSource = Int()
 
-    def __init__(self):
+    def __init__(self, experiment, name='externalTrigger', description=''):
+        super(ExternalTrigger, self).__init__(name, experiment, description)
         self.externalSource = 0
-
+        self.properties += ['triggerBehavior', 'externalSource']
 
 # make this the waveform plot
 # class AI_Graph(AnalysisWithFigure):

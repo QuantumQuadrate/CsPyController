@@ -1571,8 +1571,8 @@ enamldef DDS_Page(Window):
 enamldef AWG_channel(GroupBox):
     attr channel
     attr index
-
     title='channel '+str(index)
+
     #constraints=[hbox(defaults,queue)]
         #vbox(trigger,queue))]
     HGroup:

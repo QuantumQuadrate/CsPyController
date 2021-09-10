@@ -183,6 +183,7 @@ class Rb(Experiment):
             'origin'
         ]
 
+
         self.window_dict = {
             '':'',
             'Experiment': 'ExperimentPage(experiment = main.experiment, creator=main, name ="Experiment")',
@@ -232,6 +233,7 @@ class Rb(Experiment):
 
         # make sure evaluation is allowed now
         self.allow_evaluation = True
+
 
     def exiting(self):
         self.Andors.__del__()
