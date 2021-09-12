@@ -1648,21 +1648,42 @@ enamldef AWG_Page(Window):
     Container:
         padding = 0
         style_class << 'valid' if experiment.valid else 'invalid'
+        VGroup:
+            HGroup:
+                #constraints=[hbox(b1,b3,b4),b1.width==100,b3.width==100,b4.width==100]
+                align_widths = False
+                hug_width='strong'
 
-        Container:
-            #constraints=[hbox(b1,b3,b4),b1.width==100,b3.width==100,b4.width==100]
-            PushButton: b1:
-                text='open connection'
-                clicked::
-                    AWG.openThread()
-            PushButton: b3:
-                text='update settings'
-                clicked::
-                    AWG.update()
-            PushButton: b4:
-                text='close connection'
-                clicked::
-                    AWG.close()
+                PushButton: b1:
+                    text='open connection'
+                    clicked::
+                        AWG.openThread()
+                PushButton: b3:
+                    text='update settings'
+                    clicked::
+                        AWG.update()
+                PushButton: b4:
+                    text='close connection'
+                    clicked::
+                        AWG.close()
+
+            HGroup:
+                align_widths = False
+                hug_width='strong'
+                Label:
+                    text='enable communication with AWG server?'
+                CheckBox:
+                    checked:=AWG.enable
+                Label:
+                    text='IP address of AWG server machine'
+                Field:
+                    text:=AWG.IP
+                Label:
+                    text='communications port'
+                IntField:
+                    value:=AWG.port
+                EvalProp:
+                    prop << AWG.timeout
 
         ScrollArea:
             style_class << 'valid' if experiment.valid else 'invalid'

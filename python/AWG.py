@@ -53,7 +53,7 @@ class AWG(Instrument):
         self.sock = None
         self.port = 0
         self.connected = False
-        self.timeout = FloatProp('timeout', experiment, 'how long before we give up and return [s]', '1.0')
+        self.timeout = FloatProp('timeout', experiment, 'time before we give up [s]', '1.0')
 
 
         self.slot = IntProp('slot', self.experiment, 'The PXI crate slot number')
