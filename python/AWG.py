@@ -9,7 +9,7 @@ Params set in the AWG window are then sent to the Instrument Server over TCP/IP.
 """
 
 from __future__ import division
-__author__ = 'Martin Lichtman'
+__author__ = 'Preston Huft'
 import logging
 logger = logging.getLogger(__name__)
 
@@ -17,12 +17,18 @@ import numpy
 import h5py
 from atom.api import Str, Typed, Member, Bool, observe, Int, List
 
+import TCP
 from instrument_property import Prop, BoolProp, FloatProp, StrProp, IntProp, Numpy1DProp, ListProp
 from cs_instruments import Instrument
 from analysis import Analysis, AnalysisWithFigure
 
+#TODO: make frequency units MHz and convert on instr server side
 class AWG(Instrument):
-
+    sock = Member()
+    port = Member()
+    IP = Str()
+    timeout = Typed(FloatProp)
+    connected = Member()
     slot = Typed(IntProp)
     clockFrequency = Typed(IntProp)
     clockIOconfig = Int()
@@ -43,6 +49,13 @@ class AWG(Instrument):
     def __init__(self, experiment, name='AWG', description='Signadyne AWG Card'):
         super(AWG, self).__init__(name, experiment, description)
 
+        # defaults
+        self.sock = None
+        self.port = 0
+        self.connected = False
+        self.timeout = FloatProp('timeout', experiment, 'how long before we give up and return [s]', '1.0')
+
+
         self.slot = IntProp('slot', self.experiment, 'The PXI crate slot number')
         self.clockFrequency = IntProp('clockFrequency', self.experiment, 'Hz')
         self.channels = ListProp('channels', self.experiment,
@@ -51,7 +64,123 @@ class AWG(Instrument):
         self.waveformList = StrProp('waveformList', self.experiment,
                                      'e.g.: [[exp(-x**2) for x in linspace(-5,5,100)],[x for x in linspace(0,1,20)]]')
         self.properties += ['slot', 'clockFrequency', 'channels', 'waveformList']
+        self.doNotSendToHardware += ['IP', 'port', 'enable']
 
+    def openThread(self):
+        thread = threading.Thread(target=self.initialize)
+        thread.daemon = True
+        thread.start()
+
+    def open(self):
+
+        if self.enable:
+
+            logger.debug('Opening AWG TCP.')
+            # check for an old socket and delete it
+            if self.sock is not None:
+                logger.debug('Closing previously open sock.')
+                try:
+                    self.sock.close()
+                except Exception as e:
+                    logger.debug('Ignoring exception during sock.close() of previously open sock.\n{}\n'.format(e))
+                try:
+                    del self.sock
+                except Exception as e:
+                    logger.debug('Ignoring exception during sock.close() of previously open sock.\n{}\n'.format(e))
+
+            # Create a TCP/IP socket
+            logger.debug('AWG.open() opening sock')
+            try:
+                self.sock = TCP.CsClientSock(self.IP, self.port, parent=self)
+            except Exception as e:
+                logger.warning('Failed to open TCP socket in AWG.open():\n{}\n'.format(e))
+                raise PauseError
+            logger.debug('AWG.open() sock opened')
+            self.connected = True
+
+    def initialize(self):
+        self.open()
+        logger.debug('Initializing Signadyne AWG instrument')
+        super(AWG, self).initialize()
+
+    def close(self):
+        if self.sock is not None:
+            self.sock.close()
+        self.connected = False
+        self.isInitialized = False
+
+    def update(self):
+        """Send the current values to hardware."""
+
+        super(AWG, self).update()
+        self.send(self.toHardware())
+
+    def send(self, msg):
+        results = {}
+        if self.enable:
+            if not (self.isInitialized and self.connected):
+                logger.debug("TCP is not both initialized and connected.  Reinitializing TCP in AWG.send().")
+                self.initialize()
+
+            #display message on GUI
+            # self.set_dict({'msg': msg})
+
+            #send message
+            logger.debug('AWG sending message ...')
+            try:
+                self.sock.settimeout(self.timeout.value)
+                self.sock.sendmsg(msg)
+            except IOError:
+                logger.warning('Timeout while waiting for AWG to send data in AWG.send():\n{}\n'.format(e))
+                self.connected = False
+                raise PauseError
+            except Exception as e:
+                logger.warning('while sending message in AWG.send():\n{}\n{}\n'.format(e, traceback.format_exc()))
+                self.connected = False
+                raise PauseError
+
+            # do we need this?? probs not, but leave it for now.
+            # wait for response
+            logger.debug('Awg waiting for response ...')
+            try:
+                rawdata = self.sock.receive()
+            except IOError as e:
+                logger.warning('Timeout while waiting for AWG to reply in AWG.send():\n{}\n'.format(e))
+                self.connected = False
+                raise PauseError
+            except Exception as e:
+                logger.warning('in AWG.sock.receive:\n{}\n{}\n'.format(e, traceback.format_exc()))
+                self.connected = False
+                raise PauseError
+
+            # parse results
+            logger.debug('Parsing TCP results ...')
+            logger.debug("Raw Data: {}".format(rawdata))
+            results = self.sock.parsemsg(rawdata)
+            # for key, value in self.results.iteritems():
+            #    print 'key: {} value: {}'.format(key,str(value)[:40])
+
+            # report AWG errors
+            log = ''
+            if 'log' in results:
+                log = results['log']
+                self.set_gui({'log': self.log + log})
+            if 'error' in results:
+                error = toBool(results['error'])
+                self.set_gui({'error': error})
+                if error:
+                    logger.warning('Error returned from AWG.send:\n{}\n'.format(log))
+                    raise PauseError
+
+        logger.debug("results written : {}".format(results))
+        # self.results = results
+        # self.isDone = True
+        return results
+
+    def evaluate(self):
+        if self.experiment.allow_evaluation:
+            logger.debug('AWG.evaluate()')
+            return super(AWG, self).evaluate()
 
 class AWGchannel(Prop):
 

@@ -1648,6 +1648,22 @@ enamldef AWG_Page(Window):
     Container:
         padding = 0
         style_class << 'valid' if experiment.valid else 'invalid'
+
+        Container:
+            #constraints=[hbox(b1,b3,b4),b1.width==100,b3.width==100,b4.width==100]
+            PushButton: b1:
+                text='open connection'
+                clicked::
+                    AWG.openThread()
+            PushButton: b3:
+                text='update settings'
+                clicked::
+                    AWG.update()
+            PushButton: b4:
+                text='close connection'
+                clicked::
+                    AWG.close()
+
         ScrollArea:
             style_class << 'valid' if experiment.valid else 'invalid'
             Container:
