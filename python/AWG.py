@@ -65,7 +65,7 @@ class AWG(Instrument):
                                  listElementType=AWGchannel, listElementName='channel')
         self.waveformList = StrProp('waveformList', self.experiment,
                                      'e.g.: [[exp(-x**2) for x in linspace(-5,5,100)],[x for x in linspace(0,1,20)]]')
-        self.properties += ['slot', 'clockFrequency', 'clockIOconfig', 'channels', 'waveformList', 'timeout', 'port']
+        self.properties += ['slot', 'clockFrequency', 'clockIOconfig', 'channels', 'waveformList', 'timeout', 'port', 'IP']
         self.doNotSendToHardware += ['IP', 'port', 'enable']
 
     def openThread(self):
