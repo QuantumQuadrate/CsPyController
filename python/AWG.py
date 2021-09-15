@@ -13,16 +13,18 @@ __author__ = 'Preston Huft'
 import logging
 logger = logging.getLogger(__name__)
 
+from cs_errors import PauseError
+
 import numpy
 import h5py
 from atom.api import Str, Typed, Member, Bool, observe, Int, List
+import threading
 
 import TCP
 from instrument_property import Prop, BoolProp, FloatProp, StrProp, IntProp, Numpy1DProp, ListProp
 from cs_instruments import Instrument
 from analysis import Analysis, AnalysisWithFigure
 
-#TODO: make frequency units MHz and convert on instr server side
 class AWG(Instrument):
     sock = Member()
     port = Member()
@@ -57,13 +59,13 @@ class AWG(Instrument):
 
 
         self.slot = IntProp('slot', self.experiment, 'The PXI crate slot number')
-        self.clockFrequency = IntProp('clockFrequency', self.experiment, 'Hz')
+        self.clockFrequency = IntProp('clockFrequency', self.experiment, 'MHz')
         self.channels = ListProp('channels', self.experiment,
                                  listProperty=[AWGchannel('channel{}'.format(i), self.experiment) for i in range(4)],
                                  listElementType=AWGchannel, listElementName='channel')
         self.waveformList = StrProp('waveformList', self.experiment,
                                      'e.g.: [[exp(-x**2) for x in linspace(-5,5,100)],[x for x in linspace(0,1,20)]]')
-        self.properties += ['slot', 'clockFrequency', 'channels', 'waveformList']
+        self.properties += ['slot', 'clockFrequency', 'clockIOconfig', 'channels', 'waveformList', 'timeout', 'port']
         self.doNotSendToHardware += ['IP', 'port', 'enable']
 
     def openThread(self):
@@ -212,7 +214,7 @@ class AWGchannel(Prop):
         super(AWGchannel, self).__init__(name, experiment, description)
         # self.number = IntProp('number', self.experiment, '0-indexed chan. num')
         self.amplitude = FloatProp('amplitude', self.experiment, 'Volts')
-        self.frequency = IntProp('frequency', self.experiment, 'Hz')
+        self.frequency = IntProp('frequency', self.experiment, 'MHz')
         self.waveformQueue = StrProp('waveformQueue', self.experiment, 'e.g.: [(0,0,0,1),(1,0,0,1)]')
         self.modulationFunction = 0 # amplitude by default
 

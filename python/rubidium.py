@@ -171,7 +171,7 @@ class Rb(Experiment):
             'beam_position_analysis2', 'functional_waveforms_graph',
             'unlock_pause', 'DAQmxAI', 'imageSumAnalysis',
             'RbAIAnalysis', 'functional_waveforms', 'LabView',
-            'DDS',
+            'DDS', 'AWG'
             'pyPicoServer', 'Andors',
             'squareROIAnalysis', 'histogram_grid', 'thresholdROIAnalysis',
             'TTL_filters', 'AI_graph',
