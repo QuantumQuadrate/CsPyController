@@ -1594,17 +1594,19 @@ enamldef AWG_channel(GroupBox):
                 hug_height='strong'
                 #hug_width='strong'
                 Container: container:
-                    HGroup:
-                        Label: text = 'Modulation function'
-                        ComboBox: combo1:
-                            items << list(channel.modulationFunctionList)
-                            index := channel.modulationFunction
-                        Label: text ='modulationType'
-                        ComboBox: combo2:
-                            items << list(channel.modulationTypeDescriptions[channel.modulationFunctionList[combo1.index]])
-                            index := channel.modulationType
-                        #Label: text = 'deviationGain'
-                        #FloatField: value := channel.deviationGain
+                    VGroup:
+                        HGroup:
+                            Label: text = 'Modulation function'
+                            ComboBox: combo1:
+                                items << list(channel.modulationFunctionList)
+                                index := channel.modulationFunction
+                            Label: text ='modulationType'
+                            ComboBox: combo2:
+                                items << list(channel.modulationTypeDescriptions[channel.modulationFunctionList[combo1.index]])
+                                index := channel.modulationType
+                        EvalProp:
+                            prop<<channel.deviationGain
+
         VGroup:
             GroupBox: trigger:
                 title='trigger setup'

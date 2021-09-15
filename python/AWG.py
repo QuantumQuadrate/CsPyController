@@ -143,41 +143,41 @@ class AWG(Instrument):
 
             # do we need this?? probs not, but leave it for now.
             # wait for response
-            logger.debug('Awg waiting for response ...')
-            try:
-                rawdata = self.sock.receive()
-            except IOError as e:
-                logger.warning('Timeout while waiting for AWG to reply in AWG.send():\n{}\n'.format(e))
-                self.connected = False
-                raise PauseError
-            except Exception as e:
-                logger.warning('in AWG.sock.receive:\n{}\n{}\n'.format(e, traceback.format_exc()))
-                self.connected = False
-                raise PauseError
-
-            # parse results
-            logger.debug('Parsing TCP results ...')
-            logger.debug("Raw Data: {}".format(rawdata))
-            results = self.sock.parsemsg(rawdata)
-            # for key, value in self.results.iteritems():
-            #    print 'key: {} value: {}'.format(key,str(value)[:40])
-
-            # report AWG errors
-            log = ''
-            if 'log' in results:
-                log = results['log']
-                self.set_gui({'log': self.log + log})
-            if 'error' in results:
-                error = toBool(results['error'])
-                self.set_gui({'error': error})
-                if error:
-                    logger.warning('Error returned from AWG.send:\n{}\n'.format(log))
-                    raise PauseError
-
-        logger.debug("results written : {}".format(results))
-        # self.results = results
-        # self.isDone = True
-        return results
+        #     logger.debug('Awg waiting for response ...')
+        #     try:
+        #         rawdata = self.sock.receive()
+        #     except IOError as e:
+        #         logger.warning('Timeout while waiting for AWG to reply in AWG.send():\n{}\n'.format(e))
+        #         self.connected = False
+        #         raise PauseError
+        #     except Exception as e:
+        #         logger.warning('in AWG.sock.receive:\n{}\n{}\n'.format(e, traceback.format_exc()))
+        #         self.connected = False
+        #         raise PauseError
+        #
+        #     # parse results
+        #     logger.debug('Parsing TCP results ...')
+        #     logger.debug("Raw Data: {}".format(rawdata))
+        #     results = self.sock.parsemsg(rawdata)
+        #     # for key, value in self.results.iteritems():
+        #     #    print 'key: {} value: {}'.format(key,str(value)[:40])
+        #
+        #     # report AWG errors
+        #     log = ''
+        #     if 'log' in results:
+        #         log = results['log']
+        #         self.set_gui({'log': self.log + log})
+        #     if 'error' in results:
+        #         error = toBool(results['error'])
+        #         self.set_gui({'error': error})
+        #         if error:
+        #             logger.warning('Error returned from AWG.send:\n{}\n'.format(log))
+        #             raise PauseError
+        #
+        # logger.debug("results written : {}".format(results))
+        # # self.results = results
+        # # self.isDone = True
+        # return results
 
     def evaluate(self):
         if self.experiment.allow_evaluation:
@@ -195,7 +195,7 @@ class AWGchannel(Prop):
     waveshape = Int() # get combobox index
     modulationFunction = Int() # get combobox index; amplitude, freq(phase) or none
     modulationType = Int() # get combobox index
-    deviationGain = Int()
+    deviationGain = Typed(IntProp)
 
     # other
     trigger = Member()
@@ -217,6 +217,7 @@ class AWGchannel(Prop):
         self.frequency = IntProp('frequency', self.experiment, 'MHz')
         self.waveformQueue = StrProp('waveformQueue', self.experiment, 'e.g.: [(0,0,0,1),(1,0,0,1)]')
         self.modulationFunction = 0 # amplitude by default
+        self.deviationGain = IntProp('deviationGain', self.experiment, 'mod. gain in [V] or [MHz]')
 
         # lists
 
