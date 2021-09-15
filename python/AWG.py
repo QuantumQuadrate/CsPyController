@@ -195,7 +195,7 @@ class AWGchannel(Prop):
     waveshape = Int() # get combobox index
     modulationFunction = Int() # get combobox index; amplitude, freq(phase) or none
     modulationType = Int() # get combobox index
-    deviationGain = Typed(IntProp)
+    deviationGain = Typed(FloatProp)
 
     # other
     trigger = Member()
@@ -217,7 +217,7 @@ class AWGchannel(Prop):
         self.frequency = IntProp('frequency', self.experiment, 'MHz')
         self.waveformQueue = StrProp('waveformQueue', self.experiment, 'e.g.: [(0,0,0,1),(1,0,0,1)]')
         self.modulationFunction = 0 # amplitude by default
-        self.deviationGain = IntProp('deviationGain', self.experiment, 'mod. gain in [V] or [MHz]')
+        self.deviationGain = FloatProp('deviationGain', self.experiment, 'mod. gain in [V] or [MHz]')
 
         # lists
 
