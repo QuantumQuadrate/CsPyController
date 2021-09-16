@@ -323,6 +323,7 @@ enamldef EvalProp(GroupBox):
         style_class << 'valid' if prop.valid else 'invalid'
 
     Label: val:
+        # showlabel can be set False e.g. for when long strings are entered in the func Field
         text << prop.valueStr if prop.showlabel else ''
 
 enamldef MultilineProp(GroupBox):
