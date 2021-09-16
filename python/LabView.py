@@ -17,7 +17,7 @@ logger = logging.getLogger(__name__)
 
 from cs_errors import PauseError
 
-import TCP, HSDIO, piezo, RF_generators, AnalogOutput, AnalogInput, DAQmxDO, Camera, TTL, Counter#, AWG
+import TCP, HSDIO, piezo, RF_generators, AnalogOutput, AnalogInput, DAQmxDO, Camera, TTL, Counter
 from atom.api import Bool, Str, Member, Typed
 from instrument_property import FloatProp
 from cs_instruments import Instrument
@@ -45,7 +45,6 @@ class LabView(Instrument):
     AnalogOutput = Member()
     #AnalogOutput2 = Member() # Secondary analog output instrument.
     AnalogInput = Member()
-    # AWG = Member()
     DAQmxDO = Member()
     Counters = Member()
     camera = Member()
@@ -72,7 +71,6 @@ class LabView(Instrument):
         self.RF_generators = RF_generators.RF_generators(experiment)
         self.AnalogOutput = AnalogOutput.AnalogOutput(experiment)
         self.AnalogInput = AnalogInput.AnalogInput(experiment)
-        # self.AWG = AWG.AWG(experiment)
         self.Counters = Counter.Counters('Counters', experiment)
         self.DAQmxDO = DAQmxDO.DAQmxDO(experiment)
         self.camera = Camera.HamamatsuC9100_13(experiment)
@@ -80,7 +78,7 @@ class LabView(Instrument):
         self.results = {}
 
         self.instruments = [self.HSDIO, self.piezo, self.RF_generators, self.AnalogOutput, self.AnalogInput,
-                            self.Counters, self.DAQmxDO, self.camera, self.TTL] #, self.AWG]
+                            self.Counters, self.DAQmxDO, self.camera, self.TTL]
 
         self.sock = None
         self.connected = False
@@ -149,7 +147,6 @@ class LabView(Instrument):
         hierarchy for the current measurement."""
 
         for key, value in self.results.iteritems():
-            logger.debug("{}: {}".format(key, value))
             # print 'key: {} value: {}'.format(key,str(value)[:40])
             if key.startswith('Hamamatsu/shots/'):
                 # specific protocol for images: turn them into 2D numpy arrays
@@ -204,8 +201,6 @@ class LabView(Instrument):
             elif key == 'counter/data':
                 # counter data was stored as big-endian (network order) unsigned long (4-byte) integers
                 array = numpy.array(struct.unpack('!'+str(int(len(value)/4))+'L', value), dtype=numpy.uint32)
-                logger.debug("array = {}".format(array))
-                logger.debug("value = {}".format(value))
                 try:
                     dims = map(int, self.results['counter/dimensions'].split(','))
                     array.resize(dims)
@@ -271,7 +266,6 @@ class LabView(Instrument):
 
             # parse results
             logger.debug('Parsing TCP results ...')
-            logger.debug("Raw Data: {}".format(rawdata))
             results = self.sock.parsemsg(rawdata)
             # for key, value in self.results.iteritems():
             #    print 'key: {} value: {}'.format(key,str(value)[:40])
@@ -288,7 +282,6 @@ class LabView(Instrument):
                     logger.warning('Error returned from LabView.send:\n{}\n'.format(log))
                     raise PauseError
 
-        logger.debug("results written : {}".format(results))
         self.results = results
         self.isDone = True
         return results
