@@ -1697,40 +1697,43 @@ enamldef AWG_Page(Window):
                     checked := AWG.enable
 
                 GroupBox:
-
                     title = 'Card parameters'
                     VGroup:
-                        HGroup:
-                            align_widths = False
-                            EvalProp:
-                                prop<<AWG.slot
-
-                            EvalProp:
-                                    prop<<AWG.clockFrequency
-                            ComboBox: combo:
-                                items<<list(AWG.clockIOconfigList)
-                                index := AWG.clockIOconfig
+                        #constraints = [align('h_center',chancont)]
+                        #align_widths = False
 
                         VGroup:
-                            constraints = [wfmprop.width==1800]
-                            Label: text << AWG.waveformQueueStr
-                            EvalProp: wfmprop:
-                                prop<<AWG.waveformList
+                            HGroup:
+                                align_widths = False
+                                EvalProp:
+                                    prop<<AWG.slot
 
-                            Label: text << AWG.prescalerNoteStr
+                                EvalProp:
+                                        prop<<AWG.clockFrequency
+                                ComboBox: combo:
+                                    items<<list(AWG.clockIOconfigList)
+                                    index := AWG.clockIOconfig
 
-                    Container:
-                        style_class << 'valid' if experiment.valid else 'invalid'
+                            VGroup:
+                                constraints = [wfmprop.width==1800]
+                                Label: text << AWG.waveformQueueStr
+                                EvalProp: wfmprop:
+                                    prop<<AWG.waveformList
 
-                        GroupBox:
-                            hug_height='strong'
-                            hug_width='strong'
-                            title='channels'
-                            RefreshableLooper:
-                                iterable<<AWG.channels
-                                AWG_channel:
-                                    index<<loop_index
-                                    channel<<AWG.channels.listProperty[loop_index]
+                                Label: text << AWG.prescalerNoteStr
+
+                        Container: chancont:
+                            style_class << 'valid' if experiment.valid else 'invalid'
+
+                            GroupBox:
+                                hug_height='strong'
+                                hug_width='strong'
+                                title='channels'
+                                RefreshableLooper:
+                                    iterable<<AWG.channels
+                                    AWG_channel:
+                                        index<<loop_index
+                                        channel<<AWG.channels.listProperty[loop_index]
 
 enamldef RF_gen(StackItem):
     attr item
