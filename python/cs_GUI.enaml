@@ -323,7 +323,7 @@ enamldef EvalProp(GroupBox):
         style_class << 'valid' if prop.valid else 'invalid'
 
     Label: val:
-        text << prop.valueStr
+        text << prop.valueStr if prop.showlabel else ''
 
 enamldef MultilineProp(GroupBox):
     attr prop
@@ -1697,6 +1697,7 @@ enamldef AWG_Page(Window):
                     checked := AWG.enable
 
                 GroupBox:
+
                     title = 'Card parameters'
                     VGroup:
                         HGroup:
@@ -1711,9 +1712,11 @@ enamldef AWG_Page(Window):
                                 index := AWG.clockIOconfig
 
                         VGroup:
+                            constraints = [wfmprop.width==1800]
                             Label: text << AWG.waveformQueueStr
-                            EvalProp:
+                            EvalProp: wfmprop:
                                 prop<<AWG.waveformList
+
                             Label: text << AWG.prescalerNoteStr
 
                     Container:

@@ -38,6 +38,7 @@ class AWG(Instrument):
     clockIOconfigList = ['0: Disable external CLK connector',
                          '1: CLK connector outputs copy of reference clock']
     waveformList = Typed(StrProp)
+    # waveformList = Str()
     waveformQueueStr = ("String representing list of waveforms to be stored in RAM, implicitly numbered"
                         + "with 0-based indexing. Each channel's waveformQueue will be built from this list"
                         + "\nby referring to a waveform by its index in the list here."
@@ -64,7 +65,8 @@ class AWG(Instrument):
                                  listProperty=[AWGchannel('channel{}'.format(i), self.experiment) for i in range(4)],
                                  listElementType=AWGchannel, listElementName='channel')
         self.waveformList = StrProp('waveformList', self.experiment,
-                                     'e.g.: [[exp(-x**2) for x in linspace(-5,5,100)],[x for x in linspace(0,1,20)]]')
+                                    'e.g.: [[np.exp(-x**2) for x in np.linspace(-5,5,100)],[x for x in np.linspace(0,1,20)]]',
+                                    showlabel=False)
         self.properties += ['slot', 'clockFrequency', 'clockIOconfig', 'channels', 'waveformList', 'timeout', 'port', 'IP']
         self.doNotSendToHardware += ['IP', 'port', 'enable']
 
@@ -203,7 +205,7 @@ class AWGchannel(Prop):
     # use lists to populate comboboxes, from which to choose defined parameter options
     # waveshapeList = Typed(list)
     waveshapeList = ['AOU_OFF', 'AOU_SINUSOIDAL', 'AOU_TRIANGULAR', 'AOU_SQUARE', 'AOU_DC', 'AOU_AWG',
-                          'AOU_PARTNER']
+                     'AOU_PARTNER']
     modulationFunctionList = ['amplitude','angle']
     modulationTypeDescriptions = {'amplitude': ['Modulation off','Amplitude','Offset'],
                           'angle': ['Modulation off','Frequency','Phase']}
