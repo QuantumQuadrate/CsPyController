@@ -38,13 +38,15 @@ class Prop(Atom):
     description = Str()
     experiment = Member()
     properties = Member()
+    showlabel = Bool() # a flag that can disable printing the value of an EvalProp used in the GUI
     # GUI = Member()  # an optional enaml object that represents this class in the GUI, and has an update() method, to be run on eval
     doNotSendToHardware = Member()
 
-    def __init__(self, name, experiment, description=''):
+    def __init__(self, name, experiment, description='', showlabel=True):
         self.experiment = experiment  # keep track of the experiment so we can get variables and such
         self.name = name  # name must be compatible with being a python variable name, and also an XML tag
         self.description = description  # English language description, including units and hints about possible values
+        self.showlabel = showlabel
         self.properties = ['description']  # things that are evaluated (if they define evaluate()) and saved to xml.  This is a list of the STRING of variable names (i.e. 'enable', not just: enable)
         self.doNotSendToHardware = ['description']
 
@@ -362,8 +364,8 @@ class EvalProp(Prop):
     placeholder = Str()
     valueStr = Str()
 
-    def __init__(self, name, experiment, description='', function=''):
-        super(EvalProp, self).__init__(name, experiment, description)
+    def __init__(self, name, experiment, description='', function='', showlabel=True):
+        super(EvalProp, self).__init__(name, experiment, description, showlabel)
         self.function = function
         self.properties += ['function']
         self.observe('function', self.call_evaluate)
