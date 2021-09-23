@@ -34,6 +34,8 @@ pumping, incoherent and coherent Rydberg excitation, etc.
 """
 
 # TODO: CHANGE FORT REFERENCES TO CONVEYOR FRONT AND BACK REFERENCES. PROBABLY NEED ANOTHER SWITCH DEFINED.
+# this means all chopped functions will now need to chop both conveyors, unless we have a switch that can toggle
+# two channels
 
 # Analog output channels
 quadrupole1 = 0
@@ -43,6 +45,22 @@ shimcoil_3DY = 3
 shimcoil_3DZ = 4
 repumper_VCA = 5 # controls a VCA
 
+def everything_off():
+    """turns off all, AO, DDS, and Switch channels"""
+    ao_channels = [quadrupole1, quadrupole2, shimcoil_3DX, shimcoil_3DY, shimcoil_3DZ, repumper_VCA]
+    for chan in ao_channels:
+        AO(0, chan, 0)
+        AO(1, chan, 0)
+        # needs at least one transition, else nidaqmx.task.timing.samp_clk_timing freaks out in instr. server
+
+    # TODO: this doesn't work. not sure why. nothing prints here either
+    # for rf_sig in dir(exp):
+    #     if hasattr(rf_sig, 'profile'):
+    #         try:
+    #             getattr(rf_sig, 'profile')(0, 'off')
+    #             logger.info("turning off {}".format(rf_sig.__class__.__name__()))
+    #         except:
+    #             logger.warning("{} has no 'off' profile, but it should!".format(type(rf_sig)))
 
 def chop_readout(channels, phases, profiles, period):
     """Add a single cycle of a chopping pattern """
@@ -72,7 +90,7 @@ def chop_readout(channels, phases, profiles, period):
 
     return chop_function
 
-
+# TODO: readout function needs modifying for chopping both conveyors
 def readout(t, duration, period_ms, profile=None):
     """ Image atom in FORT or do polarization gradient cooling.
         'profile': optional to set specific phases. Most options override
@@ -163,8 +181,8 @@ def chopped_blowaway(t_start, t_end, t_period,
         'labl': the label to be used in the functional waveforms graph that doesn't actually work 2020.11.13
     Return:
         'func' the HSDIO_repeat function we built here
-    ##TODO: This is similar enough to the chopped readout function to merit defining a generic mot pulse function
     """
+    # TODO: This is similar enough to the chopped readout function to merit defining a generic mot pulse function
 
     if t_BA > 0:
         label(t_start, "Blowaway")  # for functional waveforms graph
@@ -272,9 +290,6 @@ def FORTdrop(t, duration):
 
 # TODO copy Rydberg functions from rb_waveform.py and define Rydberg DDS and switch channels in functional_waveforms_ffpr.py
 
-
-
-
 """
 *******************************************************************************
 # Main Block
@@ -289,14 +304,134 @@ exp.camera.pulse_length = t_exposure  # Changes HSDIO pulse width to control exp
 
 # Abstractized experiment control
 
-""" For normal experiment """
+## For normal experiment
 if ExpMode == 0:
-    ## Initilization
 
-    pass
+    # The first argument of every function below is the time which the action should occur in ms wrt to the time the
+    # experiment trigger is received by the AnalogInput. The waveform here is only loosely laid out in chronological
+    # order, so the time of each action is given as an independent variable or explicitly, rather than simply passing
+    # the variable 't' and incrementing it throughout. We may want to change this later.
+
+    # turn on the critical fiber and xfer cavity signals
+    # TODO
+
+    t_coil_turn_on = 8 # time to wait for coils to stabilize. can probably be shorter than this.
+
+    # turn on coils and repumper VCA
+    AO(0, quadrupole1, coil_driver_polarity * I_Q1)
+    AO(0, quadrupole2, coil_driver_polarity * I_Q2)
+    AO(0, shimcoil_3DX, coil_driver_polarity * ShimX_Loading)  # X
+    AO(0, shimcoil_3DY, coil_driver_polarity * ShimY_Loading)  # Y
+    AO(0, shimcoil_3DZ, coil_driver_polarity * ShimZ_Loading)  # Z
+    AO(0, repumper, loading_RP_V)
+
+    # shutter initialization. shutters help with background, especially during Rydberg experiments
+    exp.mot_3d_x_shutter_switch.profile(0, 'on')
+    exp.mot_3d_y_shutter_switch.profile(0, 'on')
+    exp.mot_3d_z1_shutter_switch.profile(0, 'on')
+    exp.mot_3d_z2_shutter_switch.profile(0, 'on')  # TODO: this might be unused.
+    exp.repumper_shutter_switch.profile(0,
+                                        'on')  # TODO: i don't recall having a RP specific shutter installed -- check this
+
+    # turn on conveyor aoms and leave them on. use switches to block RF outside experiment time.
+    # profile switching activates the RAM sequence to move the atoms
+    exp.conveyor_front_aom_dds.profile(t, 'on')
+    exp.conveyor_back_aom_dds.profile(t, 'on')
+    exp.conveyor_front_aom_switch.profile(t, 'off')
+    exp.conveyor_back_aom_switch.profile(t, 'off')
+
+    # pulse on conveyor aoms briefly to check power levels. NE = Noise Eater, aka Thorlabs Motorized Rotators
+    exp.FORT_NE_trigger_switch.profile(0, 'off')
+    exp.FORT_NE_trigger_switch.profile(t_NE_FORT_trigger_start, 'on')
+    exp.FORT_NE_trigger_switch.profile(t_NE_FORT_trigger_end, 'off')
+    exp.conveyor_front_aom_switch.profile(1, 'off')
+    exp.conveyor_back_aom_switch.profile(1, 'off')
+
+    # UV pulse
+    exp.UV_trigger_switch.profile(0, 'off')
+    exp.UV_trigger_switch.profile(0.1, 'on')
+    exp.UV_trigger_switch.profile(0.1 + t_UVpulse, 'off')
+
+    # for viewing the MOT beam photodiode signals on an oscilloscope. useful for debugging
+    exp.MOT_scope_trigger_switch.profile(0, 'off')
+    exp.MOT_scope_trigger_switch.profile(140, 'on')
+    exp.MOT_scope_trigger_switch.profile(145, 'off')
+
+    # another trigger. might not need this
+    exp.scope_trigger_switch.profile(140, 'on')
+    exp.scope_trigger_switch.profile(141, 'off')
+
+    # take a shot of the MOT
+    exp.camera.pulse_length = 5  # t_MOT_imaging_exposure # Changes HSDIO pulse width to control exposure
+    t_readout_MOT = 95
+    exp.camera.take_shot(t_readout_MOT)
+
+    # set MOT turn off and FORT turn off times
+    t_loading_extension = 20
+    exp.mot_aom_switch.profile(t_3DMOT_cutoff + t_loading_extension, 'off')
+    exp.repumper_aom_switch.profile(t_3DMOT_cutoff + t_loading_extension, 'off')  #####
+    # AO(130, repumper_VCA, 10) # time should reference the MOT cutoff. check this.
+    exp.fort_dds.profile(t_3DMOT_cutoff + t_loading_extension, 'on')
+
+    # turn on conveyor AOMS for loading atoms from MOT
+    exp.conveyor_front_aom_switch.profile(t_FORT_loading, 'on')
+    exp.conveyor_back_aom_switch.profile(t_FORT_loading, 'on')
+
+    # Camera shot 1: fluorescence image of atoms in the dipole trap
+    t_shot1 = t_FORT_loading + 60 # the shot start time. takes a while to load atoms?
+    exp.fort_dds.profile(t_shot1, 'on')
+    exp.cooling_aom_dds.profile(t_shot1, 'RO')
+    AO(t_shot1 - t_coil_turn_on, shimcoil_3DX, coil_driver_polarity * shimX_RO)
+    AO(t_shot1 - t_coil_turn_on, shimcoil_3DY, coil_driver_polarity * shimY_RO)
+    AO(t_shot1 - t_coil_turn_on, shimcoil_3DZ, coil_driver_polarity * shimZ_RO)
+    exp.camera.pulse_length = t_exposure_1st_atomshot
+    AO(t_shot1, repumper, loading_RP_V)
+    readout(t_shot1, t_readoutduration, RO_chop_period)
+    exp.camera.take_shot(t_shot1)
+    t_end_shot1 = t_shot1 + t_readoutduration
+    AO(t_shot, repumper_VCA, loading_RP_V)
+    exp.mot_aom_switch.profile(t_end_shot1 + 0.001, 'off')
+    exp.repumper_aom_switch.profile(t_shot1, 'on')
+    AO(t_end_shot + 0.05, repumper, 0)
+    exp.conveyor_front_aom_switch.profile(t_end_shot1, 'on')
+    exp.conveyor_back_aom_switch.profile(t_end_shot1, 'on')
+
+    if t_PGC_duration > 0:
+        pass # no PGC for now. do later.
+
+    # move the atoms into the cavity and back
+    # this is one waveform in RAM per channel for both directions, so the time between the end of the move in and start
+    # of move out needs to be set in the waveform defined in the DDS window.
+    # TODO
+
+    # mock parameters for dry run of this waveform without cavity probing.
+    t_in_cavity = 2
+    t_conveyor_ramp = 1
+
+    t_cavity_duration = 2*t_conveyor_ramp + t_in_cavity
+
+    # Camera shot 2: fluorescence image of atoms in the dipole trap
+    t_shot2 = t_cavity_duration + t_PGC_duration + t_end_shot1
+    exp.conveyor_front_aom_switch.profile(t_shot, 'on')
+    exp.cooling_aom_dds.profile(t_shot, 'RO')
+    AO(t_shot2 - t_coil_turn_on, shimcoil_3DX, coil_driver_polarity * shimX_RO)
+    AO(t_shot2 - t_coil_turn_on, shimcoil_3DY, coil_driver_polarity * shimY_RO)
+    AO(t_shot2 - t_coil_turn_on, shimcoil_3DZ, coil_driver_polarity * shimZ_RO)
+    exp.camera.pulse_length = t_exposure_1st_atomshot
+    AO(t_shot2, repumper, loading_RP_V)
+    readout(t_shot2, t_readoutduration, RO_chop_period)
+    exp.camera.take_shot(t_shot2)
+    t_end_shot2 = t_shot2 + t_readoutduration
+    AO(t_shot2, repumper, loading_RP_V)
+    exp.mot_aom_switch.profile(t_end_shot2 + 0.001, 'off')
+    exp.repumper_aom_switch.profile(t_shot2, 'on')
+    AO(t_end_shot2 + 0.05, repumper_VCA, 0)
+    exp.conveyor_front_aom_switch.profile(t_end_shot2, 'on')
+    exp.conveyor_back_aom_switch.profile(t_end_shot2, 'on')
+
     ############################## End of normal experiment #######################################################
 
-""" Turn everything on. Sometimes useful for diagnostics """
+## Turn everything on. Sometimes useful for diagnostics
 elif ExpMode == 'on':
 
     ####### Continous MOT loading mode (expmode code 2) #############
@@ -439,9 +574,17 @@ elif ExpMode == 'off':
         AO(1, chan, 0)
         # needs at least one transition, else nidaqmx.task.timing.samp_clk_timing freaks out in instr. server
 
+    # TODO: this doesn't work. not sure why. nothing prints here either
+    # for rf_sig in dir(exp):
+    #     if hasattr(rf_sig, 'profile'):
+    #         try:
+    #             getattr(rf_sig, 'profile')(0, 'off')
+    #             logger.info("turning off {}".format(rf_sig.__class__.__name__()))
+    #         except:
+    #             logger.warning("{} has no 'off' profile, but it should!".format(type(rf_sig)))
+
     exp.raman_aom_switch.profile(0, 'off')
-    exp.ryd780a_aom_switch.profile(0, 'off')
-    exp.ryd780a_dds.profile(0, 'off')
+    # exp.ryd780_aom_switch.profile(0, 'off') # TODO define switch
     exp.ryd480_pointing_aom_switch.profile(0, 'off')
     exp.ryd480_pointing_aom_dds.profile(0, 'off')
     exp.xfer852_aom_dds.profile(0, 'off')
@@ -451,13 +594,13 @@ elif ExpMode == 'off':
     exp.xfer_cav_offset_dds.profile(0, 'off')
     exp.xfer_cav_offset_switch.profile(0, 'off')
     exp.fort_aom_switch.profile(0, 'off')
-    exp.fort_dds.profile(0, 'off')
+    # exp.fort_dds.profile(0, 'off')
     exp.fort_aom_switch.profile(0,'off')
     exp.MOT_scope_trigger_switch.profile(0, 'off')
     exp.mot_3d_z2_shutter_switch.profile(0, 'off')  # switched polarity
     exp.op_dds.profile(0, 'off')
     exp.op_aom_switch.profile(0, 'off')
-    # exp.repumper_aom_switch.profile(0, 'off')
+    exp.repumper_aom_switch.profile(0, 'off')
     exp.mot_3d_x_shutter_switch.profile(0, 'off')
     exp.mot_3d_y_shutter_switch.profile(0, 'off')
     exp.mot_3d_z1_shutter_switch.profile(0, 'off')
@@ -465,13 +608,11 @@ elif ExpMode == 'off':
     exp.conveyor_front_aom_switch.profile(0, 'off')
     exp.conveyor_front_aom_dds.profile(0, 'off')
     exp.cooling_aom_dds.profile(0, 'MOT') # we don't have an "off" profile yet :P
-    exp.mot_2d_dds.profile(0, 'off')
     exp.cooling_aom_switch.profile(0, 'off')
-    exp.mot_2d_aom_switch.profile(0, 'off')
 
     # mot aoms on only
-    exp.cooling_aom_switch.profile(t, 'on')
-    exp.repumper_aom_switch.profile(0, 'on')
+    # exp.cooling_aom_switch.profile(t, 'on')
+    # exp.repumper_aom_switch.profile(0, 'on')
 
 else:
     print

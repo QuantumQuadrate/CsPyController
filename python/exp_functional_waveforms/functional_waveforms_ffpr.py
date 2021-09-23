@@ -59,20 +59,20 @@ test_dds_profiles = {
 }
 
 ################################################################################
-# 3D MOT DDS SETUP #############################################################
+# cooling AOM DDS SETUP #############################################################
 ################################################################################
 cooling_aom_dds_pinout = (0,1,2)
 cooling_aom_dds_profiles = {
-    'MOT' : (0,0,0),#  (pin2, pin1, pin0)
-    'PGC' : (0,0,1),
-    'Blowaway' : (0,1,0),
-    'RO' : (0,1,1),
-    'PGC2' : (1,0,0),
-    'GM': (1,1,0)  # coming soon? O__o
+    'off' : (0,0,0),#  (pin2, pin1, pin0)
+    'MOT' : (0,0,1),
+    'PGC' : (0,1,0),
+    'Blowaway' : (0,1,1),
+    'RO' : (1,0,0),
+    'PGC2': (1,1,0)
 }
 
 ################################################################################
-# OP DDS SETUP ################################################################
+# OP AOM DDS SETUP ################################################################
 ################################################################################
 op_dds_pinout = (-1,-1,6) # -1 indicates pins that are not being used
 op_dds_profiles = {
@@ -86,6 +86,18 @@ conveyor_front_aom_dds_pinout = (-1,28,29) # -1 indicates pins that are not bein
 conveyor_front_aom_dds_profiles = {
     'off' : (0,0,0),
     'on' : (0,0,1),
+}
+
+################################################################################
+# 852 xfer Cavity AOM DDS SETUP ################################################################
+################################################################################
+xfer852_aom_dds_pinout = (17,24,25) # -1 indicates pins that are not being used
+xfer852_aom_dds_profiles = {
+    'off' : (0,0,0),
+    'addressing' : (0,0,1),
+    'r2' : (0,1,0),
+    'PG' : (0,1,1),
+    'RAM Test' : (1,1,1)
 }
 
 ################################################################################
@@ -397,10 +409,9 @@ class Rb(object):
         self.conveyor_back_aom_dds = DDS(HSDIO, conveyor_back_aom_dds_pinout, conveyor_back_aom_dds_profiles)
 
         # DDS 3
-        # self.ryd480_pointing_aom_dds = DDS(HSDIO, ryd480_pointing_aom_dds_pinout, ryd480_pointing_aom_dds_profiles)
-        #self.xfer_cav_offset_dds = DDS(HSDIO, xfer_cav_offset_dds_pinout, xfer_cav_offset_dds_profiles)
-        #self.conveyor_front_aom_dds = DDS(HSDIO, conveyor_front_aom_dds_pinout, conveyor_front_aom_dds_profiles)
-        #self.conveyor_back_aom_dds = DDS(HSDIO, conveyor_back_aom_dds_pinout, conveyor_back_aom_dds_profiles)
+        # self.ffpr780_probe_aom_dds = DDS(HSDIO, ffpr780_probe_aom_dds_pinout, ffpr780_probe_aom_dds_profiles)
+        self.ryd480_pointing_aom_dds = DDS(HSDIO, ryd480_pointing_aom_dds_pinout, ryd480_pointing_aom_dds_profiles)
+        # self.microwave_gnd_state_dds = DDS(HSDIO, microwave_gnd_state_dds_pinout, microwave_gnd_state_dds_profiles)
 
         # Arduino DDS (v. "1.5")
         self.test_dds = DDS(HSDIO, test_dds_pinout, test_dds_profiles)
