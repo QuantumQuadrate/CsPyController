@@ -110,7 +110,7 @@ class HPGen:
         }
     }
 
-    def __init__(self, address, verbose=True, model=None):
+    def __init__(self, address, verbose=False, model=None):
         """
         Initializes communication with device.
         :param address: String, GPIB address of device
@@ -631,8 +631,8 @@ class HPGenerator(Prop):
     frequency_step = Member()
     power = Member()
     RF_on = Bool()
-    ramp_frequency = Bool(True)
-    enable = Bool(False)
+    ramp_frequency = Bool(False)
+    enable = Bool(True)
     isInitialized = Bool(False)
 
 #    freq_ref_on = Bool()
@@ -670,7 +670,7 @@ class HPGenerator(Prop):
         self.command = StrProp('command', experiment, 'Command to  be sent to device', '')
         self.query = StrProp('query', experiment, 'Query to be sent to device', '')
 
-        self.properties += ['frequency', 'power', 'RF_on', 'frequency_step', 'address', 'model']# 'freq_ref_on', 'pow_ref_on', 'ref_freq', 'ref_pow']
+        self.properties += ['frequency', 'power', 'RF_on', 'frequency_step', 'address', 'model', 'ramp_frequency', 'enable']# 'freq_ref_on', 'pow_ref_on', 'ref_freq', 'ref_pow']
 
     def initialize(self):
         if self.enable and not self.isInitialized:
