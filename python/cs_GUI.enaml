@@ -1708,6 +1708,9 @@ enamldef HVcontrol(Window):
         PushButton:
             text = 'Initialize'
             clicked :: ctrl.reinitialize()
+        PushButton:
+            text = 'Delete'
+            clicked :: ctrl.delete()
 
 enamldef HPGenerators(Window):
     attr hps
