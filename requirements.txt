@@ -1,5 +1,5 @@
 atom==0.3.10
-certifi==2019.11.28
+certifi==2022.12.7
 chardet==3.0.4
 colorama==0.3.7
 colorlog==2.10.0
