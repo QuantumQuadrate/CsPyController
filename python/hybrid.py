@@ -220,7 +220,9 @@ class Hybrid(Experiment):
             'Functional Waveforms Graph': 'FunctionalWaveformsGraph(graph = main.experiment.functional_waveforms_graph, creator=main, name="Functional Waveforms Graph")',
             'Origin Interface': 'Origin(origin = main.experiment.origin, creator=main, name="Origin Interface")',
             'HP Signal Generators': 'HPGenerators(hps = main.experiment.HPGenerators, creator=main, name="HP Signal Generators")',
-            'High Voltage Controller': 'HVcontrol(ctrl = main.experiment.HVcontrol, creator=main, name="High Voltage Controller")'
+            'High Voltage Controller': 'HVcontrol(ctrl = main.experiment.HVcontrol, creator=main, name="High Voltage Controller")',
+            'CounterGraph': 'CounterGraph(analysis = main.experiment.counter_graph, creator=main, name="CounterGraph")',
+            'CounterHistAnalysis': 'CounterHistAnalysis(analysis = main.experiment.counter_hist, creator=main, name="CounterHistAnalysis")'
         }
 
         try:
