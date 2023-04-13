@@ -1,6 +1,8 @@
 from __future__ import division
 __author__ = 'Juan Bohorquez'
 import logging
+import time
+
 import serial
 import numpy as np
 import struct
@@ -48,7 +50,7 @@ class hvbox:
         self.address = address
         self.n_dac = int(n_dac)
 
-        logger.info("Setting positive voltage reference")
+        logger.debug("Setting positive voltage reference")
         # ensure voltage reference values are valid arrays
         if v_ref_pos is None:
             v_ref_pos = [10.0]*self.n_dac
@@ -92,9 +94,9 @@ class hvbox:
         return pols
 
     def open_connection(self):
-        logger.info("Opening Serial Connection")
+        logger.debug("Opening Serial Connection")
         self.serial = serial.Serial(self.address, timeout=self.TIMEOUT)
-        logger.info("Serial port open : {}".format(self.serial))
+        logger.debug("Serial port open : {}".format(self.serial))
 
     def close_connection(self):
         self.serial.close()
@@ -320,7 +322,7 @@ class HighVoltageController(Instrument):
             "v_ref_p3",
             "v_ref_n1",
             "v_ref_n2",
-            "v_ref_n3"
+            "v_ref_n3",
             "rest_delay",
             "manual_polarity"
         ]
@@ -329,7 +331,8 @@ class HighVoltageController(Instrument):
         if self.enable and not self.isInitialized:
             if self.controller is not None:
                 try:
-                    self.controller.close_connection()
+                    logger.debug("Deleting Controller from initialize")
+                    self.delete()
                 except AttributeError:
                     logger.warning("AttributeError raised when closing controller. Issue with NoneType?")
                 del self.controller
@@ -356,12 +359,14 @@ class HighVoltageController(Instrument):
                 self.enable = False
             else:
                 self.isInitialized = True
+                time.sleep(1)
 
     def start(self):
         self.isDone = True
 
     def update(self):
         if not self.isInitialized:
+            logger.debug("Reinitializing from update")
             self.initialize()
         if not self.enable:
             return
@@ -412,3 +417,8 @@ class HighVoltageController(Instrument):
     def reinitialize(self):
         self.isInitialized = False
         self.initialize()
+
+    def delete(self):
+        self.controller.close_connection()
+        del self.controller
+        self.isInitialized = False
