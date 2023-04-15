@@ -1880,6 +1880,45 @@ enamldef HVcontrol(Window):
             text = 'Delete'
             clicked :: ctrl.delete()
 
+enamldef AutoAligner(Window):
+    attr item
+    attr creator
+
+    closing :: creator.open_windows.pop(name)
+    title = "Hybrid Auto Aligner"
+
+    style_class << 'valid' if experiment.valid else 'invalid'
+    Container:
+        padding = 0
+        style_class << 'valid' if experiment.valid else 'invalid'
+        hug_width = 'strong'
+        hug_height = 'strong'
+        Form:
+            Label:
+                text = 'enable'
+            CheckBox:
+                checked := item.enable
+
+        EvalProp:
+            prop << item.IP
+        EvalProp:
+            prop << item.port
+        EvalProp:
+            prop << item.to_send
+        PushButton:
+            text = 'Send'
+            clicked :: item.test_send()
+        PushButton:
+            text = "Connect"
+            clicked :: item.open()
+        PushButton:
+            text = "Initialize"
+            clicked :: item.initialize()
+        PushButton:
+            text = "Disconnect"
+            clicked :: item.close()
+
+
 enamldef HPGenerators(Window):
     attr hps
     attr creator
@@ -5197,7 +5236,8 @@ window_dictionary = {
 'Origin Interface': 'Origin(origin = main.experiment.origin, creator=main, name="Origin Interface")',
 'National Instruments Scopes': 'NIScopes(niscopes = main.experiment.NIScopes, creator=main, name="National Instruments Scopes")',
 'HP Signal Generators': 'HPGenerators(hps = main.experiment.HPGenerators, creator=main, name="HP Signal Generators")',
-'High Voltage Controller': 'HVcontrol(ctrl = main.experiment.HVcontrol, creator=main, name="High Voltage Controller")'
+'High Voltage Controller': 'HVcontrol(ctrl = main.experiment.HVcontrol, creator=main, name="High Voltage Controller")',
+'Hybrid Auto Aligner': 'AutoAligner(item= main.experiment.AutoAligner, creator=main, name="Hybrid Auto Aligner")'
 }
 
 window_keys = window_dictionary.keys()
