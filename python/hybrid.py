@@ -9,7 +9,7 @@ import functional_waveforms, analysis, save2013style, TTL, LabView
 import DDS
 import andor, AnalogInput
 
-import Counter, unlock_pause, newportstage, nidaq_ai, HPSignalGenerator, HVcontroller
+import Counter, unlock_pause, newportstage, nidaq_ai, HPSignalGenerator, HVcontroller, hybrid_auto_aligner
 logger = logging.getLogger(__name__)
 import origin_interface
 import FakeInstrument  # for testing
@@ -123,11 +123,13 @@ class Hybrid(Experiment):
         self.Embezzletron = FakeInstrument.Embezzletron('Embezzletron', self, 'Fake instrument that generates random data for testing')
         self.HPGenerators = HPSignalGenerator.HPGenerators('HPGenerators', self, 'controls HP8648B signal generator')
         self.HVcontrol = HVcontroller.HighVoltageController('HVcontrol', self, 'Controls Hybrid HV DACs')
+        self.AutoAlinger = hybrid_auto_aligner.AutoAligner("AutoAligner", self, "Maintains the 595nm alignment")
+
         # do not include functional_waveforms in self.instruments because it
         # need not start/stop
         self.instruments += [
             self.Andors, self.DDS, self.unlock_pause,
-            self.Embezzletron, self.NewportStage, self.HPGenerators, self.HVcontrol
+            self.Embezzletron, self.NewportStage, self.HPGenerators, self.HVcontrol, self.AutoAlinger
         ]
         # Labview must be last at least until someone fixes the start command
         self.instruments += [self.LabView]
