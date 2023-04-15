@@ -12,7 +12,8 @@ being moved, so data is not stored during movement. This will also serve to set 
 import logging
 from cs_errors import PauseError
 from atom.api import Typed, Member, Int, Float, Bool, Str
-from cs_instruments import Instrument
+from cs_instruments import TCP_Instrument
+from instrument_property import StrProp
 from TCP import CsClientSock
 
 logger = logging.getLogger(__name__)
@@ -20,32 +21,13 @@ logger = logging.getLogger(__name__)
 __author__ = "Juan C. Bohorquez"
 
 
-class AutoAligner(Instrument):
+class AutoAligner(TCP_Instrument):
 
-    # Comm settings
-    port = Member()
-    IP = Str()
-    connected = Member()
-    sock = Member()
-    error = Bool()
-
-    # messages
-    message = Str("")
-    received = Str("")
+    to_send = Member()
 
     def __init__(self, name, experiment, description):
-        """
-
-        """
-
-
         super(AutoAligner, self).__init__(name, experiment, description)
-        self.properties += ["message", "received"]
-
-    def send(self):
-        """
-        Sends self.message to the aligner
-        """
+        self.to_send = StrProp("to_send", experiment, "Message to send to aligner", '')
 
     def receive(self):
         """
@@ -54,7 +36,7 @@ class AutoAligner(Instrument):
 
     def update(self):
         """
-        Run at the start of each new iteration
+        Run at the start of each new iteration, sets exposed settings
         """
         pass
 
@@ -66,8 +48,11 @@ class AutoAligner(Instrument):
 
     def initialize(self):
         """
-        Initializes connection to device, sets exposed settings
+        Initializes connection to device, initializes internal device properties
         """
+        super(AutoAligner, self).initialize()
+        # run code to initialize instrument properly
         pass
 
-    def
+    def test_send(self):
+        self.send(self.to_send.value)
