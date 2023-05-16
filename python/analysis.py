@@ -63,7 +63,7 @@ class Analysis(Prop):
     postExperiment().  You can enable multi-threading of analyses using queueAfterMeasurement and queueAfterIteration,
     but only if those results are not needed for other things (filtering, other analyses, optimization).  If
     multi-threading, you can also chose to dropMeasurementIfSlow or dropIterationIfSlow, which will not delete the data
-    but will just not process it.  An analysis can return a success code after analyzeMesurement, which can be used to
+    but will just not process it.  An analysis can return a success code after analyzeMeasurement, which can be used to
     filter results.  The highest returned code dominates others:
         0 or None: good measurement, increment measurement total
         1: soft fail, continue with other analyses, but do not increment measurement total

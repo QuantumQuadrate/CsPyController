@@ -412,6 +412,11 @@ class Origin(Analysis):
     def preIteration(self, iterationResults, experimentResults):
         # initialize any logged parameters that are on a per iteration basis
         return 0
+    
+    def postIteration(self, iterationResults, experimentResults):
+        if not self.enable:
+            return
+        super(Origin, self).postIteration(iterationResults, experimentResults)
 
     # ==========================================================================
     def analyzeMeasurement(self, measurementResults, iterationResults, experimentResults):

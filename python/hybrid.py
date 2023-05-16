@@ -9,7 +9,7 @@ import functional_waveforms, analysis, save2013style, TTL, LabView
 import DDS
 import andor, AnalogInput
 
-import Counter, unlock_pause, newportstage, nidaq_ai, HPSignalGenerator, HVcontroller
+import Counter, unlock_pause, newportstage, nidaq_ai, HPSignalGenerator, HVcontroller, hybrid_auto_aligner, AWG
 logger = logging.getLogger(__name__)
 import origin_interface
 import FakeInstrument  # for testing
@@ -45,6 +45,8 @@ class Hybrid(Experiment):
     Embezzletron = Member()
     HPGenerators = Member()
     HVcontrol = Member()
+    AutoAligner = Member()
+    AWG = Member()
 
 
     thresholdROIAnalysis = Member()
@@ -75,6 +77,7 @@ class Hybrid(Experiment):
     Ramsey = Member()
     squareROIAnalysis = Member()
     window_dict = Member()
+    beam_alignment_filter = Member()
 
     def __init__(self,
                  config_instrument=None,
@@ -123,11 +126,13 @@ class Hybrid(Experiment):
         self.Embezzletron = FakeInstrument.Embezzletron('Embezzletron', self, 'Fake instrument that generates random data for testing')
         self.HPGenerators = HPSignalGenerator.HPGenerators('HPGenerators', self, 'controls HP8648B signal generator')
         self.HVcontrol = HVcontroller.HighVoltageController('HVcontrol', self, 'Controls Hybrid HV DACs')
+        self.AutoAligner = hybrid_auto_aligner.AutoAligner('AutoAligner', self, 'Maintains the 595nm alignment')
+        self.AWG = AWG.AWG(name='AWG', experiment=self, description="testing 1 2")
         # do not include functional_waveforms in self.instruments because it
         # need not start/stop
         self.instruments += [
             self.Andors, self.DDS, self.unlock_pause,
-            self.Embezzletron, self.NewportStage, self.HPGenerators, self.HVcontrol
+            self.Embezzletron, self.NewportStage, self.HPGenerators, self.HVcontrol, self.AutoAligner, self.AWG
         ]
         # Labview must be last at least until someone fixes the start command
         self.instruments += [self.LabView]
@@ -157,6 +162,8 @@ class Hybrid(Experiment):
         self.counter_hist = Counter.CounterHistogramAnalysis('counter_hist', self, 'Fits histograms of counter data and plots hist and fits.')
         self.save_notes = save2013style.SaveNotes('save_notes', self, 'save a separate notes.txt')
         self.origin = origin_interface.Origin('origin', self, 'saves selected data to the origin data server')
+        self.beam_alignment_filter = hybrid_auto_aligner.BeamAlignmentFilter('beam_alignment_filter', self, 'drop measurements where beam isn\'t aligned')
+
 
         # do not include functional_waveforms_graph in self.analyses because it
         # need not update on iterations, etc.
@@ -174,7 +181,8 @@ class Hybrid(Experiment):
             self.iterations_graph, self.Andors,
             self.Ramsey, self.DAQmxAI, self.unlock_pause,
             self.retention_analysis, self.retention_graph,
-            self.save_notes, self.counter_hist, self.origin
+            self.save_notes, self.counter_hist, self.origin,
+            self.beam_alignment_filter
         ]
 
         self.properties += [
@@ -188,7 +196,8 @@ class Hybrid(Experiment):
             'retention_graph', 'Ramsey', 'counter_graph', 'counter_hist',
             'unlock_pause', 'ROI_rows', 'ROI_columns',
             'ROI_bg_rows', 'ROI_bg_columns',
-            'origin', 'HPGenerators', 'thresholdROIAnalysis', 'squareROIAnalysis', 'HVcontrol'
+            'origin', 'HPGenerators', 'thresholdROIAnalysis', 'squareROIAnalysis', 'HVcontrol', 'AutoAligner',
+            'AWG', 'beam_alignment_filter'
         ]
 
         self.window_dict = {
@@ -220,7 +229,11 @@ class Hybrid(Experiment):
             'Functional Waveforms Graph': 'FunctionalWaveformsGraph(graph = main.experiment.functional_waveforms_graph, creator=main, name="Functional Waveforms Graph")',
             'Origin Interface': 'Origin(origin = main.experiment.origin, creator=main, name="Origin Interface")',
             'HP Signal Generators': 'HPGenerators(hps = main.experiment.HPGenerators, creator=main, name="HP Signal Generators")',
-            'High Voltage Controller': 'HVcontrol(ctrl = main.experiment.HVcontrol, creator=main, name="High Voltage Controller")'
+            'High Voltage Controller': 'HVcontrol(ctrl = main.experiment.HVcontrol, creator=main, name="High Voltage Controller")',
+            'CounterGraph': 'CounterGraph(analysis = main.experiment.counter_graph, creator=main, name="CounterGraph")',
+            'CounterHistAnalysis': 'CounterHistAnalysis(analysis = main.experiment.counter_hist, creator=main, name="CounterHistAnalysis")',
+            'Hybrid Auto Aligner': 'AutoAligner(ctrl = main.experiment.AutoAligner, creator=main, name="Hybrid Auto Aligner")',
+            'AWG': 'AWG_Page(AWG = main.experiment.AWG, creator=main, name="AWG")'
         }
 
         try:

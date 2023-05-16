@@ -1880,6 +1880,161 @@ enamldef HVcontrol(Window):
             text = 'Delete'
             clicked :: ctrl.delete()
 
+enamldef AutoAligner(Window):
+    attr ctrl
+    attr creator
+
+    closing :: creator.open_windows.pop(name)
+    title = 'Hybrid Auto Aligner'
+
+    style_class << 'valid' if experiment.valid else 'invalid'
+    Container:
+        padding = 0
+        style_class << 'valid' if experiment.valid else 'invalid'
+        ScrollArea:
+            style_class << 'valid' if experiment.valid else 'invalid'
+            Container:
+                style_class << 'valid' if experiment.valid else 'invalid'
+                VGroup:
+                    HGroup:
+                        align_widths = False
+                        hug_width = 'strong'
+
+                        PushButton: b1:
+                            text = 'open connection'
+                            clicked::
+                                ctrl.openThread()
+                        PushButton: b2:
+                            text='update settings'
+                            clicked::
+                                ctrl.update()
+                        PushButton: b3:
+                            text='close connection'
+                            clicked::
+                                ctrl.close()
+                        Label:
+                            text = 'enable communication with Auto Alignment Server?'
+                        CheckBox:
+                            checked := ctrl.enable
+                        Label:
+                            text = 'Auto Aligner IP address'
+                        Field:
+                            text:= ctrl.IP
+                        Label:
+                            text = 'Auto Aligner port'
+                        IntField:
+                            value := ctrl.port
+                        EvalProp:
+                            prop << ctrl.timeout
+                    HGroup:
+                        align_widths = False
+                        hug_width = 'strong'
+
+                        EvalProp:
+                            prop << ctrl.enable_aligner
+                        PushButton:
+                            text = 'Query Aligner Status'
+                            clicked::
+                                ctrl.start()
+                ScrollArea:
+                    style_class << 'valid' if experiment.valid else 'invalid'
+                    Container:
+                        style_class << 'valid' if experiment.valid else 'invalid'
+
+                        padding = 0
+                        hug_height='strong'
+                        hug_width='strong'
+                        GroupBox:
+                            title = 'Image Settings'
+                            EvalProp:
+                                prop << ctrl.images.cutoff
+                            EvalProp:
+                                prop << ctrl.images.path
+                        GroupBox:
+                            title = 'Control Loop Settings'
+                            GroupBox:
+                                title = 'set point'
+                                HGroup:
+                                    align_widths = True
+                                    EvalProp:
+                                        prop << ctrl.control.set_point_x
+                                    EvalProp:
+                                        prop << ctrl.control.set_point_y
+                            EvalProp:
+                                prop << ctrl.control.stability
+                            GroupBox:
+                                title = 'transformation matrix elements'
+                                VGroup:
+                                    HGroup:
+                                        align_widths = False
+                                        GroupBox:
+                                            title = 'positive x motion'
+                                            VGroup:
+                                                EvalProp:
+                                                    prop << ctrl.control.transform.mxx_p
+                                                EvalProp:
+                                                    prop << ctrl.control.transform.myx_p
+                                        GroupBox:
+                                            title = 'positive y motion'
+                                            VGroup:
+                                                EvalProp:
+                                                    prop << ctrl.control.transform.mxy_p
+                                                EvalProp:
+                                                    prop << ctrl.control.transform.myy_p
+                                    HGroup:
+                                        align_widths = False
+                                        GroupBox:
+                                            title = 'negative x motion'
+                                            VGroup:
+                                                EvalProp:
+                                                    prop << ctrl.control.transform.mxx_n
+                                                EvalProp:
+                                                    prop << ctrl.control.transform.myx_n
+
+                                        GroupBox:
+                                            title = 'negative y motion'
+                                            VGroup:
+                                                EvalProp:
+                                                    prop << ctrl.control.transform.mxy_n
+                                                EvalProp:
+                                                    prop << ctrl.control.transform.myy_n
+
+                        GroupBox:
+                            title = 'Motor Settings'
+                            EvalProp:
+                                prop << ctrl.motors.serial_number
+                            EvalProp:
+                                prop << ctrl.motors.x_axis
+                            EvalProp:
+                                prop << ctrl.motors.y_axis
+                        GroupBox:
+                            title= 'Camera Settings'
+                            EvalProp:
+                                prop << ctrl.camera.serial_number
+                            EvalProp:
+                                prop << ctrl.camera.trigger_delay
+                            EvalProp:
+                                prop << ctrl.camera.exposure_time
+                            EvalProp:
+                                prop << ctrl.camera.gain
+                            GroupBox:
+                                title = 'ROI'
+                                VGroup:
+                                    HGroup:
+                                        align_widths = False
+                                        hug_width = 'strong'
+                                        EvalProp:
+                                            prop << ctrl.camera.roi.offset_x
+                                        EvalProp:
+                                            prop << ctrl.camera.roi.offset_y
+                                    HGroup:
+                                        align_widths = False
+                                        hug_width = 'strong'
+                                        EvalProp:
+                                            prop << ctrl.camera.roi.width
+                                        EvalProp:
+                                            prop << ctrl.camera.roi.height
+
 enamldef HPGenerators(Window):
     attr hps
     attr creator
@@ -3542,6 +3697,36 @@ enamldef FirstMeasurementsFilter(GroupBox):
                      'hard: do not continue with other analyses, do not increment measurement total, delete measurement data']
             index := filters.filter_level
 
+enamldef BeamAlignmentFilter(GroupBox):
+    attr filters
+    title = 'Drop Measurements with a misaligned beam'
+
+    Form:
+        Label:
+            text='enable'
+        CheckBox:
+            checked := filters.enable
+
+        Label:
+            text='Averaging Time'
+        SpinBox:
+            minimum=0
+            value := filters.avg_time
+
+        Label:
+            text='Max beam positioning error before data is dropped (pixels)'
+        FloatField:
+            value := filters.max_error
+
+        Label:
+            text='filter level'
+        ComboBox:
+            items = ['None: increment measurement total',
+                     'soft: continue with other analyses, but do not increment measurement total',
+                     'med: continue with other analyses, do not increment measurement total, and delete measurement data after all analyses',
+                     'hard: do not continue with other analyses, do not increment measurement total, delete measurement data']
+            index := filters.filter_level
+
 enamldef Histogram(Window):
     attr experiment
     attr analysis
@@ -4959,6 +5144,8 @@ enamldef Filters(Window):
                     filters = experiment.loading_filters
                 FirstMeasurementsFilter:
                     filters = experiment.first_measurements_filter
+                BeamAlignmentFilter:
+                    filters = experiment.beam_alignment_filter
 
 enamldef BoxTemperature(Window):
     attr box_temperature
@@ -5197,7 +5384,8 @@ window_dictionary = {
 'Origin Interface': 'Origin(origin = main.experiment.origin, creator=main, name="Origin Interface")',
 'National Instruments Scopes': 'NIScopes(niscopes = main.experiment.NIScopes, creator=main, name="National Instruments Scopes")',
 'HP Signal Generators': 'HPGenerators(hps = main.experiment.HPGenerators, creator=main, name="HP Signal Generators")',
-'High Voltage Controller': 'HVcontrol(ctrl = main.experiment.HVcontrol, creator=main, name="High Voltage Controller")'
+'High Voltage Controller': 'HVcontrol(ctrl = main.experiment.HVcontrol, creator=main, name="High Voltage Controller")',
+'Hybrid Auto Aligner': 'AutoAligner(ctrl = main.experiment.AutoAligner, creator=main, name="Hybrid Auto Aligner")'
 }
 
 window_keys = window_dictionary.keys()

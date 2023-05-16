@@ -394,12 +394,11 @@ class HSDIO(Instrument):
         logger.info("cycles per repeated in add_repeat_waveform: {}".format(
             cycles_per_repeat))
 
-        first_cycle_err = "An HSDIO state change was detected during the first"
-        " repeat cycle."
+        first_cycle_err = "An HSDIO state change was detected during the first repeat cycle."
         for t in transition_list:
             if self.repeats[t['index']] == -1:
                 if repeat_sample_clock_cycles < cycles_per_repeat:
-                    logger.error(first_cycle_err)
+                    logger.error(first_cycle_err + "index == -1")
                     raise PauseError
                 if not repeats_done or sample_clock_cycles_to_next_ot < 0:
                     # mark the total time to first other transition, use from before but cant overwrite

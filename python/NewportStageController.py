@@ -111,8 +111,11 @@ class Newport():
 
     def whereAmI(self):
         output = self.WriteThenStore(self.axis+'R')[1].rstrip()[2:]
-        while output == '':
+        c = 0
+        while output == '' and c < 20:
             output = self.WriteThenStore(self.axis+'R')[1].rstrip()[2:]
+            c += 1
+            logger.info("finding location, attempt {}/20".format(c))
         return float(output)
 
     def findCenter(self,side=-1):
